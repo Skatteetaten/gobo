@@ -1,0 +1,17 @@
+type Application {
+  affiliation: String!,
+  environment: String!,
+  name: String!,
+  status: Status!,
+  version: Version!
+}
+
+type Status {
+  code: String!,
+  comment: String
+}
+
+type Version {
+  deployTag: String,
+  auroraVersion: String
+}
