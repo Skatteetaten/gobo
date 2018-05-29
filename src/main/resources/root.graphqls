@@ -1,3 +1,4 @@
 type Query {
-  applications: [Application]
+  affiliations: [String]
+  applications(affiliation: String!): [Application]
 }

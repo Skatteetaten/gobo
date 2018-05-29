@@ -9,15 +9,15 @@ import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.getForObject
 
 @Component
-class ApplicationQuery(
+class ApplicationQueryResolver(
     @Value("\${mokey.url}") val mokeyUrl: String,
     val restTemplate: RestTemplate,
     val objectMapper: ObjectMapper
 ) : GraphQLQueryResolver {
 
-    fun getApplications(): List<Application> {
+    fun getApplications(affiliation: String): List<Application> {
         val response =
-            restTemplate.getForObject<String>(mokeyUrl)
+            restTemplate.getForObject<String>("$mokeyUrl/api/application?affiliation=$affiliation")
                 ?: return emptyList()
 
         return objectMapper.readValue(response)
