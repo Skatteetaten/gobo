@@ -1,11 +1,13 @@
+@file:JvmName("Main")
+
 package no.skatteetaten.aurora.gobo
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 
 @SpringBootApplication
-class Main
+class Gobo
 
 fun main(args: Array<String>) {
-    runApplication<Main>(*args)
+    runApplication<Gobo>(*args)
 }
