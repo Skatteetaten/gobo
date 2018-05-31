@@ -1,6 +1,6 @@
 type Application {
   affiliation: String!,
-  environment: String!,
+  environment: String,
   name: String!,
   status: Status!,
   version: Version!
