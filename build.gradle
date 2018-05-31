@@ -44,6 +44,12 @@ configurations.archives.artifacts.removeIf { !it.archiveTask.enabled }
 
 group = 'no.skatteetaten.aurora'
 
+dependencyManagement {
+  imports {
+    mavenBom "org.springframework.cloud:spring-cloud-contract-dependencies:2.0.0.RC2"
+  }
+}
+
 def junitJupiterVersion = dependencyManagement.importedProperties['junit-jupiter.version']
 dependencies {
 
@@ -71,7 +77,8 @@ dependencies {
       "org.junit.vintage:junit-vintage-engine:${junitJupiterVersion}",
       'org.springframework.boot:spring-boot-starter-test',
       'io.mockk:mockk:1.8',
-      'com.willowtreeapps.assertk:assertk:0.10'
+      'com.willowtreeapps.assertk:assertk:0.10',
+      'org.springframework.cloud:spring-cloud-starter-contract-stub-runner'
   )
 
   testImplementation("org.junit.jupiter:junit-jupiter-api")

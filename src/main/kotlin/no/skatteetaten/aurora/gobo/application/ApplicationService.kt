@@ -6,16 +6,16 @@ import org.springframework.stereotype.Service
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.bodyToMono
-import org.springframework.web.util.UriComponentsBuilder
 
 @Service
 class ApplicationService(val webClient: WebClient, val objectMapper: ObjectMapper) {
 
     fun getApplications(affiliations: List<String>): List<ApplicationResource> {
-        val path = buildPath(affiliations)
         val response = webClient
             .get()
-            .uri(path)
+            .uri({
+                it.path("/api/application").queryParams(buildQueryParams(affiliations)).build()
+            })
             .retrieve()
             .bodyToMono<String>()
             .block() ?: return emptyList()
@@ -23,13 +23,10 @@ class ApplicationService(val webClient: WebClient, val objectMapper: ObjectMappe
         return objectMapper.readValue(response)
     }
 
-    private fun buildPath(affiliations: List<String>): String {
-        val parameters = LinkedMultiValueMap<String, String>().apply {
+    private fun buildQueryParams(affiliations: List<String>): LinkedMultiValueMap<String, String> {
+        val params = LinkedMultiValueMap<String, String>().apply {
             addAll("affiliation", affiliations)
         }
-        val builder = UriComponentsBuilder
-            .fromUriString("/api/application")
-            .queryParams(parameters)
-        return builder.toUriString()
+        return params
     }
 }

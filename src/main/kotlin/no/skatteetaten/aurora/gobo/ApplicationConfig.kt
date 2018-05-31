@@ -9,6 +9,8 @@ import org.springframework.beans.factory.config.BeanPostProcessor
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.hateoas.hal.Jackson2HalModule
+import org.springframework.http.HttpHeaders
+import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.client.WebClient
 
 @Configuration
@@ -18,7 +20,11 @@ class ApplicationConfig(
 
     @Bean
     fun webClient(): WebClient =
-        WebClient.builder().baseUrl(mokeyUrl).build()
+        WebClient
+            .builder()
+            .baseUrl(mokeyUrl)
+            .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .build()
 
     @Bean
     fun objectMapper() =
