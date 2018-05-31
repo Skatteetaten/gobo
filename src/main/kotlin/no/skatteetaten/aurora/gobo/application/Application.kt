@@ -7,7 +7,7 @@ import org.springframework.hateoas.ResourceSupport
 data class Status(val code: String, val comment: String?)
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class Version(val deployTag: String, val auroraVersion: String)
+data class Version(val deployTag: String, val auroraVersion: String?)
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class Application(

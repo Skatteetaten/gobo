@@ -4,17 +4,21 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.beans.factory.config.BeanPostProcessor
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.hateoas.hal.Jackson2HalModule
-import org.springframework.web.client.RestTemplate
+import org.springframework.web.reactive.function.client.WebClient
 
 @Configuration
-class ApplicationConfig : BeanPostProcessor {
+class ApplicationConfig(
+    @Value("\${mokey.url}") val mokeyUrl: String
+) : BeanPostProcessor {
 
     @Bean
-    fun restTemplate(): RestTemplate = RestTemplate()
+    fun webClient(): WebClient =
+        WebClient.builder().baseUrl(mokeyUrl).build()
 
     @Bean
     fun objectMapper() =
