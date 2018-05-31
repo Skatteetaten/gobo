@@ -11,14 +11,14 @@ import org.springframework.web.util.UriComponentsBuilder
 @Service
 class ApplicationService(val webClient: WebClient, val objectMapper: ObjectMapper) {
 
-    fun getApplications(affiliations: List<String>): List<Application> {
+    fun getApplications(affiliations: List<String>): List<ApplicationResource> {
         val path = buildPath(affiliations)
         val response = webClient
             .get()
             .uri(path)
             .retrieve()
             .bodyToMono<String>()
-            .block()
+            .block() ?: return emptyList()
 
         return objectMapper.readValue(response)
     }
