@@ -1,6 +1,21 @@
+# one-to-many relationship
+type ApplicationsConnection {
+  edges: [ApplicationEdge]
+  count: Int
+  pageInfo: PageInfo
+}
+
+# Edge is a sort of intermediate type between the Connection and the type you’re connecting to
+type ApplicationEdge {
+  cursor: String
+  node: Application
+}
+
+# Node
 type Application {
-  affiliation: String!,
+  affiliation: Affiliation!,
   environment: String,
+  namespace: Namespace,
   name: String!,
   status: Status!,
   version: Version!

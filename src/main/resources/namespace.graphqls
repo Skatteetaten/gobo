@@ -1,0 +1,16 @@
+type NamespacesConnection {
+  edges: [NamespaceEdge]
+  count: Int
+  pageInfo: PageInfo
+}
+
+type NamespaceEdge {
+  cursor: String
+  node: Namespace
+}
+
+type Namespace {
+  name: String!,
+  affiliation: Affiliation!,
+  applications: ApplicationsConnection
+}

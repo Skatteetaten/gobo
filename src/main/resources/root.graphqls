@@ -1,4 +1,9 @@
 type Query {
-  affiliations: [Affiliation]
-  applications(affiliations: [String!]): [Application]
+  affiliations: AffiliationsConnection
+  applications(affiliations: [String!]): ApplicationsConnection
+}
+
+type PageInfo {
+  hasNextPage: Boolean
+  hasPreviousPage: Boolean
 }
