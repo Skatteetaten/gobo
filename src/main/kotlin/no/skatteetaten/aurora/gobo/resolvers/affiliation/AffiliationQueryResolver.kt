@@ -10,9 +10,9 @@ class AffiliationQueryResolver(val affiliationService: AffiliationService) : Gra
 
     fun getAffiliations(): AffiliationsConnection {
         val affiliations = affiliationService.getAllAffiliations().map {
-            AffiliationEdge("", Affiliation(it, ApplicationsConnection(emptyList(), 0, null)))
+            AffiliationEdge(Affiliation(it, ApplicationsConnection(emptyList(), null)))
         }
 
-        return AffiliationsConnection(affiliations, affiliations.size, null)
+        return AffiliationsConnection(affiliations, null)
     }
 }

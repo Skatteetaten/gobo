@@ -1,6 +1,6 @@
 type NamespacesConnection {
   edges: [NamespaceEdge]
-  count: Int
+  totalCount: Int
   pageInfo: PageInfo
 }
 

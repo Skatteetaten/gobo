@@ -11,13 +11,13 @@ class ApplicationQueryResolver(val applicationService: ApplicationService) : Gra
     fun getApplications(affiliations: List<String>): ApplicationsConnection {
         val applications = applicationService.getApplications(affiliations).map {
             ApplicationEdge(
-                "", Application(
-                    Affiliation(it.affiliation, ApplicationsConnection(emptyList(), 0, null)),
+                Application(
+                    Affiliation(it.affiliation, ApplicationsConnection(emptyList(), null)),
                     it.environment,
                     Namespace(
                         it.name,
-                        Affiliation(it.affiliation, ApplicationsConnection(emptyList(), 0, null)),
-                        ApplicationsConnection(emptyList(), 0, null)
+                        Affiliation(it.affiliation, ApplicationsConnection(emptyList(), null)),
+                        ApplicationsConnection(emptyList(), null)
                     ),
                     it.name,
                     Status(it.status.code, it.status.comment),
@@ -25,6 +25,6 @@ class ApplicationQueryResolver(val applicationService: ApplicationService) : Gra
                 )
             )
         }
-        return ApplicationsConnection(applications, applications.size, null)
+        return ApplicationsConnection(applications, null)
     }
 }
