@@ -10,7 +10,7 @@ type NamespaceEdge {
 }
 
 type Namespace {
-  name: String!,
-  affiliation: Affiliation!,
+  name: String!
+  affiliation: Affiliation!
   applications: ApplicationsConnection
 }

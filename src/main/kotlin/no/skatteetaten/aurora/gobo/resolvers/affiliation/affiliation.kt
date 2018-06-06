@@ -8,10 +8,9 @@ import org.springframework.util.Base64Utils
 
 data class Affiliation(val name: String, val applications: ApplicationsConnection)
 
-data class AffiliationEdge(val node: Affiliation) : Edge {
+data class AffiliationEdge(override val node: Affiliation) : Edge<Affiliation>() {
     override fun cursor(): String? = Base64Utils.encodeToString(node.name.toByteArray())
 }
 
-data class AffiliationsConnection(val edges: List<AffiliationEdge>, val pageInfo: PageInfo?) : Connection {
-    override fun totalCount() = edges.size
-}
+data class AffiliationsConnection(override val edges: List<AffiliationEdge>, override val pageInfo: PageInfo?) :
+    Connection<AffiliationEdge>()

@@ -1,9 +1,11 @@
 type Query {
-  affiliations: AffiliationsConnection
+  affiliations(first: Int, after: String): AffiliationsConnection
+
   applications(affiliations: [String!]): ApplicationsConnection
 }
 
 type PageInfo {
+  startCursor: String
+  endCursor: String
   hasNextPage: Boolean
-  hasPreviousPage: Boolean
 }

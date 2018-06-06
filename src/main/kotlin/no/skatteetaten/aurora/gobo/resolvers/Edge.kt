@@ -1,5 +1,6 @@
 package no.skatteetaten.aurora.gobo.resolvers
 
-interface Edge {
-    fun cursor(): String?
+abstract class Edge<T> {
+    abstract val node: T
+    abstract fun cursor(): String?
 }

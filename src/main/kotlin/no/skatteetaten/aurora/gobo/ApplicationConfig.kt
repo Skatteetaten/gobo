@@ -4,6 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import graphql.execution.instrumentation.Instrumentation
+import graphql.execution.instrumentation.dataloader.DataLoaderDispatcherInstrumentation
+import org.dataloader.DataLoader
+import org.dataloader.DataLoaderRegistry
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.beans.factory.config.BeanPostProcessor
 import org.springframework.context.annotation.Bean
@@ -34,4 +38,18 @@ class ApplicationConfig(
             registerModules(JavaTimeModule(), Jackson2HalModule())
             registerKotlinModule()
         }
+
+    @Bean
+    fun dataLoaderRegistry(loaderList: List<DataLoader<*, *>>): DataLoaderRegistry {
+        val registry = DataLoaderRegistry()
+        for (loader in loaderList) {
+            registry.register(loader.javaClass.simpleName, loader)
+        }
+        return registry
+    }
+
+    @Bean
+    fun instrumentation(dataLoaderRegistry: DataLoaderRegistry): Instrumentation {
+        return DataLoaderDispatcherInstrumentation(dataLoaderRegistry)
+    }
 }

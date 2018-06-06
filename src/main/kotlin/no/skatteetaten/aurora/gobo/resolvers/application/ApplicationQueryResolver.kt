@@ -2,7 +2,6 @@ package no.skatteetaten.aurora.gobo.resolvers.application
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver
 import no.skatteetaten.aurora.gobo.application.ApplicationService
-import no.skatteetaten.aurora.gobo.resolvers.affiliation.Affiliation
 import org.springframework.stereotype.Component
 
 @Component
@@ -12,13 +11,9 @@ class ApplicationQueryResolver(val applicationService: ApplicationService) : Gra
         val applications = applicationService.getApplications(affiliations).map {
             ApplicationEdge(
                 Application(
-                    Affiliation(it.affiliation, ApplicationsConnection(emptyList(), null)),
+                    it.affiliation,
                     it.environment,
-                    Namespace(
-                        it.name,
-                        Affiliation(it.affiliation, ApplicationsConnection(emptyList(), null)),
-                        ApplicationsConnection(emptyList(), null)
-                    ),
+                    it.name,
                     it.name,
                     Status(it.status.code, it.status.comment),
                     Version(it.version.deployTag, it.version.auroraVersion)

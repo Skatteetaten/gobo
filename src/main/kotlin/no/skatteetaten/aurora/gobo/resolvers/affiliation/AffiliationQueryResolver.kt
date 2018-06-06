@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component
 @Component
 class AffiliationQueryResolver(val affiliationService: AffiliationService) : GraphQLQueryResolver {
 
-    fun getAffiliations(): AffiliationsConnection {
+    fun getAffiliations(first: Int?, after: String?): AffiliationsConnection {
         val affiliations = affiliationService.getAllAffiliations().map {
             AffiliationEdge(Affiliation(it, ApplicationsConnection(emptyList(), null)))
         }

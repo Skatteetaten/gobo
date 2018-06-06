@@ -1,6 +1,6 @@
 type AffiliationsConnection {
   edges: [AffiliationEdge]
-  totalCount: Int
+  totalCount: Int!
   pageInfo: PageInfo
 }
 
