@@ -3,7 +3,7 @@ package no.skatteetaten.aurora.gobo.resolvers.application
 import graphql.relay.DefaultEdge
 import graphql.relay.PageInfo
 import no.skatteetaten.aurora.gobo.resolvers.Connection
-import org.springframework.util.Base64Utils
+import no.skatteetaten.aurora.gobo.resolvers.Cursor
 
 data class Status(val code: String, val comment: String?)
 
@@ -18,9 +18,10 @@ data class Application(
     val version: Version
 )
 
-data class ApplicationEdge(private val node: Application) : DefaultEdge<Application>(node, {
-    Base64Utils.encodeToString("${node.affiliation}::${node.environment}::${node.name}".toByteArray())
-})
+data class ApplicationEdge(private val node: Application) : DefaultEdge<Application>(
+    node,
+    Cursor("${node.affiliation}::${node.environment}::${node.name}")
+)
 
 data class ApplicationsConnection(override val edges: List<ApplicationEdge>, override val pageInfo: PageInfo?) :
     Connection<ApplicationEdge>()
