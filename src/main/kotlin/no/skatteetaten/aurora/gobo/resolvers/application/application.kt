@@ -2,6 +2,7 @@ package no.skatteetaten.aurora.gobo.resolvers.application
 
 import graphql.relay.DefaultEdge
 import graphql.relay.PageInfo
+import no.skatteetaten.aurora.gobo.application.ApplicationResource
 import no.skatteetaten.aurora.gobo.resolvers.Connection
 import no.skatteetaten.aurora.gobo.resolvers.Cursor
 
@@ -25,3 +26,15 @@ data class ApplicationEdge(private val node: Application) : DefaultEdge<Applicat
 
 data class ApplicationsConnection(override val edges: List<ApplicationEdge>, override val pageInfo: PageInfo?) :
     Connection<ApplicationEdge>()
+
+fun createApplicationEdge(resource: ApplicationResource) =
+    ApplicationEdge(
+        Application(
+            resource.affiliation,
+            resource.environment,
+            resource.namespace,
+            resource.name,
+            Status(resource.status.code, resource.status.comment),
+            Version(resource.version.deployTag, resource.version.auroraVersion)
+        )
+    )

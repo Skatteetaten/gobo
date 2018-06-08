@@ -8,18 +8,10 @@ import org.springframework.stereotype.Component
 class ApplicationQueryResolver(val applicationService: ApplicationService) : GraphQLQueryResolver {
 
     fun getApplications(affiliations: List<String>): ApplicationsConnection {
-        val applications = applicationService.getApplications(affiliations).map {
-            ApplicationEdge(
-                Application(
-                    it.affiliation,
-                    it.environment,
-                    it.name,
-                    it.name,
-                    Status(it.status.code, it.status.comment),
-                    Version(it.version.deployTag, it.version.auroraVersion)
-                )
-            )
-        }
+        val applications = applicationService
+            .getApplications(affiliations)
+            .map { createApplicationEdge(it) }
+
         return ApplicationsConnection(applications, null)
     }
 }

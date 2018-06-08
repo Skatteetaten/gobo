@@ -1,5 +1,5 @@
 type Query {
-  affiliations(first: Int, after: String): AffiliationsConnection
+  affiliations: AffiliationsConnection
 
   applications(affiliations: [String!]): ApplicationsConnection
 }
