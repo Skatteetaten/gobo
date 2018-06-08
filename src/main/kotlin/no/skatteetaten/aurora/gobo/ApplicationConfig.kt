@@ -9,7 +9,6 @@ import graphql.execution.instrumentation.dataloader.DataLoaderDispatcherInstrume
 import org.dataloader.DataLoader
 import org.dataloader.DataLoaderRegistry
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.beans.factory.config.BeanPostProcessor
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.hateoas.hal.Jackson2HalModule
@@ -20,7 +19,7 @@ import org.springframework.web.reactive.function.client.WebClient
 @Configuration
 class ApplicationConfig(
     @Value("\${mokey.url}") val mokeyUrl: String
-) : BeanPostProcessor {
+) {
 
     @Bean
     fun webClient(): WebClient =
@@ -42,14 +41,13 @@ class ApplicationConfig(
     @Bean
     fun dataLoaderRegistry(loaderList: List<DataLoader<*, *>>): DataLoaderRegistry {
         val registry = DataLoaderRegistry()
-        for (loader in loaderList) {
-            registry.register(loader.javaClass.simpleName, loader)
+        loaderList.forEach {
+            registry.register(it.javaClass.simpleName, it)
         }
         return registry
     }
 
     @Bean
-    fun instrumentation(dataLoaderRegistry: DataLoaderRegistry): Instrumentation {
-        return DataLoaderDispatcherInstrumentation(dataLoaderRegistry)
-    }
+    fun instrumentation(dataLoaderRegistry: DataLoaderRegistry): Instrumentation =
+        DataLoaderDispatcherInstrumentation(dataLoaderRegistry)
 }
