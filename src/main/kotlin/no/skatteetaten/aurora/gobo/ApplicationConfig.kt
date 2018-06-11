@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import graphql.execution.instrumentation.Instrumentation
 import graphql.execution.instrumentation.dataloader.DataLoaderDispatcherInstrumentation
 import org.dataloader.DataLoader
 import org.dataloader.DataLoaderRegistry
@@ -48,6 +47,6 @@ class ApplicationConfig(
     }
 
     @Bean
-    fun instrumentation(dataLoaderRegistry: DataLoaderRegistry): Instrumentation =
+    fun instrumentation(dataLoaderRegistry: DataLoaderRegistry) =
         DataLoaderDispatcherInstrumentation(dataLoaderRegistry)
 }
