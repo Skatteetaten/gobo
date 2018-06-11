@@ -9,8 +9,8 @@ import java.util.concurrent.CompletableFuture
 @Component
 class NamespaceResolver(
     val affiliationDataLoader: NoCacheBatchDataLoader<String, Affiliation>
-) : GraphQLResolver<Namespace2> {
+) : GraphQLResolver<Namespace> {
 
-    fun affiliation(namespace: Namespace2): CompletableFuture<Affiliation> =
+    fun affiliation(namespace: Namespace): CompletableFuture<Affiliation> =
         affiliationDataLoader.load(namespace.affiliationId)
 }

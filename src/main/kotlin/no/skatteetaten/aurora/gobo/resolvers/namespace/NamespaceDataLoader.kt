@@ -10,8 +10,8 @@ import org.springframework.stereotype.Component
 @Component
 class NamespaceDataLoader(
     val applicationService: ApplicationService
-) : KeysDataLoader<Application, Namespace2> {
-    override fun getByKeys(keys: List<Application>): List<Namespace2> {
+) : KeysDataLoader<Application, Namespace> {
+    override fun getByKeys(keys: List<Application>): List<Namespace> {
         val affiliationIds = keys.map { it.affiliationId }.distinct()
         val allEdges = applicationService
             .getApplications(affiliationIds)
@@ -19,7 +19,7 @@ class NamespaceDataLoader(
 
         return keys.map { application ->
             val edges = allEdges.filter { it.node.namespaceId == application.namespaceId }
-            Namespace2(
+            Namespace(
                 application.namespaceId,
                 application.affiliationId,
                 ApplicationsConnection(edges, null)
