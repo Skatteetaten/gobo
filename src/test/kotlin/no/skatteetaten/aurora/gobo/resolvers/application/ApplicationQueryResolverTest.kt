@@ -48,5 +48,6 @@ class ApplicationQueryResolverTest {
             .jsonPath("$.data.applications.totalCount").isNumber
             .jsonPath("$.data.applications.edges[0].node.name").isNotEmpty
             .jsonPath("$.data.applications.edges[0].node.affiliation.name").isNotEmpty
+            .jsonPath("$.data.applications.edges[0].node.namespace.name").isNotEmpty
     }
 }

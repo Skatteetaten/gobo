@@ -1,14 +1,3 @@
-type NamespacesConnection {
-  edges: [NamespaceEdge]
-  totalCount: Int
-  pageInfo: PageInfo
-}
-
-type NamespaceEdge {
-  cursor: String
-  node: Namespace
-}
-
 type Namespace {
   name: String!
   affiliation: Affiliation!
