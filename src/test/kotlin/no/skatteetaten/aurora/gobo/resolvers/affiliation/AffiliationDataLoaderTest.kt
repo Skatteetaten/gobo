@@ -6,10 +6,8 @@ import assertk.assertions.isEqualTo
 import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
-import no.skatteetaten.aurora.gobo.application.ApplicationResource
+import no.skatteetaten.aurora.gobo.ApplicationResourceBuilder
 import no.skatteetaten.aurora.gobo.application.ApplicationService
-import no.skatteetaten.aurora.gobo.application.StatusResource
-import no.skatteetaten.aurora.gobo.application.VersionResource
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
@@ -24,16 +22,7 @@ class AffiliationDataLoaderTest {
 
     @Test
     fun `Get Affiliation by affiliationIds`() {
-        every { applicationService.getApplications(any()) } returns listOf(
-            ApplicationResource(
-                "paas",
-                "environment",
-                "name",
-                "namespace",
-                StatusResource("code", "comment"),
-                VersionResource("deployTag", "auroraVersion")
-            )
-        )
+        every { applicationService.getApplications(any()) } returns listOf(ApplicationResourceBuilder().build())
 
         val affiliations = affiliationDataLoader.getByKeys(listOf("paas", "test", "demo"))
         assert(affiliations).hasSize(3)

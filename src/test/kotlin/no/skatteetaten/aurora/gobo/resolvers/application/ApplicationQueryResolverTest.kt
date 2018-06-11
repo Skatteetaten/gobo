@@ -1,7 +1,6 @@
-package no.skatteetaten.aurora.gobo.resolvers.affiliation
+package no.skatteetaten.aurora.gobo.resolvers.application
 
 import no.skatteetaten.aurora.gobo.ApplicationResourceBuilder
-import no.skatteetaten.aurora.gobo.affiliation.AffiliationService
 import no.skatteetaten.aurora.gobo.application.ApplicationService
 import no.skatteetaten.aurora.gobo.resolvers.createQuery
 import org.junit.jupiter.api.Test
@@ -20,27 +19,25 @@ import org.springframework.web.reactive.function.BodyInserters
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @DirtiesContext
-class AffiliationQueryResolverTest {
+class ApplicationQueryResolverTest {
 
-    @Value("classpath:graphql/getAffiliations.graphql")
-    private lateinit var getAffiliationsQuery: Resource
+    @Value("classpath:graphql/getApplications.graphql")
+    private lateinit var getApplicationsQuery: Resource
 
     @Autowired
     private lateinit var webTestClient: WebTestClient
 
     @MockBean
-    private lateinit var affiliationService: AffiliationService
-
-    @MockBean
     private lateinit var applicationService: ApplicationService
 
     @Test
-    fun `Query for all affiliations`() {
-        val affiliations = listOf("paas", "demo")
-        given(affiliationService.getAllAffiliations()).willReturn(affiliations)
-        given(applicationService.getApplications(affiliations)).willReturn(listOf(ApplicationResourceBuilder().build()))
+    fun `Query for applications given affiliations`() {
+        val affiliations = listOf("paas")
+        given(applicationService.getApplications(affiliations))
+            .willReturn(listOf(ApplicationResourceBuilder().build()))
 
-        val query = createQuery(getAffiliationsQuery)
+        val variables = mapOf("affiliations" to affiliations)
+        val query = createQuery(getApplicationsQuery, variables)
         webTestClient
             .post()
             .uri("/graphql")
@@ -48,8 +45,8 @@ class AffiliationQueryResolverTest {
             .exchange()
             .expectStatus().isOk
             .expectBody()
-            .jsonPath("$.data.affiliations.totalCount").isNumber
-            .jsonPath("$.data.affiliations.edges[0].node.name").isNotEmpty
-            .jsonPath("$.data.affiliations.edges[0].node.applications.totalCount").isNumber
+            .jsonPath("$.data.applications.totalCount").isNumber
+            .jsonPath("$.data.applications.edges[0].node.name").isNotEmpty
+            .jsonPath("$.data.applications.edges[0].node.affiliation.name").isNotEmpty
     }
 }

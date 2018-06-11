@@ -6,13 +6,9 @@ import assertk.assertions.isEqualTo
 import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
-import no.skatteetaten.aurora.gobo.application.ApplicationResource
+import no.skatteetaten.aurora.gobo.ApplicationBuilder
+import no.skatteetaten.aurora.gobo.ApplicationResourceBuilder
 import no.skatteetaten.aurora.gobo.application.ApplicationService
-import no.skatteetaten.aurora.gobo.application.StatusResource
-import no.skatteetaten.aurora.gobo.application.VersionResource
-import no.skatteetaten.aurora.gobo.resolvers.application.Application
-import no.skatteetaten.aurora.gobo.resolvers.application.Status
-import no.skatteetaten.aurora.gobo.resolvers.application.Version
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
@@ -27,29 +23,9 @@ class NamespaceDataLoaderTest {
 
     @Test
     fun `Get Namespace by Applications`() {
-        every { applicationService.getApplications(any()) } returns listOf(
-            ApplicationResource(
-                "paas",
-                "environment",
-                "name",
-                "namespace",
-                StatusResource("code", "comment"),
-                VersionResource("deployTag", "auroraVersion")
-            )
-        )
+        every { applicationService.getApplications(any()) } returns listOf(ApplicationResourceBuilder().build())
 
-        val namespaces = namespaceDataLoader.getByKeys(
-            listOf(
-                Application(
-                    "affiliationId",
-                    "environment",
-                    "namespaceId",
-                    "name",
-                    Status("code", "comment"),
-                    Version("deployTag", "auroraVersion")
-                )
-            )
-        )
+        val namespaces = namespaceDataLoader.getByKeys(listOf(ApplicationBuilder().build()))
 
         assert(namespaces).hasSize(1)
         assert(namespaces[0].name).isEqualTo("namespaceId")

@@ -42,7 +42,7 @@ class ApplicationConfig(
     fun dataLoaderRegistry(loaderList: List<DataLoader<*, *>>): DataLoaderRegistry {
         val registry = DataLoaderRegistry()
         loaderList.forEach {
-            registry.register(it.javaClass.simpleName, it)
+            registry.register(it.toString(), it)
         }
         return registry
     }
