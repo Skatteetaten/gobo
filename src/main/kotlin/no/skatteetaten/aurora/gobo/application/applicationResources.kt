@@ -12,8 +12,9 @@ data class VersionResource(val deployTag: String, val auroraVersion: String?)
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class ApplicationResource(
     val affiliation: String,
-    val environment: String?,
+    val environment: String,
     val name: String,
+    val namespace: String,
     val status: StatusResource,
     val version: VersionResource
 ) : ResourceSupport()

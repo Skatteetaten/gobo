@@ -1,17 +1,29 @@
+type ApplicationsConnection {
+  edges: [ApplicationEdge]
+  totalCount: Int!
+  pageInfo: PageInfo
+}
+
+type ApplicationEdge {
+  cursor: String
+  node: Application
+}
+
 type Application {
-  affiliation: String!,
-  environment: String,
-  name: String!,
-  status: Status!,
+  affiliation: Affiliation!
+  environment: String
+  namespace: Namespace
+  name: String!
+  status: Status!
   version: Version!
 }
 
 type Status {
-  code: String!,
+  code: String!
   comment: String
 }
 
 type Version {
-  deployTag: String,
+  deployTag: String
   auroraVersion: String
 }

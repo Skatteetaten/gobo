@@ -1,0 +1,16 @@
+query getApplications($affiliations: [String!]) {
+  applications(affiliations: $affiliations) {
+    totalCount
+      edges {
+        node {
+          name
+          affiliation {
+            name
+          }
+          namespace {
+            name
+          }
+        }
+      }
+  }
+}
