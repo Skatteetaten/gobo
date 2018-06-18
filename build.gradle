@@ -63,6 +63,7 @@ dependencies {
       'com.fkorotkov:kubernetes-dsl:1.0.1',
       "org.springframework.retry:spring-retry",
       'org.springframework.boot:spring-boot-starter-webflux',
+      'org.springframework.boot:spring-boot-starter-security',
       'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.23.0',
       'org.springframework.boot:spring-boot-starter-hateoas',
       'com.graphql-java:graphql-spring-boot-starter:4.2.0',
