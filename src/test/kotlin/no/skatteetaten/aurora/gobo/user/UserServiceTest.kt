@@ -9,11 +9,11 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
+import org.springframework.security.test.context.support.WithAnonymousUser
 import org.springframework.security.test.context.support.WithUserDetails
 import org.springframework.stereotype.Component
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit.jupiter.SpringExtension
-
 
 @Component
 class MockUserDetailsService : UserDetailsService {
@@ -29,15 +29,15 @@ class UserServiceTest {
     @Autowired
     lateinit var userService: UserService
 
-
     @Test
     @WithUserDetails("aurora")
     fun `getCurrentUser() when logged in`() {
 
-        assertThat(userService.getCurrentUser()).isEqualTo("aurora")
+        assertThat(userService.getCurrentUser().id).isEqualTo("aurora")
     }
 
     @Test
+    @WithAnonymousUser
     fun `getCurrentUser() when not logged in returns guest user`() {
 
         userService.getCurrentUser().apply {

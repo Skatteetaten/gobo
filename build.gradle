@@ -54,7 +54,7 @@ def junitJupiterVersion = dependencyManagement.importedProperties['junit-jupiter
 dependencies {
 
   compile(
-      'org.jetbrains.kotlin:kotlin-reflect:1.2.50',
+      'org.jetbrains.kotlin:kotlin-reflect:1.2.41',
       'org.jetbrains.kotlin:kotlin-stdlib-jdk8',
       'com.fasterxml.jackson.module:jackson-module-kotlin',
       'com.fasterxml.jackson.datatype:jackson-datatype-jsr310',
@@ -102,10 +102,6 @@ compileTestKotlin {
     suppressWarnings = true
     jvmTarget = 1.8
   }
-}
-
-test {
-  useJUnitPlatform()
 }
 
 kotlin {

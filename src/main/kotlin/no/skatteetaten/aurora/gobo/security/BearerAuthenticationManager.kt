@@ -9,7 +9,7 @@ import java.util.regex.Pattern
 
 @Component
 class BearerAuthenticationManager(
-        val openShiftUserLoader: OpenShiftUserLoader
+    val openShiftUserLoader: OpenShiftUserLoader
 ) : AuthenticationManager {
 
     companion object {

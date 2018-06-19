@@ -13,11 +13,10 @@ import javax.servlet.http.HttpServletRequest
 
 @EnableWebSecurity
 class WebSecurityConfig(
-        val authenticationManager: BearerAuthenticationManager,
-        val openShiftAuthenticationUserDetailsService: OpenShiftAuthenticationUserDetailsService,
-        @Value("\${management.server.port}") val managementPort: Int
+    val authenticationManager: BearerAuthenticationManager,
+    val openShiftAuthenticationUserDetailsService: OpenShiftAuthenticationUserDetailsService,
+    @Value("\${management.server.port}") val managementPort: Int
 ) : WebSecurityConfigurerAdapter() {
-
 
     override fun configure(http: HttpSecurity) {
 
