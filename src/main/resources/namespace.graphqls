@@ -1,5 +1,4 @@
 type Namespace {
   name: String!
   affiliation: Affiliation!
-  applications: ApplicationsConnection
 }

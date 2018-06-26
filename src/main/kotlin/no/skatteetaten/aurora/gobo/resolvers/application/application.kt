@@ -5,36 +5,47 @@ import graphql.relay.PageInfo
 import no.skatteetaten.aurora.gobo.application.ApplicationResource
 import no.skatteetaten.aurora.gobo.resolvers.Connection
 import no.skatteetaten.aurora.gobo.resolvers.Cursor
-
-data class Status(val code: String, val comment: String?)
-
-data class Version(val deployTag: String, val auroraVersion: String?)
+import no.skatteetaten.aurora.gobo.resolvers.applicationinstance.ApplicationInstance
+import no.skatteetaten.aurora.gobo.resolvers.applicationinstance.ApplicationInstanceEdge
+import no.skatteetaten.aurora.gobo.resolvers.applicationinstance.ApplicationInstancesConnection
+import no.skatteetaten.aurora.gobo.resolvers.applicationinstance.Status
+import no.skatteetaten.aurora.gobo.resolvers.applicationinstance.Version
 
 data class Application(
-    val affiliationId: String,
-    val environment: String,
-    val namespaceId: String,
     val name: String,
-    val status: Status,
-    val version: Version
+    val tags: List<String>,
+    val applicationInstances: ApplicationInstancesConnection
 )
 
 data class ApplicationEdge(private val node: Application) : DefaultEdge<Application>(
     node,
-    Cursor("${node.affiliationId}::${node.environment}::${node.name}")
+    Cursor(node.name)
 )
 
 data class ApplicationsConnection(override val edges: List<ApplicationEdge>, override val pageInfo: PageInfo?) :
     Connection<ApplicationEdge>()
 
-fun createApplicationEdge(resource: ApplicationResource) =
-    ApplicationEdge(
+fun createApplicationEdge(resource: ApplicationResource): ApplicationEdge {
+    val edges = resource.applicationInstances.map {
+        ApplicationInstanceEdge(
+            ApplicationInstance(
+                it.affiliation,
+                it.environment,
+                it.namespace,
+                Status(it.status.code, it.status.comment),
+                Version(
+                    it.version.deployTag,
+                    it.version.auroraVersion
+                )
+            )
+        )
+    }
+
+    return ApplicationEdge(
         Application(
-            resource.affiliation,
-            resource.environment,
-            resource.namespace,
             resource.name,
-            Status(resource.status.code, resource.status.comment),
-            Version(resource.version.deployTag, resource.version.auroraVersion)
+            resource.tags,
+            ApplicationInstancesConnection(edges, null)
         )
     )
+}

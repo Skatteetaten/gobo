@@ -1,0 +1,11 @@
+version: "3"
+services:
+ mokey:
+  image: springcloud/spring-cloud-contract-stub-runner:2.0.0.RELEASE
+  environment:
+   - STUBRUNNER_IDS=no.skatteetaten.aurora:mokey:develop-SNAPSHOT:stubs:9876
+   - STUBRUNNER_REPOSITORY_ROOT=http://aurora/nexus/service/local/repositories/snapshots/content
+   - STUBRUNNER_STUBS_MODE=REMOTE
+  ports:
+   - 8083:8083
+   - 9876:9876

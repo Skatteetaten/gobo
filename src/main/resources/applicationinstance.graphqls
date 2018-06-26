@@ -1,0 +1,28 @@
+type ApplicationInstancesConnection {
+  edges: [ApplicationInstanceEdge]
+  totalCount: Int!
+  pageInfo: PageInfo
+}
+
+type ApplicationInstanceEdge {
+  cursor: String
+  node: ApplicationInstance
+}
+
+type ApplicationInstance {
+  affiliation: Affiliation!
+  environment: String
+  namespace: Namespace
+  status: Status!
+  version: Version!
+}
+
+type Status {
+  code: String!
+  comment: String
+}
+
+type Version {
+  deployTag: String
+  auroraVersion: String
+}

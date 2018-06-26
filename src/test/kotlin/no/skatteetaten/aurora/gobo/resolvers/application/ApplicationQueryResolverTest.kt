@@ -20,6 +20,7 @@ import org.springframework.web.reactive.function.BodyInserters
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @DirtiesContext
 class ApplicationQueryResolverTest {
+    private val firstApplicationInstance = "\$.data.applications.edges[0].node.applicationInstances.edges[0].node"
 
     @Value("classpath:graphql/getApplications.graphql")
     private lateinit var getApplicationsQuery: Resource
@@ -46,8 +47,7 @@ class ApplicationQueryResolverTest {
             .expectStatus().isOk
             .expectBody()
             .jsonPath("$.data.applications.totalCount").isNumber
-            .jsonPath("$.data.applications.edges[0].node.name").isNotEmpty
-            .jsonPath("$.data.applications.edges[0].node.affiliation.name").isNotEmpty
-            .jsonPath("$.data.applications.edges[0].node.namespace.name").isNotEmpty
+            .jsonPath("$firstApplicationInstance.affiliation.name").isNotEmpty
+            .jsonPath("$firstApplicationInstance.namespace.name").isNotEmpty
     }
 }

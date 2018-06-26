@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration
 
 @Configuration
 class DataLoaderConfig {
+
     @Bean
     fun affiliationDataLoaderNoCache(affiliationDataLoader: AffiliationDataLoader) =
         NoCacheBatchDataLoader(affiliationDataLoader)
