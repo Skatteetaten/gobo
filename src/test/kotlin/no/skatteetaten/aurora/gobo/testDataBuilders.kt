@@ -6,8 +6,6 @@ import no.skatteetaten.aurora.gobo.application.StatusResource
 import no.skatteetaten.aurora.gobo.application.VersionResource
 import no.skatteetaten.aurora.gobo.resolvers.application.Application
 import no.skatteetaten.aurora.gobo.resolvers.applicationinstance.ApplicationInstance
-import no.skatteetaten.aurora.gobo.resolvers.applicationinstance.ApplicationInstanceEdge
-import no.skatteetaten.aurora.gobo.resolvers.applicationinstance.ApplicationInstancesConnection
 import no.skatteetaten.aurora.gobo.resolvers.applicationinstance.Status
 import no.skatteetaten.aurora.gobo.resolvers.applicationinstance.Version
 
@@ -50,6 +48,6 @@ data class ApplicationBuilder(val name: String = "name") {
         Application(
             name,
             emptyList(),
-            ApplicationInstancesConnection(listOf(ApplicationInstanceEdge(ApplicationInstanceBuilder().build())), null)
+            listOf(ApplicationInstanceBuilder().build())
         )
 }

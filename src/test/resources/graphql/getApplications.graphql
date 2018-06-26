@@ -5,15 +5,11 @@ query getApplications($affiliations: [String!]) {
         node {
           name
           applicationInstances {
-            edges {
-              node {
-                affiliation {
-                  name
-                }
-                namespace {
-                  name
-                }
-              }
+            affiliation {
+              name
+            }
+            namespace {
+              name
             }
           }
         }

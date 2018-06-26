@@ -12,5 +12,5 @@ type ApplicationEdge {
 type Application {
   name: String!
   tags: [String],
-  applicationInstances: ApplicationInstancesConnection
+  applicationInstances: [ApplicationInstance]
 }

@@ -20,7 +20,7 @@ import org.springframework.web.reactive.function.BodyInserters
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @DirtiesContext
 class ApplicationQueryResolverTest {
-    private val firstApplicationInstance = "\$.data.applications.edges[0].node.applicationInstances.edges[0].node"
+    private val firstApplicationInstance = "\$.data.applications.edges[0].node.applicationInstances[0]"
 
     @Value("classpath:graphql/getApplications.graphql")
     private lateinit var getApplicationsQuery: Resource
