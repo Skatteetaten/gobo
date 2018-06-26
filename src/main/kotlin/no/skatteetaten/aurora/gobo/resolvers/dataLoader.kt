@@ -11,7 +11,7 @@ interface KeysDataLoader<K, V> {
 
 class NoCacheBatchDataLoader<K, V>(keysDataLoader: KeysDataLoader<K, V>) :
     DataLoader<K, V>(BatchLoader { keys: List<K> ->
-        CompletableFuture.supplyAsync({
+        CompletableFuture.supplyAsync {
             keysDataLoader.getByKeys(keys)
-        })
+        }
     }, DataLoaderOptions.newOptions().setCachingEnabled(false))

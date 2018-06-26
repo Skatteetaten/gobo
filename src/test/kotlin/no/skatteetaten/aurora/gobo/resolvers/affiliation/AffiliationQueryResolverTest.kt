@@ -50,6 +50,5 @@ class AffiliationQueryResolverTest {
             .expectBody()
             .jsonPath("$.data.affiliations.totalCount").isNumber
             .jsonPath("$.data.affiliations.edges[0].node.name").isNotEmpty
-            .jsonPath("$.data.affiliations.edges[0].node.applications.totalCount").isNumber
     }
 }

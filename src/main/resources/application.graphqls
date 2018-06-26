@@ -10,20 +10,7 @@ type ApplicationEdge {
 }
 
 type Application {
-  affiliation: Affiliation!
-  environment: String
-  namespace: Namespace
   name: String!
-  status: Status!
-  version: Version!
-}
-
-type Status {
-  code: String!
-  comment: String
-}
-
-type Version {
-  deployTag: String
-  auroraVersion: String
+  tags: [String],
+  applicationInstances: [ApplicationInstance]
 }

@@ -4,11 +4,13 @@ query getApplications($affiliations: [String!]) {
       edges {
         node {
           name
-          affiliation {
-            name
-          }
-          namespace {
-            name
+          applicationInstances {
+            affiliation {
+              name
+            }
+            namespace {
+              name
+            }
           }
         }
       }

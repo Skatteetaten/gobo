@@ -4,9 +4,6 @@
     edges {
       node {
         name
-        applications {
-          totalCount
-        }
       }
     }
   }

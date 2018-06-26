@@ -1,40 +1,53 @@
 package no.skatteetaten.aurora.gobo
 
+import no.skatteetaten.aurora.gobo.application.ApplicationInstanceResource
 import no.skatteetaten.aurora.gobo.application.ApplicationResource
 import no.skatteetaten.aurora.gobo.application.StatusResource
 import no.skatteetaten.aurora.gobo.application.VersionResource
 import no.skatteetaten.aurora.gobo.resolvers.application.Application
-import no.skatteetaten.aurora.gobo.resolvers.application.Status
-import no.skatteetaten.aurora.gobo.resolvers.application.Version
+import no.skatteetaten.aurora.gobo.resolvers.applicationinstance.ApplicationInstance
+import no.skatteetaten.aurora.gobo.resolvers.applicationinstance.Status
+import no.skatteetaten.aurora.gobo.resolvers.applicationinstance.Version
 
-data class ApplicationResourceBuilder(
-    val affiliation: String = "paas",
-    val name: String = "name"
-) {
-
-    fun build(): ApplicationResource =
-        ApplicationResource(
+data class ApplicationInstanceResourceBuilder(val affiliation: String = "paas") {
+    fun build(): ApplicationInstanceResource =
+        ApplicationInstanceResource(
             affiliation,
             "environment",
-            name,
             "namespace",
             StatusResource("code", "comment"),
             VersionResource("deployTag", "auroraVersion")
         )
 }
 
-data class ApplicationBuilder(
-    val affiliationId: String = "paas",
-    val name: String = "name"
-) {
+data class ApplicationResourceBuilder(val name: String = "name") {
+
+    fun build(): ApplicationResource =
+        ApplicationResource(
+            name,
+            emptyList(),
+            listOf(ApplicationInstanceResourceBuilder().build())
+        )
+}
+
+data class ApplicationInstanceBuilder(val affiliation: String = "paas") {
+
+    fun build(): ApplicationInstance =
+        ApplicationInstance(
+            affiliation,
+            "environment",
+            "namespaceId",
+            Status("code", "comment"),
+            Version("deployTag", "auroraVersion")
+        )
+}
+
+data class ApplicationBuilder(val name: String = "name") {
 
     fun build(): Application =
         Application(
-            affiliationId,
-            "environment",
-            "namespaceId",
             name,
-            Status("code", "comment"),
-            Version("deployTag", "auroraVersion")
+            emptyList(),
+            listOf(ApplicationInstanceBuilder().build())
         )
 }

@@ -13,9 +13,9 @@ class ApplicationService(val webClient: WebClient, val objectMapper: ObjectMappe
     fun getApplications(affiliations: List<String>): List<ApplicationResource> {
         val response = webClient
             .get()
-            .uri({
+            .uri {
                 it.path("/api/application").queryParams(buildQueryParams(affiliations)).build()
-            })
+            }
             .retrieve()
             .bodyToMono<String>()
             .block() ?: return emptyList()
