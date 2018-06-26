@@ -1,2 +1,2 @@
 mokey:
-  url: http://mokey-paas-mokey.utv.paas.skead.no
+  url: http://localhost:9876
