@@ -2,6 +2,8 @@ type Query {
   affiliations: AffiliationsConnection
 
   applications(affiliations: [String!]): ApplicationsConnection
+
+  currentUser: User
 }
 
 type PageInfo {
