@@ -10,6 +10,8 @@ import no.skatteetaten.aurora.gobo.resolvers.applicationinstance.ApplicationInst
 import no.skatteetaten.aurora.gobo.resolvers.applicationinstance.Status
 import no.skatteetaten.aurora.gobo.resolvers.applicationinstance.Version
 import no.skatteetaten.aurora.gobo.resolvers.applicationinstancedetails.ApplicationInstanceDetails
+import no.skatteetaten.aurora.gobo.resolvers.applicationinstancedetails.GitInfo
+import no.skatteetaten.aurora.gobo.resolvers.applicationinstancedetails.ImageDetails
 import org.springframework.hateoas.Link
 
 data class Application(
@@ -43,7 +45,17 @@ fun createApplicationEdge(
                 instance.version.deployTag,
                 instance.version.auroraVersion
             ),
-            applicationInstanceDetails?.let { ApplicationInstanceDetails(applicationInstanceDetails.buildTime) }
+            applicationInstanceDetails?.let {
+                ApplicationInstanceDetails(
+                    applicationInstanceDetails.buildTime,
+                    it.imageDetails.let {
+                        ImageDetails(it.imageBuildTime, it.dockerImageReference)
+                    },
+                    it.gitInfo.let {
+                        GitInfo(it.commitId, it.commitTime)
+                    }
+                )
+            }
         )
     }
 

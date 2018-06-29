@@ -10,8 +10,16 @@ data class StatusResource(val code: String, val comment: String?)
 data class VersionResource(val deployTag: String, val auroraVersion: String?)
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+data class GitInfoResource(val commitId: String?, val commitTime: String?)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class ImageDetailsResource(val imageBuildTime: String?, val dockerImageReference: String?)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class ApplicationInstanceDetailsResource(
-    val buildTime: String?
+    val buildTime: String?,
+    val gitInfo: GitInfoResource,
+    val imageDetails: ImageDetailsResource
 ) : ResourceSupport()
 
 @JsonIgnoreProperties(ignoreUnknown = true)

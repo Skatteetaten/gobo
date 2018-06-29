@@ -41,10 +41,6 @@ class ApplicationService(val webClient: WebClient, val objectMapper: ObjectMappe
         return objectMapper.readValue(response)
     }
 
-    private fun buildQueryParams(affiliations: List<String>): LinkedMultiValueMap<String, String> {
-        val params = LinkedMultiValueMap<String, String>().apply {
-            addAll("affiliation", affiliations)
-        }
-        return params
-    }
+    private fun buildQueryParams(affiliations: List<String>): LinkedMultiValueMap<String, String> =
+        LinkedMultiValueMap<String, String>().apply { addAll("affiliation", affiliations) }
 }
