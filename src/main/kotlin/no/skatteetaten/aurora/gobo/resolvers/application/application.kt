@@ -10,8 +10,11 @@ import no.skatteetaten.aurora.gobo.resolvers.applicationinstance.ApplicationInst
 import no.skatteetaten.aurora.gobo.resolvers.applicationinstance.Status
 import no.skatteetaten.aurora.gobo.resolvers.applicationinstance.Version
 import no.skatteetaten.aurora.gobo.resolvers.applicationinstancedetails.ApplicationInstanceDetails
+<<<<<<< 57a3add5a41223914c5be2d1b19d6b0e8ba7df26
 import no.skatteetaten.aurora.gobo.resolvers.applicationinstancedetails.GitInfo
 import no.skatteetaten.aurora.gobo.resolvers.applicationinstancedetails.ImageDetails
+=======
+>>>>>>> updated logic to populate ApplicationInstanceDetails
 import org.springframework.hateoas.Link
 
 data class Application(
