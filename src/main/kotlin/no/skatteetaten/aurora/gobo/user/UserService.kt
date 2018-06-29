@@ -36,17 +36,9 @@ class UserService {
     }
 
     fun getToken(): String {
-        val context = SecurityContextHolder.getContext()
-        val authentication: Authentication? = context.authentication
-
-        return when(authentication) {
-            is PreAuthenticatedAuthenticationToken, is UsernamePasswordAuthenticationToken -> {
-                val principal = authentication.principal
-                when (principal) {
-                    is SecurityUser -> principal.token
-                    else -> ""
-                }
-            }
+        val principal = SecurityContextHolder.getContext()?.authentication?.principal ?: return ""
+        return when (principal) {
+            is SecurityUser -> principal.token
             else -> ""
         }
     }

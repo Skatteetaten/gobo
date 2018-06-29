@@ -4,13 +4,13 @@ import graphql.relay.DefaultEdge
 import graphql.relay.PageInfo
 import no.skatteetaten.aurora.gobo.application.ApplicationInstanceDetailsResource
 import no.skatteetaten.aurora.gobo.application.ApplicationResource
-import no.skatteetaten.aurora.gobo.application.applicationInstanceDetailsId
 import no.skatteetaten.aurora.gobo.resolvers.Connection
 import no.skatteetaten.aurora.gobo.resolvers.Cursor
 import no.skatteetaten.aurora.gobo.resolvers.applicationinstance.ApplicationInstance
 import no.skatteetaten.aurora.gobo.resolvers.applicationinstance.Status
 import no.skatteetaten.aurora.gobo.resolvers.applicationinstance.Version
 import no.skatteetaten.aurora.gobo.resolvers.applicationinstancedetails.ApplicationInstanceDetails
+import org.springframework.hateoas.Link
 
 data class Application(
     val name: String,
@@ -32,7 +32,8 @@ fun createApplicationEdge(
 ): ApplicationEdge {
     val applicationInstances = resource.applicationInstances.map { instance ->
         val applicationInstanceDetails =
-            details.find { it.applicationInstanceDetailsId() == instance.applicationInstanceDetailsId() }
+            details.find { it.getLink(Link.REL_SELF).href == instance.getLink("ApplicationInstanceDetails").href }
+
         ApplicationInstance(
             instance.affiliation,
             instance.environment,
