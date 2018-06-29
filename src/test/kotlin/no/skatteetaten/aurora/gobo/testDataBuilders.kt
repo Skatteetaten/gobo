@@ -38,7 +38,8 @@ data class ApplicationInstanceBuilder(val affiliation: String = "paas") {
             "environment",
             "namespaceId",
             Status("code", "comment"),
-            Version("deployTag", "auroraVersion")
+            Version("deployTag", "auroraVersion"),
+            null
         )
 }
 
