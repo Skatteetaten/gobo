@@ -5,7 +5,7 @@ import no.skatteetaten.aurora.gobo.application.ApplicationService
 import org.springframework.stereotype.Component
 
 @Component
-class ApplicationQueryResolver(val applicationService: ApplicationService) : GraphQLQueryResolver {
+class ApplicationQueryResolver(private val applicationService: ApplicationService) : GraphQLQueryResolver {
 
     fun getApplications(affiliations: List<String>): ApplicationsConnection {
         val details = applicationService.getApplicationInstanceDetails(affiliations)
