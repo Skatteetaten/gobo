@@ -15,6 +15,13 @@ type PodResource {
   ready: Boolean
   startTime: String
   metricsUrl: String
+  splunkUrl: String
+  links: [Link]
+}
+
+type Link {
+  name: String
+  url: String
 }
 
 type ApplicationInstanceDetails {
