@@ -16,7 +16,8 @@ data class PodResource(
     val restartCount: Int,
     val ready: Boolean,
     val startTime: String,
-    val metricsUrl: String?)
+    val metricsUrl: String?
+)
 
 data class ApplicationInstanceDetails(
     val buildTime: String? = null,

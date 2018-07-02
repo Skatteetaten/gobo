@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test
 
 class AffiliationDataLoaderTest {
     private val applicationService = mockk<ApplicationService>()
-    private val affiliationDataLoader = AffiliationDataLoader(applicationService)
+    private val affiliationDataLoader = AffiliationDataLoader()
 
     @BeforeEach
     fun setUp() {

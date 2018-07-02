@@ -22,4 +22,10 @@ class ApplicationServiceTest {
         val applications = applicationService.getApplications(listOf("paas"))
         assert(applications).isNotEmpty()
     }
+
+    @Test
+    fun `Get application instance details for affiliation`() {
+        val details = applicationService.getApplicationInstanceDetails(listOf("paas"))
+        assert(details).isNotEmpty()
+    }
 }
