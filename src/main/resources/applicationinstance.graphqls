@@ -4,6 +4,7 @@ type ApplicationInstance {
   namespace: Namespace
   status: Status!
   version: Version!
+  details: ApplicationInstanceDetails
 }
 
 type Status {

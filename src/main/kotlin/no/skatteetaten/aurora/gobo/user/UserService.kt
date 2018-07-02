@@ -19,7 +19,6 @@ class UserService {
     }
 
     fun getCurrentUser(): User {
-
         val context = SecurityContextHolder.getContext()
         val authentication: Authentication? = context.authentication
 
@@ -33,6 +32,14 @@ class UserService {
             }
             is AnonymousAuthenticationToken -> User(authentication.name, GUEST_USER_NAME)
             else -> ANONYMOUS_USER
+        }
+    }
+
+    fun getToken(): String {
+        val principal = SecurityContextHolder.getContext()?.authentication?.principal ?: return ""
+        return when (principal) {
+            is SecurityUser -> principal.token
+            else -> ""
         }
     }
 }

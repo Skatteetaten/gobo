@@ -1,0 +1,15 @@
+type GitInfo {
+  commitId: String
+  commitTime: String
+}
+
+type ImageDetails {
+  imageBuildTime: String
+  dockerImageReference: String
+}
+
+type ApplicationInstanceDetails {
+  buildTime: String
+  gitInfo: GitInfo
+  imageDetails: ImageDetails
+}
