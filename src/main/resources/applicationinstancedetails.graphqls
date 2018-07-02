@@ -8,8 +8,18 @@ type ImageDetails {
   dockerImageReference: String
 }
 
+type PodResource {
+  name: String
+  status: String
+  restartCount: Int
+  ready: Boolean
+  startTime: String
+  metricsUrl: String
+}
+
 type ApplicationInstanceDetails {
   buildTime: String
   gitInfo: GitInfo
   imageDetails: ImageDetails
+  podResources: [PodResource]
 }

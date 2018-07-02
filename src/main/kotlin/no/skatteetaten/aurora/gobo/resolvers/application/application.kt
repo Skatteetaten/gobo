@@ -12,6 +12,7 @@ import no.skatteetaten.aurora.gobo.resolvers.applicationinstance.Version
 import no.skatteetaten.aurora.gobo.resolvers.applicationinstancedetails.ApplicationInstanceDetails
 import no.skatteetaten.aurora.gobo.resolvers.applicationinstancedetails.GitInfo
 import no.skatteetaten.aurora.gobo.resolvers.applicationinstancedetails.ImageDetails
+import no.skatteetaten.aurora.gobo.resolvers.applicationinstancedetails.PodResource
 import org.springframework.hateoas.Link
 
 data class Application(
@@ -33,8 +34,30 @@ fun createApplicationEdge(
     details: List<ApplicationInstanceDetailsResource>
 ): ApplicationEdge {
     val applicationInstances = resource.applicationInstances.map { instance ->
-        val applicationInstanceDetails =
+        val detailsResource =
             details.find { it.getLink(Link.REL_SELF).href == instance.getLink("ApplicationInstanceDetails").href }
+
+        val applicationInstanceDetails = detailsResource?.let {
+            ApplicationInstanceDetails(
+                buildTime = detailsResource.buildTime,
+                imageDetails = it.imageDetails.let {
+                    ImageDetails(it.imageBuildTime, it.dockerImageReference)
+                },
+                gitInfo = it.gitInfo.let {
+                    GitInfo(it.commitId, it.commitTime)
+                },
+                podResources = it.podResources.map {
+                    PodResource(
+                        it.name,
+                        it.status,
+                        it.restartCount,
+                        it.ready,
+                        it.startTime,
+                        it.getLink("metrics").href
+                    )
+                }
+            )
+        }
 
         ApplicationInstance(
             instance.affiliation,
@@ -45,17 +68,7 @@ fun createApplicationEdge(
                 instance.version.deployTag,
                 instance.version.auroraVersion
             ),
-            applicationInstanceDetails?.let {
-                ApplicationInstanceDetails(
-                    applicationInstanceDetails.buildTime,
-                    it.imageDetails.let {
-                        ImageDetails(it.imageBuildTime, it.dockerImageReference)
-                    },
-                    it.gitInfo.let {
-                        GitInfo(it.commitId, it.commitTime)
-                    }
-                )
-            }
+            applicationInstanceDetails
         )
     }
 

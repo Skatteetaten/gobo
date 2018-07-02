@@ -16,10 +16,20 @@ data class GitInfoResource(val commitId: String?, val commitTime: String?)
 data class ImageDetailsResource(val imageBuildTime: String?, val dockerImageReference: String?)
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+data class PodResourceResource(
+    val name: String,
+    val status: String,
+    val restartCount: Int,
+    val ready: Boolean,
+    val startTime: String
+) : ResourceSupport()
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class ApplicationInstanceDetailsResource(
     val buildTime: String?,
     val gitInfo: GitInfoResource,
-    val imageDetails: ImageDetailsResource
+    val imageDetails: ImageDetailsResource,
+    val podResources: List<PodResourceResource>
 ) : ResourceSupport()
 
 @JsonIgnoreProperties(ignoreUnknown = true)
