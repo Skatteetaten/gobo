@@ -28,8 +28,8 @@ data class PodResourceResource(
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class ApplicationInstanceDetailsResource(
     val buildTime: Instant?,
-    val gitInfo: GitInfoResource,
-    val imageDetails: ImageDetailsResource,
+    val gitInfo: GitInfoResource?,
+    val imageDetails: ImageDetailsResource?,
     val podResources: List<PodResourceResource>
 ) : ResourceSupport()
 

@@ -1,6 +1,7 @@
 package no.skatteetaten.aurora.gobo.resolvers.applicationinstancedetails
 
 import no.skatteetaten.aurora.gobo.application.ApplicationInstanceDetailsResource
+import no.skatteetaten.aurora.gobo.application.PodResourceResource
 import java.net.URL
 import java.time.Instant
 
@@ -22,6 +23,18 @@ data class PodResource(
     val startTime: Instant,
     val links: List<Link>
 ) {
+    companion object {
+        fun create(resource: PodResourceResource) =
+            PodResource(
+                resource.name,
+                resource.status,
+                resource.restartCount,
+                resource.ready,
+                resource.startTime,
+                resource.links.map { Link.create(it) }
+            )
+    }
+
     fun links(names: List<String>?): List<Link> {
         return if (names == null) {
             links
@@ -45,27 +58,18 @@ data class Link(val name: String, val url: URL) {
 }
 
 data class ApplicationInstanceDetails(
-    val buildTime: Instant? = null,
-    val imageDetails: ImageDetails,
-    val gitInfo: GitInfo,
+    val buildTime: Instant?,
+    val imageDetails: ImageDetails?,
+    val gitInfo: GitInfo?,
     val podResources: List<PodResource>
 ) {
     companion object {
         fun create(resource: ApplicationInstanceDetailsResource): ApplicationInstanceDetails {
             return ApplicationInstanceDetails(
                 buildTime = resource.buildTime,
-                imageDetails = resource.imageDetails.let { ImageDetails(it.imageBuildTime, it.dockerImageReference) },
-                gitInfo = resource.gitInfo.let { GitInfo(it.commitId, it.commitTime) },
-                podResources = resource.podResources.map {
-                    PodResource(
-                        it.name,
-                        it.status,
-                        it.restartCount,
-                        it.ready,
-                        it.startTime,
-                        resource.links.map { Link.create(it) }
-                    )
-                }
+                imageDetails = resource.imageDetails?.let { ImageDetails(it.imageBuildTime, it.dockerImageReference) },
+                gitInfo = resource.gitInfo?.let { GitInfo(it.commitId, it.commitTime) },
+                podResources = resource.podResources.map { PodResource.create(it) }
             )
         }
     }
