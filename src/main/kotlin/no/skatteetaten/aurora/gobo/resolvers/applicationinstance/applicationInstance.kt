@@ -39,7 +39,7 @@ fun createApplicationInstances(
 ): List<ApplicationInstance> {
     return resource.applicationInstances.map { instance ->
         val detailsResource =
-            details.find { it.getLink("self").href == instance.getLink("ApplicationInstanceDetails").href }
+            details.find { it.getLink("self")?.href == instance.getLink("ApplicationInstanceDetails")?.href }
 
         val applicationInstanceDetails = detailsResource?.let { ApplicationInstanceDetails.create(it) }
         ApplicationInstance.create(instance, applicationInstanceDetails)
