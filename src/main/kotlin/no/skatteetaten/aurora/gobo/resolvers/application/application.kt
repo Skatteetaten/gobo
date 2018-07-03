@@ -18,7 +18,18 @@ data class Application(
 data class ApplicationEdge(private val node: Application) : DefaultEdge<Application>(
     node,
     Cursor(node.name)
-)
+) {
+    companion object {
+        fun create(resource: ApplicationResource, applicationInstances: List<ApplicationInstance>) =
+            ApplicationEdge(
+                Application(
+                    resource.name,
+                    resource.tags,
+                    applicationInstances
+                )
+            )
+    }
+}
 
 data class ApplicationsConnection(override val edges: List<ApplicationEdge>, override val pageInfo: PageInfo?) :
     Connection<ApplicationEdge>()
@@ -28,11 +39,5 @@ fun createApplicationEdge(
     details: List<ApplicationInstanceDetailsResource>
 ): ApplicationEdge {
     val applicationInstances = createApplicationInstances(resource, details)
-    return ApplicationEdge(
-        Application(
-            resource.name,
-            resource.tags,
-            applicationInstances
-        )
-    )
+    return ApplicationEdge.create(resource, applicationInstances)
 }

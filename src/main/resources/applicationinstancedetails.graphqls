@@ -14,9 +14,7 @@ type PodResource {
   restartCount: Int
   ready: Boolean
   startTime: String
-  metricsUrl: String
-  splunkUrl: String
-  links: [Link]
+  links(names: [String]): [Link]
 }
 
 type Link {
