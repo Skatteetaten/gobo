@@ -11,7 +11,7 @@ import java.time.ZoneOffset
 
 class DateTimeScalarTest {
 
-    private val dateTimeScalar: DateTimeScalar = DateTimeScalar()
+    private val dateTimeScalar = DateTimeScalar()
     private val instant = LocalDateTime.of(2018, 7, 2, 14, 56).toInstant(ZoneOffset.UTC)
 
     @Test

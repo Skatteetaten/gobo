@@ -1,14 +1,16 @@
 package no.skatteetaten.aurora.gobo.resolvers.applicationinstancedetails
 
 import no.skatteetaten.aurora.gobo.application.ApplicationInstanceDetailsResource
+import java.net.URL
+import java.time.Instant
 
 data class GitInfo(
     val commitId: String?,
-    val commitTime: String?
+    val commitTime: Instant?
 )
 
 data class ImageDetails(
-    val imageBuildTime: String?,
+    val imageBuildTime: Instant?,
     val dockerImageReference: String?
 )
 
@@ -17,7 +19,7 @@ data class PodResource(
     val status: String,
     val restartCount: Int,
     val ready: Boolean,
-    val startTime: String,
+    val startTime: Instant,
     val links: List<Link>
 ) {
     fun links(names: List<String>?): List<Link> {
@@ -29,14 +31,21 @@ data class PodResource(
     }
 }
 
-data class Link(val name: String, val url: String) {
+data class Link(val name: String, val url: URL) {
     companion object {
-        fun create(link: org.springframework.hateoas.Link) = Link(link.rel, link.href)
+        fun create(link: org.springframework.hateoas.Link): Link {
+            val href = if (link.href.matches("https?://.*".toRegex())) {
+                link.href
+            } else {
+                "http://${link.href}"
+            }
+            return Link(link.rel, URL(href))
+        }
     }
 }
 
 data class ApplicationInstanceDetails(
-    val buildTime: String? = null,
+    val buildTime: Instant? = null,
     val imageDetails: ImageDetails,
     val gitInfo: GitInfo,
     val podResources: List<PodResource>
