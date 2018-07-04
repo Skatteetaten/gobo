@@ -5,6 +5,7 @@ import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.runBlocking
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.util.StopWatch
@@ -16,7 +17,7 @@ import kotlin.reflect.KClass
 @Service
 class DockerRegistryService(
     private val restTemplate: RestTemplate,
-    private val dockerRegistryUrl: String
+    @Value("\${docker-registry.url}") private val dockerRegistryUrl: String
 ) {
     private val logger: Logger = LoggerFactory.getLogger(DockerRegistryService::class.java)
 
@@ -36,8 +37,8 @@ class DockerRegistryService(
     private fun findTagNamesForDockerImage(dockerImageName: String): List<String> {
 
         val tagListUrl = getTagListUrl(dockerImageName)
-        val responseEntity = restTemplate.getForEntity(tagListUrl, DockerTagList::class.java)
-        return responseEntity.body!!.tags
+        val responseEntity = restTemplate.getForObjectNullOnNotFound(tagListUrl, DockerTagList::class)
+        return responseEntity?.tags ?: emptyList()
     }
 
     private fun findDockerTagsByNames(dockerImageName: String, tagNames: List<String>): List<DockerTag> {

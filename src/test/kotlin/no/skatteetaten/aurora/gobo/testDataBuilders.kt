@@ -29,7 +29,6 @@ data class ApplicationResourceBuilder(val name: String = "name") {
     fun build(): ApplicationResource =
         ApplicationResource(
             name,
-            emptyList(),
             listOf(ApplicationInstanceResourceBuilder().build())
         )
 }

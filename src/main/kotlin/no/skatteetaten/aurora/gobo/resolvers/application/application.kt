@@ -11,7 +11,6 @@ import no.skatteetaten.aurora.gobo.resolvers.applicationinstance.createApplicati
 
 data class Application(
     val name: String,
-    val tags: List<String>,
     val applicationInstances: List<ApplicationInstance>
 )
 
@@ -24,7 +23,6 @@ data class ApplicationEdge(private val node: Application) : DefaultEdge<Applicat
             ApplicationEdge(
                 Application(
                     resource.name,
-                    resource.tags,
                     applicationInstances
                 )
             )
