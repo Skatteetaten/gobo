@@ -20,8 +20,8 @@ buildscript {
 }
 
 plugins {
-  id 'org.jetbrains.kotlin.jvm' version '1.2.41'
-  id 'org.jetbrains.kotlin.plugin.spring' version '1.2.41'
+  id 'org.jetbrains.kotlin.jvm' version '1.2.50'
+  id 'org.jetbrains.kotlin.plugin.spring' version '1.2.50'
   id 'org.springframework.boot' version '2.0.2.RELEASE'
   id 'org.jlleitschuh.gradle.ktlint' version '4.0.0'
   id 'com.github.ben-manes.versions' version '0.17.0'
@@ -46,7 +46,7 @@ group = 'no.skatteetaten.aurora'
 
 dependencyManagement {
   imports {
-    mavenBom "org.springframework.cloud:spring-cloud-contract-dependencies:2.0.0.RC2"
+    mavenBom "org.springframework.cloud:spring-cloud-contract-dependencies:2.0.0.RELEASE"
   }
 }
 
@@ -54,7 +54,7 @@ def junitJupiterVersion = dependencyManagement.importedProperties['junit-jupiter
 dependencies {
 
   compile(
-      'org.jetbrains.kotlin:kotlin-reflect:1.2.41',
+      'org.jetbrains.kotlin:kotlin-reflect:1.2.50',
       'org.jetbrains.kotlin:kotlin-stdlib-jdk8',
       'com.fasterxml.jackson.module:jackson-module-kotlin',
       'com.fasterxml.jackson.datatype:jackson-datatype-jsr310',

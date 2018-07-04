@@ -1,15 +1,30 @@
 type GitInfo {
   commitId: String
-  commitTime: String
+  commitTime: DateTime
 }
 
 type ImageDetails {
-  imageBuildTime: String
+  imageBuildTime: DateTime
   dockerImageReference: String
+}
+
+type PodResource {
+  name: String
+  status: String
+  restartCount: Int
+  ready: Boolean
+  startTime: DateTime
+  links(names: [String]): [Link]
+}
+
+type Link {
+  name: String
+  url: URL
 }
 
 type ApplicationInstanceDetails {
   buildTime: String
   gitInfo: GitInfo
   imageDetails: ImageDetails
+  podResources: [PodResource]
 }

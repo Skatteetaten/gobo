@@ -1,13 +1,17 @@
 package no.skatteetaten.aurora.gobo
 
+import no.skatteetaten.aurora.gobo.application.ApplicationInstanceDetailsResource
 import no.skatteetaten.aurora.gobo.application.ApplicationInstanceResource
 import no.skatteetaten.aurora.gobo.application.ApplicationResource
+import no.skatteetaten.aurora.gobo.application.GitInfoResource
+import no.skatteetaten.aurora.gobo.application.ImageDetailsResource
+import no.skatteetaten.aurora.gobo.application.PodResourceResource
 import no.skatteetaten.aurora.gobo.application.StatusResource
 import no.skatteetaten.aurora.gobo.application.VersionResource
-import no.skatteetaten.aurora.gobo.resolvers.application.Application
 import no.skatteetaten.aurora.gobo.resolvers.applicationinstance.ApplicationInstance
 import no.skatteetaten.aurora.gobo.resolvers.applicationinstance.Status
 import no.skatteetaten.aurora.gobo.resolvers.applicationinstance.Version
+import java.time.Instant
 
 data class ApplicationInstanceResourceBuilder(val affiliation: String = "paas") {
     fun build(): ApplicationInstanceResource =
@@ -43,12 +47,21 @@ data class ApplicationInstanceBuilder(val affiliation: String = "paas") {
         )
 }
 
-data class ApplicationBuilder(val name: String = "name") {
+class ApplicationInstanceDetailsBuilder {
 
-    fun build(): Application =
-        Application(
-            name,
-            emptyList(),
-            listOf(ApplicationInstanceBuilder().build())
+    fun build(): ApplicationInstanceDetailsResource =
+        ApplicationInstanceDetailsResource(
+            Instant.now(),
+            GitInfoResource("123abc", Instant.now()),
+            ImageDetailsResource(Instant.now(), "dockerImageReference"),
+            listOf(
+                PodResourceResource(
+                    "name",
+                    "status",
+                    0,
+                    true,
+                    Instant.now()
+                )
+            )
         )
 }

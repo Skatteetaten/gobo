@@ -2,6 +2,7 @@ package no.skatteetaten.aurora.gobo.application
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import org.springframework.hateoas.ResourceSupport
+import java.time.Instant
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class StatusResource(val code: String, val comment: String?)
@@ -10,16 +11,26 @@ data class StatusResource(val code: String, val comment: String?)
 data class VersionResource(val deployTag: String, val auroraVersion: String?)
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class GitInfoResource(val commitId: String?, val commitTime: String?)
+data class GitInfoResource(val commitId: String?, val commitTime: Instant?)
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class ImageDetailsResource(val imageBuildTime: String?, val dockerImageReference: String?)
+data class ImageDetailsResource(val imageBuildTime: Instant?, val dockerImageReference: String?)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class PodResourceResource(
+    val name: String,
+    val status: String,
+    val restartCount: Int,
+    val ready: Boolean,
+    val startTime: Instant
+) : ResourceSupport()
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class ApplicationInstanceDetailsResource(
-    val buildTime: String?,
-    val gitInfo: GitInfoResource,
-    val imageDetails: ImageDetailsResource
+    val buildTime: Instant?,
+    val gitInfo: GitInfoResource?,
+    val imageDetails: ImageDetailsResource?,
+    val podResources: List<PodResourceResource>
 ) : ResourceSupport()
 
 @JsonIgnoreProperties(ignoreUnknown = true)
