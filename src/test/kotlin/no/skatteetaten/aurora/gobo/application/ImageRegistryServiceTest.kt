@@ -9,14 +9,15 @@ import java.security.cert.X509Certificate
 import javax.net.ssl.SSLContext
 import javax.net.ssl.X509TrustManager
 
-class DockerRegistryServiceTest {
+class ImageRegistryServiceTest {
 
     @Test
     fun `a`() {
 
         val restTemplate = RestTemplate(createRequestFactory())
-        val dockerRegistry = DockerRegistryService(restTemplate, "https://uil0paas-utv-registry01.skead.no:5000")
-        val tagsFor = dockerRegistry.findAllTagsFor("no_skatteetaten_aurora/boober")
+        val dockerRegistry = ImageRegistryService(restTemplate, DefaultImageRegistryUrlBuilder())
+        val imageRepo = ImageRepo.fromRepoString("uil0paas-utv-registry01.skead.no:5000/no_skatteetaten_aurora/boober")
+        val tagsFor = dockerRegistry.findAllTagsInRepo(imageRepo)
 
         tagsFor.forEach {
             println(it)
