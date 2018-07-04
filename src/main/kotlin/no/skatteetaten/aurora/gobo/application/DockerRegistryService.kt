@@ -1,137 +1,95 @@
 package no.skatteetaten.aurora.gobo.application
 
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import kotlinx.coroutines.experimental.async
+import kotlinx.coroutines.experimental.runBlocking
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
+import org.springframework.stereotype.Service
+import org.springframework.util.StopWatch
 import org.springframework.web.client.HttpClientErrorException
-import org.springframework.web.client.RestClientException
 import org.springframework.web.client.RestTemplate
-import java.io.IOException
-import java.lang.String.format
 import java.time.Instant
-import java.util.stream.StreamSupport
 import kotlin.reflect.KClass
-import kotlin.streams.toList
 
+@Service
 class DockerRegistryService(
-        val restTemplate: RestTemplate,
-        val dockerRegistryUrl: String,
-        val objectMapper: ObjectMapper = ObjectMapper()
+    private val restTemplate: RestTemplate,
+    private val dockerRegistryUrl: String
 ) {
+    private val logger: Logger = LoggerFactory.getLogger(DockerRegistryService::class.java)
+
+    private val objectMapper = jacksonObjectMapper()
+
     fun findAllTagsFor(dockerImageName: String): List<DockerTag> {
+
+        val sw = StopWatch()
+        val dockerTagList = sw.time("Find tags names") { findTagNamesForDockerImage(dockerImageName) }
+        val dockerTags = sw.time("Create tags") { findDockerTagsByNames(dockerImageName, dockerTagList) }
+
+        logger.info("Fetched ${dockerTags.size} tags with metadata for image $dockerImageName. ${sw.logLine}.")
+
+        return dockerTags
+    }
+
+    private fun findTagNamesForDockerImage(dockerImageName: String): List<String> {
 
         val tagListUrl = getTagListUrl(dockerImageName)
         val responseEntity = restTemplate.getForEntity(tagListUrl, DockerTagList::class.java)
-        val dockerTagList = responseEntity.body!!
-        return dockerTagList.tags.map {
-            val dockerTag = DockerTag(name = it)
-            addDockerMetaData(dockerImageName, dockerTag)
-            dockerTag
+        return responseEntity.body!!.tags
+    }
+
+    private fun findDockerTagsByNames(dockerImageName: String, tagNames: List<String>): List<DockerTag> {
+        return runBlocking {
+            tagNames.map {
+                async {
+                    val metadata = getDockerMetaData(dockerImageName, it)
+                    DockerTag(name = it, created = metadata?.createdDate)
+                }
+            }.map { it.await() }
         }
     }
 
-    private fun addDockerMetaData(imageGroupAndName: String, dockerTag: DockerTag) {
-
-        val manifestsUrl = getManifestsUrl(imageGroupAndName, dockerTag.name)
-
-        val manifestString = try {
-            restTemplate.getForObjectNullOnNotFound(manifestsUrl, String::class)
-        } catch (e: HttpClientErrorException) {
-            if (e.statusCode != HttpStatus.NOT_FOUND) {
-                throw DockerServiceErrorException("Unable to get Docker manifest for image: ${dockerTag.name}", e)
-            }
-            null
-        } catch (e: RestClientException) {
-            throw DockerServiceErrorException("Unable to get Docker manifest for image: ${dockerTag.name}", e)
+    private fun getDockerMetaData(imageGroupAndName: String, tag: String): DockerMetadata? =
+        try {
+            val manifestsUrl = getManifestsUrl(imageGroupAndName, tag)
+            restTemplate.getForObjectNullOnNotFound(manifestsUrl, String::class)?.let { parseMainfest(it) }
+        } catch (e: Exception) {
+            throw DockerServiceErrorException("Unable to get Docker manifest for image: $tag", e)
         }
 
-        manifestString?.let {
-            try {
-                addDockerMetaDataFromManifest(dockerTag, it)
-            } catch (e: IOException) {
-                throw DockerServiceErrorException("Could not parse Docker manifest", e)
-            }
-        }
-    }
-
-    @Throws(IOException::class)
-    private fun addDockerMetaDataFromManifest(dockerTag: DockerTag, manifestString: String) {
+    private fun parseMainfest(manifestString: String): DockerMetadata {
 
         val manifest = objectMapper.readTree(manifestString)
         val manifestHistory = manifest.get("history").get(0).get("v1Compatibility")
         val manifestFirstHistory = objectMapper.readTree(manifestHistory.asText())
-        val containerEnvs = manifestFirstHistory.get("container_config").get("Env")
-        val lines = StreamSupport.stream(containerEnvs.spliterator(), false)
-                .map(JsonNode::asText).toList()
-        val envs = lines.map {
-            val (key, value) = it.split("=");
-            key to value
-        }
-
-        dockerTag.created = Instant.parse(manifestFirstHistory.get("created").asText()).toEpochMilli()
-        dockerTag.envVars = envs
+        val createdString = manifestFirstHistory.get("created").asText()
+        return DockerMetadata(Instant.parse(createdString))
     }
 
-    private fun getManifestsUrl(imageGroupAndName: String, tag: String) = "${getApiUrl(imageGroupAndName)}/manifests/$tag"
+    private fun getManifestsUrl(image: String, tag: String) = "${getApiUrl(image)}/manifests/$tag"
 
-    private fun getTagListUrl(imageGroupAndName: String) = "${getApiUrl(imageGroupAndName)}/tags/list"
+    private fun getTagListUrl(image: String) = "${getApiUrl(image)}/tags/list"
 
-    private fun getApiUrl(imageGroupAndName: String) = "$dockerRegistryUrl/v2/$imageGroupAndName"
+    private fun getApiUrl(image: String) = "$dockerRegistryUrl/v2/$image"
 
+    private data class DockerTagList(
+        var name: String,
+        var tags: List<String>
+    )
+
+    private data class DockerMetadata(val createdDate: Instant)
 }
 
 class DockerServiceErrorException(message: String, cause: Throwable) : RuntimeException(message, cause)
 
-
-data class DockerTagList(
-        var name: String,
-        var tags: List<String>
-)
-
-data class DockerSpec(
-        var name: String,
-        var tags: List<DockerTag> = emptyList()
-)
-
 data class DockerTag(
-        val name: String,
-        var created: Long? = null,
-        var envVars: List<Pair<String, String>>? = null
-) {
+    val name: String,
+    var created: Instant? = null
+)
 
-    val auroraVersion: String
-        get() = findMetaValue("AURORA_VERSION")
-
-    val appVersion: String
-        get() = findMetaValue("APP_VERSION")
-
-    val runtimeType: String
-        get() = findMetaValue("RUNTIME_TYPE", "java")
-
-    val runtimeVersion: String
-        get() = if ("java".equals(runtimeType, ignoreCase = true)) javaVersion else ""
-
-    val baseImageVersion: String
-        get() = findMetaValue("BASE_IMAGE_VERSION")
-
-    private val javaVersion: String
-        get() {
-            val major = findMetaValue("JAVA_VERSION_MAJOR")
-            val minor = findMetaValue("JAVA_VERSION_MINOR")
-
-            return if (major.isBlank()) "" else format("%su%s", major, minor)
-        }
-
-    private fun findMetaValue(key: String, defaultValue: String = ""): String {
-
-        return this.envVars
-                ?.filter { keyValue -> key.equals(keyValue.first, ignoreCase = true) }
-                ?.map { it.second }
-                ?.firstOrNull() ?: defaultValue
-    }
-}
-
-fun <T : Any> RestTemplate.getForObjectNullOnNotFound(url: String, kClass: KClass<T>): T? {
+private fun <T : Any> RestTemplate.getForObjectNullOnNotFound(url: String, kClass: KClass<T>): T? {
     return try {
         this.getForObject(url, kClass.java)
     } catch (e: HttpClientErrorException) {
@@ -141,3 +99,13 @@ fun <T : Any> RestTemplate.getForObjectNullOnNotFound(url: String, kClass: KClas
         null
     }
 }
+
+private fun <T> StopWatch.time(taskName: String, function: () -> T): T {
+    this.start(taskName)
+    val res = function()
+    this.stop()
+    return res
+}
+
+private val StopWatch.logLine: String
+    get() = this.taskInfo.joinToString { "${it.taskName}: ${it.timeMillis}ms" }
