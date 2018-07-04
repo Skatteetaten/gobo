@@ -1,5 +1,2 @@
 mokey:
     url: http://localhost:9876
-
-docker-registry:
-    url: https://uil0paas-utv-registry01.skead.no:5000

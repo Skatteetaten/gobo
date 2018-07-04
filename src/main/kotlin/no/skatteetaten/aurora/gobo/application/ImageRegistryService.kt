@@ -2,7 +2,10 @@ package no.skatteetaten.aurora.gobo.application
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import kotlinx.coroutines.experimental.async
+import kotlinx.coroutines.experimental.newFixedThreadPoolContext
 import kotlinx.coroutines.experimental.runBlocking
+import no.skatteetaten.aurora.utils.logLine
+import no.skatteetaten.aurora.utils.time
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
@@ -75,10 +78,14 @@ class ImageRegistryService(private val restTemplate: RestTemplate, private val u
 
     private val objectMapper = jacksonObjectMapper()
 
+    val context = newFixedThreadPoolContext(6, "image-registry")
+
     fun findAllTagsInRepo(imageRepo: ImageRepo): List<ImageTag> {
 
         val sw = StopWatch()
         val tagList = sw.time("Find tag names") { findTagNamesForImageRepo(imageRepo) }
+//        tagList.forEach(::println)
+        logger.info("Fetching ${tagList.size} tags with metadata for image repo $imageRepo")
         val tags = sw.time("Create tags") { findTagsByNames(imageRepo, tagList) }
 
         logger.info("Fetched ${tags.size} tags with metadata for image repo $imageRepo. ${sw.logLine}.")
@@ -94,9 +101,9 @@ class ImageRegistryService(private val restTemplate: RestTemplate, private val u
     }
 
     private fun findTagsByNames(imageRepo: ImageRepo, tagNames: List<String>): List<ImageTag> {
-        return runBlocking {
+        return runBlocking(context) {
             tagNames.map {
-                async {
+                async(context) {
                     val metadata = getImageMetaData(imageRepo, it)
                     ImageTag(name = it, created = metadata?.createdDate)
                 }
@@ -106,8 +113,9 @@ class ImageRegistryService(private val restTemplate: RestTemplate, private val u
 
     private fun getImageMetaData(imageRepo: ImageRepo, tag: String): ImageMetadata? =
         try {
-            val manifestsUrl = urlBuilder.createManifestsUrl(imageRepo, tag)
-            restTemplate.getForObjectNullOnNotFound(manifestsUrl, String::class)?.let { parseMainfest(it) }
+            ImageMetadata(Instant.now())
+//            val manifestsUrl = urlBuilder.createManifestsUrl(imageRepo, tag)
+//            restTemplate.getForObjectNullOnNotFound(manifestsUrl, String::class)?.let { parseMainfest(it) }
         } catch (e: Exception) {
             throw ImageRegistryServiceErrorException("Unable to get manifest for image: $tag", e)
         }
@@ -146,13 +154,3 @@ private fun <T : Any> RestTemplate.getForObjectNullOnNotFound(url: String, kClas
         null
     }
 }
-
-private fun <T> StopWatch.time(taskName: String, function: () -> T): T {
-    this.start(taskName)
-    val res = function()
-    this.stop()
-    return res
-}
-
-private val StopWatch.logLine: String
-    get() = this.taskInfo.joinToString { "${it.taskName}: ${it.timeMillis}ms" }

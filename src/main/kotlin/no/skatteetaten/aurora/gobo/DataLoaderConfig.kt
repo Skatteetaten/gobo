@@ -2,6 +2,7 @@ package no.skatteetaten.aurora.gobo
 
 import no.skatteetaten.aurora.gobo.resolvers.NoCacheBatchDataLoader
 import no.skatteetaten.aurora.gobo.resolvers.affiliation.AffiliationDataLoader
+import no.skatteetaten.aurora.gobo.resolvers.application.TagDataLoader
 import no.skatteetaten.aurora.gobo.resolvers.namespace.NamespaceDataLoader
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -10,10 +11,11 @@ import org.springframework.context.annotation.Configuration
 class DataLoaderConfig {
 
     @Bean
-    fun affiliationDataLoaderNoCache(affiliationDataLoader: AffiliationDataLoader) =
-        NoCacheBatchDataLoader(affiliationDataLoader)
+    fun affiliationDataLoaderNoCache(loader: AffiliationDataLoader) = NoCacheBatchDataLoader(loader)
 
     @Bean
-    fun namespaceDataLoaderNoCache(namespaceDataLoader: NamespaceDataLoader) =
-        NoCacheBatchDataLoader(namespaceDataLoader)
+    fun namespaceDataLoaderNoCache(loader: NamespaceDataLoader) = NoCacheBatchDataLoader(loader)
+
+    @Bean
+    fun tagDataLoaderNoCache(loader: TagDataLoader) = NoCacheBatchDataLoader(loader)
 }
