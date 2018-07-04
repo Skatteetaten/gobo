@@ -11,6 +11,9 @@ query getApplications($affiliations: [String!]) {
             namespace {
               name
             }
+            details {
+              buildTime
+            }
           }
         }
       }

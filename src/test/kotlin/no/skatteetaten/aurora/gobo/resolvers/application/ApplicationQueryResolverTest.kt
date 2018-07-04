@@ -1,5 +1,6 @@
 package no.skatteetaten.aurora.gobo.resolvers.application
 
+import no.skatteetaten.aurora.gobo.ApplicationInstanceDetailsBuilder
 import no.skatteetaten.aurora.gobo.ApplicationResourceBuilder
 import no.skatteetaten.aurora.gobo.application.ApplicationService
 import no.skatteetaten.aurora.gobo.resolvers.createQuery
@@ -17,7 +18,7 @@ import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.web.reactive.function.BodyInserters
 
 @ExtendWith(SpringExtension::class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = ["management.server.port=-1"])
 @DirtiesContext
 class ApplicationQueryResolverTest {
     private val firstApplicationInstance = "\$.data.applications.edges[0].node.applicationInstances[0]"
@@ -34,6 +35,11 @@ class ApplicationQueryResolverTest {
     @Test
     fun `Query for applications given affiliations`() {
         val affiliations = listOf("paas")
+        given(applicationService.getApplicationInstanceDetails(affiliations)).willReturn(
+            listOf(
+                ApplicationInstanceDetailsBuilder().build()
+            )
+        )
         given(applicationService.getApplications(affiliations))
             .willReturn(listOf(ApplicationResourceBuilder().build()))
 
@@ -49,5 +55,6 @@ class ApplicationQueryResolverTest {
             .jsonPath("$.data.applications.totalCount").isNumber
             .jsonPath("$firstApplicationInstance.affiliation.name").isNotEmpty
             .jsonPath("$firstApplicationInstance.namespace.name").isNotEmpty
+            .jsonPath("$firstApplicationInstance.details.buildTime").isNotEmpty
     }
 }

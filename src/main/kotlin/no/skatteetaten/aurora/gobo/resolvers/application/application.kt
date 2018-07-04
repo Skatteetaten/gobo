@@ -7,12 +7,7 @@ import no.skatteetaten.aurora.gobo.application.ApplicationResource
 import no.skatteetaten.aurora.gobo.resolvers.Connection
 import no.skatteetaten.aurora.gobo.resolvers.Cursor
 import no.skatteetaten.aurora.gobo.resolvers.applicationinstance.ApplicationInstance
-import no.skatteetaten.aurora.gobo.resolvers.applicationinstance.Status
-import no.skatteetaten.aurora.gobo.resolvers.applicationinstance.Version
-import no.skatteetaten.aurora.gobo.resolvers.applicationinstancedetails.ApplicationInstanceDetails
-import no.skatteetaten.aurora.gobo.resolvers.applicationinstancedetails.GitInfo
-import no.skatteetaten.aurora.gobo.resolvers.applicationinstancedetails.ImageDetails
-import org.springframework.hateoas.Link
+import no.skatteetaten.aurora.gobo.resolvers.applicationinstance.createApplicationInstances
 
 data class Application(
     val name: String,
@@ -23,7 +18,18 @@ data class Application(
 data class ApplicationEdge(private val node: Application) : DefaultEdge<Application>(
     node,
     Cursor(node.name)
-)
+) {
+    companion object {
+        fun create(resource: ApplicationResource, applicationInstances: List<ApplicationInstance>) =
+            ApplicationEdge(
+                Application(
+                    resource.name,
+                    resource.tags,
+                    applicationInstances
+                )
+            )
+    }
+}
 
 data class ApplicationsConnection(override val edges: List<ApplicationEdge>, override val pageInfo: PageInfo?) :
     Connection<ApplicationEdge>()
@@ -32,38 +38,6 @@ fun createApplicationEdge(
     resource: ApplicationResource,
     details: List<ApplicationInstanceDetailsResource>
 ): ApplicationEdge {
-    val applicationInstances = resource.applicationInstances.map { instance ->
-        val applicationInstanceDetails =
-            details.find { it.getLink(Link.REL_SELF).href == instance.getLink("ApplicationInstanceDetails").href }
-
-        ApplicationInstance(
-            instance.affiliation,
-            instance.environment,
-            instance.namespace,
-            Status(instance.status.code, instance.status.comment),
-            Version(
-                instance.version.deployTag,
-                instance.version.auroraVersion
-            ),
-            applicationInstanceDetails?.let {
-                ApplicationInstanceDetails(
-                    applicationInstanceDetails.buildTime,
-                    it.imageDetails.let {
-                        ImageDetails(it.imageBuildTime, it.dockerImageReference)
-                    },
-                    it.gitInfo.let {
-                        GitInfo(it.commitId, it.commitTime)
-                    }
-                )
-            }
-        )
-    }
-
-    return ApplicationEdge(
-        Application(
-            resource.name,
-            resource.tags,
-            applicationInstances
-        )
-    )
+    val applicationInstances = createApplicationInstances(resource, details)
+    return ApplicationEdge.create(resource, applicationInstances)
 }
