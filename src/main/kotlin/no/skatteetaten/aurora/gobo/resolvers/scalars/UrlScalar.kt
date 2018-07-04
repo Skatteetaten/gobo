@@ -11,25 +11,19 @@ import java.net.URL
 
 @Component
 class UrlScalar : GraphQLScalarType(
-    "URL", "URL scalar", (object : Coercing<URL, String> {
+        "URL", "URL scalar", (object : Coercing<URL, String> {
 
-        override fun serialize(input: Any?) = (input as URL).toString()
+    override fun serialize(input: Any?) = (input as URL).toString()
 
-        override fun parseValue(input: Any?): URL = parseLiteral(input)
+    override fun parseValue(input: Any?): URL = parseLiteral(input)
 
-        override fun parseLiteral(input: Any?) =
-            when (input) {
-                is StringValue -> {
-                    try {
-                        URL(input.value)
-                    } catch (e: MalformedURLException) {
-                        throw CoercingParseValueException(
-                            "Input string '${input.value}' could not be parsed into a URL",
-                            e
-                        )
-                    }
-                }
-                else -> throw CoercingSerializeException("Invalid value '$input' for URL")
-            }
-    })
-)
+    override fun parseLiteral(input: Any?): URL {
+        if (input !is StringValue) throw CoercingSerializeException("Invalid value '$input' for URL")
+
+        return try {
+            URL(input.value)
+        } catch (e: MalformedURLException) {
+            throw CoercingParseValueException("Input string '${input.value}' could not be parsed into a URL", e)
+        }
+    }
+}))
