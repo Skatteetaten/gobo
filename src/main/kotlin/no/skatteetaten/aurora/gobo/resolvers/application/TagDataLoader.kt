@@ -13,11 +13,11 @@ import org.springframework.stereotype.Component
 import org.springframework.util.StopWatch
 
 @Component
-class TagDataLoader(val imageRegistryService: ImageRegistryService) : KeysDataLoader<ImageRepo, List<String>> {
+class TagDataLoader(val imageRegistryService: ImageRegistryService) : KeysDataLoader<ImageRepo, ImageTagsConnection> {
 
     private val logger: Logger = LoggerFactory.getLogger(TagDataLoader::class.java)
 
-    override fun getByKeys(keys: List<ImageRepo>): List<List<String>> {
+    override fun getByKeys(keys: List<ImageRepo>): List<ImageTagsConnection> {
 
         logger.info("Loading tags for ${keys.size} image repos")
 
@@ -39,6 +39,6 @@ class TagDataLoader(val imageRegistryService: ImageRegistryService) : KeysDataLo
 
         logger.info("Loaded tags for ${keys.size} image repos. ${sw.logLine}.")
 
-        return imageTags
+        return imageTags.map { ImageTagsConnection(emptyList(), null) }
     }
 }

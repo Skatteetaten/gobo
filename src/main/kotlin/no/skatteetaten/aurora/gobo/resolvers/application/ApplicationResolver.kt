@@ -1,20 +1,25 @@
 package no.skatteetaten.aurora.gobo.resolvers.application
 
 import com.coxautodev.graphql.tools.GraphQLResolver
+import no.skatteetaten.aurora.gobo.application.ImageRegistryService
 import no.skatteetaten.aurora.gobo.application.ImageRepo
-import no.skatteetaten.aurora.gobo.resolvers.NoCacheBatchDataLoader
 import org.springframework.stereotype.Component
-import java.util.concurrent.CompletableFuture
+import java.time.Instant
 
 @Component
-class ApplicationResolver(val tagDataLoader: NoCacheBatchDataLoader<ImageRepo, List<String>>) :
+class ApplicationResolver(
+    val imageRegistryService: ImageRegistryService
+) :
     GraphQLResolver<Application> {
 
-    fun tags(application: Application): CompletableFuture<List<String>> {
+    fun tags(application: Application, types: List<ImageTagType>?): ImageTagsConnection {
 
         val imageRepo = application.applicationInstances.firstOrNull()?.details?.imageDetails?.dockerImageRepo
-            ?: return CompletableFuture.completedFuture(emptyList())
+            ?: return ImageTagsConnection(emptyList(), null)
 
-        return tagDataLoader.load(imageRepo.let { ImageRepo.fromRepoString(it) })
+        val tagsInRepo = imageRegistryService.findAllTagsInRepo(ImageRepo.fromRepoString(imageRepo))
+        val matchingTags = tagsInRepo.map { ImageTag(it.name, Instant.now()) }
+            .filter { types == null || it.type in types }
+        return ImageTagsConnection(matchingTags.map { ImageTagEdge(it) }, null)
     }
 }

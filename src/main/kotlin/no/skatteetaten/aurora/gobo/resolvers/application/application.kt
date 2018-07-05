@@ -8,6 +8,7 @@ import no.skatteetaten.aurora.gobo.resolvers.Connection
 import no.skatteetaten.aurora.gobo.resolvers.Cursor
 import no.skatteetaten.aurora.gobo.resolvers.applicationinstance.ApplicationInstance
 import no.skatteetaten.aurora.gobo.resolvers.applicationinstance.createApplicationInstances
+import java.time.Instant
 
 data class Application(
     val name: String,
@@ -31,6 +32,35 @@ data class ApplicationEdge(private val node: Application) : DefaultEdge<Applicat
 
 data class ApplicationsConnection(override val edges: List<ApplicationEdge>, override val pageInfo: PageInfo?) :
     Connection<ApplicationEdge>()
+
+data class ImageTag(
+    val name: String,
+    val lastModified: Instant
+) {
+    val type: ImageTagType
+        get() {
+            return if (name.equals("latest")) ImageTagType.LATEST
+            else if (name.endsWith("-SNAPSHOT")) ImageTagType.SNAPSHOT
+            else if (name.matches(Regex("^\\d+$"))) ImageTagType.MAJOR
+            else if (name.matches(Regex("^\\d+.\\d+$"))) ImageTagType.MINOR
+            else if (name.matches(Regex("^\\d+.\\d+.\\d+$"))) ImageTagType.BUGFIX
+            else ImageTagType.AURORA_VERSION
+        }
+}
+
+data class ImageTagEdge(private val node: ImageTag) : DefaultEdge<ImageTag>(node, Cursor(node.name))
+
+data class ImageTagsConnection(override val edges: List<ImageTagEdge>, override val pageInfo: PageInfo?) :
+    Connection<ImageTagEdge>()
+
+enum class ImageTagType {
+    LATEST,
+    SNAPSHOT,
+    MAJOR,
+    MINOR,
+    BUGFIX,
+    AURORA_VERSION
+}
 
 fun createApplicationEdge(
     resource: ApplicationResource,
