@@ -1,9 +1,9 @@
 package no.skatteetaten.aurora.gobo.resolvers.application
 
 import kotlinx.coroutines.experimental.async
+import kotlinx.coroutines.experimental.newFixedThreadPoolContext
 import kotlinx.coroutines.experimental.runBlocking
 import no.skatteetaten.aurora.gobo.application.ImageRegistryService
-import no.skatteetaten.aurora.gobo.application.ImageRepo
 import no.skatteetaten.aurora.gobo.resolvers.KeysDataLoader
 import no.skatteetaten.aurora.utils.logLine
 import no.skatteetaten.aurora.utils.time
@@ -11,34 +11,36 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import org.springframework.util.StopWatch
+import java.time.Instant
 
 @Component
-class TagDataLoader(val imageRegistryService: ImageRegistryService) : KeysDataLoader<ImageRepo, ImageTagsConnection> {
+class TagDataLoader(val imageRegistryService: ImageRegistryService) : KeysDataLoader<ImageTag, Instant> {
 
     private val logger: Logger = LoggerFactory.getLogger(TagDataLoader::class.java)
 
-    override fun getByKeys(keys: List<ImageRepo>): List<ImageTagsConnection> {
+    val context = newFixedThreadPoolContext(6, "tag-loader")
 
-        logger.info("Loading tags for ${keys.size} image repos")
+    override fun getByKeys(keys: List<ImageTag>): List<Instant> {
+
+        logger.info("Loading ${keys.size} tags (${keys.toSet().size} unique)")
 
         val sw = StopWatch()
-        val imageTags = sw.time("Fetch all tags for all image repos") {
-            runBlocking {
+        val imageTags = sw.time("Fetch ${keys.size} tags") {
+            runBlocking(context) {
                 keys.map {
-                    async {
+                    async(context) {
                         try {
-                            val allTagsFor = imageRegistryService.findAllTagsInRepo(it)
-                            allTagsFor.map { it.name }
+                            imageRegistryService.findTagByName(it.imageRepo, it.name).created ?: Instant.EPOCH
                         } catch (e: Exception) {
-                            emptyList<String>()
+                            Instant.EPOCH
                         }
                     }
                 }.map { it.await() }
             }
         }
 
-        logger.info("Loaded tags for ${keys.size} image repos. ${sw.logLine}.")
+        logger.info(sw.logLine)
 
-        return imageTags.map { ImageTagsConnection(emptyList(), null) }
+        return imageTags
     }
 }

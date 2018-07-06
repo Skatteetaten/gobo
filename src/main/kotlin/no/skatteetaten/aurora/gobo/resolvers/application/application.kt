@@ -4,11 +4,11 @@ import graphql.relay.DefaultEdge
 import graphql.relay.PageInfo
 import no.skatteetaten.aurora.gobo.application.ApplicationInstanceDetailsResource
 import no.skatteetaten.aurora.gobo.application.ApplicationResource
+import no.skatteetaten.aurora.gobo.application.ImageRepo
 import no.skatteetaten.aurora.gobo.resolvers.Connection
 import no.skatteetaten.aurora.gobo.resolvers.Cursor
 import no.skatteetaten.aurora.gobo.resolvers.applicationinstance.ApplicationInstance
 import no.skatteetaten.aurora.gobo.resolvers.applicationinstance.createApplicationInstances
-import java.time.Instant
 
 data class Application(
     val name: String,
@@ -34,8 +34,8 @@ data class ApplicationsConnection(override val edges: List<ApplicationEdge>, ove
     Connection<ApplicationEdge>()
 
 data class ImageTag(
-    val name: String,
-    val lastModified: Instant
+    val imageRepo: ImageRepo,
+    val name: String
 ) {
     val type: ImageTagType
         get() {

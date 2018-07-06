@@ -17,7 +17,7 @@ class ImageRegistryServiceTest {
         val restTemplate = RestTemplate(createRequestFactory())
         val dockerRegistry = ImageRegistryService(restTemplate, DefaultImageRegistryUrlBuilder())
         val imageRepo = ImageRepo.fromRepoString("uil0paas-utv-registry01.skead.no:5000/no_skatteetaten_aurora/boober")
-        val tagsFor = dockerRegistry.findAllTagsInRepo(imageRepo)
+        val tagsFor = dockerRegistry.findTagNamesInRepo(imageRepo)
 
         tagsFor.forEach {
             println(it)

@@ -10,6 +10,7 @@ import org.dataloader.DataLoader
 import org.dataloader.DataLoaderRegistry
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.web.client.RestTemplateBuilder
+import org.springframework.cache.annotation.EnableCaching
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.hateoas.hal.Jackson2HalModule
@@ -24,6 +25,7 @@ import javax.net.ssl.SSLContext
 import javax.net.ssl.X509TrustManager
 
 @Configuration
+@EnableCaching
 class ApplicationConfig(
     @Value("\${mokey.url}") val mokeyUrl: String
 ) {

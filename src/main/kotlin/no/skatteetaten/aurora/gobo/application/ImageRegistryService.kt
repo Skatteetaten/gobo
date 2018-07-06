@@ -1,20 +1,13 @@
 package no.skatteetaten.aurora.gobo.application
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import kotlinx.coroutines.experimental.async
-import kotlinx.coroutines.experimental.newFixedThreadPoolContext
-import kotlinx.coroutines.experimental.runBlocking
-import no.skatteetaten.aurora.utils.logLine
-import no.skatteetaten.aurora.utils.time
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.cache.annotation.Cacheable
 import org.springframework.context.annotation.Primary
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Service
-import org.springframework.util.StopWatch
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestTemplate
 import java.time.Instant
@@ -55,8 +48,13 @@ class DefaultImageRegistryUrlBuilder : ImageRegistryUrlBuilder {
 
     override fun createTagListUrl(imageRepo: ImageRepo) = "${createApiUrl(imageRepo)}/tags/list"
 
-    override fun createApiUrl(imageRepo: ImageRepo) =
-        "https://${imageRepo.registryUrl}/v2/${imageRepo.namespace}/${imageRepo.name}"
+    override fun createApiUrl(imageRepo: ImageRepo): String {
+        return if (imageRepo.registryUrl.startsWith("172")) {
+            "http://${imageRepo.registryUrl}/v2/${imageRepo.namespace}/${imageRepo.name}"
+        } else {
+            "https://${imageRepo.registryUrl}/v2/${imageRepo.namespace}/${imageRepo.name}"
+        }
+    }
 }
 
 @Component
@@ -74,48 +72,25 @@ class OverrideRegistryImageRegistryUrlBuilder(
 @Service
 class ImageRegistryService(private val restTemplate: RestTemplate, private val urlBuilder: ImageRegistryUrlBuilder) {
 
-    private val logger: Logger = LoggerFactory.getLogger(ImageRegistryService::class.java)
-
     private val objectMapper = jacksonObjectMapper()
 
-    val context = newFixedThreadPoolContext(6, "image-registry")
-
-    fun findAllTagsInRepo(imageRepo: ImageRepo): List<ImageTag> {
-
-        val sw = StopWatch()
-        val tagList = sw.time("Find tag names") { findTagNamesForImageRepo(imageRepo) }
-//        tagList.forEach(::println)
-        logger.info("Fetching ${tagList.size} tags with metadata for image repo $imageRepo")
-        val tags = sw.time("Create tags") { findTagsByNames(imageRepo, tagList) }
-
-        logger.info("Fetched ${tags.size} tags with metadata for image repo $imageRepo. ${sw.logLine}.")
-
-        return tags
+    @Cacheable("image-tags")
+    fun findTagByName(imageRepo: ImageRepo, tagName: String): ImageTag {
+        val metadata = getImageMetaData(imageRepo, tagName)
+        return ImageTag(name = tagName, created = metadata?.createdDate)
     }
 
-    private fun findTagNamesForImageRepo(imageRepo: ImageRepo): List<String> {
+    fun findTagNamesInRepo(imageRepo: ImageRepo): List<String> {
 
         val tagListUrl = urlBuilder.createTagListUrl(imageRepo)
         val responseEntity = restTemplate.getForObjectNullOnNotFound(tagListUrl, TagList::class)
         return responseEntity?.tags ?: emptyList()
     }
 
-    private fun findTagsByNames(imageRepo: ImageRepo, tagNames: List<String>): List<ImageTag> {
-        return runBlocking(context) {
-            tagNames.map {
-                async(context) {
-                    val metadata = getImageMetaData(imageRepo, it)
-                    ImageTag(name = it, created = metadata?.createdDate)
-                }
-            }.map { it.await() }
-        }
-    }
-
     private fun getImageMetaData(imageRepo: ImageRepo, tag: String): ImageMetadata? =
         try {
-            ImageMetadata(Instant.now())
-//            val manifestsUrl = urlBuilder.createManifestsUrl(imageRepo, tag)
-//            restTemplate.getForObjectNullOnNotFound(manifestsUrl, String::class)?.let { parseMainfest(it) }
+            val manifestsUrl = urlBuilder.createManifestsUrl(imageRepo, tag)
+            restTemplate.getForObjectNullOnNotFound(manifestsUrl, String::class)?.let { parseMainfest(it) }
         } catch (e: Exception) {
             throw ImageRegistryServiceErrorException("Unable to get manifest for image: $tag", e)
         }
