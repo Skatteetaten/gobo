@@ -7,12 +7,15 @@ import org.springframework.stereotype.Component
 @Component
 class ApplicationQueryResolver(private val applicationService: ApplicationService) : GraphQLQueryResolver {
 
-    fun getApplications(affiliations: List<String>): ApplicationsConnection {
+    fun getApplications(
+        affiliations: List<String>,
+        applications: List<String>? = null
+    ): ApplicationsConnection {
         val details = applicationService.getApplicationInstanceDetails(affiliations)
-        val applications = applicationService
-            .getApplications(affiliations)
+        val applicationEdges = applicationService
+            .getApplications(affiliations, applications)
             .map { createApplicationEdge(it, details) }
 
-        return ApplicationsConnection(applications, null)
+        return ApplicationsConnection(applicationEdges, null)
     }
 }

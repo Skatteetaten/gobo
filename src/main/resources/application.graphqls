@@ -11,7 +11,7 @@ type ApplicationEdge {
 
 type Application {
   name: String!
-  tags(types: [ImageTagType!]): ImageTagsConnection,
+  tags(types: [ImageTagType!], first: Int, after: String): ImageTagsConnection,
   applicationInstances: [ApplicationInstance]
 }
 

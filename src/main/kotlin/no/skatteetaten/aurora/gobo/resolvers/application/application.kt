@@ -7,6 +7,7 @@ import no.skatteetaten.aurora.gobo.application.ApplicationResource
 import no.skatteetaten.aurora.gobo.application.ImageRepo
 import no.skatteetaten.aurora.gobo.resolvers.Connection
 import no.skatteetaten.aurora.gobo.resolvers.Cursor
+import no.skatteetaten.aurora.gobo.resolvers.PagedEdges
 import no.skatteetaten.aurora.gobo.resolvers.applicationinstance.ApplicationInstance
 import no.skatteetaten.aurora.gobo.resolvers.applicationinstance.createApplicationInstances
 
@@ -50,8 +51,13 @@ data class ImageTag(
 
 data class ImageTagEdge(private val node: ImageTag) : DefaultEdge<ImageTag>(node, Cursor(node.name))
 
-data class ImageTagsConnection(override val edges: List<ImageTagEdge>, override val pageInfo: PageInfo?) :
-    Connection<ImageTagEdge>()
+data class ImageTagsConnection(
+    override val edges: List<ImageTagEdge>,
+    override val pageInfo: PageInfo?,
+    override val totalCount: Int = edges.size
+) : Connection<ImageTagEdge>() {
+    constructor(paged: PagedEdges<ImageTagEdge>) : this(paged.edges, paged.pageInfo, paged.totalCount)
+}
 
 enum class ImageTagType {
     LATEST,

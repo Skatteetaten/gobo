@@ -13,7 +13,7 @@ import reactor.core.publisher.Mono
 @Service
 class ApplicationService(val webClient: WebClient, val objectMapper: ObjectMapper, val userService: UserService) {
 
-    fun getApplications(affiliations: List<String>): List<ApplicationResource> {
+    fun getApplications(affiliations: List<String>, applications: List<String>? = null): List<ApplicationResource> {
         val response = webClient
             .get()
             .uri {
@@ -23,7 +23,8 @@ class ApplicationService(val webClient: WebClient, val objectMapper: ObjectMappe
             .bodyToMono<String>()
             .block() ?: return emptyList()
 
-        return objectMapper.readValue(response)
+        val applicationResources = objectMapper.readValue<List<ApplicationResource>>(response)
+        return if (applications == null) applicationResources else applicationResources.filter { applications.contains(it.name) }
     }
 
     fun getApplicationInstanceDetails(affiliations: List<String>): List<ApplicationInstanceDetailsResource> =
