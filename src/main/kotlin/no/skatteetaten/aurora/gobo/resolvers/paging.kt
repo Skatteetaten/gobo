@@ -13,20 +13,12 @@ fun <T : DefaultEdge<*>> pageEdges(allEdges: List<T>, first: Int?, after: String
     return PagedEdges(edges, pageInfo, allEdges.size)
 }
 
-private fun <T : DefaultEdge<*>> createPage(allEdges: List<T>, first: Int?, after: String?): List<T> {
+private fun <T : DefaultEdge<*>> createPage(edges: List<T>, first: Int?, after: String?): List<T> {
 
-    var edges = allEdges
+    val startIndex = if (after != null) edges.indexOfOrNull { it.cursor.value == after } ?: 0 else 0
+    val endIndex = if (first != null) startIndex + first else edges.size
 
-    if (after != null) {
-        val startIndex = edges.indexOfFirst { it.cursor.value == after }
-        if (startIndex != -1) {
-            edges = edges.subList(startIndex + 1, edges.lastIndex + 1)
-        }
-    }
-    if (first != null) {
-        edges = edges.take(first)
-    }
-    return edges
+    return edges.subList(startIndex, endIndex)
 }
 
 private fun <T : DefaultEdge<*>> createPageInfo(pageEdges: List<T>, allEdges: List<T>): DefaultPageInfo {
@@ -43,3 +35,6 @@ private fun <T : DefaultEdge<*>> createPageInfo(pageEdges: List<T>, allEdges: Li
     val all = Cursors(allEdges)
     return DefaultPageInfo(page.first, page.last, page.isAtStartOf(all), page.isAtEndOf(all))
 }
+
+private fun <E> List<E>.indexOfOrNull(function: (it: E) -> Boolean): Int? =
+    this.indexOfFirst { function(it) }.takeIf { it != -1 }
