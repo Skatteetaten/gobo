@@ -7,7 +7,7 @@ import java.time.Instant
 import java.util.concurrent.CompletableFuture
 
 @Component
-class ImageTagResolver(private val tagDataLoader: NoCacheBatchDataLoader<ImageTag, Instant>) :
+class ImageRepositoryTagResolver(private val tagDataLoader: NoCacheBatchDataLoader<ImageTag, Instant>) :
     GraphQLResolver<ImageTag> {
 
     fun lastModified(imageTag: ImageTag): CompletableFuture<Instant> = tagDataLoader.load(imageTag)

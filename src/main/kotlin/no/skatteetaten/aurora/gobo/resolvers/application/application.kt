@@ -34,14 +34,23 @@ data class ApplicationEdge(private val node: Application) : DefaultEdge<Applicat
 data class ApplicationsConnection(override val edges: List<ApplicationEdge>, override val pageInfo: PageInfo?) :
     Connection<ApplicationEdge>()
 
+data class ImageRepository(
+    val registryUrl: String,
+    val namespace: String,
+    val name: String
+) {
+    val repository: String
+        get() = listOf(registryUrl, namespace, name).joinToString("/")
+}
+
 data class ImageTag(
     val imageRepo: ImageRepo,
     val name: String
 ) {
     val type: ImageTagType
         get() {
-            return if (name.equals("latest")) ImageTagType.LATEST
-            else if (name.endsWith("-SNAPSHOT")) ImageTagType.SNAPSHOT
+            return if (name.toLowerCase().equals("latest")) ImageTagType.LATEST
+            else if (name.toLowerCase().endsWith("-snapshot")) ImageTagType.SNAPSHOT
             else if (name.matches(Regex("^\\d+$"))) ImageTagType.MAJOR
             else if (name.matches(Regex("^\\d+.\\d+$"))) ImageTagType.MINOR
             else if (name.matches(Regex("^\\d+.\\d+.\\d+$"))) ImageTagType.BUGFIX
