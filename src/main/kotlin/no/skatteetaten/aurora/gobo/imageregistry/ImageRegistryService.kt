@@ -1,11 +1,7 @@
-package no.skatteetaten.aurora.gobo.application
+package no.skatteetaten.aurora.gobo.imageregistry
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import org.springframework.beans.factory.annotation.Value
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
-import org.springframework.context.annotation.Primary
 import org.springframework.http.HttpStatus
-import org.springframework.stereotype.Component
 import org.springframework.stereotype.Service
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestTemplate
@@ -16,57 +12,14 @@ data class ImageRepo(
     val registryUrl: String,
     val namespace: String,
     val name: String
-) {
-    override fun toString(): String {
-        return listOf(registryUrl, namespace, name).joinToString("/")
-    }
+)
 
-    companion object {
-        /**
-         * @param absoluteImageRepoPath Example docker-registry.aurora.sits.no:5000/no_skatteetaten_aurora/dbh
-         */
-        fun fromRepoString(absoluteImageRepoPath: String): ImageRepo {
-            val (registryUrl, namespace, name) = absoluteImageRepoPath.split("/")
-            return ImageRepo(registryUrl, namespace, name)
-        }
-    }
-}
+class ImageRegistryServiceErrorException(message: String, cause: Throwable) : RuntimeException(message, cause)
 
-interface ImageRegistryUrlBuilder {
-    fun createManifestsUrl(imageRepo: ImageRepo, tag: String): String
-
-    fun createTagListUrl(imageRepo: ImageRepo): String
-
-    fun createApiUrl(imageRepo: ImageRepo): String
-}
-
-@Component
-class DefaultImageRegistryUrlBuilder : ImageRegistryUrlBuilder {
-
-    override fun createManifestsUrl(imageRepo: ImageRepo, tag: String) = "${createApiUrl(imageRepo)}/manifests/$tag"
-
-    override fun createTagListUrl(imageRepo: ImageRepo) = "${createApiUrl(imageRepo)}/tags/list"
-
-    override fun createApiUrl(imageRepo: ImageRepo): String {
-        return if (imageRepo.registryUrl.startsWith("172")) {
-            "http://${imageRepo.registryUrl}/v2/${imageRepo.namespace}/${imageRepo.name}"
-        } else {
-            "https://${imageRepo.registryUrl}/v2/${imageRepo.namespace}/${imageRepo.name}"
-        }
-    }
-}
-
-@Component
-@Primary
-@ConditionalOnProperty("docker-registry.url")
-class OverrideRegistryImageRegistryUrlBuilder(
-    @Value("\${docker-registry.url}") val registryUrl: String
-) : DefaultImageRegistryUrlBuilder() {
-
-    override fun createApiUrl(imageRepo: ImageRepo): String {
-        return "$registryUrl/v2/${imageRepo.namespace}/${imageRepo.name}"
-    }
-}
+data class ImageTag(
+    val name: String,
+    var created: Instant? = null
+)
 
 @Service
 class ImageRegistryService(private val restTemplate: RestTemplate, private val urlBuilder: ImageRegistryUrlBuilder) {
@@ -97,7 +50,10 @@ class ImageRegistryService(private val restTemplate: RestTemplate, private val u
             val manifestsUrl = urlBuilder.createManifestsUrl(imageRepo, tag)
             restTemplate.getForObjectNullOnNotFound(manifestsUrl, String::class)?.let { parseMainfest(it) }
         } catch (e: Exception) {
-            throw ImageRegistryServiceErrorException("Unable to get manifest for image: $tag", e)
+            throw ImageRegistryServiceErrorException(
+                "Unable to get manifest for image: $tag",
+                e
+            )
         }
 
     private fun parseMainfest(manifestString: String): ImageMetadata {
@@ -116,13 +72,6 @@ class ImageRegistryService(private val restTemplate: RestTemplate, private val u
 
     private data class ImageMetadata(val createdDate: Instant)
 }
-
-class ImageRegistryServiceErrorException(message: String, cause: Throwable) : RuntimeException(message, cause)
-
-data class ImageTag(
-    val name: String,
-    var created: Instant? = null
-)
 
 private fun <T : Any> RestTemplate.getForObjectNullOnNotFound(url: String, kClass: KClass<T>): T? {
     return try {

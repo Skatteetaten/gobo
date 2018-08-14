@@ -1,8 +1,8 @@
-package no.skatteetaten.aurora.gobo.resolvers.application
+package no.skatteetaten.aurora.gobo.resolvers.imagerepository
 
 import com.coxautodev.graphql.tools.GraphQLResolver
-import no.skatteetaten.aurora.gobo.application.ImageRegistryService
-import no.skatteetaten.aurora.gobo.application.ImageRepo
+import no.skatteetaten.aurora.gobo.imageregistry.ImageRegistryService
+import no.skatteetaten.aurora.gobo.imageregistry.ImageRepo
 import no.skatteetaten.aurora.gobo.resolvers.pageEdges
 import org.springframework.stereotype.Component
 
@@ -19,7 +19,8 @@ class ImageRepositoryResolver(
         after: String? = null
     ): ImageTagsConnection {
 
-        val imageRepo = ImageRepo.fromRepoString(imageRepository.repository)
+        val imageRepo = ImageRepository.fromRepoString(imageRepository.repository)
+            .let { ImageRepo(it.registryUrl, it.namespace, it.name) }
         val tagsInRepo = try {
             imageRegistryService.findTagNamesInRepoOrderedByCreatedDateDesc(imageRepo)
         } catch (e: Exception) {

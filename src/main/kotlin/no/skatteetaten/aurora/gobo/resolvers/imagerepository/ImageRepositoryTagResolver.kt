@@ -1,4 +1,4 @@
-package no.skatteetaten.aurora.gobo.resolvers.application
+package no.skatteetaten.aurora.gobo.resolvers.imagerepository
 
 import com.coxautodev.graphql.tools.GraphQLResolver
 import no.skatteetaten.aurora.gobo.resolvers.NoCacheBatchDataLoader

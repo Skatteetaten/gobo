@@ -1,5 +1,9 @@
 package no.skatteetaten.aurora.gobo.application
 
+import no.skatteetaten.aurora.gobo.imageregistry.DefaultImageRegistryUrlBuilder
+import no.skatteetaten.aurora.gobo.imageregistry.ImageRegistryService
+import no.skatteetaten.aurora.gobo.imageregistry.ImageRepo
+import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository
 import okhttp3.OkHttpClient
 import org.junit.jupiter.api.Test
 import org.springframework.http.client.OkHttp3ClientHttpRequestFactory
@@ -15,8 +19,13 @@ class ImageRegistryServiceTest {
     fun `a`() {
 
         val restTemplate = RestTemplate(createRequestFactory())
-        val dockerRegistry = ImageRegistryService(restTemplate, DefaultImageRegistryUrlBuilder())
-        val imageRepo = ImageRepo.fromRepoString("uil0paas-utv-registry01.skead.no:5000/no_skatteetaten_aurora/boober")
+        val dockerRegistry = ImageRegistryService(
+            restTemplate,
+            DefaultImageRegistryUrlBuilder()
+        )
+        val imageRepo =
+            ImageRepository.fromRepoString("uil0paas-utv-registry01.skead.no:5000/no_skatteetaten_aurora/boober")
+                .let { ImageRepo(it.registryUrl, it.namespace, it.name) }
         val tagsFor = dockerRegistry.findTagNamesInRepoOrderedByCreatedDateDesc(imageRepo)
 
         tagsFor.forEach {

@@ -11,7 +11,7 @@ type ApplicationEdge {
 
 type Application {
   name: String!
-  imageRepository: ImageRepository!,
+  imageRepository: ImageRepository,
   applicationInstances: [ApplicationInstance]
 }
 

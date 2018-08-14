@@ -1,9 +1,9 @@
-package no.skatteetaten.aurora.gobo.resolvers.application
+package no.skatteetaten.aurora.gobo.resolvers.imagerepository
 
 import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.newFixedThreadPoolContext
 import kotlinx.coroutines.experimental.runBlocking
-import no.skatteetaten.aurora.gobo.application.ImageRegistryService
+import no.skatteetaten.aurora.gobo.imageregistry.ImageRegistryService
 import no.skatteetaten.aurora.gobo.resolvers.KeysDataLoader
 import no.skatteetaten.aurora.utils.logLine
 import no.skatteetaten.aurora.utils.time
