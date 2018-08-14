@@ -21,7 +21,7 @@ class ImageRepositoryResolver(
 
         val imageRepo = ImageRepo.fromRepoString(imageRepository.repository)
         val tagsInRepo = try {
-            imageRegistryService.findTagNamesInRepo(imageRepo)
+            imageRegistryService.findTagNamesInRepoOrderedByCreatedDateDesc(imageRepo)
         } catch (e: Exception) {
             emptyList<String>()
         }

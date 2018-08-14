@@ -78,11 +78,18 @@ class ImageRegistryService(private val restTemplate: RestTemplate, private val u
         return ImageTag(name = tagName, created = metadata?.createdDate)
     }
 
-    fun findTagNamesInRepo(imageRepo: ImageRepo): List<String> {
+    fun findTagNamesInRepoOrderedByCreatedDateDesc(imageRepo: ImageRepo): List<String> {
 
         val tagListUrl = urlBuilder.createTagListUrl(imageRepo)
-        val responseEntity = restTemplate.getForObjectNullOnNotFound(tagListUrl, TagList::class)
-        return responseEntity?.tags ?: emptyList()
+        val tagList = restTemplate.getForObjectNullOnNotFound(tagListUrl, TagList::class)
+        val tagsOrderedByCreatedDate = tagList?.tags ?: emptyList()
+
+        // The current image registry returns the tag names in the order they were created. There does not, however,
+        // seem to be a way to affect what property the tags are ordered by or the direction they are ordered in, so
+        // there is a chance this order is an "undocumented feature" of the api. We will rely on this feature for the
+        // time being, though, as it allows for some queries to be significantly quicker than fetching the individual
+        // created dates for each tag, an then sort.
+        return tagsOrderedByCreatedDate.reversed()
     }
 
     private fun getImageMetaData(imageRepo: ImageRepo, tag: String): ImageMetadata? =

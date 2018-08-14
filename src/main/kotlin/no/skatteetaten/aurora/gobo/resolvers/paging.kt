@@ -14,12 +14,14 @@ fun <T : DefaultEdge<*>> pageEdges(allEdges: List<T>, first: Int? = null, after:
     return PagedEdges(edges, pageInfo, allEdges.size)
 }
 
-private fun <T : DefaultEdge<*>> createPage(edges: List<T>, first: Int?, after: String?): List<T> {
+private fun <T : DefaultEdge<*>> createPage(edges: List<T>, first: Int?, afterCursor: String?): List<T> {
+    val startIndex = if (afterCursor != null) edges.indexOfFirst { it.cursor.value == afterCursor } + 1 else 0
+    return createPage(edges, startIndex, first ?: edges.size)
+}
 
-    val startIndex = if (after != null) edges.indexOfFirst { it.cursor.value == after } + 1 else 0
-    val endIndex = if (first != null) min(startIndex + first, edges.size) else edges.size
-
-    return edges.subList(startIndex, endIndex)
+fun <T> createPage(edges: List<T>, offset: Int, limit: Int = edges.size): List<T> {
+    val endIndex = min(offset + limit, edges.size)
+    return edges.subList(offset, endIndex)
 }
 
 private fun <T : DefaultEdge<*>> createPageInfo(pageEdges: List<T>, allEdges: List<T>): DefaultPageInfo {
