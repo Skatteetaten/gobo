@@ -1,8 +1,8 @@
 package no.skatteetaten.aurora.gobo.resolvers.imagerepository
 
 import com.coxautodev.graphql.tools.GraphQLResolver
-import no.skatteetaten.aurora.gobo.imageregistry.ImageRegistryService
-import no.skatteetaten.aurora.gobo.imageregistry.ImageRepo
+import no.skatteetaten.aurora.gobo.service.imageregistry.ImageRegistryService
+import no.skatteetaten.aurora.gobo.service.imageregistry.ImageRepo
 import no.skatteetaten.aurora.gobo.resolvers.pageEdges
 import org.springframework.stereotype.Component
 

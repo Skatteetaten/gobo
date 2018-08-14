@@ -6,7 +6,7 @@ import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
 import no.skatteetaten.aurora.gobo.ApplicationResourceBuilder
-import no.skatteetaten.aurora.gobo.application.ApplicationService
+import no.skatteetaten.aurora.gobo.service.application.ApplicationService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 

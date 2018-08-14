@@ -1,4 +1,4 @@
-package no.skatteetaten.aurora.gobo.imageregistry
+package no.skatteetaten.aurora.gobo.service.imageregistry
 
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty

@@ -1,8 +1,8 @@
-package no.skatteetaten.aurora.gobo.application
+package no.skatteetaten.aurora.gobo.service.application
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import no.skatteetaten.aurora.gobo.user.UserService
+import no.skatteetaten.aurora.gobo.service.user.UserService
 import org.springframework.http.HttpHeaders
 import org.springframework.stereotype.Service
 import org.springframework.util.LinkedMultiValueMap

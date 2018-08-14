@@ -2,7 +2,7 @@ package no.skatteetaten.aurora.gobo.resolvers.application
 
 import no.skatteetaten.aurora.gobo.ApplicationInstanceDetailsBuilder
 import no.skatteetaten.aurora.gobo.ApplicationResourceBuilder
-import no.skatteetaten.aurora.gobo.application.ApplicationService
+import no.skatteetaten.aurora.gobo.service.application.ApplicationService
 import no.skatteetaten.aurora.gobo.resolvers.createQuery
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith

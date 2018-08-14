@@ -2,8 +2,8 @@ package no.skatteetaten.aurora.gobo.resolvers.application
 
 import graphql.relay.DefaultEdge
 import graphql.relay.PageInfo
-import no.skatteetaten.aurora.gobo.application.ApplicationInstanceDetailsResource
-import no.skatteetaten.aurora.gobo.application.ApplicationResource
+import no.skatteetaten.aurora.gobo.service.application.ApplicationInstanceDetailsResource
+import no.skatteetaten.aurora.gobo.service.application.ApplicationResource
 import no.skatteetaten.aurora.gobo.resolvers.Connection
 import no.skatteetaten.aurora.gobo.resolvers.Cursor
 import no.skatteetaten.aurora.gobo.resolvers.applicationinstance.ApplicationInstance

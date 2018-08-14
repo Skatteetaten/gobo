@@ -2,7 +2,7 @@ package no.skatteetaten.aurora.gobo.resolvers.imagerepository
 
 import graphql.relay.DefaultEdge
 import graphql.relay.PageInfo
-import no.skatteetaten.aurora.gobo.imageregistry.ImageRepo
+import no.skatteetaten.aurora.gobo.service.imageregistry.ImageRepo
 import no.skatteetaten.aurora.gobo.resolvers.Connection
 import no.skatteetaten.aurora.gobo.resolvers.Cursor
 import no.skatteetaten.aurora.gobo.resolvers.PagedEdges

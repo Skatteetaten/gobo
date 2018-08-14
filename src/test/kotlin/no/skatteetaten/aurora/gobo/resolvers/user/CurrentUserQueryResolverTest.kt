@@ -1,7 +1,7 @@
 package no.skatteetaten.aurora.gobo.resolvers.user
 
 import no.skatteetaten.aurora.gobo.resolvers.createQuery
-import no.skatteetaten.aurora.gobo.user.UserService
+import no.skatteetaten.aurora.gobo.service.user.UserService
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.BDDMockito.given

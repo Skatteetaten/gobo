@@ -1,4 +1,4 @@
-package no.skatteetaten.aurora.gobo.imageregistry
+package no.skatteetaten.aurora.gobo.service.imageregistry
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.springframework.http.HttpStatus
