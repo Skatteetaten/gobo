@@ -3,7 +3,6 @@ package no.skatteetaten.aurora.gobo.application
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
-import org.springframework.cache.annotation.Cacheable
 import org.springframework.context.annotation.Primary
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
@@ -74,7 +73,6 @@ class ImageRegistryService(private val restTemplate: RestTemplate, private val u
 
     private val objectMapper = jacksonObjectMapper()
 
-    @Cacheable("image-tags")
     fun findTagByName(imageRepo: ImageRepo, tagName: String): ImageTag {
         val metadata = getImageMetaData(imageRepo, tagName)
         return ImageTag(name = tagName, created = metadata?.createdDate)

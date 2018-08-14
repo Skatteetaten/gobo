@@ -66,7 +66,6 @@ dependencies {
       'org.springframework.boot:spring-boot-starter-security',
       'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.23.4',
       'org.springframework.boot:spring-boot-starter-hateoas',
-      'org.springframework.boot:spring-boot-starter-cache',
       'com.graphql-java:graphql-spring-boot-starter:4.2.0',
       'com.graphql-java:graphiql-spring-boot-starter:4.2.0',
       'com.graphql-java:graphql-java-tools:5.1.0'

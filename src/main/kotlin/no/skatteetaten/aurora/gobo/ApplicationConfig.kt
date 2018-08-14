@@ -25,7 +25,6 @@ import javax.net.ssl.SSLContext
 import javax.net.ssl.X509TrustManager
 
 @Configuration
-@EnableCaching
 class ApplicationConfig(
     @Value("\${mokey.url}") val mokeyUrl: String
 ) {
