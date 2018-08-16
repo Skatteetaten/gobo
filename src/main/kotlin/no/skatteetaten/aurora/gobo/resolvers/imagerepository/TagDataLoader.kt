@@ -3,8 +3,8 @@ package no.skatteetaten.aurora.gobo.resolvers.imagerepository
 import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.newFixedThreadPoolContext
 import kotlinx.coroutines.experimental.runBlocking
-import no.skatteetaten.aurora.gobo.service.imageregistry.ImageRegistryService
 import no.skatteetaten.aurora.gobo.resolvers.KeysDataLoader
+import no.skatteetaten.aurora.gobo.service.imageregistry.ImageRegistryService
 import no.skatteetaten.aurora.utils.logLine
 import no.skatteetaten.aurora.utils.time
 import org.slf4j.Logger
@@ -27,10 +27,11 @@ class TagDataLoader(val imageRegistryService: ImageRegistryService) : KeysDataLo
         val sw = StopWatch()
         val imageTags = sw.time("Fetch ${keys.size} tags") {
             runBlocking(context) {
-                keys.map {
+                keys.map { imageTag ->
                     async(context) {
                         try {
-                            imageRegistryService.findTagByName(it.imageRepo, it.name).created ?: Instant.EPOCH
+                            val imageRepo = toImageRepo(imageTag.imageRepository)
+                            imageRegistryService.findTagByName(imageRepo, imageTag.name).created ?: Instant.EPOCH
                         } catch (e: Exception) {
                             Instant.EPOCH
                         }

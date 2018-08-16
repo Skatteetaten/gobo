@@ -1,6 +1,5 @@
 package no.skatteetaten.aurora.gobo.service.imageregistry
 
-import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository
 import okhttp3.OkHttpClient
 import org.junit.jupiter.api.Test
 import org.springframework.http.client.OkHttp3ClientHttpRequestFactory
@@ -18,16 +17,19 @@ class ImageRegistryServiceTest {
         val restTemplate = RestTemplate(createRequestFactory())
         val dockerRegistry = ImageRegistryService(
             restTemplate,
-            DefaultImageRegistryUrlBuilder()
+            ImageRegistryUrlBuilder(),
+            DefaultRegistryMetadataResolver()
         )
-        val imageRepo =
+/*
+        val imageRepoMetadata =
             ImageRepository.fromRepoString("uil0paas-utv-registry01.skead.no:5000/no_skatteetaten_aurora/boober")
-                .let { ImageRepo(it.registryUrl, it.namespace, it.name) }
-        val tagsFor = dockerRegistry.findTagNamesInRepoOrderedByCreatedDateDesc(imageRepo)
+                .let { ImageRepoMetadata(it.registryUrl, it.namespace, it.name) }
+        val tagsFor = dockerRegistry.findTagNamesInRepoOrderedByCreatedDateDesc(imageRepoMetadata)
 
         tagsFor.forEach {
             println(it)
         }
+*/
     }
 }
 

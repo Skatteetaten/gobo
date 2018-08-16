@@ -8,13 +8,9 @@ import org.springframework.web.client.RestTemplate
 import java.time.Instant
 import kotlin.reflect.KClass
 
-data class ImageRepo(
-    val registryUrl: String,
-    val namespace: String,
-    val name: String
-)
-
 class ImageRegistryServiceErrorException(message: String, cause: Throwable) : RuntimeException(message, cause)
+
+data class ImageRepo(val registry: String, val namespace: String, val name: String)
 
 data class ImageTag(
     val name: String,
@@ -22,7 +18,11 @@ data class ImageTag(
 )
 
 @Service
-class ImageRegistryService(private val restTemplate: RestTemplate, private val urlBuilder: ImageRegistryUrlBuilder) {
+class ImageRegistryService(
+    private val restTemplate: RestTemplate,
+    private val urlBuilder: ImageRegistryUrlBuilder,
+    private val registryMetadataResolver: RegistryMetadataResolver
+) {
 
     private val objectMapper = jacksonObjectMapper()
 
@@ -33,7 +33,10 @@ class ImageRegistryService(private val restTemplate: RestTemplate, private val u
 
     fun findTagNamesInRepoOrderedByCreatedDateDesc(imageRepo: ImageRepo): List<String> {
 
-        val tagListUrl = urlBuilder.createTagListUrl(imageRepo)
+        val registryMetadata = registryMetadataResolver.getMetadataForRegistry(imageRepo.registry)
+
+        val tagListUrl = urlBuilder.createTagListUrl(registryMetadata.apiSchema, imageRepo)
+
         val tagList = restTemplate.getForObjectNullOnNotFound(tagListUrl, TagList::class)
         val tagsOrderedByCreatedDate = tagList?.tags ?: emptyList()
 
@@ -45,9 +48,12 @@ class ImageRegistryService(private val restTemplate: RestTemplate, private val u
         return tagsOrderedByCreatedDate.reversed()
     }
 
-    private fun getImageMetaData(imageRepo: ImageRepo, tag: String): ImageMetadata? =
-        try {
-            val manifestsUrl = urlBuilder.createManifestsUrl(imageRepo, tag)
+    private fun getImageMetaData(imageRepo: ImageRepo, tag: String): ImageMetadata? {
+
+        val registryMetadata = registryMetadataResolver.getMetadataForRegistry(imageRepo.registry)
+
+        return try {
+            val manifestsUrl = urlBuilder.createManifestsUrl(registryMetadata.apiSchema, imageRepo, tag)
             restTemplate.getForObjectNullOnNotFound(manifestsUrl, String::class)?.let { parseMainfest(it) }
         } catch (e: Exception) {
             throw ImageRegistryServiceErrorException(
@@ -55,6 +61,7 @@ class ImageRegistryService(private val restTemplate: RestTemplate, private val u
                 e
             )
         }
+    }
 
     private fun parseMainfest(manifestString: String): ImageMetadata {
 

@@ -2,10 +2,10 @@ package no.skatteetaten.aurora.gobo.resolvers.imagerepository
 
 import graphql.relay.DefaultEdge
 import graphql.relay.PageInfo
-import no.skatteetaten.aurora.gobo.service.imageregistry.ImageRepo
 import no.skatteetaten.aurora.gobo.resolvers.Connection
 import no.skatteetaten.aurora.gobo.resolvers.Cursor
 import no.skatteetaten.aurora.gobo.resolvers.PagedEdges
+import no.skatteetaten.aurora.gobo.service.imageregistry.ImageRepo
 
 data class ImageRepository(
     val registryUrl: String,
@@ -20,14 +20,20 @@ data class ImageRepository(
          * @param absoluteImageRepoPath Example docker-registry.aurora.sits.no:5000/no_skatteetaten_aurora/dbh
          */
         fun fromRepoString(absoluteImageRepoPath: String): ImageRepository {
-            val (registryUrl, namespace, name) = absoluteImageRepoPath.split("/")
+            val (registryUrl, namespace, name) = decompose(absoluteImageRepoPath)
             return ImageRepository(registryUrl, namespace, name)
+        }
+
+        private fun decompose(imageRepoString: String): List<String> {
+            val segments = imageRepoString.split("/")
+            if (segments.size != 3) throw IllegalArgumentException("The string [$imageRepoString] does not appear to be a valid image repository reference")
+            return segments
         }
     }
 }
 
 data class ImageTag(
-    val imageRepo: ImageRepo,
+    val imageRepository: ImageRepository,
     val name: String
 ) {
     val type: ImageTagType
@@ -59,3 +65,5 @@ enum class ImageTagType {
     BUGFIX,
     AURORA_VERSION
 }
+
+fun toImageRepo(it: ImageRepository) = ImageRepo(it.registryUrl, it.namespace, it.name)
