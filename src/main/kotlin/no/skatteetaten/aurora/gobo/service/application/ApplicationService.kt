@@ -31,13 +31,13 @@ class ApplicationService(val webClient: WebClient, val objectMapper: ObjectMappe
         affiliations.flatMap { getApplicationInstanceDetails(it) }
 
     private fun getApplicationInstanceDetails(affiliation: String): List<ApplicationInstanceDetailsResource> {
+        // TODO: Handle error appropriately
         val response = webClient
             .get()
             .uri("/api/applicationinstancedetails?affiliation={affiliation}", affiliation)
             .header(HttpHeaders.AUTHORIZATION, "Bearer ${userService.getToken()}")
             .retrieve()
             .bodyToMono<String>()
-            .onErrorResume { Mono.empty() }
             .block() ?: return emptyList()
         return objectMapper.readValue(response)
     }

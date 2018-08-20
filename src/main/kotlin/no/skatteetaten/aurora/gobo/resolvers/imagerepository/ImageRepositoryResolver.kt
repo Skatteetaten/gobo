@@ -6,10 +6,7 @@ import no.skatteetaten.aurora.gobo.service.imageregistry.ImageRegistryService
 import org.springframework.stereotype.Component
 
 @Component
-class ImageRepositoryResolver(
-    val imageRegistryService: ImageRegistryService
-) :
-    GraphQLResolver<ImageRepository> {
+class ImageRepositoryResolver(val imageRegistryService: ImageRegistryService) : GraphQLResolver<ImageRepository> {
 
     fun tags(
         imageRepository: ImageRepository,
@@ -21,6 +18,7 @@ class ImageRepositoryResolver(
         val tagsInRepo = try {
             imageRegistryService.findTagNamesInRepoOrderedByCreatedDateDesc(imageRepository.toImageRepo())
         } catch (e: Exception) {
+            // TODO: Indicate error to caller
             emptyList<String>()
         }
         val matchingTags = tagsInRepo
