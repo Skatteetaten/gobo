@@ -1,4 +1,4 @@
-package no.skatteetaten.aurora.gobo.utils
+package no.skatteetaten.aurora.utils
 
 import okhttp3.OkHttpClient
 import org.springframework.http.client.OkHttp3ClientHttpRequestFactory
