@@ -24,7 +24,7 @@ fun <T> createPage(edges: List<T>, offset: Int, limit: Int = edges.size): List<T
     return edges.subList(offset, endIndex)
 }
 
-private fun <T : DefaultEdge<*>> createPageInfo(pageEdges: List<T>, allEdges: List<T>): DefaultPageInfo {
+fun <T : DefaultEdge<*>> createPageInfo(pageEdges: List<T>, allEdges: List<T> = pageEdges): DefaultPageInfo {
 
     data class Cursors<T : DefaultEdge<*>>(private val edges: List<T>) {
         val first get() = edges.firstOrNull()?.cursor

@@ -34,7 +34,7 @@ data class PodResource(
                 resource.restartCount,
                 resource.ready,
                 resource.startTime,
-                resource.links.map { Link.create(it) }
+                resource.links.map { Link(it.rel, URL(it.href)) }
             )
     }
 
@@ -47,18 +47,7 @@ data class PodResource(
     }
 }
 
-data class Link(val name: String, val url: URL) {
-    companion object {
-        fun create(link: org.springframework.hateoas.Link): Link {
-            val href = if (link.href.matches("https?://.*".toRegex())) {
-                link.href
-            } else {
-                "http://${link.href}"
-            }
-            return Link(link.rel, URL(href))
-        }
-    }
-}
+data class Link(val name: String, val url: URL)
 
 data class ApplicationInstanceDetails(
     val buildTime: Instant?,

@@ -1,9 +1,9 @@
 package no.skatteetaten.aurora.gobo.resolvers.applicationinstance
 
+import no.skatteetaten.aurora.gobo.resolvers.applicationinstancedetails.ApplicationInstanceDetails
 import no.skatteetaten.aurora.gobo.service.application.ApplicationInstanceDetailsResource
 import no.skatteetaten.aurora.gobo.service.application.ApplicationInstanceResource
 import no.skatteetaten.aurora.gobo.service.application.ApplicationResource
-import no.skatteetaten.aurora.gobo.resolvers.applicationinstancedetails.ApplicationInstanceDetails
 
 data class Status(val code: String, val comment: String?)
 
@@ -33,15 +33,19 @@ data class ApplicationInstance(
     }
 }
 
-fun createApplicationInstances(
-    resource: ApplicationResource,
-    details: List<ApplicationInstanceDetailsResource>
-): List<ApplicationInstance> {
-    return resource.applicationInstances.map { instance ->
-        val detailsResource =
-            details.find { it.getLink("self")?.href == instance.getLink("ApplicationInstanceDetails")?.href }
+// TODO: Provide better error messages for the double bangs
+class ApplicationInstanceBuilder(detailsResources: List<ApplicationInstanceDetailsResource>) {
 
-        val applicationInstanceDetails = detailsResource?.let { ApplicationInstanceDetails.create(it) }
-        ApplicationInstance.create(instance, applicationInstanceDetails)
+    private val detailsIndex: Map<String, ApplicationInstanceDetailsResource> =
+        detailsResources.map { Pair(it.getLink("self")!!.href, it) }.toMap()
+
+    fun createApplicationInstances(appResource: ApplicationResource): List<ApplicationInstance> {
+
+        return appResource.applicationInstances.map { instance ->
+            val detailsLink = instance.getLink("ApplicationInstanceDetails")?.href!!
+            val detailsResource = detailsIndex[detailsLink]!!
+            val applicationInstanceDetails = ApplicationInstanceDetails.create(detailsResource)
+            ApplicationInstance.create(instance, applicationInstanceDetails)
+        }
     }
 }

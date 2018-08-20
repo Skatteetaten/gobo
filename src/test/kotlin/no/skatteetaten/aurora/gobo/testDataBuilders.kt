@@ -20,7 +20,8 @@ data class ApplicationInstanceResourceBuilder(val affiliation: String = "paas") 
             "environment",
             "namespace",
             StatusResource("code", "comment"),
-            VersionResource("deployTag", "auroraVersion")
+            VersionResource("deployTag", "auroraVersion"),
+            emptyList()
         )
 }
 
@@ -59,8 +60,10 @@ class ApplicationInstanceDetailsBuilder {
                     "status",
                     0,
                     true,
-                    Instant.now()
+                    Instant.now(),
+                    emptyList()
                 )
-            )
+            ),
+            emptyList()
         )
 }
