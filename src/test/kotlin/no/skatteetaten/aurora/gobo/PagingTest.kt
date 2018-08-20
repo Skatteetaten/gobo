@@ -16,9 +16,14 @@ class PagingTest {
     @Test
     fun `paging with an empty list`() {
 
-        data class P(val first: Int?, val after: String?)
+        data class Param(val first: Int?, val after: String?)
 
-        listOf(P(null, null), P(20, null), P(null, "df"), P(20, "df")).forEach {
+        listOf(
+            Param(first = null, after = null),
+            Param(first = 20, after = null),
+            Param(first = null, after = "some_cursor"),
+            Param(first = 20, after = "some_cursor")
+        ).forEach {
             val pagedEdges = pageEdges(emptyList(), it.first, it.after)
 
             assert(pagedEdges.edges).isEmpty()
@@ -33,17 +38,36 @@ class PagingTest {
     }
 
     @Test
-    fun `no paging`() = verify(pageEdges(edges), toEdges("A", "B", "C", "D", "E"), false, false)
+    fun `no paging`() = verify(
+        pageEdges(edges),
+        expectedEdges = toEdges("A", "B", "C", "D", "E"),
+        hasPrevPage = false,
+        hasNexPage = false
+    )
 
     @Test
-    fun `paging without cursor`() = verify(pageEdges(edges, 2), toEdges("A", "B"), false, true)
+    fun `paging without cursor`() = verify(
+        pageEdges(edges, first = 2),
+        expectedEdges = toEdges("A", "B"),
+        hasPrevPage = false,
+        hasNexPage = true
+    )
 
     @Test
-    fun `paging to last page`() = verify(pageEdges(edges, 2, cursorOf("C")), toEdges("D", "E"), true, false)
+    fun `paging to last page`() = verify(
+        pageEdges(edges, first = 2, after = cursorOf("C")),
+        expectedEdges = toEdges("D", "E"),
+        hasPrevPage = true,
+        hasNexPage = false
+    )
 
     @Test
-    fun `paging in middle of result set`() =
-        verify(pageEdges(edges, 3, cursorOf("A")), toEdges("B", "C", "D"), true, true)
+    fun `paging in middle of result set`() = verify(
+        pageEdges(edges, first = 3, after = cursorOf("A")),
+        expectedEdges = toEdges("B", "C", "D"),
+        hasPrevPage = true,
+        hasNexPage = true
+    )
 
     data class Edge(private val node: String) : DefaultEdge<String>(node, Cursor(node))
 
