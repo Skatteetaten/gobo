@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.bodyToMono
-import reactor.core.publisher.Mono
 
 @Service
 class ApplicationService(val webClient: WebClient, val objectMapper: ObjectMapper, val userService: UserService) {
