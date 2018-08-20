@@ -1,11 +1,14 @@
 package no.skatteetaten.aurora.gobo.service.imageregistry
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
+import org.springframework.http.RequestEntity
 import org.springframework.stereotype.Service
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestTemplate
-import org.springframework.web.client.getForObject
+import java.net.URI
 import java.time.Instant
 import kotlin.reflect.KClass
 
@@ -22,7 +25,8 @@ data class ImageTag(
 class ImageRegistryService(
     private val restTemplate: RestTemplate,
     private val urlBuilder: ImageRegistryUrlBuilder,
-    private val registryMetadataResolver: RegistryMetadataResolver
+    private val registryMetadataResolver: RegistryMetadataResolver,
+    private val tokenProvider: TokenProvider
 ) {
 
     private val objectMapper = jacksonObjectMapper()
@@ -38,7 +42,7 @@ class ImageRegistryService(
 
         val tagListUrl = urlBuilder.createTagListUrl(registryMetadata.apiSchema, imageRepo)
 
-        val tagList = restTemplate.getForObjectNullOnNotFound(tagListUrl, TagList::class)
+        val tagList = getFromRegistry(registryMetadata, tagListUrl, TagList::class)
         val tagsOrderedByCreatedDate = tagList?.tags ?: emptyList()
 
         // The current image registry returns the tag names in the order they were created. There does not, however,
@@ -55,12 +59,9 @@ class ImageRegistryService(
 
         return try {
             val manifestsUrl = urlBuilder.createManifestsUrl(registryMetadata.apiSchema, imageRepo, tag)
-            restTemplate.getForObjectNullOnNotFound(manifestsUrl, String::class)?.let { parseMainfest(it) }
+            getFromRegistry(registryMetadata, manifestsUrl, String::class)?.let { parseMainfest(it) }
         } catch (e: Exception) {
-            throw ImageRegistryServiceErrorException(
-                "Unable to get manifest for image: $tag",
-                e
-            )
+            throw ImageRegistryServiceErrorException("Unable to get manifest for image: $tag", e)
         }
     }
 
@@ -79,15 +80,22 @@ class ImageRegistryService(
     )
 
     private data class ImageMetadata(val createdDate: Instant)
-}
 
-private fun <T : Any> RestTemplate.getForObjectNullOnNotFound(url: String, kClass: KClass<T>): T? {
-    return try {
-        this.getForObject(url, kClass.java)
-    } catch (e: HttpClientErrorException) {
-        if (e.statusCode != HttpStatus.NOT_FOUND) {
-            throw e
+    private fun <T : Any> getFromRegistry(registryMetadata: RegistryMetadata, apiUrl: String, kClass: KClass<T>): T? {
+
+        val headers = HttpHeaders().apply {
+            if (registryMetadata.authenticationMethod == AuthenticationMethod.KUBERNETES_TOKEN) {
+                set("Authorization", "Bearer ${tokenProvider.token}")
+            }
         }
-        null
+        val request = RequestEntity<T>(headers, HttpMethod.GET, URI(apiUrl))
+        return try {
+            restTemplate.exchange(request, kClass.java).body
+        } catch (e: HttpClientErrorException) {
+            if (e.statusCode != HttpStatus.NOT_FOUND) {
+                throw e
+            }
+            null
+        }
     }
 }
