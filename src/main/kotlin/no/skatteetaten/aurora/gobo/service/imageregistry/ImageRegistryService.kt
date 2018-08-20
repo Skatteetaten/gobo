@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestTemplate
+import org.springframework.web.client.getForObject
 import java.time.Instant
 import kotlin.reflect.KClass
 
@@ -44,7 +45,7 @@ class ImageRegistryService(
         // seem to be a way to affect what property the tags are ordered by or the direction they are ordered in, so
         // there is a chance this order is an "undocumented feature" of the api. We will rely on this feature for the
         // time being, though, as it allows for some queries to be significantly quicker than fetching the individual
-        // created dates for each tag, an then sort.
+        // created dates for each tag, and then sort.
         return tagsOrderedByCreatedDate.reversed()
     }
 

@@ -19,7 +19,7 @@ class ImageRepositoryResolver(
     ): ImageTagsConnection {
 
         val tagsInRepo = try {
-            imageRegistryService.findTagNamesInRepoOrderedByCreatedDateDesc(toImageRepo(imageRepository))
+            imageRegistryService.findTagNamesInRepoOrderedByCreatedDateDesc(imageRepository.toImageRepo())
         } catch (e: Exception) {
             emptyList<String>()
         }

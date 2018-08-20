@@ -66,4 +66,4 @@ enum class ImageTagType {
     AURORA_VERSION
 }
 
-fun toImageRepo(it: ImageRepository) = ImageRepo(it.registryUrl, it.namespace, it.name)
+fun ImageRepository.toImageRepo() = ImageRepo(this.registryUrl, this.namespace, this.name)

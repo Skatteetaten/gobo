@@ -8,10 +8,11 @@ import org.junit.jupiter.api.Test
 
 class DefaultRegistryMetadataResolverTest {
 
+    private val metadataResolver = DefaultRegistryMetadataResolver()
+
     @Test
     fun `verify metadata for internal registry`() {
 
-        val metadataResolver = DefaultRegistryMetadataResolver()
         val metadata = metadataResolver.getMetadataForRegistry("172.30.79.77:5000")
 
         assert(metadata.apiSchema).isEqualTo("http")
@@ -21,7 +22,6 @@ class DefaultRegistryMetadataResolverTest {
     @Test
     fun `verify metadata for central registry`() {
 
-        val metadataResolver = DefaultRegistryMetadataResolver()
         val metadata = metadataResolver.getMetadataForRegistry("docker-registry.somesuch.no:5000")
 
         assert(metadata.apiSchema).isEqualTo("https")
