@@ -29,12 +29,14 @@ class TagDataLoader(val imageRegistryService: ImageRegistryService) : KeysDataLo
             runBlocking(context) {
                 keys.map { imageTag ->
                     async(context) {
-                        try {
+                        val created = try {
                             val imageRepo = imageTag.imageRepository.toImageRepo()
-                            imageRegistryService.findTagByName(imageRepo, imageTag.name).created ?: Instant.EPOCH
+                            imageRegistryService.findTagByName(imageRepo, imageTag.name).created
                         } catch (e: Exception) {
-                            Instant.EPOCH
+                            // TODO: Consider handling this error
+                            null
                         }
+                        created ?: Instant.EPOCH
                     }
                 }.map { it.await() }
             }
