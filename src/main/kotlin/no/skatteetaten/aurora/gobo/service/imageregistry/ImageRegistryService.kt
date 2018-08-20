@@ -16,10 +16,35 @@ class ImageRegistryServiceErrorException(message: String, cause: Throwable) : Ru
 
 data class ImageRepo(val registry: String, val namespace: String, val name: String)
 
+enum class ImageTagType {
+    LATEST,
+    SNAPSHOT,
+    MAJOR,
+    MINOR,
+    BUGFIX,
+    AURORA_VERSION,
+    AURORA_SNAPSHOT_VERSION;
+
+    companion object {
+        fun typeOf(tag: String): ImageTagType {
+            return if (tag.toLowerCase().equals("latest")) ImageTagType.LATEST
+            else if (tag.toLowerCase().endsWith("-snapshot")) ImageTagType.SNAPSHOT
+            else if (tag.toLowerCase().startsWith("snapshot-")) ImageTagType.AURORA_SNAPSHOT_VERSION
+            else if (tag.matches(Regex("^\\d+$"))) ImageTagType.MAJOR
+            else if (tag.matches(Regex("^\\d+.\\d+$"))) ImageTagType.MINOR
+            else if (tag.matches(Regex("^\\d+.\\d+.\\d+$"))) ImageTagType.BUGFIX
+            else ImageTagType.AURORA_VERSION
+        }
+    }
+}
+
 data class ImageTag(
     val name: String,
     var created: Instant? = null
-)
+) {
+    val type: ImageTagType
+        get() = ImageTagType.typeOf(name)
+}
 
 @Service
 class ImageRegistryService(

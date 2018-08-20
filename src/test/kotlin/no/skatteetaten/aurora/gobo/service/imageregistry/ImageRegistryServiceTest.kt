@@ -28,7 +28,8 @@ class ImageRegistryServiceTest {
     val dockerRegistry = ImageRegistryService(
         restTemplate,
         ImageRegistryUrlBuilder(),
-        DefaultRegistryMetadataResolver()
+        DefaultRegistryMetadataResolver(),
+        TokenProvider("")
     )
 
     @Test

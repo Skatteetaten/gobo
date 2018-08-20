@@ -3,6 +3,7 @@ package no.skatteetaten.aurora.gobo.resolvers.imagerepository
 import com.coxautodev.graphql.tools.GraphQLResolver
 import no.skatteetaten.aurora.gobo.resolvers.pageEdges
 import no.skatteetaten.aurora.gobo.service.imageregistry.ImageRegistryService
+import no.skatteetaten.aurora.gobo.service.imageregistry.ImageTagType
 import org.springframework.stereotype.Component
 
 @Component
