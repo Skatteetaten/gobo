@@ -26,6 +26,9 @@ class ApplicationQueryResolverTest {
     @Value("classpath:graphql/getApplications.graphql")
     private lateinit var getApplicationsQuery: Resource
 
+    @Value("classpath:graphql/invalidQuery.graphql")
+    private lateinit var invalidQuery: Resource
+
     @Autowired
     private lateinit var webTestClient: WebTestClient
 
@@ -56,5 +59,17 @@ class ApplicationQueryResolverTest {
             .jsonPath("$firstApplicationInstance.affiliation.name").isNotEmpty
             .jsonPath("$firstApplicationInstance.namespace.name").isNotEmpty
             .jsonPath("$firstApplicationInstance.details.buildTime").isNotEmpty
+    }
+
+    @Test
+    fun `Given invalid query return errors array`() {
+        webTestClient
+                .post()
+                .uri("/graphql")
+                .body(BodyInserters.fromObject(createQuery(invalidQuery)))
+                .exchange()
+                .expectStatus().isOk
+                .expectBody()
+                .jsonPath("$.errors").isArray
     }
 }
