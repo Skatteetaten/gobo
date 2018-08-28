@@ -23,7 +23,8 @@ class ApplicationService(val webClient: WebClient, val objectMapper: ObjectMappe
             .block() ?: return emptyList()
 
         val applicationResources = objectMapper.readValue<List<ApplicationResource>>(response)
-        return if (applications == null) applicationResources else applicationResources.filter { applications.contains(it.name) }
+        return if (applications == null) applicationResources else applicationResources
+            .filter { applications.contains(it.name) }
     }
 
     fun getApplicationInstanceDetails(affiliations: List<String>): List<ApplicationInstanceDetailsResource> =
