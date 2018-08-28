@@ -36,8 +36,9 @@ data class ApplicationInstance(
 // TODO: Provide better error messages for the double bangs
 class ApplicationInstanceBuilder(detailsResources: List<ApplicationInstanceDetailsResource>) {
 
-    private val detailsIndex: Map<String, ApplicationInstanceDetailsResource> =
-        detailsResources.map { Pair(it.getLink("self")!!.href, it) }.toMap()
+    private val detailsIndex = detailsResources
+        .map { Pair(it.getLink("self")!!.href, it) }
+        .toMap()
 
     fun createApplicationInstances(appResource: ApplicationResource): List<ApplicationInstance> {
 
