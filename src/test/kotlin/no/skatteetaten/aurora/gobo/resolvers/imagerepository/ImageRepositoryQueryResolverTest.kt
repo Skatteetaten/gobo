@@ -108,13 +108,12 @@ class ImageRepositoryQueryResolverTest {
             .expectStatus().isOk
             .expectBody(QueryResponse.Response::class.java)
             .consumeWith<Nothing> { result ->
-                val repository = result.responseBody!!.data.imageRepositories[0]
-                assert(repository.tags.totalCount).isEqualTo(testData.tags.size)
-                assert(repository.tags.edges.size).isEqualTo(pageSize)
-                assert(repository.tags.edges.map { it.node.name }).containsExactly("1", "1.0", "1.0.0")
-                assert(repository.tags.pageInfo!!).isNotNull()
-                assert(repository.tags.pageInfo.startCursor).isNotEmpty()
-                assert(repository.tags.pageInfo.hasNextPage).isTrue()
+                val tags = result.responseBody!!.data.imageRepositories[0].tags
+                assert(tags.totalCount).isEqualTo(testData.tags.size)
+                assert(tags.edges.size).isEqualTo(pageSize)
+                assert(tags.edges.map { it.node.name }).containsExactly("1", "1.0", "1.0.0")
+                assert(tags.pageInfo!!.startCursor).isNotEmpty()
+                assert(tags.pageInfo.hasNextPage).isTrue()
             }
     }
 }
