@@ -84,12 +84,10 @@ class ImageRepositoryQueryResolverTest {
     fun `Query for tags with paging`() {
         val testData = this.testData[0]
 
-        testData.let { data: ImageRepoData ->
-            given(imageRegistryService.findTagNamesInRepoOrderedByCreatedDateDesc(data.imageRepo)).willReturn(data.tags)
-            data.tags
-                .map { ServiceImageTag(it, created = EPOCH) }
-                .forEach { given(imageRegistryService.findTagByName(data.imageRepo, it.name)).willReturn(it) }
-        }
+        given(imageRegistryService.findTagNamesInRepoOrderedByCreatedDateDesc(testData.imageRepo)).willReturn(testData.tags)
+        testData.tags
+            .map { ServiceImageTag(it, created = EPOCH) }
+            .forEach { given(imageRegistryService.findTagByName(testData.imageRepo, it.name)).willReturn(it) }
 
         val pageSize = 3
         val variables = mapOf("repositories" to testData.imageRepo.repository, "pageSize" to pageSize)
