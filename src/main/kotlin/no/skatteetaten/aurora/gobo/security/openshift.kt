@@ -19,7 +19,7 @@ class OpenShiftAuthenticationUserDetailsService : AuthenticationUserDetailsServi
 
         return toUserDetails(principal, token.credentials as String).also { user ->
             MDC.put("user", user.username)
-            logger.info("Logged in user username=${user.username}, name='${user.fullName}' tokenSnippet=${user.tokenSnippet}")
+            logger.info("Current user username=${user.username}, name='${user.fullName}' tokenSnippet=${user.tokenSnippet}")
         }
     }
 

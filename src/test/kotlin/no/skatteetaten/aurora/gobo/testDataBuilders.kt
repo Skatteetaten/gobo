@@ -1,16 +1,17 @@
 package no.skatteetaten.aurora.gobo
 
-import no.skatteetaten.aurora.gobo.application.ApplicationInstanceDetailsResource
-import no.skatteetaten.aurora.gobo.application.ApplicationInstanceResource
-import no.skatteetaten.aurora.gobo.application.ApplicationResource
-import no.skatteetaten.aurora.gobo.application.GitInfoResource
-import no.skatteetaten.aurora.gobo.application.ImageDetailsResource
-import no.skatteetaten.aurora.gobo.application.PodResourceResource
-import no.skatteetaten.aurora.gobo.application.StatusResource
-import no.skatteetaten.aurora.gobo.application.VersionResource
 import no.skatteetaten.aurora.gobo.resolvers.applicationinstance.ApplicationInstance
 import no.skatteetaten.aurora.gobo.resolvers.applicationinstance.Status
 import no.skatteetaten.aurora.gobo.resolvers.applicationinstance.Version
+import no.skatteetaten.aurora.gobo.service.application.ApplicationInstanceDetailsResource
+import no.skatteetaten.aurora.gobo.service.application.ApplicationInstanceResource
+import no.skatteetaten.aurora.gobo.service.application.ApplicationResource
+import no.skatteetaten.aurora.gobo.service.application.GitInfoResource
+import no.skatteetaten.aurora.gobo.service.application.ImageDetailsResource
+import no.skatteetaten.aurora.gobo.service.application.PodResourceResource
+import no.skatteetaten.aurora.gobo.service.application.StatusResource
+import no.skatteetaten.aurora.gobo.service.application.VersionResource
+import org.springframework.hateoas.Link
 import java.time.Instant
 
 data class ApplicationInstanceResourceBuilder(val affiliation: String = "paas") {
@@ -21,7 +22,9 @@ data class ApplicationInstanceResourceBuilder(val affiliation: String = "paas") 
             "namespace",
             StatusResource("code", "comment"),
             VersionResource("deployTag", "auroraVersion")
-        )
+        ).apply {
+            add(Link("http://ApplicationInstanceDetails/1", "ApplicationInstanceDetails"))
+        }
 }
 
 data class ApplicationResourceBuilder(val name: String = "name") {
@@ -29,7 +32,6 @@ data class ApplicationResourceBuilder(val name: String = "name") {
     fun build(): ApplicationResource =
         ApplicationResource(
             name,
-            emptyList(),
             listOf(ApplicationInstanceResourceBuilder().build())
         )
 }
@@ -63,5 +65,5 @@ class ApplicationInstanceDetailsBuilder {
                     Instant.now()
                 )
             )
-        )
+        ).apply { add(Link("http://ApplicationInstanceDetails/1", "self")) }
 }

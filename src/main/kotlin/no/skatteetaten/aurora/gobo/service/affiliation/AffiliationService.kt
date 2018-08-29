@@ -1,4 +1,4 @@
-package no.skatteetaten.aurora.gobo.affiliation
+package no.skatteetaten.aurora.gobo.service.affiliation
 
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient

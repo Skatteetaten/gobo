@@ -1,18 +1,22 @@
 package no.skatteetaten.aurora.gobo.resolvers.application
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver
-import no.skatteetaten.aurora.gobo.application.ApplicationService
+import no.skatteetaten.aurora.gobo.service.application.ApplicationService
 import org.springframework.stereotype.Component
 
 @Component
 class ApplicationQueryResolver(private val applicationService: ApplicationService) : GraphQLQueryResolver {
 
-    fun getApplications(affiliations: List<String>): ApplicationsConnection {
-        val details = applicationService.getApplicationInstanceDetails(affiliations)
-        val applications = applicationService
-            .getApplications(affiliations)
-            .map { createApplicationEdge(it, details) }
+    fun getApplications(
+        affiliations: List<String>,
+        applications: List<String>? = null
+    ): ApplicationsConnection {
 
-        return ApplicationsConnection(applications, null)
+        // TODO: When applications is set, limit the amount of data collected for ApplicationInstanceDetails.
+        val details = applicationService.getApplicationInstanceDetails(affiliations)
+        val applicationResources = applicationService.getApplications(affiliations, applications)
+        val applicationEdges = createApplicationEdges(applicationResources, details)
+
+        return ApplicationsConnection(applicationEdges)
     }
 }

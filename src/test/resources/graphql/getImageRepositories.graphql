@@ -1,0 +1,14 @@
+query getImageRepositories($repositories: [String!]!){
+    imageRepositories(repositories: $repositories) {
+        repository
+        tags {
+            totalCount
+            edges {
+                node {
+                    name
+                    lastModified
+                }
+            }
+        }
+    }
+}

@@ -1,7 +1,7 @@
 package no.skatteetaten.aurora.gobo.resolvers.user
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver
-import no.skatteetaten.aurora.gobo.user.UserService
+import no.skatteetaten.aurora.gobo.service.user.UserService
 import org.springframework.stereotype.Component
 
 @Component

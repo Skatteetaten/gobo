@@ -5,14 +5,17 @@ import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import graphql.execution.instrumentation.dataloader.DataLoaderDispatcherInstrumentation
+import no.skatteetaten.aurora.utils.createRequestFactory
 import org.dataloader.DataLoader
 import org.dataloader.DataLoaderRegistry
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.hateoas.hal.Jackson2HalModule
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
+import org.springframework.web.client.RestTemplate
 import org.springframework.web.reactive.function.client.WebClient
 
 @Configuration
@@ -49,4 +52,8 @@ class ApplicationConfig(
     @Bean
     fun instrumentation(dataLoaderRegistry: DataLoaderRegistry) =
         DataLoaderDispatcherInstrumentation(dataLoaderRegistry)
+
+    @Bean
+    fun restTemplate(builder: RestTemplateBuilder): RestTemplate =
+        builder.requestFactory { createRequestFactory() }.build()
 }
