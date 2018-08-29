@@ -73,7 +73,7 @@ class ImageRepositoryQueryResolverTest {
             .body(BodyInserters.fromObject(query))
             .exchange()
             .expectStatus().isOk
-            .expectBody(QueryWithPagingResponse.Response::class.java)
+            .expectBody(QueryResponse.Response::class.java)
             .consumeWith<Nothing> { result ->
                 result.responseBody!!.data.imageRepositories.forEachIndexed { repoIndex, repository ->
                     assert(repository.repository).isEqualTo(testData[repoIndex].repoString)
@@ -106,7 +106,7 @@ class ImageRepositoryQueryResolverTest {
             .body(BodyInserters.fromObject(query))
             .exchange()
             .expectStatus().isOk
-            .expectBody(QueryWithPagingResponse.Response::class.java)
+            .expectBody(QueryResponse.Response::class.java)
             .consumeWith<Nothing> { result ->
                 val repository = result.responseBody!!.data.imageRepositories[0]
                 assert(repository.tags.totalCount).isEqualTo(testData.tags.size)
@@ -119,7 +119,7 @@ class ImageRepositoryQueryResolverTest {
     }
 }
 
-class QueryWithPagingResponse {
+class QueryResponse {
     data class PageInfo(val startCursor: String, val hasNextPage: Boolean)
     data class Tag(val name: String, val lastModified: String)
     data class Edge(val node: Tag)
