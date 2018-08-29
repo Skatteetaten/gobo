@@ -4,6 +4,7 @@ import assertk.assert
 import assertk.assertions.containsExactly
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotEmpty
+import assertk.assertions.isNotNull
 import assertk.assertions.isTrue
 import no.skatteetaten.aurora.gobo.resolvers.createQuery
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository.Companion.fromRepoString
@@ -72,13 +73,18 @@ class ImageRepositoryQueryResolverTest {
             .body(BodyInserters.fromObject(query))
             .exchange()
             .expectStatus().isOk
-            .expectBody()
-            .jsonPath("$.data.imageRepositories[0].repository").isEqualTo(testData[0].repoString)
-            .jsonPath("$.data.imageRepositories[0].tags.totalCount").isEqualTo(testData[0].tags.size)
-            .jsonPath("$.data.imageRepositories[0].tags.edges[0].node.name").isEqualTo(testData[0].tags[0])
-            .jsonPath("$.data.imageRepositories[0].tags.edges[0].node.lastModified").isEqualTo(Instant.EPOCH.toString())
-            .jsonPath("$.data.imageRepositories[1].repository").isEqualTo(testData[1].repoString)
-            .jsonPath("$.data.imageRepositories[1].tags.totalCount").isEqualTo(testData[1].tags.size)
+            .expectBody(QueryWithPagingResponse.Response::class.java)
+            .consumeWith<Nothing> { result ->
+                result.responseBody!!.data.imageRepositories.forEachIndexed { repoIndex, repository ->
+                    assert(repository.repository).isEqualTo(testData[repoIndex].repoString)
+                    assert(repository.tags.totalCount).isEqualTo(testData[repoIndex].tags.size)
+                    assert(repository.tags.edges.size).isEqualTo(testData[repoIndex].tags.size)
+                    repository.tags.edges.forEachIndexed { edgeIndex, edge ->
+                        assert(edge.node.name).isEqualTo(testData[repoIndex].tags[edgeIndex])
+                        assert(edge.node.lastModified).isEqualTo(Instant.EPOCH.toString())
+                    }
+                }
+            }
     }
 
     @Test
@@ -101,11 +107,12 @@ class ImageRepositoryQueryResolverTest {
             .exchange()
             .expectStatus().isOk
             .expectBody(QueryWithPagingResponse.Response::class.java)
-            .consumeWith<Nothing> { result->
+            .consumeWith<Nothing> { result ->
                 val repository = result.responseBody!!.data.imageRepositories[0]
                 assert(repository.tags.totalCount).isEqualTo(testData.tags.size)
                 assert(repository.tags.edges.size).isEqualTo(pageSize)
                 assert(repository.tags.edges.map { it.node.name }).containsExactly("1", "1.0", "1.0.0")
+                assert(repository.tags.pageInfo!!).isNotNull()
                 assert(repository.tags.pageInfo.startCursor).isNotEmpty()
                 assert(repository.tags.pageInfo.hasNextPage).isTrue()
             }
@@ -116,8 +123,8 @@ class QueryWithPagingResponse {
     data class PageInfo(val startCursor: String, val hasNextPage: Boolean)
     data class Tag(val name: String, val lastModified: String)
     data class Edge(val node: Tag)
-    data class Tags(val totalCount: Int, val pageInfo: PageInfo, val edges: List<Edge>)
-    data class ImageRepository(val tags: Tags)
+    data class Tags(val totalCount: Int, val edges: List<Edge>, val pageInfo: PageInfo?)
+    data class ImageRepository(val repository: String?, val tags: Tags)
     data class ImageRepositories(val imageRepositories: List<ImageRepository>)
     data class Response(val data: ImageRepositories)
 }
