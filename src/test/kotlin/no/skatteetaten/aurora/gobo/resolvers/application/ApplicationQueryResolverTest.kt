@@ -60,10 +60,11 @@ class ApplicationQueryResolverTest {
 
     @Test
     fun `Given invalid query return errors array`() {
+        val query = createQuery(invalidQuery)
         webTestClient
                 .post()
                 .uri("/graphql")
-                .body(BodyInserters.fromObject(createQuery(invalidQuery)))
+                .body(BodyInserters.fromObject(query))
                 .exchange()
                 .expectStatus().isOk
                 .expectBody()
