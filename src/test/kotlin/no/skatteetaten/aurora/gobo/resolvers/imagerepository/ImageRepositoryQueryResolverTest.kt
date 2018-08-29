@@ -101,8 +101,7 @@ class ImageRepositoryQueryResolverTest {
             .expectStatus().isOk
             .expectBody(QueryWithPagingResponse.Response::class.java)
             .consumeWith<Nothing> {
-                val responseBody = it.responseBody!!
-                val repository = responseBody.data.imageRepositories[0]
+                val repository = it.responseBody!!.data.imageRepositories[0]
                 assert(repository.tags.totalCount).isEqualTo(testData.tags.size)
                 assert(repository.tags.edges.size).isEqualTo(pageSize)
                 assert(repository.tags.pageInfo.startCursor).isNotEmpty()
