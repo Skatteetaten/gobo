@@ -2,18 +2,27 @@ package no.skatteetaten.aurora.gobo.resolvers.application
 
 import graphql.relay.DefaultEdge
 import graphql.relay.PageInfo
-import no.skatteetaten.aurora.gobo.application.ApplicationInstanceDetailsResource
-import no.skatteetaten.aurora.gobo.application.ApplicationResource
 import no.skatteetaten.aurora.gobo.resolvers.Connection
 import no.skatteetaten.aurora.gobo.resolvers.Cursor
 import no.skatteetaten.aurora.gobo.resolvers.applicationinstance.ApplicationInstance
-import no.skatteetaten.aurora.gobo.resolvers.applicationinstance.createApplicationInstances
+import no.skatteetaten.aurora.gobo.resolvers.applicationinstance.ApplicationInstanceBuilder
+import no.skatteetaten.aurora.gobo.resolvers.createPageInfo
+import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository
+import no.skatteetaten.aurora.gobo.service.application.ApplicationInstanceDetailsResource
+import no.skatteetaten.aurora.gobo.service.application.ApplicationResource
 
 data class Application(
     val name: String,
-    val tags: List<String>,
     val applicationInstances: List<ApplicationInstance>
-)
+) {
+    val imageRepository: ImageRepository?
+        get() {
+            return applicationInstances
+                .firstOrNull { it.details?.imageDetails?.dockerImageRepo != null }
+                ?.details?.imageDetails?.dockerImageRepo
+                ?.let { ImageRepository.fromRepoString(it) }
+        }
+}
 
 data class ApplicationEdge(private val node: Application) : DefaultEdge<Application>(
     node,
@@ -24,20 +33,21 @@ data class ApplicationEdge(private val node: Application) : DefaultEdge<Applicat
             ApplicationEdge(
                 Application(
                     resource.name,
-                    resource.tags,
                     applicationInstances
                 )
             )
     }
 }
 
-data class ApplicationsConnection(override val edges: List<ApplicationEdge>, override val pageInfo: PageInfo?) :
-    Connection<ApplicationEdge>()
+data class ApplicationsConnection(
+    override val edges: List<ApplicationEdge>,
+    override val pageInfo: PageInfo = createPageInfo(edges)
+) : Connection<ApplicationEdge>()
 
-fun createApplicationEdge(
-    resource: ApplicationResource,
-    details: List<ApplicationInstanceDetailsResource>
-): ApplicationEdge {
-    val applicationInstances = createApplicationInstances(resource, details)
-    return ApplicationEdge.create(resource, applicationInstances)
+fun createApplicationEdges(
+    applicationResources: List<ApplicationResource>,
+    detailResources: List<ApplicationInstanceDetailsResource>
+): List<ApplicationEdge> {
+    val instanceBuilder = ApplicationInstanceBuilder(detailResources)
+    return applicationResources.map { ApplicationEdge.create(it, instanceBuilder.createApplicationInstances(it)) }
 }

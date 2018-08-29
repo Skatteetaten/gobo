@@ -4,7 +4,9 @@ scalar URL
 type Query {
   affiliations: AffiliationsConnection
 
-  applications(affiliations: [String!]): ApplicationsConnection
+  applications(affiliations: [String!]!, applications: [String!]): ApplicationsConnection
+
+  imageRepositories(repositories: [String!]): [ImageRepository]
 
   currentUser: User
 }

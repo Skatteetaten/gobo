@@ -1,6 +1,7 @@
-package no.skatteetaten.aurora.gobo.application
+package no.skatteetaten.aurora.gobo.service.affiliation
 
 import assertk.assert
+import assertk.assertions.contains
 import assertk.assertions.isNotEmpty
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -12,20 +13,15 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 @AutoConfigureStubRunner
-class ApplicationServiceTest {
+class AffiliationServiceTest {
 
     @Autowired
-    lateinit var applicationService: ApplicationService
+    lateinit var affiliationService: AffiliationService
 
     @Test
-    fun `Get applications for affiliation`() {
-        val applications = applicationService.getApplications(listOf("paas"))
-        assert(applications).isNotEmpty()
-    }
-
-    @Test
-    fun `Get application instance details for affiliation`() {
-        val details = applicationService.getApplicationInstanceDetails(listOf("paas"))
-        assert(details).isNotEmpty()
+    fun `Get affiliations`() {
+        val affiliations = affiliationService.getAllAffiliations()
+        assert(affiliations).isNotEmpty()
+        assert(affiliations).contains("paas")
     }
 }

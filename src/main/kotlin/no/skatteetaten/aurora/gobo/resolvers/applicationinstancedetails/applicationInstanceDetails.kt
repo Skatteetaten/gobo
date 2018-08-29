@@ -1,7 +1,7 @@
 package no.skatteetaten.aurora.gobo.resolvers.applicationinstancedetails
 
-import no.skatteetaten.aurora.gobo.application.ApplicationInstanceDetailsResource
-import no.skatteetaten.aurora.gobo.application.PodResourceResource
+import no.skatteetaten.aurora.gobo.service.application.ApplicationInstanceDetailsResource
+import no.skatteetaten.aurora.gobo.service.application.PodResourceResource
 import java.net.URL
 import java.time.Instant
 
@@ -13,7 +13,10 @@ data class GitInfo(
 data class ImageDetails(
     val imageBuildTime: Instant?,
     val dockerImageReference: String?
-)
+) {
+    val dockerImageRepo: String?
+        get() = dockerImageReference?.replace(Regex("@.*$"), "")
+}
 
 data class PodResource(
     val name: String,
@@ -44,7 +47,7 @@ data class PodResource(
     }
 }
 
-data class Link(val name: String, val url: URL) {
+class Link private constructor(val name: String, val url: URL) {
     companion object {
         fun create(link: org.springframework.hateoas.Link): Link {
             val href = if (link.href.matches("https?://.*".toRegex())) {

@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test
 import java.net.URL
 
 class LinkTest {
-
     @Test
     fun `Create link with protocol`() {
         val link = Link.create(org.springframework.hateoas.Link("http://localhost", "self"))

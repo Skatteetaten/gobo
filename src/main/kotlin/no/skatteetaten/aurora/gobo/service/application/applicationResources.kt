@@ -1,4 +1,4 @@
-package no.skatteetaten.aurora.gobo.application
+package no.skatteetaten.aurora.gobo.service.application
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import org.springframework.hateoas.ResourceSupport
@@ -45,6 +45,5 @@ data class ApplicationInstanceResource(
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class ApplicationResource(
     val name: String,
-    val tags: List<String>,
     val applicationInstances: List<ApplicationInstanceResource>
 )
