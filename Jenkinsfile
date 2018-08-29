@@ -6,9 +6,7 @@ def overrides = [
     pipelineScript: 'https://git.aurora.skead.no/scm/ao/aurora-pipeline-scripts.git',
     openshiftBaseImage: 'yeaster',
     openshiftBaseVersion: '1',
-    piTests: false,
-    checkstyle: false,
-    docs: false,
+    disableAllReports: true,
     credentialsId: "github",
     suggestVersionAndTagReleases: [
       [branch: 'master', versionHint: '1.0']
