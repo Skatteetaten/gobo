@@ -14,33 +14,3 @@ type Application {
   imageRepository: ImageRepository,
   applicationInstances: [ApplicationInstance]
 }
-
-type ImageRepository {
-  repository: String
-  tags(types: [ImageTagType!], first: Int, after: String): ImageTagsConnection
-}
-
-type ImageTagsConnection {
-  edges: [ImageTagEdge]
-  totalCount: Int!
-  pageInfo: PageInfo
-}
-
-type ImageTagEdge {
-  cursor: String
-  node: ImageTag
-}
-
-type ImageTag {
-  name: String!
-  lastModified: DateTime
-}
-
-enum ImageTagType {
-  LATEST,
-  SNAPSHOT,
-  MAJOR,
-  MINOR,
-  BUGFIX,
-  AURORA_VERSION
-}

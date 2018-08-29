@@ -12,9 +12,12 @@ import java.net.URI
 import java.time.Instant
 import kotlin.reflect.KClass
 
-class ImageRegistryServiceErrorException(message: String, cause: Throwable) : RuntimeException(message, cause)
+class ImageRegistryServiceErrorException(message: String, cause: Throwable? = null) : RuntimeException(message, cause)
 
-data class ImageRepo(val registry: String, val namespace: String, val name: String)
+data class ImageRepo(val registry: String, val namespace: String, val name: String) {
+    val repository: String
+        get() = listOf(registry, namespace, name).joinToString("/")
+}
 
 enum class ImageTagType {
     LATEST,
@@ -40,7 +43,7 @@ enum class ImageTagType {
 
 data class ImageTag(
     val name: String,
-    var created: Instant? = null
+    var created: Instant
 ) {
     val type: ImageTagType
         get() = ImageTagType.typeOf(name)
@@ -57,8 +60,9 @@ class ImageRegistryService(
     private val objectMapper = jacksonObjectMapper()
 
     fun findTagByName(imageRepo: ImageRepo, tagName: String): ImageTag {
-        val metadata = getImageMetaData(imageRepo, tagName)
-        return ImageTag(name = tagName, created = metadata?.createdDate)
+        return getImageMetaData(imageRepo, tagName)?.let {
+            ImageTag(name = tagName, created = it.createdDate)
+        } ?: throw ImageRegistryServiceErrorException("No metadata for tag=$tagName in repo=${imageRepo.repository}")
     }
 
     fun findTagNamesInRepoOrderedByCreatedDateDesc(imageRepo: ImageRepo): List<String> {

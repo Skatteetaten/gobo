@@ -1,3 +1,7 @@
+spring:
+    main:
+        banner-mode: "off"
+
 mokey:
   url: http://localhost:6565
 

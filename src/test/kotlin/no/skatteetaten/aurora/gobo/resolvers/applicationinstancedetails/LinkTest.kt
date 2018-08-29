@@ -19,4 +19,4 @@ class LinkTest {
         assert(link.name).isEqualTo("self")
         assert(link.url).isEqualTo(URL("http://localhost"))
     }
-} 
+}

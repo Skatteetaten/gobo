@@ -56,8 +56,8 @@ class ImageRegistryServiceTest {
             .andRespond(withSuccess(manifestResponse, MediaType.APPLICATION_JSON_UTF8))
 
         val tag = dockerRegistry.findTagByName(imageRepo, tagName)
-        assert(tag.created).isEqualTo(Instant.parse("2017-09-25T11:38:20.361177648Z"))
-        assert(tag.name).isEqualTo(tagName)
+        assert(tag?.created).isEqualTo(Instant.parse("2017-09-25T11:38:20.361177648Z"))
+        assert(tag?.name).isEqualTo(tagName)
     }
 }
 
