@@ -1,0 +1,17 @@
+query getImageRepositories($repositories: [String!]!, $pageSize: Int!){
+    imageRepositories(repositories: $repositories) {
+        tags(first: $pageSize) {
+            totalCount
+            pageInfo {
+                startCursor
+                hasNextPage
+            }
+            edges {
+                node {
+                    name
+                    lastModified
+                }
+            }
+        }
+    }
+}
