@@ -1,10 +1,10 @@
-type ApplicationInstance {
+type ApplicationDeployment {
   affiliation: Affiliation!
   environment: String
   namespace: Namespace
   status: Status!
   version: Version!
-  details: ApplicationInstanceDetails
+  details: ApplicationDeploymentDetails
 }
 
 type Status {

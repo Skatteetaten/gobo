@@ -24,8 +24,8 @@ class ApplicationServiceTest {
     }
 
     @Test
-    fun `Get application instance details for affiliation`() {
-        val details = applicationService.getApplicationInstanceDetails(listOf("paas"))
+    fun `Get application deployment details for affiliation`() {
+        val details = applicationService.getApplicationDeploymentDetails(listOf("paas"))
         assert(details).isNotEmpty()
     }
 }

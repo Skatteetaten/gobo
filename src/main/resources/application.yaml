@@ -1,2 +1,5 @@
+spring:
+    profiles:
+        active: utv
 mokey:
     url: http://localhost:9876

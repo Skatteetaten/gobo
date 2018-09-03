@@ -27,14 +27,14 @@ class ApplicationService(val webClient: WebClient, val objectMapper: ObjectMappe
             .filter { applications.contains(it.name) }
     }
 
-    fun getApplicationInstanceDetails(affiliations: List<String>): List<ApplicationInstanceDetailsResource> =
-        affiliations.flatMap { getApplicationInstanceDetails(it) }
+    fun getApplicationDeploymentDetails(affiliations: List<String>): List<ApplicationDeploymentDetailsResource> =
+        affiliations.flatMap { getApplicationDeploymentDetails(it) }
 
-    private fun getApplicationInstanceDetails(affiliation: String): List<ApplicationInstanceDetailsResource> {
+    private fun getApplicationDeploymentDetails(affiliation: String): List<ApplicationDeploymentDetailsResource> {
         // TODO: Handle error appropriately
         val response = webClient
             .get()
-            .uri("/api/applicationinstancedetails?affiliation={affiliation}", affiliation)
+            .uri("/api/applicationdeploymentdetails?affiliation={affiliation}", affiliation)
             .header(HttpHeaders.AUTHORIZATION, "Bearer ${userService.getToken()}")
             .retrieve()
             .bodyToMono<String>()

@@ -22,7 +22,7 @@ type Link {
   url: URL
 }
 
-type ApplicationInstanceDetails {
+type ApplicationDeploymentDetails {
   buildTime: String
   gitInfo: GitInfo
   imageDetails: ImageDetails

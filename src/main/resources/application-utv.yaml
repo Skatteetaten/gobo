@@ -1,5 +1,6 @@
 mokey:
-    url: http://mokey-paas-mokey.utv.paas.skead.no
+#    url: http://mokey-bas-paas-mokey.utv.paas.skead.no
+    url: http://localhost:8082
 
 docker-registry:
     url: https://uil0paas-utv-registry01.skead.no:5000

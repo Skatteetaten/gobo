@@ -1,10 +1,10 @@
 package no.skatteetaten.aurora.gobo
 
-import no.skatteetaten.aurora.gobo.resolvers.applicationinstance.ApplicationInstance
-import no.skatteetaten.aurora.gobo.resolvers.applicationinstance.Status
-import no.skatteetaten.aurora.gobo.resolvers.applicationinstance.Version
-import no.skatteetaten.aurora.gobo.service.application.ApplicationInstanceDetailsResource
-import no.skatteetaten.aurora.gobo.service.application.ApplicationInstanceResource
+import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.ApplicationDeployment
+import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.Status
+import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.Version
+import no.skatteetaten.aurora.gobo.service.application.ApplicationDeploymentDetailsResource
+import no.skatteetaten.aurora.gobo.service.application.ApplicationDeploymentResource
 import no.skatteetaten.aurora.gobo.service.application.ApplicationResource
 import no.skatteetaten.aurora.gobo.service.application.GitInfoResource
 import no.skatteetaten.aurora.gobo.service.application.ImageDetailsResource
@@ -14,16 +14,16 @@ import no.skatteetaten.aurora.gobo.service.application.VersionResource
 import org.springframework.hateoas.Link
 import java.time.Instant
 
-data class ApplicationInstanceResourceBuilder(val affiliation: String = "paas") {
-    fun build(): ApplicationInstanceResource =
-        ApplicationInstanceResource(
+data class ApplicationDeploymentResourceBuilder(val affiliation: String = "paas") {
+    fun build(): ApplicationDeploymentResource =
+        ApplicationDeploymentResource(
             affiliation,
             "environment",
             "namespace",
             StatusResource("code", "comment"),
             VersionResource("deployTag", "auroraVersion")
         ).apply {
-            add(Link("http://ApplicationInstanceDetails/1", "ApplicationInstanceDetails"))
+            add(Link("http://ApplicationDeploymentDetails/1", "ApplicationDeploymentDetails"))
         }
 }
 
@@ -32,14 +32,14 @@ data class ApplicationResourceBuilder(val name: String = "name") {
     fun build(): ApplicationResource =
         ApplicationResource(
             name,
-            listOf(ApplicationInstanceResourceBuilder().build())
+            listOf(ApplicationDeploymentResourceBuilder().build())
         )
 }
 
-data class ApplicationInstanceBuilder(val affiliation: String = "paas") {
+data class ApplicationDeploymentBuilder(val affiliation: String = "paas") {
 
-    fun build(): ApplicationInstance =
-        ApplicationInstance(
+    fun build(): ApplicationDeployment =
+        ApplicationDeployment(
             affiliation,
             "environment",
             "namespaceId",
@@ -49,10 +49,10 @@ data class ApplicationInstanceBuilder(val affiliation: String = "paas") {
         )
 }
 
-class ApplicationInstanceDetailsBuilder {
+class ApplicationDeploymentDetailsBuilder {
 
-    fun build(): ApplicationInstanceDetailsResource =
-        ApplicationInstanceDetailsResource(
+    fun build(): ApplicationDeploymentDetailsResource =
+        ApplicationDeploymentDetailsResource(
             Instant.now(),
             GitInfoResource("123abc", Instant.now()),
             ImageDetailsResource(Instant.now(), "dockerImageReference"),
@@ -65,5 +65,5 @@ class ApplicationInstanceDetailsBuilder {
                     Instant.now()
                 )
             )
-        ).apply { add(Link("http://ApplicationInstanceDetails/1", "self")) }
+        ).apply { add(Link("http://ApplicationDeploymentDetails/1", "self")) }
 }
