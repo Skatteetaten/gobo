@@ -1,6 +1,6 @@
-package no.skatteetaten.aurora.gobo.resolvers.applicationinstancedetails
+package no.skatteetaten.aurora.gobo.resolvers.applicationdeploymentdetails
 
-import no.skatteetaten.aurora.gobo.service.application.ApplicationInstanceDetailsResource
+import no.skatteetaten.aurora.gobo.service.application.ApplicationDeploymentDetailsResource
 import no.skatteetaten.aurora.gobo.service.application.PodResourceResource
 import java.net.URL
 import java.time.Instant
@@ -60,15 +60,15 @@ class Link private constructor(val name: String, val url: URL) {
     }
 }
 
-data class ApplicationInstanceDetails(
+data class ApplicationDeploymentDetails(
     val buildTime: Instant?,
     val imageDetails: ImageDetails?,
     val gitInfo: GitInfo?,
     val podResources: List<PodResource>
 ) {
     companion object {
-        fun create(resource: ApplicationInstanceDetailsResource): ApplicationInstanceDetails {
-            return ApplicationInstanceDetails(
+        fun create(resource: ApplicationDeploymentDetailsResource): ApplicationDeploymentDetails {
+            return ApplicationDeploymentDetails(
                 buildTime = resource.buildTime,
                 imageDetails = resource.imageDetails?.let { ImageDetails(it.imageBuildTime, it.dockerImageReference) },
                 gitInfo = resource.gitInfo?.let { GitInfo(it.commitId, it.commitTime) },

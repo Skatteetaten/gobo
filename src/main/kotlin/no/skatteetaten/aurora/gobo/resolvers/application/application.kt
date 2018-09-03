@@ -4,20 +4,20 @@ import graphql.relay.DefaultEdge
 import graphql.relay.PageInfo
 import no.skatteetaten.aurora.gobo.resolvers.Connection
 import no.skatteetaten.aurora.gobo.resolvers.Cursor
-import no.skatteetaten.aurora.gobo.resolvers.applicationinstance.ApplicationInstance
-import no.skatteetaten.aurora.gobo.resolvers.applicationinstance.ApplicationInstanceBuilder
+import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.ApplicationDeployment
+import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.ApplicationDeploymentBuilder
 import no.skatteetaten.aurora.gobo.resolvers.createPageInfo
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository
-import no.skatteetaten.aurora.gobo.service.application.ApplicationInstanceDetailsResource
+import no.skatteetaten.aurora.gobo.service.application.ApplicationDeploymentDetailsResource
 import no.skatteetaten.aurora.gobo.service.application.ApplicationResource
 
 data class Application(
     val name: String,
-    val applicationInstances: List<ApplicationInstance>
+    val applicationDeployments: List<ApplicationDeployment>
 ) {
     val imageRepository: ImageRepository?
         get() {
-            return applicationInstances
+            return applicationDeployments
                 .firstOrNull { it.details?.imageDetails?.dockerImageRepo != null }
                 ?.details?.imageDetails?.dockerImageRepo
                 ?.let { ImageRepository.fromRepoString(it) }
@@ -29,11 +29,11 @@ data class ApplicationEdge(private val node: Application) : DefaultEdge<Applicat
     Cursor(node.name)
 ) {
     companion object {
-        fun create(resource: ApplicationResource, applicationInstances: List<ApplicationInstance>) =
+        fun create(resource: ApplicationResource, applicationDeployments: List<ApplicationDeployment>) =
             ApplicationEdge(
                 Application(
                     resource.name,
-                    applicationInstances
+                    applicationDeployments
                 )
             )
     }
@@ -46,8 +46,8 @@ data class ApplicationsConnection(
 
 fun createApplicationEdges(
     applicationResources: List<ApplicationResource>,
-    detailResources: List<ApplicationInstanceDetailsResource>
+    detailResources: List<ApplicationDeploymentDetailsResource>
 ): List<ApplicationEdge> {
-    val instanceBuilder = ApplicationInstanceBuilder(detailResources)
-    return applicationResources.map { ApplicationEdge.create(it, instanceBuilder.createApplicationInstances(it)) }
+    val deploymentBuilder = ApplicationDeploymentBuilder(detailResources)
+    return applicationResources.map { ApplicationEdge.create(it, deploymentBuilder.createApplicationDeployments(it)) }
 }

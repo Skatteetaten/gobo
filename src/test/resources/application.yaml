@@ -7,5 +7,5 @@ mokey:
 
 stubrunner:
   stubs-mode: remote
-  ids: no.skatteetaten.aurora:mokey:temp-SNAPSHOT:stubs:6565
+  ids: no.skatteetaten.aurora:mokey:develop-SNAPSHOT:stubs:6565
   repositoryRoot: http://aurora/nexus/service/local/repositories/snapshots/content
