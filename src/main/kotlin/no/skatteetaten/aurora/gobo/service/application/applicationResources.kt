@@ -26,7 +26,7 @@ data class PodResourceResource(
 ) : ResourceSupport()
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class ApplicationInstanceDetailsResource(
+data class ApplicationDeploymentDetailsResource(
     val buildTime: Instant?,
     val gitInfo: GitInfoResource?,
     val imageDetails: ImageDetailsResource?,
@@ -34,7 +34,7 @@ data class ApplicationInstanceDetailsResource(
 ) : ResourceSupport()
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class ApplicationInstanceResource(
+data class ApplicationDeploymentResource(
     val affiliation: String,
     val environment: String,
     val namespace: String,
@@ -45,5 +45,5 @@ data class ApplicationInstanceResource(
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class ApplicationResource(
     val name: String,
-    val applicationInstances: List<ApplicationInstanceResource>
+    val applicationDeployments: List<ApplicationDeploymentResource>
 )
