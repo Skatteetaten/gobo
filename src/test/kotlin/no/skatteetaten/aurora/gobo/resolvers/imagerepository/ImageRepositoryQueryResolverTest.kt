@@ -5,9 +5,6 @@ import assertk.assertions.containsExactly
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isTrue
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.SerializationFeature
-import com.fasterxml.jackson.databind.SerializationFeature.*
 import no.skatteetaten.aurora.gobo.GraphQLTest
 import no.skatteetaten.aurora.gobo.resolvers.createQuery
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository.Companion.fromRepoString
@@ -22,7 +19,6 @@ import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.core.io.Resource
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.web.reactive.function.BodyInserters
-import java.io.ByteArrayInputStream
 import java.time.Instant
 import java.time.Instant.EPOCH
 
@@ -88,8 +84,6 @@ class ImageRepositoryQueryResolverTest {
             }
     }
 
-
-
     @Test
     fun `Query for tags with paging`() {
         val pageSize = 3
@@ -114,22 +108,20 @@ class ImageRepositoryQueryResolverTest {
     }
 
     @Test
-    fun `Get errors populated when findByTagName fails`() {
+    fun `Get errors when findByTagName fails with exception`() {
         given(imageRegistryService.findTagByName(testData[0].imageRepo, testData[0].tags[0])).willThrow(RuntimeException("test exception"))
 
         val variables = mapOf("repositories" to testData[0].imageRepo.repository)
         val query = createQuery(reposWithTagsQuery, variables)
-        val result = webTestClient
+        webTestClient
                 .post()
                 .uri("/graphql")
                 .body(BodyInserters.fromObject(query))
                 .exchange()
                 .expectStatus().isOk
                 .expectBody()
-                //.jsonPath("$.errors.length()").isEqualTo(1)
-                .returnResult()
-                //.jsonPath("$.errors[0].extensions.code")
-        ObjectMapper().configure(INDENT_OUTPUT, true).apply { println(writeValueAsString(readTree(ByteArrayInputStream(result.responseBody)))) }
+                .jsonPath("$.errors.length()").isEqualTo(1)
+                .jsonPath("$.errors[0].extensions.code").exists()
     }
 }
 

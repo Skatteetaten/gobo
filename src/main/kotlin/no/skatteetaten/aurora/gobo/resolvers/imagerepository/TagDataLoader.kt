@@ -34,12 +34,9 @@ class TagDataLoader(val imageRegistryService: ImageRegistryService) : KeysDataLo
                         val imageRepo = imageTag.imageRepository.toImageRepo()
                         Try.tryCall {
                             try {
-                                val tagByName = imageRegistryService.findTagByName(imageRepo, imageTag.name)
-                                tagByName.created
+                                imageRegistryService.findTagByName(imageRepo, imageTag.name).created
                             } catch (e: Exception) {
-                                val tagName = imageTag.name
-                                val repo = imageTag.imageRepository.repository
-                                throw ResolverException("An error occurred loading tag '$tagName' from repo '$repo'", e)
+                                throw ResolverException("An error occurred loading tag '${imageTag.name}' from repo '${imageTag.imageRepository.repository}'")
                             }
                         }
                     }
