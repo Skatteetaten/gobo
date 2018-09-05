@@ -5,6 +5,9 @@ import assertk.assertions.containsExactly
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isTrue
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.SerializationFeature
+import com.fasterxml.jackson.databind.SerializationFeature.*
 import no.skatteetaten.aurora.gobo.GraphQLTest
 import no.skatteetaten.aurora.gobo.resolvers.createQuery
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository.Companion.fromRepoString
@@ -19,6 +22,7 @@ import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.core.io.Resource
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.web.reactive.function.BodyInserters
+import java.io.ByteArrayInputStream
 import java.time.Instant
 import java.time.Instant.EPOCH
 
@@ -125,7 +129,7 @@ class ImageRepositoryQueryResolverTest {
                 //.jsonPath("$.errors.length()").isEqualTo(1)
                 .returnResult()
                 //.jsonPath("$.errors[0].extensions.code")
-        println(String(result.responseBody))
+        ObjectMapper().configure(INDENT_OUTPUT, true).apply { println(writeValueAsString(readTree(ByteArrayInputStream(result.responseBody)))) }
     }
 }
 

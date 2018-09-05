@@ -6,7 +6,7 @@ type Query {
 
   applications(affiliations: [String!]!, applications: [String!]): ApplicationsConnection
 
-  imageRepositories(repositories: [String!]): [ImageRepository]
+  imageRepositories(repositories: [String!]): [ImageRepository!]
 
   currentUser: User
 }

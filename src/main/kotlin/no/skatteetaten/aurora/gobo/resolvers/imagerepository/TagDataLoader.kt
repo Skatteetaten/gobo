@@ -16,18 +16,18 @@ import org.springframework.util.StopWatch
 import java.time.Instant
 
 @Component
-class TagDataLoader(val imageRegistryService: ImageRegistryService) : KeysDataLoader<ImageTag, Try<Instant?>> {
+class TagDataLoader(val imageRegistryService: ImageRegistryService) : KeysDataLoader<ImageTag, Try<Instant>> {
 
     private val logger: Logger = LoggerFactory.getLogger(TagDataLoader::class.java)
 
     val context = newFixedThreadPoolContext(6, "tag-loader")
 
-    override fun getByKeys(keys: List<ImageTag>): List<Try<Instant?>> {
+    override fun getByKeys(keys: List<ImageTag>): List<Try<Instant>> {
 
         logger.info("Loading ${keys.size} tags (${keys.toSet().size} unique)")
 
         val sw = StopWatch()
-        val imageTags: List<Try<Instant?>> = sw.time("Fetch ${keys.size} tags") {
+        val imageTags: List<Try<Instant>> = sw.time("Fetch ${keys.size} tags") {
             runBlocking(context) {
                 keys.map { imageTag ->
                     async(context) {
@@ -39,7 +39,7 @@ class TagDataLoader(val imageRegistryService: ImageRegistryService) : KeysDataLo
                             } catch (e: Exception) {
                                 val tagName = imageTag.name
                                 val repo = imageTag.imageRepository.repository
-                                throw ResolverException("An error occurred loading tag '$tagName' from repo '$repo'")
+                                throw ResolverException("An error occurred loading tag '$tagName' from repo '$repo'", e)
                             }
                         }
                     }
