@@ -5,20 +5,17 @@ import assertk.assertions.containsExactly
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isTrue
+import no.skatteetaten.aurora.gobo.GraphQLTest
 import no.skatteetaten.aurora.gobo.resolvers.createQuery
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository.Companion.fromRepoString
 import no.skatteetaten.aurora.gobo.service.imageregistry.ImageRegistryService
 import no.skatteetaten.aurora.gobo.service.imageregistry.ImageRepo
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.BDDMockito.given
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.core.io.Resource
-import org.springframework.test.annotation.DirtiesContext
-import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.web.reactive.function.BodyInserters
 import java.time.Instant
@@ -26,9 +23,7 @@ import java.time.Instant.EPOCH
 
 typealias ServiceImageTag = no.skatteetaten.aurora.gobo.service.imageregistry.ImageTag
 
-@ExtendWith(SpringExtension::class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = ["management.server.port=-1"])
-@DirtiesContext
+@GraphQLTest
 class ImageRepositoryQueryResolverTest {
     @Value("classpath:graphql/getImageRepositories.graphql")
     private lateinit var reposWithTagsQuery: Resource
