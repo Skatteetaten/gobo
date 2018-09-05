@@ -8,6 +8,7 @@ import graphql.execution.instrumentation.dataloader.DataLoaderDispatcherInstrume
 import no.skatteetaten.aurora.utils.createRequestFactory
 import org.dataloader.DataLoader
 import org.dataloader.DataLoaderRegistry
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.context.annotation.Bean
@@ -23,13 +24,19 @@ class ApplicationConfig(
     @Value("\${mokey.url}") val mokeyUrl: String
 ) {
 
+    val logger = LoggerFactory.getLogger(ApplicationConfig::class.java)
+
     @Bean
-    fun webClient(): WebClient =
-        WebClient
+    fun webClient(): WebClient {
+
+        logger.info("Configuring WebClient with baseUrl={}", mokeyUrl)
+
+        return WebClient
             .builder()
             .baseUrl(mokeyUrl)
             .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .build()
+    }
 
     @Bean
     fun objectMapper() =
