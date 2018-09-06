@@ -1,9 +1,9 @@
-package no.skatteetaten.aurora.gobo.service.application
+package no.skatteetaten.aurora.gobo.integration.mokey
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import no.skatteetaten.aurora.gobo.resolvers.exceptions.ResolverException
-import no.skatteetaten.aurora.gobo.service.user.UserService
+import no.skatteetaten.aurora.gobo.security.UserService
 import org.springframework.http.HttpHeaders
 import org.springframework.stereotype.Service
 import org.springframework.util.LinkedMultiValueMap

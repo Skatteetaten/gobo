@@ -5,7 +5,7 @@ import kotlinx.coroutines.experimental.newFixedThreadPoolContext
 import kotlinx.coroutines.experimental.runBlocking
 import no.skatteetaten.aurora.gobo.resolvers.KeysDataLoader
 import no.skatteetaten.aurora.gobo.resolvers.exceptions.ResolverException
-import no.skatteetaten.aurora.gobo.service.imageregistry.ImageRegistryService
+import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageRegistryService
 import no.skatteetaten.aurora.utils.logLine
 import no.skatteetaten.aurora.utils.time
 import org.dataloader.Try

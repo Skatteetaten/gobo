@@ -1,8 +1,7 @@
-package no.skatteetaten.aurora.gobo.service.user
+package no.skatteetaten.aurora.gobo.security
 
-import no.skatteetaten.aurora.gobo.security.User
-import no.skatteetaten.aurora.gobo.service.user.UserService.Companion.GUEST_USER_ID
-import no.skatteetaten.aurora.gobo.service.user.UserService.Companion.GUEST_USER_NAME
+import no.skatteetaten.aurora.gobo.security.UserService.Companion.GUEST_USER_ID
+import no.skatteetaten.aurora.gobo.security.UserService.Companion.GUEST_USER_NAME
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith

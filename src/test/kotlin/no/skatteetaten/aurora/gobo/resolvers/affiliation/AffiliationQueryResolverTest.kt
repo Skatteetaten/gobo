@@ -2,8 +2,8 @@ package no.skatteetaten.aurora.gobo.resolvers.affiliation
 
 import no.skatteetaten.aurora.gobo.ApplicationResourceBuilder
 import no.skatteetaten.aurora.gobo.GraphQLTest
-import no.skatteetaten.aurora.gobo.service.affiliation.AffiliationService
-import no.skatteetaten.aurora.gobo.service.application.ApplicationService
+import no.skatteetaten.aurora.gobo.integration.mokey.AffiliationService
+import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import no.skatteetaten.aurora.gobo.resolvers.createQuery
 import org.junit.jupiter.api.Test
 import org.mockito.BDDMockito.given

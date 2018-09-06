@@ -1,7 +1,7 @@
 package no.skatteetaten.aurora.gobo.resolvers.applicationdeploymentdetails
 
-import no.skatteetaten.aurora.gobo.service.application.ApplicationDeploymentDetailsResource
-import no.skatteetaten.aurora.gobo.service.application.PodResourceResource
+import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentDetailsResource
+import no.skatteetaten.aurora.gobo.integration.mokey.PodResourceResource
 import java.net.URL
 import java.time.Instant
 

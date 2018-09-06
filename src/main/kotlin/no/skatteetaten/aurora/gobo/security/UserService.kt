@@ -1,4 +1,4 @@
-package no.skatteetaten.aurora.gobo.service.user
+package no.skatteetaten.aurora.gobo.security
 
 import no.skatteetaten.aurora.gobo.resolvers.user.User
 import org.springframework.security.authentication.AnonymousAuthenticationToken

@@ -1,4 +1,4 @@
-package no.skatteetaten.aurora.gobo.service.imageregistry
+package no.skatteetaten.aurora.gobo.integration.imageregistry
 
 import assertk.assert
 import assertk.assertions.containsAll

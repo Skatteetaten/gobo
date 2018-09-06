@@ -1,4 +1,4 @@
-package no.skatteetaten.aurora.gobo.service.affiliation
+package no.skatteetaten.aurora.gobo.integration.mokey
 
 import no.skatteetaten.aurora.gobo.resolvers.exceptions.ResolverException
 import org.springframework.stereotype.Service

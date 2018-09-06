@@ -1,4 +1,4 @@
-package no.skatteetaten.aurora.gobo.service.imageregistry
+package no.skatteetaten.aurora.gobo.integration.imageregistry
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.springframework.http.HttpHeaders
@@ -12,42 +12,8 @@ import java.net.URI
 import java.time.Instant
 import kotlin.reflect.KClass
 
-class ImageRegistryServiceErrorException(message: String, cause: Throwable? = null) : RuntimeException(message, cause)
-
-data class ImageRepo(val registry: String, val namespace: String, val name: String) {
-    val repository: String
-        get() = listOf(registry, namespace, name).joinToString("/")
-}
-
-enum class ImageTagType {
-    LATEST,
-    SNAPSHOT,
-    MAJOR,
-    MINOR,
-    BUGFIX,
-    AURORA_VERSION,
-    AURORA_SNAPSHOT_VERSION;
-
-    companion object {
-        fun typeOf(tag: String): ImageTagType {
-            return if (tag.toLowerCase().equals("latest")) ImageTagType.LATEST
-            else if (tag.toLowerCase().endsWith("-snapshot")) ImageTagType.SNAPSHOT
-            else if (tag.toLowerCase().startsWith("snapshot-")) ImageTagType.AURORA_SNAPSHOT_VERSION
-            else if (tag.matches(Regex("^\\d+$"))) ImageTagType.MAJOR
-            else if (tag.matches(Regex("^\\d+.\\d+$"))) ImageTagType.MINOR
-            else if (tag.matches(Regex("^\\d+.\\d+.\\d+$"))) ImageTagType.BUGFIX
-            else ImageTagType.AURORA_VERSION
-        }
-    }
-}
-
-data class ImageTag(
-    val name: String,
-    var created: Instant
-) {
-    val type: ImageTagType
-        get() = ImageTagType.typeOf(name)
-}
+private data class TagList(var name: String, var tags: List<String>)
+private data class ImageMetadata(val createdDate: Instant)
 
 @Service
 class ImageRegistryService(
@@ -59,17 +25,17 @@ class ImageRegistryService(
 
     private val objectMapper = jacksonObjectMapper()
 
-    fun findTagByName(imageRepo: ImageRepo, tagName: String): ImageTag {
-        return getImageMetaData(imageRepo, tagName)?.let {
-            ImageTag(name = tagName, created = it.createdDate)
-        } ?: throw ImageRegistryServiceErrorException("No metadata for tag=$tagName in repo=${imageRepo.repository}")
+    fun findTagByName(imageRepoDto: ImageRepoDto, tagName: String): ImageTagDto {
+        return getImageMetaData(imageRepoDto, tagName)?.let {
+            ImageTagDto(name = tagName, created = it.createdDate)
+        } ?: throw ImageRegistryServiceErrorException("No metadata for tag=$tagName in repo=${imageRepoDto.repository}")
     }
 
-    fun findTagNamesInRepoOrderedByCreatedDateDesc(imageRepo: ImageRepo): List<String> {
+    fun findTagNamesInRepoOrderedByCreatedDateDesc(imageRepoDto: ImageRepoDto): List<String> {
 
-        val registryMetadata = registryMetadataResolver.getMetadataForRegistry(imageRepo.registry)
+        val registryMetadata = registryMetadataResolver.getMetadataForRegistry(imageRepoDto.registry)
 
-        val tagListUrl = urlBuilder.createTagListUrl(registryMetadata.apiSchema, imageRepo)
+        val tagListUrl = urlBuilder.createTagListUrl(registryMetadata.apiSchema, imageRepoDto)
 
         val tagList = getFromRegistry(registryMetadata, tagListUrl, TagList::class)
         val tagsOrderedByCreatedDate = tagList?.tags ?: emptyList()
@@ -82,12 +48,12 @@ class ImageRegistryService(
         return tagsOrderedByCreatedDate.reversed()
     }
 
-    private fun getImageMetaData(imageRepo: ImageRepo, tag: String): ImageMetadata? {
+    private fun getImageMetaData(imageRepoDto: ImageRepoDto, tag: String): ImageMetadata? {
 
-        val registryMetadata = registryMetadataResolver.getMetadataForRegistry(imageRepo.registry)
+        val registryMetadata = registryMetadataResolver.getMetadataForRegistry(imageRepoDto.registry)
 
         return try {
-            val manifestsUrl = urlBuilder.createManifestsUrl(registryMetadata.apiSchema, imageRepo, tag)
+            val manifestsUrl = urlBuilder.createManifestsUrl(registryMetadata.apiSchema, imageRepoDto, tag)
             getFromRegistry(registryMetadata, manifestsUrl, String::class)?.let { parseMainfest(it) }
         } catch (e: Exception) {
             throw ImageRegistryServiceErrorException("Unable to get manifest for image: $tag", e)
@@ -102,13 +68,6 @@ class ImageRegistryService(
         val createdString = manifestFirstHistory.get("created").asText()
         return ImageMetadata(Instant.parse(createdString))
     }
-
-    private data class TagList(
-        var name: String,
-        var tags: List<String>
-    )
-
-    private data class ImageMetadata(val createdDate: Instant)
 
     private fun <T : Any> getFromRegistry(registryMetadata: RegistryMetadata, apiUrl: String, kClass: KClass<T>): T? {
 

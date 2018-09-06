@@ -8,9 +8,9 @@ import assertk.assertions.isTrue
 import no.skatteetaten.aurora.gobo.GraphQLTest
 import no.skatteetaten.aurora.gobo.resolvers.createQuery
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository.Companion.fromRepoString
-import no.skatteetaten.aurora.gobo.service.imageregistry.ImageRegistryService
-import no.skatteetaten.aurora.gobo.service.imageregistry.ImageRegistryServiceErrorException
-import no.skatteetaten.aurora.gobo.service.imageregistry.ImageRepo
+import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageRegistryService
+import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageRegistryServiceErrorException
+import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageRepoDto
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.BDDMockito.given
@@ -23,7 +23,7 @@ import org.springframework.web.reactive.function.BodyInserters
 import java.time.Instant
 import java.time.Instant.EPOCH
 
-typealias ServiceImageTag = no.skatteetaten.aurora.gobo.service.imageregistry.ImageTag
+typealias ServiceImageTag = no.skatteetaten.aurora.gobo.integration.imageregistry.ImageTagDto
 
 @GraphQLTest
 class ImageRepositoryQueryResolverTest {
@@ -40,7 +40,7 @@ class ImageRepositoryQueryResolverTest {
     private lateinit var imageRegistryService: ImageRegistryService
 
     class ImageRepoData(val repoString: String, val tags: List<String>) {
-        val imageRepo: ImageRepo get() = fromRepoString(repoString).toImageRepo()
+        val imageRepoDto: ImageRepoDto get() = fromRepoString(repoString).toImageRepo()
     }
 
     val testData = mapOf(
@@ -53,16 +53,16 @@ class ImageRepositoryQueryResolverTest {
     @BeforeEach
     fun setUp() {
         testData.forEach { data: ImageRepoData ->
-            given(imageRegistryService.findTagNamesInRepoOrderedByCreatedDateDesc(data.imageRepo)).willReturn(data.tags)
+            given(imageRegistryService.findTagNamesInRepoOrderedByCreatedDateDesc(data.imageRepoDto)).willReturn(data.tags)
             data.tags
                     .map { ServiceImageTag(it, created = EPOCH) }
-                    .forEach { given(imageRegistryService.findTagByName(data.imageRepo, it.name)).willReturn(it) }
+                    .forEach { given(imageRegistryService.findTagByName(data.imageRepoDto, it.name)).willReturn(it) }
         }
     }
 
     @Test
     fun `Query for repositories and tags`() {
-        val variables = mapOf("repositories" to testData.map { it.imageRepo.repository })
+        val variables = mapOf("repositories" to testData.map { it.imageRepoDto.repository })
         val query = createQuery(reposWithTagsQuery, variables)
 
         webTestClient
@@ -88,7 +88,7 @@ class ImageRepositoryQueryResolverTest {
     @Test
     fun `Query for tags with paging`() {
         val pageSize = 3
-        val variables = mapOf("repositories" to testData[0].imageRepo.repository, "pageSize" to pageSize)
+        val variables = mapOf("repositories" to testData[0].imageRepoDto.repository, "pageSize" to pageSize)
         val query = createQuery(tagsWithPagingQuery, variables)
 
         webTestClient
@@ -110,10 +110,10 @@ class ImageRepositoryQueryResolverTest {
 
     @Test
     fun `Get errors when findByTagName fails with exception`() {
-        given(imageRegistryService.findTagByName(testData[0].imageRepo, testData[0].tags[0]))
+        given(imageRegistryService.findTagByName(testData[0].imageRepoDto, testData[0].tags[0]))
                 .willThrow(ImageRegistryServiceErrorException("test exception"))
 
-        val variables = mapOf("repositories" to testData[0].imageRepo.repository)
+        val variables = mapOf("repositories" to testData[0].imageRepoDto.repository)
         val query = createQuery(reposWithTagsQuery, variables)
         webTestClient
                 .post()
