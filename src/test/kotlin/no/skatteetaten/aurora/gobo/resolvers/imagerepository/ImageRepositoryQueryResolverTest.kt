@@ -9,6 +9,7 @@ import no.skatteetaten.aurora.gobo.GraphQLTest
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageRegistryService
 import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageRepoDto
+import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageTagDto
 import no.skatteetaten.aurora.gobo.resolvers.createQuery
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository.Companion.fromRepoString
 import org.junit.jupiter.api.BeforeEach
@@ -22,8 +23,6 @@ import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.web.reactive.function.BodyInserters
 import java.time.Instant
 import java.time.Instant.EPOCH
-
-typealias ServiceImageTag = no.skatteetaten.aurora.gobo.integration.imageregistry.ImageTagDto
 
 @GraphQLTest
 class ImageRepositoryQueryResolverTest {
@@ -55,7 +54,7 @@ class ImageRepositoryQueryResolverTest {
         testData.forEach { data: ImageRepoData ->
             given(imageRegistryService.findTagNamesInRepoOrderedByCreatedDateDesc(data.imageRepoDto)).willReturn(data.tags)
             data.tags
-                    .map { ServiceImageTag(it, created = EPOCH) }
+                    .map { ImageTagDto(it, created = EPOCH) }
                     .forEach { given(imageRegistryService.findTagByName(data.imageRepoDto, it.name)).willReturn(it) }
         }
     }
