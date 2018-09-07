@@ -111,7 +111,7 @@ class ImageRepositoryQueryResolverTest {
     @Test
     fun `Get errors when findByTagName fails with exception`() {
         given(imageRegistryService.findTagByName(testData[0].imageRepoDto, testData[0].tags[0]))
-                .willThrow(SourceSystemException("test exception"))
+                .willThrow(SourceSystemException("test exception", RuntimeException("testing testing")))
 
         val variables = mapOf("repositories" to testData[0].imageRepoDto.repository)
         val query = createQuery(reposWithTagsQuery, variables)
