@@ -6,7 +6,7 @@ import graphql.execution.AsyncExecutionStrategy
 import graphql.execution.ExecutionStrategy
 import graphql.execution.SubscriptionExecutionStrategy
 import graphql.execution.instrumentation.dataloader.DataLoaderDispatcherInstrumentation
-import no.skatteetaten.aurora.gobo.resolvers.exceptions.GoboDataFetcherExceptionHandler
+import no.skatteetaten.aurora.gobo.resolvers.errorhandling.GoboDataFetcherExceptionHandler
 import org.dataloader.DataLoader
 import org.dataloader.DataLoaderRegistry
 import org.dataloader.Try

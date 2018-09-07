@@ -1,12 +1,13 @@
-package no.skatteetaten.aurora.gobo.resolvers.exceptions
+package no.skatteetaten.aurora.gobo.resolvers.errorhandling
 
 import graphql.ErrorType
 import graphql.GraphQLError
 import graphql.execution.DataFetcherExceptionHandlerParameters
 import graphql.language.SourceLocation
+import no.skatteetaten.aurora.gobo.exceptions.GoboException
 
 class GraphQLExceptionWrapper(handlerParameters: DataFetcherExceptionHandlerParameters) : GraphQLError {
-    private val exception = handlerParameters.exception as ResolverException
+    private val exception = handlerParameters.exception as GoboException
     private val cause = handlerParameters.exception.cause
     private val message = handlerParameters.exception.message
     private val locations = handlerParameters.field.sourceLocation

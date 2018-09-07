@@ -2,7 +2,7 @@ package no.skatteetaten.aurora.gobo.integration.mokey
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import no.skatteetaten.aurora.gobo.resolvers.exceptions.ResolverException
+import no.skatteetaten.aurora.gobo.exceptions.RestResponseException
 import no.skatteetaten.aurora.gobo.security.UserService
 import org.springframework.http.HttpHeaders
 import org.springframework.stereotype.Service
@@ -28,7 +28,7 @@ class ApplicationService(val webClient: WebClient, val objectMapper: ObjectMappe
             val applicationResources = objectMapper.readValue<List<ApplicationResource>>(response)
             return if (applications == null) applicationResources else applicationResources.filter { applications.contains(it.name) }
         } catch (e: WebClientResponseException) {
-            throw ResolverException("Failed to get application, status:${e.statusCode} message:${e.statusText}", e, e.statusText, "Failed to get applications")
+            throw RestResponseException("Failed to get application, status:${e.statusCode} message:${e.statusText}", e, e.statusText, "Failed to get applications")
         }
     }
 
@@ -46,7 +46,7 @@ class ApplicationService(val webClient: WebClient, val objectMapper: ObjectMappe
                     .block() ?: return emptyList()
             return objectMapper.readValue(response)
         } catch (e: WebClientResponseException) {
-            throw ResolverException("Failed to get application deployment details, status:${e.statusCode} message:${e.statusText}", e, e.statusText, "Failed to get application deployment details")
+            throw RestResponseException("Failed to get application deployment details, status:${e.statusCode} message:${e.statusText}", e, e.statusText, "Failed to get application deployment details")
         }
     }
 

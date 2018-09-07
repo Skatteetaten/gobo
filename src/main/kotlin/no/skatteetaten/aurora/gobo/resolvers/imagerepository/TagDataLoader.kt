@@ -4,7 +4,7 @@ import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.newFixedThreadPoolContext
 import kotlinx.coroutines.experimental.runBlocking
 import no.skatteetaten.aurora.gobo.resolvers.KeysDataLoader
-import no.skatteetaten.aurora.gobo.resolvers.exceptions.ResolverException
+import no.skatteetaten.aurora.gobo.exceptions.GoboException
 import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageRegistryService
 import no.skatteetaten.aurora.utils.logLine
 import no.skatteetaten.aurora.utils.time
@@ -37,7 +37,7 @@ class TagDataLoader(val imageRegistryService: ImageRegistryService) : KeysDataLo
                                 imageRegistryService.findTagByName(imageRepo, imageTag.name).created
                             } catch (e: Exception) {
                                 val message = "An error occurred loading tag '${imageTag.name}' from repo '${imageTag.imageRepository.repository}'"
-                                throw ResolverException(message = message, cause = e, errorMessage = message)
+                                throw GoboException(message = message, cause = e, errorMessage = message)
                             }
                         }
                     }
