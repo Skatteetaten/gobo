@@ -2,7 +2,7 @@ package no.skatteetaten.aurora.gobo.resolvers.errorhandling
 
 import graphql.execution.DataFetcherExceptionHandler
 import graphql.execution.DataFetcherExceptionHandlerParameters
-import no.skatteetaten.aurora.gobo.exceptions.GoboException
+import no.skatteetaten.aurora.gobo.integration.GoboException
 
 class GoboDataFetcherExceptionHandler : DataFetcherExceptionHandler {
     override fun accept(handlerParameters: DataFetcherExceptionHandlerParameters?) {

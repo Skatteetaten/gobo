@@ -3,9 +3,8 @@ package no.skatteetaten.aurora.gobo.resolvers.imagerepository
 import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.newFixedThreadPoolContext
 import kotlinx.coroutines.experimental.runBlocking
-import no.skatteetaten.aurora.gobo.resolvers.KeysDataLoader
-import no.skatteetaten.aurora.gobo.exceptions.GoboException
 import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageRegistryService
+import no.skatteetaten.aurora.gobo.resolvers.KeysDataLoader
 import no.skatteetaten.aurora.utils.logLine
 import no.skatteetaten.aurora.utils.time
 import org.dataloader.Try
@@ -31,14 +30,9 @@ class TagDataLoader(val imageRegistryService: ImageRegistryService) : KeysDataLo
             runBlocking(context) {
                 keys.map { imageTag ->
                     async(context) {
-                        val imageRepo = imageTag.imageRepository.toImageRepo()
                         Try.tryCall {
-                            try {
-                                imageRegistryService.findTagByName(imageRepo, imageTag.name).created
-                            } catch (e: Exception) {
-                                val message = "An error occurred loading tag '${imageTag.name}' from repo '${imageTag.imageRepository.repository}'"
-                                throw GoboException(message = message, cause = e, errorMessage = message)
-                            }
+                            val imageRepo = imageTag.imageRepository.toImageRepo()
+                            imageRegistryService.findTagByName(imageRepo, imageTag.name).created
                         }
                     }
                 }.map { it.await() }

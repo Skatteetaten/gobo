@@ -1,6 +1,7 @@
 package no.skatteetaten.aurora.gobo.integration.imageregistry
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
@@ -28,7 +29,7 @@ class ImageRegistryService(
     fun findTagByName(imageRepoDto: ImageRepoDto, tagName: String): ImageTagDto {
         return getImageMetaData(imageRepoDto, tagName)?.let {
             ImageTagDto(name = tagName, created = it.createdDate)
-        } ?: throw ImageRegistryServiceErrorException("No metadata for tag=$tagName in repo=${imageRepoDto.repository}")
+        } ?: throw SourceSystemException("No metadata for tag=$tagName in repo=${imageRepoDto.repository}")
     }
 
     fun findTagNamesInRepoOrderedByCreatedDateDesc(imageRepoDto: ImageRepoDto): List<String> {
@@ -56,7 +57,7 @@ class ImageRegistryService(
             val manifestsUrl = urlBuilder.createManifestsUrl(registryMetadata.apiSchema, imageRepoDto, tag)
             getFromRegistry(registryMetadata, manifestsUrl, String::class)?.let { parseMainfest(it) }
         } catch (e: Exception) {
-            throw ImageRegistryServiceErrorException("Unable to get manifest for image: $tag", e)
+            throw SourceSystemException("Unable to get manifest for image: $tag", e)
         }
     }
 

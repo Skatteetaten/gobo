@@ -6,7 +6,7 @@ import graphql.language.Field
 import io.mockk.clearMocks
 import io.mockk.mockk
 import io.mockk.verify
-import no.skatteetaten.aurora.gobo.exceptions.GoboException
+import no.skatteetaten.aurora.gobo.integration.GoboException
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 

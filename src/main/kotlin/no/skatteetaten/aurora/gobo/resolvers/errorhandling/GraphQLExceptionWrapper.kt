@@ -4,7 +4,7 @@ import graphql.ErrorType
 import graphql.GraphQLError
 import graphql.execution.DataFetcherExceptionHandlerParameters
 import graphql.language.SourceLocation
-import no.skatteetaten.aurora.gobo.exceptions.GoboException
+import no.skatteetaten.aurora.gobo.integration.GoboException
 
 class GraphQLExceptionWrapper(handlerParameters: DataFetcherExceptionHandlerParameters) : GraphQLError {
     private val exception = handlerParameters.exception as GoboException

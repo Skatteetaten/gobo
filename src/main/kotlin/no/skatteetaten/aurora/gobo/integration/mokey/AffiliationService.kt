@@ -1,6 +1,6 @@
 package no.skatteetaten.aurora.gobo.integration.mokey
 
-import no.skatteetaten.aurora.gobo.exceptions.RestResponseException
+import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClientResponseException
@@ -18,6 +18,6 @@ class AffiliationService(val webClient: WebClient) {
                         .bodyToMono<List<String>>()
                         .block() ?: emptyList()
             } catch (e: WebClientResponseException) {
-                throw RestResponseException("Failed to get affiliations, status:${e.statusCode} message:${e.statusText}", e, e.statusText, "Failed to get affiliations")
+                throw SourceSystemException("Failed to get affiliations, status:${e.statusCode} message:${e.statusText}", e, e.statusText, "Failed to get affiliations")
             }
 }

@@ -7,7 +7,7 @@ import graphql.execution.DataFetcherExceptionHandlerParameters
 import graphql.execution.ExecutionPath
 import graphql.language.Field
 import graphql.language.SourceLocation
-import no.skatteetaten.aurora.gobo.exceptions.GoboException
+import no.skatteetaten.aurora.gobo.integration.GoboException
 import org.junit.jupiter.api.Test
 
 class GraphQLExceptionWrapperTest {

@@ -6,11 +6,11 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isTrue
 import no.skatteetaten.aurora.gobo.GraphQLTest
+import no.skatteetaten.aurora.gobo.integration.SourceSystemException
+import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageRegistryService
+import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageRepoDto
 import no.skatteetaten.aurora.gobo.resolvers.createQuery
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository.Companion.fromRepoString
-import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageRegistryService
-import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageRegistryServiceErrorException
-import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageRepoDto
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.BDDMockito.given
@@ -111,7 +111,7 @@ class ImageRepositoryQueryResolverTest {
     @Test
     fun `Get errors when findByTagName fails with exception`() {
         given(imageRegistryService.findTagByName(testData[0].imageRepoDto, testData[0].tags[0]))
-                .willThrow(ImageRegistryServiceErrorException("test exception"))
+                .willThrow(SourceSystemException("test exception"))
 
         val variables = mapOf("repositories" to testData[0].imageRepoDto.repository)
         val query = createQuery(reposWithTagsQuery, variables)
