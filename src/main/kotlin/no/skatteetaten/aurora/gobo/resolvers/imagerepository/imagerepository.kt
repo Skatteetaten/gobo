@@ -5,9 +5,9 @@ import graphql.relay.PageInfo
 import no.skatteetaten.aurora.gobo.resolvers.Connection
 import no.skatteetaten.aurora.gobo.resolvers.Cursor
 import no.skatteetaten.aurora.gobo.resolvers.PagedEdges
-import no.skatteetaten.aurora.gobo.service.imageregistry.ImageRepo
-import no.skatteetaten.aurora.gobo.service.imageregistry.ImageTagType
-import no.skatteetaten.aurora.gobo.service.imageregistry.ImageTagType.Companion.typeOf
+import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageRepoDto
+import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageTagType
+import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageTagType.Companion.typeOf
 
 data class ImageRepository(
     val registryUrl: String,
@@ -51,4 +51,4 @@ data class ImageTagsConnection(
     constructor(paged: PagedEdges<ImageTagEdge>) : this(paged.edges, paged.pageInfo, paged.totalCount)
 }
 
-fun ImageRepository.toImageRepo() = ImageRepo(this.registryUrl, this.namespace, this.name)
+fun ImageRepository.toImageRepo() = ImageRepoDto(this.registryUrl, this.namespace, this.name)

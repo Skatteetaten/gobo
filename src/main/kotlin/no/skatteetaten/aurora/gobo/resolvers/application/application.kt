@@ -8,8 +8,8 @@ import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.ApplicationDe
 import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.ApplicationDeploymentBuilder
 import no.skatteetaten.aurora.gobo.resolvers.createPageInfo
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository
-import no.skatteetaten.aurora.gobo.service.application.ApplicationDeploymentDetailsResource
-import no.skatteetaten.aurora.gobo.service.application.ApplicationResource
+import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentDetailsResource
+import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationResource
 
 data class Application(
     val name: String,

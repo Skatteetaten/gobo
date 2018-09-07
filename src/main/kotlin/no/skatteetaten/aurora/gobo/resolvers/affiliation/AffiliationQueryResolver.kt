@@ -1,7 +1,7 @@
 package no.skatteetaten.aurora.gobo.resolvers.affiliation
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver
-import no.skatteetaten.aurora.gobo.service.affiliation.AffiliationService
+import no.skatteetaten.aurora.gobo.integration.mokey.AffiliationService
 import org.springframework.stereotype.Component
 
 @Component

@@ -1,9 +1,9 @@
-package no.skatteetaten.aurora.gobo.service.imageregistry
+package no.skatteetaten.aurora.gobo.integration.imageregistry
 
 import assertk.assert
 import assertk.assertions.isEqualTo
-import no.skatteetaten.aurora.gobo.service.imageregistry.AuthenticationMethod.KUBERNETES_TOKEN
-import no.skatteetaten.aurora.gobo.service.imageregistry.AuthenticationMethod.NONE
+import no.skatteetaten.aurora.gobo.integration.imageregistry.AuthenticationMethod.KUBERNETES_TOKEN
+import no.skatteetaten.aurora.gobo.integration.imageregistry.AuthenticationMethod.NONE
 import org.junit.jupiter.api.Test
 
 class DefaultRegistryMetadataResolverTest {
