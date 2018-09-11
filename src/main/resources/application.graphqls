@@ -10,6 +10,7 @@ type ApplicationEdge {
 }
 
 type Application {
+  id: String!
   name: String!
   imageRepository: ImageRepository,
   applicationDeployments: [ApplicationDeployment]

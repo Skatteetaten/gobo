@@ -1,6 +1,7 @@
 package no.skatteetaten.aurora.gobo.integration.mokey
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonProperty
 import org.springframework.hateoas.ResourceSupport
 import java.time.Instant
 
@@ -35,6 +36,8 @@ data class ApplicationDeploymentDetailsResource(
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class ApplicationDeploymentResource(
+    val identifier: String,
+    val name: String,
     val affiliation: String,
     val environment: String,
     val namespace: String,
@@ -44,6 +47,7 @@ data class ApplicationDeploymentResource(
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class ApplicationResource(
+    val identifier: String,
     val name: String,
     val applicationDeployments: List<ApplicationDeploymentResource>
-)
+) : ResourceSupport()

@@ -12,6 +12,7 @@ import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentDetail
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationResource
 
 data class Application(
+    val id: String,
     val name: String,
     val applicationDeployments: List<ApplicationDeployment>
 ) {
@@ -32,6 +33,7 @@ data class ApplicationEdge(private val node: Application) : DefaultEdge<Applicat
         fun create(resource: ApplicationResource, applicationDeployments: List<ApplicationDeployment>) =
             ApplicationEdge(
                 Application(
+                    resource.identifier,
                     resource.name,
                     applicationDeployments
                 )

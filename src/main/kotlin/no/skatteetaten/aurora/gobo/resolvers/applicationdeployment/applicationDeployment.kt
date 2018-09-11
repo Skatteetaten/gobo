@@ -1,15 +1,17 @@
 package no.skatteetaten.aurora.gobo.resolvers.applicationdeployment
 
-import no.skatteetaten.aurora.gobo.resolvers.applicationdeploymentdetails.ApplicationDeploymentDetails
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentDetailsResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationResource
+import no.skatteetaten.aurora.gobo.resolvers.applicationdeploymentdetails.ApplicationDeploymentDetails
 
 data class Status(val code: String, val comment: String?)
 
 data class Version(val deployTag: String, val auroraVersion: String?)
 
 data class ApplicationDeployment(
+    val id: String,
+    val name: String,
     val affiliationId: String,
     val environment: String,
     val namespaceId: String,
@@ -20,6 +22,8 @@ data class ApplicationDeployment(
     companion object {
         fun create(deployment: ApplicationDeploymentResource, details: ApplicationDeploymentDetails?) =
             ApplicationDeployment(
+                deployment.identifier,
+                deployment.name,
                 deployment.affiliation,
                 deployment.environment,
                 deployment.namespace,
