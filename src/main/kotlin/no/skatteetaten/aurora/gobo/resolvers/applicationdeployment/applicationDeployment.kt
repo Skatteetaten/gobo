@@ -1,9 +1,9 @@
 package no.skatteetaten.aurora.gobo.resolvers.applicationdeployment
 
 import no.skatteetaten.aurora.gobo.resolvers.applicationdeploymentdetails.ApplicationDeploymentDetails
-import no.skatteetaten.aurora.gobo.service.application.ApplicationDeploymentDetailsResource
-import no.skatteetaten.aurora.gobo.service.application.ApplicationDeploymentResource
-import no.skatteetaten.aurora.gobo.service.application.ApplicationResource
+import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentDetailsResource
+import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentResource
+import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationResource
 
 data class Status(val code: String, val comment: String?)
 

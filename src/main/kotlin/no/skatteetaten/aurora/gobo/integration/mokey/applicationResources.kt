@@ -1,4 +1,4 @@
-package no.skatteetaten.aurora.gobo.service.application
+package no.skatteetaten.aurora.gobo.integration.mokey
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import org.springframework.hateoas.ResourceSupport

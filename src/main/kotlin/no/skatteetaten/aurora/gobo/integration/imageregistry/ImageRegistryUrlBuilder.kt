@@ -1,4 +1,4 @@
-package no.skatteetaten.aurora.gobo.service.imageregistry
+package no.skatteetaten.aurora.gobo.integration.imageregistry
 
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
@@ -8,15 +8,15 @@ import org.springframework.stereotype.Component
 @Component
 class ImageRegistryUrlBuilder {
 
-    fun createManifestsUrl(apiSchema: String, imageRepo: ImageRepo, tag: String) =
-        "${createApiUrl(apiSchema, imageRepo)}/manifests/$tag"
+    fun createManifestsUrl(apiSchema: String, imageRepoDto: ImageRepoDto, tag: String) =
+        "${createApiUrl(apiSchema, imageRepoDto)}/manifests/$tag"
 
-    fun createTagListUrl(apiSchema: String, imageRepo: ImageRepo) = "${createApiUrl(apiSchema, imageRepo)}/tags/list"
+    fun createTagListUrl(apiSchema: String, imageRepoDto: ImageRepoDto) = "${createApiUrl(apiSchema, imageRepoDto)}/tags/list"
 
-    fun createApiUrl(apiSchema: String, imageRepo: ImageRepo): String {
-        val registryAddress = imageRepo.registry
-        val namespace = imageRepo.namespace
-        val name = imageRepo.name
+    fun createApiUrl(apiSchema: String, imageRepoDto: ImageRepoDto): String {
+        val registryAddress = imageRepoDto.registry
+        val namespace = imageRepoDto.namespace
+        val name = imageRepoDto.name
         return "$apiSchema://$registryAddress/v2/$namespace/$name"
     }
 }
@@ -33,6 +33,6 @@ class OverrideRegistryImageRegistryUrlBuilder(
     @Value("\${docker-registry.url}") val registryUrl: String
 ) : ImageRegistryUrlBuilder() {
 
-    override fun createApiUrl(apiSchema: String, imageRepo: ImageRepo): String =
-        "$registryUrl/v2/${imageRepo.namespace}/${imageRepo.name}"
+    override fun createApiUrl(apiSchema: String, imageRepoDto: ImageRepoDto): String =
+        "$registryUrl/v2/${imageRepoDto.namespace}/${imageRepoDto.name}"
 }

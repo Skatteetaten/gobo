@@ -1,17 +1,17 @@
-package no.skatteetaten.aurora.gobo.service.imageregistry
+package no.skatteetaten.aurora.gobo.integration.imageregistry
 
 import assertk.assert
 import assertk.assertions.isEqualTo
-import no.skatteetaten.aurora.gobo.service.imageregistry.ImageTagType.AURORA_SNAPSHOT_VERSION
-import no.skatteetaten.aurora.gobo.service.imageregistry.ImageTagType.AURORA_VERSION
-import no.skatteetaten.aurora.gobo.service.imageregistry.ImageTagType.BUGFIX
-import no.skatteetaten.aurora.gobo.service.imageregistry.ImageTagType.LATEST
-import no.skatteetaten.aurora.gobo.service.imageregistry.ImageTagType.MAJOR
-import no.skatteetaten.aurora.gobo.service.imageregistry.ImageTagType.MINOR
-import no.skatteetaten.aurora.gobo.service.imageregistry.ImageTagType.SNAPSHOT
+import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageTagType.AURORA_SNAPSHOT_VERSION
+import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageTagType.AURORA_VERSION
+import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageTagType.BUGFIX
+import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageTagType.LATEST
+import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageTagType.MAJOR
+import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageTagType.MINOR
+import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageTagType.SNAPSHOT
 import org.junit.jupiter.api.Test
 
-class ImageTagTypeTest {
+class ImageTagDtoTypeTest {
 
     @Test
     fun `verify tag types are derived correctly`() {
