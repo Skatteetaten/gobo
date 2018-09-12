@@ -1,7 +1,6 @@
 package no.skatteetaten.aurora.gobo.integration.mokey
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import com.fasterxml.jackson.annotation.JsonProperty
 import org.springframework.hateoas.ResourceSupport
 import java.time.Instant
 
