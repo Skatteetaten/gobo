@@ -1,4 +1,6 @@
 type ApplicationDeployment {
+  id: String!
+  name: String!
   affiliation: Affiliation!
   environment: String
   namespace: Namespace

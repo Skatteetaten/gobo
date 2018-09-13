@@ -25,8 +25,8 @@ class ApplicationService(val webClient: WebClient, val objectMapper: ObjectMappe
                     .bodyToMono<String>()
                     .block() ?: return emptyList()
 
-            val applicationResources = objectMapper.readValue<List<ApplicationResource>>(response)
-            return if (applications == null) applicationResources else applicationResources.filter { applications.contains(it.name) }
+            val resources = objectMapper.readValue<List<ApplicationResource>>(response)
+            return if (applications == null) resources else resources.filter { applications.contains(it.name) }
         } catch (e: WebClientResponseException) {
             throw SourceSystemException("Failed to get application, status:${e.statusCode} message:${e.statusText}", e, e.statusText, "Failed to get applications")
         }
@@ -44,7 +44,8 @@ class ApplicationService(val webClient: WebClient, val objectMapper: ObjectMappe
                     .retrieve()
                     .bodyToMono<String>()
                     .block() ?: return emptyList()
-            return objectMapper.readValue(response)
+            val resources = objectMapper.readValue<List<ApplicationDeploymentDetailsResource>>(response)
+            return resources
         } catch (e: WebClientResponseException) {
             throw SourceSystemException("Failed to get application deployment details, status:${e.statusCode} message:${e.statusText}", e, e.statusText, "Failed to get application deployment details")
         }

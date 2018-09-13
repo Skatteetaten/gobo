@@ -35,6 +35,8 @@ data class ApplicationDeploymentDetailsResource(
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class ApplicationDeploymentResource(
+    val identifier: String,
+    val name: String,
     val affiliation: String,
     val environment: String,
     val namespace: String,
@@ -44,6 +46,7 @@ data class ApplicationDeploymentResource(
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class ApplicationResource(
+    val identifier: String,
     val name: String,
     val applicationDeployments: List<ApplicationDeploymentResource>
-)
+) : ResourceSupport()
