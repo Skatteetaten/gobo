@@ -13,7 +13,7 @@ import org.springframework.test.web.client.MockRestServiceServer
 import org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo
 import org.springframework.test.web.client.response.MockRestResponseCreators.withBadRequest
 import org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess
-import org.springframework.web.client.RestTemplate
+import org.springframework.web.reactive.function.client.WebClient
 import java.time.Instant
 
 class ImageRegistryServiceTest {
@@ -24,10 +24,10 @@ class ImageRegistryServiceTest {
     val imageRepo = ImageRepository.fromRepoString("registry.somesuch.skead.no:5000/$imageRepoName").toImageRepo()
     val registryUrl = "https://${imageRepo.registry}"
 
-    val restTemplate = RestTemplate()
-    val mockServer = MockRestServiceServer.bindTo(restTemplate).build()
+    val webClient = WebClient.create()
+    val mockServer = MockRestServiceServer.bindTo(webClient).build()
     val dockerRegistry = ImageRegistryService(
-            restTemplate,
+            webClient,
             ImageRegistryUrlBuilder(),
             DefaultRegistryMetadataResolver(),
             TokenProvider("")

@@ -1,24 +1,24 @@
 package no.skatteetaten.aurora.gobo.integration.imageregistry
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import no.skatteetaten.aurora.gobo.ServiceTypes
+import no.skatteetaten.aurora.gobo.TargetService
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
-import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
-import org.springframework.http.RequestEntity
 import org.springframework.stereotype.Service
 import org.springframework.web.client.HttpClientErrorException
-import org.springframework.web.client.RestTemplate
-import java.net.URI
+import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.reactive.function.client.WebClientResponseException
+import org.springframework.web.reactive.function.client.bodyToMono
+import reactor.core.publisher.Mono
 import java.time.Instant
-import kotlin.reflect.KClass
 
 private data class TagList(var name: String, var tags: List<String>)
 private data class ImageMetadata(val createdDate: Instant)
 
 @Service
 class ImageRegistryService(
-    private val restTemplate: RestTemplate,
+    @TargetService(ServiceTypes.DOCKER) private val webClient: WebClient,
     private val urlBuilder: ImageRegistryUrlBuilder,
     private val registryMetadataResolver: RegistryMetadataResolver,
     private val tokenProvider: TokenProvider
@@ -38,7 +38,7 @@ class ImageRegistryService(
 
         val tagListUrl = urlBuilder.createTagListUrl(registryMetadata.apiSchema, imageRepoDto)
 
-        val tagList = getFromRegistry(registryMetadata, tagListUrl, TagList::class)
+        val tagList: TagList? = getFromRegistry(registryMetadata, tagListUrl)
         val tagsOrderedByCreatedDate = tagList?.tags ?: emptyList()
 
         // The current image registry returns the tag names in the order they were created. There does not, however,
@@ -55,7 +55,7 @@ class ImageRegistryService(
 
         return try {
             val manifestsUrl = urlBuilder.createManifestsUrl(registryMetadata.apiSchema, imageRepoDto, tag)
-            getFromRegistry(registryMetadata, manifestsUrl, String::class)?.let { parseMainfest(it) }
+            getFromRegistry<String>(registryMetadata, manifestsUrl)?.let { parseMainfest(it) }
         } catch (e: Exception) {
             throw SourceSystemException("Unable to get manifest for image: $tag", e)
         }
@@ -70,17 +70,21 @@ class ImageRegistryService(
         return ImageMetadata(Instant.parse(createdString))
     }
 
-    private fun <T : Any> getFromRegistry(registryMetadata: RegistryMetadata, apiUrl: String, kClass: KClass<T>): T? {
+    private inline fun <reified T : Any> getFromRegistry(registryMetadata: RegistryMetadata, apiUrl: String): T? {
 
-        val headers = HttpHeaders().apply {
-            if (registryMetadata.authenticationMethod == AuthenticationMethod.KUBERNETES_TOKEN) {
-                set("Authorization", "Bearer ${tokenProvider.token}")
-            }
-        }
-        val request = RequestEntity<T>(headers, HttpMethod.GET, URI(apiUrl))
         return try {
-            restTemplate.exchange(request, kClass.java).body
-        } catch (e: HttpClientErrorException) {
+            val res: Mono<T> = webClient
+                .get()
+                .uri(apiUrl)
+                .headers {
+                    if (registryMetadata.authenticationMethod == AuthenticationMethod.KUBERNETES_TOKEN) {
+                        it.set("Authorization", "Bearer ${tokenProvider.token}")
+                    }
+                }
+                .retrieve()
+                .bodyToMono()
+            res.block()
+        } catch (e: WebClientResponseException) {
             if (e.statusCode != HttpStatus.NOT_FOUND) {
                 throw e
             }
