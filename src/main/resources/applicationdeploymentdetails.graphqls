@@ -28,5 +28,5 @@ type ApplicationDeploymentDetails {
   imageDetails: ImageDetails
   podResources: [PodResource]
   deploymentSpecCurrent: URL
-  DeploymentSpecDeployed: URL
+  deploymentSpecDeployed: URL
 }
