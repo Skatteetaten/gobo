@@ -27,4 +27,6 @@ type ApplicationDeploymentDetails {
   gitInfo: GitInfo
   imageDetails: ImageDetails
   podResources: [PodResource]
+  deploymentSpecCurrent: URL
+  DeploymentSpecDeployed: URL
 }
