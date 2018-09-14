@@ -29,7 +29,7 @@ class ImageRegistryService(
 
         val tagListUrl = urlBuilder.createTagListUrl(registryMetadata.apiSchema, imageRepoDto)
 
-        val tagList: TagList? = imageRegistryClient.getFromRegistry(registryMetadata, tagListUrl)
+        val tagList: TagList? = imageRegistryClient.getTags(tagListUrl, registryMetadata.authenticationMethod)
         val tagsOrderedByCreatedDate = tagList?.tags ?: emptyList()
 
         // The current image registry returns the tag names in the order they were created. There does not, however,
@@ -46,7 +46,8 @@ class ImageRegistryService(
 
         return try {
             val manifestsUrl = urlBuilder.createManifestsUrl(registryMetadata.apiSchema, imageRepoDto, tag)
-            imageRegistryClient.getFromRegistry<String>(registryMetadata, manifestsUrl)?.let { parseMainfest(it) }
+            imageRegistryClient.getManifest(manifestsUrl, registryMetadata.authenticationMethod)
+                ?.let { parseMainfest(it) }
         } catch (e: Exception) {
             throw SourceSystemException("Unable to get manifest for image: $tag", e)
         }

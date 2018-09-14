@@ -2,15 +2,20 @@ package no.skatteetaten.aurora.gobo.integration.imageregistry
 
 import assertk.assert
 import assertk.assertions.containsAll
+import assertk.assertions.isEqualTo
+import assertk.assertions.message
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
+import no.skatteetaten.aurora.gobo.integration.imageregistry.AuthenticationMethod.NONE
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.toImageRepo
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.springframework.web.reactive.function.client.WebClientResponseException
+import java.time.Instant
 
 class ImageRegistryServiceTest {
 
@@ -24,8 +29,8 @@ class ImageRegistryServiceTest {
     val dockerRegistry = ImageRegistryService(
         imageRegistryClient, ImageRegistryUrlBuilder(), DefaultRegistryMetadataResolver()
     )
-
     val mapper = jacksonObjectMapper()
+
     @BeforeEach
     fun setUp() {
         clearMocks(imageRegistryClient)
@@ -34,7 +39,12 @@ class ImageRegistryServiceTest {
     @Test
     fun `verify fetches all tags for specified repo`() {
 
-        every { imageRegistryClient.getFromRegistry<TagList>(any(), "") } returns mapper.readValue(tagsListResponse)
+        every {
+            imageRegistryClient.getTags(
+                "$registryUrl/v2/$imageRepoName/tags/list",
+                NONE
+            )
+        } returns mapper.readValue(tagsListResponse)
 
         val tags = dockerRegistry.findTagNamesInRepoOrderedByCreatedDateDesc(imageRepo)
 
@@ -47,12 +57,15 @@ class ImageRegistryServiceTest {
         )
     }
 
-    /*
     @Test
     fun `verify tag can be found by name`() {
-        mockServer.expect(requestTo("$registryUrl/v2/$imageRepoName/manifests/$tagName"))
-            .andRespond(withSuccess(manifestResponse, MediaType.APPLICATION_JSON_UTF8))
 
+        every {
+            imageRegistryClient.getManifest(
+                "$registryUrl/v2/$imageRepoName/manifests/$tagName",
+                NONE
+            )
+        } returns manifestResponse
         val tag = dockerRegistry.findTagByName(imageRepo, tagName)
         assert(tag.created).isEqualTo(Instant.parse("2017-09-25T11:38:20.361177648Z"))
         assert(tag.name).isEqualTo(tagName)
@@ -60,15 +73,21 @@ class ImageRegistryServiceTest {
 
     @Test
     fun `Throw exception when bad request is returned from registry`() {
-        mockServer.expect(requestTo("$registryUrl/v2/$imageRepoName/manifests/$tagName")).andRespond(withBadRequest())
+
+        val notFound = WebClientResponseException("Not found", 404, "", null, null, null)
+        every {
+            imageRegistryClient.getManifest(
+                "$registryUrl/v2/$imageRepoName/manifests/$tagName",
+                NONE
+            )
+        } throws notFound
 
         assert {
             dockerRegistry.findTagByName(imageRepo, tagName)
         }.thrownError {
-            hasMessage("Unable to get manifest for image: $tagName")
+            message().isEqualTo("Unable to get manifest for image: $tagName")
         }
     }
-    */
 }
 
 private val tagsListResponse = """{

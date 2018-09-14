@@ -9,7 +9,6 @@ buildscript {
     }
   }
 
-
   repositories repos
 
   dependencies {
@@ -28,7 +27,7 @@ plugins {
 }
 
 ext.aurora = [
-    requireStaging: false,
+    requireStaging   : false,
     applySpockSupport: false
 ]
 

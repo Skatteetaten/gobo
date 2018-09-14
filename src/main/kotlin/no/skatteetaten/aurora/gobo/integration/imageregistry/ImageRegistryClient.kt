@@ -13,14 +13,26 @@ class ImageRegistryClient(
     @TargetService(ServiceTypes.DOCKER) val webClient: WebClient,
     val tokenProvider: TokenProvider
 ) {
-    final inline fun <reified T : Any> getFromRegistry(registryMetadata: RegistryMetadata, apiUrl: String): T? {
+
+    fun getTags(apiUrl: String, authenticationMethod: AuthenticationMethod): TagList? {
+        return getFromRegistry(apiUrl, authenticationMethod)
+    }
+
+    fun getManifest(apiUrl: String, authenticationMethod: AuthenticationMethod): String? {
+        return getFromRegistry(apiUrl, authenticationMethod)
+    }
+
+    private final inline fun <reified T : Any> getFromRegistry(
+        apiUrl: String,
+        authenticationMethod: AuthenticationMethod
+    ): T? {
 
         return try {
             webClient
                 .get()
                 .uri(apiUrl)
                 .headers {
-                    if (registryMetadata.authenticationMethod == AuthenticationMethod.KUBERNETES_TOKEN) {
+                    if (authenticationMethod == AuthenticationMethod.KUBERNETES_TOKEN) {
                         it.set("Authorization", "Bearer ${tokenProvider.token}")
                     }
                 }
