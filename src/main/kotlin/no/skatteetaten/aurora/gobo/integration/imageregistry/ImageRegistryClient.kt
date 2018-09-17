@@ -5,8 +5,10 @@ import no.skatteetaten.aurora.gobo.TargetService
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
-import org.springframework.web.reactive.function.client.WebClientResponseException
 import org.springframework.web.reactive.function.client.bodyToMono
+import reactor.core.publisher.Mono
+import java.util.function.Function
+import java.util.function.Predicate
 
 @Service
 class ImageRegistryClient(
@@ -25,25 +27,18 @@ class ImageRegistryClient(
     private final inline fun <reified T : Any> getFromRegistry(
         apiUrl: String,
         authenticationMethod: AuthenticationMethod
-    ): T? {
-
-        return try {
-            webClient
-                .get()
-                .uri(apiUrl)
-                .headers {
-                    if (authenticationMethod == AuthenticationMethod.KUBERNETES_TOKEN) {
-                        it.set("Authorization", "Bearer ${tokenProvider.token}")
-                    }
-                }
-                .retrieve()
-                .bodyToMono<T>()
-                .block()
-        } catch (e: WebClientResponseException) {
-            if (e.statusCode != HttpStatus.NOT_FOUND) {
-                throw e
+    ): T? = webClient
+        .get()
+        .uri(apiUrl)
+        .headers {
+            if (authenticationMethod == AuthenticationMethod.KUBERNETES_TOKEN) {
+                it.set("Authorization", "Bearer ${tokenProvider.token}")
             }
-            null
         }
-    }
+        .retrieve()
+        // TODO: It would be nice with a kotlin dsl over WebClient
+        .onStatus(Predicate.isEqual<HttpStatus>(HttpStatus.NOT_FOUND), Function { Mono.empty() })
+        .bodyToMono<T>()
+        .block()
 }
+
