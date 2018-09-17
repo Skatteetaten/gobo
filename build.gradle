@@ -9,7 +9,6 @@ buildscript {
     }
   }
 
-
   repositories repos
 
   dependencies {
@@ -20,15 +19,15 @@ buildscript {
 }
 
 plugins {
-  id 'org.jetbrains.kotlin.jvm' version '1.2.61'
-  id 'org.jetbrains.kotlin.plugin.spring' version '1.2.61'
+  id 'org.jetbrains.kotlin.jvm' version '1.2.70'
+  id 'org.jetbrains.kotlin.plugin.spring' version '1.2.70'
   id 'org.springframework.boot' version '2.0.2.RELEASE'
   id 'org.jlleitschuh.gradle.ktlint' version '4.0.0'
   id 'com.github.ben-manes.versions' version '0.20.0'
 }
 
 ext.aurora = [
-    requireStaging: false,
+    requireStaging   : false,
     applySpockSupport: false
 ]
 
@@ -54,13 +53,14 @@ def junitJupiterVersion = dependencyManagement.importedProperties['junit-jupiter
 dependencies {
 
   compile(
+
       'org.jetbrains.kotlin:kotlin-reflect:1.2.61',
       'org.jetbrains.kotlin:kotlin-stdlib-jdk8',
       'com.fasterxml.jackson.module:jackson-module-kotlin',
       'com.fasterxml.jackson.datatype:jackson-datatype-jsr310',
       'no.skatteetaten.aurora.springboot:aurora-spring-boot2-starter:1.2.3',
       'io.fabric8:openshift-client:3.1.12',
-      'com.fkorotkov:kubernetes-dsl:1.2',
+      'com.fkorotkov:kubernetes-dsl:1.2.1',
       "org.springframework.retry:spring-retry",
       'org.springframework.boot:spring-boot-starter-webflux',
       'org.springframework.boot:spring-boot-starter-security',
@@ -82,7 +82,10 @@ dependencies {
       'org.springframework.security:spring-security-test'
   ].each { testCompile(it) { exclude group: 'junit' } }
 
-  testImplementation("org.junit.jupiter:junit-jupiter-api")
+  testImplementation(
+          "org.junit.jupiter:junit-jupiter-api",
+          "com.squareup.okhttp3:mockwebserver:3.11.0"
+  )
   testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
 }
 
@@ -94,6 +97,7 @@ compileKotlin {
   kotlinOptions {
     suppressWarnings = true
     jvmTarget = 1.8
+    freeCompilerArgs = ["-Xjsr305=strict"]
   }
 }
 
@@ -101,6 +105,7 @@ compileTestKotlin {
   kotlinOptions {
     suppressWarnings = true
     jvmTarget = 1.8
+    freeCompilerArgs = ["-Xjsr305=strict"]
   }
 }
 
