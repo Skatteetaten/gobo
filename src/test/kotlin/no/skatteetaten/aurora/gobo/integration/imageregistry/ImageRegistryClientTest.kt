@@ -70,13 +70,12 @@ class ImageRegistryClientTest {
 
         server.stubFor(
             get(urlEqualTo("/manifest"))
-                .withHeader("Authorization", matching("Bearer token"))
                 .willReturn(
                     aResponse().withStatus(404)
                 )
         )
         val manifestUri = "$uri/manifest"
-        val manifest = service.getManifest(manifestUri, AuthenticationMethod.KUBERNETES_TOKEN)
+        val manifest = service.getManifest(manifestUri, AuthenticationMethod.NONE)
 
         assert(manifest).isNull()
     }
