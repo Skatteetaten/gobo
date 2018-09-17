@@ -1,10 +1,10 @@
 package no.skatteetaten.aurora.gobo.integration.imageregistry
 
 import assertk.assert
-import assertk.assertions.isEqualTo
-import assertk.assertions.isNull
-import assertk.assertions.isNotNull
 import assertk.assertions.containsAll
+import assertk.assertions.isEqualTo
+import assertk.assertions.isNotNull
+import assertk.assertions.isNull
 import assertk.assertions.message
 import io.mockk.clearMocks
 import io.mockk.every
@@ -23,16 +23,17 @@ import java.time.Instant
 
 class ImageRegistryServiceTest {
 
+    private val imageRepoName = "no_skatteetaten_aurora/boober"
     private val tagName = "1"
 
     private val server = MockWebServer()
     private val url = server.url("/")
-    private val imageRepo = ImageRepository.fromRepoString("${url.host()}:${url.port()}/no_skatteetaten_aurora/boober").toImageRepo()
+    private val imageRepo = ImageRepository.fromRepoString("${url.host()}:${url.port()}/$imageRepoName").toImageRepo()
 
     private val defaultRegistryMetadataResolver = mockk<DefaultRegistryMetadataResolver>()
     private val tokenProvider = mockk<TokenProvider>()
     private val dockerRegistry = ImageRegistryService(
-            ImageRegistryUrlBuilder(), defaultRegistryMetadataResolver, WebClient.create(url.toString()), tokenProvider
+        ImageRegistryUrlBuilder(), defaultRegistryMetadataResolver, WebClient.create(url.toString()), tokenProvider
     )
 
     @BeforeEach
@@ -51,12 +52,13 @@ class ImageRegistryServiceTest {
         val request = server.takeRequest()
 
         assert(tags).containsAll(
-                "1",
-                "develop-SNAPSHOT",
-                "1.0.0-rc.2-b2.2.3-oracle8-1.4.0",
-                "1.0.0-rc.1-b2.2.3-oracle8-1.4.0",
-                "master-SNAPSHOT"
+            "1",
+            "develop-SNAPSHOT",
+            "1.0.0-rc.2-b2.2.3-oracle8-1.4.0",
+            "1.0.0-rc.1-b2.2.3-oracle8-1.4.0",
+            "master-SNAPSHOT"
         )
+        assert(request.path).isEqualTo("/v2/$imageRepoName/tags/list")
         assert(request.headers[HttpHeaders.AUTHORIZATION]).isNull()
     }
 
@@ -73,6 +75,7 @@ class ImageRegistryServiceTest {
         val tags = dockerRegistry.findTagNamesInRepoOrderedByCreatedDateDesc(imageRepo)
         val request = server.takeRequest()
 
+        assert(request.path).isEqualTo("/v2/$imageRepoName/tags/list")
         assert(tags).isNotNull()
         assert(request.headers[HttpHeaders.AUTHORIZATION]).isEqualTo("Bearer token")
     }
@@ -82,8 +85,11 @@ class ImageRegistryServiceTest {
         server.enqueue(createJsonMockResponse(body = manifestResponse))
 
         val tag = dockerRegistry.findTagByName(imageRepo, tagName)
+        val request = server.takeRequest()
+
         assert(tag.created).isEqualTo(Instant.parse("2017-09-25T11:38:20.361177648Z"))
         assert(tag.name).isEqualTo(tagName)
+        assert(request.path).isEqualTo("/v2/$imageRepoName/manifests/$tagName")
     }
 
     @Test
@@ -93,6 +99,7 @@ class ImageRegistryServiceTest {
         assert {
             dockerRegistry.findTagByName(imageRepo, tagName)
         }.thrownError {
+            server.takeRequest()
             message().isEqualTo("No metadata for tag=$tagName in repo=${imageRepo.repository}")
         }
     }
