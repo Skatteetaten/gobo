@@ -63,7 +63,6 @@ class ImageRegistryClientTest {
     }
 
     @Test
-
     fun `empty on 404`(@Wiremock server: WireMockServer, @WiremockUri uri: String) {
 
         server.stubFor(
