@@ -23,17 +23,16 @@ import java.time.Instant
 
 class ImageRegistryServiceTest {
 
-    val tagName = "1"
+    private val tagName = "1"
 
-    val server = MockWebServer()
-    val url = server.url("/")
-    val webClient = WebClient.create(url.toString())
-    val imageRepo = ImageRepository.fromRepoString("${url.host()}:${url.port()}/no_skatteetaten_aurora/boober").toImageRepo()
+    private val server = MockWebServer()
+    private val url = server.url("/")
+    private val imageRepo = ImageRepository.fromRepoString("${url.host()}:${url.port()}/no_skatteetaten_aurora/boober").toImageRepo()
 
-    val defaultRegistryMetadataResolver = mockk<DefaultRegistryMetadataResolver>()
-    val tokenProvider = mockk<TokenProvider>()
-    val dockerRegistry = ImageRegistryService(
-            ImageRegistryUrlBuilder(), defaultRegistryMetadataResolver, webClient, tokenProvider
+    private val defaultRegistryMetadataResolver = mockk<DefaultRegistryMetadataResolver>()
+    private val tokenProvider = mockk<TokenProvider>()
+    private val dockerRegistry = ImageRegistryService(
+            ImageRegistryUrlBuilder(), defaultRegistryMetadataResolver, WebClient.create(url.toString()), tokenProvider
     )
 
     @BeforeEach
@@ -63,9 +62,7 @@ class ImageRegistryServiceTest {
 
     @Test
     fun `fetch all tags with authorization header`() {
-        every {
-            tokenProvider.token
-        } returns "token"
+        every { tokenProvider.token } returns "token"
 
         every {
             defaultRegistryMetadataResolver.getMetadataForRegistry(any())
