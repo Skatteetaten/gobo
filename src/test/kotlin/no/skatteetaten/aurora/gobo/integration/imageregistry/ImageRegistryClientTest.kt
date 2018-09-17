@@ -66,8 +66,6 @@ class ImageRegistryClientTest {
 
     fun `empty on 404`(@Wiremock server: WireMockServer, @WiremockUri uri: String) {
 
-        every { tokenProvider.token } returns "token"
-
         server.stubFor(
             get(urlEqualTo("/manifest"))
                 .willReturn(

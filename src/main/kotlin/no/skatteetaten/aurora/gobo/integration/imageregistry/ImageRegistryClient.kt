@@ -42,4 +42,3 @@ class ImageRegistryClient(
         .bodyToMono<T>()
         .block()
 }
-
