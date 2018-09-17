@@ -8,7 +8,6 @@ import com.github.tomakehurst.wiremock.client.WireMock.aResponse
 import com.github.tomakehurst.wiremock.client.WireMock.get
 import com.github.tomakehurst.wiremock.client.WireMock.matching
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
-import com.github.tomakehurst.wiremock.client.WireMock.verify
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
@@ -56,8 +55,6 @@ class ImageRegistryClientTest {
         val tags = service.getTags(manifestUri, AuthenticationMethod.KUBERNETES_TOKEN)
         assert(tags?.name).isEqualTo("no_skatteetaten_aurora/boober")
         assert(tags?.tags?.size).isEqualTo(5)
-
-
     }
 
     @Test
