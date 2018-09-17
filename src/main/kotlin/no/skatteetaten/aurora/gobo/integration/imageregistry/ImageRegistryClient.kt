@@ -10,6 +10,7 @@ import reactor.core.publisher.Mono
 import java.util.function.Function
 import java.util.function.Predicate
 
+// TODO: Merge tiwh ImageRegsitryService again
 @Service
 class ImageRegistryClient(
     @TargetService(ServiceTypes.DOCKER) val webClient: WebClient,
