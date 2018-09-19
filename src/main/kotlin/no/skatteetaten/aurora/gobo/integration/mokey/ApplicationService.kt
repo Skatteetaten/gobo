@@ -44,8 +44,7 @@ class ApplicationService(val webClient: WebClient, val objectMapper: ObjectMappe
                     .retrieve()
                     .bodyToMono<String>()
                     .block() ?: return emptyList()
-            val resources = objectMapper.readValue<List<ApplicationDeploymentDetailsResource>>(response)
-            return resources
+            return objectMapper.readValue(response)
         } catch (e: WebClientResponseException) {
             throw SourceSystemException("Failed to get application deployment details, status:${e.statusCode} message:${e.statusText}", e, e.statusText, "Failed to get application deployment details")
         }
