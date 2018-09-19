@@ -29,7 +29,7 @@ data class Scan(
         }
 
         private fun getAggregatedStatus(probeResultList: List<ProbeResult>): ScanStatus {
-            return if (probeResultList.all { it.result?.status?.equals(ProbeStatus.OPEN)?: false }) {
+            return if (probeResultList.all { it.result?.status?.equals(ProbeStatus.OPEN) ?: false }) {
                 ScanStatus.OPEN
             } else {
                 ScanStatus.CLOSED
@@ -45,16 +45,16 @@ data class Scan(
         }
 
         private fun createFailed(probeResultList: List<ProbeResult>): NodeDetailsConnection {
-            return createNodeDetails(probeResultList) {it!=ProbeStatus.OPEN}
+            return createNodeDetails(probeResultList) { it != ProbeStatus.OPEN }
         }
 
         private fun createOpen(probeResultList: List<ProbeResult>): NodeDetailsConnection {
-            return createNodeDetails(probeResultList) {it==ProbeStatus.OPEN}
+            return createNodeDetails(probeResultList) { it == ProbeStatus.OPEN }
         }
 
         private fun createNodeDetails(probeResultList: List<ProbeResult>, condition: (ProbeStatus) -> Boolean): NodeDetailsConnection {
-            return NodeDetailsConnection(probeResultList.filter {condition(it.result?.status?: ProbeStatus.UNKNOWN)}.map {
-                NodeDetailsEdge(NodeDetails(mapStatus(it.result?.status?: ProbeStatus.UNKNOWN), it.result?.message, ClusterNode(it.hostIp))) })
+            return NodeDetailsConnection(probeResultList.filter { condition(it.result?.status ?: ProbeStatus.UNKNOWN) }.map {
+                NodeDetailsEdge(NodeDetails(mapStatus(it.result?.status ?: ProbeStatus.UNKNOWN), it.result?.message, ClusterNode(it.hostIp))) })
         }
     }
 }
