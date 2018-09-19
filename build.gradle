@@ -54,7 +54,7 @@ dependencies {
 
   compile(
 
-      'org.jetbrains.kotlin:kotlin-reflect:1.2.61',
+      'org.jetbrains.kotlin:kotlin-reflect:1.2.70',
       'org.jetbrains.kotlin:kotlin-stdlib-jdk8',
       'com.fasterxml.jackson.module:jackson-module-kotlin',
       'com.fasterxml.jackson.datatype:jackson-datatype-jsr310',
