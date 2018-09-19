@@ -19,7 +19,7 @@ import org.springframework.http.client.reactive.ReactorClientHttpConnector
 import org.springframework.web.reactive.function.client.WebClient
 
 enum class ServiceTypes {
-    MOKEY, DOCKER
+    MOKEY, DOCKER, BOOBER
 }
 
 @Target(AnnotationTarget.TYPE, AnnotationTarget.FUNCTION, AnnotationTarget.FIELD, AnnotationTarget.VALUE_PARAMETER)
@@ -62,6 +62,15 @@ class ApplicationConfig(
         return WebClient
             .builder()
             .clientConnector(httpConnector)
+            .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .build()
+    }
+
+    @Bean
+    @TargetService(ServiceTypes.BOOBER)
+    fun webClientBoober(): WebClient {
+        return WebClient
+            .builder()
             .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .build()
     }

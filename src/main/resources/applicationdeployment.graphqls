@@ -20,6 +20,6 @@ type Version {
 }
 
 input ApplicationDeploymentVersionInput {
-  branch: String!
-  affiliation: String!
+  applicationDeploymentId: String!
+  version: String!
 }

@@ -55,4 +55,4 @@ class ApplicationDeploymentBuilder(deploymentResources: List<ApplicationDeployme
     }
 }
 
-data class ApplicationDeploymentVersionInput(val branch: String, val affiliation: String)
+data class ApplicationDeploymentVersionInput(val applicationDeploymentId: String, val version: String)

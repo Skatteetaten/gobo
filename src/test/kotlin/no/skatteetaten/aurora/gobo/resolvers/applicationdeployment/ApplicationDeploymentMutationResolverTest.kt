@@ -11,8 +11,8 @@ import org.springframework.web.reactive.function.BodyInserters
 
 @GraphQLTest
 class ApplicationDeploymentMutationResolverTest {
-    @Value("classpath:graphql/updateApplicationDeploymentVersion.graphql")
-    private lateinit var updateVersionMutation: Resource
+    @Value("classpath:graphql/redeployWithVersion.graphql")
+    private lateinit var redeployWithVersionMutation: Resource
 
     @Autowired
     private lateinit var webTestClient: WebTestClient
@@ -21,12 +21,12 @@ class ApplicationDeploymentMutationResolverTest {
     fun `Mutate application deployment version`() {
         val variables = mapOf(
             "input" to mapOf(
-                "affiliation" to "paas",
-                "branch" to "master"
+                "applicationDeploymentId" to "123",
+                "version" to "1"
 
             )
         )
-        val query = createQuery(updateVersionMutation, variables)
+        val query = createQuery(redeployWithVersionMutation, variables)
         webTestClient
             .post()
             .uri("/graphql")
@@ -34,6 +34,6 @@ class ApplicationDeploymentMutationResolverTest {
             .exchange()
             .expectStatus().isOk
             .expectBody()
-            .jsonPath("$.data.updateApplicationDeploymentVersion.name").exists()
+            .jsonPath("$.data.redeployWithVersion.name").exists()
     }
 }

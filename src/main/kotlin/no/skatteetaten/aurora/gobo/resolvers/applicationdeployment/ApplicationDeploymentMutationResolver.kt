@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component
 @Component
 class ApplicationDeploymentMutationResolver : GraphQLMutationResolver {
 
-    fun updateApplicationDeploymentVersion(input: ApplicationDeploymentVersionInput): ApplicationDeployment {
+    fun redeployWithVersion(input: ApplicationDeploymentVersionInput): ApplicationDeployment {
         return ApplicationDeployment(
             "id", "name", "affiliationId", "environment",
             "namespaceId", Status("code", "comment"), Version("deployTag", null), null
