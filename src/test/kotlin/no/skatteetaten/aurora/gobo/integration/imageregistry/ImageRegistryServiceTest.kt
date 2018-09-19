@@ -2,76 +2,105 @@ package no.skatteetaten.aurora.gobo.integration.imageregistry
 
 import assertk.assert
 import assertk.assertions.containsAll
-import assertk.assertions.hasMessage
 import assertk.assertions.isEqualTo
+import assertk.assertions.isNotNull
+import assertk.assertions.isNull
+import assertk.assertions.message
+import io.mockk.clearMocks
+import io.mockk.every
+import io.mockk.mockk
+import no.skatteetaten.aurora.gobo.integration.createJsonMockResponse
+import no.skatteetaten.aurora.gobo.integration.imageregistry.AuthenticationMethod.KUBERNETES_TOKEN
+import no.skatteetaten.aurora.gobo.integration.imageregistry.AuthenticationMethod.NONE
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.toImageRepo
-import org.junit.jupiter.api.AfterEach
+import okhttp3.mockwebserver.MockWebServer
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.springframework.http.MediaType
-import org.springframework.test.web.client.MockRestServiceServer
-import org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo
-import org.springframework.test.web.client.response.MockRestResponseCreators.withBadRequest
-import org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess
-import org.springframework.web.client.RestTemplate
+import org.springframework.http.HttpHeaders
+import org.springframework.web.reactive.function.client.WebClient
 import java.time.Instant
 
 class ImageRegistryServiceTest {
 
-    val imageRepoName = "no_skatteetaten_aurora/boober"
-    val tagName = "1"
+    private val imageRepoName = "no_skatteetaten_aurora/boober"
+    private val tagName = "1"
 
-    val imageRepo = ImageRepository.fromRepoString("registry.somesuch.skead.no:5000/$imageRepoName").toImageRepo()
-    val registryUrl = "https://${imageRepo.registry}"
+    private val server = MockWebServer()
+    private val url = server.url("/")
+    private val imageRepo = ImageRepository.fromRepoString("${url.host()}:${url.port()}/$imageRepoName").toImageRepo()
 
-    val restTemplate = RestTemplate()
-    val mockServer = MockRestServiceServer.bindTo(restTemplate).build()
-    val dockerRegistry = ImageRegistryService(
-            restTemplate,
-            ImageRegistryUrlBuilder(),
-            DefaultRegistryMetadataResolver(),
-            TokenProvider("")
+    private val defaultRegistryMetadataResolver = mockk<DefaultRegistryMetadataResolver>()
+    private val tokenProvider = mockk<TokenProvider>()
+    private val dockerRegistry = ImageRegistryService(
+        ImageRegistryUrlBuilder(), defaultRegistryMetadataResolver, WebClient.create(url.toString()), tokenProvider
     )
 
-    @AfterEach
-    fun tearDown() {
-        mockServer.reset()
+    @BeforeEach
+    fun setUp() {
+        clearMocks(defaultRegistryMetadataResolver, tokenProvider)
+
+        every {
+            defaultRegistryMetadataResolver.getMetadataForRegistry(any())
+        } returns RegistryMetadata("${url.host()}:${url.port()}", "http", NONE)
     }
 
     @Test
     fun `verify fetches all tags for specified repo`() {
-        mockServer.expect(requestTo("$registryUrl/v2/$imageRepoName/tags/list"))
-                .andRespond(withSuccess(tagsListResponse, MediaType.APPLICATION_JSON_UTF8))
-
+        server.enqueue(createJsonMockResponse(body = tagsListResponse))
         val tags = dockerRegistry.findTagNamesInRepoOrderedByCreatedDateDesc(imageRepo)
+        val request = server.takeRequest()
 
         assert(tags).containsAll(
-                "1",
-                "develop-SNAPSHOT",
-                "1.0.0-rc.2-b2.2.3-oracle8-1.4.0",
-                "1.0.0-rc.1-b2.2.3-oracle8-1.4.0",
-                "master-SNAPSHOT"
+            "1",
+            "develop-SNAPSHOT",
+            "1.0.0-rc.2-b2.2.3-oracle8-1.4.0",
+            "1.0.0-rc.1-b2.2.3-oracle8-1.4.0",
+            "master-SNAPSHOT"
         )
+        assert(request.path).isEqualTo("/v2/$imageRepoName/tags/list")
+        assert(request.headers[HttpHeaders.AUTHORIZATION]).isNull()
+    }
+
+    @Test
+    fun `fetch all tags with authorization header`() {
+        every { tokenProvider.token } returns "token"
+
+        every {
+            defaultRegistryMetadataResolver.getMetadataForRegistry(any())
+        } returns RegistryMetadata("${url.host()}:${url.port()}", "http", KUBERNETES_TOKEN)
+
+        server.enqueue(createJsonMockResponse(body = tagsListResponse))
+
+        val tags = dockerRegistry.findTagNamesInRepoOrderedByCreatedDateDesc(imageRepo)
+        val request = server.takeRequest()
+
+        assert(request.path).isEqualTo("/v2/$imageRepoName/tags/list")
+        assert(tags).isNotNull()
+        assert(request.headers[HttpHeaders.AUTHORIZATION]).isEqualTo("Bearer token")
     }
 
     @Test
     fun `verify tag can be found by name`() {
-        mockServer.expect(requestTo("$registryUrl/v2/$imageRepoName/manifests/$tagName"))
-                .andRespond(withSuccess(manifestResponse, MediaType.APPLICATION_JSON_UTF8))
+        server.enqueue(createJsonMockResponse(body = manifestResponse))
 
         val tag = dockerRegistry.findTagByName(imageRepo, tagName)
+        val request = server.takeRequest()
+
         assert(tag.created).isEqualTo(Instant.parse("2017-09-25T11:38:20.361177648Z"))
         assert(tag.name).isEqualTo(tagName)
+        assert(request.path).isEqualTo("/v2/$imageRepoName/manifests/$tagName")
     }
 
     @Test
     fun `Throw exception when bad request is returned from registry`() {
-        mockServer.expect(requestTo("$registryUrl/v2/$imageRepoName/manifests/$tagName")).andRespond(withBadRequest())
+        server.enqueue(createJsonMockResponse(404, "Not found"))
 
         assert {
             dockerRegistry.findTagByName(imageRepo, tagName)
         }.thrownError {
-            hasMessage("Unable to get manifest for image: $tagName")
+            server.takeRequest()
+            message().isEqualTo("No metadata for tag=$tagName in repo=${imageRepo.repository}")
         }
     }
 }
