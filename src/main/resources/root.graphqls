@@ -9,6 +9,8 @@ type Query {
   imageRepositories(repositories: [String!]): [ImageRepository!]
 
   currentUser: User
+
+  scan(host: String!, port: Int): Scan
 }
 
 type PageInfo {

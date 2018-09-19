@@ -19,7 +19,7 @@ import org.springframework.http.client.reactive.ReactorClientHttpConnector
 import org.springframework.web.reactive.function.client.WebClient
 
 enum class ServiceTypes {
-    MOKEY, DOCKER
+    MOKEY, DOCKER, UNCLEMATT
 }
 
 @Target(AnnotationTarget.TYPE, AnnotationTarget.FUNCTION, AnnotationTarget.FIELD, AnnotationTarget.VALUE_PARAMETER)
@@ -29,7 +29,8 @@ annotation class TargetService(val value: ServiceTypes)
 
 @Configuration
 class ApplicationConfig(
-    @Value("\${mokey.url}") val mokeyUrl: String
+    @Value("\${mokey.url}") val mokeyUrl: String,
+    @Value("\${unclematt.url}") val uncleMattUrl: String
 ) {
 
     val logger = LoggerFactory.getLogger(ApplicationConfig::class.java)
@@ -44,6 +45,19 @@ class ApplicationConfig(
         return WebClient
             .builder()
             .baseUrl(mokeyUrl)
+            .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .build()
+    }
+
+    @Bean
+    @TargetService(ServiceTypes.UNCLEMATT)
+    fun webClientUncleMatt(): WebClient {
+
+        logger.info("Configuring WebClient with baseUrl={}", uncleMattUrl)
+
+        return WebClient
+            .builder()
+            .baseUrl(uncleMattUrl)
             .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .build()
     }
