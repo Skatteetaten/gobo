@@ -1,0 +1,5 @@
+mutation updateApplicationDeploymentVersion($input: ApplicationDeploymentVersionInput) {
+    updateApplicationDeploymentVersion(input: $input) {
+        name
+    }
+}

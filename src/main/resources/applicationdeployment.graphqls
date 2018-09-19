@@ -18,3 +18,8 @@ type Version {
   deployTag: String
   auroraVersion: String
 }
+
+input ApplicationDeploymentVersionInput {
+  branch: String!
+  affiliation: String!
+}

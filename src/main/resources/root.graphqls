@@ -11,6 +11,10 @@ type Query {
   currentUser: User
 }
 
+type Mutation {
+  updateApplicationDeploymentVersion(input: ApplicationDeploymentVersionInput): ApplicationDeployment
+}
+
 type PageInfo {
   startCursor: String
   endCursor: String
