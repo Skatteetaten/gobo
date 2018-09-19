@@ -75,8 +75,8 @@ data class ApplicationDeploymentDetails(
                 imageDetails = resource.imageDetails?.let { ImageDetails(it.imageBuildTime, it.dockerImageReference) },
                 gitInfo = resource.gitInfo?.let { GitInfo(it.commitId, it.commitTime) },
                 podResources = resource.podResources.map { PodResource.create(it) },
-                deploymentSpecCurrent = URL(resource.getLink("DeploymentSpecCurrent").href),
-                deploymentSpecDeployed = URL(resource.getLink("DeploymentSpecDeployed").href)
+                deploymentSpecCurrent = resource.getLink("DeploymentSpecCurrent")?.let { URL(it.href) },
+                deploymentSpecDeployed = resource.getLink("DeploymentSpecDeployed")?.let { URL(it.href) }
             )
         }
     }
