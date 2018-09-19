@@ -10,7 +10,7 @@ type Query {
 
   currentUser: User
 
-  scan(host: String!, port: Int): Scan
+  scan(host: String!, port: Int = 80): Scan
 }
 
 type PageInfo {

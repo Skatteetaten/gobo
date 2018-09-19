@@ -26,7 +26,7 @@ class ProbeService(
             val response = webClient
                 .get()
                 .uri {
-                    it.path("/proberesult")
+                    it.path("/scan/v1")
                         .queryParam("host", host)
                         .queryParam("port", port)
                         .build()
