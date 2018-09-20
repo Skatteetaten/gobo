@@ -25,6 +25,7 @@ type ManagementResponses {
 
 type HttpResponse {
   textResponse: String!
+  loadedTime: DateTime
 }
 
 type Link {

@@ -32,7 +32,8 @@ data class ManagementResponsesResource(
 )
 
 data class HttpResponseResource(
-    val textResponse: String
+    val textResponse: String,
+    val createdAt: Instant
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
