@@ -45,11 +45,11 @@ data class Scan(
         }
 
         private fun createFailed(probeResultList: List<ProbeResult>): NodeDetailsConnection {
-            return createNodeDetails(probeResultList) { it != ProbeStatus.OPEN }
+            return createNodeDetails(probeResultList) { status -> status != ProbeStatus.OPEN }
         }
 
         private fun createOpen(probeResultList: List<ProbeResult>): NodeDetailsConnection {
-            return createNodeDetails(probeResultList) { it == ProbeStatus.OPEN }
+            return createNodeDetails(probeResultList) { status -> status == ProbeStatus.OPEN }
         }
 
         private fun createNodeDetails(probeResultList: List<ProbeResult>, condition: (ProbeStatus) -> Boolean): NodeDetailsConnection {

@@ -8,6 +8,9 @@ import no.skatteetaten.aurora.gobo.integration.mokey.ImageDetailsResource
 import no.skatteetaten.aurora.gobo.integration.mokey.PodResourceResource
 import no.skatteetaten.aurora.gobo.integration.mokey.StatusResource
 import no.skatteetaten.aurora.gobo.integration.mokey.VersionResource
+import no.skatteetaten.aurora.gobo.integration.unclematt.ProbeResult
+import no.skatteetaten.aurora.gobo.integration.unclematt.ProbeStatus
+import no.skatteetaten.aurora.gobo.integration.unclematt.Result
 import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.ApplicationDeployment
 import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.Status
 import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.Version
@@ -71,4 +74,42 @@ class ApplicationDeploymentDetailsBuilder {
                 )
             )
         ).apply { add(Link("http://ApplicationDeploymentDetails/1", "self")) }
+}
+
+class ProbeResultListBuilder {
+    fun build(): List<ProbeResult> = listOf(
+            ProbeResult(
+                result = Result(
+                    status = ProbeStatus.OPEN,
+                    message = "Firewall open",
+                    dnsname = "test.server",
+                    resolvedIp = "192.168.1.1",
+                    port = "80"
+                ),
+                podIp = "192.168.10.1",
+                hostIp = "192.168.100.1"
+            ),
+            ProbeResult(
+                result = Result(
+                    status = ProbeStatus.CLOSED,
+                    message = "Firewall closed",
+                    dnsname = "test.server",
+                    resolvedIp = "192.168.1.2",
+                    port = "80"
+                ),
+                podIp = "192.168.10.2",
+                hostIp = "192.168.100.2"
+            ),
+            ProbeResult(
+                result = Result(
+                    status = ProbeStatus.UNKNOWN,
+                    message = "Unknown status",
+                    dnsname = "test.server",
+                    resolvedIp = "192.168.1.3",
+                    port = "80"
+                ),
+                podIp = "192.168.10.3",
+                hostIp = "192.168.100.3"
+            )
+    )
 }

@@ -6,6 +6,8 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClientResponseException
@@ -15,7 +17,10 @@ import org.springframework.web.reactive.function.client.bodyToMono
 class ProbeService(
     @TargetService(ServiceTypes.UNCLEMATT) val webClient: WebClient
 ) {
+    private val logger: Logger = LoggerFactory.getLogger(ProbeService::class.java)
     private val objectMapper = jacksonObjectMapper()
+    private val exceptionMsg = "Failed to invoke firewall scan in the cluster"
+    private val exceptionUserMsg = "Failed to perform netdebug operation"
 
     init {
         objectMapper.enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
@@ -39,7 +44,11 @@ class ProbeService(
 
             return probeResultList
         } catch (e: WebClientResponseException) {
-            throw SourceSystemException("Failed to invoke firewall scan in the cluster, status:${e.statusCode} message:${e.statusText}", e, e.statusText, "Failed to perfor netdebug operation.")
+            logger.warn(exceptionUserMsg, e)
+            throw SourceSystemException("$exceptionMsg, status:${e.statusCode} message:${e.statusText}", e, e.statusText, exceptionUserMsg)
+        } catch (e: Exception) {
+            logger.warn(exceptionUserMsg, e)
+            throw SourceSystemException(exceptionMsg, e, "", exceptionUserMsg)
         }
     }
 }

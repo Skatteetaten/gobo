@@ -1,0 +1,32 @@
+query scan($host: String!, $port: Int) {
+    scan (host: $host, port: $port) {
+        status
+        hostName
+        resolvedIp
+        port
+        failed {
+            totalCount
+            edges {
+                node {
+                    status
+                    message
+                    clusterNode {
+                        ip
+                    }
+                }
+            }
+        }
+        open {
+            totalCount
+            edges {
+                node {
+                    status
+                    message
+                    clusterNode {
+                        ip
+                    }
+                }
+            }
+        }
+    }
+}
