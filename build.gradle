@@ -105,7 +105,6 @@ compileTestKotlin {
   kotlinOptions {
     suppressWarnings = true
     jvmTarget = 1.8
-    freeCompilerArgs = ["-Xjsr305=strict"]
   }
 }
 
