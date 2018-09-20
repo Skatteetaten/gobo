@@ -15,6 +15,7 @@ import no.skatteetaten.aurora.gobo.integration.imageregistry.AuthenticationMetho
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.toImageRepo
 import okhttp3.mockwebserver.MockWebServer
+import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.http.HttpHeaders
@@ -105,7 +106,8 @@ class ImageRegistryServiceTest {
     }
 }
 
-private val tagsListResponse = """{
+@Language("JSON")
+private const val tagsListResponse = """{
   "name": "no_skatteetaten_aurora/boober",
   "tags": [
     "master-SNAPSHOT",
@@ -116,7 +118,8 @@ private val tagsListResponse = """{
   ]
 }"""
 
-private val manifestResponse = """{
+@Language("JSON")
+private const val manifestResponse = """{
   "schemaVersion": 1,
   "name": "no_skatteetaten_aurora/boober",
   "tag": "1",
