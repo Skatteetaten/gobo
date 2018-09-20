@@ -22,8 +22,18 @@ data class PodResourceResource(
     val status: String,
     val restartCount: Int,
     val ready: Boolean,
-    val startTime: Instant
+    val startTime: Instant,
+    val managementResponses: ManagementResponsesResource?
 ) : ResourceSupport()
+
+data class ManagementResponsesResource(
+    val health: HttpResponseResource?,
+    val info: HttpResponseResource?
+)
+
+data class HttpResponseResource(
+    val textResponse: String
+)
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class ApplicationDeploymentDetailsResource(

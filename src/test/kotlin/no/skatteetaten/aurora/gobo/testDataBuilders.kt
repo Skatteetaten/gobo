@@ -5,6 +5,7 @@ import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentResour
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationResource
 import no.skatteetaten.aurora.gobo.integration.mokey.GitInfoResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ImageDetailsResource
+import no.skatteetaten.aurora.gobo.integration.mokey.ManagementResponsesResource
 import no.skatteetaten.aurora.gobo.integration.mokey.PodResourceResource
 import no.skatteetaten.aurora.gobo.integration.mokey.StatusResource
 import no.skatteetaten.aurora.gobo.integration.mokey.VersionResource
@@ -67,7 +68,8 @@ class ApplicationDeploymentDetailsBuilder {
                     "status",
                     0,
                     true,
-                    Instant.now()
+                    Instant.now(),
+                    ManagementResponsesResource(null, null)
                 )
             )
         ).apply { add(Link("http://ApplicationDeploymentDetails/1", "self")) }

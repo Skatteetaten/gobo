@@ -24,7 +24,8 @@ data class PodResource(
     val restartCount: Int,
     val ready: Boolean,
     val startTime: Instant,
-    val links: List<Link>
+    val links: List<Link>,
+    val managementResponses: ManagementResponses?
 ) {
     companion object {
         fun create(resource: PodResourceResource) =
@@ -34,7 +35,12 @@ data class PodResource(
                 resource.restartCount,
                 resource.ready,
                 resource.startTime,
-                resource.links.map { Link.create(it) }
+                resource.links.map { Link.create(it) },
+                resource.managementResponses?.let { managementResponses ->
+                    val health = managementResponses.health?.textResponse?.let { HttpResponse(it) }
+                    val info = managementResponses.info?.textResponse?.let { HttpResponse(it) }
+                    ManagementResponses(health, info)
+                }
             )
     }
 
@@ -46,6 +52,13 @@ data class PodResource(
         }
     }
 }
+
+data class ManagementResponses(
+    val health: HttpResponse?,
+    val info: HttpResponse?
+)
+
+data class HttpResponse(val textResponse: String)
 
 class Link private constructor(val name: String, val url: URL) {
     companion object {
