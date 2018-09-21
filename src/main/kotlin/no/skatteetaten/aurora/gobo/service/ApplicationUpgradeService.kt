@@ -1,10 +1,10 @@
 package no.skatteetaten.aurora.gobo.service
 
+import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.TextNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.fge.jackson.jsonpointer.JsonPointer
 import com.github.fge.jsonpatch.JsonPatch
-import com.github.fge.jsonpatch.JsonPatchOperation
 import com.github.fge.jsonpatch.ReplaceOperation
 import no.skatteetaten.aurora.gobo.integration.boober.ApplyPayload
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileResource
@@ -14,7 +14,6 @@ import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentDetail
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import no.skatteetaten.aurora.gobo.integration.mokey.RefreshParams
 import no.skatteetaten.aurora.gobo.security.UserService
-import org.apache.commons.lang3.StringEscapeUtils
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
@@ -34,10 +33,10 @@ class ApplicationUpgradeService(
         applicationService.getApplicationDeploymentDetails(applicationDeploymentId)
             .flatMap { details ->
                 val currentLink =
-                    details.link("FilesCurrent").replace("http://boober", "http://boober-aurora.utv.paas.skead.no")
+                    details.link("FilesCurrent").replace("http://boober", "http://localhost:8082")
                 val auroraConfigFile = details.link("AuroraConfigFileCurrent")
-                    .replace("http://boober", "http://boober-aurora.utv.paas.skead.no")
-                val applyLink = details.link("Apply").replace("http://boober", "http://boober-aurora.utv.paas.skead.no")
+                    .replace("http://boober", "http://localhost:8082")
+                val applyLink = details.link("Apply").replace("http://boober", "http://localhost:8082")
 
                 getApplicationFile(token, currentLink)
                     .flatMap { applicationFile ->
@@ -45,7 +44,7 @@ class ApplicationUpgradeService(
                     }.flatMap {
                         redeploy(token, details, applyLink)
                     }.flatMap {
-                        refresh(applicationDeploymentId)
+                        refresh(token, applicationDeploymentId)
                     }
             }.doOnError {
                 logger.error(
@@ -68,28 +67,28 @@ class ApplicationUpgradeService(
         auroraConfigFile: String,
         applicationFile: String
     ): Mono<AuroraConfigFileResource> {
-        val jsonPatch =  """[{
-                      "op": "replace",
-                      "path": "/version",
-                      "value": $version
-                    }]"""
-
         return auroraConfigService.patch<AuroraConfigFileResource>(
             token = token,
             url = auroraConfigFile.replace("{fileName}", applicationFile),
-            body = jsonPatch
+            body = createVersionPatch(version)
         ).toMono()
+    }
+
+    fun createVersionPatch(version: String): Map<String, String> {
+        val jsonPatch = JsonPatch(listOf(ReplaceOperation(JsonPointer("/version"), TextNode(version))))
+        val escapeJson = jacksonObjectMapper().writeValueAsString(jsonPatch)
+        return mapOf("content" to escapeJson)
     }
 
     private fun redeploy(
         token: String,
         details: ApplicationDeploymentDetailsResource,
         applyLink: String
-    ): Mono<AuroraConfigFileResource> {
+    ): Mono<JsonNode> {
         val payload = ApplyPayload(listOf(details.applicationDeploymentCommand.applicationDeploymentRef))
-        return auroraConfigService.put<AuroraConfigFileResource>(token, applyLink, body = payload).toMono()
+        return auroraConfigService.put<JsonNode>(token, applyLink, body = payload).toMono()
     }
 
-    private fun refresh(applicationDeploymentId: String) =
-        applicationService.refreshApplicationDeployment(RefreshParams(applicationDeploymentId))
+    private fun refresh(token: String, applicationDeploymentId: String) =
+        applicationService.refreshApplicationDeployment(token, RefreshParams(applicationDeploymentId))
 }

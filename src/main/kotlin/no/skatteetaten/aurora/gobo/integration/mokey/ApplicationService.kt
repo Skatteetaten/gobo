@@ -64,13 +64,13 @@ class ApplicationService(val webClient: WebClient, val userService: UserService)
     private fun buildQueryParams(affiliations: List<String>): LinkedMultiValueMap<String, String> =
             LinkedMultiValueMap<String, String>().apply { addAll("affiliation", affiliations) }
 
-    fun refreshApplicationDeployment(refreshParams: RefreshParams): Mono<Void> {
+    fun refreshApplicationDeployment(token: String, refreshParams: RefreshParams): Mono<Void> {
         return try {
             webClient
                 .post()
-                .uri("/api/refresh")
+                .uri("/refresh")
                 .body(BodyInserters.fromObject(refreshParams))
-                .header(HttpHeaders.AUTHORIZATION, "Bearer ${userService.getToken()}")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer $token")
                 .retrieve()
                 .bodyToMono()
         } catch (e: WebClientResponseException) {
