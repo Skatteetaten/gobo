@@ -11,6 +11,8 @@ import no.skatteetaten.aurora.gobo.integration.mokey.VersionResource
 import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.ApplicationDeployment
 import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.Status
 import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.Version
+import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository
+import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageTag
 import org.springframework.hateoas.Link
 import java.time.Instant
 
@@ -49,7 +51,7 @@ data class ApplicationDeploymentBuilder(val affiliation: String = "paas") {
             "environment",
             "namespaceId",
             Status("code", "comment"),
-            Version("deployTag", "auroraVersion"),
+            Version(ImageTag(ImageRepository("", "", ""), "deployTag"), "auroraVersion"),
             null
         )
 }
