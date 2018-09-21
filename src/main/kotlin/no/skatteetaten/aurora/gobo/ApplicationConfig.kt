@@ -16,7 +16,13 @@ import org.springframework.hateoas.hal.Jackson2HalModule
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.http.client.reactive.ReactorClientHttpConnector
+import org.springframework.http.codec.json.Jackson2JsonDecoder
+import org.springframework.http.codec.json.Jackson2JsonEncoder
+import org.springframework.web.reactive.function.client.ClientRequest
+import org.springframework.web.reactive.function.client.ExchangeFilterFunction
+import org.springframework.web.reactive.function.client.ExchangeStrategies
 import org.springframework.web.reactive.function.client.WebClient
+import reactor.core.publisher.Mono
 
 enum class ServiceTypes {
     MOKEY, DOCKER, BOOBER
@@ -32,17 +38,26 @@ class ApplicationConfig(
     @Value("\${mokey.url}") val mokeyUrl: String
 ) {
 
-    val logger = LoggerFactory.getLogger(ApplicationConfig::class.java)
+    private val logger = LoggerFactory.getLogger(ApplicationConfig::class.java)
 
     @Bean
     @Primary
     @TargetService(ServiceTypes.MOKEY)
-    fun webClient(): WebClient {
+    fun webClient(objectMapper: ObjectMapper): WebClient {
 
         logger.info("Configuring WebClient with baseUrl={}", mokeyUrl)
 
+        val strategies = ExchangeStrategies
+            .builder()
+            .codecs {
+                it.defaultCodecs().jackson2JsonDecoder(Jackson2JsonDecoder(objectMapper, MediaType.APPLICATION_JSON))
+                it.defaultCodecs().jackson2JsonEncoder(Jackson2JsonEncoder(objectMapper, MediaType.APPLICATION_JSON))
+            }
+            .build()
+
         return WebClient
             .builder()
+            .exchangeStrategies(strategies)
             .baseUrl(mokeyUrl)
             .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .build()
@@ -71,8 +86,17 @@ class ApplicationConfig(
     fun webClientBoober(): WebClient {
         return WebClient
             .builder()
+            .filter(logRequest())
             .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .build()
+    }
+
+    private fun logRequest(): ExchangeFilterFunction {
+
+        return ExchangeFilterFunction.ofRequestProcessor { clientRequest ->
+
+            Mono.just<ClientRequest>(clientRequest)
+        }
     }
 
     @Bean

@@ -1,10 +1,10 @@
 package no.skatteetaten.aurora.gobo.integration.boober
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentRefResource
-import no.skatteetaten.aurora.gobo.security.UserService
 import org.springframework.http.HttpHeaders
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.BodyInserters
@@ -18,34 +18,35 @@ import reactor.core.publisher.toFlux
 @Service
 class AuroraConfigService(
     @TargetService(ServiceTypes.BOOBER) val webClient: WebClient,
-    val userService: UserService
+    val objectMapper: ObjectMapper
 ) {
 
-    final inline fun <reified T : Any> get(url: String, params: List<String> = emptyList()): Flux<T> =
-        execute {
+    final inline fun <reified T : Any> get(token: String, url: String, params: List<String> = emptyList()): Flux<T> =
+        execute(token) {
             it.get().uri(url, params)
         }
 
-    final inline fun <reified T : Any> patch(url: String, params: List<String> = emptyList(), body: String): Flux<T> =
-        execute {
+    final inline fun <reified T : Any> patch(token: String, url: String, params: Map<String, String> = emptyMap(), body: Any): Flux<T> =
+        execute(token) {
             it.patch().uri(url, params).body(BodyInserters.fromObject(body))
         }
 
-    final inline fun <reified T : Any> put(url: String, params: List<String> = emptyList(), body: Any): Flux<T> =
-        execute {
+    final inline fun <reified T : Any> put(token: String, url: String, params: List<String> = emptyList(), body: Any): Flux<T> =
+        execute(token) {
             it.put().uri(url, params).body(BodyInserters.fromObject(body))
         }
 
-    final inline fun <reified T : Any> execute(fn: (WebClient) -> WebClient.RequestHeadersSpec<*>): Flux<T> {
+    final inline fun <reified T : Any> execute(token: String, fn: (WebClient) -> WebClient.RequestHeadersSpec<*>): Flux<T> {
         return try {
-            val bodyToMono: Mono<Response<T>> = fn(webClient)
-                .header(HttpHeaders.AUTHORIZATION, "Bearer ${userService.getToken()}")
+            val response: Mono<Response> = fn(webClient)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer $token")
                 .retrieve()
                 .bodyToMono()
-            bodyToMono.flatMapMany {
-                if (!it.success) SourceSystemException(it.message).toFlux()
-                else if (it.count == 0) Flux.empty()
-                else it.items.toFlux()
+
+            response.flatMapMany { r ->
+                if (!r.success) SourceSystemException(r.message).toFlux()
+                else if (r.count == 0) Flux.empty()
+                else r.items.map { item -> objectMapper.convertValue(item, T::class.java) }.toFlux()
             }
         } catch (e: WebClientResponseException) {
             SourceSystemException(
@@ -58,10 +59,10 @@ class AuroraConfigService(
     }
 }
 
-data class Response<T>(
+data class Response(
     val success: Boolean = true,
     val message: String = "OK",
-    val items: List<T>,
+    val items: List<Any>,
     val count: Int = items.size
 )
 

@@ -1,15 +1,15 @@
 package no.skatteetaten.aurora.gobo.resolvers.applicationdeployment
 
 import com.coxautodev.graphql.tools.GraphQLMutationResolver
+import no.skatteetaten.aurora.gobo.service.ApplicationUpgradeService
 import org.springframework.stereotype.Component
 
 @Component
-class ApplicationDeploymentMutationResolver : GraphQLMutationResolver {
+class ApplicationDeploymentMutationResolver(private val applicationUpgradeService: ApplicationUpgradeService) :
+    GraphQLMutationResolver {
 
-    fun redeployWithVersion(input: ApplicationDeploymentVersionInput): ApplicationDeployment {
-        return ApplicationDeployment(
-            "id", "name", "affiliationId", "environment",
-            "namespaceId", Status("code", "comment"), Version("deployTag", null), null
-        )
+    fun redeployWithVersion(input: ApplicationDeploymentVersionInput): String {
+        applicationUpgradeService.upgrade(input.applicationDeploymentId, input.version)
+        return input.applicationDeploymentId
     }
 }
