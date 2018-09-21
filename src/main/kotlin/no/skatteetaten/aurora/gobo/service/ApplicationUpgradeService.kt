@@ -33,10 +33,10 @@ class ApplicationUpgradeService(
         applicationService.getApplicationDeploymentDetails(applicationDeploymentId)
             .flatMap { details ->
                 val currentLink =
-                    details.link("FilesCurrent").replace("http://boober", "http://localhost:8082")
+                    details.link("FilesCurrent").replace("http://boober", "http://boober-aurora.utv.paas.skead.no")
                 val auroraConfigFile = details.link("AuroraConfigFileCurrent")
-                    .replace("http://boober", "http://localhost:8082")
-                val applyLink = details.link("Apply").replace("http://boober", "http://localhost:8082")
+                    .replace("http://boober", "http://boober-aurora.utv.paas.skead.no")
+                val applyLink = details.link("Apply").replace("http://boober", "http://boober-aurora.utv.paas.skead.no")
 
                 getApplicationFile(token, currentLink)
                     .flatMap { applicationFile ->
@@ -69,15 +69,14 @@ class ApplicationUpgradeService(
     ): Mono<AuroraConfigFileResource> {
         return auroraConfigService.patch<AuroraConfigFileResource>(
             token = token,
-            url = auroraConfigFile.replace("{fileName}", applicationFile),
+            url = auroraConfigFile.replace("{fileName}", applicationFile), // TODO placeholder cannot contain slash
             body = createVersionPatch(version)
         ).toMono()
     }
 
     fun createVersionPatch(version: String): Map<String, String> {
         val jsonPatch = JsonPatch(listOf(ReplaceOperation(JsonPointer("/version"), TextNode(version))))
-        val escapeJson = jacksonObjectMapper().writeValueAsString(jsonPatch)
-        return mapOf("content" to escapeJson)
+        return mapOf("content" to jacksonObjectMapper().writeValueAsString(jsonPatch))
     }
 
     private fun redeploy(
