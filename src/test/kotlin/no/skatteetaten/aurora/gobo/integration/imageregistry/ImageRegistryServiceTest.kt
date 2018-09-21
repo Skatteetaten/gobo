@@ -87,9 +87,9 @@ class ImageRegistryServiceTest {
 
         val tag = imageRegistry.findTagByName(imageRepo, tagName)
         val request = server.takeRequest()
-
         assert(tag.created).isEqualTo(Instant.parse("2017-09-25T11:38:20.361177648Z"))
         assert(tag.name).isEqualTo(tagName)
+        assert(tag.type).isEqualTo(ImageTagType.MAJOR)
         assert(request.path).isEqualTo("/v2/$imageRepoName/manifests/$tagName")
     }
 
