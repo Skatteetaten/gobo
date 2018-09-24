@@ -4,10 +4,12 @@ import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentDetail
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationResource
 import no.skatteetaten.aurora.gobo.resolvers.applicationdeploymentdetails.ApplicationDeploymentDetails
+import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository
+import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageTag
 
 data class Status(val code: String, val comment: String?)
 
-data class Version(val deployTag: String, val auroraVersion: String?)
+data class Version(val deployTag: ImageTag, val auroraVersion: String?)
 
 data class ApplicationDeployment(
     val id: String,
@@ -29,7 +31,9 @@ data class ApplicationDeployment(
                 deployment.namespace,
                 Status(deployment.status.code, deployment.status.comment),
                 Version(
-                    deployment.version.deployTag,
+                    // TODO: This is far from ideal and manually adding ImageTag here should be considered a temporary
+                    // adjustment. We need to move ImageTag out of version.
+                    ImageTag(ImageRepository("", "", ""), deployment.version.deployTag),
                     deployment.version.auroraVersion
                 ),
                 details

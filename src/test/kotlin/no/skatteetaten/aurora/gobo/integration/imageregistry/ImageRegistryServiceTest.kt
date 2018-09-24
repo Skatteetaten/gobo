@@ -32,7 +32,7 @@ class ImageRegistryServiceTest {
 
     private val defaultRegistryMetadataResolver = mockk<DefaultRegistryMetadataResolver>()
     private val tokenProvider = mockk<TokenProvider>()
-    private val dockerRegistry = ImageRegistryService(
+    private val imageRegistry = ImageRegistryService(
         ImageRegistryUrlBuilder(), defaultRegistryMetadataResolver, WebClient.create(url.toString()), tokenProvider
     )
 
@@ -48,7 +48,7 @@ class ImageRegistryServiceTest {
     @Test
     fun `verify fetches all tags for specified repo`() {
         server.enqueue(createJsonMockResponse(body = tagsListResponse))
-        val tags = dockerRegistry.findTagNamesInRepoOrderedByCreatedDateDesc(imageRepo)
+        val tags = imageRegistry.findTagNamesInRepoOrderedByCreatedDateDesc(imageRepo)
         val request = server.takeRequest()
 
         assert(tags).containsAll(
@@ -72,7 +72,7 @@ class ImageRegistryServiceTest {
 
         server.enqueue(createJsonMockResponse(body = tagsListResponse))
 
-        val tags = dockerRegistry.findTagNamesInRepoOrderedByCreatedDateDesc(imageRepo)
+        val tags = imageRegistry.findTagNamesInRepoOrderedByCreatedDateDesc(imageRepo)
         val request = server.takeRequest()
 
         assert(request.path).isEqualTo("/v2/$imageRepoName/tags/list")
@@ -84,11 +84,11 @@ class ImageRegistryServiceTest {
     fun `verify tag can be found by name`() {
         server.enqueue(createJsonMockResponse(body = manifestResponse))
 
-        val tag = dockerRegistry.findTagByName(imageRepo, tagName)
+        val tag = imageRegistry.findTagByName(imageRepo, tagName)
         val request = server.takeRequest()
-
         assert(tag.created).isEqualTo(Instant.parse("2017-09-25T11:38:20.361177648Z"))
         assert(tag.name).isEqualTo(tagName)
+        assert(tag.type).isEqualTo(ImageTagType.MAJOR)
         assert(request.path).isEqualTo("/v2/$imageRepoName/manifests/$tagName")
     }
 
@@ -97,7 +97,7 @@ class ImageRegistryServiceTest {
         server.enqueue(createJsonMockResponse(404, "Not found"))
 
         assert {
-            dockerRegistry.findTagByName(imageRepo, tagName)
+            imageRegistry.findTagByName(imageRepo, tagName)
         }.thrownError {
             server.takeRequest()
             message().isEqualTo("No metadata for tag=$tagName in repo=${imageRepo.repository}")

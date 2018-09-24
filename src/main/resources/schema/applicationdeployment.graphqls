@@ -15,7 +15,7 @@ type Status {
 }
 
 type Version {
-  deployTag: String
+  deployTag: ImageTag
   auroraVersion: String
 }
 
