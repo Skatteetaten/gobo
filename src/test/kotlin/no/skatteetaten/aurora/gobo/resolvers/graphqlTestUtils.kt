@@ -15,6 +15,10 @@ private fun query(payload: String, variables: String) = """
 
 fun createQuery(queryResource: Resource, variables: Map<String, *> = emptyMap<String, String>()): String {
     val query = StreamUtils.copyToString(queryResource.inputStream, StandardCharsets.UTF_8)
+    return createQuery(query, variables)
+}
+
+fun createQuery(query: String, variables: Map<String, *> = emptyMap<String, String>()): String {
     val json = BufferRecyclers
         .getJsonStringEncoder()
         .quoteAsString(query)
