@@ -59,4 +59,5 @@ class ApplicationDeploymentBuilder(deploymentResources: List<ApplicationDeployme
     }
 }
 
+data class ApplicationDeploymentRefreshInput(val applicationDeploymentId: String)
 data class ApplicationDeploymentVersionInput(val applicationDeploymentId: String, val version: String)
