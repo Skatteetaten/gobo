@@ -32,11 +32,10 @@ class ApplicationUpgradeService(
         val token = userService.getToken()
         applicationService.getApplicationDeploymentDetails(applicationDeploymentId)
             .flatMap { details ->
-                val currentLink =
-                    details.link("FilesCurrent").replace("http://boober", "http://boober-aurora.utv.paas.skead.no")
+
+                val currentLink = details.link("FilesCurrent")
                 val auroraConfigFile = details.link("AuroraConfigFileCurrent")
-                    .replace("http://boober", "http://boober-aurora.utv.paas.skead.no")
-                val applyLink = details.link("Apply").replace("http://boober", "http://boober-aurora.utv.paas.skead.no")
+                val applyLink = details.link("Apply")
 
                 getApplicationFile(token, currentLink)
                     .flatMap { applicationFile ->

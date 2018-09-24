@@ -5,6 +5,7 @@ import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentRefResource
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.BodyInserters
@@ -14,29 +15,62 @@ import org.springframework.web.reactive.function.client.bodyToMono
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.core.publisher.toFlux
+import java.net.URI
 
 @Service
 class AuroraConfigService(
+    @Value("\${boober.url:}") val booberUrl: String?,
     @TargetService(ServiceTypes.BOOBER) val webClient: WebClient,
     val objectMapper: ObjectMapper
 ) {
 
     final inline fun <reified T : Any> get(token: String, url: String, params: List<String> = emptyList()): Flux<T> =
         execute(token) {
-            it.get().uri(url, params)
+            it.get().uri(getBooberUrl(url), params)
         }
 
-    final inline fun <reified T : Any> patch(token: String, url: String, params: Map<String, String> = emptyMap(), body: Any): Flux<T> =
+    final inline fun <reified T : Any> patch(
+        token: String,
+        url: String,
+        params: Map<String, String> = emptyMap(),
+        body: Any
+    ): Flux<T> =
         execute(token) {
-            it.patch().uri(url, params).body(BodyInserters.fromObject(body))
+            it.patch().uri(getBooberUrl(url), params).body(BodyInserters.fromObject(body))
         }
 
-    final inline fun <reified T : Any> put(token: String, url: String, params: List<String> = emptyList(), body: Any): Flux<T> =
+    final inline fun <reified T : Any> put(
+        token: String,
+        url: String,
+        params: List<String> = emptyList(),
+        body: Any
+    ): Flux<T> =
         execute(token) {
-            it.put().uri(url, params).body(BodyInserters.fromObject(body))
+            it.put().uri(getBooberUrl(url), params).body(BodyInserters.fromObject(body))
         }
 
-    final inline fun <reified T : Any> execute(token: String, fn: (WebClient) -> WebClient.RequestHeadersSpec<*>): Flux<T> {
+    fun getBooberUrl(link: String): String {
+        if (booberUrl.isNullOrEmpty()) {
+            return link
+        }
+
+        val booberUri = URI(booberUrl)
+        val linkUri = URI(link)
+        return URI(
+            booberUri.scheme,
+            linkUri.userInfo,
+            booberUri.host,
+            booberUri.port,
+            linkUri.path,
+            linkUri.query,
+            linkUri.fragment
+        ).toString()
+    }
+
+    final inline fun <reified T : Any> execute(
+        token: String,
+        fn: (WebClient) -> WebClient.RequestHeadersSpec<*>
+    ): Flux<T> {
         return try {
             val response: Mono<Response> = fn(webClient)
                 .header(HttpHeaders.AUTHORIZATION, "Bearer $token")
