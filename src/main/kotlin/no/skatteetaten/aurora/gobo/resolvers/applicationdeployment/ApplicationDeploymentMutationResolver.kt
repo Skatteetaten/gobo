@@ -8,8 +8,8 @@ import org.springframework.stereotype.Component
 class ApplicationDeploymentMutationResolver(private val applicationUpgradeService: ApplicationUpgradeService) :
     GraphQLMutationResolver {
 
-    fun redeployWithVersion(input: ApplicationDeploymentVersionInput): String {
+    fun redeployWithVersion(input: ApplicationDeploymentVersionInput): Boolean {
         applicationUpgradeService.upgrade(input.applicationDeploymentId, input.version)
-        return input.applicationDeploymentId
+        return true
     }
 }

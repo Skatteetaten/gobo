@@ -12,7 +12,7 @@ type Query {
 }
 
 type Mutation {
-  redeployWithVersion(input: ApplicationDeploymentVersionInput): String
+  redeployWithVersion(input: ApplicationDeploymentVersionInput): Boolean
 }
 
 type PageInfo {
