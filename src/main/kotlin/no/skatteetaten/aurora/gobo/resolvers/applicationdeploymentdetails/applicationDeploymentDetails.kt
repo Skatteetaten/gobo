@@ -64,7 +64,9 @@ data class ApplicationDeploymentDetails(
     val buildTime: Instant?,
     val imageDetails: ImageDetails?,
     val gitInfo: GitInfo?,
-    val podResources: List<PodResource>
+    val podResources: List<PodResource>,
+    val deploymentSpecCurrent: URL?,
+    val deploymentSpecDeployed: URL?
 ) {
     companion object {
         fun create(resource: ApplicationDeploymentDetailsResource): ApplicationDeploymentDetails {
@@ -72,7 +74,9 @@ data class ApplicationDeploymentDetails(
                 buildTime = resource.buildTime,
                 imageDetails = resource.imageDetails?.let { ImageDetails(it.imageBuildTime, it.dockerImageReference) },
                 gitInfo = resource.gitInfo?.let { GitInfo(it.commitId, it.commitTime) },
-                podResources = resource.podResources.map { PodResource.create(it) }
+                podResources = resource.podResources.map { PodResource.create(it) },
+                deploymentSpecCurrent = resource.getLink("DeploymentSpecCurrent")?.let { URL(it.href) },
+                deploymentSpecDeployed = resource.getLink("DeploymentSpecDeployed")?.let { URL(it.href) }
             )
         }
     }

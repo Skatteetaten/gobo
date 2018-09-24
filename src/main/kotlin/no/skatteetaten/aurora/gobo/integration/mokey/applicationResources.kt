@@ -2,6 +2,8 @@ package no.skatteetaten.aurora.gobo.integration.mokey
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import org.springframework.hateoas.ResourceSupport
+import org.springframework.web.util.UriUtils
+import java.nio.charset.Charset
 import java.time.Instant
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -30,8 +32,30 @@ data class ApplicationDeploymentDetailsResource(
     val buildTime: Instant?,
     val gitInfo: GitInfoResource?,
     val imageDetails: ImageDetailsResource?,
-    val podResources: List<PodResourceResource>
-) : ResourceSupport()
+    val podResources: List<PodResourceResource>,
+    val applicationDeploymentCommand: ApplicationDeploymentCommandResource
+) : ResourceSupport() {
+
+    fun link(rel: String) = links.first { it.rel == rel }?.href!!.let {
+        UriUtils.decode(it, Charset.defaultCharset())
+    }
+}
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class ApplicationDeploymentCommandResource(
+    val overrideFiles: Map<String, String> = emptyMap(),
+    val applicationDeploymentRef: ApplicationDeploymentRefResource,
+    val auroraConfig: AuroraConfigRefResource
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class ApplicationDeploymentRefResource(val environment: String, val application: String)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class AuroraConfigRefResource(
+    val name: String,
+    val refName: String
+)
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class ApplicationDeploymentResource(
@@ -50,3 +74,5 @@ data class ApplicationResource(
     val name: String,
     val applicationDeployments: List<ApplicationDeploymentResource>
 ) : ResourceSupport()
+
+data class RefreshParams(val applicationDeploymentId: String)
