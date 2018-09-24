@@ -18,11 +18,13 @@ data class Scan(
                 throw SourceSystemException("Received empty result")
             }
 
+            val firstResult = probeResultList.first().result
+
             return Scan(
                 getAggregatedStatus(probeResultList),
-                probeResultList.first().result?.dnsname,
-                probeResultList.first().result?.resolvedIp,
-                probeResultList.first().result?.port?.toInt(),
+                firstResult?.dnsname,
+                firstResult?.resolvedIp,
+                firstResult?.port?.toInt(),
                 createOpen(probeResultList),
                 createFailed(probeResultList)
             )
