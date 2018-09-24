@@ -1,8 +1,11 @@
 package no.skatteetaten.aurora.gobo
 
+import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentCommandResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentDetailsResource
+import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentRefResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationResource
+import no.skatteetaten.aurora.gobo.integration.mokey.AuroraConfigRefResource
 import no.skatteetaten.aurora.gobo.integration.mokey.GitInfoResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ImageDetailsResource
 import no.skatteetaten.aurora.gobo.integration.mokey.PodResourceResource
@@ -14,6 +17,8 @@ import no.skatteetaten.aurora.gobo.integration.unclematt.Result
 import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.ApplicationDeployment
 import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.Status
 import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.Version
+import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository
+import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageTag
 import org.springframework.hateoas.Link
 import java.time.Instant
 
@@ -52,7 +57,7 @@ data class ApplicationDeploymentBuilder(val affiliation: String = "paas") {
             "environment",
             "namespaceId",
             Status("code", "comment"),
-            Version("deployTag", "auroraVersion"),
+            Version(ImageTag(ImageRepository("", "", ""), "deployTag"), "auroraVersion"),
             null
         )
 }
@@ -72,6 +77,11 @@ class ApplicationDeploymentDetailsBuilder {
                     true,
                     Instant.now()
                 )
+            ),
+            ApplicationDeploymentCommandResource(
+                emptyMap(),
+                ApplicationDeploymentRefResource("environment", "application"),
+                AuroraConfigRefResource("name", "refName")
             )
         ).apply { add(Link("http://ApplicationDeploymentDetails/1", "self")) }
 }

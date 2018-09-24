@@ -13,6 +13,11 @@ type Query {
   scan(host: String!, port: Int = 80): Scan
 }
 
+type Mutation {
+  redeployWithVersion(input: ApplicationDeploymentVersionInput): Boolean
+  refreshApplicationDeployment(input:ApplicationDeploymentRefreshInput): String
+}
+
 type PageInfo {
   startCursor: String
   endCursor: String
