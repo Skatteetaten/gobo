@@ -12,4 +12,8 @@ class ApplicationDeploymentMutationResolver(private val applicationUpgradeServic
         applicationUpgradeService.upgrade(input.applicationDeploymentId, input.version)
         return true
     }
+
+    fun refreshApplication(input: ApplicationDeploymentRefreshInput): String {
+        return applicationUpgradeService.refreshApplicationDeployment(input.applicationDeploymentId)
+    }
 }
