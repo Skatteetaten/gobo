@@ -11,5 +11,6 @@ class GoboDataFetcherExceptionHandler : DataFetcherExceptionHandler {
         if (handlerParameters.exception is GoboException) {
             handlerParameters.executionContext?.addError(GraphQLExceptionWrapper(handlerParameters))
         }
+        handlerParameters.exception.printStackTrace()
     }
 }

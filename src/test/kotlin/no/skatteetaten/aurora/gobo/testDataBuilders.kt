@@ -7,7 +7,9 @@ import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentResour
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationResource
 import no.skatteetaten.aurora.gobo.integration.mokey.AuroraConfigRefResource
 import no.skatteetaten.aurora.gobo.integration.mokey.GitInfoResource
+import no.skatteetaten.aurora.gobo.integration.mokey.HttpResponseResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ImageDetailsResource
+import no.skatteetaten.aurora.gobo.integration.mokey.ManagementResponsesResource
 import no.skatteetaten.aurora.gobo.integration.mokey.PodResourceResource
 import no.skatteetaten.aurora.gobo.integration.mokey.StatusResource
 import no.skatteetaten.aurora.gobo.integration.mokey.VersionResource
@@ -16,8 +18,26 @@ import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.Status
 import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.Version
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageTag
+import org.intellij.lang.annotations.Language
 import org.springframework.hateoas.Link
 import java.time.Instant
+
+val defaultInstant = Instant.parse("2018-01-01T00:00:01Z")
+
+@Language("JSON")
+val infoResponseJson: String = """{
+  "git": {
+    "build.time": "$defaultInstant",
+    "commit.time": "$defaultInstant",
+    "commit.id.abbrev": ""
+  },
+ "podLinks": {
+    "metrics": "http://localhost"
+  }
+}"""
+
+@Language("JSON")
+val healthResponseJson: String = """{"status": "UP"}"""
 
 data class ApplicationDeploymentResourceBuilder(val affiliation: String = "paas") {
     fun build(): ApplicationDeploymentResource =
@@ -72,7 +92,11 @@ class ApplicationDeploymentDetailsBuilder {
                     "status",
                     0,
                     true,
-                    Instant.now()
+                    Instant.now(),
+                    ManagementResponsesResource(
+                        HttpResponseResource(healthResponseJson, defaultInstant),
+                        HttpResponseResource(infoResponseJson, defaultInstant)
+                    )
                 )
             ),
             ApplicationDeploymentCommandResource(

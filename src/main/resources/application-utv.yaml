@@ -1,6 +1,5 @@
 mokey:
-#    url: http://mokey-bas-paas-mokey.utv.paas.skead.no
-    url: http://localhost:8082
+    url: ${gobo.mokey.url:http://localhost:8082}
 
 boober:
     url: http://boober-aurora.utv.paas.skead.no
