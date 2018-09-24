@@ -1,5 +1,8 @@
 mokey:
     url: ${gobo.mokey.url:http://localhost:8082}
 
+boober:
+    url: http://boober-aurora.utv.paas.skead.no
+
 docker-registry:
     url: https://uil0paas-utv-registry01.skead.no:5000

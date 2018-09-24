@@ -1,8 +1,11 @@
 package no.skatteetaten.aurora.gobo
 
+import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentCommandResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentDetailsResource
+import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentRefResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationResource
+import no.skatteetaten.aurora.gobo.integration.mokey.AuroraConfigRefResource
 import no.skatteetaten.aurora.gobo.integration.mokey.GitInfoResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ImageDetailsResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ManagementResponsesResource
@@ -73,6 +76,11 @@ class ApplicationDeploymentDetailsBuilder {
                     Instant.now(),
                     ManagementResponsesResource(null, null)
                 )
+            ),
+            ApplicationDeploymentCommandResource(
+                emptyMap(),
+                ApplicationDeploymentRefResource("environment", "application"),
+                AuroraConfigRefResource("name", "refName")
             )
         ).apply { add(Link("http://ApplicationDeploymentDetails/1", "self")) }
 }

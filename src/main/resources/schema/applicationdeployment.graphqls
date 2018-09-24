@@ -18,3 +18,8 @@ type Version {
   deployTag: ImageTag
   auroraVersion: String
 }
+
+input ApplicationDeploymentVersionInput {
+  applicationDeploymentId: String!
+  version: String!
+}
