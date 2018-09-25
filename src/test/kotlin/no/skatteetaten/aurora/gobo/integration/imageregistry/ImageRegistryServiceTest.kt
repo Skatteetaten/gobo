@@ -43,7 +43,7 @@ class ImageRegistryServiceTest {
 
         every {
             defaultRegistryMetadataResolver.getMetadataForRegistry(any())
-        } returns RegistryMetadata("${url.host()}:${url.port()}", "http", NONE)
+        } returns RegistryMetadata("${url.host()}:${url.port()}", "http", NONE, false)
     }
 
     @Test
@@ -69,7 +69,7 @@ class ImageRegistryServiceTest {
 
         every {
             defaultRegistryMetadataResolver.getMetadataForRegistry(any())
-        } returns RegistryMetadata("${url.host()}:${url.port()}", "http", KUBERNETES_TOKEN)
+        } returns RegistryMetadata("${url.host()}:${url.port()}", "http", KUBERNETES_TOKEN, false)
 
         server.enqueue(createJsonMockResponse(body = tagsListResponse))
 
