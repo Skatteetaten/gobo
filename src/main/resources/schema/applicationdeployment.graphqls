@@ -23,3 +23,7 @@ input ApplicationDeploymentVersionInput {
   applicationDeploymentId: String!
   version: String!
 }
+
+input ApplicationDeploymentRefreshInput {
+  applicationDeploymentId: String!
+}

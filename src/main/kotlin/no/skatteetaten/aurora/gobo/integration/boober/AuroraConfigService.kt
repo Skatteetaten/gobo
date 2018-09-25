@@ -7,10 +7,10 @@ import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentRefResource
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.WebClient
-import org.springframework.web.reactive.function.client.WebClientResponseException
 import org.springframework.web.reactive.function.client.bodyToMono
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
@@ -71,24 +71,23 @@ class AuroraConfigService(
         token: String,
         fn: (WebClient) -> WebClient.RequestHeadersSpec<*>
     ): Flux<T> {
-        return try {
-            val response: Mono<Response> = fn(webClient)
-                .header(HttpHeaders.AUTHORIZATION, "Bearer $token")
-                .retrieve()
-                .bodyToMono()
-
-            response.flatMapMany { r ->
-                if (!r.success) SourceSystemException(r.message).toFlux()
-                else if (r.count == 0) Flux.empty()
-                else r.items.map { item -> objectMapper.convertValue(item, T::class.java) }.toFlux()
+        val response: Mono<Response> = fn(webClient)
+            .header(HttpHeaders.AUTHORIZATION, "Bearer $token")
+            .retrieve()
+            .onStatus(HttpStatus::isError) {
+                it.bodyToMono<String>().defaultIfEmpty("").map { body ->
+                    SourceSystemException(
+                        message = "Failed to get application deployment details, status:${it.statusCode().value()} message:${it.statusCode().reasonPhrase}",
+                        code = it.statusCode().value().toString(),
+                        errorMessage = body
+                    )
+                }
             }
-        } catch (e: WebClientResponseException) {
-            SourceSystemException(
-                "Failed to get application deployment details, status:${e.statusCode} message:${e.statusText}",
-                e,
-                e.statusText,
-                "Failed to get application deployment details"
-            ).toFlux()
+            .bodyToMono()
+        return response.flatMapMany { r ->
+            if (!r.success) SourceSystemException(r.message).toFlux()
+            else if (r.count == 0) Flux.empty()
+            else r.items.map { item -> objectMapper.convertValue(item, T::class.java) }.toFlux()
         }
     }
 }
