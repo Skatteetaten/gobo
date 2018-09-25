@@ -1,5 +1,8 @@
 package no.skatteetaten.aurora.gobo
 
+import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileResource
+import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileType
+import no.skatteetaten.aurora.gobo.integration.boober.Response
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentCommandResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentDetailsResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentRefResource
@@ -82,9 +85,9 @@ data class ApplicationDeploymentBuilder(val affiliation: String = "paas") {
         )
 }
 
-class ApplicationDeploymentDetailsBuilder {
+data class ApplicationDeploymentDetailsBuilder(val resourceLinks: List<Link> = emptyList()) {
 
-    fun build(): ApplicationDeploymentDetailsResource =
+    fun build() =
         ApplicationDeploymentDetailsResource(
             Instant.now(),
             GitInfoResource("123abc", Instant.now()),
@@ -107,11 +110,14 @@ class ApplicationDeploymentDetailsBuilder {
                 ApplicationDeploymentRefResource("environment", "application"),
                 AuroraConfigRefResource("name", "refName")
             )
-        ).apply { add(Link("http://ApplicationDeploymentDetails/1", "self")) }
+        ).apply {
+            add(Link("http://ApplicationDeploymentDetails/1", "self"))
+            add(resourceLinks)
+        }
 }
 
 class ProbeResultListBuilder {
-    fun build(): List<ProbeResult> = listOf(
+    fun build() = listOf(
             ProbeResult(
                 result = Result(
                     status = ProbeStatus.OPEN,
@@ -146,4 +152,20 @@ class ProbeResultListBuilder {
                 hostIp = "192.168.100.3"
             )
     )
+}
+
+class AuroraConfigFileBuilder {
+
+    fun build() =
+        AuroraConfigFileResource(
+            name = "name",
+            contents = "contents",
+            type = AuroraConfigFileType.APP
+        )
+}
+
+data class ResponseBuilder(val items: List<Any> = emptyList()) {
+
+    fun build() =
+        Response(true, "OK", items)
 }

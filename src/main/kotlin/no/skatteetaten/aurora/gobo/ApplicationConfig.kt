@@ -1,10 +1,5 @@
 package no.skatteetaten.aurora.gobo
 
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.SerializationFeature
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.netty.handler.ssl.SslContextBuilder
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory
 import org.slf4j.LoggerFactory
@@ -13,7 +8,6 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Primary
-import org.springframework.hateoas.hal.Jackson2HalModule
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.http.client.reactive.ReactorClientHttpConnector
@@ -42,10 +36,11 @@ class ApplicationConfig(
     @Bean
     @Primary
     @TargetService(ServiceTypes.MOKEY)
-    fun webClient(objectMapper: ObjectMapper): WebClient {
+    fun webClientMokey(): WebClient {
 
         logger.info("Configuring WebClient with baseUrl={}", mokeyUrl)
 
+        val objectMapper = createObjectMapper()
         val strategies = ExchangeStrategies
             .builder()
             .codecs {
@@ -54,33 +49,30 @@ class ApplicationConfig(
             }
             .build()
 
-        return WebClient
-            .builder()
+        return createStandardWebClientBuilder()
             .exchangeStrategies(strategies)
             .baseUrl(mokeyUrl)
-            .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .build()
     }
 
     @Bean
     @TargetService(ServiceTypes.UNCLEMATT)
-    fun webClientUncleMatt(uncleMattObjectMapper: ObjectMapper): WebClient {
+    fun webClientUncleMatt(): WebClient {
 
         logger.info("Configuring WebClient with baseUrl={}", uncleMattUrl)
 
+        val objectMapper = createObjectMapper()
         val strategies = ExchangeStrategies
             .builder()
             .codecs {
-                it.defaultCodecs().jackson2JsonDecoder(Jackson2JsonDecoder(uncleMattObjectMapper, MediaType.APPLICATION_JSON))
-                it.defaultCodecs().jackson2JsonEncoder(Jackson2JsonEncoder(uncleMattObjectMapper, MediaType.APPLICATION_JSON))
+                it.defaultCodecs().jackson2JsonDecoder(Jackson2JsonDecoder(objectMapper, MediaType.APPLICATION_JSON))
+                it.defaultCodecs().jackson2JsonEncoder(Jackson2JsonEncoder(objectMapper, MediaType.APPLICATION_JSON))
             }
             .build()
 
-        return WebClient
-            .builder()
+        return createStandardWebClientBuilder()
             .exchangeStrategies(strategies)
             .baseUrl(uncleMattUrl)
-            .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .build()
     }
 
@@ -95,38 +87,15 @@ class ApplicationConfig(
             .build()
 
         val httpConnector = ReactorClientHttpConnector { opt -> opt.sslContext(sslContext) }
-        return WebClient
-            .builder()
+        return createStandardWebClientBuilder()
             .clientConnector(httpConnector)
-            .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .build()
     }
 
     @Bean
     @TargetService(ServiceTypes.BOOBER)
-    fun webClientBoober(): WebClient {
-        return WebClient
-            .builder()
-            .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .build()
-    }
+    fun webClientBoober() = createStandardWebClientBuilder().build()
 
-    @Bean
-    fun objectMapper() =
-        ObjectMapper().apply {
-            configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
-            configure(SerializationFeature.INDENT_OUTPUT, true)
-            registerModules(JavaTimeModule(), Jackson2HalModule())
-            registerKotlinModule()
-        }
-
-    @Bean
-    fun uncleMattObjectMapper() =
-        ObjectMapper().apply {
-            configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
-            configure(SerializationFeature.INDENT_OUTPUT, true)
-            registerModules(JavaTimeModule(), Jackson2HalModule())
-            registerKotlinModule()
-            enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
-        }
+    private fun createStandardWebClientBuilder() =
+        WebClient.builder().defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
 }
