@@ -73,7 +73,7 @@ class ApplicationUpgradeService(
         ).toMono()
     }
 
-    fun createVersionPatch(version: String): Map<String, String> {
+    private fun createVersionPatch(version: String): Map<String, String> {
         val jsonPatch = JsonPatch(listOf(ReplaceOperation(JsonPointer("/version"), TextNode(version))))
         return mapOf("content" to jacksonObjectMapper().writeValueAsString(jsonPatch))
     }
