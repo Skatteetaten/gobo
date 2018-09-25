@@ -1,5 +1,6 @@
 package no.skatteetaten.aurora.gobo
 
+import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
@@ -63,12 +64,21 @@ class ApplicationConfig(
 
     @Bean
     @TargetService(ServiceTypes.UNCLEMATT)
-    fun webClientUncleMatt(): WebClient {
+    fun webClientUncleMatt(uncleMattObjectMapper: ObjectMapper): WebClient {
 
         logger.info("Configuring WebClient with baseUrl={}", uncleMattUrl)
 
+        val strategies = ExchangeStrategies
+            .builder()
+            .codecs {
+                it.defaultCodecs().jackson2JsonDecoder(Jackson2JsonDecoder(uncleMattObjectMapper, MediaType.APPLICATION_JSON))
+                it.defaultCodecs().jackson2JsonEncoder(Jackson2JsonEncoder(uncleMattObjectMapper, MediaType.APPLICATION_JSON))
+            }
+            .build()
+
         return WebClient
             .builder()
+            .exchangeStrategies(strategies)
             .baseUrl(uncleMattUrl)
             .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .build()
@@ -108,5 +118,15 @@ class ApplicationConfig(
             configure(SerializationFeature.INDENT_OUTPUT, true)
             registerModules(JavaTimeModule(), Jackson2HalModule())
             registerKotlinModule()
+        }
+
+    @Bean
+    fun uncleMattObjectMapper() =
+        ObjectMapper().apply {
+            configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+            configure(SerializationFeature.INDENT_OUTPUT, true)
+            registerModules(JavaTimeModule(), Jackson2HalModule())
+            registerKotlinModule()
+            enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
         }
 }

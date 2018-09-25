@@ -1,8 +1,5 @@
 package no.skatteetaten.aurora.gobo.integration.unclematt
 
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
 import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
@@ -18,17 +15,12 @@ class ProbeService(
     @TargetService(ServiceTypes.UNCLEMATT) val webClient: WebClient
 ) {
     private val logger: Logger = LoggerFactory.getLogger(ProbeService::class.java)
-    private val objectMapper = jacksonObjectMapper()
     private val exceptionMsg = "Failed to invoke firewall scan in the cluster"
     private val exceptionUserMsg = "Failed to perform netdebug operation"
 
-    init {
-        objectMapper.enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
-    }
-
     fun probeFirewall(host: String, port: Int): List<ProbeResult> {
         try {
-            val response = webClient
+            return webClient
                 .get()
                 .uri {
                     it.path("/scan/v1")
@@ -37,12 +29,8 @@ class ProbeService(
                         .build()
                 }
                 .retrieve()
-                .bodyToMono<String>()
+                .bodyToMono<List<ProbeResult>>()
                 .block() ?: return emptyList()
-
-            val probeResultList = objectMapper.readValue<List<ProbeResult>>(response)
-
-            return probeResultList
         } catch (e: WebClientResponseException) {
             logger.warn(exceptionUserMsg, e)
             throw SourceSystemException("$exceptionMsg, status:${e.statusCode} message:${e.statusText}", e, e.statusText, exceptionUserMsg)
