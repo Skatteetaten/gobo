@@ -1,5 +1,6 @@
 package no.skatteetaten.aurora.gobo.service
 
+import assertk.assert
 import assertk.assertions.isEqualTo
 import com.fasterxml.jackson.databind.node.TextNode
 import io.mockk.every
@@ -9,14 +10,13 @@ import no.skatteetaten.aurora.gobo.ApplicationDeploymentDetailsBuilder
 import no.skatteetaten.aurora.gobo.AuroraConfigFileBuilder
 import no.skatteetaten.aurora.gobo.ResponseBuilder
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigService
-import no.skatteetaten.aurora.gobo.integration.enqueueJson
+import no.skatteetaten.aurora.gobo.integration.execute
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import no.skatteetaten.aurora.gobo.security.UserService
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.jupiter.api.Test
 import org.springframework.hateoas.Link
 import reactor.test.StepVerifier
-import assertk.assert
 
 class ApplicationUpgradeServiceTest {
 
@@ -36,57 +36,39 @@ class ApplicationUpgradeServiceTest {
 
     @Test
     fun `Update application deployment version`() {
-        enqueueGetApplicationDeploymentDetails()
-        enqueueGetApplicationFile()
-        enqueuePatch()
-        enqueueRedeploy()
-        enqueueRefresh()
+        val requests = server.execute(
+            applicationDeploymentDetailsResponse(),
+            applicationFileResponse(),
+            patchResponse(),
+            redeployResponse(),
+            enqueueRefreshResponse()
+        ) {
+            StepVerifier
+                .create(upgradeService.upgrade("applicationDeploymentId", "version"))
+                .verifyComplete()
+        }
 
-        StepVerifier
-            .create(upgradeService.upgrade("applicationDeploymentId", "version"))
-            .verifyComplete()
-
-        val getApplicationDeploymentDetailsRequest = server.takeRequest()
-        val getApplicationFileRequest = server.takeRequest()
-        val patchRequest = server.takeRequest()
-        val redeployRequest = server.takeRequest()
-        val refreshRequest = server.takeRequest()
-
-        assert(getApplicationDeploymentDetailsRequest.path).isEqualTo("/mokey/api/applicationdeploymentdetails/applicationDeploymentId")
-        assert(getApplicationFileRequest.path).isEqualTo("/boober/FilesCurrent")
-        assert(patchRequest.path).isEqualTo("/boober/AuroraConfigFileCurrent")
-        assert(redeployRequest.path).isEqualTo("/boober/Apply")
-        assert(refreshRequest.path).isEqualTo("/mokey/refresh")
+        assert(requests[0].path).isEqualTo("/mokey/api/applicationdeploymentdetails/applicationDeploymentId")
+        assert(requests[1].path).isEqualTo("/boober/FilesCurrent")
+        assert(requests[2].path).isEqualTo("/boober/AuroraConfigFileCurrent")
+        assert(requests[3].path).isEqualTo("/boober/Apply")
+        assert(requests[4].path).isEqualTo("/mokey/refresh")
     }
 
-    private fun enqueueGetApplicationDeploymentDetails() {
-        val details = ApplicationDeploymentDetailsBuilder(
+    private fun applicationDeploymentDetailsResponse() =
+        ApplicationDeploymentDetailsBuilder(
             resourceLinks = listOf(
                 Link("${url}boober/FilesCurrent", "FilesCurrent"),
                 Link("${url}boober/AuroraConfigFileCurrent", "AuroraConfigFileCurrent"),
                 Link("${url}boober/Apply", "Apply")
             )
         ).build()
-        server.enqueueJson(body = details)
-    }
 
-    private fun enqueueGetApplicationFile() {
-        val file = AuroraConfigFileBuilder().build()
-        val response = ResponseBuilder(listOf(file)).build()
-        server.enqueueJson(body = response)
-    }
+    private fun applicationFileResponse() = ResponseBuilder(listOf(AuroraConfigFileBuilder().build())).build()
 
-    private fun enqueuePatch() {
-        val file = AuroraConfigFileBuilder().build()
-        val response = ResponseBuilder(listOf(file)).build()
-        server.enqueueJson(body = response)
-    }
+    private fun patchResponse() = ResponseBuilder(listOf(AuroraConfigFileBuilder().build())).build()
 
-    private fun enqueueRedeploy() {
-        server.enqueueJson(body = ResponseBuilder(listOf(TextNode("{}"))).build())
-    }
+    private fun redeployResponse() = ResponseBuilder(listOf(TextNode("{}"))).build()
 
-    private fun enqueueRefresh() {
-        server.enqueueJson()
-    }
+    private fun enqueueRefreshResponse() = ResponseBuilder(listOf(TextNode("{}"))).build()
 }

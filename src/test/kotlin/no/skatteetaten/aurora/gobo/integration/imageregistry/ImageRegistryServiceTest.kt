@@ -9,7 +9,7 @@ import assertk.assertions.message
 import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
-import no.skatteetaten.aurora.gobo.integration.enqueueJson
+import no.skatteetaten.aurora.gobo.integration.execute
 import no.skatteetaten.aurora.gobo.integration.imageregistry.AuthenticationMethod.KUBERNETES_TOKEN
 import no.skatteetaten.aurora.gobo.integration.imageregistry.AuthenticationMethod.NONE
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository
@@ -48,17 +48,17 @@ class ImageRegistryServiceTest {
 
     @Test
     fun `verify fetches all tags for specified repo`() {
-        server.enqueueJson(body = tagsListResponse)
-        val tags = imageRegistry.findTagNamesInRepoOrderedByCreatedDateDesc(imageRepo)
-        val request = server.takeRequest()
+        val request = server.execute(tagsListResponse) {
+            val tags = imageRegistry.findTagNamesInRepoOrderedByCreatedDateDesc(imageRepo)
+            assert(tags).containsAll(
+                "1",
+                "develop-SNAPSHOT",
+                "1.0.0-rc.2-b2.2.3-oracle8-1.4.0",
+                "1.0.0-rc.1-b2.2.3-oracle8-1.4.0",
+                "master-SNAPSHOT"
+            )
+        }
 
-        assert(tags).containsAll(
-            "1",
-            "develop-SNAPSHOT",
-            "1.0.0-rc.2-b2.2.3-oracle8-1.4.0",
-            "1.0.0-rc.1-b2.2.3-oracle8-1.4.0",
-            "master-SNAPSHOT"
-        )
         assert(request.path).isEqualTo("/v2/$imageRepoName/tags/list")
         assert(request.headers[HttpHeaders.AUTHORIZATION]).isNull()
     }
@@ -66,42 +66,39 @@ class ImageRegistryServiceTest {
     @Test
     fun `fetch all tags with authorization header`() {
         every { tokenProvider.token } returns "token"
-
         every {
             defaultRegistryMetadataResolver.getMetadataForRegistry(any())
         } returns RegistryMetadata("${url.host()}:${url.port()}", "http", KUBERNETES_TOKEN)
 
-        server.enqueueJson(body = tagsListResponse)
-
-        val tags = imageRegistry.findTagNamesInRepoOrderedByCreatedDateDesc(imageRepo)
-        val request = server.takeRequest()
+        val request = server.execute(tagsListResponse) {
+            val tags = imageRegistry.findTagNamesInRepoOrderedByCreatedDateDesc(imageRepo)
+            assert(tags).isNotNull()
+        }
 
         assert(request.path).isEqualTo("/v2/$imageRepoName/tags/list")
-        assert(tags).isNotNull()
         assert(request.headers[HttpHeaders.AUTHORIZATION]).isEqualTo("Bearer token")
     }
 
     @Test
     fun `verify tag can be found by name`() {
-        server.enqueueJson(body = manifestResponse)
+        val request = server.execute(manifestResponse) {
+            val tag = imageRegistry.findTagByName(imageRepo, tagName)
+            assert(tag.created).isEqualTo(Instant.parse("2017-09-25T11:38:20.361177648Z"))
+            assert(tag.name).isEqualTo(tagName)
+            assert(tag.type).isEqualTo(ImageTagType.MAJOR)
+        }
 
-        val tag = imageRegistry.findTagByName(imageRepo, tagName)
-        val request = server.takeRequest()
-        assert(tag.created).isEqualTo(Instant.parse("2017-09-25T11:38:20.361177648Z"))
-        assert(tag.name).isEqualTo(tagName)
-        assert(tag.type).isEqualTo(ImageTagType.MAJOR)
         assert(request.path).isEqualTo("/v2/$imageRepoName/manifests/$tagName")
     }
 
     @Test
     fun `Throw exception when bad request is returned from registry`() {
-        server.enqueueJson(404, "Not found")
-
-        assert {
-            imageRegistry.findTagByName(imageRepo, tagName)
-        }.thrownError {
-            server.takeRequest()
-            message().isEqualTo("No metadata for tag=$tagName in repo=${imageRepo.repository}")
+        server.execute(404, "Not found") {
+            assert {
+                imageRegistry.findTagByName(imageRepo, tagName)
+            }.thrownError {
+                message().isEqualTo("No metadata for tag=$tagName in repo=${imageRepo.repository}")
+            }
         }
     }
 }
