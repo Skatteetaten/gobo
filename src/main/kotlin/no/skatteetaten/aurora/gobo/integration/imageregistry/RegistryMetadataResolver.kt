@@ -2,6 +2,7 @@ package no.skatteetaten.aurora.gobo.integration.imageregistry
 
 import no.skatteetaten.aurora.gobo.integration.imageregistry.AuthenticationMethod.KUBERNETES_TOKEN
 import no.skatteetaten.aurora.gobo.integration.imageregistry.AuthenticationMethod.NONE
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 
 enum class AuthenticationMethod { NONE, KUBERNETES_TOKEN }
@@ -18,17 +19,13 @@ interface RegistryMetadataResolver {
 }
 
 @Component
-class DefaultRegistryMetadataResolver : RegistryMetadataResolver {
-    val internalRegistryAddress = "docker-registry.default.svc:5000"
+class DefaultRegistryMetadataResolver(@Value("\${internal-registry:docker-registry.default.svc:5000}") val internalRegistryAddress: String) :
+    RegistryMetadataResolver {
 
     override fun getMetadataForRegistry(registry: String): RegistryMetadata {
 
-        val isInternalRegistry = isInternalRegistry(registry)
+        val isInternalRegistry = registry == internalRegistryAddress
         return if (isInternalRegistry) RegistryMetadata(registry, "http", KUBERNETES_TOKEN, isInternalRegistry)
         else RegistryMetadata(registry, "https", NONE, isInternalRegistry)
-    }
-
-    protected fun isInternalRegistry(registry: String): Boolean {
-        return registry.equals(internalRegistryAddress)
     }
 }
