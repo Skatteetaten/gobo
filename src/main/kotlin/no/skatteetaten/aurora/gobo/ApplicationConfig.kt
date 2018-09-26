@@ -30,7 +30,8 @@ annotation class TargetService(val value: ServiceTypes)
 class ApplicationConfig(
     @Value("\${mokey.url}") val mokeyUrl: String,
     @Value("\${unclematt.url}") val uncleMattUrl: String,
-    @Value("\${gobo.webclient.timeout:30000}") val timeout: Int
+    @Value("\${gobo.webclient.read-timeout:30000}") val readTimeout: Int,
+    @Value("\${gobo.webclient.connection-timeout:30000}") val connectionTimeout: Int
 ) {
 
     private val logger = LoggerFactory.getLogger(ApplicationConfig::class.java)
@@ -97,5 +98,8 @@ class ApplicationConfig(
     }
 
     private fun clientConnector() =
-        ReactorClientHttpConnector { options -> options.option(ChannelOption.SO_TIMEOUT, timeout) }
+        ReactorClientHttpConnector { options ->
+            options.option(ChannelOption.SO_TIMEOUT, readTimeout)
+            options.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectionTimeout)
+        }
 }
