@@ -9,7 +9,7 @@ class ApplicationDeploymentMutationResolver(private val applicationUpgradeServic
     GraphQLMutationResolver {
 
     fun redeployWithVersion(input: ApplicationDeploymentVersionInput): Boolean {
-        applicationUpgradeService.upgrade(input.applicationDeploymentId, input.version)
+        applicationUpgradeService.upgrade(input.applicationDeploymentId, input.version).block()
         return true
     }
 

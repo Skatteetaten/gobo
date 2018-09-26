@@ -28,9 +28,9 @@ class ApplicationUpgradeService(
 
     private val logger = LoggerFactory.getLogger(ApplicationUpgradeService::class.java)
 
-    fun upgrade(applicationDeploymentId: String, version: String) {
+    fun upgrade(applicationDeploymentId: String, version: String): Mono<Void> {
         val token = userService.getToken()
-        applicationService.getApplicationDeploymentDetails(applicationDeploymentId)
+        return applicationService.getApplicationDeploymentDetails(applicationDeploymentId)
             .flatMap { details ->
 
                 val currentLink = details.link("FilesCurrent")
@@ -50,7 +50,7 @@ class ApplicationUpgradeService(
                     "Exception while upgrading version to $version for applicationDeploymentId $applicationDeploymentId",
                     it
                 )
-            }.block() // step verifier, returnere mono istedet for å kjøre block?
+            }
     }
 
     private fun getApplicationFile(token: String, it: String): Mono<String> {
