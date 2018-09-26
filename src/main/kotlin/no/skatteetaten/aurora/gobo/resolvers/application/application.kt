@@ -7,7 +7,6 @@ import no.skatteetaten.aurora.gobo.resolvers.Cursor
 import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.ApplicationDeployment
 import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.ApplicationDeploymentBuilder
 import no.skatteetaten.aurora.gobo.resolvers.createPageInfo
-import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentDetailsResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationResource
 
@@ -15,15 +14,7 @@ data class Application(
     val id: String,
     val name: String,
     val applicationDeployments: List<ApplicationDeployment>
-) {
-    val imageRepository: ImageRepository?
-        get() {
-            return applicationDeployments
-                .firstOrNull { it.details?.imageDetails?.dockerImageRepo != null }
-                ?.details?.imageDetails?.dockerImageRepo
-                ?.let { ImageRepository.fromRepoString(it) }
-        }
-}
+)
 
 data class ApplicationEdge(private val node: Application) : DefaultEdge<Application>(
     node,
