@@ -10,7 +10,7 @@ import java.time.Instant
 data class StatusResource(val code: String, val comment: String?)
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class VersionResource(val deployTag: String, val auroraVersion: String?)
+data class VersionResource(val deployTag: String, val auroraVersion: String?, val releaseTo: String?)
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class GitInfoResource(val commitId: String?, val commitTime: Instant?)
@@ -76,7 +76,8 @@ data class ApplicationDeploymentResource(
     val environment: String,
     val namespace: String,
     val status: StatusResource,
-    val version: VersionResource
+    val version: VersionResource,
+    val time: Instant
 ) : ResourceSupport()
 
 @JsonIgnoreProperties(ignoreUnknown = true)
