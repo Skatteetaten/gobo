@@ -15,6 +15,7 @@ import org.springframework.http.codec.json.Jackson2JsonDecoder
 import org.springframework.http.codec.json.Jackson2JsonEncoder
 import org.springframework.web.reactive.function.client.ExchangeStrategies
 import org.springframework.web.reactive.function.client.WebClient
+import io.netty.channel.ChannelOption
 
 enum class ServiceTypes {
     MOKEY, DOCKER, BOOBER, UNCLEMATT
@@ -28,7 +29,8 @@ annotation class TargetService(val value: ServiceTypes)
 @Configuration
 class ApplicationConfig(
     @Value("\${mokey.url}") val mokeyUrl: String,
-    @Value("\${unclematt.url}") val uncleMattUrl: String
+    @Value("\${unclematt.url}") val uncleMattUrl: String,
+    @Value("\${gobo.webclient.timeout:30000}") val timeout: Int
 ) {
 
     private val logger = LoggerFactory.getLogger(ApplicationConfig::class.java)
@@ -81,6 +83,7 @@ class ApplicationConfig(
             .builder()
             .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .exchangeStrategies(exchangeStrategies())
+            .clientConnector(clientConnector())
 
     private fun exchangeStrategies(): ExchangeStrategies {
         val objectMapper = createObjectMapper()
@@ -92,4 +95,7 @@ class ApplicationConfig(
             }
             .build()
     }
+
+    private fun clientConnector() =
+        ReactorClientHttpConnector { options -> options.option(ChannelOption.SO_TIMEOUT, timeout) }
 }
