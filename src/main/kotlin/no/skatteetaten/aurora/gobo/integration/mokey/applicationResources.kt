@@ -44,7 +44,8 @@ data class ApplicationDeploymentDetailsResource(
     val gitInfo: GitInfoResource?,
     val imageDetails: ImageDetailsResource?,
     val podResources: List<PodResourceResource>,
-    val applicationDeploymentCommand: ApplicationDeploymentCommandResource
+    val applicationDeploymentCommand: ApplicationDeploymentCommandResource,
+    val _embedded: Map<String, ApplicationResource>? = null
 ) : ResourceSupport() {
 
     fun link(rel: String) = links.first { it.rel == rel }?.href!!.let {

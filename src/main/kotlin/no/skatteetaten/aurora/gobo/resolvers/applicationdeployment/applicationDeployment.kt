@@ -24,7 +24,7 @@ data class ApplicationDeployment(
     companion object {
         fun create(deployment: ApplicationDeploymentResource, details: ApplicationDeploymentDetails?) =
             ApplicationDeployment(
-                deployment.identifier,
+                deployment.identifier!!,
                 deployment.name,
                 deployment.affiliation,
                 deployment.environment,
@@ -50,7 +50,7 @@ class ApplicationDeploymentBuilder(deploymentResources: List<ApplicationDeployme
 
     fun createApplicationDeployments(appResource: ApplicationResource): List<ApplicationDeployment> {
 
-        return appResource.applicationDeployments.map { deployment ->
+        return appResource.applicationDeployments!!.map { deployment ->
             val detailsLink = deployment.getLink("ApplicationDeploymentDetails")?.href!!
             val detailsResource = detailsIndex[detailsLink]!!
             val applicationDeploymentDetails = ApplicationDeploymentDetails.create(detailsResource)
