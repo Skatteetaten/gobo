@@ -1,8 +1,8 @@
 package no.skatteetaten.aurora.gobo.integration.boober
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
+import no.skatteetaten.aurora.gobo.createObjectMapper
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentRefResource
 import org.springframework.beans.factory.annotation.Value
@@ -20,8 +20,7 @@ import java.net.URI
 @Service
 class AuroraConfigService(
     @Value("\${boober.url:}") val booberUrl: String?,
-    @TargetService(ServiceTypes.BOOBER) val webClient: WebClient,
-    val objectMapper: ObjectMapper
+    @TargetService(ServiceTypes.BOOBER) val webClient: WebClient
 ) {
 
     final inline fun <reified T : Any> get(token: String, url: String, params: List<String> = emptyList()): Flux<T> =
@@ -87,7 +86,7 @@ class AuroraConfigService(
         return response.flatMapMany { r ->
             if (!r.success) SourceSystemException(r.message).toFlux()
             else if (r.count == 0) Flux.empty()
-            else r.items.map { item -> objectMapper.convertValue(item, T::class.java) }.toFlux()
+            else r.items.map { item -> createObjectMapper().convertValue(item, T::class.java) }.toFlux()
         }
     }
 }

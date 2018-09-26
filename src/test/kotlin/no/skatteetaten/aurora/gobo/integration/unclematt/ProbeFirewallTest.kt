@@ -3,9 +3,9 @@ package no.skatteetaten.aurora.gobo.integration.unclematt
 import assertk.assert
 import assertk.assertions.isEqualTo
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
-import no.skatteetaten.aurora.gobo.integration.createJsonMockResponse
-import org.junit.jupiter.api.Test
+import no.skatteetaten.aurora.gobo.integration.execute
 import okhttp3.mockwebserver.MockWebServer
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.web.reactive.function.client.WebClient
 
@@ -17,19 +17,18 @@ class ProbeFireWallTest {
 
     @Test
     fun `happy day`() {
-        server.enqueue(createJsonMockResponse(body = probeResponse))
-
-        val probeResultList = probeService.probeFirewall("server.test.no", 9999)
-
-        assert(probeResultList.size).isEqualTo(2)
+        server.execute(probeResponse) {
+            val probeResultList = probeService.probeFirewall("server.test.no", 9999)
+            assert(probeResultList.size).isEqualTo(2)
+        }
     }
 
     @Test
     fun `throws correct exception when backend returns 404`() {
-        server.enqueue(createJsonMockResponse(status = 404, body = ""))
-
-        assertThrows<SourceSystemException> {
-            probeService.probeFirewall("server.test.no", 9999)
+        server.execute(404, "") {
+            assertThrows<SourceSystemException> {
+                probeService.probeFirewall("server.test.no", 9999)
+            }
         }
     }
 }

@@ -1,10 +1,5 @@
 package no.skatteetaten.aurora.gobo
 
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.SerializationFeature
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.netty.handler.ssl.SslContextBuilder
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory
 import org.slf4j.LoggerFactory
@@ -13,7 +8,6 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Primary
-import org.springframework.hateoas.hal.Jackson2HalModule
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.http.client.reactive.ReactorClientHttpConnector
@@ -21,6 +15,7 @@ import org.springframework.http.codec.json.Jackson2JsonDecoder
 import org.springframework.http.codec.json.Jackson2JsonEncoder
 import org.springframework.web.reactive.function.client.ExchangeStrategies
 import org.springframework.web.reactive.function.client.WebClient
+import io.netty.channel.ChannelOption
 
 enum class ServiceTypes {
     MOKEY, DOCKER, BOOBER, UNCLEMATT
@@ -34,7 +29,9 @@ annotation class TargetService(val value: ServiceTypes)
 @Configuration
 class ApplicationConfig(
     @Value("\${mokey.url}") val mokeyUrl: String,
-    @Value("\${unclematt.url}") val uncleMattUrl: String
+    @Value("\${unclematt.url}") val uncleMattUrl: String,
+    @Value("\${gobo.webclient.read-timeout:30000}") val readTimeout: Int,
+    @Value("\${gobo.webclient.connection-timeout:30000}") val connectionTimeout: Int
 ) {
 
     private val logger = LoggerFactory.getLogger(ApplicationConfig::class.java)
@@ -42,45 +39,23 @@ class ApplicationConfig(
     @Bean
     @Primary
     @TargetService(ServiceTypes.MOKEY)
-    fun webClient(objectMapper: ObjectMapper): WebClient {
+    fun webClientMokey(): WebClient {
 
-        logger.info("Configuring WebClient with baseUrl={}", mokeyUrl)
+        logger.info("Configuring Mokey WebClient with baseUrl={}", mokeyUrl)
 
-        val strategies = ExchangeStrategies
-            .builder()
-            .codecs {
-                it.defaultCodecs().jackson2JsonDecoder(Jackson2JsonDecoder(objectMapper, MediaType.APPLICATION_JSON))
-                it.defaultCodecs().jackson2JsonEncoder(Jackson2JsonEncoder(objectMapper, MediaType.APPLICATION_JSON))
-            }
-            .build()
-
-        return WebClient
-            .builder()
-            .exchangeStrategies(strategies)
+        return webClientBuilder()
             .baseUrl(mokeyUrl)
-            .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .build()
     }
 
     @Bean
     @TargetService(ServiceTypes.UNCLEMATT)
-    fun webClientUncleMatt(uncleMattObjectMapper: ObjectMapper): WebClient {
+    fun webClientUncleMatt(): WebClient {
 
-        logger.info("Configuring WebClient with baseUrl={}", uncleMattUrl)
+        logger.info("Configuring UncleMatt WebClient with baseUrl={}", uncleMattUrl)
 
-        val strategies = ExchangeStrategies
-            .builder()
-            .codecs {
-                it.defaultCodecs().jackson2JsonDecoder(Jackson2JsonDecoder(uncleMattObjectMapper, MediaType.APPLICATION_JSON))
-                it.defaultCodecs().jackson2JsonEncoder(Jackson2JsonEncoder(uncleMattObjectMapper, MediaType.APPLICATION_JSON))
-            }
-            .build()
-
-        return WebClient
-            .builder()
-            .exchangeStrategies(strategies)
+        return webClientBuilder()
             .baseUrl(uncleMattUrl)
-            .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .build()
     }
 
@@ -95,38 +70,36 @@ class ApplicationConfig(
             .build()
 
         val httpConnector = ReactorClientHttpConnector { opt -> opt.sslContext(sslContext) }
-        return WebClient
-            .builder()
+        return webClientBuilder()
             .clientConnector(httpConnector)
-            .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .build()
     }
 
     @Bean
     @TargetService(ServiceTypes.BOOBER)
-    fun webClientBoober(): WebClient {
-        return WebClient
+    fun webClientBoober() = webClientBuilder().build()
+
+    private fun webClientBuilder() =
+        WebClient
             .builder()
             .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .exchangeStrategies(exchangeStrategies())
+            .clientConnector(clientConnector())
+
+    private fun exchangeStrategies(): ExchangeStrategies {
+        val objectMapper = createObjectMapper()
+        return ExchangeStrategies
+            .builder()
+            .codecs {
+                it.defaultCodecs().jackson2JsonDecoder(Jackson2JsonDecoder(objectMapper, MediaType.APPLICATION_JSON))
+                it.defaultCodecs().jackson2JsonEncoder(Jackson2JsonEncoder(objectMapper, MediaType.APPLICATION_JSON))
+            }
             .build()
     }
 
-    @Bean
-    fun objectMapper() =
-        ObjectMapper().apply {
-            configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
-            configure(SerializationFeature.INDENT_OUTPUT, true)
-            registerModules(JavaTimeModule(), Jackson2HalModule())
-            registerKotlinModule()
-        }
-
-    @Bean
-    fun uncleMattObjectMapper() =
-        ObjectMapper().apply {
-            configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
-            configure(SerializationFeature.INDENT_OUTPUT, true)
-            registerModules(JavaTimeModule(), Jackson2HalModule())
-            registerKotlinModule()
-            enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
+    private fun clientConnector() =
+        ReactorClientHttpConnector { options ->
+            options.option(ChannelOption.SO_TIMEOUT, readTimeout)
+            options.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectionTimeout)
         }
 }

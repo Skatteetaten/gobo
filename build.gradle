@@ -81,7 +81,8 @@ dependencies {
       'io.mockk:mockk:1.8.7',
       'com.willowtreeapps.assertk:assertk:0.10',
       'org.springframework.cloud:spring-cloud-starter-contract-stub-runner',
-      'org.springframework.security:spring-security-test'
+      'org.springframework.security:spring-security-test',
+      'io.projectreactor:reactor-test'
   ].each { testCompile(it) { exclude group: 'junit' } }
 
   testImplementation(
