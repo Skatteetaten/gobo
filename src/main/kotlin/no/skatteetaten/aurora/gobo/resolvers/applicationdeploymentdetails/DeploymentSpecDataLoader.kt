@@ -63,7 +63,7 @@ class DeploymentSpecDataLoader(
     }
 }
 
-data class DeploymentSpecResponse(val success: Boolean, val message: String, val items: List<JsonNode>)
+data class DeploymentSpecResponse(val success: Boolean, val message: String, val items: List<JsonNode>, val count: Int)
 
 @Language("JSON")
 val json = """{
