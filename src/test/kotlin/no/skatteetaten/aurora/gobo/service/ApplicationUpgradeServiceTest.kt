@@ -8,8 +8,8 @@ import io.mockk.mockk
 import no.skatteetaten.aurora.gobo.ApplicationConfig
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentDetailsBuilder
 import no.skatteetaten.aurora.gobo.AuroraConfigFileBuilder
-import no.skatteetaten.aurora.gobo.ResponseBuilder
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigService
+import no.skatteetaten.aurora.gobo.integration.boober.Response
 import no.skatteetaten.aurora.gobo.integration.execute
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import no.skatteetaten.aurora.gobo.security.UserService
@@ -64,11 +64,11 @@ class ApplicationUpgradeServiceTest {
             )
         ).build()
 
-    private fun applicationFileResponse() = ResponseBuilder(listOf(AuroraConfigFileBuilder().build())).build()
+    private fun applicationFileResponse() = Response(items = listOf(AuroraConfigFileBuilder().build()))
 
-    private fun patchResponse() = ResponseBuilder(listOf(AuroraConfigFileBuilder().build())).build()
+    private fun patchResponse() = Response(items = listOf(AuroraConfigFileBuilder().build()))
 
-    private fun redeployResponse() = ResponseBuilder(listOf(TextNode("{}"))).build()
+    private fun redeployResponse() = Response(items = listOf(TextNode("{}")))
 
-    private fun enqueueRefreshResponse() = ResponseBuilder(listOf(TextNode("{}"))).build()
+    private fun enqueueRefreshResponse() = Response(items = listOf(TextNode("{}")))
 }

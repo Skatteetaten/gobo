@@ -2,7 +2,6 @@ package no.skatteetaten.aurora.gobo
 
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileResource
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileType
-import no.skatteetaten.aurora.gobo.integration.boober.Response
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentCommandResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentDetailsResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentRefResource
@@ -162,10 +161,4 @@ class AuroraConfigFileBuilder {
             contents = "contents",
             type = AuroraConfigFileType.APP
         )
-}
-
-data class ResponseBuilder(val items: List<Any> = emptyList()) {
-
-    fun build() =
-        Response(true, "OK", items)
 }
