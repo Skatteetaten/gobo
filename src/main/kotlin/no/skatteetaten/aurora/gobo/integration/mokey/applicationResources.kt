@@ -1,6 +1,7 @@
 package no.skatteetaten.aurora.gobo.integration.mokey
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import org.springframework.hateoas.ResourceSupport
 import org.springframework.web.util.UriUtils
 import java.nio.charset.Charset
@@ -47,9 +48,10 @@ data class ApplicationDeploymentDetailsResource(
     val applicationDeploymentCommand: ApplicationDeploymentCommandResource
 ) : ResourceSupport() {
 
-    fun link(rel: String) = links.first { it.rel == rel }?.href!!.let {
-        UriUtils.decode(it, Charset.defaultCharset())
-    }
+    fun link(rel: String) =
+        links.firstOrNull { it.rel == rel }?.href?.let {
+            UriUtils.decode(it, Charset.defaultCharset())
+        } ?: throw SourceSystemException("Link with rel $rel was not found")
 }
 
 @JsonIgnoreProperties(ignoreUnknown = true)

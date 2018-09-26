@@ -9,7 +9,7 @@ import assertk.assertions.message
 import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
-import no.skatteetaten.aurora.gobo.integration.createJsonMockResponse
+import no.skatteetaten.aurora.gobo.integration.enqueueJson
 import no.skatteetaten.aurora.gobo.integration.imageregistry.AuthenticationMethod.KUBERNETES_TOKEN
 import no.skatteetaten.aurora.gobo.integration.imageregistry.AuthenticationMethod.NONE
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository
@@ -48,7 +48,7 @@ class ImageRegistryServiceTest {
 
     @Test
     fun `verify fetches all tags for specified repo`() {
-        server.enqueue(createJsonMockResponse(body = tagsListResponse))
+        server.enqueueJson(body = tagsListResponse)
         val tags = imageRegistry.findTagNamesInRepoOrderedByCreatedDateDesc(imageRepo)
         val request = server.takeRequest()
 
@@ -71,7 +71,7 @@ class ImageRegistryServiceTest {
             defaultRegistryMetadataResolver.getMetadataForRegistry(any())
         } returns RegistryMetadata("${url.host()}:${url.port()}", "http", KUBERNETES_TOKEN)
 
-        server.enqueue(createJsonMockResponse(body = tagsListResponse))
+        server.enqueueJson(body = tagsListResponse)
 
         val tags = imageRegistry.findTagNamesInRepoOrderedByCreatedDateDesc(imageRepo)
         val request = server.takeRequest()
@@ -83,7 +83,7 @@ class ImageRegistryServiceTest {
 
     @Test
     fun `verify tag can be found by name`() {
-        server.enqueue(createJsonMockResponse(body = manifestResponse))
+        server.enqueueJson(body = manifestResponse)
 
         val tag = imageRegistry.findTagByName(imageRepo, tagName)
         val request = server.takeRequest()
@@ -95,7 +95,7 @@ class ImageRegistryServiceTest {
 
     @Test
     fun `Throw exception when bad request is returned from registry`() {
-        server.enqueue(createJsonMockResponse(404, "Not found"))
+        server.enqueueJson(404, "Not found")
 
         assert {
             imageRegistry.findTagByName(imageRepo, tagName)

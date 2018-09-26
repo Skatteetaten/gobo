@@ -38,19 +38,9 @@ class ApplicationConfig(
     @TargetService(ServiceTypes.MOKEY)
     fun webClientMokey(): WebClient {
 
-        logger.info("Configuring WebClient with baseUrl={}", mokeyUrl)
+        logger.info("Configuring Mokey WebClient with baseUrl={}", mokeyUrl)
 
-        val objectMapper = createObjectMapper()
-        val strategies = ExchangeStrategies
-            .builder()
-            .codecs {
-                it.defaultCodecs().jackson2JsonDecoder(Jackson2JsonDecoder(objectMapper, MediaType.APPLICATION_JSON))
-                it.defaultCodecs().jackson2JsonEncoder(Jackson2JsonEncoder(objectMapper, MediaType.APPLICATION_JSON))
-            }
-            .build()
-
-        return createStandardWebClientBuilder()
-            .exchangeStrategies(strategies)
+        return webClientBuilder()
             .baseUrl(mokeyUrl)
             .build()
     }
@@ -59,19 +49,9 @@ class ApplicationConfig(
     @TargetService(ServiceTypes.UNCLEMATT)
     fun webClientUncleMatt(): WebClient {
 
-        logger.info("Configuring WebClient with baseUrl={}", uncleMattUrl)
+        logger.info("Configuring UncleMatt WebClient with baseUrl={}", uncleMattUrl)
 
-        val objectMapper = createObjectMapper()
-        val strategies = ExchangeStrategies
-            .builder()
-            .codecs {
-                it.defaultCodecs().jackson2JsonDecoder(Jackson2JsonDecoder(objectMapper, MediaType.APPLICATION_JSON))
-                it.defaultCodecs().jackson2JsonEncoder(Jackson2JsonEncoder(objectMapper, MediaType.APPLICATION_JSON))
-            }
-            .build()
-
-        return createStandardWebClientBuilder()
-            .exchangeStrategies(strategies)
+        return webClientBuilder()
             .baseUrl(uncleMattUrl)
             .build()
     }
@@ -87,15 +67,29 @@ class ApplicationConfig(
             .build()
 
         val httpConnector = ReactorClientHttpConnector { opt -> opt.sslContext(sslContext) }
-        return createStandardWebClientBuilder()
+        return webClientBuilder()
             .clientConnector(httpConnector)
             .build()
     }
 
     @Bean
     @TargetService(ServiceTypes.BOOBER)
-    fun webClientBoober() = createStandardWebClientBuilder().build()
+    fun webClientBoober() = webClientBuilder().build()
 
-    private fun createStandardWebClientBuilder() =
-        WebClient.builder().defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+    private fun webClientBuilder() =
+        WebClient
+            .builder()
+            .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .exchangeStrategies(exchangeStrategies())
+
+    private fun exchangeStrategies(): ExchangeStrategies {
+        val objectMapper = createObjectMapper()
+        return ExchangeStrategies
+            .builder()
+            .codecs {
+                it.defaultCodecs().jackson2JsonDecoder(Jackson2JsonDecoder(objectMapper, MediaType.APPLICATION_JSON))
+                it.defaultCodecs().jackson2JsonEncoder(Jackson2JsonEncoder(objectMapper, MediaType.APPLICATION_JSON))
+            }
+            .build()
+    }
 }

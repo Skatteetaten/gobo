@@ -3,7 +3,7 @@ package no.skatteetaten.aurora.gobo.integration.unclematt
 import assertk.assert
 import assertk.assertions.isEqualTo
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
-import no.skatteetaten.aurora.gobo.integration.createJsonMockResponse
+import no.skatteetaten.aurora.gobo.integration.enqueueJson
 import org.junit.jupiter.api.Test
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.jupiter.api.assertThrows
@@ -17,7 +17,7 @@ class ProbeFireWallTest {
 
     @Test
     fun `happy day`() {
-        server.enqueue(createJsonMockResponse(body = probeResponse))
+        server.enqueueJson(body = probeResponse)
 
         val probeResultList = probeService.probeFirewall("server.test.no", 9999)
 
@@ -26,7 +26,7 @@ class ProbeFireWallTest {
 
     @Test
     fun `throws correct exception when backend returns 404`() {
-        server.enqueue(createJsonMockResponse(status = 404, body = ""))
+        server.enqueueJson(404, "")
 
         assertThrows<SourceSystemException> {
             probeService.probeFirewall("server.test.no", 9999)
