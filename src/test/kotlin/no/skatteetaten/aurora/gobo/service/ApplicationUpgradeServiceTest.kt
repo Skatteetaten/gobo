@@ -1,5 +1,6 @@
 package no.skatteetaten.aurora.gobo.service
 
+import assertk.assertions.isEqualTo
 import com.fasterxml.jackson.databind.node.TextNode
 import io.mockk.every
 import io.mockk.mockk
@@ -14,6 +15,8 @@ import no.skatteetaten.aurora.gobo.security.UserService
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.jupiter.api.Test
 import org.springframework.hateoas.Link
+import reactor.test.StepVerifier
+import assertk.assert
 
 class ApplicationUpgradeServiceTest {
 
@@ -39,13 +42,21 @@ class ApplicationUpgradeServiceTest {
         enqueueRedeploy()
         enqueueRefresh()
 
-        upgradeService.upgrade("applicationDeploymentId", "version")
+        StepVerifier
+            .create(upgradeService.upgrade("applicationDeploymentId", "version"))
+            .verifyComplete()
 
         val getApplicationDeploymentDetailsRequest = server.takeRequest()
         val getApplicationFileRequest = server.takeRequest()
         val patchRequest = server.takeRequest()
         val redeployRequest = server.takeRequest()
         val refreshRequest = server.takeRequest()
+
+        assert(getApplicationDeploymentDetailsRequest.path).isEqualTo("/mokey/api/applicationdeploymentdetails/applicationDeploymentId")
+        assert(getApplicationFileRequest.path).isEqualTo("/boober/FilesCurrent")
+        assert(patchRequest.path).isEqualTo("/boober/AuroraConfigFileCurrent")
+        assert(redeployRequest.path).isEqualTo("/boober/Apply")
+        assert(refreshRequest.path).isEqualTo("/mokey/refresh")
     }
 
     private fun enqueueGetApplicationDeploymentDetails() {
