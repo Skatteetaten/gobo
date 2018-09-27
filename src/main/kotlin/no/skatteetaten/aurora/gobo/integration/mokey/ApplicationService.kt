@@ -31,7 +31,6 @@ class ApplicationService(val webClient: WebClient, val userService: UserService)
         }
     }
 
-
     fun getApplicationDeploymentDetails(applicationDeploymentId: String): Mono<ApplicationDeploymentDetailsResource> {
         return try {
             webClient
