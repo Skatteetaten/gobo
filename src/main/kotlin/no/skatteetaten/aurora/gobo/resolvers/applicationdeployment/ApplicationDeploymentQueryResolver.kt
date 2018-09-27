@@ -10,7 +10,7 @@ class ApplicationDeploymentQueryResolver(private val applicationService: Applica
 
     fun getApplicationDeployment(id: String): ApplicationDeployment? {
 
-        val applicationDeploymentDetails = applicationService.getApplicationDeploymentDetails(id).block()!!
+        val applicationDeploymentDetails = applicationService.getApplicationDeploymentDetailsById(id).block()!!
         val app = applicationDeploymentDetails._embedded?.get("Application")!!
 
         val applicationEdges = createApplicationEdges(listOf(app), listOf(applicationDeploymentDetails))

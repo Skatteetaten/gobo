@@ -13,7 +13,7 @@ class ApplicationQueryResolver(private val applicationService: ApplicationServic
     ): ApplicationsConnection {
 
         // TODO: When applications is set, limit the amount of data collected for ApplicationDeploymentDetails.
-        val details = applicationService.getApplicationDeploymentDetails(affiliations)
+        val details = applicationService.getApplicationDeploymentDetailsByAffiliations(affiliations)
         val applicationResources = applicationService.getApplications(affiliations, applications)
         val applicationEdges = createApplicationEdges(applicationResources, details)
 

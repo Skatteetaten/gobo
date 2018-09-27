@@ -46,7 +46,7 @@ data class ApplicationDeploymentDetailsResource(
     val imageDetails: ImageDetailsResource?,
     val podResources: List<PodResourceResource>,
     val applicationDeploymentCommand: ApplicationDeploymentCommandResource,
-    val _embedded: Map<String, ApplicationResource>? = null
+    val _embedded: Map<String, ApplicationResource> = emptyMap()
 ) : ResourceSupport() {
 
     fun link(rel: String) =
