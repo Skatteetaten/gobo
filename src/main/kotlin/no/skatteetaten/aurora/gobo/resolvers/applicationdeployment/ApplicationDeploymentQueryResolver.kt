@@ -8,12 +8,11 @@ import org.springframework.stereotype.Component
 @Component
 class ApplicationDeploymentQueryResolver(private val applicationService: ApplicationService) : GraphQLQueryResolver {
 
-    fun getApplicationDeployment(id: String): ApplicationDeployment? {
-
-        val applicationDeploymentDetails = applicationService.getApplicationDeploymentDetailsById(id).block()!!
-        val app = applicationDeploymentDetails._embedded?.get("Application")!!
-
-        val applicationEdges = createApplicationEdges(listOf(app), listOf(applicationDeploymentDetails))
-        return applicationEdges.first().node.applicationDeployments.first()
-    }
+    fun getApplicationDeployment(id: String): ApplicationDeployment? =
+        applicationService.getApplicationDeploymentDetailsById(id).block()?.let { details ->
+            details._embedded.get("Application")?.let { app ->
+                val applicationEdges = createApplicationEdges(listOf(app), listOf(details))
+                return applicationEdges.firstOrNull()?.node?.applicationDeployments?.firstOrNull()
+            }
+        }
 }
