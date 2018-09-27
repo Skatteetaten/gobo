@@ -70,13 +70,19 @@ class Link private constructor(val name: String, val url: URL) {
     }
 }
 
+data class DeploymentSpec(val jsonRepresentation: String)
+
+class DeploymentSpecs(
+    val deploymentSpecCurrent: URL?,
+    val deploymentSpecDeployed: URL?
+)
+
 data class ApplicationDeploymentDetails(
     val buildTime: Instant?,
     val imageDetails: ImageDetails?,
     val gitInfo: GitInfo?,
     val podResources: List<PodResource>,
-    val deploymentSpecCurrent: URL?,
-    val deploymentSpecDeployed: URL?
+    val deploymentSpecs: DeploymentSpecs
 ) {
     companion object {
         fun create(resource: ApplicationDeploymentDetailsResource): ApplicationDeploymentDetails {
@@ -85,8 +91,10 @@ data class ApplicationDeploymentDetails(
                 imageDetails = resource.imageDetails?.let { ImageDetails(it.imageBuildTime, it.dockerImageReference) },
                 gitInfo = resource.gitInfo?.let { GitInfo(it.commitId, it.commitTime) },
                 podResources = resource.podResources.map { PodResource.create(it) },
-                deploymentSpecCurrent = resource.getLink("DeploymentSpecCurrent")?.let { URL(it.href) },
-                deploymentSpecDeployed = resource.getLink("DeploymentSpecDeployed")?.let { URL(it.href) }
+                deploymentSpecs = DeploymentSpecs(
+                    deploymentSpecCurrent = resource.getLink("DeploymentSpecCurrent")?.let { URL(it.href) },
+                    deploymentSpecDeployed = resource.getLink("DeploymentSpecDeployed")?.let { URL(it.href) }
+                )
             )
         }
     }

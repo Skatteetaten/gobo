@@ -54,7 +54,8 @@ class ApplicationUpgradeService(
     }
 
     private fun getApplicationFile(token: String, it: String): Mono<String> {
-        return auroraConfigService.get<AuroraConfigFileResource>(token, it)
+        return auroraConfigService
+                .get<AuroraConfigFileResource>(token, it)
             .filter { it.type == AuroraConfigFileType.APP }
             .map { it.name }
             .toMono()
