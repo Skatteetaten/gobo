@@ -31,8 +31,6 @@ class ApplicationService(val webClient: WebClient, val userService: UserService)
         }
     }
 
-    fun getApplicationDeploymentDetails(affiliations: List<String>): List<ApplicationDeploymentDetailsResource> =
-            affiliations.flatMap { getApplicationDeploymentDetailsForAffiliation(it) }
 
     fun getApplicationDeploymentDetails(applicationDeploymentId: String): Mono<ApplicationDeploymentDetailsResource> {
         return try {
@@ -44,20 +42,6 @@ class ApplicationService(val webClient: WebClient, val userService: UserService)
                 .bodyToMono()
         } catch (e: WebClientResponseException) {
             Mono.error(SourceSystemException("Failed to get application deployment details, status:${e.statusCode} message:${e.statusText}", e, e.statusText, "Failed to get application deployment details"))
-        }
-    }
-
-    private fun getApplicationDeploymentDetailsForAffiliation(affiliation: String): List<ApplicationDeploymentDetailsResource> {
-        try {
-            return webClient
-                    .get()
-                    .uri("/api/applicationdeploymentdetails?affiliation={affiliation}", affiliation)
-                    .header(HttpHeaders.AUTHORIZATION, "Bearer ${userService.getToken()}")
-                    .retrieve()
-                    .bodyToMono<List<ApplicationDeploymentDetailsResource>>()
-                    .block() ?: return emptyList()
-        } catch (e: WebClientResponseException) {
-            throw SourceSystemException("Failed to get application deployment details, status:${e.statusCode} message:${e.statusText}", e, e.statusText, "Failed to get application deployment details")
         }
     }
 

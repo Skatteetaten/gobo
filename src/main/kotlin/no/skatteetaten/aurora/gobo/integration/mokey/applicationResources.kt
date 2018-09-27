@@ -79,6 +79,7 @@ data class ApplicationDeploymentResource(
     val namespace: String,
     val status: StatusResource,
     val version: VersionResource,
+    val dockerImageRepo: String,
     val time: Instant
 ) : ResourceSupport()
 

@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.web.reactive.function.BodyInserters
+import reactor.core.publisher.Mono
 import java.time.Instant
 
 @GraphQLTest
@@ -31,10 +32,13 @@ class ApplicationDeploymentDetailsResolverTest {
     @BeforeEach
     fun setUp() {
         val affiliations = listOf("paas")
-        given(applicationService.getApplicationDeploymentDetails(affiliations))
-            .willReturn(listOf(ApplicationDeploymentDetailsBuilder().build()))
+
+        val application = ApplicationResourceBuilder().build()
         given(applicationService.getApplications(affiliations))
-            .willReturn(listOf(ApplicationResourceBuilder().build()))
+            .willReturn(listOf(application))
+
+        given(applicationService.getApplicationDeploymentDetails(application.applicationDeployments.first().identifier))
+            .willReturn(Mono.just(ApplicationDeploymentDetailsBuilder().build()))
     }
 
     @Test

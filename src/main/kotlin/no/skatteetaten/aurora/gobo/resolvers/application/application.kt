@@ -2,13 +2,12 @@ package no.skatteetaten.aurora.gobo.resolvers.application
 
 import graphql.relay.DefaultEdge
 import graphql.relay.PageInfo
+import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationResource
 import no.skatteetaten.aurora.gobo.resolvers.Connection
 import no.skatteetaten.aurora.gobo.resolvers.Cursor
 import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.ApplicationDeployment
 import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.ApplicationDeploymentBuilder
 import no.skatteetaten.aurora.gobo.resolvers.createPageInfo
-import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentDetailsResource
-import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationResource
 
 data class Application(
     val id: String,
@@ -38,9 +37,8 @@ data class ApplicationsConnection(
 ) : Connection<ApplicationEdge>()
 
 fun createApplicationEdges(
-    applicationResources: List<ApplicationResource>,
-    detailResources: List<ApplicationDeploymentDetailsResource>
+    applicationResources: List<ApplicationResource>
 ): List<ApplicationEdge> {
-    val deploymentBuilder = ApplicationDeploymentBuilder(detailResources)
+    val deploymentBuilder = ApplicationDeploymentBuilder()
     return applicationResources.map { ApplicationEdge.create(it, deploymentBuilder.createApplicationDeployments(it)) }
 }

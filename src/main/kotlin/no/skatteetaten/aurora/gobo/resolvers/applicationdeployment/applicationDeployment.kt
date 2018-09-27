@@ -1,9 +1,7 @@
 package no.skatteetaten.aurora.gobo.resolvers.applicationdeployment
 
-import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentDetailsResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationResource
-import no.skatteetaten.aurora.gobo.resolvers.applicationdeploymentdetails.ApplicationDeploymentDetails
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageTag
 import java.time.Instant
@@ -20,11 +18,11 @@ data class ApplicationDeployment(
     val namespaceId: String,
     val status: Status,
     val version: Version,
-    val details: ApplicationDeploymentDetails?,
+    val dockerImageRepo:String?,
     val time: Instant
 ) {
     companion object {
-        fun create(deployment: ApplicationDeploymentResource, details: ApplicationDeploymentDetails?) =
+        fun create(deployment: ApplicationDeploymentResource) =
             ApplicationDeployment(
                 id = deployment.identifier,
                 name = deployment.name,
@@ -39,27 +37,16 @@ data class ApplicationDeployment(
                     deployment.version.auroraVersion,
                     deployment.version.releaseTo
                 ),
-                details = details,
-                time = deployment.time
+                time = deployment.time,
+                dockerImageRepo = deployment.dockerImageRepo
             )
     }
 }
 
-// TODO: Provide better error messages for the double bangs
-class ApplicationDeploymentBuilder(deploymentResources: List<ApplicationDeploymentDetailsResource>) {
-
-    private val detailsIndex = deploymentResources
-        .map { Pair(it.getLink("self")!!.href, it) }
-        .toMap()
+class ApplicationDeploymentBuilder {
 
     fun createApplicationDeployments(appResource: ApplicationResource): List<ApplicationDeployment> {
-
-        return appResource.applicationDeployments.map { deployment ->
-            val detailsLink = deployment.getLink("ApplicationDeploymentDetails")?.href!!
-            val detailsResource = detailsIndex[detailsLink]!!
-            val applicationDeploymentDetails = ApplicationDeploymentDetails.create(detailsResource)
-            ApplicationDeployment.create(deployment, applicationDeploymentDetails)
-        }
+        return appResource.applicationDeployments.map { ApplicationDeployment.create(it) }
     }
 }
 

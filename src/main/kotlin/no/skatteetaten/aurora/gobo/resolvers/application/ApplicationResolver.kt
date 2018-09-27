@@ -17,7 +17,7 @@ class ApplicationResolver(private val registryMetadataResolver: RegistryMetadata
          * internal OpenShift cluster. The assumption is that this will be the "correct" repository for the application.
          */
         get(): ImageRepository? = this.applicationDeployments.asSequence()
-            .mapNotNull { it.details?.imageDetails?.dockerImageRepo }
+            .mapNotNull { it.dockerImageRepo }
             .map { ImageRepository.fromRepoString(it) }
             .firstOrNull {
                 val metadata = registryMetadataResolver.getMetadataForRegistry(it.registryUrl)

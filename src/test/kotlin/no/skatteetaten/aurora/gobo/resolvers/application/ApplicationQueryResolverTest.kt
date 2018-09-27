@@ -1,6 +1,5 @@
 package no.skatteetaten.aurora.gobo.resolvers.application
 
-import no.skatteetaten.aurora.gobo.ApplicationDeploymentDetailsBuilder
 import no.skatteetaten.aurora.gobo.ApplicationResourceBuilder
 import no.skatteetaten.aurora.gobo.GraphQLTest
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
@@ -30,8 +29,6 @@ class ApplicationQueryResolverTest {
     @Test
     fun `Query for applications given affiliations`() {
         val affiliations = listOf("paas")
-        given(applicationService.getApplicationDeploymentDetails(affiliations))
-            .willReturn(listOf(ApplicationDeploymentDetailsBuilder().build()))
         given(applicationService.getApplications(affiliations))
             .willReturn(listOf(ApplicationResourceBuilder().build()))
 
