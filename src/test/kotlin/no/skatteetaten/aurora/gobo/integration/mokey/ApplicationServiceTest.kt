@@ -35,7 +35,7 @@ class ApplicationServiceTest {
     fun `Verify deserialization of embedded resources works correctly`() {
 
         val details = applicationService.getApplicationDeploymentDetailsById("appId").block()!!
-        val applicationResource = details._embedded["Application"]!!
+        val applicationResource = details.embeddedApplication!!
 
         println(applicationResource)
         assert(applicationResource.identifier).isEqualTo("appId")
