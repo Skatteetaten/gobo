@@ -30,7 +30,7 @@ class ApplicationQueryResolverTest {
     @Test
     fun `Query for applications given affiliations`() {
         val affiliations = listOf("paas")
-        given(applicationService.getApplicationDeploymentDetails(affiliations))
+        given(applicationService.getApplicationDeploymentDetailsByAffiliations(affiliations))
             .willReturn(listOf(ApplicationDeploymentDetailsBuilder().build()))
         given(applicationService.getApplications(affiliations))
             .willReturn(listOf(ApplicationResourceBuilder().build()))

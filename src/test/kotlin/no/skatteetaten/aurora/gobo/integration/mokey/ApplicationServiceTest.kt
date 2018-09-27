@@ -1,6 +1,8 @@
 package no.skatteetaten.aurora.gobo.integration.mokey
 
 import assertk.assert
+import assertk.assertions.hasSize
+import assertk.assertions.isEqualTo
 import assertk.assertions.isNotEmpty
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -25,7 +27,18 @@ class ApplicationServiceTest {
 
     @Test
     fun `Get application deployment details for affiliation`() {
-        val details = applicationService.getApplicationDeploymentDetails(listOf("paas"))
+        val details = applicationService.getApplicationDeploymentDetailsByAffiliations(listOf("paas"))
         assert(details).isNotEmpty()
+    }
+
+    @Test
+    fun `Verify deserialization of embedded resources works correctly`() {
+
+        val details = applicationService.getApplicationDeploymentDetailsById("appId").block()!!
+        val applicationResource = details.embeddedApplication!!
+
+        assert(applicationResource.identifier).isEqualTo("appId")
+        assert(applicationResource.name).isEqualTo("test")
+        assert(applicationResource.applicationDeployments).hasSize(1)
     }
 }

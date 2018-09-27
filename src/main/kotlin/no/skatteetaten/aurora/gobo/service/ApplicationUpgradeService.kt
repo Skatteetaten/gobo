@@ -30,7 +30,7 @@ class ApplicationUpgradeService(
 
     fun upgrade(applicationDeploymentId: String, version: String): Mono<Void> {
         val token = userService.getToken()
-        return applicationService.getApplicationDeploymentDetails(applicationDeploymentId)
+        return applicationService.getApplicationDeploymentDetailsById(applicationDeploymentId)
             .flatMap { details ->
 
                 val currentLink = details.link("FilesCurrent")
@@ -54,7 +54,8 @@ class ApplicationUpgradeService(
     }
 
     private fun getApplicationFile(token: String, it: String): Mono<String> {
-        return auroraConfigService.get<AuroraConfigFileResource>(token, it)
+        return auroraConfigService
+                .get<AuroraConfigFileResource>(token, it)
             .filter { it.type == AuroraConfigFileType.APP }
             .map { it.name }
             .toMono()

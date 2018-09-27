@@ -31,10 +31,10 @@ class ApplicationService(val webClient: WebClient, val userService: UserService)
         }
     }
 
-    fun getApplicationDeploymentDetails(affiliations: List<String>): List<ApplicationDeploymentDetailsResource> =
+    fun getApplicationDeploymentDetailsByAffiliations(affiliations: List<String>): List<ApplicationDeploymentDetailsResource> =
             affiliations.flatMap { getApplicationDeploymentDetailsForAffiliation(it) }
 
-    fun getApplicationDeploymentDetails(applicationDeploymentId: String): Mono<ApplicationDeploymentDetailsResource> {
+    fun getApplicationDeploymentDetailsById(applicationDeploymentId: String): Mono<ApplicationDeploymentDetailsResource> {
         return try {
             webClient
                 .get()

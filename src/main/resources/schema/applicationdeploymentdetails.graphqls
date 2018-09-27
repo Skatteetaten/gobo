@@ -33,11 +33,19 @@ type Link {
   url: URL
 }
 
+type DeploymentSpec {
+    jsonRepresentation: String
+}
+
+type DeploymentSpecs {
+    current: DeploymentSpec
+    deployed: DeploymentSpec
+}
+
 type ApplicationDeploymentDetails {
   buildTime: String
   gitInfo: GitInfo
   imageDetails: ImageDetails
   podResources: [PodResource]
-  deploymentSpecCurrent: URL
-  deploymentSpecDeployed: URL
+  deploymentSpecs: DeploymentSpecs
 }

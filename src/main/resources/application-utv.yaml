@@ -6,3 +6,12 @@ boober:
 
 docker-registry:
     url: https://uil0paas-utv-registry01.skead.no:5000
+
+logging:
+    level:
+        no.skatteetaten.aurora.gobo: DEBUG
+        org:
+            springframework: WARN
+            apache:
+                catalina: WARN
+                velocity: WARN
