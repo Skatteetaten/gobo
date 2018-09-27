@@ -29,19 +29,19 @@ data class PodResource(
 ) {
     companion object {
         fun create(resource: PodResourceResource) =
-                PodResource(
-                        resource.name,
-                        resource.status,
-                        resource.restartCount,
-                        resource.ready,
-                        resource.startTime,
-                        resource.links.map { Link.create(it) },
-                        resource.managementResponses?.let { managementResponses ->
-                            val health = managementResponses.health?.let { HttpResponse(it.textResponse, it.createdAt) }
-                            val info = managementResponses.info?.let { HttpResponse(it.textResponse, it.createdAt) }
-                            ManagementResponses(health, info)
-                        }
-                )
+            PodResource(
+                resource.name,
+                resource.status,
+                resource.restartCount,
+                resource.ready,
+                resource.startTime,
+                resource.links.map { Link.create(it) },
+                resource.managementResponses?.let { managementResponses ->
+                    val health = managementResponses.health?.let { HttpResponse(it.textResponse, it.createdAt) }
+                    val info = managementResponses.info?.let { HttpResponse(it.textResponse, it.createdAt) }
+                    ManagementResponses(health, info)
+                }
+            )
     }
 
     fun links(names: List<String>?): List<Link> {
@@ -90,14 +90,14 @@ data class ApplicationDeploymentDetails(
     companion object {
         fun create(resource: ApplicationDeploymentDetailsResource): ApplicationDeploymentDetails {
             return ApplicationDeploymentDetails(
-                    buildTime = resource.buildTime,
-                    imageDetails = resource.imageDetails?.let { ImageDetails(it.imageBuildTime, it.dockerImageReference) },
-                    gitInfo = resource.gitInfo?.let { GitInfo(it.commitId, it.commitTime) },
-                    podResources = resource.podResources.map { PodResource.create(it) },
-                    deploymentSpecs = DeploymentSpecs(
-                            deploymentSpecCurrent = resource.getLink("DeploymentSpecCurrent")?.let { URL(it.href) },
-                            deploymentSpecDeployed = resource.getLink("DeploymentSpecDeployed")?.let { URL(it.href) }
-                    )
+                buildTime = resource.buildTime,
+                imageDetails = resource.imageDetails?.let { ImageDetails(it.imageBuildTime, it.dockerImageReference) },
+                gitInfo = resource.gitInfo?.let { GitInfo(it.commitId, it.commitTime) },
+                podResources = resource.podResources.map { PodResource.create(it) },
+                deploymentSpecs = DeploymentSpecs(
+                    deploymentSpecCurrent = resource.getLink("DeploymentSpecCurrent")?.let { URL(it.href) },
+                    deploymentSpecDeployed = resource.getLink("DeploymentSpecDeployed")?.let { URL(it.href) }
+                )
             )
         }
     }
