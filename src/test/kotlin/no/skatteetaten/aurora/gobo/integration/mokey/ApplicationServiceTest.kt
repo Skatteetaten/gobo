@@ -37,7 +37,6 @@ class ApplicationServiceTest {
         val details = applicationService.getApplicationDeploymentDetailsById("appId").block()!!
         val applicationResource = details.embeddedApplication!!
 
-        println(applicationResource)
         assert(applicationResource.identifier).isEqualTo("appId")
         assert(applicationResource.name).isEqualTo("test")
         assert(applicationResource.applicationDeployments).hasSize(1)
