@@ -10,7 +10,6 @@ import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.core.publisher.toFlux
 
-
 @Component
 class ApplicationDeploymentDetailsDataLoader(
     private val applicationService: ApplicationService,

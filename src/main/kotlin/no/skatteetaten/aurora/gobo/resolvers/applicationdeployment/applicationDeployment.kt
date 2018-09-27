@@ -18,7 +18,7 @@ data class ApplicationDeployment(
     val namespaceId: String,
     val status: Status,
     val version: Version,
-    val dockerImageRepo:String?,
+    val dockerImageRepo: String?,
     val time: Instant
 ) {
     companion object {

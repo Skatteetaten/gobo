@@ -14,7 +14,6 @@ interface KeysDataLoaderFlux<K, V> {
     fun getByKeys(keys: List<K>): Flux<V>
 }
 
-
 class NoCacheBatchDataLoader<K, V>(keysDataLoader: KeysDataLoader<K, V>) :
     DataLoader<K, V>(BatchLoader { keys: List<K> ->
         CompletableFuture.supplyAsync {
