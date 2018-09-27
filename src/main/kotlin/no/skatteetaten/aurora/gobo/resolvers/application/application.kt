@@ -24,8 +24,8 @@ data class ApplicationEdge(private val node: Application) : DefaultEdge<Applicat
         fun create(resource: ApplicationResource, applicationDeployments: List<ApplicationDeployment>) =
             ApplicationEdge(
                 Application(
-                    resource.identifier!!,
-                    resource.name!!,
+                    resource.identifier,
+                    resource.name,
                     applicationDeployments
                 )
             )
