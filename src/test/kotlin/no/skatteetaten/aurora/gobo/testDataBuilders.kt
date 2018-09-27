@@ -53,7 +53,8 @@ data class ApplicationDeploymentResourceBuilder(val affiliation: String = "paas"
             "environment",
             "namespace",
             StatusResource("code", "comment"),
-            VersionResource("deployTag", "auroraVersion")
+            VersionResource("deployTag", "auroraVersion", "releaseTo"),
+            Instant.EPOCH
         ).apply {
             add(Link("http://ApplicationDeploymentDetails/1", "ApplicationDeploymentDetails"))
         }
@@ -79,8 +80,9 @@ data class ApplicationDeploymentBuilder(val affiliation: String = "paas") {
             "environment",
             "namespaceId",
             Status("code", "comment"),
-            Version(ImageTag(ImageRepository("", "", ""), "deployTag"), "auroraVersion"),
-            null
+            Version(ImageTag(ImageRepository("", "", ""), "deployTag"), "auroraVersion", "releaseTo"),
+            null,
+            Instant.EPOCH
         )
 }
 

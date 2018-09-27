@@ -7,6 +7,7 @@ type ApplicationDeployment {
   status: Status!
   version: Version!
   details: ApplicationDeploymentDetails
+  time: DateTime
 }
 
 type Status {
@@ -17,6 +18,7 @@ type Status {
 type Version {
   deployTag: ImageTag
   auroraVersion: String
+  releaseTo:String
 }
 
 input ApplicationDeploymentVersionInput {
