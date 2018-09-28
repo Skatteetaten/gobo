@@ -84,8 +84,7 @@ class AuroraConfigService(
                 }
             }
             .bodyToMono()
-        return response
-            .flatMapMany { r ->
+        return response.flatMapMany { r ->
                 if (!r.success) SourceSystemException(r.message).toFlux()
                 else if (r.count == 0) Flux.empty()
                 else r.items.map { item -> createObjectMapper().convertValue(item, T::class.java) }.toFlux()
