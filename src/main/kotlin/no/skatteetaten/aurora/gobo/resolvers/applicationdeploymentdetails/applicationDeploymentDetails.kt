@@ -13,10 +13,7 @@ data class GitInfo(
 data class ImageDetails(
     val imageBuildTime: Instant?,
     val dockerImageReference: String?
-) {
-    val dockerImageRepo: String?
-        get() = dockerImageReference?.replace(Regex("@.*$"), "")
-}
+)
 
 data class PodResource(
     val name: String,

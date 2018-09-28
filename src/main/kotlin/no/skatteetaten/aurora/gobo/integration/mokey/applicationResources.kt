@@ -45,19 +45,13 @@ data class ApplicationDeploymentDetailsResource(
     val gitInfo: GitInfoResource?,
     val imageDetails: ImageDetailsResource?,
     val podResources: List<PodResourceResource>,
-    val applicationDeploymentCommand: ApplicationDeploymentCommandResource,
-    // Using Map<String, ApplicationResource> as a type here is kind of hackish but it works well with regards to
-    // deserialization since there is only one embedded resource in this case. This should probably be made more
-    // robust, though.
-    val _embedded: Map<String, ApplicationResource> = emptyMap()
+    val applicationDeploymentCommand: ApplicationDeploymentCommandResource
 ) : ResourceSupport() {
 
     fun link(rel: String) =
         links.firstOrNull { it.rel == rel }?.href?.let {
             UriUtils.decode(it, Charset.defaultCharset())
         } ?: throw SourceSystemException("Link with rel $rel was not found")
-
-    val embeddedApplication: ApplicationResource? get() = _embedded["Application"]
 }
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -85,6 +79,7 @@ data class ApplicationDeploymentResource(
     val namespace: String,
     val status: StatusResource,
     val version: VersionResource,
+    val dockerImageRepo: String?,
     val time: Instant
 ) : ResourceSupport()
 

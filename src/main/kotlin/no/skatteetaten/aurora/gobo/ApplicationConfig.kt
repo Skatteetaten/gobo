@@ -1,7 +1,9 @@
 package no.skatteetaten.aurora.gobo
 
+import io.netty.channel.ChannelOption
 import io.netty.handler.ssl.SslContextBuilder
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory
+import io.netty.handler.timeout.ReadTimeoutHandler
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
@@ -15,7 +17,7 @@ import org.springframework.http.codec.json.Jackson2JsonDecoder
 import org.springframework.http.codec.json.Jackson2JsonEncoder
 import org.springframework.web.reactive.function.client.ExchangeStrategies
 import org.springframework.web.reactive.function.client.WebClient
-import io.netty.channel.ChannelOption
+import java.util.concurrent.TimeUnit
 
 enum class ServiceTypes {
     MOKEY, DOCKER, BOOBER, UNCLEMATT
@@ -99,7 +101,11 @@ class ApplicationConfig(
 
     private fun clientConnector() =
         ReactorClientHttpConnector { options ->
-            options.option(ChannelOption.SO_TIMEOUT, readTimeout)
-            options.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectionTimeout)
+            options
+                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectionTimeout)
+                .compression(true)
+                .afterNettyContextInit {
+                    it.addHandlerLast(ReadTimeoutHandler(readTimeout.toLong(), TimeUnit.MILLISECONDS))
+            }
         }
 }

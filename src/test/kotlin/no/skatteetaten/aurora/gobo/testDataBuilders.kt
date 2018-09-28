@@ -47,14 +47,15 @@ val healthResponseJson: String = """{"status": "UP"}"""
 data class ApplicationDeploymentResourceBuilder(val affiliation: String = "paas") {
     fun build(): ApplicationDeploymentResource =
         ApplicationDeploymentResource(
-            "id",
-            "name",
-            affiliation,
-            "environment",
-            "namespace",
-            StatusResource("code", "comment"),
-            VersionResource("deployTag", "auroraVersion", "releaseTo"),
-            Instant.EPOCH
+            identifier = "id",
+            name = "name",
+            affiliation = affiliation,
+            environment = "environment",
+            namespace = "namespace",
+            status = StatusResource("code", "comment"),
+            version = VersionResource("deployTag", "auroraVersion", "releaseTo"),
+            dockerImageRepo = "dockerImageRepo",
+            time = Instant.EPOCH
         ).apply {
             add(Link("http://ApplicationDeploymentDetails/1", "ApplicationDeploymentDetails"))
         }
@@ -74,15 +75,15 @@ data class ApplicationDeploymentBuilder(val affiliation: String = "paas") {
 
     fun build(): ApplicationDeployment =
         ApplicationDeployment(
-            "id",
-            "name",
-            affiliation,
-            "environment",
-            "namespaceId",
-            Status("code", "comment"),
-            Version(ImageTag(ImageRepository("", "", ""), "deployTag"), "auroraVersion", "releaseTo"),
-            null,
-            Instant.EPOCH
+            id = "id",
+            name = "name",
+            affiliationId = affiliation,
+            environment = "environment",
+            namespaceId = "namespaceId",
+            status = Status("code", "comment"),
+            version = Version(ImageTag(ImageRepository("", "", ""), "deployTag"), "auroraVersion", "releaseTo"),
+            dockerImageRepo = "dockerImageRepo",
+            time = Instant.EPOCH
         )
 }
 
@@ -95,12 +96,12 @@ data class ApplicationDeploymentDetailsBuilder(val resourceLinks: List<Link> = e
             ImageDetailsResource(Instant.now(), "dockerImageReference"),
             listOf(
                 PodResourceResource(
-                    "name",
-                    "status",
-                    0,
-                    true,
-                    Instant.now(),
-                    ManagementResponsesResource(
+                    name = "name",
+                    status = "status",
+                    restartCount = 0,
+                    ready = true,
+                    startTime = Instant.now(),
+                    managementResponses = ManagementResponsesResource(
                         HttpResponseResource(healthResponseJson, defaultInstant),
                         HttpResponseResource(infoResponseJson, defaultInstant)
                     )
