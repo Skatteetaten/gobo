@@ -37,6 +37,12 @@ fun MockWebServer.execute(status: Int, response: Any, fn: () -> Unit): RecordedR
     return this.takeRequest()
 }
 
+fun MockWebServer.execute(response: MockResponse, fn: () -> Unit): RecordedRequest {
+    this.enqueue(response)
+    fn()
+    return this.takeRequest()
+}
+
 fun MockWebServer.execute(response: Any, fn: () -> Unit): RecordedRequest {
     this.enqueueJson(body = response)
     fn()
