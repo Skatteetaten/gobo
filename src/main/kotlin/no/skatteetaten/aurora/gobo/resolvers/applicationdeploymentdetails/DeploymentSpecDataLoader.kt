@@ -37,12 +37,7 @@ class DeploymentSpecDataLoader(
                 Try.tryCall {
                     configService.get<String>(userService.getToken(), url.toString())
                         .toMono()
-                        .doOnError {
-                            logger.error("Failed geetting DeploymentSpec with uri=$url", it)
-                        }
-                        .map {
-                            DeploymentSpec(jsonRepresentation = it)
-                        }
+                        .map { DeploymentSpec(jsonRepresentation = it) }
                         .block() ?: throw IllegalArgumentException("Empty DeploymentSpec with url=$url")
                 }
             }
