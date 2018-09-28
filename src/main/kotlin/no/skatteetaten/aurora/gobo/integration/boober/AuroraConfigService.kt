@@ -19,7 +19,7 @@ import java.net.URI
 
 @Service
 class AuroraConfigService(
-    @Value("\${boober.url:}") val booberUrl: String?,
+    @Value("\${gobo.boober.url:}") val booberUrl: String?,
     @TargetService(ServiceTypes.BOOBER) val webClient: WebClient
 ) {
 
@@ -84,10 +84,10 @@ class AuroraConfigService(
             }
             .bodyToMono()
         return response.flatMapMany { r ->
-            if (!r.success) SourceSystemException(r.message).toFlux()
-            else if (r.count == 0) Flux.empty()
-            else r.items.map { item -> createObjectMapper().convertValue(item, T::class.java) }.toFlux()
-        }
+                if (!r.success) SourceSystemException(r.message).toFlux()
+                else if (r.count == 0) Flux.empty()
+                else r.items.map { item -> createObjectMapper().convertValue(item, T::class.java) }.toFlux()
+            }
     }
 }
 

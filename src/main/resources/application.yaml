@@ -1,8 +1,51 @@
+info:
+    dependencies:
+        mokey: ${gobo.mokey.url}
+        boober: ${gobo.boober.url}
+        docker: ${gobo.docker-registry.url}
+        unclematt: ${gobo.unclematt.url}
+
 spring:
     profiles:
-        active: utv
-mokey:
-    url: http://localhost:9876
+        active: local
 
-unclematt:
-    url: http://localhost:9877
+gobo:
+    mokey:
+        url: http://mokey
+    boober:
+        url: http://boober
+    docker-registry:
+        url: https://docker-registry.aurora.sits.no:5000
+    unclematt:
+        url: http://unclematt-aurora-daemons.utv.paas.skead.no
+aurora:
+    starter:
+        headerfilter:
+            enabled: false
+
+logging:
+    level:
+        no.skatteetaten.aurora.gobo: DEBUG
+        no.skatteetaten: INFO
+        org:
+            jboss: WARN
+            hibernate: WARN
+            springframework: WARN
+            apache: WARN
+---
+spring:
+    profiles: local
+
+gobo:
+    boober:
+        url: http://boober-aurora.utv.paas.skead.no
+    mokey:
+        url: http://mokey-aurora.utv.paas.skead.no
+
+management:
+    server:
+        port: 8081
+
+---
+spring:
+    profiles: openshift

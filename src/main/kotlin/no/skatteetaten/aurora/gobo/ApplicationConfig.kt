@@ -18,6 +18,8 @@ import org.springframework.http.codec.json.Jackson2JsonEncoder
 import org.springframework.web.reactive.function.client.ExchangeStrategies
 import org.springframework.web.reactive.function.client.WebClient
 import java.util.concurrent.TimeUnit
+import reactor.core.publisher.Mono
+import org.springframework.web.reactive.function.client.ExchangeFilterFunction
 
 enum class ServiceTypes {
     MOKEY, DOCKER, BOOBER, UNCLEMATT
@@ -30,8 +32,8 @@ annotation class TargetService(val value: ServiceTypes)
 
 @Configuration
 class ApplicationConfig(
-    @Value("\${mokey.url}") val mokeyUrl: String,
-    @Value("\${unclematt.url}") val uncleMattUrl: String,
+    @Value("\${gobo.mokey.url}") val mokeyUrl: String,
+    @Value("\${gobo.unclematt.url}") val uncleMattUrl: String,
     @Value("\${gobo.webclient.read-timeout:30000}") val readTimeout: Int,
     @Value("\${gobo.webclient.connection-timeout:30000}") val connectionTimeout: Int
 ) {
@@ -77,16 +79,25 @@ class ApplicationConfig(
             .build()
     }
 
+    var logRequestFilter: ExchangeFilterFunction = ExchangeFilterFunction { request, next ->
+        logger.debug("HttpRequest method=${request.method()} url=${request.url()}")
+        next.exchange(request)
+    }
+
+
     @Bean
     @TargetService(ServiceTypes.BOOBER)
     fun webClientBoober() = webClientBuilder().build()
 
-    private fun webClientBuilder() =
-        WebClient
+    private fun webClientBuilder(): WebClient.Builder {
+
+        return WebClient
             .builder()
             .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .exchangeStrategies(exchangeStrategies())
+            .filter(logRequestFilter)
             .clientConnector(clientConnector())
+    }
 
     private fun exchangeStrategies(): ExchangeStrategies {
         val objectMapper = createObjectMapper()
@@ -106,6 +117,6 @@ class ApplicationConfig(
                 .compression(true)
                 .afterNettyContextInit {
                     it.addHandlerLast(ReadTimeoutHandler(readTimeout.toLong(), TimeUnit.MILLISECONDS))
-            }
+                }
         }
 }
