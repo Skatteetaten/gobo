@@ -5,6 +5,7 @@ import no.skatteetaten.aurora.gobo.TargetService
 import no.skatteetaten.aurora.gobo.createObjectMapper
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentRefResource
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
@@ -22,6 +23,8 @@ class AuroraConfigService(
     @Value("\${boober.url:}") val booberUrl: String?,
     @TargetService(ServiceTypes.BOOBER) val webClient: WebClient
 ) {
+
+    val logger = LoggerFactory.getLogger(AuroraConfigService::class.java)
 
     final inline fun <reified T : Any> get(token: String, url: String, params: List<String> = emptyList()): Flux<T> =
         execute(token) {
@@ -83,11 +86,13 @@ class AuroraConfigService(
                 }
             }
             .bodyToMono()
-        return response.flatMapMany { r ->
-            if (!r.success) SourceSystemException(r.message).toFlux()
-            else if (r.count == 0) Flux.empty()
-            else r.items.map { item -> createObjectMapper().convertValue(item, T::class.java) }.toFlux()
-        }
+        return response
+            .doOnEach { signal -> signal.get()?.let { logger.debug("Response=$it") } }
+            .flatMapMany { r ->
+                if (!r.success) SourceSystemException(r.message).toFlux()
+                else if (r.count == 0) Flux.empty()
+                else r.items.map { item -> createObjectMapper().convertValue(item, T::class.java) }.toFlux()
+            }
     }
 }
 
