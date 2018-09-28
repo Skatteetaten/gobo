@@ -32,8 +32,8 @@ annotation class TargetService(val value: ServiceTypes)
 
 @Configuration
 class ApplicationConfig(
-    @Value("\${mokey.url}") val mokeyUrl: String,
-    @Value("\${unclematt.url}") val uncleMattUrl: String,
+    @Value("\${gobo.mokey.url}") val mokeyUrl: String,
+    @Value("\${gobo.unclematt.url}") val uncleMattUrl: String,
     @Value("\${gobo.webclient.read-timeout:30000}") val readTimeout: Int,
     @Value("\${gobo.webclient.connection-timeout:30000}") val connectionTimeout: Int
 ) {
@@ -80,14 +80,10 @@ class ApplicationConfig(
     }
 
     var logRequestFilter: ExchangeFilterFunction = ExchangeFilterFunction { request, next ->
-        logger.debug("method=${request.method()} url=${request.url()}")
+        logger.debug("HttpRequest method=${request.method()} url=${request.url()}")
         next.exchange(request)
     }
 
-    val logResponseFilter = ExchangeFilterFunction.ofResponseProcessor { clientResponse ->
-        logger.debug("Response status=${clientResponse.statusCode()}")
-        Mono.just(clientResponse)
-    }
 
     @Bean
     @TargetService(ServiceTypes.BOOBER)
@@ -100,7 +96,6 @@ class ApplicationConfig(
             .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .exchangeStrategies(exchangeStrategies())
             .filter(logRequestFilter)
-            .filter(logResponseFilter)
             .clientConnector(clientConnector())
     }
 

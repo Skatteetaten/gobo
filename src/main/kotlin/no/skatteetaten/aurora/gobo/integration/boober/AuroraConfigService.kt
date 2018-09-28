@@ -19,7 +19,7 @@ import java.net.URI
 
 @Service
 class AuroraConfigService(
-    @Value("\${boober.url:}") val booberUrl: String?,
+    @Value("\${gobo.boober.url:}") val booberUrl: String?,
     @TargetService(ServiceTypes.BOOBER) val webClient: WebClient
 ) {
 

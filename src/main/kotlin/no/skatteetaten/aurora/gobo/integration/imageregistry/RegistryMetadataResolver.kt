@@ -19,7 +19,7 @@ interface RegistryMetadataResolver {
 }
 
 @Component
-class DefaultRegistryMetadataResolver(@Value("\${internal-registry:docker-registry.default.svc:5000}") val internalRegistryAddress: String) :
+class DefaultRegistryMetadataResolver(@Value("\${gobo.internal-registry.url:docker-registry.default.svc:5000}") val internalRegistryAddress: String) :
     RegistryMetadataResolver {
 
     override fun getMetadataForRegistry(registry: String): RegistryMetadata {
