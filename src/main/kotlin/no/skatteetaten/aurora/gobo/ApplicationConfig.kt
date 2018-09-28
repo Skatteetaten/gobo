@@ -3,6 +3,7 @@ package no.skatteetaten.aurora.gobo
 import io.netty.channel.ChannelOption
 import io.netty.handler.ssl.SslContextBuilder
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory
+import io.netty.handler.timeout.ReadTimeoutHandler
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
@@ -16,6 +17,7 @@ import org.springframework.http.codec.json.Jackson2JsonDecoder
 import org.springframework.http.codec.json.Jackson2JsonEncoder
 import org.springframework.web.reactive.function.client.ExchangeStrategies
 import org.springframework.web.reactive.function.client.WebClient
+import java.util.concurrent.TimeUnit
 
 enum class ServiceTypes {
     MOKEY, DOCKER, BOOBER, UNCLEMATT
@@ -99,8 +101,11 @@ class ApplicationConfig(
 
     private fun clientConnector() =
         ReactorClientHttpConnector { options ->
-            //  options.option(ChannelOption.SO_TIMEOUT, readTimeout)
-            // TODO : 2018-09-27 13:03:01.263  WARN 15418 --- [nio-8080-exec-2] io.netty.bootstrap.Bootstrap             : Unknown channel option 'SO_TIMEOUT' for channel '[id: 0x05d7d03e]'
-            options.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectionTimeout)
+            options
+                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectionTimeout)
+                .compression(true)
+                .afterNettyContextInit {
+                    it.addHandlerLast(ReadTimeoutHandler(readTimeout.toLong(), TimeUnit.MILLISECONDS))
+            }
         }
 }
