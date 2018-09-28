@@ -29,8 +29,6 @@ class DeploymentSpecDataLoader(
 
         logger.debug("Loading ${keys.size} DeploymentSpecs from boober (${keys.toSet().size} unique)")
 
-        val token = userService.getToken()
-
         val sw = StopWatch()
         val specs: List<Try<DeploymentSpec>> = sw.time("Fetch ${keys.size} DeploymentSpecs") {
             keys.map { url ->
