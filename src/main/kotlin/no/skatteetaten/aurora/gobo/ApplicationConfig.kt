@@ -18,6 +18,8 @@ import org.springframework.http.codec.json.Jackson2JsonEncoder
 import org.springframework.web.reactive.function.client.ExchangeStrategies
 import org.springframework.web.reactive.function.client.WebClient
 import java.util.concurrent.TimeUnit
+import reactor.core.publisher.Mono
+import org.springframework.web.reactive.function.client.ExchangeFilterFunction
 
 enum class ServiceTypes {
     MOKEY, DOCKER, BOOBER, UNCLEMATT
@@ -77,16 +79,30 @@ class ApplicationConfig(
             .build()
     }
 
+    var logRequestFilter: ExchangeFilterFunction = ExchangeFilterFunction { request, next ->
+        logger.debug("method=${request.method()} url=${request.url()}")
+        next.exchange(request)
+    }
+
+    val logResponseFilter = ExchangeFilterFunction.ofResponseProcessor { clientResponse ->
+        logger.debug("Response status=${clientResponse.statusCode()}")
+        Mono.just(clientResponse)
+    }
+
     @Bean
     @TargetService(ServiceTypes.BOOBER)
     fun webClientBoober() = webClientBuilder().build()
 
-    private fun webClientBuilder() =
-        WebClient
+    private fun webClientBuilder(): WebClient.Builder {
+
+        return WebClient
             .builder()
             .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .exchangeStrategies(exchangeStrategies())
+            .filter(logRequestFilter)
+            .filter(logResponseFilter)
             .clientConnector(clientConnector())
+    }
 
     private fun exchangeStrategies(): ExchangeStrategies {
         val objectMapper = createObjectMapper()
@@ -106,6 +122,6 @@ class ApplicationConfig(
                 .compression(true)
                 .afterNettyContextInit {
                     it.addHandlerLast(ReadTimeoutHandler(readTimeout.toLong(), TimeUnit.MILLISECONDS))
-            }
+                }
         }
 }

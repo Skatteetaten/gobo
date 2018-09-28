@@ -24,8 +24,6 @@ class AuroraConfigService(
     @TargetService(ServiceTypes.BOOBER) val webClient: WebClient
 ) {
 
-    val logger = LoggerFactory.getLogger(AuroraConfigService::class.java)
-
     final inline fun <reified T : Any> get(token: String, url: String, params: List<String> = emptyList()): Flux<T> =
         execute(token) {
             it.get().uri(getBooberUrl(url), params)
@@ -87,7 +85,6 @@ class AuroraConfigService(
             }
             .bodyToMono()
         return response
-            .doOnEach { signal -> signal.get()?.let { logger.debug("Response=$it") } }
             .flatMapMany { r ->
                 if (!r.success) SourceSystemException(r.message).toFlux()
                 else if (r.count == 0) Flux.empty()
