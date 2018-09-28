@@ -19,6 +19,7 @@ import org.springframework.web.reactive.function.client.ExchangeStrategies
 import org.springframework.web.reactive.function.client.WebClient
 import java.util.concurrent.TimeUnit
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction
+import reactor.core.publisher.Mono
 
 enum class ServiceTypes {
     MOKEY, DOCKER, BOOBER, UNCLEMATT
@@ -64,37 +65,23 @@ class ApplicationConfig(
 
     @Bean
     @TargetService(ServiceTypes.DOCKER)
-    fun webClientDocker(): WebClient {
-
-        // TODO: this should really use the built in trust?
-        val sslContext = SslContextBuilder
-            .forClient()
-            .trustManager(InsecureTrustManagerFactory.INSTANCE)
-            .build()
-
-        val httpConnector = ReactorClientHttpConnector { opt -> opt.sslContext(sslContext) }
-        return webClientBuilder()
-            .clientConnector(httpConnector)
-            .build()
-    }
-
-    var logRequestFilter: ExchangeFilterFunction = ExchangeFilterFunction { request, next ->
-        logger.debug("HttpRequest method=${request.method()} url=${request.url()}")
-        next.exchange(request)
-    }
+    fun webClientDocker() = webClientBuilder(ssl = true).build()
 
     @Bean
     @TargetService(ServiceTypes.BOOBER)
     fun webClientBoober() = webClientBuilder().build()
 
-    private fun webClientBuilder(): WebClient.Builder {
+    private fun webClientBuilder(ssl: Boolean = false): WebClient.Builder {
 
         return WebClient
             .builder()
             .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .exchangeStrategies(exchangeStrategies())
-            .filter(logRequestFilter)
-            .clientConnector(clientConnector())
+            .filter(ExchangeFilterFunction.ofRequestProcessor {
+                logger.debug("HttpRequest method=${it.method()} url=${it.url()}")
+                Mono.just(it)
+            })
+            .clientConnector(clientConnector(ssl))
     }
 
     private fun exchangeStrategies(): ExchangeStrategies {
@@ -108,8 +95,16 @@ class ApplicationConfig(
             .build()
     }
 
-    private fun clientConnector() =
+    private fun clientConnector(ssl: Boolean = false) =
         ReactorClientHttpConnector { options ->
+            if (ssl) {
+                val sslContext = SslContextBuilder
+                    .forClient()
+                    .trustManager(InsecureTrustManagerFactory.INSTANCE)
+                    .build()
+                options.sslContext(sslContext)
+            }
+
             options
                 .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectionTimeout)
                 .compression(true)
