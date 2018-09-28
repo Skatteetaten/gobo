@@ -23,7 +23,7 @@ class TagDataLoader(val imageRegistryService: ImageRegistryService) : KeysDataLo
 
     override fun getByKeys(keys: List<ImageTag>): List<Try<Instant>> {
 
-        logger.info("Loading ${keys.size} tags (${keys.toSet().size} unique)")
+        logger.debug("Loading ${keys.size} tags (${keys.toSet().size} unique)")
 
         val sw = StopWatch()
         val imageTags: List<Try<Instant>> = sw.time("Fetch ${keys.size} tags") {
@@ -39,7 +39,7 @@ class TagDataLoader(val imageRegistryService: ImageRegistryService) : KeysDataLo
             }
         }
 
-        logger.info(sw.logLine)
+        logger.debug(sw.logLine)
         return imageTags
     }
 }
