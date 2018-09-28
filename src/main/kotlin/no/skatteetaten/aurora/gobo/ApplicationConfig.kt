@@ -18,7 +18,6 @@ import org.springframework.http.codec.json.Jackson2JsonEncoder
 import org.springframework.web.reactive.function.client.ExchangeStrategies
 import org.springframework.web.reactive.function.client.WebClient
 import java.util.concurrent.TimeUnit
-import reactor.core.publisher.Mono
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction
 
 enum class ServiceTypes {
@@ -83,7 +82,6 @@ class ApplicationConfig(
         logger.debug("HttpRequest method=${request.method()} url=${request.url()}")
         next.exchange(request)
     }
-
 
     @Bean
     @TargetService(ServiceTypes.BOOBER)
