@@ -3,6 +3,7 @@ package no.skatteetaten.aurora.gobo.integration.mokey
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.security.UserService
 import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.reactive.function.BodyInserters
@@ -37,66 +38,56 @@ class ApplicationService(val webClient: WebClient, val userService: UserService)
     }
 
     fun getApplicationDeployment(applicationDeploymentId: String): Mono<ApplicationDeploymentResource> {
-        return try {
-            webClient
-                .get()
-                .uri("/api/applicationdeployment/{applicationDeploymentId}", applicationDeploymentId)
-                .header(HttpHeaders.AUTHORIZATION, "Bearer ${userService.getToken()}")
-                .retrieve()
-                .bodyToMono()
-        } catch (e: WebClientResponseException) {
-            Mono.error(
-                SourceSystemException(
-                    "Failed to get application deployment , status:${e.statusCode} message:${e.statusText}",
-                    e,
-                    e.statusText,
-                    "Failed to get application deployment details"
-                )
-            )
-        }
+        return webClient
+            .get()
+            .uri("/api/applicationdeployment/{applicationDeploymentId}", applicationDeploymentId)
+            .retrieve()
+            .onStatus(HttpStatus::isError) { clientResponse ->
+                clientResponse.bodyToMono<String>().defaultIfEmpty("").map { body ->
+                    SourceSystemException(
+                        message = "Failed to get application deployment, status:${clientResponse.statusCode().value()} message:${clientResponse.statusCode().reasonPhrase}",
+                        code = clientResponse.statusCode().value().toString(),
+                        errorMessage = body
+                    )
+                }
+            }.bodyToMono()
     }
 
     fun getApplicationDeploymentDetails(applicationDeploymentId: String): Mono<ApplicationDeploymentDetailsResource> {
-        return try {
-            webClient
-                .get()
-                .uri("/api/applicationdeploymentdetails/{applicationDeploymentId}", applicationDeploymentId)
-                .header(HttpHeaders.AUTHORIZATION, "Bearer ${userService.getToken()}")
-                .retrieve()
-                .bodyToMono()
-        } catch (e: WebClientResponseException) {
-            Mono.error(
-                SourceSystemException(
-                    "Failed to get application deployment details, status:${e.statusCode} message:${e.statusText}",
-                    e,
-                    e.statusText,
-                    "Failed to get application deployment details"
-                )
-            )
-        }
+        return webClient
+            .get()
+            .uri("/api/applicationdeploymentdetails/{applicationDeploymentId}", applicationDeploymentId)
+            .header(HttpHeaders.AUTHORIZATION, "Bearer ${userService.getToken()}")
+            .retrieve()
+            .onStatus(HttpStatus::isError) { clientResponse ->
+                clientResponse.bodyToMono<String>().defaultIfEmpty("").map { body ->
+                    SourceSystemException(
+                        message = "Failed to get application deployment details, status:${clientResponse.statusCode().value()} message:${clientResponse.statusCode().reasonPhrase}",
+                        code = clientResponse.statusCode().value().toString(),
+                        errorMessage = body
+                    )
+                }
+            }.bodyToMono()
     }
 
     private fun buildQueryParams(affiliations: List<String>): LinkedMultiValueMap<String, String> =
         LinkedMultiValueMap<String, String>().apply { addAll("affiliation", affiliations) }
 
     fun refreshApplicationDeployment(token: String, refreshParams: RefreshParams): Mono<Void> {
-        return try {
-            webClient
-                .post()
-                .uri("/refresh")
-                .body(BodyInserters.fromObject(refreshParams))
-                .header(HttpHeaders.AUTHORIZATION, "Bearer $token")
-                .retrieve()
-                .bodyToMono()
-        } catch (e: WebClientResponseException) {
-            Mono.error(
-                SourceSystemException(
-                    "Failed to get application deployment details, status:${e.statusCode} message:${e.statusText}",
-                    e,
-                    e.statusText,
-                    "Failed to get application deployment details"
-                )
-            )
-        }
+        return webClient
+            .post()
+            .uri("/refresh")
+            .body(BodyInserters.fromObject(refreshParams))
+            .header(HttpHeaders.AUTHORIZATION, "Bearer $token")
+            .retrieve()
+            .onStatus(HttpStatus::isError) { clientResponse ->
+                clientResponse.bodyToMono<String>().defaultIfEmpty("").map { body ->
+                    SourceSystemException(
+                        message = "Failed to refresh, status:${clientResponse.statusCode().value()} message:${clientResponse.statusCode().reasonPhrase}",
+                        code = clientResponse.statusCode().value().toString(),
+                        errorMessage = body
+                    )
+                }
+            }.bodyToMono()
     }
 }
