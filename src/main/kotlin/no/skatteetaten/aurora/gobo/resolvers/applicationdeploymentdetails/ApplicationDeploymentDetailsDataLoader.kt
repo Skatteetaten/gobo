@@ -21,17 +21,24 @@ class ApplicationDeploymentDetailsDataLoader(
     override fun getByKeys(keys: List<String>): Flux<Try<ApplicationDeploymentDetails>> {
         val user = userServce.getCurrentUser()
 
-        val anonymousFailure = IllegalArgumentException("Anonymous user cannnot get details")
-        val emptyResponseFailure = IllegalArgumentException("User with name=$user did not get any response")
-
         // TODO will this keep ordering, because that is very important here
         return keys.toFlux().flatMap { key ->
             if (user == ANONYMOUS_USER) {
-                Mono.just(Try.failed<ApplicationDeploymentDetails>(anonymousFailure))
+                Mono.just(
+                    Try.failed<ApplicationDeploymentDetails>(
+                        IllegalArgumentException("Anonymous user cannnot get details")
+                    )
+                )
             } else {
                 applicationService.getApplicationDeploymentDetails(key)
                     .map { Try.succeeded(ApplicationDeploymentDetails.create(it)) }
-                    .switchIfEmpty(Mono.just(Try.failed<ApplicationDeploymentDetails>(emptyResponseFailure)))
+                    .switchIfEmpty(
+                        Mono.just(
+                            Try.failed<ApplicationDeploymentDetails>(
+                                IllegalArgumentException("User with name=$user did not get any response")
+                            )
+                        )
+                    )
                     .onErrorResume { Mono.just(Try.failed<ApplicationDeploymentDetails>(it)) }
             }
         }
