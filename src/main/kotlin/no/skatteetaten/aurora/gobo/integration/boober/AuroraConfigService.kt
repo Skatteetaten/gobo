@@ -76,7 +76,7 @@ class AuroraConfigService(
             .onStatus(HttpStatus::isError) {
                 it.bodyToMono<String>().defaultIfEmpty("").map { body ->
                     SourceSystemException(
-                        message = "Failed to get application deployment details, status:${it.statusCode().value()} message:${it.statusCode().reasonPhrase}",
+                        message = "Failed request to boober, status:${it.statusCode().value()} message:${it.statusCode().reasonPhrase}",
                         code = it.statusCode().value().toString(),
                         errorMessage = body
                     )
