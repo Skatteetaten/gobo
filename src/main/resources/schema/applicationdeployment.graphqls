@@ -2,6 +2,7 @@ type ApplicationDeployment {
   id: String!
   name: String!
   affiliation: Affiliation!
+  application: Application
   environment: String
   namespace: Namespace
   status: Status!

@@ -83,7 +83,8 @@ data class ApplicationDeploymentBuilder(val affiliation: String = "paas") {
             status = Status("code", "comment"),
             version = Version(ImageTag(ImageRepository("", "", ""), "deployTag"), "auroraVersion", "releaseTo"),
             dockerImageRepo = "dockerImageRepo",
-            time = Instant.EPOCH
+            time = Instant.EPOCH,
+            applicationId = "appId"
         )
 }
 

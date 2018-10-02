@@ -48,10 +48,7 @@ data class ApplicationDeploymentDetailsResource(
     val applicationDeploymentCommand: ApplicationDeploymentCommandResource
 ) : ResourceSupport() {
 
-    fun link(rel: String) =
-        links.firstOrNull { it.rel == rel }?.href?.let {
-            UriUtils.decode(it, Charset.defaultCharset())
-        } ?: throw SourceSystemException("Link with rel $rel was not found")
+    fun link(rel: String) = this.findLink(rel)
 }
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -81,7 +78,15 @@ data class ApplicationDeploymentResource(
     val version: VersionResource,
     val dockerImageRepo: String?,
     val time: Instant
-) : ResourceSupport()
+) : ResourceSupport() {
+
+    private val APPLICATION_REL = "Application"
+
+    val applicationId: String
+        get() = findLink(APPLICATION_REL).idPart
+
+    private val String.idPart: String get() = split("/").last()
+}
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class ApplicationResource(
@@ -91,3 +96,9 @@ data class ApplicationResource(
 ) : ResourceSupport()
 
 data class RefreshParams(val applicationDeploymentId: String)
+
+private fun ResourceSupport.findLink(rel: String): String {
+    return links.firstOrNull { it.rel == rel }?.href?.let {
+        UriUtils.decode(it, Charset.defaultCharset())
+    } ?: throw SourceSystemException("Link with rel $rel was not found")
+}
