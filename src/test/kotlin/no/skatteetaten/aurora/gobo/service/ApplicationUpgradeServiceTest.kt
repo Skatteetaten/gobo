@@ -13,7 +13,9 @@ import no.skatteetaten.aurora.gobo.integration.boober.Response
 import no.skatteetaten.aurora.gobo.integration.execute
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import no.skatteetaten.aurora.gobo.security.UserService
+import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
+import okhttp3.mockwebserver.SocketPolicy
 import org.junit.jupiter.api.Test
 import org.springframework.hateoas.Link
 import reactor.test.StepVerifier
@@ -53,6 +55,17 @@ class ApplicationUpgradeServiceTest {
         assert(requests[2].path).isEqualTo("/boober/AuroraConfigFileCurrent")
         assert(requests[3].path).isEqualTo("/boober/Apply")
         assert(requests[4].path).isEqualTo("/mokey/refresh")
+    }
+
+    @Test
+    fun `Handle IOException from AuroraConfigService`() {
+        val failureResponse = MockResponse().apply { socketPolicy = SocketPolicy.DISCONNECT_AFTER_REQUEST }
+        server.execute(failureResponse) {
+            StepVerifier
+                .create(upgradeService.upgrade("applicationDeploymentId", "version"))
+                .expectError()
+                .verify()
+        }
     }
 
     private fun applicationDeploymentDetailsResponse() =

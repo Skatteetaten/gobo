@@ -37,6 +37,12 @@ fun MockWebServer.execute(status: Int, response: Any, fn: () -> Unit): RecordedR
     return this.takeRequest()
 }
 
+fun MockWebServer.execute(response: MockResponse, fn: () -> Unit): RecordedRequest {
+    this.enqueue(response)
+    fn()
+    return this.takeRequest()
+}
+
 fun MockWebServer.execute(response: Any, fn: () -> Unit): RecordedRequest {
     this.enqueueJson(body = response)
     fn()
@@ -46,5 +52,5 @@ fun MockWebServer.execute(response: Any, fn: () -> Unit): RecordedRequest {
 fun MockWebServer.execute(vararg responses: Any, fn: () -> Unit): List<RecordedRequest> {
     responses.forEach { this.enqueueJson(body = it) }
     fn()
-    return (1..this.requestCount).toList().map { this.takeRequest() }
+    return (1..responses.size).toList().map { this.takeRequest() }
 }

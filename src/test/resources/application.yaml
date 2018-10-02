@@ -2,11 +2,11 @@ spring:
     main:
         banner-mode: "off"
 
-mokey:
-  url: http://localhost:6565
-
-unclematt:
-  url: http://localhost:6566
+gobo:
+  mokey:
+    url: http://localhost:6565
+  unclematt:
+    url: http://localhost:6566
 
 stubrunner:
   stubs-mode: remote
