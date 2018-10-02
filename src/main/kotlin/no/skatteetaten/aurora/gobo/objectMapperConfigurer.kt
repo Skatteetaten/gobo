@@ -14,4 +14,5 @@ fun createObjectMapper() =
         registerModules(JavaTimeModule(), Jackson2HalModule())
         registerKotlinModule()
         enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
+        disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
     }
