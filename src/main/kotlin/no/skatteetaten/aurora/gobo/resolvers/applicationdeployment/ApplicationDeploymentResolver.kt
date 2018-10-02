@@ -10,7 +10,6 @@ import no.skatteetaten.aurora.gobo.resolvers.applicationdeploymentdetails.Applic
 import no.skatteetaten.aurora.gobo.resolvers.namespace.Namespace
 import org.dataloader.Try
 import org.springframework.stereotype.Component
-import reactor.core.publisher.Mono
 
 @Component
 class ApplicationDeploymentResolver(
@@ -28,6 +27,7 @@ class ApplicationDeploymentResolver(
 
     fun application(applicationDeployment: ApplicationDeployment): Application? {
         return applicationService.getApplication(applicationDeployment.applicationId)
-            .flatMap { Mono.just(createApplicationEdge(it).node) }.block()
+            .map { createApplicationEdge(it).node }
+            .block()
     }
 }
