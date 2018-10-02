@@ -19,7 +19,8 @@ data class ApplicationDeployment(
     val status: Status,
     val version: Version,
     val dockerImageRepo: String?,
-    val time: Instant
+    val time: Instant,
+    val applicationId: String
 ) {
     companion object {
         fun create(deployment: ApplicationDeploymentResource) =
@@ -38,7 +39,8 @@ data class ApplicationDeployment(
                     deployment.version.releaseTo
                 ),
                 time = deployment.time,
-                dockerImageRepo = deployment.dockerImageRepo
+                dockerImageRepo = deployment.dockerImageRepo,
+                applicationId = deployment.applicationId
             )
     }
 }

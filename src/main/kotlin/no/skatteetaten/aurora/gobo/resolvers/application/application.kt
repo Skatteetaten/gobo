@@ -36,9 +36,10 @@ data class ApplicationsConnection(
     override val pageInfo: PageInfo = createPageInfo(edges)
 ) : Connection<ApplicationEdge>()
 
-fun createApplicationEdges(
-    applicationResources: List<ApplicationResource>
-): List<ApplicationEdge> {
-    val deploymentBuilder = ApplicationDeploymentBuilder()
-    return applicationResources.map { ApplicationEdge.create(it, deploymentBuilder.createApplicationDeployments(it)) }
-}
+private val deploymentBuilder = ApplicationDeploymentBuilder()
+
+fun createApplicationEdges(applicationResources: List<ApplicationResource>): List<ApplicationEdge> =
+    applicationResources.map { createApplicationEdge(it) }
+
+fun createApplicationEdge(it: ApplicationResource) =
+    ApplicationEdge.create(it, deploymentBuilder.createApplicationDeployments(it))

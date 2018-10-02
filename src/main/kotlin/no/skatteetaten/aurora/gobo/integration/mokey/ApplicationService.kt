@@ -37,6 +37,23 @@ class ApplicationService(val webClient: WebClient, val userService: UserService)
         }
     }
 
+    fun getApplication(id: String): Mono<ApplicationResource> {
+        return webClient
+            .get()
+            .uri("/api/application/{id}", id)
+
+            .retrieve()
+            .onStatus(HttpStatus::isError) { clientResponse ->
+                clientResponse.bodyToMono<String>().defaultIfEmpty("").map { body ->
+                    SourceSystemException(
+                        message = "Failed to get application, status:${clientResponse.statusCode().value()} message:${clientResponse.statusCode().reasonPhrase}",
+                        code = clientResponse.statusCode().value().toString(),
+                        errorMessage = body
+                    )
+                }
+            }.bodyToMono()
+    }
+
     fun getApplicationDeployment(applicationDeploymentId: String): Mono<ApplicationDeploymentResource> {
         return webClient
             .get()
