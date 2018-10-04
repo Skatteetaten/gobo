@@ -30,9 +30,7 @@ class DeploymentSpecDataLoader(
 
         val sw = StopWatch()
         val specs: List<Try<DeploymentSpec>> = sw.time("Fetch ${keys.size} DeploymentSpecs") {
-            keys.map { urlWithToken ->
-                val url = urlWithToken.url
-                val token = urlWithToken.token
+            keys.map { (url, token) ->
                 Try.tryCall {
                     configService.get<JsonNode>(token, url.toString())
                         .toMono()
