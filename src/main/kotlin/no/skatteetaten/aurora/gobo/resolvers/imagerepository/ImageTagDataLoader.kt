@@ -15,9 +15,9 @@ import org.springframework.util.StopWatch
 import java.time.Instant
 
 @Component
-class TagDataLoader(val imageRegistryService: ImageRegistryService) : KeysDataLoader<ImageTag, Try<Instant>> {
+class ImageTagDataLoader(val imageRegistryService: ImageRegistryService) : KeysDataLoader<ImageTag, Try<Instant>> {
 
-    private val logger: Logger = LoggerFactory.getLogger(TagDataLoader::class.java)
+    private val logger: Logger = LoggerFactory.getLogger(ImageTagDataLoader::class.java)
 
     val context = newFixedThreadPoolContext(6, "tag-loader")
 
