@@ -10,5 +10,5 @@ import org.springframework.stereotype.Component
 class NamespaceResolver : GraphQLResolver<Namespace> {
 
     fun affiliation(namespace: Namespace, dfe: DataFetchingEnvironment) =
-        dfe.loader(Affiliation::class).load(namespace.affiliationId)
+        dfe.loader<Affiliation>().load(namespace.affiliationId)
 }
