@@ -8,5 +8,5 @@ import org.springframework.stereotype.Component
 @Component
 class ImageRepositoryTagResolver : GraphQLResolver<ImageTag> {
 
-    fun lastModified(imageTag: ImageTag, dfe: DataFetchingEnvironment) = dfe.loader(ImageTag::class).load(imageTag)
+    fun lastModified(imageTag: ImageTag, dfe: DataFetchingEnvironment) = dfe.loader<ImageTag>().load(imageTag)
 }

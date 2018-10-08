@@ -23,7 +23,7 @@ class ApplicationDeploymentResolver(
         Namespace(applicationDeployment.namespaceId, applicationDeployment.affiliationId)
 
     fun details(applicationDeployment: ApplicationDeployment, dfe: DataFetchingEnvironment) =
-        dfe.loader(ApplicationDeploymentDetails::class).load(applicationDeployment.id)
+        dfe.loader<ApplicationDeploymentDetails>().load(applicationDeployment.id)
 
     fun application(applicationDeployment: ApplicationDeployment): Application? {
         return applicationService.getApplication(applicationDeployment.applicationId)

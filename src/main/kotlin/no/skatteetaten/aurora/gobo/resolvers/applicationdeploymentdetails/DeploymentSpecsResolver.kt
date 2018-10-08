@@ -13,11 +13,11 @@ class DeploymentSpecsResolver : GraphQLResolver<DeploymentSpecs> {
 
     fun current(specs: DeploymentSpecs, dfe: DataFetchingEnvironment): CompletableFuture<Try<DeploymentSpec>>? =
         dfe.token?.let { token ->
-            specs.deploymentSpecCurrent?.let { dfe.loader(DeploymentSpec::class).load(UrlAndToken(it, token)) }
+            specs.deploymentSpecCurrent?.let { dfe.loader<DeploymentSpec>().load(UrlAndToken(it, token)) }
         }
 
     fun deployed(specs: DeploymentSpecs, dfe: DataFetchingEnvironment): CompletableFuture<Try<DeploymentSpec>>? =
         dfe.token?.let { token ->
-            specs.deploymentSpecDeployed?.let { dfe.loader(DeploymentSpec::class).load(UrlAndToken(it, token)) }
+            specs.deploymentSpecDeployed?.let { dfe.loader<DeploymentSpec>().load(UrlAndToken(it, token)) }
         }
 }

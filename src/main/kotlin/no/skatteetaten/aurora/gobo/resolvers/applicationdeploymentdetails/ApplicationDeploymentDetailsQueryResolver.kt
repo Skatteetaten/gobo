@@ -9,5 +9,5 @@ import org.springframework.stereotype.Component
 class ApplicationDeploymentDetailsQueryResolver : GraphQLQueryResolver {
 
     fun applicationDeploymentDetails(id: String, dfe: DataFetchingEnvironment) =
-        dfe.loader(ApplicationDeploymentDetails::class).load(id)
+        dfe.loader<ApplicationDeploymentDetails>().load(id)
 }
