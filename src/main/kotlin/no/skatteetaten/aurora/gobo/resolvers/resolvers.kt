@@ -4,7 +4,6 @@ import graphql.schema.DataFetchingEnvironment
 import graphql.servlet.GraphQLContext
 import org.dataloader.DataLoader
 import org.dataloader.Try
-import kotlin.reflect.KClass
 
 val DataFetchingEnvironment.token: String?
     get() {
@@ -19,7 +18,6 @@ val DataFetchingEnvironment.token: String?
             else -> null
         }
     }
-
 
 inline fun <reified T : Any> DataFetchingEnvironment.loader(): DataLoader<Any, Try<T>> {
     val key = T::class.java.simpleName
