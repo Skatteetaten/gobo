@@ -20,7 +20,7 @@ val DataFetchingEnvironment.token: String?
     }
 
 inline fun <reified T : Any> DataFetchingEnvironment.loader(): DataLoader<Any, Try<T>> {
-    val key = T::class.java.simpleName
+    val key = "${T::class.java.simpleName}DataLoader"
     val dataLoader = this.getContext<GraphQLContext>().dataLoaderRegistry.get()
         .getDataLoader<Any, Try<T>>(key) ?: throw IllegalStateException("No $key found")
     return dataLoader as? NoCacheBatchDataLoader ?: dataLoader as NoCacheBatchDataLoaderFlux
