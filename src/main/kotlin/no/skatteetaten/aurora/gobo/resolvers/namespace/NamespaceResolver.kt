@@ -1,16 +1,14 @@
 package no.skatteetaten.aurora.gobo.resolvers.namespace
 
 import com.coxautodev.graphql.tools.GraphQLResolver
-import no.skatteetaten.aurora.gobo.resolvers.NoCacheBatchDataLoader
+import graphql.schema.DataFetchingEnvironment
 import no.skatteetaten.aurora.gobo.resolvers.affiliation.Affiliation
+import no.skatteetaten.aurora.gobo.resolvers.loader
 import org.springframework.stereotype.Component
-import java.util.concurrent.CompletableFuture
 
 @Component
-class NamespaceResolver(
-    private val affiliationDataLoader: NoCacheBatchDataLoader<String, Affiliation>
-) : GraphQLResolver<Namespace> {
+class NamespaceResolver : GraphQLResolver<Namespace> {
 
-    fun affiliation(namespace: Namespace): CompletableFuture<Affiliation> =
-        affiliationDataLoader.load(namespace.affiliationId)
+    fun affiliation(namespace: Namespace, dfe: DataFetchingEnvironment) =
+        dfe.loader(Affiliation::class).load(namespace.affiliationId)
 }

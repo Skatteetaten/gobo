@@ -58,6 +58,7 @@ data class ApplicationDeploymentResourceBuilder(val affiliation: String = "paas"
             time = Instant.EPOCH
         ).apply {
             add(Link("http://ApplicationDeploymentDetails/1", "ApplicationDeploymentDetails"))
+            add(Link("http://Application/1", "Application"))
         }
 }
 

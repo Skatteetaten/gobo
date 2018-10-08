@@ -1,15 +1,12 @@
 package no.skatteetaten.aurora.gobo.resolvers.imagerepository
 
 import com.coxautodev.graphql.tools.GraphQLResolver
-import no.skatteetaten.aurora.gobo.resolvers.NoCacheBatchDataLoader
-import org.dataloader.Try
+import graphql.schema.DataFetchingEnvironment
+import no.skatteetaten.aurora.gobo.resolvers.loader
 import org.springframework.stereotype.Component
-import java.time.Instant
-import java.util.concurrent.CompletableFuture
 
 @Component
-class ImageRepositoryTagResolver(private val tagDataLoader: NoCacheBatchDataLoader<ImageTag, Try<Instant>>) :
-        GraphQLResolver<ImageTag> {
+class ImageRepositoryTagResolver : GraphQLResolver<ImageTag> {
 
-    fun lastModified(imageTag: ImageTag): CompletableFuture<Try<Instant>>? = tagDataLoader.load(imageTag)
+    fun lastModified(imageTag: ImageTag, dfe: DataFetchingEnvironment) = dfe.loader(ImageTag::class).load(imageTag)
 }
