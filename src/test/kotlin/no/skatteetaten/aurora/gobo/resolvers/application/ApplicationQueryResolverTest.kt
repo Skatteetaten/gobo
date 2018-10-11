@@ -6,6 +6,7 @@ import no.skatteetaten.aurora.gobo.GraphQLTest
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import no.skatteetaten.aurora.gobo.resolvers.createQuery
 import org.junit.jupiter.api.Test
+import org.mockito.ArgumentMatchers
 import org.mockito.BDDMockito.anyString
 import org.mockito.BDDMockito.given
 import org.springframework.beans.factory.annotation.Autowired
@@ -35,7 +36,7 @@ class ApplicationQueryResolverTest {
         given(applicationService.getApplications(affiliations))
             .willReturn(listOf(ApplicationResourceBuilder().build()))
 
-        given(applicationService.getApplicationDeploymentDetails(anyString()))
+        given(applicationService.getApplicationDeploymentDetails(anyString(), ArgumentMatchers.anyString()))
             .willReturn(Mono.just(ApplicationDeploymentDetailsBuilder().build()))
 
         val variables = mapOf("affiliations" to affiliations)
