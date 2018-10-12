@@ -2,7 +2,7 @@ scalar DateTime
 scalar URL
 
 type Query {
-  affiliations: AffiliationsConnection
+  affiliations(checkForVisibility: Boolean): AffiliationsConnection
 
   applications(affiliations: [String!]!, applications: [String!]): ApplicationsConnection
 

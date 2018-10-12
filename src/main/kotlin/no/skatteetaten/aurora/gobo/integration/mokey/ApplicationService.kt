@@ -13,7 +13,7 @@ import org.springframework.web.reactive.function.client.bodyToMono
 import reactor.core.publisher.Mono
 
 @Service
-class ApplicationService(val webClient: WebClient, val userService: UserService) {
+class ApplicationService(val webClient: WebClient) {
 
     fun getApplications(affiliations: List<String>, applications: List<String>? = null): List<ApplicationResource> {
         try {
@@ -41,7 +41,6 @@ class ApplicationService(val webClient: WebClient, val userService: UserService)
         return webClient
             .get()
             .uri("/api/application/{id}", id)
-
             .retrieve()
             .onStatus(HttpStatus::isError) { clientResponse ->
                 clientResponse.bodyToMono<String>().defaultIfEmpty("").map { body ->
@@ -70,11 +69,11 @@ class ApplicationService(val webClient: WebClient, val userService: UserService)
             }.bodyToMono()
     }
 
-    fun getApplicationDeploymentDetails(applicationDeploymentId: String): Mono<ApplicationDeploymentDetailsResource> {
+    fun getApplicationDeploymentDetails(applicationDeploymentId: String, token: String): Mono<ApplicationDeploymentDetailsResource> {
         return webClient
             .get()
-            .uri("/api/applicationdeploymentdetails/{applicationDeploymentId}", applicationDeploymentId)
-            .header(HttpHeaders.AUTHORIZATION, "Bearer ${userService.getToken()}")
+            .uri("/api/auth/applicationdeploymentdetails/{applicationDeploymentId}", applicationDeploymentId)
+            .header(HttpHeaders.AUTHORIZATION, "Bearer $token")
             .retrieve()
             .onStatus(HttpStatus::isError) { clientResponse ->
                 clientResponse.bodyToMono<String>().defaultIfEmpty("").map { body ->
@@ -93,7 +92,7 @@ class ApplicationService(val webClient: WebClient, val userService: UserService)
     fun refreshApplicationDeployment(token: String, refreshParams: RefreshParams): Mono<Void> {
         return webClient
             .post()
-            .uri("/refresh")
+            .uri("/api/auth/refresh")
             .body(BodyInserters.fromObject(refreshParams))
             .header(HttpHeaders.AUTHORIZATION, "Bearer $token")
             .retrieve()

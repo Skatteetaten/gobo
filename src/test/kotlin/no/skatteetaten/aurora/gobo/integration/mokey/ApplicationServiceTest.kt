@@ -29,7 +29,7 @@ class ApplicationServiceTest {
     @Disabled("change to fetch for one id")
     @Test
     fun `Get application deployment details for affiliation`() {
-        val details = applicationService.getApplicationDeploymentDetails("paas")
+        val details = applicationService.getApplicationDeploymentDetails("paas", "foo")
         assert(details).isNotNull()
     }
 }

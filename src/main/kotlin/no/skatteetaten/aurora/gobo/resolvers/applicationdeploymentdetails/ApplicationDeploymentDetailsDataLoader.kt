@@ -20,6 +20,7 @@ class ApplicationDeploymentDetailsDataLoader(
     // TODO: That mono is then transfered into a Try in getByKey
     override fun getByKeys(keys: List<String>): Flux<Try<ApplicationDeploymentDetails>> {
         val user = userServce.getCurrentUser()
+        val token = userServce.getToken()
 
         // TODO will this keep ordering, because that is very important here
         return keys.toFlux().flatMap { key ->
@@ -30,7 +31,7 @@ class ApplicationDeploymentDetailsDataLoader(
                     )
                 )
             } else {
-                applicationService.getApplicationDeploymentDetails(key)
+                applicationService.getApplicationDeploymentDetails(key, token)
                     .map { Try.succeeded(ApplicationDeploymentDetails.create(it)) }
                     .switchIfEmpty(
                         Mono.just(

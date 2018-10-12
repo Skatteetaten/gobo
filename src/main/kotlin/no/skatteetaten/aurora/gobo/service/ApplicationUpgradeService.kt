@@ -30,7 +30,7 @@ class ApplicationUpgradeService(
 
     fun upgrade(applicationDeploymentId: String, version: String): Mono<Void> {
         val token = userService.getToken()
-        return applicationService.getApplicationDeploymentDetails(applicationDeploymentId)
+        return applicationService.getApplicationDeploymentDetails(applicationDeploymentId, token)
             .flatMap { details ->
 
                 val currentLink = details.link("FilesCurrent")
