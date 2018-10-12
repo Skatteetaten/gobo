@@ -21,13 +21,13 @@ class GoboGraphQLContextBuilder(
 
     private val logger: Logger = LoggerFactory.getLogger(GraphQLContextBuilder::class.java)
 
-    override fun build(httpServletRequest: HttpServletRequest?) = createContext()
+    override fun build(httpServletRequest: HttpServletRequest?) = createContext(httpServletRequest)
 
     override fun build(handshakeRequest: HandshakeRequest?) = createContext()
 
     override fun build() = createContext()
 
-    private fun createContext(): GraphQLContext {
+    private fun createContext(httpServletRequest: HttpServletRequest? = null): GraphQLContext {
         logger.info("Creating new DataLoader instances")
 
         val registry = DataLoaderRegistry().apply {
@@ -39,7 +39,7 @@ class GoboGraphQLContextBuilder(
             }
         }
 
-        return GraphQLContext().apply {
+        return GraphQLContext(httpServletRequest).apply {
             setDataLoaderRegistry(registry)
         }
     }
