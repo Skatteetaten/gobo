@@ -13,7 +13,7 @@ class AffiliationQueryResolver(
 ) : GraphQLQueryResolver {
 
     fun getAffiliations(): AffiliationsConnection {
-        val affiliationNames=if(userService.getCurrentUser().name== GUEST_USER_NAME) {
+        val affiliationNames = if (userService.getCurrentUser().name == GUEST_USER_NAME) {
             affiliationService.getAllAffiliations()
         } else {
             affiliationService.getAllVisibleAffiliations(userService.getToken())
