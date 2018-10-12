@@ -15,11 +15,12 @@ import org.springframework.http.MediaType
 import org.springframework.http.client.reactive.ReactorClientHttpConnector
 import org.springframework.http.codec.json.Jackson2JsonDecoder
 import org.springframework.http.codec.json.Jackson2JsonEncoder
+import org.springframework.web.reactive.function.client.ExchangeFilterFunction
 import org.springframework.web.reactive.function.client.ExchangeStrategies
 import org.springframework.web.reactive.function.client.WebClient
-import java.util.concurrent.TimeUnit
-import org.springframework.web.reactive.function.client.ExchangeFilterFunction
 import reactor.core.publisher.Mono
+import java.util.concurrent.TimeUnit
+import kotlin.math.min
 
 enum class ServiceTypes {
     MOKEY, DOCKER, BOOBER, UNCLEMATT
@@ -78,7 +79,13 @@ class ApplicationConfig(
             .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .exchangeStrategies(exchangeStrategies())
             .filter(ExchangeFilterFunction.ofRequestProcessor {
-                logger.debug("HttpRequest method=${it.method()} url=${it.url()}")
+                val bearer= it.headers()[HttpHeaders.AUTHORIZATION]?.firstOrNull()?.let { token ->
+                    val t=token.substring(0, min(token.length, 11)).replace("Bearer", "")
+                    "bearer=$t"
+                } ?: ""
+                logger.debug("HttpRequest method=${it.method()} url=${it.url()} $bearer")
+
+
                 Mono.just(it)
             })
             .clientConnector(clientConnector(ssl))

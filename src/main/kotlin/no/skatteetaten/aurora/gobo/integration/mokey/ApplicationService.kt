@@ -13,7 +13,7 @@ import org.springframework.web.reactive.function.client.bodyToMono
 import reactor.core.publisher.Mono
 
 @Service
-class ApplicationService(val webClient: WebClient, val userService: UserService) {
+class ApplicationService(val webClient: WebClient) {
 
     fun getApplications(affiliations: List<String>, applications: List<String>? = null): List<ApplicationResource> {
         try {
@@ -73,7 +73,7 @@ class ApplicationService(val webClient: WebClient, val userService: UserService)
         return webClient
             .get()
             .uri("/api/auth/applicationdeploymentdetails/{applicationDeploymentId}", applicationDeploymentId)
-            .header(HttpHeaders.AUTHORIZATION, "Bearer $token}")
+            .header(HttpHeaders.AUTHORIZATION, "Bearer $token")
             .retrieve()
             .onStatus(HttpStatus::isError) { clientResponse ->
                 clientResponse.bodyToMono<String>().defaultIfEmpty("").map { body ->

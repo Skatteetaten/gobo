@@ -17,7 +17,7 @@ class AffiliationService(@TargetService(ServiceTypes.MOKEY) val webClient: WebCl
             webClient
                 .get()
                 .uri("/api/auth/affiliation")
-                .header(HttpHeaders.AUTHORIZATION, "Bearer $token}")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer $token")
                 .retrieve()
                 .bodyToMono<List<String>>()
                 .block() ?: emptyList()
