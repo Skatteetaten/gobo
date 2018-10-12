@@ -6,6 +6,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.fge.jackson.jsonpointer.JsonPointer
 import com.github.fge.jsonpatch.JsonPatch
 import com.github.fge.jsonpatch.ReplaceOperation
+import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.integration.boober.ApplyPayload
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileResource
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileType
@@ -16,6 +17,7 @@ import no.skatteetaten.aurora.gobo.integration.mokey.RefreshParams
 import no.skatteetaten.aurora.gobo.security.UserService
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import reactor.core.publisher.toMono
 
 @Service
 class ApplicationUpgradeService(
@@ -28,14 +30,13 @@ class ApplicationUpgradeService(
 
     fun upgrade(applicationDeploymentId: String, version: String) {
         val token = userService.getToken()
-        val details = applicationService.getApplicationDeploymentDetails(applicationDeploymentId).block()
-            ?: throw Exception()
+        val details = applicationService.getApplicationDeploymentDetails(applicationDeploymentId).block()!!
 
         val currentLink = details.link("FilesCurrent")
         val auroraConfigFile = details.link("AuroraConfigFileCurrent")
         val applyLink = details.link("Apply")
 
-        val applicationFile = getApplicationFile(token, currentLink) ?: throw Exception()
+        val applicationFile = getApplicationFile(token, currentLink)
         patch(token, version, auroraConfigFile, applicationFile)
         redeploy(token, details, applyLink)
         refresh(token, applicationDeploymentId)
@@ -45,7 +46,10 @@ class ApplicationUpgradeService(
         auroraConfigService.get<AuroraConfigFileResource>(token, it)
             .filter { it.type == AuroraConfigFileType.APP }
             .map { it.name }
-            .blockFirst()
+            .switchIfEmpty(
+                SourceSystemException("").toMono()
+            )
+            .blockFirst()!!
 
     private fun patch(
         token: String,

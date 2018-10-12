@@ -11,6 +11,7 @@ import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import org.springframework.web.reactive.function.client.bodyToMono
 import reactor.core.publisher.Mono
+import reactor.core.publisher.toMono
 
 @Service
 class ApplicationService(val webClient: WebClient, val userService: UserService) {
@@ -70,8 +71,8 @@ class ApplicationService(val webClient: WebClient, val userService: UserService)
             }.bodyToMono()
     }
 
-    fun getApplicationDeploymentDetails(applicationDeploymentId: String): Mono<ApplicationDeploymentDetailsResource> {
-        return webClient
+    fun getApplicationDeploymentDetails(applicationDeploymentId: String): Mono<ApplicationDeploymentDetailsResource> =
+        webClient
             .get()
             .uri("/api/applicationdeploymentdetails/{applicationDeploymentId}", applicationDeploymentId)
             .header(HttpHeaders.AUTHORIZATION, "Bearer ${userService.getToken()}")
@@ -84,8 +85,10 @@ class ApplicationService(val webClient: WebClient, val userService: UserService)
                         errorMessage = body
                     )
                 }
-            }.bodyToMono()
-    }
+            }.bodyToMono<ApplicationDeploymentDetailsResource>()
+            .switchIfEmpty(
+                SourceSystemException("").toMono()
+            )
 
     private fun buildQueryParams(affiliations: List<String>): LinkedMultiValueMap<String, String> =
         LinkedMultiValueMap<String, String>().apply { addAll("affiliation", affiliations) }
