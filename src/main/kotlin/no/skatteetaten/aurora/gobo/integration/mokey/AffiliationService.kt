@@ -12,7 +12,7 @@ import org.springframework.web.reactive.function.client.bodyToMono
 @Service
 class AffiliationService(@TargetService(ServiceTypes.MOKEY) val webClient: WebClient) {
 
-    fun getAllVisiableAffiliations(token: String): List<String> =
+    fun getAllVisibleAffiliations(token: String): List<String> =
         try {
             webClient
                 .get()
