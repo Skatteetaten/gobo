@@ -29,13 +29,13 @@ class ApplicationUpgradeService(
     fun upgrade(applicationDeploymentId: String, version: String) {
         val token = userService.getToken()
         val details = applicationService.getApplicationDeploymentDetails(applicationDeploymentId).block()
-            ?: throw RuntimeException()
+            ?: throw Exception()
 
         val currentLink = details.link("FilesCurrent")
         val auroraConfigFile = details.link("AuroraConfigFileCurrent")
         val applyLink = details.link("Apply")
 
-        val applicationFile = getApplicationFile(token, currentLink) ?: throw RuntimeException()
+        val applicationFile = getApplicationFile(token, currentLink) ?: throw Exception()
         patch(token, version, auroraConfigFile, applicationFile)
         redeploy(token, details, applyLink)
         refresh(token, applicationDeploymentId)
