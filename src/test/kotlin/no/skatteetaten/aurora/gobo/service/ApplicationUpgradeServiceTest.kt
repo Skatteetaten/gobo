@@ -3,9 +3,6 @@ package no.skatteetaten.aurora.gobo.service
 import assertk.assert
 import assertk.assertions.isEqualTo
 import com.fasterxml.jackson.databind.node.TextNode
-import graphql.schema.DataFetchingEnvironment
-import io.mockk.every
-import io.mockk.mockk
 import no.skatteetaten.aurora.gobo.ApplicationConfig
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentDetailsBuilder
 import no.skatteetaten.aurora.gobo.AuroraConfigFileBuilder
@@ -13,8 +10,6 @@ import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigService
 import no.skatteetaten.aurora.gobo.integration.boober.Response
 import no.skatteetaten.aurora.gobo.integration.execute
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
-import no.skatteetaten.aurora.gobo.resolvers.user.User
-import no.skatteetaten.aurora.gobo.security.UserService
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.SocketPolicy
