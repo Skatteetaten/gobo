@@ -34,7 +34,7 @@ class UserService {
 
     private fun getUser(principal: Any) =
         if (principal is SecurityUser) {
-            User(principal.username, principal.fullName ?: UNKNOWN_USER_NAME)
+            User(principal.username, principal.fullName ?: UNKNOWN_USER_NAME, principal.token)
         } else {
             ANONYMOUS_USER
         }

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigService
 import no.skatteetaten.aurora.gobo.resolvers.KeysDataLoader
+import no.skatteetaten.aurora.gobo.resolvers.user.User
 import no.skatteetaten.aurora.utils.logLine
 import no.skatteetaten.aurora.utils.time
 import org.dataloader.Try
@@ -24,7 +25,7 @@ class DeploymentSpecDataLoader(
 
     private val logger: Logger = LoggerFactory.getLogger(DeploymentSpecDataLoader::class.java)
 
-    override fun getByKeys(keys: List<UrlAndToken>): List<Try<DeploymentSpec>> {
+    override fun getByKeys(user: User, keys: List<UrlAndToken>): List<Try<DeploymentSpec>> {
 
         logger.debug("Loading ${keys.size} DeploymentSpecs from boober (${keys.toSet().size} unique)")
 

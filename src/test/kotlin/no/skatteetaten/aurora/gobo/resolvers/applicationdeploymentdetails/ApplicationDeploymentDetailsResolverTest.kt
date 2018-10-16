@@ -39,7 +39,8 @@ class ApplicationDeploymentDetailsResolverTest {
             .willReturn(listOf(application))
 
         given(applicationService.getApplicationDeploymentDetails(
-            anyString(), anyString()
+            anyString(),
+            anyString()
         ))
             .willReturn(Mono.just(ApplicationDeploymentDetailsBuilder().build()))
     }

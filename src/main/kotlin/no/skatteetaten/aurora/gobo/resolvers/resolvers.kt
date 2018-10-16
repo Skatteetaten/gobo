@@ -22,7 +22,6 @@ val DataFetchingEnvironment.token: String?
 
 fun <T : Any> DataFetchingEnvironment.loader(type: KClass<T>): DataLoader<Any, Try<T>> {
     val key = "${type.simpleName}DataLoader"
-    val dataLoader = this.getContext<GraphQLContext>().dataLoaderRegistry.get()
+    return this.getContext<GraphQLContext>().dataLoaderRegistry.get()
         .getDataLoader<Any, Try<T>>(key) ?: throw IllegalStateException("No $key found")
-    return dataLoader as? NoCacheBatchDataLoader ?: dataLoader as NoCacheBatchDataLoaderFlux
 }

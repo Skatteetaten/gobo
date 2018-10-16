@@ -2,6 +2,7 @@ package no.skatteetaten.aurora.gobo.resolvers.applicationdeploymentdetails
 
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import no.skatteetaten.aurora.gobo.resolvers.KeysDataLoaderFlux
+import no.skatteetaten.aurora.gobo.resolvers.user.User
 import no.skatteetaten.aurora.gobo.security.UserService
 import no.skatteetaten.aurora.gobo.security.UserService.Companion.ANONYMOUS_USER
 import org.dataloader.Try
@@ -18,8 +19,7 @@ class ApplicationDeploymentDetailsDataLoader(
 
     // TODO: If we get ReactiveSecurityContextToWork we could create a getByKey method that takes 1 key and retruns a Mono.
     // TODO: That mono is then transfered into a Try in getByKey
-    override fun getByKeys(keys: List<String>): Flux<Try<ApplicationDeploymentDetails>> {
-        val user = userServce.getCurrentUser()
+    override fun getByKeys(user: User, keys: List<String>): Flux<Try<ApplicationDeploymentDetails>> {
         val token = userServce.getToken()
 
         // TODO will this keep ordering, because that is very important here

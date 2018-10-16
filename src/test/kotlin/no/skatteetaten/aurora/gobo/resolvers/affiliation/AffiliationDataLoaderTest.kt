@@ -7,6 +7,7 @@ import io.mockk.every
 import io.mockk.mockk
 import no.skatteetaten.aurora.gobo.ApplicationResourceBuilder
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
+import no.skatteetaten.aurora.gobo.resolvers.user.User
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
@@ -23,7 +24,7 @@ class AffiliationDataLoaderTest {
     fun `Get Affiliation by affiliationIds`() {
         every { applicationService.getApplications(any()) } returns listOf(ApplicationResourceBuilder().build())
 
-        val affiliations = affiliationDataLoader.getByKeys(listOf("paas", "test", "demo"))
+        val affiliations = affiliationDataLoader.getByKeys(User("123", "Test"), listOf("paas", "test", "demo"))
         assert(affiliations).hasSize(3)
     }
 }

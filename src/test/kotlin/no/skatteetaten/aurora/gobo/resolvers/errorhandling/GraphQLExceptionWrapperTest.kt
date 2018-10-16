@@ -15,9 +15,7 @@ class GraphQLExceptionWrapperTest {
     @Test
     fun `Create new GrapQLExceptionWrapper`() {
         val sourceLocation = SourceLocation(0, 0)
-        val field = Field("name").apply {
-            this.sourceLocation = sourceLocation
-        }
+        val field = Field.newField().sourceLocation(sourceLocation).name("name").build()
         val handlerParameters = DataFetcherExceptionHandlerParameters(
                 null,
                 null,
