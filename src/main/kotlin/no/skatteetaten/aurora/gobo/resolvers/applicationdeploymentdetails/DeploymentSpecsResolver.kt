@@ -12,6 +12,8 @@ import java.util.concurrent.CompletableFuture
 class DeploymentSpecsResolver : GraphQLResolver<DeploymentSpecs> {
 
     fun current(specs: DeploymentSpecs, dfe: DataFetchingEnvironment): CompletableFuture<Try<DeploymentSpec>>? =
+
+
         dfe.token?.let { token ->
             specs.deploymentSpecCurrent?.let { dfe.loader(DeploymentSpec::class).load(UrlAndToken(it, token)) }
         }

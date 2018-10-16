@@ -20,8 +20,6 @@ class ApplicationDeploymentDetailsDataLoader(
     // TODO: If we get ReactiveSecurityContextToWork we could create a getByKey method that takes 1 key and retruns a Mono.
     // TODO: That mono is then transfered into a Try in getByKey
     override fun getByKeys(user: User, keys: List<String>): Flux<Try<ApplicationDeploymentDetails>> {
-        val token = userServce.getToken()
-
         // TODO will this keep ordering, because that is very important here
         return keys.toFlux().flatMap { key ->
             if (user == ANONYMOUS_USER) {
@@ -31,7 +29,7 @@ class ApplicationDeploymentDetailsDataLoader(
                     )
                 )
             } else {
-                applicationService.getApplicationDeploymentDetails(key, token)
+                applicationService.getApplicationDeploymentDetails(key, user.token)
                     .map { Try.succeeded(ApplicationDeploymentDetails.create(it)) }
                     .switchIfEmpty(
                         Mono.just(
