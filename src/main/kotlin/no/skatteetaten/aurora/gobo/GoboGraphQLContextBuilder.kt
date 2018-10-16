@@ -25,11 +25,14 @@ class GoboGraphQLContextBuilder(
 
     override fun build(handshakeRequest: HandshakeRequest?) = createContext()
 
-    override fun build() = createContext()
+    override fun build() = throw UnsupportedOperationException()
 
     private fun createContext(httpServletRequest: HttpServletRequest? = null): GraphQLContext {
         logger.info("Creating new DataLoader instances")
 
+        val principal = httpServletRequest?.userPrincipal
+
+        // hent ut token og send inn i dataloader
         val registry = DataLoaderRegistry().apply {
             loaderList.forEach {
                 register(it::class.simpleName, NoCacheBatchDataLoader(it))
@@ -41,6 +44,7 @@ class GoboGraphQLContextBuilder(
 
         return GraphQLContext(httpServletRequest).apply {
             setDataLoaderRegistry(registry)
+
         }
     }
 }

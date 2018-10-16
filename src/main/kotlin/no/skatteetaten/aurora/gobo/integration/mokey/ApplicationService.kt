@@ -1,7 +1,6 @@
 package no.skatteetaten.aurora.gobo.integration.mokey
 
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
-import no.skatteetaten.aurora.gobo.security.UserService
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
@@ -69,7 +68,10 @@ class ApplicationService(val webClient: WebClient) {
             }.bodyToMono()
     }
 
-    fun getApplicationDeploymentDetails(applicationDeploymentId: String, token: String): Mono<ApplicationDeploymentDetailsResource> {
+    fun getApplicationDeploymentDetails(
+        applicationDeploymentId: String,
+        token: String
+    ): Mono<ApplicationDeploymentDetailsResource> {
         return webClient
             .get()
             .uri("/api/auth/applicationdeploymentdetails/{applicationDeploymentId}", applicationDeploymentId)
