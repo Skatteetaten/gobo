@@ -3,6 +3,7 @@ package no.skatteetaten.aurora.gobo.service
 import assertk.assert
 import assertk.assertions.isEqualTo
 import com.fasterxml.jackson.databind.node.TextNode
+import graphql.schema.DataFetchingEnvironment
 import io.mockk.every
 import io.mockk.mockk
 import no.skatteetaten.aurora.gobo.ApplicationConfig
@@ -12,6 +13,7 @@ import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigService
 import no.skatteetaten.aurora.gobo.integration.boober.Response
 import no.skatteetaten.aurora.gobo.integration.execute
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
+import no.skatteetaten.aurora.gobo.resolvers.user.User
 import no.skatteetaten.aurora.gobo.security.UserService
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -22,10 +24,6 @@ import reactor.test.StepVerifier
 
 class ApplicationUpgradeServiceTest {
 
-    private val userService = mockk<UserService>().apply {
-        every { getToken() } returns "token"
-    }
-
     private val server = MockWebServer()
     private val url = server.url("/")
 
@@ -34,7 +32,7 @@ class ApplicationUpgradeServiceTest {
     private val applicationService = ApplicationService(config.webClientMokey())
     private val auroraConfigService = AuroraConfigService("${url}boober", config.webClientBoober())
 
-    private val upgradeService = ApplicationUpgradeService(applicationService, auroraConfigService, userService)
+    private val upgradeService = ApplicationUpgradeService(applicationService, auroraConfigService)
 
     @Test
     fun `Update application deployment version`() {
@@ -46,7 +44,7 @@ class ApplicationUpgradeServiceTest {
             enqueueRefreshResponse()
         ) {
             StepVerifier
-                .create(upgradeService.upgrade("applicationDeploymentId", "version"))
+                .create(upgradeService.upgrade("applicationDeploymentId", "version", "token"))
                 .verifyComplete()
         }
 
@@ -62,7 +60,7 @@ class ApplicationUpgradeServiceTest {
         val failureResponse = MockResponse().apply { socketPolicy = SocketPolicy.DISCONNECT_AFTER_REQUEST }
         server.execute(failureResponse) {
             StepVerifier
-                .create(upgradeService.upgrade("applicationDeploymentId", "version"))
+                .create(upgradeService.upgrade("applicationDeploymentId", "version", "token"))
                 .expectError()
                 .verify()
         }

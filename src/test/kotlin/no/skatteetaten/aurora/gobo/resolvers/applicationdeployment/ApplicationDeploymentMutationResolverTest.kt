@@ -29,7 +29,7 @@ class ApplicationDeploymentMutationResolverTest {
 
     @Test
     fun `Mutate application deployment version`() {
-        given(applicationUpgradeService.upgrade("123", "1")).willReturn(Mono.empty())
+        given(applicationUpgradeService.upgrade("123", "1", "token")).willReturn(Mono.empty())
 
         val variables = mapOf(
             "input" to mapOf(
@@ -51,7 +51,7 @@ class ApplicationDeploymentMutationResolverTest {
 
     @Test
     fun `Mutate refresh application deployment`() {
-        given(applicationUpgradeService.refreshApplicationDeployment("123")).willReturn("123")
+        given(applicationUpgradeService.refreshApplicationDeployment("123", "token")).willReturn("123")
 
         val variables = mapOf(
             "input" to mapOf(

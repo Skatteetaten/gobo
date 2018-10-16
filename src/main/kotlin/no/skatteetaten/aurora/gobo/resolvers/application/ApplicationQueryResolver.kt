@@ -11,7 +11,6 @@ class ApplicationQueryResolver(private val applicationService: ApplicationServic
         affiliations: List<String>,
         applications: List<String>? = null
     ): ApplicationsConnection {
-
         val applicationResources = applicationService.getApplications(affiliations, applications)
         val applicationEdges = createApplicationEdges(applicationResources)
 

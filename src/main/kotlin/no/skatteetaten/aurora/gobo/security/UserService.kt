@@ -1,9 +1,10 @@
 package no.skatteetaten.aurora.gobo.security
 
+import graphql.schema.DataFetchingEnvironment
+import graphql.servlet.GraphQLContext
 import no.skatteetaten.aurora.gobo.resolvers.user.User
 import org.springframework.security.authentication.AnonymousAuthenticationToken
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
-import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken
 import org.springframework.stereotype.Component
 import javax.servlet.http.HttpServletRequest
@@ -39,11 +40,8 @@ class UserService {
             ANONYMOUS_USER
         }
 
-    fun getToken(): String {
-        val principal = SecurityContextHolder.getContext()?.authentication?.principal ?: return ""
-        return when (principal) {
-            is SecurityUser -> principal.token
-            else -> ""
-        }
+    fun getCurrentUser(dfe: DataFetchingEnvironment): User {
+        val request = (dfe.executionContext.context as GraphQLContext).httpServletRequest.get()
+        return getCurrentUser(request)
     }
 }
