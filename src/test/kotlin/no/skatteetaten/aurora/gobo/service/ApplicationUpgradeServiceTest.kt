@@ -31,7 +31,7 @@ class ApplicationUpgradeServiceTest {
 
     private val config = ApplicationConfig("${url}mokey", "${url}unclematt", 30000, 30000)
 
-    private val applicationService = ApplicationService(config.webClientMokey(), userService)
+    private val applicationService = ApplicationService(config.webClientMokey())
     private val auroraConfigService = AuroraConfigService("${url}boober", config.webClientBoober())
 
     private val upgradeService = ApplicationUpgradeService(applicationService, auroraConfigService, userService)
@@ -50,11 +50,11 @@ class ApplicationUpgradeServiceTest {
                 .verifyComplete()
         }
 
-        assert(requests[0].path).isEqualTo("/mokey/api/applicationdeploymentdetails/applicationDeploymentId")
+        assert(requests[0].path).isEqualTo("/mokey/api/auth/applicationdeploymentdetails/applicationDeploymentId")
         assert(requests[1].path).isEqualTo("/boober/FilesCurrent")
         assert(requests[2].path).isEqualTo("/boober/AuroraConfigFileCurrent")
         assert(requests[3].path).isEqualTo("/boober/Apply")
-        assert(requests[4].path).isEqualTo("/mokey/refresh")
+        assert(requests[4].path).isEqualTo("/mokey/api/auth/refresh")
     }
 
     @Test

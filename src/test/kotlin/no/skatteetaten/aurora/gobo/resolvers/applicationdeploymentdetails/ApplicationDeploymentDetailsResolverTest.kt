@@ -12,8 +12,7 @@ import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import no.skatteetaten.aurora.gobo.resolvers.createQuery
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.mockito.ArgumentMatchers
-import org.mockito.BDDMockito.any
+import org.mockito.ArgumentMatchers.anyString
 import org.mockito.BDDMockito.given
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.mock.mockito.MockBean
@@ -40,8 +39,8 @@ class ApplicationDeploymentDetailsResolverTest {
             .willReturn(listOf(application))
 
         given(applicationService.getApplicationDeploymentDetails(
-            application.applicationDeployments.first().identifier,
-            ArgumentMatchers.any()
+            anyString(),
+            anyString()
         ))
             .willReturn(Mono.just(ApplicationDeploymentDetailsBuilder().build()))
     }

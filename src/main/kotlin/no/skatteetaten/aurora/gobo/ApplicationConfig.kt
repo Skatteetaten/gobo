@@ -79,13 +79,11 @@ class ApplicationConfig(
             .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .exchangeStrategies(exchangeStrategies())
             .filter(ExchangeFilterFunction.ofRequestProcessor {
-                val bearer= it.headers()[HttpHeaders.AUTHORIZATION]?.firstOrNull()?.let { token ->
-                    val t=token.substring(0, min(token.length, 11)).replace("Bearer", "")
+                val bearer = it.headers()[HttpHeaders.AUTHORIZATION]?.firstOrNull()?.let { token ->
+                    val t = token.substring(0, min(token.length, 11)).replace("Bearer", "")
                     "bearer=$t"
                 } ?: ""
                 logger.debug("HttpRequest method=${it.method()} url=${it.url()} $bearer")
-
-
                 Mono.just(it)
             })
             .clientConnector(clientConnector(ssl))

@@ -1,7 +1,6 @@
 package no.skatteetaten.aurora.gobo.integration.mokey
 
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
-import no.skatteetaten.aurora.gobo.security.UserService
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
