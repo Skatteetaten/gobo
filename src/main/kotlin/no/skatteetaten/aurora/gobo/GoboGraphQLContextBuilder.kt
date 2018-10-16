@@ -44,7 +44,6 @@ class GoboGraphQLContextBuilder(
 
         return GraphQLContext(httpServletRequest).apply {
             setDataLoaderRegistry(registry)
-
         }
     }
 }
