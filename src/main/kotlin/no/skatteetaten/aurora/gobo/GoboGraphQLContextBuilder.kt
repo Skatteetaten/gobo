@@ -9,8 +9,6 @@ import no.skatteetaten.aurora.gobo.resolvers.createNoCacheBatchDataLoaderFlux
 import no.skatteetaten.aurora.gobo.security.ANONYMOUS_USER
 import no.skatteetaten.aurora.gobo.security.currentUser
 import org.dataloader.DataLoaderRegistry
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import javax.servlet.http.HttpServletRequest
 import javax.websocket.server.HandshakeRequest
@@ -20,8 +18,6 @@ class GoboGraphQLContextBuilder(
     val loaderList: List<KeysDataLoader<*, *>>,
     val loaderListFlux: List<KeysDataLoaderFlux<*, *>>
 ) : GraphQLContextBuilder {
-
-    private val logger: Logger = LoggerFactory.getLogger(GraphQLContextBuilder::class.java)
 
     override fun build(httpServletRequest: HttpServletRequest?) = createContext(httpServletRequest)
 
