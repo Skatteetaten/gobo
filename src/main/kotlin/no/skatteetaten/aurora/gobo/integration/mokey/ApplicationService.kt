@@ -68,7 +68,10 @@ class ApplicationService(val webClient: WebClient) {
             }.bodyToMono()
     }
 
-    fun getApplicationDeploymentDetails(applicationDeploymentId: String, token: String): Mono<ApplicationDeploymentDetailsResource> {
+    fun getApplicationDeploymentDetails(
+        applicationDeploymentId: String,
+        token: String
+    ): Mono<ApplicationDeploymentDetailsResource> {
         return webClient
             .get()
             .uri("/api/auth/applicationdeploymentdetails/{applicationDeploymentId}", applicationDeploymentId)

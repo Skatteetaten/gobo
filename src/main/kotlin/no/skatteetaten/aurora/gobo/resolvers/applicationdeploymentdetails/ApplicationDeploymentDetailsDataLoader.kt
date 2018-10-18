@@ -2,8 +2,8 @@ package no.skatteetaten.aurora.gobo.resolvers.applicationdeploymentdetails
 
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import no.skatteetaten.aurora.gobo.resolvers.KeysDataLoaderFlux
-import no.skatteetaten.aurora.gobo.security.UserService
-import no.skatteetaten.aurora.gobo.security.UserService.Companion.ANONYMOUS_USER
+import no.skatteetaten.aurora.gobo.resolvers.user.User
+import no.skatteetaten.aurora.gobo.security.ANONYMOUS_USER
 import org.dataloader.Try
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Flux
@@ -12,16 +12,12 @@ import reactor.core.publisher.toFlux
 
 @Component
 class ApplicationDeploymentDetailsDataLoader(
-    private val applicationService: ApplicationService,
-    private val userServce: UserService
+    private val applicationService: ApplicationService
 ) : KeysDataLoaderFlux<String, Try<ApplicationDeploymentDetails>> {
 
     // TODO: If we get ReactiveSecurityContextToWork we could create a getByKey method that takes 1 key and retruns a Mono.
     // TODO: That mono is then transfered into a Try in getByKey
-    override fun getByKeys(keys: List<String>): Flux<Try<ApplicationDeploymentDetails>> {
-        val user = userServce.getCurrentUser()
-        val token = userServce.getToken()
-
+    override fun getByKeys(user: User, keys: List<String>): Flux<Try<ApplicationDeploymentDetails>> {
         // TODO will this keep ordering, because that is very important here
         return keys.toFlux().flatMap { key ->
             if (user == ANONYMOUS_USER) {
@@ -31,7 +27,7 @@ class ApplicationDeploymentDetailsDataLoader(
                     )
                 )
             } else {
-                applicationService.getApplicationDeploymentDetails(key, token)
+                applicationService.getApplicationDeploymentDetails(key, user.token)
                     .map { Try.succeeded(ApplicationDeploymentDetails.create(it)) }
                     .switchIfEmpty(
                         Mono.just(

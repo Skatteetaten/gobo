@@ -1,19 +1,19 @@
 package no.skatteetaten.aurora.gobo.resolvers.affiliation
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver
+import graphql.schema.DataFetchingEnvironment
 import no.skatteetaten.aurora.gobo.integration.mokey.AffiliationService
-import no.skatteetaten.aurora.gobo.security.UserService
+import no.skatteetaten.aurora.gobo.security.currentUser
 import org.springframework.stereotype.Component
 
 @Component
 class AffiliationQueryResolver(
-    val affiliationService: AffiliationService,
-    val userService: UserService
+    val affiliationService: AffiliationService
 ) : GraphQLQueryResolver {
 
-    fun getAffiliations(checkForVisibility: Boolean = false): AffiliationsConnection {
+    fun getAffiliations(checkForVisibility: Boolean = false, dfe: DataFetchingEnvironment): AffiliationsConnection {
         val affiliationNames = if (checkForVisibility) {
-            affiliationService.getAllVisibleAffiliations(userService.getToken())
+            affiliationService.getAllVisibleAffiliations(dfe.currentUser().token)
         } else {
             affiliationService.getAllAffiliations()
         }
