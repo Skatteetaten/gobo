@@ -1,6 +1,7 @@
 package no.skatteetaten.aurora.gobo.resolvers.applicationdeployment
 
 import com.coxautodev.graphql.tools.GraphQLMutationResolver
+import no.skatteetaten.aurora.gobo.integration.mokey.RefreshParams
 import no.skatteetaten.aurora.gobo.service.ApplicationUpgradeService
 import org.springframework.stereotype.Component
 
@@ -13,7 +14,11 @@ class ApplicationDeploymentMutationResolver(private val applicationUpgradeServic
         return true
     }
 
-    fun refreshApplicationDeployment(input: ApplicationDeploymentRefreshInput): String {
-        return applicationUpgradeService.refreshApplicationDeployment(input.applicationDeploymentId)
+    fun refreshApplicationDeployments(input: ApplicationDeploymentRefreshInput): String {
+        val refreshParams = RefreshParams(input.applicationDeploymentId, input.affiliations)
+        applicationUpgradeService.refreshApplicationDeployments(refreshParams)
+
+        return input.applicationDeploymentId ?: input.affiliations?.joinToString { "$it " }
+        ?: throw IllegalArgumentException("Nothing to refresh")
     }
 }

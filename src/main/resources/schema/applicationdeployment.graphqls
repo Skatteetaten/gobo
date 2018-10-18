@@ -28,5 +28,6 @@ input ApplicationDeploymentVersionInput {
 }
 
 input ApplicationDeploymentRefreshInput {
-  applicationDeploymentId: String!
+  applicationDeploymentId: String
+  affiliations: [String!]
 }

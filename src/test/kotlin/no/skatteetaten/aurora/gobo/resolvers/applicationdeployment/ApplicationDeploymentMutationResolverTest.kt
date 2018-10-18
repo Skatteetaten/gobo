@@ -1,6 +1,7 @@
 package no.skatteetaten.aurora.gobo.resolvers.applicationdeployment
 
 import no.skatteetaten.aurora.gobo.GraphQLTest
+import no.skatteetaten.aurora.gobo.integration.mokey.RefreshParams
 import no.skatteetaten.aurora.gobo.resolvers.createQuery
 import no.skatteetaten.aurora.gobo.service.ApplicationUpgradeService
 import org.junit.jupiter.api.Test
@@ -18,7 +19,7 @@ class ApplicationDeploymentMutationResolverTest {
     @Value("classpath:graphql/redeployWithVersion.graphql")
     private lateinit var redeployWithVersionMutation: Resource
 
-    @Value("classpath:graphql/refreshApplicationDeployment.graphql")
+    @Value("classpath:graphql/refreshApplicationDeployments.graphql")
     private lateinit var refreshApplicationDeploymentMutation: Resource
 
     @Autowired
@@ -51,7 +52,8 @@ class ApplicationDeploymentMutationResolverTest {
 
     @Test
     fun `Mutate refresh application deployment`() {
-        given(applicationUpgradeService.refreshApplicationDeployment("123")).willReturn("123")
+        val refreshParams = RefreshParams("123")
+        applicationUpgradeService.refreshApplicationDeployments(refreshParams)
 
         val variables = mapOf(
             "input" to mapOf(
@@ -66,6 +68,6 @@ class ApplicationDeploymentMutationResolverTest {
             .exchange()
             .expectStatus().isOk
             .expectBody()
-            .jsonPath("$.data.refreshApplicationDeployment").isNotEmpty
+            .jsonPath("$.data.refreshApplicationDeployments").isNotEmpty
     }
 }

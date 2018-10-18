@@ -1,0 +1,3 @@
+mutation refreshApplicationDeployments($input: ApplicationDeploymentRefreshInput) {
+    refreshApplicationDeployments(input: $input)
+}

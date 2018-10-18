@@ -92,9 +92,8 @@ class ApplicationUpgradeService(
         applicationService.refreshApplicationDeployment(token, RefreshParams(applicationDeploymentId))
 
     // TODO: Not sure how to test this really, Should we just return the mono and use step verifyer or should we mock the applicationService?
-    fun refreshApplicationDeployment(applicationDeploymentId: String): String {
+    fun refreshApplicationDeployments(refreshParams: RefreshParams) {
         val token = userService.getToken()
-        applicationService.refreshApplicationDeployment(token, RefreshParams(applicationDeploymentId)).block()
-        return applicationDeploymentId
+        applicationService.refreshApplicationDeployment(token, refreshParams).block()
     }
 }

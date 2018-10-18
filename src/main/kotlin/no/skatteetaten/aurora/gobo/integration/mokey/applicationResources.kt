@@ -95,7 +95,7 @@ data class ApplicationResource(
     val applicationDeployments: List<ApplicationDeploymentResource>
 ) : ResourceSupport()
 
-data class RefreshParams(val applicationDeploymentId: String)
+data class RefreshParams(val applicationDeploymentId: String? = null, val affiliations: List<String>? = null)
 
 private fun ResourceSupport.findLink(rel: String): String {
     return links.firstOrNull { it.rel == rel }?.href?.let {
