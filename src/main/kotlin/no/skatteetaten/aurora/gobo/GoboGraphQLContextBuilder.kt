@@ -30,8 +30,6 @@ class GoboGraphQLContextBuilder(
     override fun build() = throw UnsupportedOperationException()
 
     private fun createContext(request: HttpServletRequest? = null): GraphQLContext {
-        logger.info("Creating new DataLoader instances")
-
         val currentUser = request?.currentUser() ?: ANONYMOUS_USER
         val registry = DataLoaderRegistry().apply {
             loaderList.forEach {

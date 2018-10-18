@@ -12,9 +12,8 @@ class AffiliationQueryResolver(
 ) : GraphQLQueryResolver {
 
     fun getAffiliations(checkForVisibility: Boolean = false, dfe: DataFetchingEnvironment): AffiliationsConnection {
-        val user = dfe.currentUser()
         val affiliationNames = if (checkForVisibility) {
-            affiliationService.getAllVisibleAffiliations(user.token)
+            affiliationService.getAllVisibleAffiliations(dfe.currentUser().token)
         } else {
             affiliationService.getAllAffiliations()
         }
