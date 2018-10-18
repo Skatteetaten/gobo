@@ -3,7 +3,7 @@ package no.skatteetaten.aurora.gobo.resolvers.applicationdeploymentdetails
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import no.skatteetaten.aurora.gobo.resolvers.KeysDataLoaderFlux
 import no.skatteetaten.aurora.gobo.resolvers.user.User
-import no.skatteetaten.aurora.gobo.security.UserService.Companion.ANONYMOUS_USER
+import no.skatteetaten.aurora.gobo.security.ANONYMOUS_USER
 import org.dataloader.Try
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Flux
