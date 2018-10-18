@@ -170,7 +170,6 @@ class AuroraConfigFileBuilder {
         )
 }
 
-
 data class OpenShiftUserBuilder(val userName: String = "123456", val fullName: String = "Test Testesen") {
 
     fun build(): User {
@@ -182,5 +181,4 @@ data class OpenShiftUserBuilder(val userName: String = "123456", val fullName: S
         user.metadata = objectMeta
         return user
     }
-
 }

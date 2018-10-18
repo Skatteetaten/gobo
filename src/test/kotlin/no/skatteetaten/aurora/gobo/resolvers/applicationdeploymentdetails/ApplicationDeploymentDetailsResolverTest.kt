@@ -54,9 +54,7 @@ class ApplicationDeploymentDetailsResolverTest {
     }
 
     @AfterEach
-    fun tearDown() {
-        reset(applicationService, openShiftUserLoader)
-    }
+    fun tearDown() = reset(applicationService, openShiftUserLoader)
 
     @Test
     fun `Query for repositories and tags`() {

@@ -9,8 +9,7 @@ import org.springframework.stereotype.Component
 @Component
 class ApplicationDeploymentMutationResolver(
     private val applicationUpgradeService: ApplicationUpgradeService
-) :
-    GraphQLMutationResolver {
+) : GraphQLMutationResolver {
 
     fun redeployWithVersion(input: ApplicationDeploymentVersionInput, dfe: DataFetchingEnvironment): Boolean {
         applicationUpgradeService.upgrade(input.applicationDeploymentId, input.version, dfe.currentUser().token).block()

@@ -3,16 +3,22 @@ package no.skatteetaten.aurora.gobo.resolvers.application
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentDetailsBuilder
 import no.skatteetaten.aurora.gobo.ApplicationResourceBuilder
 import no.skatteetaten.aurora.gobo.GraphQLTest
+import no.skatteetaten.aurora.gobo.OpenShiftUserBuilder
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import no.skatteetaten.aurora.gobo.resolvers.createQuery
+import no.skatteetaten.aurora.gobo.security.OpenShiftUserLoader
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers
 import org.mockito.BDDMockito.anyString
 import org.mockito.BDDMockito.given
+import org.mockito.BDDMockito.reset
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.core.io.Resource
+import org.springframework.http.HttpHeaders
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.web.reactive.function.BodyInserters
 import reactor.core.publisher.Mono
@@ -30,6 +36,18 @@ class ApplicationQueryResolverTest {
     @MockBean
     private lateinit var applicationService: ApplicationService
 
+    @MockBean
+    private lateinit var openShiftUserLoader: OpenShiftUserLoader
+
+    @BeforeEach
+    fun setUp() {
+        given(openShiftUserLoader.findOpenShiftUserByToken(anyString()))
+            .willReturn(OpenShiftUserBuilder().build())
+    }
+
+    @AfterEach
+    fun tearDown() = reset(applicationService, openShiftUserLoader)
+
     @Test
     fun `Query for applications given affiliations`() {
         val affiliations = listOf("paas")
@@ -44,6 +62,7 @@ class ApplicationQueryResolverTest {
         webTestClient
             .post()
             .uri("/graphql")
+            .header(HttpHeaders.AUTHORIZATION, "Bearer test-token")
             .body(BodyInserters.fromObject(query))
             .exchange()
             .expectStatus().isOk
