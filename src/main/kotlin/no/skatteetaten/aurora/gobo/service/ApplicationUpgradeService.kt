@@ -13,9 +13,8 @@ import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigService
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentDetailsResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import no.skatteetaten.aurora.gobo.integration.mokey.RefreshParams
-import org.slf4j.LoggerFactory
+import no.skatteetaten.aurora.gobo.resolvers.blockNonNull
 import org.springframework.stereotype.Service
-import reactor.core.publisher.Mono
 import reactor.core.publisher.toMono
 
 @Service
@@ -24,38 +23,25 @@ class ApplicationUpgradeService(
     private val auroraConfigService: AuroraConfigService
 ) {
 
-    private val logger = LoggerFactory.getLogger(ApplicationUpgradeService::class.java)
+    fun upgrade(applicationDeploymentId: String, version: String, token: String) {
+        val details = applicationService.getApplicationDeploymentDetails(applicationDeploymentId, token).blockNonNull()
+        val currentLink = details.link("FilesCurrent")
+        val auroraConfigFile = details.link("AuroraConfigFileCurrent")
+        val applyLink = details.link("Apply")
 
-    fun upgrade(applicationDeploymentId: String, version: String, token: String): Mono<Void> {
-        return applicationService.getApplicationDeploymentDetails(applicationDeploymentId, token)
-            .flatMap { details ->
-
-                val currentLink = details.link("FilesCurrent")
-                val auroraConfigFile = details.link("AuroraConfigFileCurrent")
-                val applyLink = details.link("Apply")
-
-                getApplicationFile(token, currentLink)
-                    .flatMap { applicationFile ->
-                        patch(token, version, auroraConfigFile, applicationFile)
-                    }.flatMap {
-                        redeploy(token, details, applyLink)
-                    }.flatMap {
-                        refresh(token, applicationDeploymentId)
-                    }
-            }.doOnError {
-                logger.error(
-                    "Exception while upgrading version to $version for applicationDeploymentId $applicationDeploymentId",
-                    it
-                )
-            }
+        val applicationFile = getApplicationFile(token, currentLink)
+        patch(token, version, auroraConfigFile, applicationFile)
+        redeploy(token, details, applyLink)
+        refresh(token, applicationDeploymentId)
     }
 
-    private fun getApplicationFile(token: String, it: String): Mono<String> {
+    private fun getApplicationFile(token: String, it: String): String {
         return auroraConfigService
             .get<AuroraConfigFileResource>(token, it)
             .filter { it.type == AuroraConfigFileType.APP }
             .map { it.name }
             .toMono()
+            .blockNonNull()
     }
 
     private fun patch(
@@ -63,12 +49,13 @@ class ApplicationUpgradeService(
         version: String,
         auroraConfigFile: String,
         applicationFile: String
-    ): Mono<AuroraConfigFileResource> {
+    ): AuroraConfigFileResource {
         return auroraConfigService.patch<AuroraConfigFileResource>(
             token = token,
             url = auroraConfigFile.replace("{fileName}", applicationFile), // TODO placeholder cannot contain slash
             body = createVersionPatch(version)
         ).toMono()
+            .blockNonNull()
     }
 
     private fun createVersionPatch(version: String): Map<String, String> {
@@ -80,17 +67,16 @@ class ApplicationUpgradeService(
         token: String,
         details: ApplicationDeploymentDetailsResource,
         applyLink: String
-    ): Mono<JsonNode> {
+    ): JsonNode {
         val payload = ApplyPayload(listOf(details.applicationDeploymentCommand.applicationDeploymentRef))
-        return auroraConfigService.put<JsonNode>(token, applyLink, body = payload).toMono()
+        return auroraConfigService.put<JsonNode>(token, applyLink, body = payload).toMono().blockNonNull()
     }
 
     private fun refresh(token: String, applicationDeploymentId: String) =
         applicationService.refreshApplicationDeployment(token, RefreshParams(applicationDeploymentId))
 
-    // TODO: Not sure how to test this really, Should we just return the mono and use step verifyer or should we mock the applicationService?
     fun refreshApplicationDeployment(applicationDeploymentId: String, token: String): String {
-        applicationService.refreshApplicationDeployment(token, RefreshParams(applicationDeploymentId)).block()
+        applicationService.refreshApplicationDeployment(token, RefreshParams(applicationDeploymentId))
         return applicationDeploymentId
     }
 }

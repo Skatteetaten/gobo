@@ -91,8 +91,8 @@ class ApplicationService(val webClient: WebClient) {
     private fun buildQueryParams(affiliations: List<String>): LinkedMultiValueMap<String, String> =
         LinkedMultiValueMap<String, String>().apply { addAll("affiliation", affiliations) }
 
-    fun refreshApplicationDeployment(token: String, refreshParams: RefreshParams): Mono<Void> {
-        return webClient
+    fun refreshApplicationDeployment(token: String, refreshParams: RefreshParams) {
+        webClient
             .post()
             .uri("/api/auth/refresh")
             .body(BodyInserters.fromObject(refreshParams))
@@ -106,6 +106,7 @@ class ApplicationService(val webClient: WebClient) {
                         errorMessage = body
                     )
                 }
-            }.bodyToMono()
+            }.bodyToMono<Void>()
+            .block()
     }
 }

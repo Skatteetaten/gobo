@@ -12,7 +12,7 @@ class ApplicationDeploymentMutationResolver(
 ) : GraphQLMutationResolver {
 
     fun redeployWithVersion(input: ApplicationDeploymentVersionInput, dfe: DataFetchingEnvironment): Boolean {
-        applicationUpgradeService.upgrade(input.applicationDeploymentId, input.version, dfe.currentUser().token).block()
+        applicationUpgradeService.upgrade(input.applicationDeploymentId, input.version, dfe.currentUser().token)
         return true
     }
 

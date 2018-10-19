@@ -13,7 +13,6 @@ import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.core.io.Resource
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.web.reactive.function.BodyInserters
-import reactor.core.publisher.Mono
 
 @GraphQLTest
 class ApplicationDeploymentMutationResolverTest {
@@ -34,8 +33,6 @@ class ApplicationDeploymentMutationResolverTest {
 
     @Test
     fun `Mutate application deployment version`() {
-        given(applicationUpgradeService.upgrade("123", "1", "")).willReturn(Mono.empty())
-
         val variables = mapOf(
             "input" to mapOf(
                 "applicationDeploymentId" to "123",
