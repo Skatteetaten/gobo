@@ -7,7 +7,7 @@ import assertk.assertions.isNotEmpty
 import assertk.assertions.isTrue
 import no.skatteetaten.aurora.gobo.GraphQLTest
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
-import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageRegistryService
+import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageRegistryServiceBlocking
 import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageRepoDto
 import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageTagDto
 import no.skatteetaten.aurora.gobo.resolvers.createQuery
@@ -38,7 +38,7 @@ class ImageRepositoryQueryResolverTest {
     private lateinit var webTestClient: WebTestClient
 
     @MockBean
-    private lateinit var imageRegistryService: ImageRegistryService
+    private lateinit var imageRegistryServiceBlocking: ImageRegistryServiceBlocking
 
     class ImageRepoData(val repoString: String, val tags: List<String>) {
         val imageRepoDto: ImageRepoDto get() = fromRepoString(repoString).toImageRepo()
@@ -54,15 +54,15 @@ class ImageRepositoryQueryResolverTest {
     @BeforeEach
     fun setUp() {
         testData.forEach { data: ImageRepoData ->
-            given(imageRegistryService.findTagNamesInRepoOrderedByCreatedDateDesc(data.imageRepoDto)).willReturn(data.tags)
+            given(imageRegistryServiceBlocking.findTagNamesInRepoOrderedByCreatedDateDesc(data.imageRepoDto)).willReturn(data.tags)
             data.tags
                 .map { ImageTagDto(it, created = EPOCH) }
-                .forEach { given(imageRegistryService.findTagByName(data.imageRepoDto, it.name)).willReturn(it) }
+                .forEach { given(imageRegistryServiceBlocking.findTagByName(data.imageRepoDto, it.name)).willReturn(it) }
         }
     }
 
     @AfterEach
-    fun tearDown() = reset(imageRegistryService)
+    fun tearDown() = reset(imageRegistryServiceBlocking)
 
     @Test
     fun `Query for repositories and tags`() {
@@ -114,7 +114,7 @@ class ImageRepositoryQueryResolverTest {
 
     @Test
     fun `Get errors when findByTagName fails with exception`() {
-        given(imageRegistryService.findTagByName(testData[0].imageRepoDto, testData[0].tags[0]))
+        given(imageRegistryServiceBlocking.findTagByName(testData[0].imageRepoDto, testData[0].tags[0]))
             .willThrow(SourceSystemException("test exception", RuntimeException("testing testing")))
 
         val variables = mapOf("repositories" to testData[0].imageRepoDto.repository)

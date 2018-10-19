@@ -34,12 +34,12 @@ class ApplicationServiceBlocking(private val applicationService: ApplicationServ
         applicationDeploymentId: String
     ): ApplicationDeploymentDetailsResource =
         applicationService.getApplicationDeploymentDetails(
-            applicationDeploymentId,
-            token
+            token,
+            applicationDeploymentId
         ).blockNonNullAndHandleError()
 
     fun refreshApplicationDeployment(token: String, refreshParams: RefreshParams) =
-        applicationService.refreshApplicationDeployment(token, refreshParams)
+        applicationService.refreshApplicationDeployment(token, refreshParams).block()
 }
 
 @Service
@@ -113,7 +113,7 @@ class ApplicationService(@TargetService(ServiceTypes.MOKEY) val webClient: WebCl
     private fun buildQueryParams(affiliations: List<String>): LinkedMultiValueMap<String, String> =
         LinkedMultiValueMap<String, String>().apply { addAll("affiliation", affiliations) }
 
-    fun refreshApplicationDeployment(token: String, refreshParams: RefreshParams) {
+    fun refreshApplicationDeployment(token: String, refreshParams: RefreshParams) =
         webClient
             .post()
             .uri("/api/auth/refresh")
@@ -129,6 +129,4 @@ class ApplicationService(@TargetService(ServiceTypes.MOKEY) val webClient: WebCl
                     )
                 }
             }.bodyToMono<Void>()
-            .block()
-    }
 }

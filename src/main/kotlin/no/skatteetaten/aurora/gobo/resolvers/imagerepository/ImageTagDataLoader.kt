@@ -3,7 +3,7 @@ package no.skatteetaten.aurora.gobo.resolvers.imagerepository
 import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.newFixedThreadPoolContext
 import kotlinx.coroutines.experimental.runBlocking
-import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageRegistryService
+import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageRegistryServiceBlocking
 import no.skatteetaten.aurora.gobo.resolvers.KeysDataLoader
 import no.skatteetaten.aurora.gobo.resolvers.user.User
 import no.skatteetaten.aurora.utils.logLine
@@ -16,7 +16,7 @@ import org.springframework.util.StopWatch
 import java.time.Instant
 
 @Component
-class ImageTagDataLoader(val imageRegistryService: ImageRegistryService) : KeysDataLoader<ImageTag, Try<Instant>> {
+class ImageTagDataLoader(val imageRegistryServiceBlocking: ImageRegistryServiceBlocking) : KeysDataLoader<ImageTag, Try<Instant>> {
 
     private val logger: Logger = LoggerFactory.getLogger(ImageTagDataLoader::class.java)
 
@@ -33,7 +33,7 @@ class ImageTagDataLoader(val imageRegistryService: ImageRegistryService) : KeysD
                     async(context) {
                         Try.tryCall {
                             val imageRepo = imageTag.imageRepository.toImageRepo()
-                            imageRegistryService.findTagByName(imageRepo, imageTag.name).created
+                            imageRegistryServiceBlocking.findTagByName(imageRepo, imageTag.name).created
                         }
                     }
                 }.map { it.await() }

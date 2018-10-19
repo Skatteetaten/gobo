@@ -22,7 +22,7 @@ import org.springframework.http.HttpHeaders
 import org.springframework.web.reactive.function.client.WebClient
 import java.time.Instant
 
-class ImageRegistryServiceTest {
+class ImageRegistryServiceBlockingTest {
 
     private val imageRepoName = "no_skatteetaten_aurora/boober"
     private val tagName = "1"
@@ -33,7 +33,7 @@ class ImageRegistryServiceTest {
 
     private val defaultRegistryMetadataResolver = mockk<DefaultRegistryMetadataResolver>()
     private val tokenProvider = mockk<TokenProvider>()
-    private val imageRegistry = ImageRegistryService(
+    private val imageRegistry = ImageRegistryServiceBlocking(
         ImageRegistryUrlBuilder(), defaultRegistryMetadataResolver, WebClient.create(url.toString()), tokenProvider
     )
 
