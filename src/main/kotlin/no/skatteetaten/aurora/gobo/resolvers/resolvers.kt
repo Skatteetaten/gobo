@@ -5,6 +5,7 @@ import graphql.servlet.GraphQLContext
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import org.dataloader.DataLoader
 import org.dataloader.Try
+import org.springframework.web.reactive.function.client.WebClientResponseException
 import reactor.core.publisher.Mono
 import reactor.core.publisher.toMono
 import java.time.Duration
@@ -30,7 +31,24 @@ fun <T : Any> DataFetchingEnvironment.loader(type: KClass<T>): DataLoader<Any, T
         .getDataLoader<Any, Try<T>>(key) ?: throw IllegalStateException("No $key found")
 }
 
-fun <T> Mono<T>.blockNonNull() =
+fun <T> Mono<T>.blockAndHandleError() =
+    this.doOnError { handleResponseException(it) }
+        .block(Duration.ofSeconds(30))
+
+fun <T> Mono<T>.blockNonNullAndHandleError() =
     this.switchIfEmpty(SourceSystemException("Empty response").toMono())
-        .doOnError { throw SourceSystemException("Error response", it) }
+        .doOnError {
+            handleResponseException(it)
+        }
         .block(Duration.ofSeconds(30))!!
+
+private fun handleResponseException(it: Throwable?) {
+    if (it is WebClientResponseException) {
+        throw SourceSystemException(
+            "Error in response, status:${it.statusCode} message:${it.statusText}",
+            it,
+            it.statusText
+        )
+    }
+    throw SourceSystemException("Error response", it)
+}

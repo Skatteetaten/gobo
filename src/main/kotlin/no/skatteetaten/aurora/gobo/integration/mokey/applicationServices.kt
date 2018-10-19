@@ -1,39 +1,61 @@
 package no.skatteetaten.aurora.gobo.integration.mokey
 
+import no.skatteetaten.aurora.gobo.ServiceTypes
+import no.skatteetaten.aurora.gobo.TargetService
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
+import no.skatteetaten.aurora.gobo.resolvers.blockAndHandleError
+import no.skatteetaten.aurora.gobo.resolvers.blockNonNullAndHandleError
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.WebClient
-import org.springframework.web.reactive.function.client.WebClientResponseException
 import org.springframework.web.reactive.function.client.bodyToMono
 import reactor.core.publisher.Mono
 
 @Service
-class ApplicationService(val webClient: WebClient) {
-
+class ApplicationServiceBlocking(private val applicationService: ApplicationService) {
     fun getApplications(affiliations: List<String>, applications: List<String>? = null): List<ApplicationResource> {
-        try {
-            val resources = webClient
-                .get()
-                .uri {
-                    it.path("/api/application").queryParams(buildQueryParams(affiliations)).build()
-                }
-                .retrieve()
-                .bodyToMono<List<ApplicationResource>>()
-                .block() ?: return emptyList()
+        val resources =
+            applicationService.getApplications(affiliations, applications).blockAndHandleError()
+                ?: return emptyList()
+        return if (applications == null) resources else resources.filter { applications.contains(it.name) }
+    }
 
-            return if (applications == null) resources else resources.filter { applications.contains(it.name) }
-        } catch (e: WebClientResponseException) {
-            throw SourceSystemException(
-                "Failed to get application, status:${e.statusCode} message:${e.statusText}",
-                e,
-                e.statusText,
-                "Failed to get applications"
-            )
-        }
+    fun getApplication(id: String): ApplicationResource =
+        applicationService.getApplication(id).blockNonNullAndHandleError()
+
+    fun getApplicationDeployment(applicationDeploymentId: String) =
+        applicationService.getApplicationDeployment(applicationDeploymentId).blockNonNullAndHandleError()
+
+    fun getApplicationDeploymentDetails(
+        token: String,
+        applicationDeploymentId: String
+    ): ApplicationDeploymentDetailsResource =
+        applicationService.getApplicationDeploymentDetails(
+            applicationDeploymentId,
+            token
+        ).blockNonNullAndHandleError()
+
+    fun refreshApplicationDeployment(token: String, refreshParams: RefreshParams) =
+        applicationService.refreshApplicationDeployment(token, refreshParams)
+}
+
+@Service
+class ApplicationService(@TargetService(ServiceTypes.MOKEY) val webClient: WebClient) {
+
+    fun getApplications(
+        affiliations: List<String>,
+        applications: List<String>? = null
+    ): Mono<List<ApplicationResource>> {
+        return webClient
+            .get()
+            .uri {
+                it.path("/api/application").queryParams(buildQueryParams(affiliations)).build()
+            }
+            .retrieve()
+            .bodyToMono()
     }
 
     fun getApplication(id: String): Mono<ApplicationResource> {
@@ -69,8 +91,8 @@ class ApplicationService(val webClient: WebClient) {
     }
 
     fun getApplicationDeploymentDetails(
-        applicationDeploymentId: String,
-        token: String
+        token: String,
+        applicationDeploymentId: String
     ): Mono<ApplicationDeploymentDetailsResource> {
         return webClient
             .get()

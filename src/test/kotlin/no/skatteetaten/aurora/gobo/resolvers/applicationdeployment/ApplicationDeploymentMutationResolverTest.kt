@@ -53,7 +53,7 @@ class ApplicationDeploymentMutationResolverTest {
 
     @Test
     fun `Mutate refresh application deployment`() {
-        given(applicationUpgradeService.refreshApplicationDeployment("123", "")).willReturn("123")
+        given(applicationUpgradeService.refreshApplicationDeployment("", "123")).willReturn("123")
 
         val variables = mapOf(
             "input" to mapOf(

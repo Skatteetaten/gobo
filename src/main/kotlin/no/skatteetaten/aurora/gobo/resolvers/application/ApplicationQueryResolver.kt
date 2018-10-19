@@ -1,11 +1,11 @@
 package no.skatteetaten.aurora.gobo.resolvers.application
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver
-import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
+import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
 import org.springframework.stereotype.Component
 
 @Component
-class ApplicationQueryResolver(private val applicationService: ApplicationService) : GraphQLQueryResolver {
+class ApplicationQueryResolver(private val applicationService: ApplicationServiceBlocking) : GraphQLQueryResolver {
 
     fun getApplications(
         affiliations: List<String>,

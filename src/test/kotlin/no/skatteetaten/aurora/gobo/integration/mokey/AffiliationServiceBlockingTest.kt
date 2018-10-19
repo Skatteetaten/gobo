@@ -13,14 +13,14 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 @AutoConfigureStubRunner
-class AffiliationServiceTest {
+class AffiliationServiceBlockingTest {
 
     @Autowired
-    lateinit var affiliationService: AffiliationService
+    lateinit var affiliationServiceBlocking: AffiliationServiceBlocking
 
     @Test
     fun `Get affiliations`() {
-        val affiliations = affiliationService.getAllAffiliations()
+        val affiliations = affiliationServiceBlocking.getAllAffiliations()
         assert(affiliations).isNotEmpty()
         assert(affiliations).contains("paas")
     }

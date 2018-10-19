@@ -13,7 +13,7 @@ import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigService
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentDetailsResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import no.skatteetaten.aurora.gobo.integration.mokey.RefreshParams
-import no.skatteetaten.aurora.gobo.resolvers.blockNonNull
+import no.skatteetaten.aurora.gobo.resolvers.blockNonNullAndHandleError
 import org.springframework.stereotype.Service
 import reactor.core.publisher.toMono
 
@@ -23,8 +23,8 @@ class ApplicationUpgradeService(
     private val auroraConfigService: AuroraConfigService
 ) {
 
-    fun upgrade(applicationDeploymentId: String, version: String, token: String) {
-        val details = applicationService.getApplicationDeploymentDetails(applicationDeploymentId, token).blockNonNull()
+    fun upgrade(token: String, applicationDeploymentId: String, version: String) {
+        val details = applicationService.getApplicationDeploymentDetails(applicationDeploymentId, token).blockNonNullAndHandleError()
         val currentLink = details.link("FilesCurrent")
         val auroraConfigFile = details.link("AuroraConfigFileCurrent")
         val applyLink = details.link("Apply")
@@ -41,7 +41,7 @@ class ApplicationUpgradeService(
             .filter { it.type == AuroraConfigFileType.APP }
             .map { it.name }
             .toMono()
-            .blockNonNull()
+            .blockNonNullAndHandleError()
     }
 
     private fun patch(
@@ -55,7 +55,7 @@ class ApplicationUpgradeService(
             url = auroraConfigFile.replace("{fileName}", applicationFile), // TODO placeholder cannot contain slash
             body = createVersionPatch(version)
         ).toMono()
-            .blockNonNull()
+            .blockNonNullAndHandleError()
     }
 
     private fun createVersionPatch(version: String): Map<String, String> {
@@ -69,13 +69,13 @@ class ApplicationUpgradeService(
         applyLink: String
     ): JsonNode {
         val payload = ApplyPayload(listOf(details.applicationDeploymentCommand.applicationDeploymentRef))
-        return auroraConfigService.put<JsonNode>(token, applyLink, body = payload).toMono().blockNonNull()
+        return auroraConfigService.put<JsonNode>(token, applyLink, body = payload).toMono().blockNonNullAndHandleError()
     }
 
     private fun refresh(token: String, applicationDeploymentId: String) =
         applicationService.refreshApplicationDeployment(token, RefreshParams(applicationDeploymentId))
 
-    fun refreshApplicationDeployment(applicationDeploymentId: String, token: String): String {
+    fun refreshApplicationDeployment(token: String, applicationDeploymentId: String): String {
         applicationService.refreshApplicationDeployment(token, RefreshParams(applicationDeploymentId))
         return applicationDeploymentId
     }

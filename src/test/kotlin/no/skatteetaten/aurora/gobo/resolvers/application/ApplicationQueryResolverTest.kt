@@ -5,6 +5,7 @@ import no.skatteetaten.aurora.gobo.ApplicationResourceBuilder
 import no.skatteetaten.aurora.gobo.GraphQLTest
 import no.skatteetaten.aurora.gobo.OpenShiftUserBuilder
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
+import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
 import no.skatteetaten.aurora.gobo.resolvers.createQuery
 import no.skatteetaten.aurora.gobo.security.OpenShiftUserLoader
 import org.junit.jupiter.api.AfterEach
@@ -34,6 +35,9 @@ class ApplicationQueryResolverTest {
     private lateinit var webTestClient: WebTestClient
 
     @MockBean
+    private lateinit var applicationServiceBlocking: ApplicationServiceBlocking
+
+    @MockBean
     private lateinit var applicationService: ApplicationService
 
     @MockBean
@@ -51,7 +55,7 @@ class ApplicationQueryResolverTest {
     @Test
     fun `Query for applications given affiliations`() {
         val affiliations = listOf("paas")
-        given(applicationService.getApplications(affiliations))
+        given(applicationServiceBlocking.getApplications(affiliations))
             .willReturn(listOf(ApplicationResourceBuilder().build()))
 
         given(applicationService.getApplicationDeploymentDetails(anyString(), ArgumentMatchers.anyString()))
