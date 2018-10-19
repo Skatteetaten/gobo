@@ -13,7 +13,6 @@ import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigService
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentDetailsResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import no.skatteetaten.aurora.gobo.integration.mokey.RefreshParams
-import no.skatteetaten.aurora.gobo.security.UserService
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
@@ -22,14 +21,12 @@ import reactor.core.publisher.toMono
 @Service
 class ApplicationUpgradeService(
     private val applicationService: ApplicationService,
-    private val auroraConfigService: AuroraConfigService,
-    private val userService: UserService
+    private val auroraConfigService: AuroraConfigService
 ) {
 
     private val logger = LoggerFactory.getLogger(ApplicationUpgradeService::class.java)
 
-    fun upgrade(applicationDeploymentId: String, version: String): Mono<Void> {
-        val token = userService.getToken()
+    fun upgrade(applicationDeploymentId: String, version: String, token: String): Mono<Void> {
         return applicationService.getApplicationDeploymentDetails(applicationDeploymentId, token)
             .flatMap { details ->
 
@@ -55,7 +52,7 @@ class ApplicationUpgradeService(
 
     private fun getApplicationFile(token: String, it: String): Mono<String> {
         return auroraConfigService
-                .get<AuroraConfigFileResource>(token, it)
+            .get<AuroraConfigFileResource>(token, it)
             .filter { it.type == AuroraConfigFileType.APP }
             .map { it.name }
             .toMono()
@@ -92,8 +89,8 @@ class ApplicationUpgradeService(
         applicationService.refreshApplicationDeployment(token, RefreshParams(applicationDeploymentId))
 
     // TODO: Not sure how to test this really, Should we just return the mono and use step verifyer or should we mock the applicationService?
-    fun refreshApplicationDeployments(refreshParams: RefreshParams) {
-        val token = userService.getToken()
-        applicationService.refreshApplicationDeployment(token, refreshParams).block()
+    fun refreshApplicationDeployment(applicationDeploymentId: String, token: String): String {
+        applicationService.refreshApplicationDeployment(token, RefreshParams(applicationDeploymentId)).block()
+        return applicationDeploymentId
     }
 }

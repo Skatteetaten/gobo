@@ -4,6 +4,7 @@ import assertk.assert
 import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentBuilder
+import no.skatteetaten.aurora.gobo.resolvers.user.User
 import org.junit.jupiter.api.Test
 
 class NamespaceDataLoaderTest {
@@ -11,7 +12,8 @@ class NamespaceDataLoaderTest {
 
     @Test
     fun `Get Namespace by Applications`() {
-        val namespaces = namespaceDataLoader.getByKeys(listOf(ApplicationDeploymentBuilder().build()))
+        val namespaces = namespaceDataLoader.getByKeys(
+            User("123", "Test"), listOf(ApplicationDeploymentBuilder().build()))
         assert(namespaces).hasSize(1)
         assert(namespaces[0].name).isEqualTo("namespaceId")
     }

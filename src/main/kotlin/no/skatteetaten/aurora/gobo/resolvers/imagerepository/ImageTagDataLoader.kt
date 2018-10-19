@@ -5,6 +5,7 @@ import kotlinx.coroutines.experimental.newFixedThreadPoolContext
 import kotlinx.coroutines.experimental.runBlocking
 import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageRegistryService
 import no.skatteetaten.aurora.gobo.resolvers.KeysDataLoader
+import no.skatteetaten.aurora.gobo.resolvers.user.User
 import no.skatteetaten.aurora.utils.logLine
 import no.skatteetaten.aurora.utils.time
 import org.dataloader.Try
@@ -21,7 +22,7 @@ class ImageTagDataLoader(val imageRegistryService: ImageRegistryService) : KeysD
 
     val context = newFixedThreadPoolContext(6, "tag-loader")
 
-    override fun getByKeys(keys: List<ImageTag>): List<Try<Instant>> {
+    override fun getByKeys(user: User, keys: List<ImageTag>): List<Try<Instant>> {
 
         logger.debug("Loading ${keys.size} tags (${keys.toSet().size} unique)")
 

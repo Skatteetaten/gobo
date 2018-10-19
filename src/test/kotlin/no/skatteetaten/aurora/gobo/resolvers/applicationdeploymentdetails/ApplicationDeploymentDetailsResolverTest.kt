@@ -5,17 +5,22 @@ import assertk.assertions.isEqualTo
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentDetailsBuilder
 import no.skatteetaten.aurora.gobo.ApplicationResourceBuilder
 import no.skatteetaten.aurora.gobo.GraphQLTest
+import no.skatteetaten.aurora.gobo.OpenShiftUserBuilder
 import no.skatteetaten.aurora.gobo.defaultInstant
 import no.skatteetaten.aurora.gobo.healthResponseJson
 import no.skatteetaten.aurora.gobo.infoResponseJson
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import no.skatteetaten.aurora.gobo.resolvers.createQuery
+import no.skatteetaten.aurora.gobo.security.OpenShiftUserLoader
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.mockito.ArgumentMatchers.anyString
+import org.mockito.BDDMockito.anyString
 import org.mockito.BDDMockito.given
+import org.mockito.BDDMockito.reset
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.mock.mockito.MockBean
+import org.springframework.http.HttpHeaders
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.web.reactive.function.BodyInserters
 import reactor.core.publisher.Mono
@@ -30,6 +35,9 @@ class ApplicationDeploymentDetailsResolverTest {
     @MockBean
     private lateinit var applicationService: ApplicationService
 
+    @MockBean
+    private lateinit var openShiftUserLoader: OpenShiftUserLoader
+
     @BeforeEach
     fun setUp() {
         val affiliations = listOf("paas")
@@ -38,12 +46,15 @@ class ApplicationDeploymentDetailsResolverTest {
         given(applicationService.getApplications(affiliations))
             .willReturn(listOf(application))
 
-        given(applicationService.getApplicationDeploymentDetails(
-            anyString(),
-            anyString()
-        ))
+        given(applicationService.getApplicationDeploymentDetails(anyString(), anyString()))
             .willReturn(Mono.just(ApplicationDeploymentDetailsBuilder().build()))
+
+        given(openShiftUserLoader.findOpenShiftUserByToken(anyString()))
+            .willReturn(OpenShiftUserBuilder().build())
     }
+
+    @AfterEach
+    fun tearDown() = reset(applicationService, openShiftUserLoader)
 
     @Test
     fun `Query for repositories and tags`() {
@@ -78,6 +89,7 @@ class ApplicationDeploymentDetailsResolverTest {
         webTestClient
             .post()
             .uri("/graphql")
+            .header(HttpHeaders.AUTHORIZATION, "Bearer test-token")
             .body(BodyInserters.fromObject(query))
             .exchange()
             .expectStatus().isOk

@@ -5,8 +5,10 @@ import no.skatteetaten.aurora.gobo.GraphQLTest
 import no.skatteetaten.aurora.gobo.integration.mokey.AffiliationService
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import no.skatteetaten.aurora.gobo.resolvers.createQuery
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.mockito.BDDMockito.given
+import org.mockito.BDDMockito.reset
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.mock.mockito.MockBean
@@ -28,6 +30,9 @@ class AffiliationQueryResolverTest {
 
     @MockBean
     private lateinit var applicationService: ApplicationService
+
+    @AfterEach
+    fun tearDown() = reset(affiliationService, applicationService)
 
     @Test
     fun `Query for all affiliations`() {

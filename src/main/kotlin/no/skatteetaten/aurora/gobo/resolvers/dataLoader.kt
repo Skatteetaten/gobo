@@ -1,27 +1,27 @@
 package no.skatteetaten.aurora.gobo.resolvers
 
-import org.dataloader.BatchLoader
+import no.skatteetaten.aurora.gobo.resolvers.user.User
 import org.dataloader.DataLoader
 import org.dataloader.DataLoaderOptions
 import reactor.core.publisher.Flux
 import java.util.concurrent.CompletableFuture
 
 interface KeysDataLoader<K, V> {
-    fun getByKeys(keys: List<K>): List<V>
+    fun getByKeys(user: User, keys: List<K>): List<V>
 }
 
 interface KeysDataLoaderFlux<K, V> {
-    fun getByKeys(keys: List<K>): Flux<V>
+    fun getByKeys(user: User, keys: List<K>): Flux<V>
 }
 
-class NoCacheBatchDataLoader<K, V>(keysDataLoader: KeysDataLoader<K, V>) :
-    DataLoader<K, V>(BatchLoader { keys: List<K> ->
+fun <K, V> createNoCacheBatchDataLoader(user: User, keysDataLoader: KeysDataLoader<K, V>): DataLoader<K, V> =
+    DataLoader.newDataLoader({ keys: List<K> ->
         CompletableFuture.supplyAsync {
-            keysDataLoader.getByKeys(keys)
+            keysDataLoader.getByKeys(user, keys)
         }
     }, DataLoaderOptions.newOptions().setCachingEnabled(false))
 
-class NoCacheBatchDataLoaderFlux<K, V>(keysDataLoader: KeysDataLoaderFlux<K, V>) :
-    DataLoader<K, V>(BatchLoader { keys: List<K> ->
-        keysDataLoader.getByKeys(keys).collectList().toFuture()
+fun <K, V> createNoCacheBatchDataLoaderFlux(user: User, keysDataLoader: KeysDataLoaderFlux<K, V>): DataLoader<K, V> =
+    DataLoader.newDataLoader({ keys: List<K> ->
+        keysDataLoader.getByKeys(user, keys).collectList().toFuture()
     }, DataLoaderOptions.newOptions().setCachingEnabled(false))
