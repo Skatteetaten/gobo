@@ -3,7 +3,6 @@ package no.skatteetaten.aurora.gobo.integration.mokey
 import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
-import no.skatteetaten.aurora.gobo.resolvers.blockAndHandleError
 import no.skatteetaten.aurora.gobo.resolvers.blockNonNullAndHandleError
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
@@ -13,33 +12,26 @@ import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.bodyToMono
 import reactor.core.publisher.Mono
+import java.time.Duration
 
 @Service
 class ApplicationServiceBlocking(private val applicationService: ApplicationService) {
-    fun getApplications(affiliations: List<String>, applications: List<String>? = null): List<ApplicationResource> {
-        val resources =
-            applicationService.getApplications(affiliations, applications).blockAndHandleError()
-                ?: return emptyList()
-        return if (applications == null) resources else resources.filter { applications.contains(it.name) }
-    }
+    fun getApplications(affiliations: List<String>, applications: List<String>? = null) =
+        applicationService.getApplications(affiliations, applications).wait()
 
     fun getApplication(id: String): ApplicationResource =
-        applicationService.getApplication(id).blockNonNullAndHandleError()
+        applicationService.getApplication(id).wait()
 
     fun getApplicationDeployment(applicationDeploymentId: String) =
-        applicationService.getApplicationDeployment(applicationDeploymentId).blockNonNullAndHandleError()
+        applicationService.getApplicationDeployment(applicationDeploymentId).wait()
 
-    fun getApplicationDeploymentDetails(
-        token: String,
-        applicationDeploymentId: String
-    ): ApplicationDeploymentDetailsResource =
-        applicationService.getApplicationDeploymentDetails(
-            token,
-            applicationDeploymentId
-        ).blockNonNullAndHandleError()
+    fun getApplicationDeploymentDetails(token: String, applicationDeploymentId: String) =
+        applicationService.getApplicationDeploymentDetails(token, applicationDeploymentId).wait()
 
     fun refreshApplicationDeployment(token: String, refreshParams: RefreshParams) =
-        applicationService.refreshApplicationDeployment(token, refreshParams).block()
+        applicationService.refreshApplicationDeployment(token, refreshParams).wait()
+
+    fun <T> Mono<T>.wait() = this.blockNonNullAndHandleError(Duration.ofSeconds(30))
 }
 
 @Service
@@ -49,13 +41,14 @@ class ApplicationService(@TargetService(ServiceTypes.MOKEY) val webClient: WebCl
         affiliations: List<String>,
         applications: List<String>? = null
     ): Mono<List<ApplicationResource>> {
-        return webClient
+        val resources: Mono<List<ApplicationResource>> = webClient
             .get()
             .uri {
                 it.path("/api/application").queryParams(buildQueryParams(affiliations)).build()
             }
             .retrieve()
             .bodyToMono()
+        return resources.map { if (applications == null) it else it.filter { applications.contains(it.name) } }
     }
 
     fun getApplication(id: String): Mono<ApplicationResource> {

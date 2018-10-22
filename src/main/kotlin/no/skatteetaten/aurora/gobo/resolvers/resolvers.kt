@@ -31,16 +31,10 @@ fun <T : Any> DataFetchingEnvironment.loader(type: KClass<T>): DataLoader<Any, T
         .getDataLoader<Any, Try<T>>(key) ?: throw IllegalStateException("No $key found")
 }
 
-fun <T> Mono<T>.blockAndHandleError() =
-    this.doOnError { handleResponseException(it) }
-        .block(Duration.ofSeconds(30))
-
-fun <T> Mono<T>.blockNonNullAndHandleError() =
+fun <T> Mono<T>.blockNonNullAndHandleError(duration: Duration = Duration.ofSeconds(30)) =
     this.switchIfEmpty(SourceSystemException("Empty response").toMono())
-        .doOnError {
-            handleResponseException(it)
-        }
-        .block(Duration.ofSeconds(30))!!
+        .doOnError { handleResponseException(it) }
+        .block(duration)!!
 
 private fun handleResponseException(it: Throwable?) {
     if (it is WebClientResponseException) {
