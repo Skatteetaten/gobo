@@ -16,6 +16,13 @@ class ApplicationDeploymentMutationResolver(
         return true
     }
 
-    fun refreshApplicationDeployment(input: ApplicationDeploymentRefreshInput, dfe: DataFetchingEnvironment) =
-        applicationUpgradeService.refreshApplicationDeployment(input.applicationDeploymentId, dfe.currentUser().token)
+    fun refreshApplicationDeployment(input: RefreshByApplicationDeploymentIdInput, dfe: DataFetchingEnvironment): Boolean {
+        applicationUpgradeService.refreshApplicationDeployment(dfe.currentUser().token, input.applicationDeploymentId).block()
+        return true
+    }
+
+    fun refreshApplicationDeployments(input: RefreshByAffiliationsInput, dfe: DataFetchingEnvironment): Boolean {
+        applicationUpgradeService.refreshApplicationDeployments(dfe.currentUser().token, input.affiliations).block()
+        return true
+    }
 }

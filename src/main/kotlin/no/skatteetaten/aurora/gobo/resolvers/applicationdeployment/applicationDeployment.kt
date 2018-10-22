@@ -52,5 +52,6 @@ class ApplicationDeploymentBuilder {
     }
 }
 
-data class ApplicationDeploymentRefreshInput(val applicationDeploymentId: String?, val affiliations: List<String>?)
+data class RefreshByAffiliationsInput(val affiliations: List<String>)
+data class RefreshByApplicationDeploymentIdInput(val applicationDeploymentId: String)
 data class ApplicationDeploymentVersionInput(val applicationDeploymentId: String, val version: String)

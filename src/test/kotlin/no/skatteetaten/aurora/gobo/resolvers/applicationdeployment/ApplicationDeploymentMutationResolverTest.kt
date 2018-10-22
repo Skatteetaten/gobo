@@ -56,7 +56,7 @@ class ApplicationDeploymentMutationResolverTest {
 
     @Test
     fun `Mutate refresh application deployment`() {
-        given(applicationUpgradeService.refreshApplicationDeployment("123", "")).willReturn("123")
+        applicationUpgradeService.refreshApplicationDeployment(applicationDeploymentId = "123", token =  "")
 
         val variables = mapOf(
             "input" to mapOf(

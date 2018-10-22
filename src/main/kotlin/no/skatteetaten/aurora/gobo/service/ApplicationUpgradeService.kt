@@ -40,7 +40,7 @@ class ApplicationUpgradeService(
                     }.flatMap {
                         redeploy(token, details, applyLink)
                     }.flatMap {
-                        refresh(token, applicationDeploymentId)
+                        refreshApplicationDeployment(token, applicationDeploymentId)
                     }
             }.doOnError {
                 logger.error(
@@ -85,12 +85,10 @@ class ApplicationUpgradeService(
         return auroraConfigService.put<JsonNode>(token, applyLink, body = payload).toMono()
     }
 
-    private fun refresh(token: String, applicationDeploymentId: String) =
+    fun refreshApplicationDeployment(token: String, applicationDeploymentId: String) =
         applicationService.refreshApplicationDeployment(token, RefreshParams(applicationDeploymentId))
 
     // TODO: Not sure how to test this really, Should we just return the mono and use step verifyer or should we mock the applicationService?
-    fun refreshApplicationDeployment(applicationDeploymentId: String, token: String): String {
-        applicationService.refreshApplicationDeployment(token, RefreshParams(applicationDeploymentId)).block()
-        return applicationDeploymentId
-    }
+    fun refreshApplicationDeployments(token: String, affiliations: List<String>) =
+        applicationService.refreshApplicationDeployment(token, RefreshParams(affiliations = affiliations))
 }

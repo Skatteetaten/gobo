@@ -18,8 +18,9 @@ type Query {
 }
 
 type Mutation {
-  redeployWithVersion(input: ApplicationDeploymentVersionInput): Boolean
-  refreshApplicationDeployments(input: ApplicationDeploymentRefreshInput): String
+  redeployWithVersion(input: ApplicationDeploymentVersionInput!): Boolean
+  refreshApplicationDeployment(input: RefreshByApplicationDeploymentIdInput!): Boolean
+  refreshApplicationDeployments(input: RefreshByAffiliationsInput!): Boolean
 }
 
 type PageInfo {
