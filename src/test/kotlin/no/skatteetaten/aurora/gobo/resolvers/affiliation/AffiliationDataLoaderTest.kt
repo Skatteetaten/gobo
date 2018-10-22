@@ -6,13 +6,13 @@ import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
 import no.skatteetaten.aurora.gobo.ApplicationResourceBuilder
-import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
+import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
 import no.skatteetaten.aurora.gobo.resolvers.user.User
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 class AffiliationDataLoaderTest {
-    private val applicationService = mockk<ApplicationService>()
+    private val applicationService = mockk<ApplicationServiceBlocking>()
     private val affiliationDataLoader = AffiliationDataLoader()
 
     @BeforeEach

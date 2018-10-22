@@ -27,7 +27,7 @@ class ApplicationDeploymentDetailsDataLoader(
                     )
                 )
             } else {
-                applicationService.getApplicationDeploymentDetails(key, user.token)
+                applicationService.getApplicationDeploymentDetails(user.token, key)
                     .map { Try.succeeded(ApplicationDeploymentDetails.create(it)) }
                     .switchIfEmpty(
                         Mono.just(

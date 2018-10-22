@@ -10,6 +10,7 @@ import no.skatteetaten.aurora.gobo.defaultInstant
 import no.skatteetaten.aurora.gobo.healthResponseJson
 import no.skatteetaten.aurora.gobo.infoResponseJson
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
+import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
 import no.skatteetaten.aurora.gobo.resolvers.createQuery
 import no.skatteetaten.aurora.gobo.security.OpenShiftUserLoader
 import org.junit.jupiter.api.AfterEach
@@ -33,6 +34,9 @@ class ApplicationDeploymentDetailsResolverTest {
     private lateinit var webTestClient: WebTestClient
 
     @MockBean
+    private lateinit var applicationServiceBlocking: ApplicationServiceBlocking
+
+    @MockBean
     private lateinit var applicationService: ApplicationService
 
     @MockBean
@@ -43,7 +47,7 @@ class ApplicationDeploymentDetailsResolverTest {
         val affiliations = listOf("paas")
 
         val application = ApplicationResourceBuilder().build()
-        given(applicationService.getApplications(affiliations))
+        given(applicationServiceBlocking.getApplications(affiliations))
             .willReturn(listOf(application))
 
         given(applicationService.getApplicationDeploymentDetails(anyString(), anyString()))

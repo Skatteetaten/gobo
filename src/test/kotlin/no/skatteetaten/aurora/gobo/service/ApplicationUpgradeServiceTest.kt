@@ -2,20 +2,23 @@ package no.skatteetaten.aurora.gobo.service
 
 import assertk.assert
 import assertk.assertions.isEqualTo
+import assertk.assertions.isInstanceOf
 import com.fasterxml.jackson.databind.node.TextNode
 import no.skatteetaten.aurora.gobo.ApplicationConfig
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentDetailsBuilder
 import no.skatteetaten.aurora.gobo.AuroraConfigFileBuilder
+import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigService
+import no.skatteetaten.aurora.gobo.integration.boober.BooberWebClient
 import no.skatteetaten.aurora.gobo.integration.boober.Response
 import no.skatteetaten.aurora.gobo.integration.execute
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
+import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.SocketPolicy
 import org.junit.jupiter.api.Test
 import org.springframework.hateoas.Link
-import reactor.test.StepVerifier
 
 class ApplicationUpgradeServiceTest {
 
@@ -24,9 +27,8 @@ class ApplicationUpgradeServiceTest {
 
     private val config = ApplicationConfig("${url}mokey", "${url}unclematt", 30000, 30000)
 
-    private val applicationService = ApplicationService(config.webClientMokey())
-    private val auroraConfigService = AuroraConfigService("${url}boober", config.webClientBoober())
-
+    private val auroraConfigService = AuroraConfigService(BooberWebClient("${url}boober", config.webClientBoober()))
+    private val applicationService = ApplicationServiceBlocking(ApplicationService(config.webClientMokey()))
     private val upgradeService = ApplicationUpgradeService(applicationService, auroraConfigService)
 
     @Test
@@ -38,9 +40,7 @@ class ApplicationUpgradeServiceTest {
             redeployResponse(),
             enqueueRefreshResponse()
         ) {
-            StepVerifier
-                .create(upgradeService.upgrade("applicationDeploymentId", "version", "token"))
-                .verifyComplete()
+            upgradeService.upgrade("token", "applicationDeploymentId", "veresion")
         }
 
         assert(requests[0].path).isEqualTo("/mokey/api/auth/applicationdeploymentdetails/applicationDeploymentId")
@@ -53,11 +53,13 @@ class ApplicationUpgradeServiceTest {
     @Test
     fun `Handle IOException from AuroraConfigService`() {
         val failureResponse = MockResponse().apply { socketPolicy = SocketPolicy.DISCONNECT_AFTER_REQUEST }
-        server.execute(failureResponse) {
-            StepVerifier
-                .create(upgradeService.upgrade("applicationDeploymentId", "version", "token"))
-                .expectError()
-                .verify()
+        assert {
+            server.execute(failureResponse) {
+                upgradeService.upgrade("applicationDeploymentId", "version", "token")
+            }
+        }.thrownError {
+            server.takeRequest()
+            isInstanceOf(SourceSystemException::class.java)
         }
     }
 
