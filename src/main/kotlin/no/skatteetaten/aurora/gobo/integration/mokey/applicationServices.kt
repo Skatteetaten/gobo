@@ -29,9 +29,9 @@ class ApplicationServiceBlocking(private val applicationService: ApplicationServ
         applicationService.getApplicationDeploymentDetails(token, applicationDeploymentId).wait()
 
     fun refreshApplicationDeployment(token: String, refreshParams: RefreshParams) =
-        applicationService.refreshApplicationDeployment(token, refreshParams).wait()
+        applicationService.refreshApplicationDeployment(token, refreshParams).block()
 
-    fun <T> Mono<T>.wait() = this.blockNonNullAndHandleError(Duration.ofSeconds(30))
+    private fun <T> Mono<T>.wait() = this.blockNonNullAndHandleError(Duration.ofSeconds(30))
 }
 
 @Service
