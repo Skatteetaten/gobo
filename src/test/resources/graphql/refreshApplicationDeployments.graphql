@@ -1,0 +1,3 @@
+mutation refreshApplicationDeployments($input: RefreshByAffiliationsInput!) {
+    refreshApplicationDeployments(input: $input)
+}
