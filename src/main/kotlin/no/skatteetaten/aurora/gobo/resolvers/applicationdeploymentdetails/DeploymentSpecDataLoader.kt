@@ -2,7 +2,7 @@ package no.skatteetaten.aurora.gobo.resolvers.applicationdeploymentdetails
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
-import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigService
+import no.skatteetaten.aurora.gobo.integration.boober.BooberWebClient
 import no.skatteetaten.aurora.gobo.resolvers.KeysDataLoader
 import no.skatteetaten.aurora.gobo.resolvers.user.User
 import no.skatteetaten.aurora.utils.logLine
@@ -17,7 +17,7 @@ import java.net.URL
 
 @Component
 class DeploymentSpecDataLoader(
-    private val configService: AuroraConfigService,
+    private val booberWebClient: BooberWebClient,
     private val objectMapper: ObjectMapper
 ) : KeysDataLoader<URL, Try<DeploymentSpec>> {
 
@@ -31,7 +31,7 @@ class DeploymentSpecDataLoader(
         val specs: List<Try<DeploymentSpec>> = sw.time("Fetch ${keys.size} DeploymentSpecs") {
             keys.map { url ->
                 Try.tryCall {
-                    configService.get<JsonNode>(user.token, url.toString())
+                    booberWebClient.get<JsonNode>(user.token, url.toString())
                         .toMono()
                         .map { DeploymentSpec(jsonRepresentation = objectMapper.writeValueAsString(it)) }
                         .block() ?: throw IllegalArgumentException("Empty DeploymentSpec with url=$url")

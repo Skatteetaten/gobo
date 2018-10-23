@@ -13,7 +13,7 @@ class ProbeFireWallTest {
 
     private val server = MockWebServer()
     private val url = server.url("/")
-    private val probeService = ProbeService(WebClient.create(url.toString()))
+    private val probeService = ProbeServiceBlocking(ProbeService(WebClient.create(url.toString())))
 
     @Test
     fun `happy day`() {

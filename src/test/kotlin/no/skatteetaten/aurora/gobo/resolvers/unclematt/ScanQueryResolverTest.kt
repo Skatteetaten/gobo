@@ -2,7 +2,7 @@ package no.skatteetaten.aurora.gobo.resolvers.unclematt
 
 import no.skatteetaten.aurora.gobo.GraphQLTest
 import no.skatteetaten.aurora.gobo.ProbeResultListBuilder
-import no.skatteetaten.aurora.gobo.integration.unclematt.ProbeService
+import no.skatteetaten.aurora.gobo.integration.unclematt.ProbeServiceBlocking
 import no.skatteetaten.aurora.gobo.resolvers.createQuery
 import no.skatteetaten.aurora.gobo.resolvers.scan.ScanStatus
 import org.junit.jupiter.api.Test
@@ -15,7 +15,7 @@ import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.web.reactive.function.BodyInserters
 
 @GraphQLTest
-public class ScanQueryResolverTest {
+class ScanQueryResolverTest {
 
     @Value("classpath:graphql/scan.graphql")
     private lateinit var scanQuery: Resource
@@ -24,7 +24,7 @@ public class ScanQueryResolverTest {
     private lateinit var webTestClient: WebTestClient
 
     @MockBean
-    private lateinit var probeService: ProbeService
+    private lateinit var probeService: ProbeServiceBlocking
 
     @Test
     fun `resolve scan response`() {

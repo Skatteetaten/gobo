@@ -17,7 +17,7 @@ data class TagList(var name: String, var tags: List<String>)
 data class ImageMetadata(val createdDate: Instant)
 
 @Service
-class ImageRegistryService(
+class ImageRegistryServiceBlocking(
     private val urlBuilder: ImageRegistryUrlBuilder,
     private val registryMetadataResolver: RegistryMetadataResolver,
     @TargetService(ServiceTypes.DOCKER) val webClient: WebClient,

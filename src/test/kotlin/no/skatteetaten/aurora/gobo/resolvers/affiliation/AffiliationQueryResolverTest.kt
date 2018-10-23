@@ -2,8 +2,8 @@ package no.skatteetaten.aurora.gobo.resolvers.affiliation
 
 import no.skatteetaten.aurora.gobo.ApplicationResourceBuilder
 import no.skatteetaten.aurora.gobo.GraphQLTest
-import no.skatteetaten.aurora.gobo.integration.mokey.AffiliationService
-import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
+import no.skatteetaten.aurora.gobo.integration.mokey.AffiliationServiceBlocking
+import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
 import no.skatteetaten.aurora.gobo.resolvers.createQuery
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
@@ -26,10 +26,10 @@ class AffiliationQueryResolverTest {
     private lateinit var webTestClient: WebTestClient
 
     @MockBean
-    private lateinit var affiliationService: AffiliationService
+    private lateinit var affiliationService: AffiliationServiceBlocking
 
     @MockBean
-    private lateinit var applicationService: ApplicationService
+    private lateinit var applicationService: ApplicationServiceBlocking
 
     @AfterEach
     fun tearDown() = reset(affiliationService, applicationService)

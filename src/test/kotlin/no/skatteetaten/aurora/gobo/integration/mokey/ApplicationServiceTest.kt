@@ -17,7 +17,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 class ApplicationServiceTest {
 
     @Autowired
-    lateinit var applicationService: ApplicationService
+    lateinit var applicationService: ApplicationServiceBlocking
 
     @Test
     @Disabled("need to fix contract tests in mokey")
