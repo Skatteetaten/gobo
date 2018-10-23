@@ -36,8 +36,11 @@ class ApplicationDeploymentMutationResolver(
         return true
     }
 
-    fun refreshApplicationDeployment(input: ApplicationDeploymentRefreshInput, dfe: DataFetchingEnvironment) =
+    fun refreshApplicationDeployment(input: RefreshByApplicationDeploymentIdInput, dfe: DataFetchingEnvironment) =
         applicationUpgradeService.refreshApplicationDeployment(dfe.currentUser().token, input.applicationDeploymentId)
+
+    fun refreshApplicationDeployments(input: RefreshByAffiliationsInput, dfe: DataFetchingEnvironment) =
+        applicationUpgradeService.refreshApplicationDeployments(dfe.currentUser().token, input.affiliations)
 }
 
 @Component

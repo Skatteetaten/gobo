@@ -1,0 +1,24 @@
+{
+    applications(affiliations: ["paas"]) {
+        edges {
+            node {
+                applicationDeployments {
+                    details {
+                        podResources {
+                            managementResponses {
+                                info {
+                                    textResponse
+                                    loadedTime
+                                }
+                                health {
+                                    textResponse
+                                    loadedTime
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -12,6 +12,7 @@ import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageRepoDto
 import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageTagDto
 import no.skatteetaten.aurora.gobo.resolvers.createQuery
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository.Companion.fromRepoString
+import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -22,7 +23,6 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.core.io.Resource
 import org.springframework.test.web.reactive.server.WebTestClient
-import org.springframework.web.reactive.function.BodyInserters
 import java.time.Instant
 import java.time.Instant.EPOCH
 
@@ -67,13 +67,7 @@ class ImageRepositoryQueryResolverTest {
     @Test
     fun `Query for repositories and tags`() {
         val variables = mapOf("repositories" to testData.map { it.imageRepoDto.repository })
-        val query = createQuery(reposWithTagsQuery, variables)
-
-        webTestClient
-            .post()
-            .uri("/graphql")
-            .body(BodyInserters.fromObject(query))
-            .exchange()
+        webTestClient.queryGraphQL(reposWithTagsQuery, variables)
             .expectStatus().isOk
             .expectBody(QueryResponse.Response::class.java)
             .consumeWith<Nothing> { result ->
@@ -95,11 +89,7 @@ class ImageRepositoryQueryResolverTest {
         val variables = mapOf("repositories" to testData[0].imageRepoDto.repository, "pageSize" to pageSize)
         val query = createQuery(tagsWithPagingQuery, variables)
 
-        webTestClient
-            .post()
-            .uri("/graphql")
-            .body(BodyInserters.fromObject(query))
-            .exchange()
+        webTestClient.queryGraphQL(tagsWithPagingQuery, variables)
             .expectStatus().isOk
             .expectBody(QueryResponse.Response::class.java)
             .consumeWith<Nothing> { result ->
@@ -118,12 +108,7 @@ class ImageRepositoryQueryResolverTest {
             .willThrow(SourceSystemException("test exception", RuntimeException("testing testing")))
 
         val variables = mapOf("repositories" to testData[0].imageRepoDto.repository)
-        val query = createQuery(reposWithTagsQuery, variables)
-        webTestClient
-            .post()
-            .uri("/graphql")
-            .body(BodyInserters.fromObject(query))
-            .exchange()
+        webTestClient.queryGraphQL(reposWithTagsQuery, variables)
             .expectStatus().isOk
             .expectBody()
             .jsonPath("$.errors.length()").isEqualTo(1)

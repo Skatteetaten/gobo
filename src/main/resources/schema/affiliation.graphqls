@@ -12,3 +12,4 @@ type AffiliationEdge {
 type Affiliation {
   name: String!
 }
+
