@@ -11,7 +11,7 @@ import no.skatteetaten.aurora.gobo.healthResponseJson
 import no.skatteetaten.aurora.gobo.infoResponseJson
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
-import no.skatteetaten.aurora.gobo.resolvers.createQuery
+import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import no.skatteetaten.aurora.gobo.security.OpenShiftUserLoader
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -20,15 +20,18 @@ import org.mockito.BDDMockito.anyString
 import org.mockito.BDDMockito.given
 import org.mockito.BDDMockito.reset
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.mock.mockito.MockBean
-import org.springframework.http.HttpHeaders
+import org.springframework.core.io.Resource
 import org.springframework.test.web.reactive.server.WebTestClient
-import org.springframework.web.reactive.function.BodyInserters
 import reactor.core.publisher.Mono
 import java.time.Instant
 
 @GraphQLTest
 class ApplicationDeploymentDetailsResolverTest {
+
+    @Value("classpath:graphql/getApplicationsWithRepositoriesAndTags.graphql")
+    private lateinit var getRepositoriesAndTagsQuery: Resource
 
     @Autowired
     private lateinit var webTestClient: WebTestClient
@@ -62,40 +65,7 @@ class ApplicationDeploymentDetailsResolverTest {
 
     @Test
     fun `Query for repositories and tags`() {
-
-        val queryString = """{
-  applications(affiliations: ["paas"]) {
-    edges {
-      node {
-        applicationDeployments {
-          details {
-            podResources {
-              managementResponses {
-                info {
-                  textResponse
-                  loadedTime
-                }
-                health {
-                  textResponse
-                  loadedTime
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-}
-"""
-        val query = createQuery(queryString)
-
-        webTestClient
-            .post()
-            .uri("/graphql")
-            .header(HttpHeaders.AUTHORIZATION, "Bearer test-token")
-            .body(BodyInserters.fromObject(query))
-            .exchange()
+        webTestClient.queryGraphQL(queryResource = getRepositoriesAndTagsQuery, token = "test-token")
             .expectStatus().isOk
             .expectBody(QueryResponse.Response::class.java)
             .consumeWith<Nothing> { result ->
