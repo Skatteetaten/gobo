@@ -2,10 +2,9 @@ package no.skatteetaten.aurora.gobo.integration.mokey
 
 import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
-import no.skatteetaten.aurora.gobo.integration.SourceSystemException
+import no.skatteetaten.aurora.gobo.resolvers.blockAndHandleError
 import no.skatteetaten.aurora.gobo.resolvers.blockNonNullAndHandleError
 import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.reactive.function.BodyInserters
@@ -29,7 +28,7 @@ class ApplicationServiceBlocking(private val applicationService: ApplicationServ
         applicationService.getApplicationDeploymentDetails(token, applicationDeploymentId).wait()
 
     fun refreshApplicationDeployment(token: String, refreshParams: RefreshParams) =
-        applicationService.refreshApplicationDeployment(token, refreshParams).block()
+        applicationService.refreshApplicationDeployment(token, refreshParams).blockAndHandleError()
 
     private fun <T> Mono<T>.wait() = this.blockNonNullAndHandleError(Duration.ofSeconds(30))
 }
@@ -56,15 +55,7 @@ class ApplicationService(@TargetService(ServiceTypes.MOKEY) val webClient: WebCl
             .get()
             .uri("/api/application/{id}", id)
             .retrieve()
-            .onStatus(HttpStatus::isError) { clientResponse ->
-                clientResponse.bodyToMono<String>().defaultIfEmpty("").map { body ->
-                    SourceSystemException(
-                        message = "Failed to get application, status:${clientResponse.statusCode().value()} message:${clientResponse.statusCode().reasonPhrase}",
-                        code = clientResponse.statusCode().value().toString(),
-                        errorMessage = body
-                    )
-                }
-            }.bodyToMono()
+            .bodyToMono()
     }
 
     fun getApplicationDeployment(applicationDeploymentId: String): Mono<ApplicationDeploymentResource> {
@@ -72,15 +63,7 @@ class ApplicationService(@TargetService(ServiceTypes.MOKEY) val webClient: WebCl
             .get()
             .uri("/api/applicationdeployment/{applicationDeploymentId}", applicationDeploymentId)
             .retrieve()
-            .onStatus(HttpStatus::isError) { clientResponse ->
-                clientResponse.bodyToMono<String>().defaultIfEmpty("").map { body ->
-                    SourceSystemException(
-                        message = "Failed to get application deployment, status:${clientResponse.statusCode().value()} message:${clientResponse.statusCode().reasonPhrase}",
-                        code = clientResponse.statusCode().value().toString(),
-                        errorMessage = body
-                    )
-                }
-            }.bodyToMono()
+            .bodyToMono()
     }
 
     fun getApplicationDeploymentDetails(
@@ -92,15 +75,7 @@ class ApplicationService(@TargetService(ServiceTypes.MOKEY) val webClient: WebCl
             .uri("/api/auth/applicationdeploymentdetails/{applicationDeploymentId}", applicationDeploymentId)
             .header(HttpHeaders.AUTHORIZATION, "Bearer $token")
             .retrieve()
-            .onStatus(HttpStatus::isError) { clientResponse ->
-                clientResponse.bodyToMono<String>().defaultIfEmpty("").map { body ->
-                    SourceSystemException(
-                        message = "Failed to get application deployment details, status:${clientResponse.statusCode().value()} message:${clientResponse.statusCode().reasonPhrase}",
-                        code = clientResponse.statusCode().value().toString(),
-                        errorMessage = body
-                    )
-                }
-            }.bodyToMono()
+            .bodyToMono()
     }
 
     private fun buildQueryParams(affiliations: List<String>): LinkedMultiValueMap<String, String> =
@@ -113,13 +88,5 @@ class ApplicationService(@TargetService(ServiceTypes.MOKEY) val webClient: WebCl
             .body(BodyInserters.fromObject(refreshParams))
             .header(HttpHeaders.AUTHORIZATION, "Bearer $token")
             .retrieve()
-            .onStatus(HttpStatus::isError) { clientResponse ->
-                clientResponse.bodyToMono<String>().defaultIfEmpty("").map { body ->
-                    SourceSystemException(
-                        message = "Failed to refresh, status:${clientResponse.statusCode().value()} message:${clientResponse.statusCode().reasonPhrase}",
-                        code = clientResponse.statusCode().value().toString(),
-                        errorMessage = body
-                    )
-                }
-            }.bodyToMono<Void>()
+            .bodyToMono<Void>()
 }

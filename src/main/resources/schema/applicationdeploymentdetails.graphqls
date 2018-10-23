@@ -14,7 +14,7 @@ type PodResource {
   restartCount: Int
   ready: Boolean
   startTime: DateTime
-  links(names: [String]): [Link],
+  links(names: [String]): [Link]
   managementResponses: ManagementResponses
 }
 

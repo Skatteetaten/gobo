@@ -18,6 +18,8 @@ import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.SocketPolicy
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.EnumSource
 import org.springframework.hateoas.Link
 
 class ApplicationUpgradeServiceTest {
@@ -25,7 +27,7 @@ class ApplicationUpgradeServiceTest {
     private val server = MockWebServer()
     private val url = server.url("/")
 
-    private val config = ApplicationConfig("${url}mokey", "${url}unclematt", 30000, 30000)
+    private val config = ApplicationConfig("${url}mokey", "${url}unclematt", 500, 500)
 
     private val auroraConfigService = AuroraConfigService(BooberWebClient("${url}boober", config.webClientBoober()))
     private val applicationService = ApplicationServiceBlocking(ApplicationService(config.webClientMokey()))
@@ -40,7 +42,7 @@ class ApplicationUpgradeServiceTest {
             redeployResponse(),
             enqueueRefreshResponse()
         ) {
-            upgradeService.upgrade("token", "applicationDeploymentId", "veresion")
+            upgradeService.upgrade("token", "applicationDeploymentId", "version")
         }
 
         assert(requests[0].path).isEqualTo("/mokey/api/auth/applicationdeploymentdetails/applicationDeploymentId")
@@ -50,16 +52,21 @@ class ApplicationUpgradeServiceTest {
         assert(requests[4].path).isEqualTo("/mokey/api/auth/refresh")
     }
 
-    @Test
-    fun `Handle IOException from AuroraConfigService`() {
-        val failureResponse = MockResponse().apply { socketPolicy = SocketPolicy.DISCONNECT_AFTER_REQUEST }
+    @ParameterizedTest
+    @EnumSource(
+        value = SocketPolicy::class,
+        names = ["STALL_SOCKET_AT_START", "NO_RESPONSE"],
+        mode = EnumSource.Mode.EXCLUDE
+    )
+    fun `Handle exception from AuroraConfigService`(socketPolicy: SocketPolicy) {
+        val failureResponse = MockResponse().apply { this.socketPolicy = socketPolicy }
         assert {
             server.execute(failureResponse) {
-                upgradeService.upgrade("applicationDeploymentId", "version", "token")
+                upgradeService.upgrade("token", "applicationDeploymentId", "version")
             }
         }.thrownError {
             server.takeRequest()
-            isInstanceOf(SourceSystemException::class.java)
+            isInstanceOf(SourceSystemException::class)
         }
     }
 
