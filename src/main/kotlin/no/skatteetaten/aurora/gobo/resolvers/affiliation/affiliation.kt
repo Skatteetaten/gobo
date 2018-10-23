@@ -11,5 +11,3 @@ data class AffiliationEdge(private val node: Affiliation) : DefaultEdge<Affiliat
 
 data class AffiliationsConnection(override val edges: List<AffiliationEdge>, override val pageInfo: PageInfo?) :
     Connection<AffiliationEdge>()
-
-data class AffiliationsInput(val affiliations: List<String>)
