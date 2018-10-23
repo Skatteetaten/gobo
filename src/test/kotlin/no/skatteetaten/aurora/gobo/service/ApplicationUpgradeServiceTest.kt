@@ -40,7 +40,7 @@ class ApplicationUpgradeServiceTest {
             applicationFileResponse(),
             patchResponse(),
             redeployResponse(),
-            enqueueRefreshResponse()
+            refreshResponse()
         ) {
             upgradeService.upgrade("token", "applicationDeploymentId", "version")
         }
@@ -85,5 +85,5 @@ class ApplicationUpgradeServiceTest {
 
     private fun redeployResponse() = Response(items = listOf(TextNode("{}")))
 
-    private fun enqueueRefreshResponse() = Response(items = listOf(TextNode("{}")))
+    private fun refreshResponse() = Response(items = listOf(TextNode("{}")))
 }
