@@ -23,8 +23,13 @@ class ApplicationUpgradeService(
         refreshApplicationDeployment(token, applicationDeploymentId)
     }
 
-    fun refreshApplicationDeployment(token: String, applicationDeploymentId: String): String {
+    fun refreshApplicationDeployment(token: String, applicationDeploymentId: String): Boolean {
         applicationService.refreshApplicationDeployment(token, RefreshParams(applicationDeploymentId))
-        return applicationDeploymentId
+        return true
+    }
+
+    fun refreshApplicationDeployments(token: String, affiliations: List<String>): Boolean {
+        applicationService.refreshApplicationDeployment(token, RefreshParams(affiliations = affiliations))
+        return true
     }
 }
