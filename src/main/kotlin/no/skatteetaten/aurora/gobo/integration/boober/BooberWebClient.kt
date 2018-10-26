@@ -7,7 +7,6 @@ import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentRefResource
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.WebClient
@@ -73,15 +72,6 @@ class BooberWebClient(
         val response: Mono<Response> = fn(webClient)
             .header(HttpHeaders.AUTHORIZATION, "Bearer $token")
             .retrieve()
-            .onStatus(HttpStatus::isError) {
-                it.bodyToMono<String>().defaultIfEmpty("").map { body ->
-                    SourceSystemException(
-                        message = "Failed request to boober, status:${it.statusCode().value()} message:${it.statusCode().reasonPhrase}",
-                        code = it.statusCode().value().toString(),
-                        errorMessage = body
-                    )
-                }
-            }
             .bodyToMono()
         return response.flatMapMany { r ->
                 if (!r.success) SourceSystemException(r.message).toFlux()

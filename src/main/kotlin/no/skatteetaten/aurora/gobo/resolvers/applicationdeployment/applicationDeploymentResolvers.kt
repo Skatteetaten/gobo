@@ -4,7 +4,6 @@ import com.coxautodev.graphql.tools.GraphQLMutationResolver
 import com.coxautodev.graphql.tools.GraphQLQueryResolver
 import com.coxautodev.graphql.tools.GraphQLResolver
 import graphql.schema.DataFetchingEnvironment
-import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
 import no.skatteetaten.aurora.gobo.resolvers.affiliation.Affiliation
 import no.skatteetaten.aurora.gobo.resolvers.application.Application
@@ -45,7 +44,7 @@ class ApplicationDeploymentMutationResolver(
 
 @Component
 class ApplicationDeploymentResolver(
-    private val applicationService: ApplicationService
+    private val applicationService: ApplicationServiceBlocking
 ) : GraphQLResolver<ApplicationDeployment> {
 
     fun affiliation(applicationDeployment: ApplicationDeployment): Affiliation =
@@ -58,8 +57,7 @@ class ApplicationDeploymentResolver(
         dfe.loader(ApplicationDeploymentDetails::class).load(applicationDeployment.id)
 
     fun application(applicationDeployment: ApplicationDeployment): Application? {
-        return applicationService.getApplication(applicationDeployment.applicationId)
-            .map { createApplicationEdge(it).node }
-            .block()
+        val application = applicationService.getApplication(applicationDeployment.applicationId)
+        return createApplicationEdge(application).node
     }
 }

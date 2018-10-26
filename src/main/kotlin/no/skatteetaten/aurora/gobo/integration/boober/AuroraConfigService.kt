@@ -9,7 +9,9 @@ import com.github.fge.jsonpatch.ReplaceOperation
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentDetailsResource
 import no.skatteetaten.aurora.gobo.resolvers.blockNonNullAndHandleError
 import org.springframework.stereotype.Service
+import reactor.core.publisher.Mono
 import reactor.core.publisher.toMono
+import java.time.Duration
 
 @Service
 class AuroraConfigService(private val booberWebClient: BooberWebClient) {
@@ -20,7 +22,7 @@ class AuroraConfigService(private val booberWebClient: BooberWebClient) {
             .filter { it.type == AuroraConfigFileType.APP }
             .map { it.name }
             .toMono()
-            .blockNonNullAndHandleError()
+            .blockNonNullWithTimeout()
     }
 
     fun patch(
@@ -34,7 +36,7 @@ class AuroraConfigService(private val booberWebClient: BooberWebClient) {
             url = auroraConfigFile.replace("{fileName}", applicationFile), // TODO placeholder cannot contain slash
             body = createVersionPatch(version)
         ).toMono()
-            .blockNonNullAndHandleError()
+            .blockNonNullWithTimeout()
     }
 
     private fun createVersionPatch(version: String): Map<String, String> {
@@ -48,6 +50,8 @@ class AuroraConfigService(private val booberWebClient: BooberWebClient) {
         applyLink: String
     ): JsonNode {
         val payload = ApplyPayload(listOf(details.applicationDeploymentCommand.applicationDeploymentRef))
-        return booberWebClient.put<JsonNode>(token, applyLink, body = payload).toMono().blockNonNullAndHandleError()
+        return booberWebClient.put<JsonNode>(token, applyLink, body = payload).toMono().blockNonNullWithTimeout()
     }
+
+    private fun <T> Mono<T>.blockNonNullWithTimeout() = this.blockNonNullAndHandleError(Duration.ofSeconds(30))
 }

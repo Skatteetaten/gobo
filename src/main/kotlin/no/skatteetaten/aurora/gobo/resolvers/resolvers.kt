@@ -33,16 +33,19 @@ fun <T : Any> DataFetchingEnvironment.loader(type: KClass<T>): DataLoader<Any, T
 
 fun <T> Mono<T>.blockNonNullAndHandleError(duration: Duration = Duration.ofSeconds(30)) =
     this.switchIfEmpty(SourceSystemException("Empty response").toMono())
-        .doOnError { handleResponseException(it) }
-        .block(duration)!!
+        .blockAndHandleError(duration)!!
 
-private fun handleResponseException(it: Throwable?) {
-    if (it is WebClientResponseException) {
+fun <T> Mono<T>.blockAndHandleError(duration: Duration = Duration.ofSeconds(30)) =
+    this.doOnError { handleResponseException(it) }
+        .block(duration)
+
+private fun handleResponseException(t: Throwable?) {
+    if (t is WebClientResponseException) {
         throw SourceSystemException(
-            "Error in response, status:${it.statusCode} message:${it.statusText}",
-            it,
-            it.statusText
+            "Error in response, status:${t.statusCode} message:${t.statusText}",
+            t,
+            t.responseBodyAsString
         )
     }
-    throw SourceSystemException("Error response", it)
+    throw SourceSystemException("Error response", t)
 }

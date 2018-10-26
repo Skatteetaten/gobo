@@ -1,6 +1,7 @@
 package no.skatteetaten.aurora.gobo.service
 
 import assertk.assert
+import assertk.assertions.hasMessageContaining
 import assertk.assertions.isEqualTo
 import assertk.assertions.isInstanceOf
 import com.fasterxml.jackson.databind.node.TextNode
@@ -18,6 +19,8 @@ import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.SocketPolicy
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.EnumSource
 import org.springframework.hateoas.Link
 
 class ApplicationUpgradeServiceTest {
@@ -25,7 +28,7 @@ class ApplicationUpgradeServiceTest {
     private val server = MockWebServer()
     private val url = server.url("/")
 
-    private val config = ApplicationConfig("${url}mokey", "${url}unclematt", 30000, 30000)
+    private val config = ApplicationConfig("${url}mokey", "${url}unclematt", 500, 500)
 
     private val auroraConfigService = AuroraConfigService(BooberWebClient("${url}boober", config.webClientBoober()))
     private val applicationService = ApplicationServiceBlocking(ApplicationService(config.webClientMokey()))
@@ -38,9 +41,9 @@ class ApplicationUpgradeServiceTest {
             applicationFileResponse(),
             patchResponse(),
             redeployResponse(),
-            enqueueRefreshResponse()
+            refreshResponse()
         ) {
-            upgradeService.upgrade("token", "applicationDeploymentId", "veresion")
+            upgradeService.upgrade("token", "applicationDeploymentId", "version")
         }
 
         assert(requests[0].path).isEqualTo("/mokey/api/auth/applicationdeploymentdetails/applicationDeploymentId")
@@ -50,16 +53,35 @@ class ApplicationUpgradeServiceTest {
         assert(requests[4].path).isEqualTo("/mokey/api/auth/refresh")
     }
 
-    @Test
-    fun `Handle IOException from AuroraConfigService`() {
-        val failureResponse = MockResponse().apply { socketPolicy = SocketPolicy.DISCONNECT_AFTER_REQUEST }
+    @ParameterizedTest
+    @EnumSource(
+        value = SocketPolicy::class,
+        names = ["STALL_SOCKET_AT_START", "NO_RESPONSE"],
+        mode = EnumSource.Mode.EXCLUDE
+    )
+    fun `Handle exception from AuroraConfigService`(socketPolicy: SocketPolicy) {
+        val failureResponse = MockResponse().apply { this.socketPolicy = socketPolicy }
         assert {
             server.execute(failureResponse) {
-                upgradeService.upgrade("applicationDeploymentId", "version", "token")
+                upgradeService.upgrade("token", "applicationDeploymentId", "version")
             }
         }.thrownError {
             server.takeRequest()
-            isInstanceOf(SourceSystemException::class.java)
+            isInstanceOf(SourceSystemException::class)
+        }
+    }
+
+    @Test
+    fun `Handle error response from AuroraConfigService`() {
+        assert {
+            server.execute(404, "Not found") {
+                upgradeService.upgrade("token", "applicationDeploymentId", "version")
+            }
+        }.thrownError {
+            server.takeRequest()
+            isInstanceOf(SourceSystemException::class)
+            hasMessageContaining("404")
+            hasMessageContaining("Not Found")
         }
     }
 
@@ -78,5 +100,5 @@ class ApplicationUpgradeServiceTest {
 
     private fun redeployResponse() = Response(items = listOf(TextNode("{}")))
 
-    private fun enqueueRefreshResponse() = Response(items = listOf(TextNode("{}")))
+    private fun refreshResponse() = Response(items = listOf(TextNode("{}")))
 }
