@@ -1,6 +1,7 @@
 package no.skatteetaten.aurora.gobo.service
 
 import assertk.assert
+import assertk.assertions.hasMessageContaining
 import assertk.assertions.isEqualTo
 import assertk.assertions.isInstanceOf
 import com.fasterxml.jackson.databind.node.TextNode
@@ -67,6 +68,20 @@ class ApplicationUpgradeServiceTest {
         }.thrownError {
             server.takeRequest()
             isInstanceOf(SourceSystemException::class)
+        }
+    }
+
+    @Test
+    fun `Handle error response from AuroraConfigService`() {
+        assert {
+            server.execute(404, "Not found") {
+                upgradeService.upgrade("token", "applicationDeploymentId", "version")
+            }
+        }.thrownError {
+            server.takeRequest()
+            isInstanceOf(SourceSystemException::class)
+            hasMessageContaining("404")
+            hasMessageContaining("Not Found")
         }
     }
 

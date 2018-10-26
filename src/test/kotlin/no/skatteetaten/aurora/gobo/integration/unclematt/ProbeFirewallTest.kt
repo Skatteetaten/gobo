@@ -1,12 +1,13 @@
 package no.skatteetaten.aurora.gobo.integration.unclematt
 
 import assertk.assert
+import assertk.assertions.hasMessageContaining
 import assertk.assertions.isEqualTo
+import assertk.assertions.isInstanceOf
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.integration.execute
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import org.springframework.web.reactive.function.client.WebClient
 
 class ProbeFireWallTest {
@@ -25,10 +26,13 @@ class ProbeFireWallTest {
 
     @Test
     fun `throws correct exception when backend returns 404`() {
-        server.execute(404, "") {
-            assertThrows<SourceSystemException> {
+        assert {
+            server.execute(404, "") {
                 probeService.probeFirewall("server.test.no", 9999)
             }
+        }.thrownError {
+            isInstanceOf(SourceSystemException::class)
+            hasMessageContaining("404")
         }
     }
 }
