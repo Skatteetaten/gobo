@@ -11,6 +11,8 @@ import no.skatteetaten.aurora.gobo.security.currentUser
 import org.dataloader.DataLoaderRegistry
 import org.springframework.stereotype.Component
 import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.HttpServletResponse
+import javax.websocket.Session
 import javax.websocket.server.HandshakeRequest
 
 @Component
@@ -19,9 +21,9 @@ class GoboGraphQLContextBuilder(
     val loaderListFlux: List<KeysDataLoaderFlux<*, *>>
 ) : GraphQLContextBuilder {
 
-    override fun build(httpServletRequest: HttpServletRequest?) = createContext(httpServletRequest)
+    override fun build(httpServletRequest: HttpServletRequest?, httpServletResponse: HttpServletResponse?) = createContext(httpServletRequest)
 
-    override fun build(handshakeRequest: HandshakeRequest?) = createContext()
+    override fun build(session: Session?, handshakeRequest: HandshakeRequest?) = createContext()
 
     override fun build() = throw UnsupportedOperationException()
 

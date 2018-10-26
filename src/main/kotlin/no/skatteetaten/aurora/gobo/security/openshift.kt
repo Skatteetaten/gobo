@@ -1,6 +1,7 @@
 package no.skatteetaten.aurora.gobo.security
 
 import io.fabric8.kubernetes.client.ConfigBuilder
+import io.fabric8.kubernetes.client.KubernetesClientException
 import io.fabric8.openshift.client.DefaultOpenShiftClient
 import org.slf4j.LoggerFactory
 import org.slf4j.MDC
@@ -10,7 +11,8 @@ import org.springframework.security.web.authentication.preauth.PreAuthenticatedA
 import org.springframework.stereotype.Component
 
 @Component
-class OpenShiftAuthenticationUserDetailsService : AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken> {
+class OpenShiftAuthenticationUserDetailsService :
+    AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken> {
 
     private val logger = LoggerFactory.getLogger(OpenShiftAuthenticationUserDetailsService::class.java)
 
@@ -32,6 +34,14 @@ class OpenShiftAuthenticationUserDetailsService : AuthenticationUserDetailsServi
 
 @Component
 class OpenShiftUserLoader {
-    fun findOpenShiftUserByToken(token: String): io.fabric8.openshift.api.model.User? =
+    private val logger = LoggerFactory.getLogger(OpenShiftUserLoader::class.java)
+
+    fun findOpenShiftUserByToken(token: String): io.fabric8.openshift.api.model.User? {
+        return try {
             DefaultOpenShiftClient(ConfigBuilder().withOauthToken(token).build()).currentUser()
+        } catch (e: KubernetesClientException) {
+            logger.info("Exception when trying to get the current user", e)
+            null
+        }
+    }
 }

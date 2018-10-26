@@ -7,7 +7,7 @@ import graphql.execution.DataFetcherExceptionHandlerParameters
 import graphql.execution.ExecutionPath
 import graphql.language.Field
 import graphql.language.SourceLocation
-import no.skatteetaten.aurora.gobo.integration.GoboException
+import no.skatteetaten.aurora.gobo.GoboException
 import org.junit.jupiter.api.Test
 
 class GraphQLExceptionWrapperTest {
@@ -17,13 +17,14 @@ class GraphQLExceptionWrapperTest {
         val sourceLocation = SourceLocation(0, 0)
         val field = Field.newField().sourceLocation(sourceLocation).name("name").build()
         val handlerParameters = DataFetcherExceptionHandlerParameters(
-                null,
-                null,
-                field,
-                null,
-                null,
-                ExecutionPath.parse(""),
-                GoboException("test exception", IllegalStateException(), "INTERNAL_SERVER_ERROR", "error message"))
+            null,
+            null,
+            field,
+            null,
+            null,
+            ExecutionPath.parse(""),
+            GoboException("test exception", IllegalStateException(), "INTERNAL_SERVER_ERROR", "error message")
+        )
 
         val exceptionWrapper = GraphQLExceptionWrapper(handlerParameters)
         assert(exceptionWrapper.message).isEqualTo("test exception")
