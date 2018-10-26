@@ -16,21 +16,22 @@ import java.time.Duration
 @Service
 class ApplicationServiceBlocking(private val applicationService: ApplicationService) {
     fun getApplications(affiliations: List<String>, applications: List<String>? = null) =
-        applicationService.getApplications(affiliations, applications).wait()
+        applicationService.getApplications(affiliations, applications).blockNonNullWithTimeout()
 
     fun getApplication(id: String): ApplicationResource =
-        applicationService.getApplication(id).wait()
+        applicationService.getApplication(id).blockNonNullWithTimeout()
 
     fun getApplicationDeployment(applicationDeploymentId: String) =
-        applicationService.getApplicationDeployment(applicationDeploymentId).wait()
+        applicationService.getApplicationDeployment(applicationDeploymentId).blockNonNullWithTimeout()
 
     fun getApplicationDeploymentDetails(token: String, applicationDeploymentId: String) =
-        applicationService.getApplicationDeploymentDetails(token, applicationDeploymentId).wait()
+        applicationService.getApplicationDeploymentDetails(token, applicationDeploymentId).blockNonNullWithTimeout()
 
     fun refreshApplicationDeployment(token: String, refreshParams: RefreshParams) =
-        applicationService.refreshApplicationDeployment(token, refreshParams).blockAndHandleError()
+        applicationService.refreshApplicationDeployment(token, refreshParams).blockWithTimeout()
 
-    private fun <T> Mono<T>.wait() = this.blockNonNullAndHandleError(Duration.ofSeconds(30))
+    private fun <T> Mono<T>.blockNonNullWithTimeout() = this.blockNonNullAndHandleError(Duration.ofSeconds(30))
+    private fun <T> Mono<T>.blockWithTimeout() = this.blockAndHandleError(Duration.ofSeconds(30))
 }
 
 @Service

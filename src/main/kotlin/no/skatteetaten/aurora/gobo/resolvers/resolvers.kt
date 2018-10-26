@@ -44,7 +44,7 @@ private fun handleResponseException(it: Throwable?) {
         throw SourceSystemException(
             "Error in response, status:${it.statusCode} message:${it.statusText}",
             it,
-            it.statusText
+            it.responseBodyAsString
         )
     }
     throw SourceSystemException("Error response", it)

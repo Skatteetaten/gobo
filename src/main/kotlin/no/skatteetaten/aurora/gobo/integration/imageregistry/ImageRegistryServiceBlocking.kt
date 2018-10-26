@@ -56,13 +56,13 @@ class ImageRegistryServiceBlocking(
         return try {
             val manifestsUrl = urlBuilder.createManifestsUrl(registryMetadata.apiSchema, imageRepoDto, tag)
             getManifest(manifestsUrl, registryMetadata.authenticationMethod)
-                ?.let { parseMainfest(it) }
+                ?.let { parseManifest(it) }
         } catch (e: Exception) {
             throw SourceSystemException("Unable to get manifest for image: $tag", e)
         }
     }
 
-    private fun parseMainfest(manifestString: String): ImageMetadata {
+    private fun parseManifest(manifestString: String): ImageMetadata {
 
         val manifest = objectMapper.readTree(manifestString)
         val manifestHistory = manifest.get("history").get(0).get("v1Compatibility")
