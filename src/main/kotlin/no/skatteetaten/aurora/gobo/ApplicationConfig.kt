@@ -18,7 +18,7 @@ import org.springframework.http.codec.json.Jackson2JsonEncoder
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction
 import org.springframework.web.reactive.function.client.ExchangeStrategies
 import org.springframework.web.reactive.function.client.WebClient
-import reactor.core.publisher.Mono
+import reactor.core.publisher.toMono
 import java.util.concurrent.TimeUnit
 import kotlin.math.min
 
@@ -84,7 +84,7 @@ class ApplicationConfig(
                     "bearer=$t"
                 } ?: ""
                 logger.debug("HttpRequest method=${it.method()} url=${it.url()} $bearer")
-                Mono.just(it)
+                it.toMono()
             })
             .clientConnector(clientConnector(ssl))
     }
