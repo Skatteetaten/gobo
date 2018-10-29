@@ -36,16 +36,17 @@ fun <T> Mono<T>.blockNonNullAndHandleError(duration: Duration = Duration.ofSecon
         .blockAndHandleError(duration)!!
 
 fun <T> Mono<T>.blockAndHandleError(duration: Duration = Duration.ofSeconds(30)) =
-    this.doOnError { handleResponseException(it) }
+    this.handleError()
         .block(duration)
 
-private fun handleResponseException(t: Throwable?) {
-    if (t is WebClientResponseException) {
-        throw SourceSystemException(
-            "Error in response, status:${t.statusCode} message:${t.statusText}",
-            t,
-            t.responseBodyAsString
-        )
+fun <T> Mono<T>.handleError() =
+    this.doOnError {
+        if (it is WebClientResponseException) {
+            throw SourceSystemException(
+                "Error in response, status:${it.statusCode} message:${it.statusText}",
+                it,
+                it.responseBodyAsString
+            )
+        }
+        throw SourceSystemException("Error response", it)
     }
-    throw SourceSystemException("Error response", t)
-}

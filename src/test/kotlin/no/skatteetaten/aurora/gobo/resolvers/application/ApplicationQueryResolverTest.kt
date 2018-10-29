@@ -19,7 +19,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.core.io.Resource
 import org.springframework.test.web.reactive.server.WebTestClient
-import reactor.core.publisher.Mono
+import reactor.core.publisher.toMono
 
 @GraphQLTest
 class ApplicationQueryResolverTest {
@@ -56,7 +56,7 @@ class ApplicationQueryResolverTest {
             .willReturn(listOf(ApplicationResourceBuilder().build()))
 
         given(applicationService.getApplicationDeploymentDetails(anyString(), anyString()))
-            .willReturn(Mono.just(ApplicationDeploymentDetailsBuilder().build()))
+            .willReturn(ApplicationDeploymentDetailsBuilder().build().toMono())
 
         val variables = mapOf("affiliations" to affiliations)
         webTestClient.queryGraphQL(getApplicationsQuery, variables, "test-token")

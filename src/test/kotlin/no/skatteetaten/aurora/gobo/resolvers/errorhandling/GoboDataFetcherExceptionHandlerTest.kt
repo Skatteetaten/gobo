@@ -6,7 +6,7 @@ import graphql.language.Field
 import io.mockk.clearMocks
 import io.mockk.mockk
 import io.mockk.verify
-import no.skatteetaten.aurora.gobo.integration.GoboException
+import no.skatteetaten.aurora.gobo.GoboException
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
@@ -22,13 +22,14 @@ class GoboDataFetcherExceptionHandlerTest {
     @Test
     fun `Given GoboException add GraphQL error to execution context`() {
         val handlerParameters = DataFetcherExceptionHandlerParameters(
-                executionContext,
-                null,
-                Field("name"),
-                null,
-                null,
-                null,
-                GoboException("test exception"))
+            executionContext,
+            null,
+            Field("name"),
+            null,
+            null,
+            null,
+            GoboException("test exception")
+        )
         exceptionHandler.accept(handlerParameters)
         verify { executionContext.addError(any()) }
     }
@@ -36,13 +37,14 @@ class GoboDataFetcherExceptionHandlerTest {
     @Test
     fun `Given Exception do not add GraphQL error`() {
         val handlerParameters = DataFetcherExceptionHandlerParameters(
-                executionContext,
-                null,
-                Field("name"),
-                null,
-                null,
-                null,
-                Exception("test exception"))
+            executionContext,
+            null,
+            Field("name"),
+            null,
+            null,
+            null,
+            Exception("test exception")
+        )
         exceptionHandler.accept(handlerParameters)
         verify(exactly = 0) { executionContext.addError(any()) }
     }

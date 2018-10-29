@@ -24,7 +24,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.core.io.Resource
 import org.springframework.test.web.reactive.server.WebTestClient
-import reactor.core.publisher.Mono
+import reactor.core.publisher.toMono
 import java.time.Instant
 
 @GraphQLTest
@@ -54,7 +54,7 @@ class ApplicationDeploymentDetailsResolverTest {
             .willReturn(listOf(application))
 
         given(applicationService.getApplicationDeploymentDetails(anyString(), anyString()))
-            .willReturn(Mono.just(ApplicationDeploymentDetailsBuilder().build()))
+            .willReturn(ApplicationDeploymentDetailsBuilder().build().toMono())
 
         given(openShiftUserLoader.findOpenShiftUserByToken(anyString()))
             .willReturn(OpenShiftUserBuilder().build())
