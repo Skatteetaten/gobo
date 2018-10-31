@@ -1,7 +1,6 @@
 type Scan {
     status: ScanStatus!,
     hostName: String
-    resolvedIp: String,
     port: Int
     failed: NodeDetailsConnection
     open: NodeDetailsConnection
@@ -20,6 +19,7 @@ type NodeDetails {
     status: String!
     message: String
     clusterNode: ClusterNode
+    resolvedIp: String
 }
 
 type ClusterNode {
