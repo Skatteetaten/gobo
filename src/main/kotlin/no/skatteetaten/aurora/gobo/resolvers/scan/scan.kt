@@ -7,7 +7,6 @@ import no.skatteetaten.aurora.gobo.integration.unclematt.ProbeStatus
 data class Scan(
     val status: ScanStatus,
     val hostName: String?,
-    val resolvedIp: String?,
     val port: Int?,
     val open: NodeDetailsConnection,
     val failed: NodeDetailsConnection
@@ -23,7 +22,6 @@ data class Scan(
             return Scan(
                 getAggregatedStatus(probeResultList),
                 firstResult?.dnsname,
-                firstResult?.resolvedIp,
                 firstResult?.port?.toInt(),
                 createOpen(probeResultList),
                 createFailed(probeResultList)
@@ -55,8 +53,12 @@ data class Scan(
         }
 
         private fun createNodeDetails(probeResultList: List<ProbeResult>, condition: (ProbeStatus) -> Boolean): NodeDetailsConnection {
-            return NodeDetailsConnection(probeResultList.filter { condition(it.result?.status ?: ProbeStatus.UNKNOWN) }.map {
-                NodeDetailsEdge(NodeDetails(mapStatus(it.result?.status ?: ProbeStatus.UNKNOWN), it.result?.message, ClusterNode(it.hostIp))) })
+            return NodeDetailsConnection(probeResultList.filter {
+                condition(it.result?.status ?: ProbeStatus.UNKNOWN)
+            }.map {
+                NodeDetailsEdge(NodeDetails(mapStatus(it.result?.status
+                    ?: ProbeStatus.UNKNOWN), it.result?.message, ClusterNode(it.hostIp), it.result?.resolvedIp))
+            })
         }
     }
 }
@@ -64,7 +66,8 @@ data class Scan(
 data class NodeDetails(
     val status: ScanStatus?,
     val message: String?,
-    val clusterNode: ClusterNode
+    val clusterNode: ClusterNode,
+    val resolvedIp: String?
 )
 
 data class ClusterNode(

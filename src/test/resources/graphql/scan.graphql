@@ -2,7 +2,6 @@ query scan($host: String!, $port: Int) {
     scan (host: $host, port: $port) {
         status
         hostName
-        resolvedIp
         port
         failed {
             totalCount
@@ -10,6 +9,7 @@ query scan($host: String!, $port: Int) {
                 node {
                     status
                     message
+                    resolvedIp
                     clusterNode {
                         ip
                     }
@@ -22,6 +22,7 @@ query scan($host: String!, $port: Int) {
                 node {
                     status
                     message
+                    resolvedIp
                     clusterNode {
                         ip
                     }
