@@ -1,4 +1,4 @@
-package no.skatteetaten.aurora.gobo.resolvers.user
+package no.skatteetaten.aurora.gobo.resolvers.userSettings
 
 import no.skatteetaten.aurora.gobo.GraphQLTest
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
@@ -9,10 +9,10 @@ import org.springframework.core.io.Resource
 import org.springframework.test.web.reactive.server.WebTestClient
 
 @GraphQLTest
-class CurrentUserQueryResolverTest {
+class UserSettingsQueryResolverTest {
 
-    @Value("classpath:graphql/getCurrentUser.graphql")
-    private lateinit var getCurrentUserQuery: Resource
+    @Value("classpath:graphql/getUserSettings.graphql")
+    private lateinit var getUserSettingsQuery: Resource
 
     @Autowired
     private lateinit var webTestClient: WebTestClient
@@ -20,10 +20,9 @@ class CurrentUserQueryResolverTest {
     @Test
     fun `Query for current user`() {
         webTestClient
-            .queryGraphQL(getCurrentUserQuery)
+            .queryGraphQL(getUserSettingsQuery, mapOf("affiliation" to "aurora"))
             .expectStatus().isOk
             .expectBody()
-            .jsonPath("$.data.currentUser.id").isNotEmpty
-            .jsonPath("$.data.currentUser.name").isNotEmpty
+            .jsonPath("$.data.userSettings.applicationDeploymentFilters[0].affiliation").isNotEmpty
     }
 }
