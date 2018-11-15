@@ -4,8 +4,8 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.TextNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.fge.jackson.jsonpointer.JsonPointer
+import com.github.fge.jsonpatch.AddOperation
 import com.github.fge.jsonpatch.JsonPatch
-import com.github.fge.jsonpatch.ReplaceOperation
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentDetailsResource
 import no.skatteetaten.aurora.gobo.resolvers.blockNonNullAndHandleError
 import org.springframework.stereotype.Service
@@ -40,7 +40,7 @@ class AuroraConfigService(private val booberWebClient: BooberWebClient) {
     }
 
     private fun createVersionPatch(version: String): Map<String, String> {
-        val jsonPatch = JsonPatch(listOf(ReplaceOperation(JsonPointer("/version"), TextNode(version))))
+        val jsonPatch = JsonPatch(listOf(AddOperation(JsonPointer("/version"), TextNode(version))))
         return mapOf("content" to jacksonObjectMapper().writeValueAsString(jsonPatch))
     }
 
