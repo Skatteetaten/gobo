@@ -4,7 +4,6 @@ import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
 import no.skatteetaten.aurora.gobo.createObjectMapper
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
-import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentRefResource
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
 import org.springframework.stereotype.Service
@@ -86,27 +85,4 @@ data class Response(
     val message: String = "OK",
     val items: List<Any>,
     val count: Int = items.size
-)
-
-data class AuroraConfigFileResource(
-    val name: String,
-    val contents: String,
-    val type: AuroraConfigFileType
-)
-
-enum class AuroraConfigFileType {
-    DEFAULT,
-    GLOBAL,
-    GLOBAL_OVERRIDE,
-    BASE,
-    BASE_OVERRIDE,
-    ENV,
-    ENV_OVERRIDE,
-    APP,
-    APP_OVERRIDE
-}
-
-data class ApplyPayload(
-    val applicationDeploymentRefs: List<ApplicationDeploymentRefResource> = emptyList(),
-    val overrides: Map<String, String> = mapOf()
 )

@@ -1,6 +1,6 @@
-{
+query getUserSettings($affiliations: [String!]) {
     userSettings {
-        applicationDeploymentFilters {
+        applicationDeploymentFilters(affiliations: $affiliations) {
             name
             affiliation
             applications

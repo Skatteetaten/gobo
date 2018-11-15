@@ -1,9 +1,10 @@
 type UserSettings {
-  applicationDeploymentFilters(affiliation: String!): [ApplicationDeploymentFilter]
+  applicationDeploymentFilters(affiliations: [String!]): [ApplicationDeploymentFilter]
 }
 
 type ApplicationDeploymentFilter {
+  name: String!
   affiliation: String!
-  applicationNames: [String]
-  environmentNames: [String]
+  applications: [String]
+  environments: [String]
 }
