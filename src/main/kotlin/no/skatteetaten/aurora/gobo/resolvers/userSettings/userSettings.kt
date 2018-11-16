@@ -9,27 +9,19 @@ data class ApplicationDeploymentFilter(
     val applications: List<String> = emptyList(),
     val environments: List<String> = emptyList()
 ) {
-    companion object {
-        fun create(resource: ApplicationDeploymentFilterResource) =
-            ApplicationDeploymentFilter(
-                resource.name,
-                resource.affiliation,
-                resource.applications,
-                resource.environments
-            )
-    }
+    constructor(resource: ApplicationDeploymentFilterResource) : this(
+        resource.name,
+        resource.affiliation,
+        resource.applications,
+        resource.environments
+    )
 }
 
 data class UserSettings(val applicationDeploymentFilters: List<ApplicationDeploymentFilter> = emptyList()) {
 
-    companion object {
-        fun create(userSettingsResource: UserSettingsResource): UserSettings {
-            val filters = userSettingsResource.applicationDeploymentFilters.map {
-                ApplicationDeploymentFilter.create(it)
-            }
-            return UserSettings(filters)
-        }
-    }
+    constructor(userSettingsResource: UserSettingsResource) : this(
+        userSettingsResource.applicationDeploymentFilters.map { ApplicationDeploymentFilter(it) }
+    )
 
     fun applicationDeploymentFilters(affiliations: List<String>? = null) =
         if (affiliations == null) {

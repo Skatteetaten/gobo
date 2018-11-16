@@ -12,6 +12,6 @@ class UserSettingsQueryResolver(private val userSettingsService: UserSettingsSer
 
     fun getUserSettings(dfe: DataFetchingEnvironment): UserSettings {
         val settings = userSettingsService.getUserSettings(dfe.currentUser().token)
-        return UserSettings.create(settings)
+        return UserSettings(settings)
     }
 }
