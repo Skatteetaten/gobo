@@ -10,7 +10,10 @@ import no.skatteetaten.aurora.gobo.security.OpenShiftUserLoader
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.mockito.BDDMockito
+import org.mockito.BDDMockito.anyString
+import org.mockito.BDDMockito.given
+import org.mockito.BDDMockito.reset
+import org.mockito.BDDMockito.verify
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.mock.mockito.MockBean
@@ -34,24 +37,33 @@ class UserSettingsMutationResolverTest {
 
     @BeforeEach
     fun setUp() {
-        BDDMockito.given(openShiftUserLoader.findOpenShiftUserByToken(BDDMockito.anyString()))
+        given(openShiftUserLoader.findOpenShiftUserByToken(anyString()))
             .willReturn(OpenShiftUserBuilder().build())
     }
 
     @AfterEach
-    fun tearDown() = BDDMockito.reset(openShiftUserLoader)
+    fun tearDown() = reset(openShiftUserLoader, userSettingsService)
 
     @Test
-    internal fun `update user settings`() {
-        val filter = ApplicationDeploymentFilter(
-            name = "filter",
-            affiliation = "paas",
-            applications = listOf("app1", "app2"),
-            environments = listOf("env1", "env2")
+    fun `Update user settings`() {
+        val userSettings = UserSettings(
+            listOf(
+                ApplicationDeploymentFilter(
+                    name = "filter",
+                    affiliation = "paas",
+                    applications = listOf("app1", "app2"),
+                    environments = listOf("env1", "env2")
+                )
+            )
         )
-        val userSettings = UserSettings(listOf(filter))
-        val json = jacksonObjectMapper().convertValue<Map<String, Any>>(userSettings)
-        webTestClient.queryGraphQL(queryResource = updateUserSettingsMutation, variables = mapOf("input" to json))
-            .expectStatus().isOk
+        webTestClient.queryGraphQL(
+            queryResource = updateUserSettingsMutation,
+            variables = mapOf("input" to jacksonObjectMapper().convertValue<Map<String, Any>>(userSettings)),
+            token = "test-token"
+        ).expectStatus().isOk
+            .expectBody()
+            .jsonPath("$.data.updateUserSettings").isEqualTo(true)
+
+        verify(userSettingsService).updateUserSettings("test-token", userSettings)
     }
 }
