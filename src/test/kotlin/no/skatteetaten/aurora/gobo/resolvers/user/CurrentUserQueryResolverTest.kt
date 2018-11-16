@@ -1,13 +1,12 @@
 package no.skatteetaten.aurora.gobo.resolvers.user
 
 import no.skatteetaten.aurora.gobo.GraphQLTest
-import no.skatteetaten.aurora.gobo.resolvers.createQuery
+import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 import org.springframework.test.web.reactive.server.WebTestClient
-import org.springframework.web.reactive.function.BodyInserters
 
 @GraphQLTest
 class CurrentUserQueryResolverTest {
@@ -20,12 +19,8 @@ class CurrentUserQueryResolverTest {
 
     @Test
     fun `Query for current user`() {
-        val query = createQuery(getCurrentUserQuery)
         webTestClient
-            .post()
-            .uri("/graphql")
-            .body(BodyInserters.fromObject(query))
-            .exchange()
+            .queryGraphQL(getCurrentUserQuery)
             .expectStatus().isOk
             .expectBody()
             .jsonPath("$.data.currentUser.id").isNotEmpty

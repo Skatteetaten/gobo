@@ -2,6 +2,7 @@ package no.skatteetaten.aurora.gobo
 
 import io.fabric8.kubernetes.api.model.ObjectMeta
 import io.fabric8.openshift.api.model.User
+import no.skatteetaten.aurora.gobo.integration.boober.ApplicationDeploymentFilterResource
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileResource
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileType
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentCommandResource
@@ -181,4 +182,15 @@ data class OpenShiftUserBuilder(val userName: String = "123456", val fullName: S
         user.metadata = objectMeta
         return user
     }
+}
+
+data class ApplicationDeploymentFilterResourceBuilder(val affiliation: String = "aurora") {
+
+    fun build() =
+        ApplicationDeploymentFilterResource(
+            "name",
+            affiliation,
+            listOf("app1", "app2"),
+            listOf("env1", "env2")
+        )
 }

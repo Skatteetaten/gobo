@@ -1,0 +1,10 @@
+{
+    userSettings {
+        applicationDeploymentFilters {
+            name
+            affiliation
+            applications
+            environments
+        }
+    }
+}

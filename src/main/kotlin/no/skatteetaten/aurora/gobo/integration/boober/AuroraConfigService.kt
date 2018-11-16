@@ -7,6 +7,7 @@ import com.github.fge.jackson.jsonpointer.JsonPointer
 import com.github.fge.jsonpatch.AddOperation
 import com.github.fge.jsonpatch.JsonPatch
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentDetailsResource
+import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentRefResource
 import no.skatteetaten.aurora.gobo.resolvers.blockNonNullAndHandleError
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
@@ -55,3 +56,26 @@ class AuroraConfigService(private val booberWebClient: BooberWebClient) {
 
     private fun <T> Mono<T>.blockNonNullWithTimeout() = this.blockNonNullAndHandleError(Duration.ofSeconds(30))
 }
+
+data class AuroraConfigFileResource(
+    val name: String,
+    val contents: String,
+    val type: AuroraConfigFileType
+)
+
+enum class AuroraConfigFileType {
+    DEFAULT,
+    GLOBAL,
+    GLOBAL_OVERRIDE,
+    BASE,
+    BASE_OVERRIDE,
+    ENV,
+    ENV_OVERRIDE,
+    APP,
+    APP_OVERRIDE
+}
+
+data class ApplyPayload(
+    val applicationDeploymentRefs: List<ApplicationDeploymentRefResource> = emptyList(),
+    val overrides: Map<String, String> = mapOf()
+)

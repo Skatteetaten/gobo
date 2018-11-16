@@ -45,7 +45,7 @@ class ApplicationDeploymentDetailsDataLoaderTest {
     @ParameterizedTest
     @EnumSource(
         value = SocketPolicy::class,
-        names = ["STALL_SOCKET_AT_START", "NO_RESPONSE"],
+        names = ["STALL_SOCKET_AT_START", "NO_RESPONSE", "DISCONNECT_AT_START"],
         mode = EnumSource.Mode.EXCLUDE
     )
     fun `Handle failure from ApplicationService`(socketPolicy: SocketPolicy) {
