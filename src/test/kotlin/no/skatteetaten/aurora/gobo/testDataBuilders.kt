@@ -12,8 +12,8 @@ import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentResour
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationResource
 import no.skatteetaten.aurora.gobo.integration.mokey.AuroraConfigRefResource
 import no.skatteetaten.aurora.gobo.integration.mokey.GitInfoResource
-import no.skatteetaten.aurora.gobo.integration.mokey.HttpResponseResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ImageDetailsResource
+import no.skatteetaten.aurora.gobo.integration.mokey.ManagementEndpointResponseResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ManagementResponsesResource
 import no.skatteetaten.aurora.gobo.integration.mokey.PodResourceResource
 import no.skatteetaten.aurora.gobo.integration.mokey.StatusResource
@@ -33,6 +33,24 @@ import java.time.Instant
 val defaultInstant = Instant.parse("2018-01-01T00:00:01Z")
 
 @Language("JSON")
+val linksResponseJson: String = """{
+  "_links": {
+      "self": {
+          "href": "http://localhost:8081/actuator"
+        },
+      "health": {
+          "href": "http://localhost:8081/health"
+        },
+      "info": {
+          "href": "http://localhost:8081/info"
+        },
+      "env": {
+          "href": "http://localhost:8081/env"
+      }
+  }
+}"""
+
+@Language("JSON")
 val infoResponseJson: String = """{
   "git": {
     "build.time": "$defaultInstant",
@@ -42,6 +60,13 @@ val infoResponseJson: String = """{
  "podLinks": {
     "metrics": "http://localhost"
   }
+}"""
+
+@Language("JSON")
+val envResponseJson = """{
+  "activeProfiles": [
+    "myprofile"
+  ]
 }"""
 
 @Language("JSON")
@@ -107,8 +132,10 @@ data class ApplicationDeploymentDetailsBuilder(val resourceLinks: List<Link> = e
                     ready = true,
                     startTime = Instant.now(),
                     managementResponses = ManagementResponsesResource(
-                        HttpResponseResource(healthResponseJson, defaultInstant),
-                        HttpResponseResource(infoResponseJson, defaultInstant)
+                        ManagementEndpointResponseResource(true, linksResponseJson, 200, defaultInstant, "http://localhost/discovery"),
+                        ManagementEndpointResponseResource(true, healthResponseJson, 200, defaultInstant, "http://localhost/health"),
+                        ManagementEndpointResponseResource(true, infoResponseJson, 200, defaultInstant, "http://localhost/info"),
+                        ManagementEndpointResponseResource(true, envResponseJson, 200, defaultInstant, "http://localhost/env")
                     )
                 )
             ),

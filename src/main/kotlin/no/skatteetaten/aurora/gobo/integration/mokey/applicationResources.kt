@@ -29,14 +29,25 @@ data class PodResourceResource(
     val managementResponses: ManagementResponsesResource?
 ) : ResourceSupport()
 
-data class ManagementResponsesResource(
-    val health: HttpResponseResource?,
-    val info: HttpResponseResource?
+data class ManagementEndpointResponseResource(
+    val hasResponse: Boolean,
+    val textResponse: String? = null,
+    val httpCode: Int? = null,
+    val createdAt: Instant = Instant.now(),
+    val url: String? = null,
+    val error: ManagementEndpointErrorResource? = null
 )
 
-data class HttpResponseResource(
-    val textResponse: String,
-    val createdAt: Instant
+data class ManagementResponsesResource(
+    val links: ManagementEndpointResponseResource,
+    val health: ManagementEndpointResponseResource?,
+    val info: ManagementEndpointResponseResource?,
+    val env: ManagementEndpointResponseResource?
+)
+
+data class ManagementEndpointErrorResource(
+    val code: String,
+    val message: String? = null
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)

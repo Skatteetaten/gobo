@@ -1,6 +1,7 @@
 package no.skatteetaten.aurora.gobo.resolvers.applicationdeploymentdetails
 
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentDetailsResource
+import no.skatteetaten.aurora.gobo.integration.mokey.ManagementEndpointResponseResource
 import no.skatteetaten.aurora.gobo.integration.mokey.PodResourceResource
 import java.net.URL
 import java.time.Instant
@@ -34,9 +35,11 @@ data class PodResource(
                 resource.startTime,
                 resource.links.map { Link.create(it) },
                 resource.managementResponses?.let { managementResponses ->
-                    val health = managementResponses.health?.let { HttpResponse(it.textResponse, it.createdAt) }
-                    val info = managementResponses.info?.let { HttpResponse(it.textResponse, it.createdAt) }
-                    ManagementResponses(health, info)
+                    val links = ManagementEndpointResponse.create(managementResponses.links)
+                    val health = managementResponses.health?.let { ManagementEndpointResponse.create(it) }
+                    val info = managementResponses.info?.let { ManagementEndpointResponse.create(it) }
+                    val env = managementResponses.env?.let { ManagementEndpointResponse.create(it) }
+                    ManagementResponses(links, health, info, env)
                 }
             )
     }
@@ -51,11 +54,37 @@ data class PodResource(
 }
 
 data class ManagementResponses(
-    val health: HttpResponse?,
-    val info: HttpResponse?
+    val links: ManagementEndpointResponse,
+    val health: ManagementEndpointResponse?,
+    val info: ManagementEndpointResponse?,
+    val env: ManagementEndpointResponse?
 )
 
-data class HttpResponse(val textResponse: String, val loadedTime: Instant)
+data class ManagementEndpointResponse(
+    val hasResponse: Boolean,
+    val textResponse: String?,
+    val createdAt: Instant,
+    val httpCode: Int?,
+    val url: String?,
+    val error: ManagementEndpointError?
+) {
+    companion object {
+        fun create(resource: ManagementEndpointResponseResource) =
+                ManagementEndpointResponse(
+                        resource.hasResponse,
+                        resource.textResponse,
+                        resource.createdAt,
+                        resource.httpCode,
+                        resource.url,
+                        resource.error?.let { ManagementEndpointError(it.code, it.message) }
+                )
+    }
+}
+
+data class ManagementEndpointError(
+    val code: String,
+    val message: String? = null
+)
 
 class Link private constructor(val name: String, val url: URL) {
     companion object {

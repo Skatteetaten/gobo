@@ -19,13 +19,24 @@ type PodResource {
 }
 
 type ManagementResponses {
-  health: HttpResponse
-  info: HttpResponse
+  links: ManagementEndpointResponse!
+  health: ManagementEndpointResponse
+  info: ManagementEndpointResponse
+  env: ManagementEndpointResponse
 }
 
-type HttpResponse {
-  textResponse: String!
-  loadedTime: DateTime
+type ManagementEndpointResponse {
+  hasResponse: Boolean!
+  textResponse: String
+  createdAt: DateTime!
+  httpCode: Int
+  url: String
+  error: ManagementEndpointError
+}
+
+type ManagementEndpointError {
+  code: String!
+  message: String
 }
 
 type Link {
