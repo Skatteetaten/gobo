@@ -8,3 +8,14 @@ type ApplicationDeploymentFilter {
   applications: [String]
   environments: [String]
 }
+
+input UserSettingsInput {
+  applicationDeploymentFilters: [ApplicationDeploymentFilterInput]
+}
+
+input ApplicationDeploymentFilterInput {
+  name: String!
+  affiliation: String!
+  applications: [String]
+  environments: [String]
+}
