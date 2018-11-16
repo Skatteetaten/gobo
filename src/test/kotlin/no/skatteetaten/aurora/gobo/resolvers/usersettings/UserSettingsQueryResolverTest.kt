@@ -1,4 +1,4 @@
-package no.skatteetaten.aurora.gobo.resolvers.userSettings
+package no.skatteetaten.aurora.gobo.resolvers.usersettings
 
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentFilterResourceBuilder
 import no.skatteetaten.aurora.gobo.GraphQLTest

@@ -1,4 +1,4 @@
-package no.skatteetaten.aurora.gobo.resolvers.userSettings
+package no.skatteetaten.aurora.gobo.resolvers.usersettings
 
 import no.skatteetaten.aurora.gobo.integration.boober.ApplicationDeploymentFilterResource
 import no.skatteetaten.aurora.gobo.integration.boober.UserSettingsResource

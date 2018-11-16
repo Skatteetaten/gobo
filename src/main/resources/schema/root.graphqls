@@ -23,6 +23,7 @@ type Mutation {
   redeployWithVersion(input: ApplicationDeploymentVersionInput!): Boolean
   refreshApplicationDeployment(input: RefreshByApplicationDeploymentIdInput!): Boolean
   refreshApplicationDeployments(input: RefreshByAffiliationsInput!): Boolean
+  updateUserSettings(input: UserSettingsInput!): Boolean
 }
 
 type PageInfo {
