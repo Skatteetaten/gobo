@@ -30,6 +30,5 @@ class UserSettingsServiceTest {
     @Test
     fun `update user settings`() {
         val filter = ApplicationDeploymentFilterResource("my filter", "aurora", listOf("app1", "app2"), listOf("env1", "env2"))
-
     }
 }

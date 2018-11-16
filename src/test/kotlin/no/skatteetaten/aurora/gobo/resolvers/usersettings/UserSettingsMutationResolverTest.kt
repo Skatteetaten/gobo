@@ -1,6 +1,5 @@
 package no.skatteetaten.aurora.gobo.resolvers.usersettings
 
-import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.module.kotlin.convertValue
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import no.skatteetaten.aurora.gobo.GraphQLTest
