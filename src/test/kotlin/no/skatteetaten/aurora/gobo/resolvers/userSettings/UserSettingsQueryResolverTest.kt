@@ -3,13 +3,14 @@ package no.skatteetaten.aurora.gobo.resolvers.userSettings
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentFilterResourceBuilder
 import no.skatteetaten.aurora.gobo.GraphQLTest
 import no.skatteetaten.aurora.gobo.OpenShiftUserBuilder
-import no.skatteetaten.aurora.gobo.integration.boober.ApplicationDeploymentFilterService
+import no.skatteetaten.aurora.gobo.integration.boober.UserSettingsResource
+import no.skatteetaten.aurora.gobo.integration.boober.UserSettingsService
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import no.skatteetaten.aurora.gobo.security.OpenShiftUserLoader
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.mockito.BDDMockito
+import org.mockito.BDDMockito.anyString
 import org.mockito.BDDMockito.given
 import org.mockito.BDDMockito.reset
 import org.springframework.beans.factory.annotation.Autowired
@@ -33,26 +34,28 @@ class UserSettingsQueryResolverTest {
     private lateinit var webTestClient: WebTestClient
 
     @MockBean
-    private lateinit var applicationDeploymentFilterService: ApplicationDeploymentFilterService
+    private lateinit var userSettingsService: UserSettingsService
 
     @MockBean
     private lateinit var openShiftUserLoader: OpenShiftUserLoader
 
     @BeforeEach
     fun setUp() {
-        given(applicationDeploymentFilterService.getFilters("test-token")).willReturn(
-            listOf(
-                ApplicationDeploymentFilterResourceBuilder(affiliation = "aurora").build(),
-                ApplicationDeploymentFilterResourceBuilder(affiliation = "paas").build()
+        given(userSettingsService.getUserSettings("test-token")).willReturn(
+            UserSettingsResource(
+                listOf(
+                    ApplicationDeploymentFilterResourceBuilder(affiliation = "aurora").build(),
+                    ApplicationDeploymentFilterResourceBuilder(affiliation = "paas").build()
+                )
             )
         )
 
-        given(openShiftUserLoader.findOpenShiftUserByToken(BDDMockito.anyString()))
+        given(openShiftUserLoader.findOpenShiftUserByToken(anyString()))
             .willReturn(OpenShiftUserBuilder().build())
     }
 
     @AfterEach
-    fun tearDown() = reset(applicationDeploymentFilterService, openShiftUserLoader)
+    fun tearDown() = reset(userSettingsService, openShiftUserLoader)
 
     @Test
     fun `Query for application deployment filters`() {
