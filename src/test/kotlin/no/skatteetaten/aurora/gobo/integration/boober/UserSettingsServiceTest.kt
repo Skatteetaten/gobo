@@ -31,10 +31,22 @@ class UserSettingsServiceTest {
         assert(request.path).isEqualTo("/v1/users/annotations/applicationDeploymentFilters")
         assert(request.method).isEqualTo(HttpMethod.GET.name)
     }
+
     @Test
     fun `Update user settings`() {
         val userSettings = UserSettings(listOf(ApplicationDeploymentFilter(filter)))
         val request = server.execute(response) {
+            applicationDeploymentFilterService.updateUserSettings("token", userSettings)
+        }
+
+        assert(request.path).isEqualTo("/v1/users/annotations/applicationDeploymentFilters")
+        assert(request.method).isEqualTo(HttpMethod.PATCH.name)
+    }
+
+    @Test
+    fun `Remove application deployment filters`() {
+        val userSettings = UserSettings(emptyList())
+        val request = server.execute(Response(items = listOf(UserSettingsResource(emptyList())))) {
             applicationDeploymentFilterService.updateUserSettings("token", userSettings)
         }
 
