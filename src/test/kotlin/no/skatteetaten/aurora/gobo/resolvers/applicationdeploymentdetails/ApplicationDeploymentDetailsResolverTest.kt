@@ -40,9 +40,6 @@ class ApplicationDeploymentDetailsResolverTest {
     private lateinit var applicationServiceBlocking: ApplicationServiceBlocking
 
     @MockBean
-    private lateinit var applicationService: ApplicationService
-
-    @MockBean
     private lateinit var openShiftUserLoader: OpenShiftUserLoader
 
     @BeforeEach
@@ -53,15 +50,15 @@ class ApplicationDeploymentDetailsResolverTest {
         given(applicationServiceBlocking.getApplications(affiliations))
             .willReturn(listOf(application))
 
-        given(applicationService.getApplicationDeploymentDetails(anyString(), anyString()))
-            .willReturn(ApplicationDeploymentDetailsBuilder().build().toMono())
+        given(applicationServiceBlocking.getApplicationDeploymentDetails(anyString(), anyString()))
+            .willReturn(ApplicationDeploymentDetailsBuilder().build())
 
         given(openShiftUserLoader.findOpenShiftUserByToken(anyString()))
             .willReturn(OpenShiftUserBuilder().build())
     }
 
     @AfterEach
-    fun tearDown() = reset(applicationService, openShiftUserLoader)
+    fun tearDown() = reset(applicationServiceBlocking, openShiftUserLoader)
 
     @Test
     fun `Query for repositories and tags`() {
