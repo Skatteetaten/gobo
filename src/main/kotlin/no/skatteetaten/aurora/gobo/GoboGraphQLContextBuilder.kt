@@ -2,10 +2,10 @@ package no.skatteetaten.aurora.gobo
 
 import graphql.servlet.GraphQLContext
 import graphql.servlet.GraphQLContextBuilder
+import no.skatteetaten.aurora.gobo.resolvers.KeyDataLoader
 import no.skatteetaten.aurora.gobo.resolvers.KeysDataLoader
-import no.skatteetaten.aurora.gobo.resolvers.KeysDataLoaderFlux
-import no.skatteetaten.aurora.gobo.resolvers.createNoCacheBatchDataLoader
-import no.skatteetaten.aurora.gobo.resolvers.createNoCacheBatchDataLoaderFlux
+import no.skatteetaten.aurora.gobo.resolvers.createNoCacheBatchDataLoaderMapped
+import no.skatteetaten.aurora.gobo.resolvers.noCacheBatchDataLoaderMappedSingle
 import no.skatteetaten.aurora.gobo.security.ANONYMOUS_USER
 import no.skatteetaten.aurora.gobo.security.currentUser
 import org.dataloader.DataLoaderRegistry
@@ -17,11 +17,12 @@ import javax.websocket.server.HandshakeRequest
 
 @Component
 class GoboGraphQLContextBuilder(
-    val loaderList: List<KeysDataLoader<*, *>>,
-    val loaderListFlux: List<KeysDataLoaderFlux<*, *>>
+    val keyLoaders: List<KeyDataLoader<*, *>>,
+    val allKeysLoaders: List<KeysDataLoader<*, *>>
 ) : GraphQLContextBuilder {
 
-    override fun build(httpServletRequest: HttpServletRequest?, httpServletResponse: HttpServletResponse?) = createContext(httpServletRequest)
+    override fun build(httpServletRequest: HttpServletRequest?, httpServletResponse: HttpServletResponse?) =
+        createContext(httpServletRequest)
 
     override fun build(session: Session?, handshakeRequest: HandshakeRequest?) = createContext()
 
@@ -30,11 +31,11 @@ class GoboGraphQLContextBuilder(
     private fun createContext(request: HttpServletRequest? = null): GraphQLContext {
         val currentUser = request?.currentUser() ?: ANONYMOUS_USER
         val registry = DataLoaderRegistry().apply {
-            loaderList.forEach {
-                register(it::class.simpleName, createNoCacheBatchDataLoader(currentUser, it))
+            keyLoaders.forEach {
+                register(it::class.simpleName, noCacheBatchDataLoaderMappedSingle(currentUser, it))
             }
-            loaderListFlux.forEach {
-                register(it::class.simpleName, createNoCacheBatchDataLoaderFlux(currentUser, it))
+            allKeysLoaders.forEach {
+                register(it::class.simpleName, createNoCacheBatchDataLoaderMapped(currentUser, it))
             }
         }
 
