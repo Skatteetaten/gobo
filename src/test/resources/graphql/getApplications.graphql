@@ -10,6 +10,12 @@ query getApplications($affiliations: [String!]!) {
             }
             namespace {
               name
+              permission {
+                 paas {
+                    view
+                    admin
+                 }
+              }
             }
             details {
               buildTime

@@ -11,6 +11,7 @@ import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentRefRes
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationResource
 import no.skatteetaten.aurora.gobo.integration.mokey.AuroraConfigRefResource
+import no.skatteetaten.aurora.gobo.integration.mokey.AuroraNamespacePermissions
 import no.skatteetaten.aurora.gobo.integration.mokey.GitInfoResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ImageDetailsResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ManagementEndpointResponseResource
@@ -221,3 +222,4 @@ data class ApplicationDeploymentFilterResourceBuilder(val affiliation: String = 
             listOf("env1", "env2")
         )
 }
+

@@ -4,13 +4,15 @@ import no.skatteetaten.aurora.gobo.ApplicationDeploymentDetailsBuilder
 import no.skatteetaten.aurora.gobo.ApplicationResourceBuilder
 import no.skatteetaten.aurora.gobo.GraphQLTest
 import no.skatteetaten.aurora.gobo.OpenShiftUserBuilder
-import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
+import no.skatteetaten.aurora.gobo.integration.mokey.AuroraNamespacePermissions
+import no.skatteetaten.aurora.gobo.integration.mokey.PermissionService
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import no.skatteetaten.aurora.gobo.security.OpenShiftUserLoader
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.mockito.ArgumentMatchers
 import org.mockito.BDDMockito.anyString
 import org.mockito.BDDMockito.given
 import org.mockito.BDDMockito.reset
@@ -34,7 +36,8 @@ class ApplicationQueryResolverTest {
     @MockBean
     private lateinit var applicationServiceBlocking: ApplicationServiceBlocking
 
-
+    @MockBean
+    private lateinit var permissionService: PermissionService
     @MockBean
     private lateinit var openShiftUserLoader: OpenShiftUserLoader
 
@@ -45,13 +48,21 @@ class ApplicationQueryResolverTest {
     }
 
     @AfterEach
-    fun tearDown() = reset(applicationServiceBlocking, openShiftUserLoader)
+    fun tearDown() = reset(applicationServiceBlocking, openShiftUserLoader, permissionService)
 
     @Test
     fun `Query for applications given affiliations`() {
         val affiliations = listOf("paas")
         given(applicationServiceBlocking.getApplications(affiliations))
             .willReturn(listOf(ApplicationResourceBuilder().build()))
+
+        given(permissionService.getPermission(ArgumentMatchers.anyString())).willReturn(
+            AuroraNamespacePermissions(
+                true,
+                true,
+                "namespace"
+            ).toMono()
+        )
 
         given(applicationServiceBlocking.getApplicationDeploymentDetails(anyString(), anyString()))
             .willReturn(ApplicationDeploymentDetailsBuilder().build())
@@ -63,6 +74,7 @@ class ApplicationQueryResolverTest {
             .jsonPath("$.data.applications.totalCount").isNumber
             .jsonPath("$firstApplicationDeployment.affiliation.name").isNotEmpty
             .jsonPath("$firstApplicationDeployment.namespace.name").isNotEmpty
+            .jsonPath("$firstApplicationDeployment.namespace.permission.paas.admin").isNotEmpty
             .jsonPath("$firstApplicationDeployment.details.buildTime").isNotEmpty
     }
 }
