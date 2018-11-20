@@ -56,7 +56,7 @@ class ApplicationQueryResolverTest {
         given(applicationServiceBlocking.getApplications(affiliations))
             .willReturn(listOf(ApplicationResourceBuilder().build()))
 
-        given(permissionService.getPermission(ArgumentMatchers.anyString())).willReturn(
+        given(permissionService.getPermission(anyString(), anyString())).willReturn(
             AuroraNamespacePermissions(
                 true,
                 true,

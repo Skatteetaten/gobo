@@ -14,7 +14,7 @@ class PermissionDataLoader(
 ) : KeyDataLoader<Namespace, Permission> {
     override fun getByKey(user: User, key: Namespace): Try<Permission> {
         return Try.tryCall {
-            permissionService.getPermission(key.name).map {
+            permissionService.getPermission(key.name, user.token).map {
                 Permission(paas = PermissionDetails(view = it.view, admin = it.admin))
             }.blockAndHandleError()
         }
