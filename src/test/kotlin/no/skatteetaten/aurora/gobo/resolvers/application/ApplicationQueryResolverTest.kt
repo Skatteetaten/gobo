@@ -34,8 +34,6 @@ class ApplicationQueryResolverTest {
     @MockBean
     private lateinit var applicationServiceBlocking: ApplicationServiceBlocking
 
-    @MockBean
-    private lateinit var applicationService: ApplicationService
 
     @MockBean
     private lateinit var openShiftUserLoader: OpenShiftUserLoader
@@ -47,7 +45,7 @@ class ApplicationQueryResolverTest {
     }
 
     @AfterEach
-    fun tearDown() = reset(applicationService, openShiftUserLoader)
+    fun tearDown() = reset(applicationServiceBlocking, openShiftUserLoader)
 
     @Test
     fun `Query for applications given affiliations`() {
@@ -55,8 +53,8 @@ class ApplicationQueryResolverTest {
         given(applicationServiceBlocking.getApplications(affiliations))
             .willReturn(listOf(ApplicationResourceBuilder().build()))
 
-        given(applicationService.getApplicationDeploymentDetails(anyString(), anyString()))
-            .willReturn(ApplicationDeploymentDetailsBuilder().build().toMono())
+        given(applicationServiceBlocking.getApplicationDeploymentDetails(anyString(), anyString()))
+            .willReturn(ApplicationDeploymentDetailsBuilder().build())
 
         val variables = mapOf("affiliations" to affiliations)
         webTestClient.queryGraphQL(getApplicationsQuery, variables, "test-token")
