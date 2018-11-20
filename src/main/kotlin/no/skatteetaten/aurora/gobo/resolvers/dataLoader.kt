@@ -47,4 +47,3 @@ fun <K, V> noCacheBatchDataLoaderMappedSingle(user: User, keyDataLoader: KeyData
             }
         }
     }, DataLoaderOptions.newOptions().setCachingEnabled(false))
-

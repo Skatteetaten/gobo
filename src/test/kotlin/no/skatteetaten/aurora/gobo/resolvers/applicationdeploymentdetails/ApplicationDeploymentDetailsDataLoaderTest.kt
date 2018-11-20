@@ -7,6 +7,7 @@ import assertk.assertions.isSameAs
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentDetailsBuilder
 import no.skatteetaten.aurora.gobo.integration.execute
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
+import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
 import no.skatteetaten.aurora.gobo.resolvers.user.User
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -20,14 +21,14 @@ class ApplicationDeploymentDetailsDataLoaderTest {
 
     private val server = MockWebServer()
     private val url = server.url("/")
-    private val applicationService = ApplicationService(WebClient.create(url.toString()))
+    private val applicationService = ApplicationServiceBlocking(ApplicationService(WebClient.create(url.toString())))
     private val dataLoader = ApplicationDeploymentDetailsDataLoader(applicationService)
 
     @Test
     fun `Get ApplicationDeploymentDetails by applicationDeploymentId`() {
         val request = server.execute(ApplicationDeploymentDetailsBuilder().build()) {
-            val result = dataLoader.getByKeys(User("username", "token"), listOf("applicationDeploymentId")).blockFirst()
-            assert(result?.get()).isNotNull()
+            val result = dataLoader.getByKey(User("username", "token"), ("applicationDeploymentId"))
+            assert(result).isNotNull()
         }
 
         assert(request.path).isEqualTo("/api/auth/applicationdeploymentdetails/applicationDeploymentId")
@@ -36,9 +37,8 @@ class ApplicationDeploymentDetailsDataLoaderTest {
     @Test
     fun `Handle 404 from ApplicationService`() {
         server.execute(404, "Not found") {
-            val result =
-                dataLoader.getByKeys(User("username", "token"), listOf("applicationDeploymentId")).blockFirst()
-            assert(result?.isFailure).isSameAs(true)
+            val result = dataLoader.getByKey(User("username", "token"), "applicationDeploymentId")
+            assert(result.isFailure).isSameAs(true)
         }
     }
 
@@ -52,8 +52,8 @@ class ApplicationDeploymentDetailsDataLoaderTest {
         val failureResponse = MockResponse().apply { this.socketPolicy = socketPolicy }
         server.execute(failureResponse) {
             val result =
-                dataLoader.getByKeys(User("username", "token"), listOf("applicationDeploymentId")).blockFirst()
-            assert(result?.isFailure).isSameAs(true)
+                dataLoader.getByKey(User("username", "token"), "applicationDeploymentId")
+            assert(result.isFailure).isSameAs(true)
         }
     }
 }

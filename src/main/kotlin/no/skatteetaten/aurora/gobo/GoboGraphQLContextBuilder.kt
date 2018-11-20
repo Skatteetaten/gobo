@@ -17,8 +17,8 @@ import javax.websocket.server.HandshakeRequest
 
 @Component
 class GoboGraphQLContextBuilder(
-    val keyLoaders: List<KeyDataLoader<*, *>>,
-    val allKeysLoaders: List<KeysDataLoader<*, *>>
+    val keyLoaders: List<KeyDataLoader<*, *>>
+    //val allKeysLoaders: List<KeysDataLoader<*, *>>
 ) : GraphQLContextBuilder {
 
     override fun build(httpServletRequest: HttpServletRequest?, httpServletResponse: HttpServletResponse?) =
@@ -34,9 +34,11 @@ class GoboGraphQLContextBuilder(
             keyLoaders.forEach {
                 register(it::class.simpleName, noCacheBatchDataLoaderMappedSingle(currentUser, it))
             }
+            /*
             allKeysLoaders.forEach {
                 register(it::class.simpleName, createNoCacheBatchDataLoaderMapped(currentUser, it))
             }
+            */
         }
 
         return GraphQLContext(request).apply {
