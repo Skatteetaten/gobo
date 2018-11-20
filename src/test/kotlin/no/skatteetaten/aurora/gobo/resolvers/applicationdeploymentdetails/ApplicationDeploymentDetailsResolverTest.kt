@@ -13,6 +13,7 @@ import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import no.skatteetaten.aurora.gobo.security.OpenShiftUserLoader
+import org.junit.Ignore
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -70,15 +71,13 @@ class ApplicationDeploymentDetailsResolverTest {
                 val firstDeployment = applications.edges[0].node.applicationDeployments[0]
                 val managementResponses = firstDeployment.details.podResources[0].managementResponses
                 assert(managementResponses.health.textResponse).isEqualTo(healthResponseJson)
-                assert(managementResponses.health.loadedTime).isEqualTo(defaultInstant)
                 assert(managementResponses.info.textResponse).isEqualTo(infoResponseJson)
-                assert(managementResponses.info.loadedTime).isEqualTo(defaultInstant)
             }
     }
 }
 
 class QueryResponse {
-    data class HttpResponse(val textResponse: String, val loadedTime: Instant)
+    data class HttpResponse(val textResponse: String)
     data class ManagementResponses(val info: HttpResponse, val health: HttpResponse)
     data class PodResource(val managementResponses: ManagementResponses)
     data class ApplicationDetails(val podResources: List<PodResource>)
