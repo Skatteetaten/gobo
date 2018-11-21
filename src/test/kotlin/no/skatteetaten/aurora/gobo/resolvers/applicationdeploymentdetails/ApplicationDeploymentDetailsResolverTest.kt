@@ -6,14 +6,11 @@ import no.skatteetaten.aurora.gobo.ApplicationDeploymentDetailsBuilder
 import no.skatteetaten.aurora.gobo.ApplicationResourceBuilder
 import no.skatteetaten.aurora.gobo.GraphQLTest
 import no.skatteetaten.aurora.gobo.OpenShiftUserBuilder
-import no.skatteetaten.aurora.gobo.defaultInstant
 import no.skatteetaten.aurora.gobo.healthResponseJson
 import no.skatteetaten.aurora.gobo.infoResponseJson
-import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import no.skatteetaten.aurora.gobo.security.OpenShiftUserLoader
-import org.junit.Ignore
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -25,8 +22,6 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.core.io.Resource
 import org.springframework.test.web.reactive.server.WebTestClient
-import reactor.core.publisher.toMono
-import java.time.Instant
 
 @GraphQLTest
 class ApplicationDeploymentDetailsResolverTest {

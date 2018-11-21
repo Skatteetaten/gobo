@@ -11,7 +11,6 @@ import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentRefRes
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationResource
 import no.skatteetaten.aurora.gobo.integration.mokey.AuroraConfigRefResource
-import no.skatteetaten.aurora.gobo.integration.mokey.AuroraNamespacePermissions
 import no.skatteetaten.aurora.gobo.integration.mokey.GitInfoResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ImageDetailsResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ManagementEndpointResponseResource
@@ -133,10 +132,34 @@ data class ApplicationDeploymentDetailsBuilder(val resourceLinks: List<Link> = e
                     ready = true,
                     startTime = Instant.now(),
                     managementResponses = ManagementResponsesResource(
-                        ManagementEndpointResponseResource(true, linksResponseJson, 200, defaultInstant, "http://localhost/discovery"),
-                        ManagementEndpointResponseResource(true, healthResponseJson, 200, defaultInstant, "http://localhost/health"),
-                        ManagementEndpointResponseResource(true, infoResponseJson, 200, defaultInstant, "http://localhost/info"),
-                        ManagementEndpointResponseResource(true, envResponseJson, 200, defaultInstant, "http://localhost/env")
+                        ManagementEndpointResponseResource(
+                            true,
+                            linksResponseJson,
+                            200,
+                            defaultInstant,
+                            "http://localhost/discovery"
+                        ),
+                        ManagementEndpointResponseResource(
+                            true,
+                            healthResponseJson,
+                            200,
+                            defaultInstant,
+                            "http://localhost/health"
+                        ),
+                        ManagementEndpointResponseResource(
+                            true,
+                            infoResponseJson,
+                            200,
+                            defaultInstant,
+                            "http://localhost/info"
+                        ),
+                        ManagementEndpointResponseResource(
+                            true,
+                            envResponseJson,
+                            200,
+                            defaultInstant,
+                            "http://localhost/env"
+                        )
                     )
                 )
             ),
@@ -153,39 +176,39 @@ data class ApplicationDeploymentDetailsBuilder(val resourceLinks: List<Link> = e
 
 class ProbeResultListBuilder {
     fun build() = listOf(
-            ProbeResult(
-                result = Result(
-                    status = ProbeStatus.OPEN,
-                    message = "Firewall open",
-                    dnsname = "test.server",
-                    resolvedIp = "192.168.1.1",
-                    port = "80"
-                ),
-                podIp = "192.168.10.1",
-                hostIp = "192.168.100.1"
+        ProbeResult(
+            result = Result(
+                status = ProbeStatus.OPEN,
+                message = "Firewall open",
+                dnsname = "test.server",
+                resolvedIp = "192.168.1.1",
+                port = "80"
             ),
-            ProbeResult(
-                result = Result(
-                    status = ProbeStatus.CLOSED,
-                    message = "Firewall closed",
-                    dnsname = "test.server",
-                    resolvedIp = "192.168.1.2",
-                    port = "80"
-                ),
-                podIp = "192.168.10.2",
-                hostIp = "192.168.100.2"
+            podIp = "192.168.10.1",
+            hostIp = "192.168.100.1"
+        ),
+        ProbeResult(
+            result = Result(
+                status = ProbeStatus.CLOSED,
+                message = "Firewall closed",
+                dnsname = "test.server",
+                resolvedIp = "192.168.1.2",
+                port = "80"
             ),
-            ProbeResult(
-                result = Result(
-                    status = ProbeStatus.UNKNOWN,
-                    message = "Unknown status",
-                    dnsname = "test.server",
-                    resolvedIp = "192.168.1.3",
-                    port = "80"
-                ),
-                podIp = "192.168.10.3",
-                hostIp = "192.168.100.3"
-            )
+            podIp = "192.168.10.2",
+            hostIp = "192.168.100.2"
+        ),
+        ProbeResult(
+            result = Result(
+                status = ProbeStatus.UNKNOWN,
+                message = "Unknown status",
+                dnsname = "test.server",
+                resolvedIp = "192.168.1.3",
+                port = "80"
+            ),
+            podIp = "192.168.10.3",
+            hostIp = "192.168.100.3"
+        )
     )
 }
 
@@ -222,4 +245,3 @@ data class ApplicationDeploymentFilterResourceBuilder(val affiliation: String = 
             listOf("env1", "env2")
         )
 }
-

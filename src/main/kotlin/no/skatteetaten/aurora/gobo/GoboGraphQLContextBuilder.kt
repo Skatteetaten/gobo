@@ -3,8 +3,6 @@ package no.skatteetaten.aurora.gobo
 import graphql.servlet.GraphQLContext
 import graphql.servlet.GraphQLContextBuilder
 import no.skatteetaten.aurora.gobo.resolvers.KeyDataLoader
-import no.skatteetaten.aurora.gobo.resolvers.KeysDataLoader
-import no.skatteetaten.aurora.gobo.resolvers.createNoCacheBatchDataLoaderMapped
 import no.skatteetaten.aurora.gobo.resolvers.noCacheBatchDataLoaderMappedSingle
 import no.skatteetaten.aurora.gobo.security.ANONYMOUS_USER
 import no.skatteetaten.aurora.gobo.security.currentUser
@@ -18,7 +16,6 @@ import javax.websocket.server.HandshakeRequest
 @Component
 class GoboGraphQLContextBuilder(
     val keyLoaders: List<KeyDataLoader<*, *>>
-    //val allKeysLoaders: List<KeysDataLoader<*, *>>
 ) : GraphQLContextBuilder {
 
     override fun build(httpServletRequest: HttpServletRequest?, httpServletResponse: HttpServletResponse?) =
