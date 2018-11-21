@@ -68,7 +68,7 @@ class BooberWebClient(
         token: String,
         fn: (WebClient) -> WebClient.RequestHeadersSpec<*>
     ): Flux<T> {
-        val response: Mono<Response> = fn(webClient)
+        val response: Mono<Response<T>> = fn(webClient)
             .header(HttpHeaders.AUTHORIZATION, "Bearer $token")
             .retrieve()
             .bodyToMono()
@@ -80,9 +80,9 @@ class BooberWebClient(
     }
 }
 
-data class Response(
+data class Response<T>(
     val success: Boolean = true,
     val message: String = "OK",
-    val items: List<Any>,
+    val items: List<T>,
     val count: Int = items.size
 )

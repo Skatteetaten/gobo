@@ -1,10 +1,8 @@
-package no.skatteetaten.aurora.gobo.resolvers.userSettings
+package no.skatteetaten.aurora.gobo.resolvers.usersettings
 
 import assertk.assert
 import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
-import no.skatteetaten.aurora.gobo.resolvers.usersettings.ApplicationDeploymentFilter
-import no.skatteetaten.aurora.gobo.resolvers.usersettings.UserSettings
 import org.junit.jupiter.api.Test
 
 class UserSettingsTest {

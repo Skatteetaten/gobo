@@ -1,4 +1,4 @@
-package no.skatteetaten.aurora.gobo.resolvers.userSettings
+package no.skatteetaten.aurora.gobo.resolvers.usersettings
 
 import no.skatteetaten.aurora.gobo.integration.boober.ApplicationDeploymentFilterResource
 import no.skatteetaten.aurora.gobo.integration.boober.UserSettingsResource
@@ -9,7 +9,6 @@ data class ApplicationDeploymentFilter(
     val applications: List<String> = emptyList(),
     val environments: List<String> = emptyList()
 ) {
-
     constructor(resource: ApplicationDeploymentFilterResource) : this(
         resource.name,
         resource.affiliation,
