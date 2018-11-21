@@ -66,7 +66,7 @@ class ApplicationDeploymentDetailsResolverTest {
         webTestClient.queryGraphQL(queryResource = getRepositoriesAndTagsQuery, token = "test-token")
             .expectStatus().isOk
             .expectBody(QueryResponse.Response::class.java)
-            .consumeWith<Nothing> { result ->
+            .returnResult().let { result ->
                 val applications = result.responseBody!!.data.applications
                 val firstDeployment = applications.edges[0].node.applicationDeployments[0]
                 val managementResponses = firstDeployment.details.podResources[0].managementResponses
