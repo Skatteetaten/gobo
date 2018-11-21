@@ -18,7 +18,7 @@ class UserSettingsQueryResolver(private val userSettingsService: UserSettingsSer
 }
 
 @Component
-class UserSettingsmMutationResolver(private val userSettingsService: UserSettingsService) : GraphQLMutationResolver {
+class UserSettingsMutationResolver(private val userSettingsService: UserSettingsService) : GraphQLMutationResolver {
     fun updateUserSettings(input: UserSettings, dfe: DataFetchingEnvironment): Boolean {
         userSettingsService.updateUserSettings(dfe.currentUser().token, input)
         return true
