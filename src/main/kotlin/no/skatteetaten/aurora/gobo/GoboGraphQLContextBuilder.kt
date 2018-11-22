@@ -31,11 +31,6 @@ class GoboGraphQLContextBuilder(
             keyLoaders.forEach {
                 register(it::class.simpleName, noCacheBatchDataLoaderMappedSingle(currentUser, it))
             }
-            /*
-            allKeysLoaders.forEach {
-                register(it::class.simpleName, createNoCacheBatchDataLoaderMapped(currentUser, it))
-            }
-            */
         }
 
         return GraphQLContext(request).apply {
