@@ -12,7 +12,6 @@ import no.skatteetaten.aurora.gobo.security.OpenShiftUserLoader
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.mockito.ArgumentMatchers
 import org.mockito.BDDMockito.anyString
 import org.mockito.BDDMockito.given
 import org.mockito.BDDMockito.reset

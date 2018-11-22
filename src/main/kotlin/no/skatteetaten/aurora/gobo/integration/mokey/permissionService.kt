@@ -13,7 +13,7 @@ class PermissionService(@TargetService(ServiceTypes.MOKEY) val webClient: WebCli
 
     fun getPermission(
         namespace: String,
-        token:String
+        token: String
     ): Mono<AuroraNamespacePermissions> {
         return webClient
             .get()

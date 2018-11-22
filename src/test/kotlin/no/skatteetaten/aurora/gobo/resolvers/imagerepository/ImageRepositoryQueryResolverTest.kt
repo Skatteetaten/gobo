@@ -92,7 +92,7 @@ class ImageRepositoryQueryResolverTest {
         webTestClient.queryGraphQL(tagsWithPagingQuery, variables)
             .expectStatus().isOk
             .expectBody(QueryResponse.Response::class.java)
-            .returnResult().let{  result ->
+            .returnResult().let { result ->
                 val tags = result.responseBody!!.data.imageRepositories[0].tags
                 assert(tags.totalCount).isEqualTo(testData[0].tags.size)
                 assert(tags.edges.size).isEqualTo(pageSize)
