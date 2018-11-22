@@ -54,10 +54,19 @@ class ImageRepositoryQueryResolverTest {
     @BeforeEach
     fun setUp() {
         testData.forEach { data: ImageRepoData ->
-            given(imageRegistryServiceBlocking.findTagNamesInRepoOrderedByCreatedDateDesc(data.imageRepoDto)).willReturn(data.tags)
+            given(imageRegistryServiceBlocking.findTagNamesInRepoOrderedByCreatedDateDesc(data.imageRepoDto)).willReturn(
+                data.tags
+            )
             data.tags
                 .map { ImageTagDto(it, created = EPOCH) }
-                .forEach { given(imageRegistryServiceBlocking.findTagByName(data.imageRepoDto, it.name)).willReturn(it) }
+                .forEach {
+                    given(
+                        imageRegistryServiceBlocking.findTagByName(
+                            data.imageRepoDto,
+                            it.name
+                        )
+                    ).willReturn(it)
+                }
         }
     }
 
