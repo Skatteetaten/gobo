@@ -6,10 +6,8 @@ import no.skatteetaten.aurora.gobo.ApplicationDeploymentDetailsBuilder
 import no.skatteetaten.aurora.gobo.ApplicationResourceBuilder
 import no.skatteetaten.aurora.gobo.GraphQLTest
 import no.skatteetaten.aurora.gobo.OpenShiftUserBuilder
-import no.skatteetaten.aurora.gobo.defaultInstant
 import no.skatteetaten.aurora.gobo.healthResponseJson
 import no.skatteetaten.aurora.gobo.infoResponseJson
-import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import no.skatteetaten.aurora.gobo.security.OpenShiftUserLoader
@@ -24,8 +22,6 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.core.io.Resource
 import org.springframework.test.web.reactive.server.WebTestClient
-import reactor.core.publisher.toMono
-import java.time.Instant
 
 @GraphQLTest
 class ApplicationDeploymentDetailsResolverTest {
@@ -40,9 +36,6 @@ class ApplicationDeploymentDetailsResolverTest {
     private lateinit var applicationServiceBlocking: ApplicationServiceBlocking
 
     @MockBean
-    private lateinit var applicationService: ApplicationService
-
-    @MockBean
     private lateinit var openShiftUserLoader: OpenShiftUserLoader
 
     @BeforeEach
@@ -53,35 +46,33 @@ class ApplicationDeploymentDetailsResolverTest {
         given(applicationServiceBlocking.getApplications(affiliations))
             .willReturn(listOf(application))
 
-        given(applicationService.getApplicationDeploymentDetails(anyString(), anyString()))
-            .willReturn(ApplicationDeploymentDetailsBuilder().build().toMono())
+        given(applicationServiceBlocking.getApplicationDeploymentDetails(anyString(), anyString()))
+            .willReturn(ApplicationDeploymentDetailsBuilder().build())
 
         given(openShiftUserLoader.findOpenShiftUserByToken(anyString()))
             .willReturn(OpenShiftUserBuilder().build())
     }
 
     @AfterEach
-    fun tearDown() = reset(applicationService, openShiftUserLoader)
+    fun tearDown() = reset(applicationServiceBlocking, openShiftUserLoader)
 
     @Test
     fun `Query for repositories and tags`() {
         webTestClient.queryGraphQL(queryResource = getRepositoriesAndTagsQuery, token = "test-token")
             .expectStatus().isOk
             .expectBody(QueryResponse.Response::class.java)
-            .consumeWith<Nothing> { result ->
+            .returnResult().let { result ->
                 val applications = result.responseBody!!.data.applications
                 val firstDeployment = applications.edges[0].node.applicationDeployments[0]
                 val managementResponses = firstDeployment.details.podResources[0].managementResponses
                 assert(managementResponses.health.textResponse).isEqualTo(healthResponseJson)
-                assert(managementResponses.health.loadedTime).isEqualTo(defaultInstant)
                 assert(managementResponses.info.textResponse).isEqualTo(infoResponseJson)
-                assert(managementResponses.info.loadedTime).isEqualTo(defaultInstant)
             }
     }
 }
 
 class QueryResponse {
-    data class HttpResponse(val textResponse: String, val loadedTime: Instant)
+    data class HttpResponse(val textResponse: String)
     data class ManagementResponses(val info: HttpResponse, val health: HttpResponse)
     data class PodResource(val managementResponses: ManagementResponses)
     data class ApplicationDetails(val podResources: List<PodResource>)

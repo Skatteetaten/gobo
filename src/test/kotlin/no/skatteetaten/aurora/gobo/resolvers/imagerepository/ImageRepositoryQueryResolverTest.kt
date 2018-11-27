@@ -54,10 +54,19 @@ class ImageRepositoryQueryResolverTest {
     @BeforeEach
     fun setUp() {
         testData.forEach { data: ImageRepoData ->
-            given(imageRegistryServiceBlocking.findTagNamesInRepoOrderedByCreatedDateDesc(data.imageRepoDto)).willReturn(data.tags)
+            given(imageRegistryServiceBlocking.findTagNamesInRepoOrderedByCreatedDateDesc(data.imageRepoDto)).willReturn(
+                data.tags
+            )
             data.tags
                 .map { ImageTagDto(it, created = EPOCH) }
-                .forEach { given(imageRegistryServiceBlocking.findTagByName(data.imageRepoDto, it.name)).willReturn(it) }
+                .forEach {
+                    given(
+                        imageRegistryServiceBlocking.findTagByName(
+                            data.imageRepoDto,
+                            it.name
+                        )
+                    ).willReturn(it)
+                }
         }
     }
 
@@ -70,7 +79,7 @@ class ImageRepositoryQueryResolverTest {
         webTestClient.queryGraphQL(reposWithTagsQuery, variables)
             .expectStatus().isOk
             .expectBody(QueryResponse.Response::class.java)
-            .consumeWith<Nothing> { result ->
+            .returnResult().let { result ->
                 result.responseBody!!.data.imageRepositories.forEachIndexed { repoIndex, repository ->
                     assert(repository.repository).isEqualTo(testData[repoIndex].repoString)
                     assert(repository.tags.totalCount).isEqualTo(testData[repoIndex].tags.size)
@@ -92,7 +101,7 @@ class ImageRepositoryQueryResolverTest {
         webTestClient.queryGraphQL(tagsWithPagingQuery, variables)
             .expectStatus().isOk
             .expectBody(QueryResponse.Response::class.java)
-            .consumeWith<Nothing> { result ->
+            .returnResult().let { result ->
                 val tags = result.responseBody!!.data.imageRepositories[0].tags
                 assert(tags.totalCount).isEqualTo(testData[0].tags.size)
                 assert(tags.edges.size).isEqualTo(pageSize)

@@ -19,11 +19,10 @@ buildscript {
 }
 
 plugins {
-  id 'org.jetbrains.kotlin.jvm' version '1.2.70'
-  id 'org.jetbrains.kotlin.plugin.spring' version '1.2.70'
+  id 'org.jetbrains.kotlin.jvm' version '1.3.10'
+  id 'org.jetbrains.kotlin.plugin.spring' version '1.3.10'
   id 'org.springframework.boot' version '2.0.6.RELEASE'
-  id 'org.jlleitschuh.gradle.ktlint' version '6.2.0'
-  id 'com.github.ben-manes.versions' version '0.20.0'
+  id 'org.jlleitschuh.gradle.ktlint' version '6.3.0'
 }
 
 ext.aurora = [
@@ -53,7 +52,7 @@ def junitJupiterVersion = dependencyManagement.importedProperties['junit-jupiter
 dependencies {
 
   compile(
-      'org.jetbrains.kotlin:kotlin-reflect:1.2.70',
+      'org.jetbrains.kotlin:kotlin-reflect:1.3.10',
       'org.jetbrains.kotlin:kotlin-stdlib-jdk8',
       'com.fasterxml.jackson.module:jackson-module-kotlin',
       'com.fasterxml.jackson.datatype:jackson-datatype-jsr310',
@@ -63,7 +62,7 @@ dependencies {
       "org.springframework.retry:spring-retry",
       'org.springframework.boot:spring-boot-starter-webflux',
       'org.springframework.boot:spring-boot-starter-security',
-      'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.25.3',
+      'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.0.0',
       'org.springframework.boot:spring-boot-starter-hateoas',
       'com.graphql-java-kickstart:graphql-spring-boot-starter:5.0.5',
       'com.graphql-java-kickstart:graphiql-spring-boot-starter:5.0.5',
@@ -86,7 +85,7 @@ dependencies {
 
   testImplementation(
           "org.junit.jupiter:junit-jupiter-api",
-          "com.squareup.okhttp3:mockwebserver:3.11.0"
+          "com.squareup.okhttp3:mockwebserver:3.10.0"
   )
   testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
 }
@@ -110,12 +109,9 @@ compileTestKotlin {
   }
 }
 
-kotlin {
-  experimental {
-    coroutines "enable"
-  }
+test {
+  useJUnitPlatform()
 }
-
 task wrapper(type: Wrapper) {
   gradleVersion = '4.7'
 }
