@@ -1,8 +1,5 @@
 buildscript {
   ext.repos = {
-   maven {
-      url "http://aurora/nexus/content/groups/public"
-    }
     mavenCentral()
     jcenter()
     mavenLocal()
