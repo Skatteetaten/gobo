@@ -1,5 +1,6 @@
 package no.skatteetaten.aurora.gobo.integration.imageregistry
 
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Primary
@@ -11,7 +12,8 @@ class ImageRegistryUrlBuilder {
     fun createManifestsUrl(apiSchema: String, imageRepoDto: ImageRepoDto, tag: String) =
         "${createApiUrl(apiSchema, imageRepoDto)}/manifests/$tag"
 
-    fun createTagListUrl(apiSchema: String, imageRepoDto: ImageRepoDto) = "${createApiUrl(apiSchema, imageRepoDto)}/tags/list"
+    fun createTagListUrl(apiSchema: String, imageRepoDto: ImageRepoDto) =
+        "${createApiUrl(apiSchema, imageRepoDto)}/tags/list"
 
     fun createApiUrl(apiSchema: String, imageRepoDto: ImageRepoDto): String {
         val registryAddress = imageRepoDto.registry
@@ -32,6 +34,12 @@ class ImageRegistryUrlBuilder {
 class OverrideRegistryImageRegistryUrlBuilder(
     @Value("\${gobo.docker-registry.url}") val registryUrl: String
 ) : ImageRegistryUrlBuilder() {
+
+    private val logger = LoggerFactory.getLogger(OverrideRegistryImageRegistryUrlBuilder::class.java)
+
+    init {
+        logger.info("Override docker registry with url=$registryUrl")
+    }
 
     override fun createApiUrl(apiSchema: String, imageRepoDto: ImageRepoDto): String =
         "$registryUrl/v2/${imageRepoDto.namespace}/${imageRepoDto.name}"

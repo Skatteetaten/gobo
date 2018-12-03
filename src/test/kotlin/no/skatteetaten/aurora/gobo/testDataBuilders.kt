@@ -11,6 +11,8 @@ import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentRefRes
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationResource
 import no.skatteetaten.aurora.gobo.integration.mokey.AuroraConfigRefResource
+import no.skatteetaten.aurora.gobo.integration.mokey.ContainerResource
+import no.skatteetaten.aurora.gobo.integration.mokey.DeployDetailsResource
 import no.skatteetaten.aurora.gobo.integration.mokey.GitInfoResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ImageDetailsResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ManagementEndpointResponseResource
@@ -121,16 +123,34 @@ data class ApplicationDeploymentDetailsBuilder(val resourceLinks: List<Link> = e
 
     fun build() =
         ApplicationDeploymentDetailsResource(
-            Instant.now(),
-            GitInfoResource("123abc", Instant.now()),
-            ImageDetailsResource(Instant.now(), "dockerImageReference"),
-            listOf(
+            buildTime = Instant.now(),
+            gitInfo = GitInfoResource("123abc", Instant.now()),
+            imageDetails = ImageDetailsResource(Instant.now(), "dockerImageReference", "dockerImageTagReference"),
+            deployDetails = DeployDetailsResource(
+                targetReplicas = 1,
+                availableReplicas = 1,
+                deployment = "deployment-1",
+                phase = "Complete",
+                deployTag = "foobar"
+            ),
+            podResources = listOf(
                 PodResourceResource(
                     name = "name",
-                    status = "status",
-                    restartCount = 0,
-                    ready = true,
+                    phase = "status",
+                    deployTag = "tag",
+                    latestDeployTag = true,
+                    replicaName = "deployment-1",
+                    latestReplicaName = true,
+                    containers = listOf(ContainerResource(
+                        name = "name-java",
+                        image = "docker-registry/group/name@sha256:hash",
+                        state = "running",
+                        restartCount = 0,
+                        ready = true
+                    )
+                    ),
                     startTime = Instant.now(),
+
                     managementResponses = ManagementResponsesResource(
                         ManagementEndpointResponseResource(
                             true,
@@ -161,9 +181,10 @@ data class ApplicationDeploymentDetailsBuilder(val resourceLinks: List<Link> = e
                             "http://localhost/env"
                         )
                     )
+
                 )
             ),
-            ApplicationDeploymentCommandResource(
+            applicationDeploymentCommand = ApplicationDeploymentCommandResource(
                 emptyMap(),
                 ApplicationDeploymentRefResource("environment", "application"),
                 AuroraConfigRefResource("name", "refName")

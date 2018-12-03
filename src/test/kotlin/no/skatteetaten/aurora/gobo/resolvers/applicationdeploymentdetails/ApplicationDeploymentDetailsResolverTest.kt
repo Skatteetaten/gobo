@@ -64,9 +64,12 @@ class ApplicationDeploymentDetailsResolverTest {
             .returnResult().let { result ->
                 val applications = result.responseBody!!.data.applications
                 val firstDeployment = applications.edges[0].node.applicationDeployments[0]
-                val managementResponses = firstDeployment.details.podResources[0].managementResponses
+                val pod = firstDeployment.details.podResources[0]
+                val managementResponses = pod.managementResponses
                 assert(managementResponses.health.textResponse).isEqualTo(healthResponseJson)
                 assert(managementResponses.info.textResponse).isEqualTo(infoResponseJson)
+                assert(pod.deployTag).isEqualTo("tag")
+                assert(pod.phase).isEqualTo("status")
             }
     }
 }
@@ -74,7 +77,7 @@ class ApplicationDeploymentDetailsResolverTest {
 class QueryResponse {
     data class HttpResponse(val textResponse: String)
     data class ManagementResponses(val info: HttpResponse, val health: HttpResponse)
-    data class PodResource(val managementResponses: ManagementResponses)
+    data class PodResource(val managementResponses: ManagementResponses, val phase: String, val deployTag: String)
     data class ApplicationDetails(val podResources: List<PodResource>)
     data class ApplicationDeployment(val details: ApplicationDetails)
     data class Application(val applicationDeployments: List<ApplicationDeployment>)

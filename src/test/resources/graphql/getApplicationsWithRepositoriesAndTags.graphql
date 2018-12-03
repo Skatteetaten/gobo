@@ -5,6 +5,8 @@
                 applicationDeployments {
                     details {
                         podResources {
+                            phase
+                            deployTag
                             managementResponses {
                                 info {
                                     textResponse

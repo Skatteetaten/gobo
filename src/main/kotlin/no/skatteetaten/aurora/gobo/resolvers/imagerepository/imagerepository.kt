@@ -39,6 +39,13 @@ data class ImageTag(
     val name: String
 ) {
     val type: ImageTagType get() = typeOf(name)
+
+    companion object {
+        fun fromTagString(tagString: String): ImageTag {
+            val (repo, tag) = tagString.split(":")
+            return ImageTag(imageRepository = ImageRepository.fromRepoString(repo), name = tag)
+        }
+    }
 }
 
 data class ImageTagEdge(private val node: ImageTag) : DefaultEdge<ImageTag>(node, Cursor(node.name))

@@ -45,5 +45,5 @@ class ImageRepositoryResolver(val imageRegistryServiceBlocking: ImageRegistrySer
 @Component
 class ImageRepositoryTagResolver : GraphQLResolver<ImageTag> {
 
-    fun lastModified(imageTag: ImageTag, dfe: DataFetchingEnvironment) = dfe.loader(ImageTag::class).load(imageTag)
+    fun lastModified(imageTag: ImageTag, dfe: DataFetchingEnvironment) = dfe.loader(ImageTagDataLoader::class).load(imageTag)
 }
