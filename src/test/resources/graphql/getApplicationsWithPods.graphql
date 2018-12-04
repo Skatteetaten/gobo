@@ -7,6 +7,15 @@
                         podResources {
                             phase
                             deployTag
+                            ready
+                            restartCount
+                            containers {
+                                name
+                                state
+                                image
+                                ready
+                                restartCount
+                            }
                             managementResponses {
                                 info {
                                     textResponse

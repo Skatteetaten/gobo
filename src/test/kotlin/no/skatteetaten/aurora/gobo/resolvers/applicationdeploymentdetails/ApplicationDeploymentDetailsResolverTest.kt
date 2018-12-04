@@ -2,6 +2,7 @@ package no.skatteetaten.aurora.gobo.resolvers.applicationdeploymentdetails
 
 import assertk.assert
 import assertk.assertions.isEqualTo
+import assertk.assertions.isFalse
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentDetailsBuilder
 import no.skatteetaten.aurora.gobo.ApplicationResourceBuilder
 import no.skatteetaten.aurora.gobo.GraphQLTest
@@ -9,6 +10,7 @@ import no.skatteetaten.aurora.gobo.OpenShiftUserBuilder
 import no.skatteetaten.aurora.gobo.healthResponseJson
 import no.skatteetaten.aurora.gobo.infoResponseJson
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
+import no.skatteetaten.aurora.gobo.integration.mokey.ContainerResource
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import no.skatteetaten.aurora.gobo.security.OpenShiftUserLoader
 import org.junit.jupiter.api.AfterEach
@@ -26,7 +28,7 @@ import org.springframework.test.web.reactive.server.WebTestClient
 @GraphQLTest
 class ApplicationDeploymentDetailsResolverTest {
 
-    @Value("classpath:graphql/getApplicationsWithRepositoriesAndTags.graphql")
+    @Value("classpath:graphql/getApplicationsWithPods.graphql")
     private lateinit var getRepositoriesAndTagsQuery: Resource
 
     @Autowired
@@ -57,7 +59,7 @@ class ApplicationDeploymentDetailsResolverTest {
     fun tearDown() = reset(applicationServiceBlocking, openShiftUserLoader)
 
     @Test
-    fun `Query for repositories and tags`() {
+    fun `Query for deployments and pod statlus`() {
         webTestClient.queryGraphQL(queryResource = getRepositoriesAndTagsQuery, token = "test-token")
             .expectStatus().isOk
             .expectBody(QueryResponse.Response::class.java)
@@ -70,6 +72,11 @@ class ApplicationDeploymentDetailsResolverTest {
                 assert(managementResponses.info.textResponse).isEqualTo(infoResponseJson)
                 assert(pod.deployTag).isEqualTo("tag")
                 assert(pod.phase).isEqualTo("status")
+                assert(pod.ready).isFalse()
+                assert(pod.restartCount).isEqualTo(3)
+                assert(pod.containers.size).isEqualTo(2)
+                assert(pod.containers[0].restartCount).isEqualTo(1)
+                assert(pod.containers[1].restartCount).isEqualTo(2)
             }
     }
 }
@@ -77,7 +84,7 @@ class ApplicationDeploymentDetailsResolverTest {
 class QueryResponse {
     data class HttpResponse(val textResponse: String)
     data class ManagementResponses(val info: HttpResponse, val health: HttpResponse)
-    data class PodResource(val managementResponses: ManagementResponses, val phase: String, val deployTag: String)
+    data class PodResource(val managementResponses: ManagementResponses, val phase: String, val deployTag: String, val ready: Boolean, val restartCount: Int, val containers: List<ContainerResource>)
     data class ApplicationDetails(val podResources: List<PodResource>)
     data class ApplicationDeployment(val details: ApplicationDetails)
     data class Application(val applicationDeployments: List<ApplicationDeployment>)

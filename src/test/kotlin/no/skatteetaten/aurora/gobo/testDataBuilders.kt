@@ -114,7 +114,7 @@ data class ApplicationDeploymentBuilder(val affiliation: String = "paas") {
             status = Status("code", "comment"),
             version = Version(ImageTag(ImageRepository("", "", ""), "deployTag"), "auroraVersion", "releaseTo"),
             dockerImageRepo = "dockerImageRepo",
-            time = Instant.EPOCH,
+            time = defaultInstant,
             applicationId = "appId"
         )
 }
@@ -125,7 +125,11 @@ data class ApplicationDeploymentDetailsBuilder(val resourceLinks: List<Link> = e
         ApplicationDeploymentDetailsResource(
             buildTime = Instant.now(),
             gitInfo = GitInfoResource("123abc", Instant.now()),
-            imageDetails = ImageDetailsResource(Instant.now(), "dockerImageReference", "dockerImageTagReference"),
+            imageDetails = ImageDetailsResource(
+                imageBuildTime = defaultInstant,
+                dockerImageReference = "docker.registry/group/name@sha256:123",
+                dockerImageTagReference = "docker.registry/group/name:2"
+            ),
             deployDetails = DeployDetailsResource(
                 targetReplicas = 1,
                 availableReplicas = 1,
@@ -141,44 +145,52 @@ data class ApplicationDeploymentDetailsBuilder(val resourceLinks: List<Link> = e
                     latestDeployTag = true,
                     replicaName = "deployment-1",
                     latestReplicaName = true,
-                    containers = listOf(ContainerResource(
-                        name = "name-java",
-                        image = "docker-registry/group/name@sha256:hash",
-                        state = "running",
-                        restartCount = 0,
-                        ready = true
-                    )
+                    containers = listOf(
+                        ContainerResource(
+                            name = "name-java",
+                            image = "docker-registry/group/name@sha256:hash",
+                            state = "running",
+                            restartCount = 1,
+                            ready = true
+                        ),
+                        ContainerResource(
+                            name = "name-foo",
+                            image = "docker-registry/group/name@sha256:hash",
+                            state = "running",
+                            restartCount = 2,
+                            ready = false
+                        )
                     ),
                     startTime = Instant.now(),
 
                     managementResponses = ManagementResponsesResource(
-                        ManagementEndpointResponseResource(
-                            true,
-                            linksResponseJson,
-                            200,
-                            defaultInstant,
-                            "http://localhost/discovery"
+                        links = ManagementEndpointResponseResource(
+                            hasResponse = true,
+                            textResponse = linksResponseJson,
+                            httpCode = 200,
+                            createdAt = defaultInstant,
+                            url = "http://localhost/discovery"
                         ),
-                        ManagementEndpointResponseResource(
-                            true,
-                            healthResponseJson,
-                            200,
-                            defaultInstant,
-                            "http://localhost/health"
+                        health = ManagementEndpointResponseResource(
+                            hasResponse = true,
+                            textResponse = healthResponseJson,
+                            httpCode = 200,
+                            createdAt = defaultInstant,
+                            url = "http://localhost/health"
                         ),
-                        ManagementEndpointResponseResource(
-                            true,
-                            infoResponseJson,
-                            200,
-                            defaultInstant,
-                            "http://localhost/info"
+                        info = ManagementEndpointResponseResource(
+                            hasResponse = true,
+                            textResponse = infoResponseJson,
+                            httpCode = 200,
+                            createdAt = defaultInstant,
+                            url = "http://localhost/info"
                         ),
-                        ManagementEndpointResponseResource(
-                            true,
-                            envResponseJson,
-                            200,
-                            defaultInstant,
-                            "http://localhost/env"
+                        env = ManagementEndpointResponseResource(
+                            hasResponse = true,
+                            textResponse = envResponseJson,
+                            httpCode = 200,
+                            createdAt = defaultInstant,
+                            url = "http://localhost/env"
                         )
                     )
 
