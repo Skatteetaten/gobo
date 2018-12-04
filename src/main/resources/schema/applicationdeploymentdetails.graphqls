@@ -5,9 +5,9 @@ type GitInfo {
 
 type ImageDetails {
   imageBuildTime: DateTime
-  dockerImageReference: String
+  digest: String
   dockerImageTagReference: String
-  latestDockerImageTagReference:String
+  isLatestDigest:Boolean
 }
 
 type PodResource {

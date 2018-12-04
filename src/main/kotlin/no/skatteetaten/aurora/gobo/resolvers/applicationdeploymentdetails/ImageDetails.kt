@@ -8,29 +8,37 @@ import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageTag
 import no.skatteetaten.aurora.gobo.resolvers.loader
 import no.skatteetaten.aurora.gobo.resolvers.user.User
 import org.dataloader.Try
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import java.time.Instant
 
 data class ImageDetails(
     val imageBuildTime: Instant?,
-    val dockerImageReference: String?,
+    val digest: String?,
     val dockerImageTagReference: String?
 )
 
+data class ImageTagDigestDTO(val imageTag: ImageTag, val expecedDigest: String?)
 @Component
 class ImageDetailsResolver : GraphQLResolver<ImageDetails> {
 
-    fun latestDockerImageTagReference(imageDetails: ImageDetails, dfe: DataFetchingEnvironment) =
-        imageDetails.dockerImageTagReference?.let {
-            dfe.loader(ImageTagDigestDataLoader::class).load(ImageTag.fromTagString(it))
-        }
-}
+    private val logger = LoggerFactory.getLogger(ImageDetailsResolver::class.java)
 
-@Component
-class ImageTagDigestDataLoader(
-    val imageRegistryServiceBlocking: ImageRegistryServiceBlocking
-) : KeyDataLoader<ImageTag, String> {
-    override fun getByKey(user: User, key: ImageTag): Try<String> {
-        return Try.tryCall { imageRegistryServiceBlocking.resolveTagToSh(key) }
+    fun isLatestDigest(imageDetails: ImageDetails, dfe: DataFetchingEnvironment) =
+        imageDetails.dockerImageTagReference?.let {
+            logger.debug("Loading docker image tag reference for tag=$it")
+            dfe.loader(ImageTagIsLatestDigestDataLoader::class)
+                .load(ImageTagDigestDTO(ImageTag.fromTagString(it), imageDetails.digest))
+        }
+
+    @Component
+    class ImageTagIsLatestDigestDataLoader(
+        val imageRegistryServiceBlocking: ImageRegistryServiceBlocking
+    ) : KeyDataLoader<ImageTagDigestDTO, Boolean> {
+        override fun getByKey(user: User, key: ImageTagDigestDTO): Try<Boolean> {
+            return Try.tryCall {
+                imageRegistryServiceBlocking.resolveTagToSh(key.imageTag) == key.expecedDigest
+            }
+        }
     }
 }

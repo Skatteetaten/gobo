@@ -129,7 +129,7 @@ data class ApplicationDeploymentDetails(
                 imageDetails = resource.imageDetails?.let {
                     ImageDetails(
                         imageBuildTime = it.imageBuildTime,
-                        dockerImageReference = it.dockerImageReference,
+                        digest = it.dockerImageReference?.substringAfterLast("@"),
                         dockerImageTagReference = it.dockerImageTagReference
                     )
                 },

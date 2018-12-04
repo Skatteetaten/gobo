@@ -21,8 +21,6 @@ import java.util.function.Predicate
 data class TagList(var name: String, var tags: List<String>)
 data class ImageMetadata(val createdDate: Instant)
 
-data class ImageSha(val sha: String)
-
 @Service
 class ImageRegistryServiceBlocking(
     private val urlBuilder: ImageRegistryUrlBuilder,
