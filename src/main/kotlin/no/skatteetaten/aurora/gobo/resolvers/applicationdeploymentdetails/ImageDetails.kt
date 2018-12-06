@@ -37,7 +37,7 @@ class ImageDetailsResolver : GraphQLResolver<ImageDetails> {
     ) : KeyDataLoader<ImageTagDigestDTO, Boolean> {
         override fun getByKey(user: User, key: ImageTagDigestDTO): Try<Boolean> {
             return Try.tryCall {
-                imageRegistryServiceBlocking.resolveTagToSh(key.imageTag) == key.expecedDigest
+                imageRegistryServiceBlocking.resolveTagToSha(key.imageTag) == key.expecedDigest
             }
         }
     }

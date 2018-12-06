@@ -64,7 +64,7 @@ class ApplicationWithLatestDigestQueryResolverTest {
 
         val tag = ImageTag.fromTagString(details.imageDetails!!.dockerImageTagReference!!)
 
-        given(imageRegistryServiceBlocking.resolveTagToSh(tag)).willReturn("sha256:123")
+        given(imageRegistryServiceBlocking.resolveTagToSha(tag)).willReturn("sha256:123")
 
         given(applicationServiceBlocking.getApplications(affiliations))
             .willReturn(listOf(ApplicationResourceBuilder().build()))

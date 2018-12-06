@@ -31,7 +31,7 @@ class ImageRegistryServiceBlocking(
 
     private val objectMapper = jacksonObjectMapper()
 
-    fun resolveTagToSh(key: ImageTag): String {
+    fun resolveTagToSha(key: ImageTag): String {
 
         val registryMetadata = registryMetadataResolver.getMetadataForRegistry(key.imageRepository.registryUrl)
 
