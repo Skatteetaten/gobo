@@ -8,8 +8,7 @@ import no.skatteetaten.aurora.gobo.security.currentUser
 import org.springframework.stereotype.Component
 
 @Component
-class UserSettingsQueryResolver(private val userSettingsService: UserSettingsService) :
-    GraphQLQueryResolver {
+class UserSettingsQueryResolver(private val userSettingsService: UserSettingsService) : GraphQLQueryResolver {
 
     fun getUserSettings(dfe: DataFetchingEnvironment): UserSettings {
         val settings = userSettingsService.getUserSettings(dfe.currentUser().token)

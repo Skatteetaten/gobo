@@ -1,0 +1,20 @@
+query getApplications($affiliations: [String!]!) {
+    applications(affiliations: $affiliations) {
+        totalCount
+        edges {
+            node {
+                name
+                applicationDeployments {
+                    details {
+                        imageDetails {
+                            imageBuildTime
+                            digest
+                            dockerImageTagReference
+                            isLatestDigest
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

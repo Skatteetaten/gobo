@@ -5,17 +5,33 @@ type GitInfo {
 
 type ImageDetails {
   imageBuildTime: DateTime
-  dockerImageReference: String
+  digest: String
+  dockerImageTagReference: String
+  isLatestDigest:Boolean
 }
 
 type PodResource {
   name: String
-  status: String
-  restartCount: Int
-  ready: Boolean
+  phase: String
+  deployTag: String
+  latestDeployTag: Boolean
+  replicaName:String
+  latestReplicaName:Boolean
   startTime: DateTime
   links(names: [String]): [Link]
+  containers: [ContainerResource]
   managementResponses: ManagementResponses
+  status: String
+  ready: Boolean
+  restartCount: Int
+}
+
+type ContainerResource {
+  name:String,
+  state:String,
+  image:String,
+  restartCount:Int
+  ready:Boolean
 }
 
 type ManagementResponses {
@@ -59,4 +75,13 @@ type ApplicationDeploymentDetails {
   imageDetails: ImageDetails
   podResources: [PodResource]
   deploymentSpecs: DeploymentSpecs
+  deployDetails:DeployDetailsResource
+}
+
+type DeployDetailsResource{
+  targetReplicas:Int,
+  availableReplicas:Int,
+  deployment:String,
+  phase:String,
+  deployTag:String
 }

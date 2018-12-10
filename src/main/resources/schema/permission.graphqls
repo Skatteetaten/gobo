@@ -1,8 +1,8 @@
 type Permission {
-  paas: PermissionDetails
+  paas: PermissionDetails!
 }
 
 type PermissionDetails {
- view : Boolean
- admin: Boolean
+ view : Boolean!
+ admin: Boolean!
 }

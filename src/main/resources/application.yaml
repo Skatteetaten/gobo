@@ -14,8 +14,6 @@ gobo:
         url: http://mokey
     boober:
         url: http://boober
-    docker-registry:
-        url: https://docker-registry.aurora.sits.no:5000
     unclematt:
         url: http://unclematt-aurora-daemons.utv.paas.skead.no
 aurora:
@@ -41,6 +39,8 @@ gobo:
         url: http://boober-aurora.utv.paas.skead.no
     mokey:
         url: http://mokey-aurora.utv.paas.skead.no
+    docker-registry:
+        url: https://test-docker-registry-internal-group.aurora.skead.no
 
 management:
     server:
