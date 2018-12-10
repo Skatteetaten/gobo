@@ -8,7 +8,16 @@ import java.nio.charset.Charset
 import java.time.Instant
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class StatusResource(val code: String, val comment: String?)
+data class StatusCheckResource(val name: String, val description: String, val failLevel: String, val hasFailed: Boolean)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class StatusResource(
+    val code: String,
+    val comment: String?,
+    val statusCheckName: String,
+    val description: String,
+    val details: List<StatusCheckResource>
+)
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class VersionResource(val deployTag: String, val auroraVersion: String?, val releaseTo: String?)

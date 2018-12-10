@@ -6,7 +6,15 @@ import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageTag
 import java.time.Instant
 
-data class Status(val code: String, val comment: String?)
+data class StatusCheck(val name: String, val description: String, val failLevel: String, val hasFailed: Boolean)
+
+data class Status(
+    val code: String,
+    val comment: String?,
+    val statusCheckName: String,
+    val description: String,
+    val details: List<StatusCheck>
+)
 
 data class Version(val deployTag: ImageTag, val auroraVersion: String?, val releaseTo: String?)
 
@@ -30,7 +38,19 @@ data class ApplicationDeployment(
                 affiliationId = deployment.affiliation,
                 environment = deployment.environment,
                 namespaceId = deployment.namespace,
-                status = Status(deployment.status.code, deployment.status.comment),
+                status = Status(
+                    deployment.status.code,
+                    deployment.status.comment,
+                    deployment.status.statusCheckName,
+                    deployment.status.description,
+                    deployment.status.details.map {
+                        StatusCheck(
+                            it.name,
+                            it.description,
+                            it.failLevel,
+                            it.hasFailed
+                        )
+                    }),
                 version = Version(
                     // TODO: This is far from ideal and manually adding ImageTag here should be considered a temporary
                     // adjustment. We need to move ImageTag out of version.
