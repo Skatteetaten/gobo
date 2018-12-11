@@ -3,7 +3,7 @@ package no.skatteetaten.aurora.gobo
 import graphql.servlet.GraphQLContext
 import graphql.servlet.GraphQLContextBuilder
 import no.skatteetaten.aurora.gobo.resolvers.KeyDataLoader
-import no.skatteetaten.aurora.gobo.resolvers.noCacheBatchDataLoaderMappedSingle
+import no.skatteetaten.aurora.gobo.resolvers.batchDataLoaderMappedSingle
 import no.skatteetaten.aurora.gobo.security.ANONYMOUS_USER
 import no.skatteetaten.aurora.gobo.security.currentUser
 import org.dataloader.DataLoaderRegistry
@@ -29,7 +29,7 @@ class GoboGraphQLContextBuilder(
         val currentUser = request?.currentUser() ?: ANONYMOUS_USER
         val registry = DataLoaderRegistry().apply {
             keyLoaders.forEach {
-                register(it::class.simpleName, noCacheBatchDataLoaderMappedSingle(currentUser, it))
+                register(it::class.simpleName, batchDataLoaderMappedSingle(currentUser, it))
             }
         }
 
