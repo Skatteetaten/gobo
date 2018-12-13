@@ -5,8 +5,7 @@ def overrides = [
     scriptVersion  : 'AOS-3004',
     pipelineScript: 'https://git.aurora.skead.no/scm/ao/aurora-pipeline-scripts.git',
     credentialsId: "github",
-    disableAllReports: "true",
-    debug: "true",
+    sonarQube: "false",
     suggestVersionAndTagReleases: [
       [branch: 'master', versionHint: '1.0']
     ]
