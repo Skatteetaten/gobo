@@ -6,7 +6,6 @@ import kotlinx.coroutines.newFixedThreadPoolContext
 import kotlinx.coroutines.runBlocking
 import no.skatteetaten.aurora.gobo.resolvers.user.User
 import org.dataloader.DataLoader
-import org.dataloader.DataLoaderOptions
 import org.dataloader.Try
 import java.util.concurrent.CompletableFuture
 
@@ -19,8 +18,8 @@ val context = newFixedThreadPoolContext(6, "dataloader")
 /*
   You this if you have a service that loads a single id. Will make requests in parallel
  */
-fun <K, V> noCacheBatchDataLoaderMappedSingle(user: User, keyDataLoader: KeyDataLoader<K, V>): DataLoader<K, V> =
-    DataLoader.newMappedDataLoaderWithTry({ keys: Set<K> ->
+fun <K, V> batchDataLoaderMappedSingle(user: User, keyDataLoader: KeyDataLoader<K, V>): DataLoader<K, V> =
+    DataLoader.newMappedDataLoaderWithTry { keys: Set<K> ->
 
         CompletableFuture.supplyAsync {
             runBlocking(context) {
@@ -32,4 +31,4 @@ fun <K, V> noCacheBatchDataLoaderMappedSingle(user: User, keyDataLoader: KeyData
                 deferred.map { it.await() }.toMap()
             }
         }
-    }, DataLoaderOptions.newOptions().setCachingEnabled(false))
+    }
