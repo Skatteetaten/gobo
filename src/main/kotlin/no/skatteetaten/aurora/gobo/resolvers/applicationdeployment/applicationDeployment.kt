@@ -12,7 +12,7 @@ data class StatusCheck(val name: String, val description: String, val failLevel:
 data class Status(
     val code: String,
     val comment: String?,
-    val details: List<StatusCheck>,
+    val reports: List<StatusCheck>,
     val reasons: List<StatusCheck>
 )
 

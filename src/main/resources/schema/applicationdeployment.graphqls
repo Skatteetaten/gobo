@@ -21,7 +21,7 @@ type StatusCheck {
 type Status {
   code: String!
   comment: String
-  details: [StatusCheck!]!
+  reports: [StatusCheck!]!
   reasons: [StatusCheck!]!
 }
 
