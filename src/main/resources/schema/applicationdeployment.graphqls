@@ -21,9 +21,8 @@ type StatusCheck {
 type Status {
   code: String!
   comment: String
-  statusCheckName: String!
-  description: String!
   details: [StatusCheck!]!
+  reasons: [StatusCheck!]!
 }
 
 type Version {

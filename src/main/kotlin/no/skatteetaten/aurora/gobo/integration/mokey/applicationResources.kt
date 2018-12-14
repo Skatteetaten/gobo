@@ -14,9 +14,8 @@ data class StatusCheckResource(val name: String, val description: String, val fa
 data class StatusResource(
     val code: String,
     val comment: String?,
-    val statusCheckName: String,
-    val description: String,
-    val details: List<StatusCheckResource>
+    val reasons: List<StatusCheckResource>,
+    val reports: List<StatusCheckResource>
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
