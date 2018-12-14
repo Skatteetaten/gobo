@@ -72,10 +72,10 @@ val envResponseJson = """{
 @Language("JSON")
 val healthResponseJson: String = """{"status": "UP"}"""
 
-data class ApplicationDeploymentResourceBuilder(val affiliation: String = "paas") {
+data class ApplicationDeploymentResourceBuilder(val affiliation: String = "paas", val id: String = "id") {
     fun build(): ApplicationDeploymentResource =
         ApplicationDeploymentResource(
-            identifier = "id",
+            identifier = id,
             name = "name",
             affiliation = affiliation,
             environment = "environment",
