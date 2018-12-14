@@ -52,7 +52,7 @@ class ApplicationDeploymentQueryResolverTest {
             .expectStatus().isOk
             .expectBody()
             .jsonPath("$.data.applicationDeployment.id").isEqualTo("123")
-            .jsonPath("$.data.applicationDeployment.status.details").exists()
+            .jsonPath("$.data.applicationDeployment.status.reports").exists()
             .jsonPath("$.data.applicationDeployment.status.reasons").exists()
     }
 }
