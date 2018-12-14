@@ -1,0 +1,13 @@
+query getApplicationDeployment($id: String!) {
+    applicationDeployment(id: $id) {
+        id
+        status {
+            details {
+                name
+            }
+            reasons {
+                name
+            }
+        }
+    }
+}
