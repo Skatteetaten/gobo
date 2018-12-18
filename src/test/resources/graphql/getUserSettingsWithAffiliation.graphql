@@ -2,6 +2,7 @@ query getUserSettings($affiliations: [String!]) {
     userSettings {
         applicationDeploymentFilters(affiliations: $affiliations) {
             name
+            default
             affiliation
             applications
             environments

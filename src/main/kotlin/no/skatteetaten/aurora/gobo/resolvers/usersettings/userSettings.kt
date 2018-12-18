@@ -5,15 +5,18 @@ import no.skatteetaten.aurora.gobo.integration.boober.UserSettingsResource
 
 data class ApplicationDeploymentFilter(
     val name: String,
+    val default: Boolean?,
     val affiliation: String,
     val applications: List<String> = emptyList(),
     val environments: List<String> = emptyList()
 ) {
     constructor(resource: ApplicationDeploymentFilterResource) : this(
         resource.name,
+        resource.default,
         resource.affiliation,
         resource.applications,
         resource.environments
+
     )
 }
 

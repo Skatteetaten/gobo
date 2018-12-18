@@ -50,6 +50,7 @@ class UserSettingsMutationResolverTest {
             listOf(
                 ApplicationDeploymentFilter(
                     name = "filter",
+                    default = true,
                     affiliation = "paas",
                     applications = listOf("app1", "app2"),
                     environments = listOf("env1", "env2")

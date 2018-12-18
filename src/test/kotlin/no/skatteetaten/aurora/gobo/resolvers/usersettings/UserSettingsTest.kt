@@ -9,8 +9,8 @@ class UserSettingsTest {
 
     private val userSettings = UserSettings(
         listOf(
-            ApplicationDeploymentFilter("filter1", "aurora"),
-            ApplicationDeploymentFilter("filter2", "paas")
+            ApplicationDeploymentFilter("filter1", false, "aurora"),
+            ApplicationDeploymentFilter("filter2", true, "paas")
         )
     )
 

@@ -2,6 +2,7 @@
     userSettings {
         applicationDeploymentFilters {
             name
+            default
             affiliation
             applications
             environments

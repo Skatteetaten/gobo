@@ -273,6 +273,7 @@ data class ApplicationDeploymentFilterResourceBuilder(val affiliation: String = 
     fun build() =
         ApplicationDeploymentFilterResource(
             "name",
+            false,
             affiliation,
             listOf("app1", "app2"),
             listOf("env1", "env2")
