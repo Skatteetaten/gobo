@@ -5,6 +5,9 @@ buildscript {
     mavenLocal()
 
     maven {
+      url "http://aurora/nexus/content/groups/public"
+    }
+    maven {
       url "https://repo.spring.io/libs-milestone"
     }
   }
