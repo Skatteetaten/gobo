@@ -19,11 +19,10 @@ class UserSettingsServiceTest {
     private val applicationDeploymentFilterService =
         UserSettingsService(BooberWebClient(url.toString(), WebClient.create()))
     private val filter = ApplicationDeploymentFilterResource(
-        "my filter",
-        false,
-        "aurora",
-        listOf("app1", "app2"),
-        listOf("env1", "env2")
+        name = "my filter",
+        affiliation = "aurora",
+        applications = listOf("app1", "app2"),
+        environments = listOf("env1", "env2")
     )
     private val response = Response(items = listOf(UserSettingsResource(listOf(filter))))
 
