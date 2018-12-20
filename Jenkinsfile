@@ -7,7 +7,7 @@ def overrides = [
     credentialsId: "github",
     sonarQube: false,
     debugAndExit:true,
-    versionStrategy: []
+    versionStrategy: null
     //  [ branch: 'master', versionHint: '1' ]
     //]
 ]
