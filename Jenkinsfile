@@ -8,7 +8,8 @@ def overrides = [
     sonarQube: false,
     debugAndExit:true,
     versionStrategy: [
-      [ branch: 'master', versionHint: '1' ]
+      [ branch: 'master', versionHint: '1' ],
+      [ branch: 'pipeline/AOS-3004', versionHint: '0' ]
     ]
 ]
 
