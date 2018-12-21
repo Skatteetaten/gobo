@@ -4,8 +4,13 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
+import no.skatteetaten.aurora.gobo.resolvers.blockAndHandleError
+import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageTag
+import no.skatteetaten.aurora.gobo.resolvers.imagerepository.toImageRepo
 import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.stereotype.Service
+import org.springframework.web.reactive.function.client.ClientResponse
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.bodyToMono
 import reactor.core.publisher.Mono
@@ -25,6 +30,28 @@ class ImageRegistryServiceBlocking(
 ) {
 
     private val objectMapper = jacksonObjectMapper()
+
+    fun resolveTagToSha(key: ImageTag): String {
+
+        val registryMetadata = registryMetadataResolver.getMetadataForRegistry(key.imageRepository.registryUrl)
+
+        val manifestsUrl =
+            urlBuilder.createManifestsUrl(registryMetadata.apiSchema, key.imageRepository.toImageRepo(), key.name)
+
+        val response: Mono<ClientResponse> = webClient
+            .get()
+            .uri(manifestsUrl)
+            .headers {
+                it.accept = listOf(MediaType.valueOf("application/vnd.docker.distribution.manifest.v2+json"))
+                if (registryMetadata.authenticationMethod == AuthenticationMethod.KUBERNETES_TOKEN) {
+                    it.set("Authorization", "Bearer ${tokenProvider.token}")
+                }
+            }
+            .exchange()
+
+        val headers: Mono<String?> = response.map { it.headers().header("Docker-Content-Digest").firstOrNull() }
+        return headers.blockAndHandleError() ?: throw SourceSystemException("Could not find digest sha for $key")
+    }
 
     fun findTagByName(imageRepoDto: ImageRepoDto, tagName: String): ImageTagDto {
         return getImageMetaData(imageRepoDto, tagName)?.let {
@@ -83,16 +110,15 @@ class ImageRegistryServiceBlocking(
         apiUrl: String,
         authenticationMethod: AuthenticationMethod
     ): T? = webClient
-            .get()
-            .uri(apiUrl)
-            .headers {
-                if (authenticationMethod == AuthenticationMethod.KUBERNETES_TOKEN) {
-                    it.set("Authorization", "Bearer ${tokenProvider.token}")
-                }
+        .get()
+        .uri(apiUrl)
+        .headers {
+            if (authenticationMethod == AuthenticationMethod.KUBERNETES_TOKEN) {
+                it.set("Authorization", "Bearer ${tokenProvider.token}")
             }
-            .retrieve()
-            // TODO: It would be nice with a kotlin dsl over WebClient
-            .onStatus(Predicate.isEqual<HttpStatus>(HttpStatus.NOT_FOUND), Function { Mono.empty() })
-            .bodyToMono<T>()
-            .block()
+        }
+        .retrieve()
+        .onStatus(Predicate.isEqual<HttpStatus>(HttpStatus.NOT_FOUND), Function { Mono.empty() })
+        .bodyToMono<T>()
+        .block()
 }

@@ -25,17 +25,43 @@ data class VersionResource(val deployTag: String, val auroraVersion: String?, va
 data class GitInfoResource(val commitId: String?, val commitTime: Instant?)
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class ImageDetailsResource(val imageBuildTime: Instant?, val dockerImageReference: String?)
+data class ImageDetailsResource(
+    val imageBuildTime: Instant?,
+    val dockerImageReference: String?,
+    val dockerImageTagReference: String?
+)
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class PodResourceResource(
+class PodResourceResource(
     val name: String,
-    val status: String,
-    val restartCount: Int,
-    val ready: Boolean,
+    val phase: String,
     val startTime: Instant,
-    val managementResponses: ManagementResponsesResource?
+    val replicaName: String?,
+    val latestReplicaName: Boolean,
+    val managementResponses: ManagementResponsesResource?,
+    val containers: List<ContainerResource>,
+    val deployTag: String?,
+    val latestDeployTag: Boolean
+
 ) : ResourceSupport()
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class DeployDetailsResource(
+    val targetReplicas: Int,
+    val availableReplicas: Int,
+    val deployment: String? = null,
+    val phase: String? = null,
+    val deployTag: String? = null
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class ContainerResource(
+    val name: String,
+    val state: String,
+    val image: String,
+    val restartCount: Int,
+    val ready: Boolean = false
+)
 
 data class ManagementEndpointResponseResource(
     val hasResponse: Boolean,
@@ -64,7 +90,9 @@ data class ApplicationDeploymentDetailsResource(
     val gitInfo: GitInfoResource?,
     val imageDetails: ImageDetailsResource?,
     val podResources: List<PodResourceResource>,
-    val applicationDeploymentCommand: ApplicationDeploymentCommandResource
+    val dependencies: Map<String, String> = emptyMap(),
+    val applicationDeploymentCommand: ApplicationDeploymentCommandResource,
+    val deployDetails: DeployDetailsResource?
 ) : ResourceSupport() {
 
     fun link(rel: String) = this.findLink(rel)

@@ -8,7 +8,7 @@ import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
 import no.skatteetaten.aurora.gobo.resolvers.affiliation.Affiliation
 import no.skatteetaten.aurora.gobo.resolvers.application.Application
 import no.skatteetaten.aurora.gobo.resolvers.application.createApplicationEdge
-import no.skatteetaten.aurora.gobo.resolvers.applicationdeploymentdetails.ApplicationDeploymentDetails
+import no.skatteetaten.aurora.gobo.resolvers.applicationdeploymentdetails.ApplicationDeploymentDetailsDataLoader
 import no.skatteetaten.aurora.gobo.resolvers.loader
 import no.skatteetaten.aurora.gobo.resolvers.namespace.Namespace
 import no.skatteetaten.aurora.gobo.security.currentUser
@@ -54,7 +54,7 @@ class ApplicationDeploymentResolver(
         Namespace(applicationDeployment.namespaceId, applicationDeployment.affiliationId)
 
     fun details(applicationDeployment: ApplicationDeployment, dfe: DataFetchingEnvironment) =
-        dfe.loader(ApplicationDeploymentDetails::class).load(applicationDeployment.id)
+        dfe.loader(ApplicationDeploymentDetailsDataLoader::class).load(applicationDeployment.id)
 
     fun application(applicationDeployment: ApplicationDeployment): Application? {
         val application = applicationService.getApplication(applicationDeployment.applicationId)

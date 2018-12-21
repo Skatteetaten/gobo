@@ -2,7 +2,7 @@ def jenkinsfile
 
 
 def overrides = [
-    scriptVersion  : 'feature/AOS-2708',
+    scriptVersion  : 'v6',
     pipelineScript: 'https://git.aurora.skead.no/scm/ao/aurora-pipeline-scripts.git',
     openShiftBaseImage: 'yeaster',
     openShiftBaseImageVersion: '1',

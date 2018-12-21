@@ -25,10 +25,10 @@ val DataFetchingEnvironment.token: String?
         }
     }
 
-fun <T : Any> DataFetchingEnvironment.loader(type: KClass<T>): DataLoader<Any, Try<T>> {
-    val key = "${type.simpleName}DataLoader"
+fun <T : KeyDataLoader<*, V>, V> DataFetchingEnvironment.loader(type: KClass<T>): DataLoader<Any, Try<V>> {
+    val key = "${type.simpleName}"
     return this.getContext<GraphQLContext>().dataLoaderRegistry.get()
-        .getDataLoader<Any, Try<T>>(key) ?: throw IllegalStateException("No $key found")
+        .getDataLoader<Any, Try<V>>(key) ?: throw IllegalStateException("No $key found")
 }
 
 fun <T> Mono<T>.blockNonNullAndHandleError(duration: Duration = Duration.ofSeconds(30)) =

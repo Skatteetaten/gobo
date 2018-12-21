@@ -5,6 +5,7 @@ type UserSettings {
 type ApplicationDeploymentFilter {
   name: String!
   affiliation: String!
+  default: Boolean
   applications: [String]
   environments: [String]
 }
@@ -16,6 +17,7 @@ input UserSettingsInput {
 input ApplicationDeploymentFilterInput {
   name: String!
   affiliation: String!
+  default: Boolean
   applications: [String]
   environments: [String]
 }

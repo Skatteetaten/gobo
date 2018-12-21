@@ -83,6 +83,7 @@ class UserSettingsQueryResolverTest {
             .expectBody()
             .jsonPath("$filters.length()").isEqualTo(1)
             .jsonPath("$filters[0].name").isNotEmpty
+            .jsonPath("$filters[0].default").isBoolean
             .jsonPath("$filters[0].affiliation").isEqualTo("aurora")
             .jsonPath("$filters[0].applications").isNotEmpty
             .jsonPath("$filters[0].environments").isNotEmpty

@@ -1,5 +1,6 @@
 package no.skatteetaten.aurora.gobo.integration.boober
 
+import no.skatteetaten.aurora.gobo.resolvers.blockAndHandleError
 import no.skatteetaten.aurora.gobo.resolvers.blockNonNullAndHandleError
 import no.skatteetaten.aurora.gobo.resolvers.usersettings.UserSettings
 import org.springframework.stereotype.Service
@@ -14,7 +15,7 @@ class UserSettingsService(private val booberWebClient: BooberWebClient) {
         booberWebClient.get<UserSettingsResource>(
             token,
             "/v1/users/annotations/applicationDeploymentFilters"
-        ).toMono().blockNonNullWithTimeout()
+        ).toMono().blockWithTimeout() ?: UserSettingsResource()
 
     fun updateUserSettings(token: String, userSettings: UserSettings) {
         booberWebClient.patch<Unit>(
@@ -24,6 +25,7 @@ class UserSettingsService(private val booberWebClient: BooberWebClient) {
         ).toMono().blockNonNullWithTimeout()
     }
 
+    private fun <T> Mono<T>.blockWithTimeout() = this.blockAndHandleError(Duration.ofSeconds(30))
     private fun <T> Mono<T>.blockNonNullWithTimeout() = this.blockNonNullAndHandleError(Duration.ofSeconds(30))
 }
 
@@ -32,6 +34,7 @@ data class UserSettingsResource(val applicationDeploymentFilters: List<Applicati
 data class ApplicationDeploymentFilterResource(
     val name: String,
     val affiliation: String,
+    val default: Boolean = false,
     val applications: List<String> = emptyList(),
     val environments: List<String> = emptyList()
 )
