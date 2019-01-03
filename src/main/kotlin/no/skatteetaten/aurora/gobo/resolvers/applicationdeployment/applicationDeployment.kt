@@ -2,11 +2,19 @@ package no.skatteetaten.aurora.gobo.resolvers.applicationdeployment
 
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationResource
+import no.skatteetaten.aurora.gobo.integration.mokey.StatusCheckResource
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageTag
 import java.time.Instant
 
-data class Status(val code: String, val comment: String?)
+data class StatusCheck(val name: String, val description: String, val failLevel: String, val hasFailed: Boolean)
+
+data class Status(
+    val code: String,
+    val comment: String?,
+    val reports: List<StatusCheck>,
+    val reasons: List<StatusCheck>
+)
 
 data class Version(val deployTag: ImageTag, val auroraVersion: String?, val releaseTo: String?)
 
@@ -30,7 +38,12 @@ data class ApplicationDeployment(
                 affiliationId = deployment.affiliation,
                 environment = deployment.environment,
                 namespaceId = deployment.namespace,
-                status = Status(deployment.status.code, deployment.status.comment),
+                status = Status(
+                    deployment.status.code,
+                    "",
+                    deployment.status.reports.map(this::toStatusCheck),
+                    deployment.status.reasons.map(this::toStatusCheck)
+                ),
                 version = Version(
                     // TODO: This is far from ideal and manually adding ImageTag here should be considered a temporary
                     // adjustment. We need to move ImageTag out of version.
@@ -42,6 +55,15 @@ data class ApplicationDeployment(
                 dockerImageRepo = deployment.dockerImageRepo,
                 applicationId = deployment.applicationId
             )
+
+        private fun toStatusCheck(checkResource: StatusCheckResource) = checkResource.let {
+            StatusCheck(
+                it.name,
+                it.description,
+                it.failLevel,
+                it.hasFailed
+            )
+        }
     }
 }
 

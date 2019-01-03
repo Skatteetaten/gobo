@@ -74,15 +74,15 @@ val envResponseJson = """{
 @Language("JSON")
 val healthResponseJson: String = """{"status": "UP"}"""
 
-data class ApplicationDeploymentResourceBuilder(val affiliation: String = "paas") {
+data class ApplicationDeploymentResourceBuilder(val affiliation: String = "paas", val id: String = "id") {
     fun build(): ApplicationDeploymentResource =
         ApplicationDeploymentResource(
-            identifier = "id",
+            identifier = id,
             name = "name",
             affiliation = affiliation,
             environment = "environment",
             namespace = "namespace",
-            status = StatusResource("code", "comment"),
+            status = StatusResource("code", "", listOf(), listOf()),
             version = VersionResource("deployTag", "auroraVersion", "releaseTo"),
             dockerImageRepo = "dockerImageRepo",
             time = Instant.EPOCH
@@ -111,7 +111,7 @@ data class ApplicationDeploymentBuilder(val affiliation: String = "paas") {
             affiliationId = affiliation,
             environment = "environment",
             namespaceId = "namespaceId",
-            status = Status("code", "comment"),
+            status = Status("code", "comment", listOf(), listOf()),
             version = Version(ImageTag(ImageRepository("", "", ""), "deployTag"), "auroraVersion", "releaseTo"),
             dockerImageRepo = "dockerImageRepo",
             time = defaultInstant,

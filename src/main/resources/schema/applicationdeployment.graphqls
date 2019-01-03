@@ -11,9 +11,18 @@ type ApplicationDeployment {
   time: DateTime
 }
 
+type StatusCheck {
+    name: String!
+    description: String!
+    failLevel: String!
+    hasFailed: Boolean!
+}
+
 type Status {
   code: String!
   comment: String
+  reports: [StatusCheck!]!
+  reasons: [StatusCheck!]!
 }
 
 type Version {
