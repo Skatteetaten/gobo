@@ -44,7 +44,7 @@ group = 'no.skatteetaten.aurora'
 
 dependencyManagement {
   imports {
-    mavenBom "org.springframework.cloud:spring-cloud-contract-dependencies:2.0.2.RELEASE"
+    mavenBom "org.springframework.cloud:spring-cloud-contract-dependencies:2.1.0.RC3"
   }
 }
 
