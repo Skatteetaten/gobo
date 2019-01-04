@@ -20,6 +20,9 @@ class ApplicationDeploymentMutationResolverTest {
     @Value("classpath:graphql/redeployWithVersion.graphql")
     private lateinit var redeployWithVersionMutation: Resource
 
+    @Value("classpath:graphql/redeployWithCurrentVersion.graphql")
+    private lateinit var redeployWithCurrentVersionMutation: Resource
+
     @Value("classpath:graphql/refreshApplicationDeployment.graphql")
     private lateinit var refreshApplicationDeploymentByDeploymentIdMutation: Resource
 
@@ -46,6 +49,17 @@ class ApplicationDeploymentMutationResolverTest {
         )
         webTestClient.queryGraphQL(redeployWithVersionMutation, variables).expectBody()
             .jsonPath("$.data.redeployWithVersion").isNotEmpty
+    }
+
+    @Test
+    fun `Mutate application deployment current version`() {
+        val variables = mapOf(
+            "input" to mapOf(
+                "applicationDeploymentId" to "123"
+            )
+        )
+        webTestClient.queryGraphQL(redeployWithCurrentVersionMutation, variables).expectBody()
+            .jsonPath("$.data.redeployWithCurrentVersion").isNotEmpty
     }
 
     @Test

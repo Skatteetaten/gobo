@@ -40,6 +40,10 @@ input RefreshByApplicationDeploymentIdInput {
   applicationDeploymentId: String!
 }
 
+input ApplicationDeploymentIdInput {
+  applicationDeploymentId: String!
+}
+
 input RefreshByAffiliationsInput {
   affiliations: [String!]!
 }
