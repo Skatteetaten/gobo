@@ -27,6 +27,7 @@ plugins {
 
 ext.aurora = [
     requireStaging   : false,
+    applyCheckstylePlugin: false,
     applySpockSupport: false
 ]
 
