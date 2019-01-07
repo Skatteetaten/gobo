@@ -2,7 +2,12 @@ buildscript {
   ext.repos = {
     mavenCentral()
     mavenLocal()
+    maven {
+      url "https://repo.spring.io/libs-milestone"
+    }
   }
+
+
 
   repositories repos
 
