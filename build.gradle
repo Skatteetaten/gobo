@@ -28,7 +28,8 @@ plugins {
 ext.aurora = [
     requireStaging   : false,
     applyCheckstylePlugin: false,
-    applySpockSupport: false
+    applySpockSupport: false,
+    setProjectVersionFromGit: false
 ]
 
 apply plugin: 'io.spring.dependency-management'
@@ -90,6 +91,8 @@ dependencies {
   )
   testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
 }
+
+version "${version}"
 
 springBoot {
   buildInfo()
