@@ -42,7 +42,7 @@ repositories repos
 [bootJar, distTar, bootDistTar, bootDistZip]*.enabled = false
 configurations.archives.artifacts.removeIf { !it.archiveTask.enabled }
 
-group = 'no.skatteetaten.aurora'
+group = groupId 
 
 dependencyManagement {
   imports {
