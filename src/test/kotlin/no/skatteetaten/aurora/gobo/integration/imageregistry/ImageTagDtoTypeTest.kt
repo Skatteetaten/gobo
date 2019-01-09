@@ -11,7 +11,8 @@ class ImageTagDtoTypeTest {
     fun `verify tag types are derived correctly`() {
 
         listOf(
-            Pair("SNAPSHOT-feature-AOS-2287-20180102.092832-15-b1.5.5-flange-8.152.18",
+            Pair(
+                "SNAPSHOT-feature-AOS-2287-20180102.092832-15-b1.5.5-flange-8.152.18",
                 ImageTagType.AURORA_SNAPSHOT_VERSION
             ),
             Pair("feature-AOS-2287-SNAPSHOT", ImageTagType.SNAPSHOT),

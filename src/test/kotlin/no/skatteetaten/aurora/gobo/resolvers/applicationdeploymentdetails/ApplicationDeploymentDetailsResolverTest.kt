@@ -84,7 +84,15 @@ class ApplicationDeploymentDetailsResolverTest {
 class QueryResponse {
     data class HttpResponse(val textResponse: String)
     data class ManagementResponses(val info: HttpResponse, val health: HttpResponse)
-    data class PodResource(val managementResponses: ManagementResponses, val phase: String, val deployTag: String, val ready: Boolean, val restartCount: Int, val containers: List<ContainerResource>)
+    data class PodResource(
+        val managementResponses: ManagementResponses,
+        val phase: String,
+        val deployTag: String,
+        val ready: Boolean,
+        val restartCount: Int,
+        val containers: List<ContainerResource>
+    )
+
     data class ApplicationDetails(val podResources: List<PodResource>)
     data class ApplicationDeployment(val details: ApplicationDetails)
     data class Application(val applicationDeployments: List<ApplicationDeployment>)

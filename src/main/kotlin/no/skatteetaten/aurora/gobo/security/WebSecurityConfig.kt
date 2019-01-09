@@ -37,7 +37,8 @@ class WebSecurityConfig(
     private fun forPort(port: Int) = RequestMatcher { request: HttpServletRequest -> port == request.localPort }
 
     @Bean
-    internal fun preAuthenticationProvider(openShiftAuthenticationUserDetailsService: OpenShiftAuthenticationUserDetailsService) = PreAuthenticatedAuthenticationProvider()
+    internal fun preAuthenticationProvider(openShiftAuthenticationUserDetailsService: OpenShiftAuthenticationUserDetailsService) =
+        PreAuthenticatedAuthenticationProvider()
             .apply { setPreAuthenticatedUserDetailsService(openShiftAuthenticationUserDetailsService) }
 
     @Bean
