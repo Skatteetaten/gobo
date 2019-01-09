@@ -41,6 +41,7 @@ class ImageRegistryServiceBlocking(
 
     fun findTagByName(imageRepoDto: ImageRepoDto, tagName: String): ImageTagDto {
         return getImageMetaData(imageRepoDto, tagName)?.let {
+
             ImageTagDto(name = tagName, created = it.createdAt)
         } ?: throw SourceSystemException("No metadata for tag=$tagName in repo=${imageRepoDto.repository}")
     }
@@ -51,6 +52,7 @@ class ImageRegistryServiceBlocking(
         return ImageTagsDto.toDto(execute(registryMetadata.authenticationMethod) {
             it.get().uri("/no_skatteetaten_aurora_demo/whoami/tags")
         } ?: AuroraResponse())
+
     }
 
     private fun getImageMetaData(imageRepoDto: ImageRepoDto, tag: String): ImageMetadata? {

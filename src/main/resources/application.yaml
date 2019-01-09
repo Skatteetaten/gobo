@@ -18,8 +18,12 @@ gobo:
     unclematt:
         url: http://unclematt-aurora-daemons.utv.paas.skead.no
     cantus:
+<<<<<<< refs/remotes/origin/feature/AOS-3089-ta-i-bruk-cantus-i-gobo
         url: http://cantus
 
+=======
+        url: http://localhost:8090
+>>>>>>> HEAD~5
 aurora:
     starter:
         headerfilter:
@@ -42,8 +46,15 @@ gobo:
         url: http://boober-aurora.utv.paas.skead.no
     mokey:
         url: http://mokey-aurora.utv.paas.skead.no
+<<<<<<< refs/remotes/origin/feature/AOS-3089-ta-i-bruk-cantus-i-gobo
     cantus:
         url: http://cantus.demo.utv.paas.skead.no
+=======
+    docker-registry:
+        url: https://test-docker-registry-internal-group.aurora.skead.no
+    cantus:
+        url: http://localhost:8090
+>>>>>>> HEAD~5
 
 management:
     server:
