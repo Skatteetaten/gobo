@@ -26,5 +26,6 @@ enum class ProbeStatus {
     OPEN,
     CLOSED,
     FILTERED,
-    @JsonEnumDefaultValue UNKNOWN
+    @JsonEnumDefaultValue
+    UNKNOWN
 }

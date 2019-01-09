@@ -16,6 +16,8 @@ gobo:
         url: http://boober
     unclematt:
         url: http://unclematt-aurora-daemons.utv.paas.skead.no
+    cantus:
+        url: http://localhost:8090
 aurora:
     starter:
         headerfilter:
@@ -41,6 +43,8 @@ gobo:
         url: http://mokey-aurora.utv.paas.skead.no
     docker-registry:
         url: https://test-docker-registry-internal-group.aurora.skead.no
+    cantus:
+        url: http://localhost:8090
 
 management:
     server:

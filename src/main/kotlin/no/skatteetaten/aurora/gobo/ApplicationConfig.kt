@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit
 import kotlin.math.min
 
 enum class ServiceTypes {
-    MOKEY, DOCKER, BOOBER, UNCLEMATT
+    MOKEY, DOCKER, BOOBER, UNCLEMATT, CANTUS
 }
 
 @Target(AnnotationTarget.TYPE, AnnotationTarget.FUNCTION, AnnotationTarget.FIELD, AnnotationTarget.VALUE_PARAMETER)
@@ -63,6 +63,10 @@ class ApplicationConfig(
             .baseUrl(uncleMattUrl)
             .build()
     }
+
+    @Bean
+    @TargetService(ServiceTypes.CANTUS)
+    fun webClientCantus(): WebClient = webClientBuilder().build()
 
     @Bean
     @TargetService(ServiceTypes.DOCKER)

@@ -27,7 +27,12 @@ class ScanQueryResolverTest {
 
     @Test
     fun `resolve scan response`() {
-        given(probeService.probeFirewall(host = "test.server.no", port = 80)).willReturn(ProbeResultListBuilder().build())
+        given(
+            probeService.probeFirewall(
+                host = "test.server.no",
+                port = 80
+            )
+        ).willReturn(ProbeResultListBuilder().build())
 
         val variables = mapOf("host" to "test.server.no", "port" to 80)
         webTestClient.queryGraphQL(scanQuery, variables)

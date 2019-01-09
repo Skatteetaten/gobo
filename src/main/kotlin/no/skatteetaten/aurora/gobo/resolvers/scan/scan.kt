@@ -52,12 +52,21 @@ data class Scan(
             return createNodeDetails(probeResultList) { status -> status == ProbeStatus.OPEN }
         }
 
-        private fun createNodeDetails(probeResultList: List<ProbeResult>, condition: (ProbeStatus) -> Boolean): NodeDetailsConnection {
+        private fun createNodeDetails(
+            probeResultList: List<ProbeResult>,
+            condition: (ProbeStatus) -> Boolean
+        ): NodeDetailsConnection {
             return NodeDetailsConnection(probeResultList.filter {
                 condition(it.result?.status ?: ProbeStatus.UNKNOWN)
             }.map {
-                NodeDetailsEdge(NodeDetails(mapStatus(it.result?.status
-                    ?: ProbeStatus.UNKNOWN), it.result?.message, ClusterNode(it.hostIp), it.result?.resolvedIp))
+                NodeDetailsEdge(
+                    NodeDetails(
+                        mapStatus(
+                            it.result?.status
+                                ?: ProbeStatus.UNKNOWN
+                        ), it.result?.message, ClusterNode(it.hostIp), it.result?.resolvedIp
+                    )
+                )
             })
         }
     }
