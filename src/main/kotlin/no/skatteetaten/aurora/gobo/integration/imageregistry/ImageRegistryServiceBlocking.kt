@@ -5,7 +5,6 @@ import no.skatteetaten.aurora.gobo.TargetService
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageTag
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.toImageRepo
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
@@ -39,7 +38,6 @@ data class ImageMetadata(
 class ImageRegistryServiceBlocking(
     private val registryMetadataResolver: RegistryMetadataResolver,
     @TargetService(ServiceTypes.CANTUS) val webClient2: WebClient,
-    @Value("\${gobo.cantus.url}") val cantusUrl : String,
     val tokenProvider: TokenProvider
 ) {
 
@@ -67,6 +65,12 @@ class ImageRegistryServiceBlocking(
         // time being, though, as it allows for some queries to be significantly quicker than fetching the individual
         // created dates for each tag, and then sort.
         return tagsOrderedByCreatedDate?.reversed() ?: emptyList()
+    }
+
+    fun getManifestForListOfTags(imageRepoDto: ImageRepoDto, listOfTags: List<String>): List<Map<String, String>> {
+        val registryMetadata = registryMetadataResolver.getMetadataForRegistry(imageRepoDto.registry)
+
+        return emptyList()
     }
 
     private fun getImageMetaData(imageRepoDto: ImageRepoDto, tag: String): ImageMetadata? {
@@ -100,7 +104,7 @@ class ImageRegistryServiceBlocking(
         authenticationMethod: AuthenticationMethod
     ): T? = webClient2
         .get()
-        .uri(cantusUrl + apiUrl)
+        .uri(apiUrl)
         .headers {
             if (authenticationMethod == AuthenticationMethod.KUBERNETES_TOKEN) {
                 it.set("Authorization", "Bearer ${tokenProvider.token}")
