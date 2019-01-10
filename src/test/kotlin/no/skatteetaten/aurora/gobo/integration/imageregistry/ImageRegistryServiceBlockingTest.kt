@@ -17,7 +17,6 @@ import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.toImageRepo
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
-import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.http.HttpHeaders
@@ -36,7 +35,7 @@ class ImageRegistryServiceBlockingTest {
     private val defaultRegistryMetadataResolver = mockk<DefaultRegistryMetadataResolver>()
     private val tokenProvider = mockk<TokenProvider>()
     private val imageRegistry = ImageRegistryServiceBlocking(
-        defaultRegistryMetadataResolver, WebClient.create(url.toString()), url.toString(), tokenProvider
+        defaultRegistryMetadataResolver, WebClient.create(url.toString()), tokenProvider
     )
 
     @BeforeEach

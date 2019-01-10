@@ -4,6 +4,7 @@ info:
         boober: ${gobo.boober.url}
         docker: ${gobo.docker-registry.url}
         unclematt: ${gobo.unclematt.url}
+        cantus: ${gobo.cantus.url}
 
 spring:
     profiles:
@@ -17,7 +18,8 @@ gobo:
     unclematt:
         url: http://unclematt-aurora-daemons.utv.paas.skead.no
     cantus:
-        url: http://localhost:8090
+        url: http://cantus
+
 aurora:
     starter:
         headerfilter:
@@ -40,10 +42,8 @@ gobo:
         url: http://boober-aurora.utv.paas.skead.no
     mokey:
         url: http://mokey-aurora.utv.paas.skead.no
-    docker-registry:
-        url: https://test-docker-registry-internal-group.aurora.skead.no
     cantus:
-        url: http://localhost:8090
+        url: localhost:8090
 
 management:
     server:

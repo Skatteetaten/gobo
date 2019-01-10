@@ -2,12 +2,12 @@ package no.skatteetaten.aurora.gobo.resolvers.imagerepository
 
 import graphql.relay.DefaultEdge
 import graphql.relay.PageInfo
-import no.skatteetaten.aurora.gobo.resolvers.Connection
-import no.skatteetaten.aurora.gobo.resolvers.Cursor
-import no.skatteetaten.aurora.gobo.resolvers.PagedEdges
 import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageRepoDto
 import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageTagType
 import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageTagType.Companion.typeOf
+import no.skatteetaten.aurora.gobo.resolvers.Connection
+import no.skatteetaten.aurora.gobo.resolvers.Cursor
+import no.skatteetaten.aurora.gobo.resolvers.PagedEdges
 import org.slf4j.LoggerFactory
 
 data class ImageRepository(
