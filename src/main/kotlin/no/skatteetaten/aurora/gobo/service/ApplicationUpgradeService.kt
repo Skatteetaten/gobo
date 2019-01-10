@@ -23,6 +23,13 @@ class ApplicationUpgradeService(
         refreshApplicationDeployment(token, applicationDeploymentId)
     }
 
+    fun deployCurrentVersion(token: String, applicationDeploymentId: String) {
+        val details = applicationService.getApplicationDeploymentDetails(token, applicationDeploymentId)
+        val applyLink = details.link("Apply")
+        auroraConfigService.redeploy(token, details, applyLink)
+        refreshApplicationDeployment(token, applicationDeploymentId)
+    }
+
     fun refreshApplicationDeployment(token: String, applicationDeploymentId: String): Boolean {
         applicationService.refreshApplicationDeployment(token, RefreshParams(applicationDeploymentId))
         return true

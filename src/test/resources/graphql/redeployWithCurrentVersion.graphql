@@ -1,0 +1,3 @@
+mutation redeployWithCurrentVersion($input: ApplicationDeploymentIdInput!) {
+    redeployWithCurrentVersion(input: $input)
+}
