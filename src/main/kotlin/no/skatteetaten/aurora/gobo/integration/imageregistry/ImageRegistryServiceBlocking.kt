@@ -6,6 +6,7 @@ import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.resolvers.blockAndHandleError
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageTag
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.toImageRepo
+
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.bodyToMono
@@ -53,6 +54,12 @@ class ImageRegistryServiceBlocking(
             it.get().uri("/no_skatteetaten_aurora_demo/whoami/tags")
         } ?: AuroraResponse())
 
+    }
+
+    fun getManifestForListOfTags(imageRepoDto: ImageRepoDto, listOfTags: List<String>): List<Map<String, String>> {
+        val registryMetadata = registryMetadataResolver.getMetadataForRegistry(imageRepoDto.registry)
+
+        return emptyList()
     }
 
     private fun getImageMetaData(imageRepoDto: ImageRepoDto, tag: String): ImageMetadata? {

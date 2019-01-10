@@ -67,11 +67,8 @@ class ImageRegistryServiceBlockingTest {
             )
         }
 
-<<<<<<< refs/remotes/origin/feature/AOS-3089-ta-i-bruk-cantus-i-gobo
         assert(request.getRequestPath()).isEqualTo("/$imageRepoName/tags")
-=======
-        assert(request.path).isEqualTo("/$imageRepoName/tags")
->>>>>>> HEAD~5
+
         assert(request.headers[HttpHeaders.AUTHORIZATION]).isNull()
     }
 
@@ -89,11 +86,8 @@ class ImageRegistryServiceBlockingTest {
             assert(tags).isNotNull()
         }
 
-<<<<<<< refs/remotes/origin/feature/AOS-3089-ta-i-bruk-cantus-i-gobo
         assert(request.getRequestPath()).isEqualTo("/$imageRepoName/tags")
-=======
-        assert(request.path).isEqualTo("/$imageRepoName/tags")
->>>>>>> HEAD~5
+
         assert(request.headers[HttpHeaders.AUTHORIZATION]).isEqualTo("Bearer token")
     }
 
@@ -108,11 +102,8 @@ class ImageRegistryServiceBlockingTest {
             assert(tag.type).isEqualTo(ImageTagType.MAJOR)
         }
 
-<<<<<<< refs/remotes/origin/feature/AOS-3089-ta-i-bruk-cantus-i-gobo
         assert(request.getRequestPath()).isEqualTo("/$imageRepoName/$tagName/manifest")
-=======
-        assert(request.path).isEqualTo("/$imageRepoName/$tagName/manifest")
->>>>>>> HEAD~5
+
     }
 
     @Test
@@ -125,9 +116,6 @@ class ImageRegistryServiceBlockingTest {
             }
         }
     }
-<<<<<<< refs/remotes/origin/feature/AOS-3089-ta-i-bruk-cantus-i-gobo
 
     private fun RecordedRequest.getRequestPath() = this.path.replace("%2F", "/")
-=======
->>>>>>> HEAD~5
 }
