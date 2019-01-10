@@ -19,9 +19,9 @@ class AuroraPublicHealthController(
         return appliationService.getApplications(emptyList())
             .flatMap { it.applicationDeployments }
             .map {
-                val active= it.status.code!="OFF"
                 TrueSightStatus(
-                    active, TrueSightRegistrering(
+                    aktiv = it.status.code != "OFF",
+                    registrering = TrueSightRegistrering(
                         tilbyderNavn = it.namespace,
                         helsetilstand = convertHealthCheckNames(it.status.code),
                         komponent = it.name,
@@ -35,7 +35,7 @@ class AuroraPublicHealthController(
         "HEALTHY" -> "FRISK"
         "OBSERVE" -> "TIL_OBSERVASJON"
         "DOWN" -> "STOPPET"
-        "UNKNOWN" -> "UNKNOWNO"
+        "UNKNOWN" -> "UNKNOWN"
         else -> "NULL"
     }
 }
