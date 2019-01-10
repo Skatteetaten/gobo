@@ -30,8 +30,8 @@ class ApplicationServiceBlocking(private val applicationService: ApplicationServ
     fun refreshApplicationDeployment(token: String, refreshParams: RefreshParams) =
         applicationService.refreshApplicationDeployment(token, refreshParams).blockWithTimeout()
 
-    private fun <T> Mono<T>.blockNonNullWithTimeout() = this.blockNonNullAndHandleError(Duration.ofSeconds(30))
-    private fun <T> Mono<T>.blockWithTimeout() = this.blockAndHandleError(Duration.ofSeconds(30))
+    private fun <T> Mono<T>.blockNonNullWithTimeout() = this.blockNonNullAndHandleError(Duration.ofSeconds(30), "mokey")
+    private fun <T> Mono<T>.blockWithTimeout() = this.blockAndHandleError(Duration.ofSeconds(30), "mokey")
 }
 
 @Service

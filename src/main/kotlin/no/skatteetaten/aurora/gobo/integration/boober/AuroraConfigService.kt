@@ -54,7 +54,7 @@ class AuroraConfigService(private val booberWebClient: BooberWebClient) {
         return booberWebClient.put<JsonNode>(token, applyLink, body = payload).toMono().blockNonNullWithTimeout()
     }
 
-    private fun <T> Mono<T>.blockNonNullWithTimeout() = this.blockNonNullAndHandleError(Duration.ofSeconds(30))
+    private fun <T> Mono<T>.blockNonNullWithTimeout() = this.blockNonNullAndHandleError(Duration.ofSeconds(30), "boober")
 }
 
 data class AuroraConfigFileResource(

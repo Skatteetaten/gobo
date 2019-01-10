@@ -14,6 +14,7 @@ import org.springframework.web.reactive.function.client.ClientResponse
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.bodyToMono
 import reactor.core.publisher.Mono
+import java.time.Duration
 import java.time.Instant
 import java.util.function.Function
 import java.util.function.Predicate
@@ -50,7 +51,8 @@ class ImageRegistryServiceBlocking(
             .exchange()
 
         val headers: Mono<String?> = response.map { it.headers().header("Docker-Content-Digest").firstOrNull() }
-        return headers.blockAndHandleError() ?: throw SourceSystemException("Could not find digest sha for $key")
+        return headers.blockAndHandleError(Duration.ofSeconds(30), "docker-registry")
+            ?: throw SourceSystemException("Could not find digest sha for $key")
     }
 
     fun findTagByName(imageRepoDto: ImageRepoDto, tagName: String): ImageTagDto {
