@@ -27,6 +27,7 @@ class WebSecurityConfig(
                 .addFilter(requestHeaderAuthenticationFilter())
                 .authorizeRequests()
                 .requestMatchers(forPort(managementPort)).permitAll()
+                .antMatchers("/public/**").permitAll()
                 .antMatchers("/graphql").permitAll()
                 .antMatchers("/graphiql").permitAll()
                 .antMatchers("/vendor/**").permitAll()
