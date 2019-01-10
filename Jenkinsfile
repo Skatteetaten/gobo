@@ -6,7 +6,6 @@ def overrides = [
     credentialsId: "github",
     checkstyle : false,
     sonarQube: false,
-    jiraFiksetIKomponentversjon: true,
     versionStrategy: [
       [ branch: 'master', versionHint: '1' ]
     ]
