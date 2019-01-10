@@ -46,6 +46,8 @@ management:
     server:
         port: 8081
 
+openshift:
+    cluster: utv
 ---
 spring:
     profiles: openshift
