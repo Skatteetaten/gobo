@@ -28,7 +28,7 @@ enum class ImageTagType {
                 tag.toLowerCase().endsWith("-snapshot") -> ImageTagType.SNAPSHOT
                 tag.toLowerCase().startsWith("snapshot-") -> ImageTagType.AURORA_SNAPSHOT_VERSION
                 // It is important that COMMIT_HASH is processed before MAJOR to avoid a hash like 1984012 to be
-                // considered a MAJOR version (although, technically it coulld be major version it is not very likely).
+                // considered a MAJOR version (although, technically it could be major version it is not very likely).
                 tag.matches(Regex("^[0-9abcdef]{7}$")) -> ImageTagType.COMMIT_HASH
                 tag.matches(Regex("^\\d+$")) -> ImageTagType.MAJOR
                 tag.matches(Regex("^\\d+\\.\\d+$")) -> ImageTagType.MINOR

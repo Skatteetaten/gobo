@@ -75,7 +75,6 @@ class ApplicationConfig(
             .build()
     }
 
-
     @Bean
     @TargetService(ServiceTypes.DOCKER)
     fun webClientDocker() = webClientBuilder(ssl = true).build()
