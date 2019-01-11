@@ -7,7 +7,6 @@ def overrides = [
     checkstyle : false,
     sonarQube: false,
     debugAndExit: true,
-    jiraFiksetIKomponentversjon: true,
     versionStrategy: [
       [ branch: 'master', versionHint: '1' ]
     ]
