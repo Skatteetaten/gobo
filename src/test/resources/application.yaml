@@ -8,6 +8,9 @@ gobo:
   unclematt:
     url: http://localhost:6566
 
+openshift:
+  cluster: http://localhost
+
 stubrunner:
   stubs-mode: remote
   ids: no.skatteetaten.aurora:mokey:+:stubs:6565
