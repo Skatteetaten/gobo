@@ -38,5 +38,5 @@ class AffiliationServiceBlocking(private val affiliationService: AffiliationServ
     fun getAllAffiliations(): List<String> =
         affiliationService.getAllAffiliations().blockNonNullWithTimeout()
 
-    private fun <T> Mono<T>.blockNonNullWithTimeout() = this.blockNonNullAndHandleError(Duration.ofSeconds(30))
+    private fun <T> Mono<T>.blockNonNullWithTimeout() = this.blockNonNullAndHandleError(Duration.ofSeconds(30), "mokey")
 }
