@@ -24,7 +24,6 @@ aurora:
 logging:
     level:
         no.skatteetaten: INFO
-        no.skatteetaten.aurora.gobo: DEBUG
         org:
             jboss: WARN
             hibernate: WARN
