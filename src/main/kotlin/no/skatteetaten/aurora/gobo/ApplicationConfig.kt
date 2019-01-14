@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit
 import kotlin.math.min
 
 enum class ServiceTypes {
-    MOKEY, DOCKER, BOOBER, UNCLEMATT
+    MOKEY, DOCKER, BOOBER, UNCLEMATT, DBH
 }
 
 @Target(AnnotationTarget.TYPE, AnnotationTarget.FUNCTION, AnnotationTarget.FIELD, AnnotationTarget.VALUE_PARAMETER)
@@ -35,6 +35,7 @@ annotation class TargetService(val value: ServiceTypes)
 class ApplicationConfig(
     @Value("\${gobo.mokey.url}") val mokeyUrl: String,
     @Value("\${gobo.unclematt.url}") val uncleMattUrl: String,
+    @Value("\${gobo.dbh.url}") val dbhUrl: String,
     @Value("\${gobo.webclient.read-timeout:30000}") val readTimeout: Int,
     @Value("\${gobo.webclient.connection-timeout:30000}") val connectionTimeout: Int
 ) {
@@ -71,6 +72,10 @@ class ApplicationConfig(
     @Bean
     @TargetService(ServiceTypes.BOOBER)
     fun webClientBoober() = webClientBuilder().build()
+
+    @Bean
+    @TargetService(ServiceTypes.DBH)
+    fun webClientDbh() = webClientBuilder().baseUrl(dbhUrl).build()
 
     private fun webClientBuilder(ssl: Boolean = false): WebClient.Builder {
 

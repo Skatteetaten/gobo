@@ -3,6 +3,7 @@ package no.skatteetaten.aurora.gobo.integration.boober
 import assertk.assert
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
+import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.integration.execute
 import no.skatteetaten.aurora.gobo.resolvers.usersettings.ApplicationDeploymentFilter
 import no.skatteetaten.aurora.gobo.resolvers.usersettings.UserSettings

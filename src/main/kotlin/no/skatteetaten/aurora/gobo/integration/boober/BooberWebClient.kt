@@ -3,6 +3,7 @@ package no.skatteetaten.aurora.gobo.integration.boober
 import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
 import no.skatteetaten.aurora.gobo.createObjectMapper
+import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
@@ -73,16 +74,9 @@ class BooberWebClient(
             .retrieve()
             .bodyToMono()
         return response.flatMapMany { r ->
-                if (!r.success) SourceSystemException(r.message).toFlux()
+                if (!r.success) SourceSystemException(message = r.message, sourceSystem = "boober").toFlux()
                 else if (r.count == 0) Flux.empty()
                 else r.items.map { item -> createObjectMapper().convertValue(item, T::class.java) }.toFlux()
             }
     }
 }
-
-data class Response<T>(
-    val success: Boolean = true,
-    val message: String = "OK",
-    val items: List<T>,
-    val count: Int = items.size
-)

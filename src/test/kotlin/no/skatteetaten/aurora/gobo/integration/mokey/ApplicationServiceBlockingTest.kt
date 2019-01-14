@@ -13,7 +13,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 @AutoConfigureStubRunner
-class ApplicationServiceTest {
+class ApplicationServiceBlockingTest {
 
     @Autowired
     lateinit var applicationService: ApplicationServiceBlocking
