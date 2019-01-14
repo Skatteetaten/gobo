@@ -6,5 +6,6 @@ class SourceSystemException(
     message: String,
     cause: Throwable? = null,
     code: String = "",
-    errorMessage: String = message
+    errorMessage: String = message,
+    val sourceSystem: String? = null
 ) : GoboException(message, cause, code, errorMessage)

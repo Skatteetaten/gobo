@@ -10,6 +10,9 @@ gobo:
   cantus:
     url: http://localhost:6567
 
+openshift:
+  cluster: http://localhost
+
 stubrunner:
   stubs-mode: remote
   ids: no.skatteetaten.aurora:mokey:+:stubs:6565

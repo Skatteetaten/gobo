@@ -28,7 +28,6 @@ aurora:
 logging:
     level:
         no.skatteetaten: INFO
-        no.skatteetaten.aurora.gobo: DEBUG
         org:
             jboss: WARN
             hibernate: WARN
@@ -50,6 +49,8 @@ management:
     server:
         port: 8081
 
+openshift:
+    cluster: utv
 ---
 spring:
     profiles: openshift
