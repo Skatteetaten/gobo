@@ -16,15 +16,15 @@ import java.util.function.Predicate
 
 data class ImageMetadata(
     val CREATED: String?,
-    val DOCKER_CONTENT_DIGEST: String?,
-    val AURORA_VERSION: String?,
+    val DOCKER_CONTENT_DIGEST: String
+    /*val AURORA_VERSION: String?,
     val APP_VERSION: String?,
     val JOLOKIA_VERSION: String?,
     val JAVA_VERSION_MINOR: String?,
     val JAVA_VERSION_MAJOR: String?,
     val JAVA_VERSION_BUILD: String?,
     val NODE_VERSION: String?,
-    val DOCKER_VERSION: String?
+    val DOCKER_VERSION: String?*/
 ) {
     val CREATED_AT: Instant =
         try {
@@ -37,7 +37,7 @@ data class ImageMetadata(
 @Service
 class ImageRegistryServiceBlocking(
     private val registryMetadataResolver: RegistryMetadataResolver,
-    @TargetService(ServiceTypes.CANTUS) val webClient2: WebClient,
+    @TargetService(ServiceTypes.CANTUS) val webClient: WebClient,
     val tokenProvider: TokenProvider
 ) {
 
@@ -65,12 +65,6 @@ class ImageRegistryServiceBlocking(
         // time being, though, as it allows for some queries to be significantly quicker than fetching the individual
         // created dates for each tag, and then sort.
         return tagsOrderedByCreatedDate?.reversed() ?: emptyList()
-    }
-
-    fun getManifestForListOfTags(imageRepoDto: ImageRepoDto, listOfTags: List<String>): List<Map<String, String>> {
-        val registryMetadata = registryMetadataResolver.getMetadataForRegistry(imageRepoDto.registry)
-
-        return emptyList()
     }
 
     private fun getImageMetaData(imageRepoDto: ImageRepoDto, tag: String): ImageMetadata? {
@@ -102,7 +96,7 @@ class ImageRegistryServiceBlocking(
     private final inline fun <reified T : Any> getFromCantus(
         apiUrl: String,
         authenticationMethod: AuthenticationMethod
-    ): T? = webClient2
+    ): T? = webClient
         .get()
         .uri(apiUrl)
         .headers {
