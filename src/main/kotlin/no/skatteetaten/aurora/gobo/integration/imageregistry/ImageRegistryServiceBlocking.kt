@@ -56,12 +56,6 @@ class ImageRegistryServiceBlocking(
 
     }
 
-    fun getManifestForListOfTags(imageRepoDto: ImageRepoDto, listOfTags: List<String>): List<Map<String, String>> {
-        val registryMetadata = registryMetadataResolver.getMetadataForRegistry(imageRepoDto.registry)
-
-        return emptyList()
-    }
-
     private fun getImageMetaData(imageRepoDto: ImageRepoDto, tag: String): ImageMetadata? {
         val registryMetadata = registryMetadataResolver.getMetadataForRegistry(imageRepoDto.registry)
 
