@@ -83,5 +83,6 @@ type DeployDetailsResource{
   availableReplicas:Int,
   deployment:String,
   phase:String,
-  deployTag:String
+  deployTag:String,
+  paused:Boolean!
 }

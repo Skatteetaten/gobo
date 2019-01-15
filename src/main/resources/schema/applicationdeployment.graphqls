@@ -9,6 +9,7 @@ type ApplicationDeployment {
   version: Version!
   details: ApplicationDeploymentDetails
   time: DateTime
+  message: String
 }
 
 type StatusCheck {

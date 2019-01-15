@@ -86,12 +86,12 @@ data class ManagementEndpointResponse(
     companion object {
         fun create(resource: ManagementEndpointResponseResource) =
             ManagementEndpointResponse(
-                resource.hasResponse,
-                resource.textResponse,
-                resource.createdAt,
-                resource.httpCode,
-                resource.url,
-                resource.error?.let { ManagementEndpointError(it.code, it.message) }
+                hasResponse = resource.hasResponse,
+                textResponse = resource.textResponse,
+                createdAt = resource.createdAt,
+                httpCode = resource.httpCode,
+                url = resource.url,
+                error = resource.error?.let { ManagementEndpointError(it.code, it.message) }
             )
     }
 }
@@ -140,7 +140,14 @@ data class ApplicationDeploymentDetails(
                     deploymentSpecDeployed = resource.getLink("DeploymentSpecDeployed")?.let { URL(it.href) }
                 ),
                 deployDetails = resource.deployDetails?.let {
-                    DeployDetails(it.targetReplicas, it.availableReplicas, it.deployment, it.phase, it.deployTag)
+                    DeployDetails(
+                        targetReplicas = it.targetReplicas,
+                        availableReplicas = it.availableReplicas,
+                        deployment = it.deployment,
+                        phase = it.phase,
+                        deployTag = it.deployTag,
+                        paused = it.paused
+                    )
                 }
             )
         }
@@ -152,5 +159,6 @@ data class DeployDetails(
     val availableReplicas: Int,
     val deployment: String? = null,
     val phase: String? = null,
-    val deployTag: String? = null
+    val deployTag: String? = null,
+    val paused:Boolean=false
 )

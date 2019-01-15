@@ -9,5 +9,6 @@ query getApplicationDeployment($id: String!) {
                 name
             }
         }
+        message
     }
 }

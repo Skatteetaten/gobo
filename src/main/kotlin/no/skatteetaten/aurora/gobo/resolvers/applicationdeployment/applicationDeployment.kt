@@ -28,7 +28,8 @@ data class ApplicationDeployment(
     val version: Version,
     val dockerImageRepo: String?,
     val time: Instant,
-    val applicationId: String
+    val applicationId: String,
+    val message:String?
 ) {
     companion object {
         fun create(deployment: ApplicationDeploymentResource) =
@@ -39,29 +40,30 @@ data class ApplicationDeployment(
                 environment = deployment.environment,
                 namespaceId = deployment.namespace,
                 status = Status(
-                    deployment.status.code,
-                    "",
-                    deployment.status.reports.map(this::toStatusCheck),
-                    deployment.status.reasons.map(this::toStatusCheck)
+                    code = deployment.status.code,
+                    comment = "",
+                    reports = deployment.status.reports.map(this::toStatusCheck),
+                    reasons = deployment.status.reasons.map(this::toStatusCheck)
                 ),
                 version = Version(
                     // TODO: This is far from ideal and manually adding ImageTag here should be considered a temporary
                     // adjustment. We need to move ImageTag out of version.
-                    ImageTag(ImageRepository("", "", ""), deployment.version.deployTag),
-                    deployment.version.auroraVersion,
-                    deployment.version.releaseTo
+                    deployTag = ImageTag(ImageRepository("", "", ""), deployment.version.deployTag),
+                    auroraVersion = deployment.version.auroraVersion,
+                    releaseTo = deployment.version.releaseTo
                 ),
                 time = deployment.time,
                 dockerImageRepo = deployment.dockerImageRepo,
-                applicationId = deployment.applicationId
+                applicationId = deployment.applicationId,
+                message= deployment.message
             )
 
         private fun toStatusCheck(checkResource: StatusCheckResource) = checkResource.let {
             StatusCheck(
-                it.name,
-                it.description,
-                it.failLevel,
-                it.hasFailed
+                name = it.name,
+                description = it.description,
+                failLevel = it.failLevel,
+                hasFailed = it.hasFailed
             )
         }
     }
