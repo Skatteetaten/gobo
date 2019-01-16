@@ -32,7 +32,7 @@ fun <T : KeyDataLoader<*, V>, V> DataFetchingEnvironment.loader(type: KClass<T>)
 }
 
 fun <T> Mono<T>.blockNonNullAndHandleError(duration: Duration = Duration.ofSeconds(30), sourceSystem: String? = null) =
-    this.switchIfEmpty(SourceSystemException("Empty response").toMono())
+    this.switchIfEmpty(SourceSystemException("Empty response", sourceSystem = sourceSystem).toMono())
         .blockAndHandleError(duration, sourceSystem)!!
 
 fun <T> Mono<T>.blockAndHandleError(duration: Duration = Duration.ofSeconds(30), sourceSystem: String? = null) =
