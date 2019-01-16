@@ -7,7 +7,7 @@ data class ImageRepoDto(val registry: String, val namespace: String, val name: S
         get() = listOf(registry, namespace, name).joinToString("/")
 
     val imageName: String
-        get() = listOf(namespace, name).joinToString("/")
+        get() = "$namespace/$name"
 }
 
 enum class ImageTagType {

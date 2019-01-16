@@ -17,6 +17,7 @@ import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.toImageRepo
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
+import okhttp3.mockwebserver.RecordedRequest
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.http.HttpHeaders
@@ -66,7 +67,7 @@ class ImageRegistryServiceBlockingTest {
             )
         }
 
-        assert(request.path).isEqualTo("/$imageRepoName/tags")
+        assert(request.getRequestPath()).isEqualTo("/$imageRepoName/tags")
         assert(request.headers[HttpHeaders.AUTHORIZATION]).isNull()
     }
 
@@ -84,7 +85,7 @@ class ImageRegistryServiceBlockingTest {
             assert(tags).isNotNull()
         }
 
-        assert(request.path).isEqualTo("/$imageRepoName/tags")
+        assert(request.getRequestPath()).isEqualTo("/$imageRepoName/tags")
         assert(request.headers[HttpHeaders.AUTHORIZATION]).isEqualTo("Bearer token")
     }
 
@@ -99,7 +100,7 @@ class ImageRegistryServiceBlockingTest {
             assert(tag.type).isEqualTo(ImageTagType.MAJOR)
         }
 
-        assert(request.path).isEqualTo("/$imageRepoName/$tagName/manifest")
+        assert(request.getRequestPath()).isEqualTo("/$imageRepoName/$tagName/manifest")
     }
 
     @Test
@@ -108,8 +109,10 @@ class ImageRegistryServiceBlockingTest {
             assert {
                 imageRegistry.findTagByName(imageRepo, tagName)
             }.thrownError {
-                message().isEqualTo("No metadata for tag=$tagName in repo=${imageRepo.repository}")
+                message().isEqualTo("Error in response, status:404 message:Not Found")
             }
         }
     }
+
+    private fun RecordedRequest.getRequestPath() = this.path.replace("%2F", "/")
 }
