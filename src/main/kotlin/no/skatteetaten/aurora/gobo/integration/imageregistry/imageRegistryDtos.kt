@@ -8,7 +8,6 @@ data class ImageRepoDto(val registry: String, val namespace: String, val name: S
 
     val imageName: String
         get() = "$namespace/$name"
-
 }
 
 enum class ImageTagType {
