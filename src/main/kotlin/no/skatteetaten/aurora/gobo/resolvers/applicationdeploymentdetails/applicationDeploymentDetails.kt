@@ -160,5 +160,5 @@ data class DeployDetails(
     val deployment: String? = null,
     val phase: String? = null,
     val deployTag: String? = null,
-    val paused:Boolean=false
+    val paused: Boolean = false
 )
