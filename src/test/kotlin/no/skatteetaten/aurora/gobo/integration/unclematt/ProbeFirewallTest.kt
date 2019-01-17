@@ -34,7 +34,7 @@ class ProbeFireWallTest {
                 probeService.probeFirewall("server.test.no", 9999)
             }
         }
-        assert(exception).isNotNull {t ->
+        assert(exception).isNotNull { t ->
             t.isInstanceOf(SourceSystemException::class)
             t.message().isNotNull {
                 it.contains("404")
