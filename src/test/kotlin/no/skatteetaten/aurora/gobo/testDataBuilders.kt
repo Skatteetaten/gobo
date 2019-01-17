@@ -77,7 +77,8 @@ val healthResponseJson: String = """{"status": "UP"}"""
 data class ApplicationDeploymentResourceBuilder(
     val affiliation: String = "paas",
     val id: String = "id",
-    val msg:String="foo") {
+    val msg: String = "foo"
+) {
     fun build(): ApplicationDeploymentResource =
         ApplicationDeploymentResource(
             identifier = id,
