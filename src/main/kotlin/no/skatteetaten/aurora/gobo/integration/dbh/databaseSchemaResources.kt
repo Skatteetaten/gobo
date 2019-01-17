@@ -19,8 +19,17 @@ data class DatabaseSchemaResource(
     val jdbcUrl: String,
     val name: String,
     val createdDate: Instant,
-    val lastUsedDate: Instant,
+    val lastUsedDate: Instant?,
     val databaseInstance: DatabaseInstanceResource,
     val users: List<DatabaseUserResource>,
-    val metadata: DatabaseMetadataResource
-)
+    val metadata: DatabaseMetadataResource,
+    val labels: Map<String, String>
+) {
+    val affiliation: String
+        get() = labels.filter { it.key == "affiliation" }.map { it.value }.first()
+
+    val createdBy: String
+        get() = labels.filter { it.key == "userId" }.map { it.value }.first()
+
+    fun containsRequiredLabels() = labels.containsKey("affiliation") && labels.containsKey("userId")
+}

@@ -5,8 +5,8 @@ import no.skatteetaten.aurora.gobo.TargetService
 import no.skatteetaten.aurora.gobo.createObjectMapper
 import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
-import no.skatteetaten.aurora.gobo.resolvers.blockNonNullAndHandleError
-import org.springframework.beans.factory.annotation.Value
+import no.skatteetaten.aurora.gobo.resolvers.blockAndHandleError
+import no.skatteetaten.aurora.gobo.security.SharedSecretReader
 import org.springframework.http.HttpHeaders
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
@@ -17,7 +17,7 @@ import java.time.Duration
 
 @Service
 class DatabaseSchemaService(
-    @Value("\${dbh.token}") private val token: String,
+    private val sharedSecretReader: SharedSecretReader,
     @TargetService(ServiceTypes.DBH) private val webClient: WebClient
 ) {
 
@@ -27,7 +27,7 @@ class DatabaseSchemaService(
             .uri {
                 it.path("/api/v1/schema/").queryParam("labels", "affiliation=$affiliation").build()
             }
-            .header(HttpHeaders.AUTHORIZATION, "aurora-token $token")
+            .header(HttpHeaders.AUTHORIZATION, "aurora-token ${sharedSecretReader.secret}")
             .retrieve()
             .bodyToMono()
 
@@ -38,23 +38,25 @@ class DatabaseSchemaService(
         val response: Mono<Response<DatabaseSchemaResource>> = webClient
             .get()
             .uri("/api/v1/schema/$id")
-            .header(HttpHeaders.AUTHORIZATION, "aurora-token $token")
+            .header(HttpHeaders.AUTHORIZATION, "aurora-token ${sharedSecretReader.secret}")
             .retrieve()
             .bodyToMono()
 
         return response.items()
     }
 
-    private inline fun <reified T> Mono<Response<T>>.items() =
+    private fun Mono<Response<DatabaseSchemaResource>>.items() =
         this.flatMap { r ->
             if (!r.success) SourceSystemException(message = r.message, sourceSystem = "dbh").toMono()
             else if (r.count == 0) Mono.empty()
             else r.items.map { item ->
                 createObjectMapper().convertValue(
                     item,
-                    T::class.java
+                    DatabaseSchemaResource::class.java
                 )
-            }.toMono<List<T>>()
+            }.filter { dbSchema ->
+                dbSchema.containsRequiredLabels()
+            }.toMono<List<DatabaseSchemaResource>>()
         }
 }
 
@@ -62,11 +64,11 @@ class DatabaseSchemaService(
 class DatabaseSchemaServiceBlocking(private val databaseSchemaService: DatabaseSchemaService) {
 
     fun getDatabaseSchemas(affiliation: String) =
-        databaseSchemaService.getDatabaseSchemas(affiliation).blockNonNullWithTimeout()
+        databaseSchemaService.getDatabaseSchemas(affiliation).blockWithTimeout() ?: emptyList()
 
     fun getDatabaseSchema(id: String) =
-        databaseSchemaService.getDatabaseSchema(id).blockNonNullWithTimeout()
+        databaseSchemaService.getDatabaseSchema(id).blockWithTimeout() ?: emptyList()
 
-    private fun <T> Mono<T>.blockNonNullWithTimeout() =
-        this.blockNonNullAndHandleError(Duration.ofSeconds(30), "dbh")
+    private fun <T> Mono<T>.blockWithTimeout() =
+        this.blockAndHandleError(Duration.ofSeconds(30), "dbh")
 }

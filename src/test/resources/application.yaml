@@ -10,8 +10,9 @@ gobo:
   dbh:
     url: http://localhost:6567
 
-dbh:
-  token: abc123
+aurora:
+  token:
+    value: abc123
 
 openshift:
   cluster: http://localhost

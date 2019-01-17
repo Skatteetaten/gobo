@@ -9,18 +9,24 @@ import assertk.assertions.isInstanceOf
 import assertk.assertions.isNotNull
 import assertk.assertions.message
 import assertk.catch
+import io.mockk.every
+import io.mockk.mockk
 import no.skatteetaten.aurora.gobo.DatabaseSchemaResourceBuilder
 import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.integration.execute
+import no.skatteetaten.aurora.gobo.security.SharedSecretReader
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.jupiter.api.Test
 import org.springframework.web.reactive.function.client.WebClient.create
 
 class DatabaseSchemaServiceBlockingTest {
     private val server = MockWebServer()
+    private val sharedSecretReader = mockk<SharedSecretReader> {
+        every { secret } returns "abc123"
+    }
     private val databaseSchemaService =
-        DatabaseSchemaServiceBlocking(DatabaseSchemaService("abc123", create(server.url("/").toString())))
+        DatabaseSchemaServiceBlocking(DatabaseSchemaService(sharedSecretReader, create(server.url("/").toString())))
 
     @Test
     fun `Get database schemas given affiliation`() {

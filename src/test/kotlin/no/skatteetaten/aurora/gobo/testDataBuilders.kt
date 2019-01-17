@@ -296,6 +296,11 @@ class DatabaseSchemaResourceBuilder() {
             lastUsedDate = Instant.now(),
             databaseInstance = DatabaseInstanceResource(engine = "ORACLE"),
             users = listOf(DatabaseUserResource("username", "password", "SCHEMA")),
-            metadata = DatabaseMetadataResource(sizeInMb = 0.25)
+            metadata = DatabaseMetadataResource(sizeInMb = 0.25),
+            labels = mapOf(
+                "affiliation" to "aurora",
+                "createdBy" to "abc123",
+                "userId" to "abc123"
+            )
         )
 }

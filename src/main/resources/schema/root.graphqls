@@ -2,7 +2,7 @@ scalar DateTime
 scalar URL
 
 type Query {
-  affiliations(checkForVisibility: Boolean): AffiliationsConnection
+  affiliations(name: String, checkForVisibility: Boolean): AffiliationsConnection
 
   applications(affiliations: [String!]!, applications: [String!]): ApplicationsConnection
 
@@ -17,6 +17,8 @@ type Query {
   scan(host: String!, port: Int = 80): Scan
 
   userSettings: UserSettings
+
+  databaseSchemas(affiliations: [String!]!): [DatabaseSchema!]
 }
 
 type Mutation {

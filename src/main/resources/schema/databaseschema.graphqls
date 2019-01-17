@@ -14,7 +14,7 @@ type DatabaseSchema {
   applicationDeployment: ApplicationDeployment,
   createdBy: String!,
   createdDate: DateTime!,
-  lastUsedDate: DateTime!,
+  lastUsedDate: DateTime,
   sizeInMb: Float!,
   users: [DatabaseUser]!
 }

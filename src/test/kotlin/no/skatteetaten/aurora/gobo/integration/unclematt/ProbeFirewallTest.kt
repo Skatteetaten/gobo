@@ -1,9 +1,12 @@
 package no.skatteetaten.aurora.gobo.integration.unclematt
 
 import assertk.assert
-import assertk.assertions.hasMessageContaining
+import assertk.assertions.contains
 import assertk.assertions.isEqualTo
 import assertk.assertions.isInstanceOf
+import assertk.assertions.isNotNull
+import assertk.assertions.message
+import assertk.catch
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.integration.execute
 import okhttp3.mockwebserver.MockWebServer
@@ -26,13 +29,16 @@ class ProbeFireWallTest {
 
     @Test
     fun `throws correct exception when backend returns 404`() {
-        assert {
+        val exception = catch {
             server.execute(404, "") {
                 probeService.probeFirewall("server.test.no", 9999)
             }
-        }.thrownError {
-            isInstanceOf(SourceSystemException::class)
-            hasMessageContaining("404")
+        }
+        assert(exception).isNotNull {t ->
+            t.isInstanceOf(SourceSystemException::class)
+            t.message().isNotNull {
+                it.contains("404")
+            }
         }
     }
 }
