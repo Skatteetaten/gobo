@@ -19,6 +19,8 @@ type Query {
   userSettings: UserSettings
 
   databaseSchemas(affiliations: [String!]!): [DatabaseSchema!]
+
+  databaseSchema(id: String!): DatabaseSchema
 }
 
 type Mutation {

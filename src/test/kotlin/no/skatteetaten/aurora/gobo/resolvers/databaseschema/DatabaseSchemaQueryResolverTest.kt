@@ -26,6 +26,9 @@ class DatabaseSchemaQueryResolverTest {
     @Value("classpath:graphql/getDatabaseSchemasWithAffiliation.graphql")
     private lateinit var getDatabaseSchemasWithAffiliationQuery: Resource
 
+    @Value("classpath:graphql/getDatabaseSchemaWithId.graphql")
+    private lateinit var getDatabaseSchemaWithIdQuery: Resource
+
     @Autowired
     private lateinit var webTestClient: WebTestClient
 
@@ -39,6 +42,9 @@ class DatabaseSchemaQueryResolverTest {
     fun setUp() {
         given(databaseSchemaService.getDatabaseSchemas("paas"))
             .willReturn(listOf(DatabaseSchemaResourceBuilder().build()))
+
+        given(databaseSchemaService.getDatabaseSchema("myDbId"))
+            .willReturn(DatabaseSchemaResourceBuilder().build())
 
         given(openShiftUserLoader.findOpenShiftUserByToken(anyString()))
             .willReturn(OpenShiftUserBuilder().build())
@@ -69,9 +75,31 @@ class DatabaseSchemaQueryResolverTest {
         )
             .expectStatus().isOk
             .expectBody()
-        .jsonPath("$databaseSchemasPath.length()").isEqualTo(1)
-        .jsonPath("$databaseSchemasPath[0].databaseEngine").isEqualTo("ORACLE")
-        .jsonPath("$databaseSchemasPath[0].affiliation.name").isEqualTo("paas")
-        .jsonPath("$databaseSchemasPath[0].createdBy").isEqualTo("abc123")
+            .jsonPath("$databaseSchemasPath.length()").isEqualTo(1)
+            .jsonPath("$databaseSchemasPath[0].databaseEngine").isEqualTo("ORACLE")
+            .jsonPath("$databaseSchemasPath[0].affiliation.name").isEqualTo("paas")
+            .jsonPath("$databaseSchemasPath[0].createdBy").isEqualTo("abc123")
+    }
+
+    @Test
+    fun `Query for database schema given no id`() {
+        webTestClient.queryGraphQL(queryResource = getDatabaseSchemaWithIdQuery, token = "test-token")
+            .expectStatus().isOk
+            .expectBody()
+            .jsonPath("$.data.databaseSchema.databaseEngine").doesNotExist()
+            .jsonPath("$.errors.length()").isEqualTo(1)
+    }
+
+    @Test
+    fun `Query for database schema given id`() {
+        val variables = mapOf("id" to "myDbId")
+        webTestClient.queryGraphQL(
+            queryResource = getDatabaseSchemaWithIdQuery,
+            variables = variables,
+            token = "test-token"
+        )
+            .expectStatus().isOk
+            .expectBody()
+            .jsonPath("$.data.databaseSchema.databaseEngine").isEqualTo("ORACLE")
     }
 }

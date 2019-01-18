@@ -21,6 +21,13 @@ class DatabaseSchemaQueryResolver(private val databaseSchemaService: DatabaseSch
                 .map { DatabaseSchema.create(it, Affiliation(affiliation)) }
         }
     }
+
+    fun databaseSchema(id: String, dfe: DataFetchingEnvironment): DatabaseSchema? {
+        if (dfe.isAnonymousUser()) throw AccessDeniedException("Anonymous user cannot get database schema")
+
+        val databaseSchema = databaseSchemaService.getDatabaseSchema(id) ?: return null
+        return DatabaseSchema.create(databaseSchema, Affiliation(databaseSchema.affiliation))
+    }
 }
 
 @Component

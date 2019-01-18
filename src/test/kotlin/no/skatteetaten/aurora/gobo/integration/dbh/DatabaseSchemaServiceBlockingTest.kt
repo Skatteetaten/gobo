@@ -56,7 +56,7 @@ class DatabaseSchemaServiceBlockingTest {
         val response = Response(items = listOf(DatabaseSchemaResourceBuilder().build()))
         val request = server.execute(response) {
             val databaseSchema = databaseSchemaService.getDatabaseSchema("abc123")
-            assert(databaseSchema).hasSize(1)
+            assert(databaseSchema).isNotNull()
         }
         assert(request.path).endsWith("/abc123")
     }

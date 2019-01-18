@@ -34,7 +34,7 @@ class DatabaseSchemaService(
         return response.items()
     }
 
-    fun getDatabaseSchema(id: String): Mono<List<DatabaseSchemaResource>> {
+    fun getDatabaseSchema(id: String): Mono<DatabaseSchemaResource> {
         val response: Mono<Response<DatabaseSchemaResource>> = webClient
             .get()
             .uri("/api/v1/schema/$id")
@@ -42,7 +42,9 @@ class DatabaseSchemaService(
             .retrieve()
             .bodyToMono()
 
-        return response.items()
+        return response.items().flatMap {
+            it.first().toMono()
+        }
     }
 
     private fun Mono<Response<DatabaseSchemaResource>>.items() =
@@ -67,7 +69,7 @@ class DatabaseSchemaServiceBlocking(private val databaseSchemaService: DatabaseS
         databaseSchemaService.getDatabaseSchemas(affiliation).blockWithTimeout() ?: emptyList()
 
     fun getDatabaseSchema(id: String) =
-        databaseSchemaService.getDatabaseSchema(id).blockWithTimeout() ?: emptyList()
+        databaseSchemaService.getDatabaseSchema(id).blockWithTimeout()
 
     private fun <T> Mono<T>.blockWithTimeout(): T? =
         this.blockAndHandleError(Duration.ofSeconds(30), "dbh")
