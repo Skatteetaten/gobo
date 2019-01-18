@@ -284,7 +284,7 @@ data class ApplicationDeploymentFilterResourceBuilder(val affiliation: String = 
         )
 }
 
-class DatabaseSchemaResourceBuilder() {
+class DatabaseSchemaResourceBuilder {
 
     fun build() =
         DatabaseSchemaResource(
@@ -299,7 +299,6 @@ class DatabaseSchemaResourceBuilder() {
             metadata = DatabaseMetadataResource(sizeInMb = 0.25),
             labels = mapOf(
                 "affiliation" to "aurora",
-                "createdBy" to "abc123",
                 "userId" to "abc123"
             )
         )

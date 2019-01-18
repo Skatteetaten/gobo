@@ -69,6 +69,6 @@ class DatabaseSchemaServiceBlocking(private val databaseSchemaService: DatabaseS
     fun getDatabaseSchema(id: String) =
         databaseSchemaService.getDatabaseSchema(id).blockWithTimeout() ?: emptyList()
 
-    private fun <T> Mono<T>.blockWithTimeout() =
+    private fun <T> Mono<T>.blockWithTimeout(): T? =
         this.blockAndHandleError(Duration.ofSeconds(30), "dbh")
 }

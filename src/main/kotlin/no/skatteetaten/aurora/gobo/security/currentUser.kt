@@ -19,6 +19,8 @@ fun DataFetchingEnvironment.currentUser(): User {
     return request.currentUser()
 }
 
+fun DataFetchingEnvironment.isAnonymousUser() = this.currentUser() == ANONYMOUS_USER
+
 fun HttpServletRequest.currentUser(): User {
     val authentication = this.userPrincipal ?: return ANONYMOUS_USER
     return when (authentication) {

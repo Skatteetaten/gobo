@@ -59,7 +59,7 @@ class ApplicationDeploymentDetailsResolverTest {
     fun tearDown() = reset(applicationServiceBlocking, openShiftUserLoader)
 
     @Test
-    fun `Query for deployments and pod statlus`() {
+    fun `Query for deployments and pod status`() {
         webTestClient.queryGraphQL(queryResource = getRepositoriesAndTagsQuery, token = "test-token")
             .expectStatus().isOk
             .expectBody(QueryResponse.Response::class.java)
