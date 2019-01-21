@@ -19,7 +19,11 @@ query getApplications($affiliations: [String!]!) {
             }
             details {
               buildTime
+              deployDetails {
+                 paused
+              }
             }
+
           }
         }
       }

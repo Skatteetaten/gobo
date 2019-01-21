@@ -57,9 +57,9 @@ class ApplicationQueryResolverTest {
 
         given(permissionService.getPermission(anyString(), anyString())).willReturn(
             AuroraNamespacePermissions(
-                true,
-                true,
-                "namespace"
+                view = true,
+                admin = true,
+                namespace = "namespace"
             ).toMono()
         )
 
@@ -75,5 +75,6 @@ class ApplicationQueryResolverTest {
             .jsonPath("$firstApplicationDeployment.namespace.name").isNotEmpty
             .jsonPath("$firstApplicationDeployment.namespace.permission.paas.admin").isNotEmpty
             .jsonPath("$firstApplicationDeployment.details.buildTime").isNotEmpty
+            .jsonPath("$firstApplicationDeployment.details.deployDetails.paused").isEqualTo(false)
     }
 }
