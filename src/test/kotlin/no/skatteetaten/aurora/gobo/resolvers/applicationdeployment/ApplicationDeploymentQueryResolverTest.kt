@@ -38,7 +38,7 @@ class ApplicationDeploymentQueryResolverTest {
         given(openShiftUserLoader.findOpenShiftUserByToken(anyString()))
             .willReturn(OpenShiftUserBuilder().build())
         given(applicationService.getApplicationDeployment(anyString())).willReturn(
-            ApplicationDeploymentResourceBuilder(id = "123").build()
+            ApplicationDeploymentResourceBuilder(id = "123", msg = "Hei").build()
         )
     }
 
@@ -54,5 +54,6 @@ class ApplicationDeploymentQueryResolverTest {
             .jsonPath("$.data.applicationDeployment.id").isEqualTo("123")
             .jsonPath("$.data.applicationDeployment.status.reports").exists()
             .jsonPath("$.data.applicationDeployment.status.reasons").exists()
+            .jsonPath("$.data.applicationDeployment.message").exists()
     }
 }

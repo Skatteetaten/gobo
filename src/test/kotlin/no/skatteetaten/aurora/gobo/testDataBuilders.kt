@@ -76,7 +76,11 @@ val envResponseJson = """{
 @Language("JSON")
 val healthResponseJson: String = """{"status": "UP"}"""
 
-data class ApplicationDeploymentResourceBuilder(val affiliation: String = "paas", val id: String = "id") {
+data class ApplicationDeploymentResourceBuilder(
+    val affiliation: String = "paas",
+    val id: String = "id",
+    val msg: String = "foo"
+) {
     fun build(): ApplicationDeploymentResource =
         ApplicationDeploymentResource(
             identifier = id,
@@ -87,7 +91,8 @@ data class ApplicationDeploymentResourceBuilder(val affiliation: String = "paas"
             status = StatusResource("code", "", listOf(), listOf()),
             version = VersionResource("deployTag", "auroraVersion", "releaseTo"),
             dockerImageRepo = "dockerImageRepo",
-            time = Instant.EPOCH
+            time = Instant.EPOCH,
+            message = msg
         ).apply {
             add(Link("http://ApplicationDeploymentDetails/1", "ApplicationDeploymentDetails"))
             add(Link("http://Application/1", "Application"))
@@ -98,13 +103,16 @@ data class ApplicationResourceBuilder(val name: String = "name") {
 
     fun build(): ApplicationResource =
         ApplicationResource(
-            "id",
-            name,
-            listOf(ApplicationDeploymentResourceBuilder().build())
+            identifier = "id",
+            name = name,
+            applicationDeployments = listOf(ApplicationDeploymentResourceBuilder().build())
         )
 }
 
-data class ApplicationDeploymentBuilder(val affiliation: String = "paas") {
+data class ApplicationDeploymentBuilder(
+    val affiliation: String = "paas",
+    val message: String? = null
+) {
 
     fun build(): ApplicationDeployment =
         ApplicationDeployment(
@@ -117,11 +125,15 @@ data class ApplicationDeploymentBuilder(val affiliation: String = "paas") {
             version = Version(ImageTag(ImageRepository("", "", ""), "deployTag", ImageTagType.typeOf("deployTag")), "auroraVersion", "releaseTo"),
             dockerImageRepo = "dockerImageRepo",
             time = defaultInstant,
-            applicationId = "appId"
+            applicationId = "appId",
+            message = message
         )
 }
 
-data class ApplicationDeploymentDetailsBuilder(val resourceLinks: List<Link> = emptyList()) {
+data class ApplicationDeploymentDetailsBuilder(
+    val resourceLinks: List<Link> = emptyList(),
+    val pause: Boolean = false
+) {
 
     fun build() =
         ApplicationDeploymentDetailsResource(
@@ -137,7 +149,8 @@ data class ApplicationDeploymentDetailsBuilder(val resourceLinks: List<Link> = e
                 availableReplicas = 1,
                 deployment = "deployment-1",
                 phase = "Complete",
-                deployTag = "foobar"
+                deployTag = "foobar",
+                paused = pause
             ),
             podResources = listOf(
                 PodResourceResource(

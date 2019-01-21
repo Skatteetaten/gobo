@@ -51,7 +51,8 @@ data class DeployDetailsResource(
     val availableReplicas: Int,
     val deployment: String? = null,
     val phase: String? = null,
-    val deployTag: String? = null
+    val deployTag: String? = null,
+    val paused: Boolean = false
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -124,7 +125,8 @@ data class ApplicationDeploymentResource(
     val status: StatusResource,
     val version: VersionResource,
     val dockerImageRepo: String?,
-    val time: Instant
+    val time: Instant,
+    val message: String?
 ) : ResourceSupport() {
 
     private val APPLICATION_REL = "Application"
