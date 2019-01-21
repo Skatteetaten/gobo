@@ -5,6 +5,7 @@ query getDatabaseSchemas($affiliations: [String!]!) {
             name
         }
         name
+        appDbName
         databaseEngine
         applicationDeployment {
             id

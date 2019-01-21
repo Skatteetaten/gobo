@@ -299,7 +299,8 @@ class DatabaseSchemaResourceBuilder {
             metadata = DatabaseMetadataResource(sizeInMb = 0.25),
             labels = mapOf(
                 "affiliation" to "aurora",
-                "userId" to "abc123"
+                "userId" to "abc123",
+                "name" to "referanse"
             )
         )
 }

@@ -31,5 +31,9 @@ data class DatabaseSchemaResource(
     val createdBy: String
         get() = labels.filter { it.key == "userId" }.map { it.value }.first()
 
-    fun containsRequiredLabels() = labels.containsKey("affiliation") && labels.containsKey("userId")
+    val appDbName: String
+        get() = labels.filter { it.key == "name" }.map { it.value }.first()
+
+    fun containsRequiredLabels() =
+        labels.containsKey("affiliation") && labels.containsKey("userId") && labels.containsKey("name")
 }
