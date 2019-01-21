@@ -40,8 +40,8 @@ data class DatabaseSchema(
                 databaseEngine = databaseSchema.databaseInstance.engine,
                 applicationDeployment = null,
                 createdBy = databaseSchema.createdBy,
-                createdDate = databaseSchema.createdDate,
-                lastUsedDate = databaseSchema.lastUsedDate,
+                createdDate = databaseSchema.createdDateAsInstant(),
+                lastUsedDate = databaseSchema.lastUsedDateAsInstant(),
                 sizeInMb = databaseSchema.metadata.sizeInMb,
                 users = databaseSchema.users.map { DatabaseUser.create(it) }
             )

@@ -284,7 +284,10 @@ data class ApplicationDeploymentFilterResourceBuilder(val affiliation: String = 
         )
 }
 
-class DatabaseSchemaResourceBuilder {
+data class DatabaseSchemaResourceBuilder(
+    val createdDate: Long = Instant.now().toEpochMilli(),
+    val lastUsedDate: Long? = Instant.now().toEpochMilli()
+) {
 
     fun build() =
         DatabaseSchemaResource(
@@ -292,8 +295,8 @@ class DatabaseSchemaResourceBuilder {
             type = "MANAGED",
             jdbcUrl = "jdbc:oracle:thin:@localhost:1521/db",
             name = "name",
-            createdDate = Instant.now(),
-            lastUsedDate = Instant.now(),
+            createdDate = createdDate,
+            lastUsedDate = lastUsedDate,
             databaseInstance = DatabaseInstanceResource(engine = "ORACLE"),
             users = listOf(DatabaseUserResource("username", "password", "SCHEMA")),
             metadata = DatabaseMetadataResource(sizeInMb = 0.25),

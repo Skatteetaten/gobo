@@ -18,8 +18,8 @@ data class DatabaseSchemaResource(
     val type: String,
     val jdbcUrl: String,
     val name: String,
-    val createdDate: Instant,
-    val lastUsedDate: Instant?,
+    val createdDate: Long,
+    val lastUsedDate: Long?,
     val databaseInstance: DatabaseInstanceResource,
     val users: List<DatabaseUserResource>,
     val metadata: DatabaseMetadataResource,
@@ -33,6 +33,13 @@ data class DatabaseSchemaResource(
 
     val appDbName: String
         get() = labels.filter { it.key == "name" }.map { it.value }.first()
+
+    fun createdDateAsInstant(): Instant = Instant.ofEpochMilli(createdDate)
+
+    fun lastUsedDateAsInstant(): Instant? =
+        lastUsedDate?.let {
+            return Instant.ofEpochMilli(it)
+        }
 
     fun containsRequiredLabels() =
         labels.containsKey("affiliation") && labels.containsKey("userId") && labels.containsKey("name")
