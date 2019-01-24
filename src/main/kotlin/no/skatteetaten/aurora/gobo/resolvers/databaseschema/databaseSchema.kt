@@ -37,7 +37,7 @@ data class DatabaseSchema(
                 jdbcUrl = databaseSchema.jdbcUrl,
                 name = databaseSchema.name,
                 discriminator = databaseSchema.discriminator,
-                description =  databaseSchema.description,
+                description = databaseSchema.description,
                 affiliation = affiliation,
                 databaseEngine = databaseSchema.databaseInstance.engine,
                 applicationDeployment = null,
