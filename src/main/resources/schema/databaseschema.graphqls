@@ -11,6 +11,7 @@ type DatabaseSchema {
   affiliation: Affiliation!,
   name: String!,
   appDbName: String!,
+  description: String,
   databaseEngine: String!,
   applicationDeployment: ApplicationDeployment,
   createdBy: String!,

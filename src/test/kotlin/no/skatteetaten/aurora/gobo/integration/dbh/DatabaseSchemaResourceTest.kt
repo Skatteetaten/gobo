@@ -18,6 +18,7 @@ class DatabaseSchemaResourceTest {
         assert(databaseSchemaResource.affiliation).isEqualTo("aurora")
         assert(databaseSchemaResource.createdBy).isEqualTo("abc123")
         assert(databaseSchemaResource.appDbName).isEqualTo("referanse")
+        assert(databaseSchemaResource.description).isEqualTo("my database schema")
     }
 
     @Test

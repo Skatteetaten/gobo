@@ -6,6 +6,7 @@ query getDatabaseSchema($id: String!) {
         }
         name
         appDbName
+        description
         databaseEngine
         applicationDeployment {
             id

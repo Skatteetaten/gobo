@@ -316,7 +316,8 @@ data class DatabaseSchemaResourceBuilder(
             labels = mapOf(
                 "affiliation" to "aurora",
                 "userId" to "abc123",
-                "name" to "referanse"
+                "name" to "referanse",
+                "description" to "my database schema"
             )
         )
 }

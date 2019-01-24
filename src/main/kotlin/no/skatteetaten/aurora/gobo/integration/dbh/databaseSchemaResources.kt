@@ -34,6 +34,9 @@ data class DatabaseSchemaResource(
     val appDbName: String
         get() = labels.filter { it.key == "name" }.map { it.value }.first()
 
+    val description: String?
+        get() = labels.filter { it.key == "description" }.map { it.value }.firstOrNull()
+
     fun createdDateAsInstant(): Instant = Instant.ofEpochMilli(createdDate)
 
     fun lastUsedDateAsInstant(): Instant? =
