@@ -1,0 +1,3 @@
+mutation updateDatabaseSchema($input: DatabaseSchemaInput!){
+    updateDatabaseSchema(input: $input)
+}
