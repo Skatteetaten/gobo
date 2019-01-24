@@ -7,6 +7,12 @@ gobo:
     url: http://localhost:6565
   unclematt:
     url: http://localhost:6566
+  dbh:
+    url: http://localhost:6567
+
+aurora:
+  token:
+    value: abc123
 
 openshift:
   cluster: http://localhost

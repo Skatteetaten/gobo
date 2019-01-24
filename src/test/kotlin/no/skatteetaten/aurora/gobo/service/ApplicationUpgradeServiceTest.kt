@@ -1,17 +1,19 @@
 package no.skatteetaten.aurora.gobo.service
 
 import assertk.assert
-import assertk.assertions.hasMessageContaining
+import assertk.assertions.contains
 import assertk.assertions.isEqualTo
 import assertk.assertions.isInstanceOf
+import assertk.assertions.isNotNull
+import assertk.assertions.message
 import com.fasterxml.jackson.databind.node.TextNode
 import no.skatteetaten.aurora.gobo.ApplicationConfig
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentDetailsBuilder
 import no.skatteetaten.aurora.gobo.AuroraConfigFileBuilder
+import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigService
 import no.skatteetaten.aurora.gobo.integration.boober.BooberWebClient
-import no.skatteetaten.aurora.gobo.integration.boober.Response
 import no.skatteetaten.aurora.gobo.integration.execute
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
@@ -28,7 +30,7 @@ class ApplicationUpgradeServiceTest {
     private val server = MockWebServer()
     private val url = server.url("/")
 
-    private val config = ApplicationConfig("${url}mokey", "${url}unclematt", 500, 500)
+    private val config = ApplicationConfig("${url}mokey", "${url}unclematt", "${url}dbh", 500, 500)
 
     private val auroraConfigService = AuroraConfigService(BooberWebClient("${url}boober", config.webClientBoober()))
     private val applicationService = ApplicationServiceBlocking(ApplicationService(config.webClientMokey()))
@@ -80,8 +82,10 @@ class ApplicationUpgradeServiceTest {
         }.thrownError {
             server.takeRequest()
             isInstanceOf(SourceSystemException::class)
-            hasMessageContaining("404")
-            hasMessageContaining("Not Found")
+            message().isNotNull {
+                it.contains("404")
+                it.contains("Not Found")
+            }
         }
     }
 

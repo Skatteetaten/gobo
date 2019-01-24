@@ -1,0 +1,21 @@
+type DatabaseUser {
+  username: String!,
+  password: String!,
+  type: String!
+}
+
+type DatabaseSchema {
+  id: String!,
+  type: String!,
+  jdbcUrl: String!,
+  affiliation: Affiliation!,
+  name: String!,
+  appDbName: String!,
+  databaseEngine: String!,
+  applicationDeployment: ApplicationDeployment,
+  createdBy: String!,
+  createdDate: DateTime!,
+  lastUsedDate: DateTime,
+  sizeInMb: Float!,
+  users: [DatabaseUser]!
+}

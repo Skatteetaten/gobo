@@ -5,6 +5,10 @@ import io.fabric8.openshift.api.model.User
 import no.skatteetaten.aurora.gobo.integration.boober.ApplicationDeploymentFilterResource
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileResource
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileType
+import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseInstanceResource
+import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseMetadataResource
+import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseSchemaResource
+import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseUserResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentCommandResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentDetailsResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentRefResource
@@ -290,5 +294,29 @@ data class ApplicationDeploymentFilterResourceBuilder(val affiliation: String = 
             affiliation = affiliation,
             applications = listOf("app1", "app2"),
             environments = listOf("env1", "env2")
+        )
+}
+
+data class DatabaseSchemaResourceBuilder(
+    val createdDate: Long = Instant.now().toEpochMilli(),
+    val lastUsedDate: Long? = Instant.now().toEpochMilli()
+) {
+
+    fun build() =
+        DatabaseSchemaResource(
+            id = "123",
+            type = "MANAGED",
+            jdbcUrl = "jdbc:oracle:thin:@localhost:1521/db",
+            name = "name",
+            createdDate = createdDate,
+            lastUsedDate = lastUsedDate,
+            databaseInstance = DatabaseInstanceResource(engine = "ORACLE"),
+            users = listOf(DatabaseUserResource("username", "password", "SCHEMA")),
+            metadata = DatabaseMetadataResource(sizeInMb = 0.25),
+            labels = mapOf(
+                "affiliation" to "aurora",
+                "userId" to "abc123",
+                "name" to "referanse"
+            )
         )
 }
