@@ -31,7 +31,7 @@ data class DatabaseSchemaResource(
     val createdBy: String
         get() = labels.filter { it.key == "userId" }.map { it.value }.first()
 
-    val appDbName: String
+    val discriminator: String
         get() = labels.filter { it.key == "name" }.map { it.value }.first()
 
     val description: String?

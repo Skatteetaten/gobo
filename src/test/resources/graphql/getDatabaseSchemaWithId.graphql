@@ -5,7 +5,7 @@ query getDatabaseSchema($id: String!) {
             name
         }
         name
-        appDbName
+        discriminator
         description
         databaseEngine
         applicationDeployment {

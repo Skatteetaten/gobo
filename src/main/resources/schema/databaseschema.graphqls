@@ -10,7 +10,7 @@ type DatabaseSchema {
   jdbcUrl: String!,
   affiliation: Affiliation!,
   name: String!,
-  appDbName: String!,
+  discriminator: String!,
   description: String,
   databaseEngine: String!,
   applicationDeployment: ApplicationDeployment,
