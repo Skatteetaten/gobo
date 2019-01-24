@@ -26,4 +26,7 @@ input DatabaseSchemaInput {
   userId: String!
   description: String
   id: String!
+  affiliation: String!
+  environment: String!
+  application: String!
 }

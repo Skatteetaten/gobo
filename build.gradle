@@ -81,7 +81,8 @@ dependencies {
       'com.willowtreeapps.assertk:assertk-jvm:0.12',
       'org.springframework.cloud:spring-cloud-starter-contract-stub-runner',
       'org.springframework.security:spring-security-test',
-      'io.projectreactor:reactor-test'
+      'io.projectreactor:reactor-test',
+      'com.nhaarman:mockito-kotlin:1.6.0'
   ].each { testCompile(it) { 
     exclude group: 'junit'
   }}

@@ -55,8 +55,21 @@ data class DatabaseSchemaInput(
     val discriminator: String,
     val userId: String,
     val description: String,
-    val id: String
+    val id: String,
+    val affiliation: String,
+    val application: String,
+    val environment: String
 ) {
     fun toSchemaCreationRequest() =
-        SchemaCreationRequest(id, mapOf("description" to description, "name" to discriminator, "userId" to userId))
+        SchemaCreationRequest(
+            id,
+            mapOf(
+                "description" to description,
+                "name" to discriminator,
+                "userId" to userId,
+                "affiliation" to affiliation,
+                "application" to application,
+                "environment" to environment
+            )
+        )
 }

@@ -9,6 +9,7 @@ import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseInstanceResource
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseMetadataResource
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseSchemaResource
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseUserResource
+import no.skatteetaten.aurora.gobo.integration.dbh.SchemaCreationRequest
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentCommandResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentDetailsResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentRefResource
@@ -320,4 +321,10 @@ data class DatabaseSchemaResourceBuilder(
                 "description" to "my database schema"
             )
         )
+}
+
+data class SchemaCreationRequestBuilder(val id: String = "123") {
+
+    fun build() =
+        SchemaCreationRequest(id, emptyMap(), "username")
 }

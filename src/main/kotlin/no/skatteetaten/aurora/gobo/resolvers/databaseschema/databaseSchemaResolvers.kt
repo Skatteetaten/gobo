@@ -32,10 +32,10 @@ class DatabaseSchemaQueryResolver(private val databaseSchemaService: DatabaseSch
 }
 
 @Component
-class DatabaseSchemaMutation(private val databaseSchemaService: DatabaseSchemaServiceBlocking) : GraphQLMutationResolver {
-    fun updateDatabaseSchema(input: DatabaseSchemaInput){
-        databaseSchemaService.updateDatabaseSchema(input.toSchemaCreationRequest())
-    }
+class DatabaseSchemaMutation(private val databaseSchemaService: DatabaseSchemaServiceBlocking) :
+    GraphQLMutationResolver {
+    fun updateDatabaseSchema(input: DatabaseSchemaInput): Boolean =
+        (databaseSchemaService.updateDatabaseSchema(input.toSchemaCreationRequest()) != null)
 }
 
 @Component

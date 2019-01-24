@@ -12,6 +12,7 @@ import assertk.catch
 import io.mockk.every
 import io.mockk.mockk
 import no.skatteetaten.aurora.gobo.DatabaseSchemaResourceBuilder
+import no.skatteetaten.aurora.gobo.SchemaCreationRequestBuilder
 import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.integration.execute
@@ -59,5 +60,15 @@ class DatabaseSchemaServiceBlockingTest {
             assert(databaseSchema).isNotNull()
         }
         assert(request.path).endsWith("/abc123")
+    }
+
+    @Test
+    fun `Update database schema`() {
+        val request = server.execute(DatabaseSchemaResourceBuilder().build()) {
+            val databaseSchema =
+                databaseSchemaService.updateDatabaseSchema(SchemaCreationRequestBuilder("123").build())
+            assert(databaseSchema).isNotNull()
+        }
+        assert(request.path).endsWith("/123")
     }
 }
