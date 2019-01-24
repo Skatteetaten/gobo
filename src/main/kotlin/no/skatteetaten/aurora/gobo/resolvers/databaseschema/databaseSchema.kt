@@ -2,6 +2,7 @@ package no.skatteetaten.aurora.gobo.resolvers.databaseschema
 
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseSchemaResource
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseUserResource
+import no.skatteetaten.aurora.gobo.integration.dbh.SchemaCreationRequest
 import no.skatteetaten.aurora.gobo.resolvers.affiliation.Affiliation
 import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.ApplicationDeployment
 import java.time.Instant
@@ -48,4 +49,14 @@ data class DatabaseSchema(
                 users = databaseSchema.users.map { DatabaseUser.create(it) }
             )
     }
+}
+
+data class DatabaseSchemaInput(
+    val discriminator: String,
+    val userId: String,
+    val description: String,
+    val id: String
+) {
+    fun toSchemaCreationRequest() =
+        SchemaCreationRequest(id, mapOf("description" to description, "name" to discriminator, "userId" to userId))
 }

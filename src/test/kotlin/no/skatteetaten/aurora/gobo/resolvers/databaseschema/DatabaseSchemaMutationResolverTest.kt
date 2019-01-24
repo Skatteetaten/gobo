@@ -29,9 +29,10 @@ class DatabaseSchemaMutationResolverTest {
     @Test
     fun `Mutate database schema`() {
         val variables = mapOf(
-            "appDbName" to "db1",
-            "username" to "user",
-            "description" to "my db schema"
+            "discriminator" to "db1",
+            "userId" to "user",
+            "description" to "my db schema",
+            "id" to "1234"
         )
         webTestClient.queryGraphQL(queryResource = updateDatabaseSchemaMutation, variables = variables)
             .expectBody()

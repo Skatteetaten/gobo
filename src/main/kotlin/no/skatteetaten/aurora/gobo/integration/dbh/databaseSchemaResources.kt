@@ -47,3 +47,11 @@ data class DatabaseSchemaResource(
     fun containsRequiredLabels() =
         labels.containsKey("affiliation") && labels.containsKey("userId") && labels.containsKey("name")
 }
+
+data class SchemaCreationRequest(
+    val id: String,
+    val labels: Map<String, String>,
+    val username: String? = null,
+    val jdbcUrl: String? = null,
+    val password: String? = null
+)

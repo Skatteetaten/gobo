@@ -1,5 +1,6 @@
 package no.skatteetaten.aurora.gobo.resolvers.databaseschema
 
+import com.coxautodev.graphql.tools.GraphQLMutationResolver
 import com.coxautodev.graphql.tools.GraphQLQueryResolver
 import com.coxautodev.graphql.tools.GraphQLResolver
 import graphql.schema.DataFetchingEnvironment
@@ -27,6 +28,13 @@ class DatabaseSchemaQueryResolver(private val databaseSchemaService: DatabaseSch
 
         val databaseSchema = databaseSchemaService.getDatabaseSchema(id) ?: return null
         return DatabaseSchema.create(databaseSchema, Affiliation(databaseSchema.affiliation))
+    }
+}
+
+@Component
+class DatabaseSchemaMutation(private val databaseSchemaService: DatabaseSchemaServiceBlocking) : GraphQLMutationResolver {
+    fun updateDatabaseSchema(input: DatabaseSchemaInput){
+        databaseSchemaService.updateDatabaseSchema(input.toSchemaCreationRequest())
     }
 }
 
