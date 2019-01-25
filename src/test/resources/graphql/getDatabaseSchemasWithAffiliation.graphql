@@ -5,6 +5,8 @@ query getDatabaseSchemas($affiliations: [String!]!) {
             name
         }
         name
+        application
+        environment
         discriminator
         description
         databaseEngine

@@ -318,7 +318,9 @@ data class DatabaseSchemaResourceBuilder(
                 "affiliation" to "aurora",
                 "userId" to "abc123",
                 "name" to "referanse",
-                "description" to "my database schema"
+                "description" to "my database schema",
+                "environment" to "test",
+                "application" to "referanse"
             )
         )
 }

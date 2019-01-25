@@ -5,6 +5,8 @@ query getDatabaseSchema($id: String!) {
             name
         }
         name
+        application
+        environment
         discriminator
         description
         databaseEngine
