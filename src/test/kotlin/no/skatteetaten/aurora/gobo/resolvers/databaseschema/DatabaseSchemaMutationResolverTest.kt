@@ -4,7 +4,6 @@ import com.fasterxml.jackson.module.kotlin.convertValue
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.reset
-import no.skatteetaten.aurora.gobo.DatabaseSchemaResourceBuilder
 import no.skatteetaten.aurora.gobo.GraphQLTest
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseSchemaServiceBlocking
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
@@ -45,16 +44,16 @@ class DatabaseSchemaMutationResolverTest {
     fun tearDown() = reset(databaseSchemaService)
 
     @Test
-    fun `Mutate database schema return true given database schema response`() {
-        given(databaseSchemaService.updateDatabaseSchema(any())).willReturn(DatabaseSchemaResourceBuilder().build())
+    fun `Mutate database schema return true given response success`() {
+        given(databaseSchemaService.updateDatabaseSchema(any())).willReturn(true)
         webTestClient.queryGraphQL(queryResource = updateDatabaseSchemaMutation, variables = variables)
             .expectBody()
             .jsonPath("$.data.updateDatabaseSchema").isEqualTo(true)
     }
 
     @Test
-    fun `Mutate database schema return false given null response`() {
-        given(databaseSchemaService.updateDatabaseSchema(any())).willReturn(null)
+    fun `Mutate database schema return false given response failure`() {
+        given(databaseSchemaService.updateDatabaseSchema(any())).willReturn(false)
         webTestClient.queryGraphQL(queryResource = updateDatabaseSchemaMutation, variables = variables)
             .expectBody()
             .jsonPath("$.data.updateDatabaseSchema").isEqualTo(false)

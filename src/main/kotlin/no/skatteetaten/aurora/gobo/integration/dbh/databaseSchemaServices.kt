@@ -6,6 +6,7 @@ import no.skatteetaten.aurora.gobo.createObjectMapper
 import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.resolvers.blockAndHandleError
+import no.skatteetaten.aurora.gobo.resolvers.blockNonNullAndHandleError
 import no.skatteetaten.aurora.gobo.security.SharedSecretReader
 import org.springframework.http.HttpHeaders
 import org.springframework.stereotype.Service
@@ -48,14 +49,18 @@ class DatabaseSchemaService(
         }
     }
 
-    fun updateDatabaseSchema(input: SchemaCreationRequest) =
-        webClient
+    fun updateDatabaseSchema(input: SchemaCreationRequest): Mono<Boolean> {
+        val response: Mono<Response<DatabaseSchemaResource>> = webClient
             .put()
             .uri("/api/v1/schema/${input.id}")
             .body(BodyInserters.fromObject(input))
             .header(HttpHeaders.AUTHORIZATION, "aurora-token ${sharedSecretReader.secret}")
             .retrieve()
-            .bodyToMono<DatabaseSchemaResource>()
+            .bodyToMono()
+        return response.flatMap {
+            it.success.toMono()
+        }
+    }
 
     private fun Mono<Response<DatabaseSchemaResource>>.items() =
         this.flatMap { r ->
@@ -82,8 +87,11 @@ class DatabaseSchemaServiceBlocking(private val databaseSchemaService: DatabaseS
         databaseSchemaService.getDatabaseSchema(id).blockWithTimeout()
 
     fun updateDatabaseSchema(input: SchemaCreationRequest) =
-        databaseSchemaService.updateDatabaseSchema(input).blockWithTimeout()
+        databaseSchemaService.updateDatabaseSchema(input).blockNonNullWithTimeout()
 
     private fun <T> Mono<T>.blockWithTimeout(): T? =
         this.blockAndHandleError(Duration.ofSeconds(30), "dbh")
+
+    private fun <T> Mono<T>.blockNonNullWithTimeout(): T =
+        this.blockNonNullAndHandleError(Duration.ofSeconds(30), "dbh")
 }

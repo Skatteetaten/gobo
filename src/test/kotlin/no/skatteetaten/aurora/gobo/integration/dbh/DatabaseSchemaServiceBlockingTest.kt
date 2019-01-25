@@ -64,7 +64,8 @@ class DatabaseSchemaServiceBlockingTest {
 
     @Test
     fun `Update database schema`() {
-        val request = server.execute(DatabaseSchemaResourceBuilder().build()) {
+        val response = Response(items = listOf(DatabaseSchemaResourceBuilder().build()))
+        val request = server.execute(response) {
             val databaseSchema =
                 databaseSchemaService.updateDatabaseSchema(SchemaCreationRequestBuilder("123").build())
             assert(databaseSchema).isNotNull()
