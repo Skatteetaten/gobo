@@ -53,7 +53,11 @@ data class DatabaseSchemaResource(
         }
 
     fun containsRequiredLabels() =
-        labels.containsKey("affiliation") && labels.containsKey("userId") && labels.containsKey("name")
+        labels.containsKey("affiliation") &&
+            labels.containsKey("userId") &&
+            labels.containsKey("name") &&
+            labels.containsKey("environment") &&
+            labels.containsKey("application")
 }
 
 data class SchemaCreationRequest(

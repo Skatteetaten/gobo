@@ -9,6 +9,8 @@ import assertk.assertions.isInstanceOf
 import assertk.assertions.isNotNull
 import assertk.assertions.message
 import assertk.catch
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.jayway.jsonpath.JsonPath
 import io.mockk.every
 import io.mockk.mockk
 import no.skatteetaten.aurora.gobo.DatabaseSchemaResourceBuilder
@@ -33,6 +35,27 @@ class DatabaseSchemaServiceBlockingTest {
     fun `Get database schemas given affiliation`() {
         val response = Response(items = listOf(DatabaseSchemaResourceBuilder().build()))
         val request = server.execute(response) {
+            val databaseSchemas = databaseSchemaService.getDatabaseSchemas("paas")
+            assert(databaseSchemas).hasSize(1)
+        }
+        assert(request.path).contains("affiliation")
+        assert(request.path).contains("paas")
+    }
+
+    @Test
+    fun `Get database schemas with required labels given affiliation`() {
+        val labelsMissingEnv = mapOf(
+            "affiliation" to "paas",
+            "application" to "referanse",
+            "userId" to "abc123",
+            "name" to "ref"
+        )
+        val databaseSchema = DatabaseSchemaResourceBuilder().build()
+        val response = Response(items = listOf(databaseSchema, databaseSchema))
+        val json = JsonPath.parse(jacksonObjectMapper().writeValueAsString(response))
+            .set("$.items[0].labels", labelsMissingEnv).jsonString()
+
+        val request = server.execute(json) {
             val databaseSchemas = databaseSchemaService.getDatabaseSchemas("paas")
             assert(databaseSchemas).hasSize(1)
         }
