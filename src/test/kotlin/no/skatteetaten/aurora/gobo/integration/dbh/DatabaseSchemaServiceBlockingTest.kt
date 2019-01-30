@@ -7,6 +7,8 @@ import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
 import assertk.assertions.isInstanceOf
 import assertk.assertions.isNotNull
+import assertk.assertions.isNull
+import assertk.assertions.isTrue
 import assertk.assertions.message
 import assertk.catch
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
@@ -15,6 +17,7 @@ import io.mockk.every
 import io.mockk.mockk
 import no.skatteetaten.aurora.gobo.DatabaseSchemaResourceBuilder
 import no.skatteetaten.aurora.gobo.SchemaCreationRequestBuilder
+import no.skatteetaten.aurora.gobo.SchemaDeletionRequestBuilder
 import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.integration.execute
@@ -94,5 +97,32 @@ class DatabaseSchemaServiceBlockingTest {
             assert(databaseSchema).isNotNull()
         }
         assert(request.path).endsWith("/123")
+    }
+
+    @Test
+    fun `Delete database schema without cooldownDurationHours`() {
+        val response = Response(items = emptyList<DatabaseSchemaResource>())
+        val request = server.execute(response) {
+            val deleted = databaseSchemaService.deleteDatabaseSchema(SchemaDeletionRequestBuilder(id = "123").build())
+            assert(deleted).isTrue()
+        }
+        assert(request.path).endsWith("/123")
+        assert(request.headers[HEADER_COOLDOWN_DURATION_HOURS]).isNull()
+    }
+
+    @Test
+    fun `Delete database schema with cooldownDurationHours`() {
+        val response = Response(items = emptyList<DatabaseSchemaResource>())
+        val request = server.execute(response) {
+            val deleted = databaseSchemaService.deleteDatabaseSchema(
+                SchemaDeletionRequestBuilder(
+                    id = "123",
+                    cooldownDurationHours = 2
+                ).build()
+            )
+            assert(deleted).isTrue()
+        }
+        assert(request.path).endsWith("/123")
+        assert(request.headers[HEADER_COOLDOWN_DURATION_HOURS]).isEqualTo("2")
     }
 }

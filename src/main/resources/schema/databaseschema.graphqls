@@ -32,3 +32,8 @@ input DatabaseSchemaInput {
   environment: String!
   application: String!
 }
+
+input DeleteDatabaseSchemaInput {
+  id: String!
+  cooldownDurationHours: Long
+}

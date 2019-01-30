@@ -30,6 +30,7 @@ type Mutation {
   refreshApplicationDeployments(input: RefreshByAffiliationsInput!): Boolean
   updateUserSettings(input: UserSettingsInput!): Boolean
   updateDatabaseSchema(input: DatabaseSchemaInput!): Boolean
+  deleteDatabaseSchema(input: DeleteDatabaseSchemaInput!): Boolean
 }
 
 type PageInfo {

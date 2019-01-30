@@ -17,6 +17,8 @@ import reactor.core.publisher.Mono
 import reactor.core.publisher.toMono
 import java.time.Duration
 
+const val HEADER_COOLDOWN_DURATION_HOURS ="cooldown-duration-hours"
+
 @Service
 class DatabaseSchemaService(
     private val sharedSecretReader: SharedSecretReader,
@@ -62,6 +64,22 @@ class DatabaseSchemaService(
         }
     }
 
+    fun deleteDatabaseSchema(input: SchemaDeletionRequest): Mono<Boolean> {
+        val requestSpec = webClient
+            .delete()
+            .uri("/api/v1/schema/${input.id}")
+            .header(HttpHeaders.AUTHORIZATION, "aurora-token ${sharedSecretReader.secret}")
+
+        input.cooldownDurationHours?.let {
+            requestSpec.header(HEADER_COOLDOWN_DURATION_HOURS, it.toString())
+        }
+
+        val response: Mono<Response<DatabaseSchemaResource>> = requestSpec.retrieve().bodyToMono()
+        return response.flatMap {
+            it.success.toMono()
+        }
+    }
+
     private fun Mono<Response<DatabaseSchemaResource>>.items() =
         this.flatMap { r ->
             if (!r.success) SourceSystemException(message = r.message, sourceSystem = "dbh").toMono()
@@ -88,6 +106,9 @@ class DatabaseSchemaServiceBlocking(private val databaseSchemaService: DatabaseS
 
     fun updateDatabaseSchema(input: SchemaCreationRequest) =
         databaseSchemaService.updateDatabaseSchema(input).blockNonNullWithTimeout()
+
+    fun deleteDatabaseSchema(input: SchemaDeletionRequest) =
+        databaseSchemaService.deleteDatabaseSchema(input).blockNonNullWithTimeout()
 
     private fun <T> Mono<T>.blockWithTimeout(): T? =
         this.blockAndHandleError(Duration.ofSeconds(30), "dbh")
