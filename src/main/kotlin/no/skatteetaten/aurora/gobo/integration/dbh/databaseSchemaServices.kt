@@ -17,7 +17,7 @@ import reactor.core.publisher.Mono
 import reactor.core.publisher.toMono
 import java.time.Duration
 
-const val HEADER_COOLDOWN_DURATION_HOURS ="cooldown-duration-hours"
+const val HEADER_COOLDOWN_DURATION_HOURS = "cooldown-duration-hours"
 
 @Service
 class DatabaseSchemaService(

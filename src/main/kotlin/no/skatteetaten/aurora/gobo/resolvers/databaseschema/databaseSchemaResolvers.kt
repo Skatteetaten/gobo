@@ -42,7 +42,7 @@ class DatabaseSchemaMutationResolver(private val databaseSchemaService: Database
 
     fun deleteDatabaseSchema(input: SchemaDeletionRequest, dfe: DataFetchingEnvironment): Boolean {
         if (dfe.isAnonymousUser()) throw AccessDeniedException("Anonymous user cannot delete database schema")
-        return databaseSchemaService.deleteDatabaseSchema(input);
+        return databaseSchemaService.deleteDatabaseSchema(input)
     }
 }
 
