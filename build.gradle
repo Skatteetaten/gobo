@@ -7,8 +7,6 @@ buildscript {
     }
   }
 
-
-
   repositories repos
 
   dependencies {
@@ -26,9 +24,9 @@ plugins {
 }
 
 ext.aurora = [
-    requireStaging   : false,
-    applyCheckstylePlugin: false,
-    applySpockSupport: false,
+    requireStaging          : false,
+    applyCheckstylePlugin   : false,
+    applySpockSupport       : false,
     setProjectVersionFromGit: false
 ]
 
@@ -42,7 +40,7 @@ repositories repos
 [bootJar, distTar, bootDistTar, bootDistZip]*.enabled = false
 configurations.archives.artifacts.removeIf { !it.archiveTask.enabled }
 
-group = groupId 
+group = groupId
 
 dependencyManagement {
   imports {
@@ -81,10 +79,13 @@ dependencies {
       'com.willowtreeapps.assertk:assertk-jvm:0.12',
       'org.springframework.cloud:spring-cloud-starter-contract-stub-runner',
       'org.springframework.security:spring-security-test',
-      'io.projectreactor:reactor-test'
-  ].each { testCompile(it) { 
-    exclude group: 'junit'
-  }}
+      'io.projectreactor:reactor-test',
+      'com.nhaarman:mockito-kotlin:1.6.0'
+  ].each {
+    testCompile(it) {
+      exclude group: 'junit'
+    }
+  }
 
   testImplementation(
       'org.junit.jupiter:junit-jupiter-api',
@@ -120,6 +121,27 @@ compileTestKotlin {
 test {
   useJUnitPlatform()
 }
+
+//noinspection GroovyAssignabilityCheck
+task testExclude(type: Test) {
+  if (project.hasProperty('tags')) {
+    useJUnitPlatform {
+      excludeTags tags.split(',')
+    }
+  } else {
+    useJUnitPlatform()
+  }
+}
+
+//noinspection GroovyAssignabilityCheck
+task testOnly(type: Test) {
+  if (project.hasProperty('tags')) {
+    useJUnitPlatform {
+      includeTags tags.split(',')
+    }
+  }
+}
+
 task wrapper(type: Wrapper) {
   gradleVersion = '4.7'
 }
