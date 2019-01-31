@@ -9,6 +9,7 @@ import assertk.assertions.message
 import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
+import no.skatteetaten.aurora.gobo.integration.MockWebServerTestTag
 import no.skatteetaten.aurora.gobo.integration.execute
 import no.skatteetaten.aurora.gobo.integration.imageregistry.AuthenticationMethod.KUBERNETES_TOKEN
 import no.skatteetaten.aurora.gobo.integration.imageregistry.AuthenticationMethod.NONE
@@ -22,6 +23,7 @@ import org.springframework.http.HttpHeaders
 import org.springframework.web.reactive.function.client.WebClient
 import java.time.Instant
 
+@MockWebServerTestTag
 class ImageRegistryServiceBlockingTest {
 
     private val imageRepoName = "no_skatteetaten_aurora/boober"

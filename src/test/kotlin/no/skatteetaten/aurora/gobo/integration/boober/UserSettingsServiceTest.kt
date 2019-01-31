@@ -3,6 +3,7 @@ package no.skatteetaten.aurora.gobo.integration.boober
 import assertk.assert
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
+import no.skatteetaten.aurora.gobo.integration.MockWebServerTestTag
 import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.integration.execute
 import no.skatteetaten.aurora.gobo.resolvers.usersettings.ApplicationDeploymentFilter
@@ -12,6 +13,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.http.HttpMethod
 import org.springframework.web.reactive.function.client.WebClient
 
+@MockWebServerTestTag
 class UserSettingsServiceTest {
 
     private val server = MockWebServer()
