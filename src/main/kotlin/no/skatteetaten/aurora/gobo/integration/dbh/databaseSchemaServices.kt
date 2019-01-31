@@ -17,13 +17,14 @@ import reactor.core.publisher.Mono
 import reactor.core.publisher.toMono
 import java.time.Duration
 
-const val HEADER_COOLDOWN_DURATION_HOURS = "cooldown-duration-hours"
-
 @Service
 class DatabaseSchemaService(
     private val sharedSecretReader: SharedSecretReader,
     @TargetService(ServiceTypes.DBH) private val webClient: WebClient
 ) {
+    companion object {
+        const val HEADER_COOLDOWN_DURATION_HOURS = "cooldown-duration-hours"
+    }
 
     fun getDatabaseSchemas(affiliation: String): Mono<List<DatabaseSchemaResource>> {
         val response: Mono<Response<DatabaseSchemaResource>> = webClient

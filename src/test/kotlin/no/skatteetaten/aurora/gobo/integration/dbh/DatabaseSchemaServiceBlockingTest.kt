@@ -20,6 +20,7 @@ import no.skatteetaten.aurora.gobo.SchemaCreationRequestBuilder
 import no.skatteetaten.aurora.gobo.SchemaDeletionRequestBuilder
 import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
+import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseSchemaService.Companion.HEADER_COOLDOWN_DURATION_HOURS
 import no.skatteetaten.aurora.gobo.integration.execute
 import no.skatteetaten.aurora.gobo.security.SharedSecretReader
 import okhttp3.mockwebserver.MockWebServer
