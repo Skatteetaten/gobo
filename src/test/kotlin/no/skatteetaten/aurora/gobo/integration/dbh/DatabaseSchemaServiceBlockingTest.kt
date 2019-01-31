@@ -15,6 +15,7 @@ import io.mockk.every
 import io.mockk.mockk
 import no.skatteetaten.aurora.gobo.DatabaseSchemaResourceBuilder
 import no.skatteetaten.aurora.gobo.SchemaCreationRequestBuilder
+import no.skatteetaten.aurora.gobo.integration.MockWebServerTestTag
 import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.integration.execute
@@ -23,6 +24,7 @@ import okhttp3.mockwebserver.MockWebServer
 import org.junit.jupiter.api.Test
 import org.springframework.web.reactive.function.client.WebClient.create
 
+@MockWebServerTestTag
 class DatabaseSchemaServiceBlockingTest {
     private val server = MockWebServer()
     private val sharedSecretReader = mockk<SharedSecretReader> {
