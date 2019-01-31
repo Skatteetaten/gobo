@@ -11,9 +11,10 @@ Quickly deploy to test environment (fish shell):
 ## Filter tests
 
 There are two tasks in the gradle script that can filter the tests: `testExclude` and `testOnly`  
-By passing tags it is possible to exclude or only run the specified test tags.
+By passing tags it is possible to exclude or only run the specified test tags.  
 For example to skip the graphql and MockWebServer tests run the following command:  
-`./gradlew testExclude -Ptags=graphql,mockwebserver`  
+
+    ./gradlew testExclude -Ptags=graphql,mockwebserver 
 
 Tags:
 * **graphql**, tests for the graphql resolvers
