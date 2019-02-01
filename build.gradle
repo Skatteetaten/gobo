@@ -76,7 +76,7 @@ dependencies {
       'org.junit.jupiter:junit-jupiter-api',
       "org.junit.jupiter:junit-jupiter-params:${junitJupiterVersion}",
       'org.springframework.boot:spring-boot-starter-test',
-      'com.willowtreeapps.assertk:assertk-jvm:0.12',
+      'com.willowtreeapps.assertk:assertk-jvm:0.13',
       'org.springframework.cloud:spring-cloud-starter-contract-stub-runner',
       'org.springframework.security:spring-security-test',
       'io.projectreactor:reactor-test',

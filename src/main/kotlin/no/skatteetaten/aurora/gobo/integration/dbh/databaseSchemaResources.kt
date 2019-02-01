@@ -72,3 +72,9 @@ data class SchemaDeletionRequest(
     val id: String,
     val cooldownDurationHours: Long?
 )
+
+data class JdbcUser(
+    val username: String,
+    val password: String,
+    val jdbcUrl: String
+)

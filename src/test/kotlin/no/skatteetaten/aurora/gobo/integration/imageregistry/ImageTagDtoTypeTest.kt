@@ -1,8 +1,7 @@
 package no.skatteetaten.aurora.gobo.integration.imageregistry
 
-import assertk.assert
+import assertk.assertThat
 import assertk.assertions.isEqualTo
-
 import org.junit.jupiter.api.Test
 
 class ImageTagDtoTypeTest {
@@ -11,7 +10,8 @@ class ImageTagDtoTypeTest {
     fun `verify tag types are derived correctly`() {
 
         listOf(
-            Pair("SNAPSHOT-feature-AOS-2287-20180102.092832-15-b1.5.5-flange-8.152.18",
+            Pair(
+                "SNAPSHOT-feature-AOS-2287-20180102.092832-15-b1.5.5-flange-8.152.18",
                 ImageTagType.AURORA_SNAPSHOT_VERSION
             ),
             Pair("feature-AOS-2287-SNAPSHOT", ImageTagType.SNAPSHOT),
@@ -29,10 +29,10 @@ class ImageTagDtoTypeTest {
             Pair("weirdness", ImageTagType.AURORA_VERSION)
 
         ).forEach {
-            assert(ImageTagType.typeOf(it.tagString)).isEqualTo(it.expectedType)
+            assertThat(ImageTagType.typeOf(it.tagString)).isEqualTo(it.expectedType)
         }
     }
 
-    val Pair<String, ImageTagType>.tagString: String get() = this.first
-    val Pair<String, ImageTagType>.expectedType: ImageTagType get() = this.second
+    private val Pair<String, ImageTagType>.tagString: String get() = this.first
+    private val Pair<String, ImageTagType>.expectedType: ImageTagType get() = this.second
 }

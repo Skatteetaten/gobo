@@ -1,6 +1,6 @@
 package no.skatteetaten.aurora.gobo
 
-import assertk.assert
+import assertk.assertThat
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
@@ -26,14 +26,14 @@ class PagingTest {
         ).forEach {
             val pagedEdges = pageEdges(emptyList(), it.first, it.after)
 
-            assert(pagedEdges.edges).isEmpty()
-            assert(pagedEdges.totalCount).isEqualTo(0)
+            assertThat(pagedEdges.edges).isEmpty()
+            assertThat(pagedEdges.totalCount).isEqualTo(0)
 
             val pageInfo = pagedEdges.pageInfo
-            assert(pageInfo.startCursor).isNull()
-            assert(pageInfo.endCursor).isNull()
-            assert(pageInfo.isHasNextPage).isFalse()
-            assert(pageInfo.isHasPreviousPage).isFalse()
+            assertThat(pageInfo.startCursor).isNull()
+            assertThat(pageInfo.endCursor).isNull()
+            assertThat(pageInfo.isHasNextPage).isFalse()
+            assertThat(pageInfo.isHasPreviousPage).isFalse()
         }
     }
 
@@ -84,14 +84,14 @@ class PagingTest {
 
             val (edges, pageInfo, totalCount) = pageEdges
 
-            assert(totalCount).isEqualTo(Companion.edges.size)
+            assertThat(totalCount).isEqualTo(Companion.edges.size)
 
-            assert(edges.size).isEqualTo(expectedEdges.size)
-            assert(edges).isEqualTo(expectedEdges)
-            assert(pageInfo.isHasPreviousPage).isEqualTo(hasPrevPage)
-            assert(pageInfo.isHasNextPage).isEqualTo(hasNexPage)
-            assert(pageInfo.startCursor.value).isEqualTo(expectedEdges.first().cursor.value)
-            assert(pageInfo.endCursor.value).isEqualTo(expectedEdges.last().cursor.value)
+            assertThat(edges.size).isEqualTo(expectedEdges.size)
+            assertThat(edges).isEqualTo(expectedEdges)
+            assertThat(pageInfo.isHasPreviousPage).isEqualTo(hasPrevPage)
+            assertThat(pageInfo.isHasNextPage).isEqualTo(hasNexPage)
+            assertThat(pageInfo.startCursor.value).isEqualTo(expectedEdges.first().cursor.value)
+            assertThat(pageInfo.endCursor.value).isEqualTo(expectedEdges.last().cursor.value)
         }
     }
 }

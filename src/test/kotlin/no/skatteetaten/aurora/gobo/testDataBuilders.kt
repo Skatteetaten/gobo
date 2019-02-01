@@ -9,6 +9,7 @@ import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseInstanceResource
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseMetadataResource
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseSchemaResource
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseUserResource
+import no.skatteetaten.aurora.gobo.integration.dbh.JdbcUser
 import no.skatteetaten.aurora.gobo.integration.dbh.SchemaCreationRequest
 import no.skatteetaten.aurora.gobo.integration.dbh.SchemaDeletionRequest
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentCommandResource
@@ -337,4 +338,9 @@ data class SchemaDeletionRequestBuilder(val id: String = "123", val cooldownDura
 
     fun build() =
         SchemaDeletionRequest(id, cooldownDurationHours)
+}
+
+class JdbcUserBuilder {
+
+    fun build() = JdbcUser(username = "abc123", password = "pass", jdbcUrl = "url")
 }

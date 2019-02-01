@@ -1,6 +1,6 @@
 package no.skatteetaten.aurora.gobo.integration.unclematt
 
-import assertk.assert
+import assertk.assertThat
 import assertk.assertions.contains
 import assertk.assertions.isEqualTo
 import assertk.assertions.isInstanceOf
@@ -25,7 +25,7 @@ class ProbeFireWallTest {
     fun `happy day`() {
         server.execute(probeResponse) {
             val probeResultList = probeService.probeFirewall("server.test.no", 9999)
-            assert(probeResultList.size).isEqualTo(2)
+            assertThat(probeResultList.size).isEqualTo(2)
         }
     }
 
@@ -36,16 +36,13 @@ class ProbeFireWallTest {
                 probeService.probeFirewall("server.test.no", 9999)
             }
         }
-        assert(exception).isNotNull { t ->
-            t.isInstanceOf(SourceSystemException::class)
-            t.message().isNotNull {
-                it.contains("404")
-            }
-        }
+        assertThat(exception).isNotNull()
+            .isInstanceOf(SourceSystemException::class)
+            .message().isNotNull().contains("404")
     }
 }
 
-private val probeResponse = """[
+private const val probeResponse = """[
     {
         "result": {
         "status": "OPEN",

@@ -24,6 +24,7 @@ class DatabaseSchemaService(
 ) {
     companion object {
         const val HEADER_COOLDOWN_DURATION_HOURS = "cooldown-duration-hours"
+        const val HEADER_AURORA_TOKEN = "aurora-token"
     }
 
     fun getDatabaseSchemas(affiliation: String): Mono<List<DatabaseSchemaResource>> {
@@ -32,7 +33,7 @@ class DatabaseSchemaService(
             .uri {
                 it.path("/api/v1/schema/").queryParam("labels", "affiliation=$affiliation").build()
             }
-            .header(HttpHeaders.AUTHORIZATION, "aurora-token ${sharedSecretReader.secret}")
+            .header(HttpHeaders.AUTHORIZATION, "$HEADER_AURORA_TOKEN ${sharedSecretReader.secret}")
             .retrieve()
             .bodyToMono()
 
@@ -43,7 +44,7 @@ class DatabaseSchemaService(
         val response: Mono<Response<DatabaseSchemaResource>> = webClient
             .get()
             .uri("/api/v1/schema/$id")
-            .header(HttpHeaders.AUTHORIZATION, "aurora-token ${sharedSecretReader.secret}")
+            .header(HttpHeaders.AUTHORIZATION, "$HEADER_AURORA_TOKEN ${sharedSecretReader.secret}")
             .retrieve()
             .bodyToMono()
 
@@ -69,13 +70,33 @@ class DatabaseSchemaService(
         val requestSpec = webClient
             .delete()
             .uri("/api/v1/schema/${input.id}")
-            .header(HttpHeaders.AUTHORIZATION, "aurora-token ${sharedSecretReader.secret}")
+            .header(HttpHeaders.AUTHORIZATION, "$HEADER_AURORA_TOKEN ${sharedSecretReader.secret}")
 
         input.cooldownDurationHours?.let {
             requestSpec.header(HEADER_COOLDOWN_DURATION_HOURS, it.toString())
         }
 
         val response: Mono<Response<DatabaseSchemaResource>> = requestSpec.retrieve().bodyToMono()
+        return response.flatMap {
+            it.success.toMono()
+        }
+    }
+
+    fun testJdbcConnection(id: String? = null, user: JdbcUser? = null): Mono<Boolean> {
+        val response: Mono<Response<Boolean>> = webClient
+            .put()
+            .uri("/api/v1/schema/validate")
+            .body(
+                BodyInserters.fromObject(
+                    mapOf(
+                        "id" to id,
+                        "jdbcUser" to user
+                    )
+                )
+            )
+            .header(HttpHeaders.AUTHORIZATION, "$HEADER_AURORA_TOKEN ${sharedSecretReader.secret}")
+            .retrieve()
+            .bodyToMono()
         return response.flatMap {
             it.success.toMono()
         }
@@ -110,6 +131,12 @@ class DatabaseSchemaServiceBlocking(private val databaseSchemaService: DatabaseS
 
     fun deleteDatabaseSchema(input: SchemaDeletionRequest) =
         databaseSchemaService.deleteDatabaseSchema(input).blockNonNullWithTimeout()
+
+    fun testJdbcConnection(user: JdbcUser) =
+        databaseSchemaService.testJdbcConnection(user = user).blockNonNullWithTimeout()
+
+    fun testJdbcConnection(id: String) =
+        databaseSchemaService.testJdbcConnection(id = id).blockNonNullWithTimeout()
 
     private fun <T> Mono<T>.blockWithTimeout(): T? =
         this.blockAndHandleError(Duration.ofSeconds(30), "dbh")

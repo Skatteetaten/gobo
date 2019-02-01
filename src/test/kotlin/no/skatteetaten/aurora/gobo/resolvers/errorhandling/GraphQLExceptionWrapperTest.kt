@@ -1,6 +1,6 @@
 package no.skatteetaten.aurora.gobo.resolvers.errorhandling
 
-import assertk.assert
+import assertk.assertThat
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNull
@@ -31,13 +31,13 @@ class GraphQLExceptionWrapperTest {
         ).build()
 
         val exceptionWrapper = GraphQLExceptionWrapper(handlerParams)
-        assert(exceptionWrapper.message).isEqualTo("test exception")
-        assert(exceptionWrapper.locations[0]).isEqualTo(sourceLocation)
-        assert(exceptionWrapper.path).isEmpty()
-        assert(exceptionWrapper.extensions["code"]).isEqualTo("INTERNAL_SERVER_ERROR")
-        assert(exceptionWrapper.extensions["cause"]).isEqualTo(IllegalStateException::class.simpleName)
-        assert(exceptionWrapper.extensions["errorMessage"]).isEqualTo("error message")
-        assert(exceptionWrapper.extensions["sourceSystem"]).isNull()
+        assertThat(exceptionWrapper.message).isEqualTo("test exception")
+        assertThat(exceptionWrapper.locations[0]).isEqualTo(sourceLocation)
+        assertThat(exceptionWrapper.path).isEmpty()
+        assertThat(exceptionWrapper.extensions["code"]).isEqualTo("INTERNAL_SERVER_ERROR")
+        assertThat(exceptionWrapper.extensions["cause"]).isEqualTo(IllegalStateException::class.simpleName)
+        assertThat(exceptionWrapper.extensions["errorMessage"]).isEqualTo("error message")
+        assertThat(exceptionWrapper.extensions["sourceSystem"]).isNull()
     }
 
     @Test
@@ -53,10 +53,10 @@ class GraphQLExceptionWrapperTest {
         ).build()
 
         val exceptionWrapper = GraphQLExceptionWrapper(handlerParams)
-        assert(exceptionWrapper.message).isEqualTo("test exception")
-        assert(exceptionWrapper.extensions["code"]).isEqualTo("INTERNAL_SERVER_ERROR")
-        assert(exceptionWrapper.extensions["cause"]).isEqualTo(IllegalStateException::class.simpleName)
-        assert(exceptionWrapper.extensions["errorMessage"]).isEqualTo("error message")
-        assert(exceptionWrapper.extensions["sourceSystem"]).isEqualTo("source")
+        assertThat(exceptionWrapper.message).isEqualTo("test exception")
+        assertThat(exceptionWrapper.extensions["code"]).isEqualTo("INTERNAL_SERVER_ERROR")
+        assertThat(exceptionWrapper.extensions["cause"]).isEqualTo(IllegalStateException::class.simpleName)
+        assertThat(exceptionWrapper.extensions["errorMessage"]).isEqualTo("error message")
+        assertThat(exceptionWrapper.extensions["sourceSystem"]).isEqualTo("source")
     }
 }

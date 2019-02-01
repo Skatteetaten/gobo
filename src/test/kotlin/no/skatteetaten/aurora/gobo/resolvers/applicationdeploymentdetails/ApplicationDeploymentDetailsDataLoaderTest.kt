@@ -1,6 +1,6 @@
 package no.skatteetaten.aurora.gobo.resolvers.applicationdeploymentdetails
 
-import assertk.assert
+import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isSameAs
@@ -30,17 +30,17 @@ class ApplicationDeploymentDetailsDataLoaderTest {
     fun `Get ApplicationDeploymentDetails by applicationDeploymentId`() {
         val request = server.execute(ApplicationDeploymentDetailsBuilder().build()) {
             val result = dataLoader.getByKey(User("username", "token"), ("applicationDeploymentId"))
-            assert(result).isNotNull()
+            assertThat(result).isNotNull()
         }
 
-        assert(request.path).isEqualTo("/api/auth/applicationdeploymentdetails/applicationDeploymentId")
+        assertThat(request.path).isEqualTo("/api/auth/applicationdeploymentdetails/applicationDeploymentId")
     }
 
     @Test
     fun `Handle 404 from ApplicationService`() {
         server.execute(404, "Not found") {
             val result = dataLoader.getByKey(User("username", "token"), "applicationDeploymentId")
-            assert(result.isFailure).isSameAs(true)
+            assertThat(result.isFailure).isSameAs(true)
         }
     }
 
@@ -55,7 +55,7 @@ class ApplicationDeploymentDetailsDataLoaderTest {
         server.execute(failureResponse) {
             val result =
                 dataLoader.getByKey(User("username", "token"), "applicationDeploymentId")
-            assert(result.isFailure).isSameAs(true)
+            assertThat(result.isFailure).isSameAs(true)
         }
     }
 }

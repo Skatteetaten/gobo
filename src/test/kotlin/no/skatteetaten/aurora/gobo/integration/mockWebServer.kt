@@ -1,5 +1,8 @@
 package no.skatteetaten.aurora.gobo.integration
 
+import com.fasterxml.jackson.module.kotlin.convertValue
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.jayway.jsonpath.JsonPath
 import no.skatteetaten.aurora.gobo.createObjectMapper
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -53,4 +56,9 @@ fun MockWebServer.execute(vararg responses: Any, fn: () -> Unit): List<RecordedR
     responses.forEach { this.enqueueJson(body = it) }
     fn()
     return (1..responses.size).toList().map { this.takeRequest() }
+}
+
+inline fun <reified T> RecordedRequest.bodyAsObject(path: String = "$"): T {
+    val content: Any = JsonPath.parse(String(body.readByteArray())).read(path)
+    return jacksonObjectMapper().convertValue(content)
 }
