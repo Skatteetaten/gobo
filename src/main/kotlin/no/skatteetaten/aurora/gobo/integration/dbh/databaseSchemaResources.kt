@@ -25,25 +25,12 @@ data class DatabaseSchemaResource(
     val metadata: DatabaseMetadataResource,
     val labels: Map<String, String>
 ) {
-    val environment: String
-        get() = getLabel("environment").first()
-
-    val application: String
-        get() = getLabel("application").first()
-
-    val affiliation: String
-        get() = getLabel("affiliation").first()
-
-    val createdBy: String
-        get() = getLabel("userId").first()
-
-    val discriminator: String
-        get() = getLabel("name").first()
-
-    val description: String?
-        get() = getLabel("description").firstOrNull()
-
-    private fun getLabel(key: String) = labels.filter { it.key == key }.map { it.value }
+    val environment: String by labels
+    val application: String by labels
+    val affiliation: String by labels
+    val createdBy: String by labels
+    val discriminator: String by labels
+    val description: String? by labels.withDefault { null }
 
     fun createdDateAsInstant(): Instant = Instant.ofEpochMilli(createdDate)
 

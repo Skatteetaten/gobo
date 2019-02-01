@@ -22,6 +22,12 @@ class DatabaseSchemaResourceTest {
     }
 
     @Test
+    fun `Get description given no labels return null`() {
+        val db = DatabaseSchemaResourceBuilder(labels = emptyMap()).build()
+        assert(db.description).isNull()
+    }
+
+    @Test
     fun `Get milliseconds as Instant`() {
         val created = databaseSchemaResource.createdDateAsInstant()
         val lastUsed = databaseSchemaResource.lastUsedDateAsInstant()
