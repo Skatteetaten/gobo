@@ -1,0 +1,3 @@
+mutation testJdbcConnectionForJdbcUser($input: JdbcUserInput!){
+    testJdbcConnectionForJdbcUser(input: $input)
+}

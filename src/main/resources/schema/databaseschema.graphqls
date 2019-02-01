@@ -37,3 +37,9 @@ input DeleteDatabaseSchemaInput {
   id: String!
   cooldownDurationHours: Long
 }
+
+input JdbcUserInput {
+  username: String!
+  password: String!
+  jdbcUrl: String!
+}

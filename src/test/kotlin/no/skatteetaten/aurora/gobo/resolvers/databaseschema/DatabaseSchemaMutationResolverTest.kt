@@ -5,8 +5,10 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.reset
 import no.skatteetaten.aurora.gobo.GraphQLTest
+import no.skatteetaten.aurora.gobo.JdbcUserBuilder
 import no.skatteetaten.aurora.gobo.OpenShiftUserBuilder
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseSchemaServiceBlocking
+import no.skatteetaten.aurora.gobo.integration.dbh.JdbcUser
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import no.skatteetaten.aurora.gobo.security.OpenShiftUserLoader
 import org.junit.jupiter.api.AfterEach
@@ -27,6 +29,12 @@ class DatabaseSchemaMutationResolverTest {
 
     @Value("classpath:graphql/deleteDatabaseSchema.graphql")
     private lateinit var deleteDatabaseSchemaMutation: Resource
+
+    @Value("classpath:graphql/testJdbcConnectionForJdbcUser.graphql")
+    private lateinit var testJdbcConnectionForJdbcUserMutation: Resource
+
+    @Value("classpath:graphql/testJdbcConnectionForId.graphql")
+    private lateinit var testJdbcConnectionForIdMutation: Resource
 
     @Autowired
     private lateinit var webTestClient: WebTestClient
@@ -95,5 +103,31 @@ class DatabaseSchemaMutationResolverTest {
         )
             .expectBody()
             .jsonPath("$.data.deleteDatabaseSchema").isEqualTo(true)
+    }
+
+    @Test
+    fun `Test JDBC connection for jdbcUser`() {
+        given(databaseSchemaService.testJdbcConnection(any<JdbcUser>())).willReturn(true)
+        val variables =
+            mapOf("input" to jacksonObjectMapper().convertValue<Map<String, Any>>(JdbcUserBuilder().build()))
+        webTestClient.queryGraphQL(
+            queryResource = testJdbcConnectionForJdbcUserMutation,
+            variables = variables,
+            token = "test-token"
+        )
+            .expectBody()
+            .jsonPath("$.data.testJdbcConnectionForJdbcUser").isEqualTo(true)
+    }
+
+    @Test
+    fun `Test JDBC connection for id`() {
+        given(databaseSchemaService.testJdbcConnection(any<String>())).willReturn(true)
+        webTestClient.queryGraphQL(
+            queryResource = testJdbcConnectionForIdMutation,
+            variables = mapOf("id" to "123"),
+            token = "test-token"
+        )
+            .expectBody()
+            .jsonPath("$.data.testJdbcConnectionForId").isEqualTo(true)
     }
 }
