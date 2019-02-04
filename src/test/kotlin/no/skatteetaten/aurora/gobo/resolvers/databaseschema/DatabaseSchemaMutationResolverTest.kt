@@ -25,6 +25,9 @@ class DatabaseSchemaMutationResolverTest {
     @Value("classpath:graphql/updateDatabaseSchema.graphql")
     private lateinit var updateDatabaseSchemaMutation: Resource
 
+    @Value("classpath:graphql/deleteDatabaseSchema.graphql")
+    private lateinit var deleteDatabaseSchemaMutation: Resource
+
     @Autowired
     private lateinit var webTestClient: WebTestClient
 
@@ -63,7 +66,8 @@ class DatabaseSchemaMutationResolverTest {
         webTestClient.queryGraphQL(
             queryResource = updateDatabaseSchemaMutation,
             variables = variables,
-            token = "test-token")
+            token = "test-token"
+        )
             .expectBody()
             .jsonPath("$.data.updateDatabaseSchema").isEqualTo(true)
     }
@@ -74,8 +78,22 @@ class DatabaseSchemaMutationResolverTest {
         webTestClient.queryGraphQL(
             queryResource = updateDatabaseSchemaMutation,
             variables = variables,
-            token = "test-token")
+            token = "test-token"
+        )
             .expectBody()
             .jsonPath("$.data.updateDatabaseSchema").isEqualTo(false)
+    }
+
+    @Test
+    fun `Delete database schema given id`() {
+        given(databaseSchemaService.deleteDatabaseSchema(any())).willReturn(true)
+        val deleteVariables = mapOf("input" to mapOf("id" to "abc123"))
+        webTestClient.queryGraphQL(
+            queryResource = deleteDatabaseSchemaMutation,
+            variables = deleteVariables,
+            token = "test-token"
+        )
+            .expectBody()
+            .jsonPath("$.data.deleteDatabaseSchema").isEqualTo(true)
     }
 }

@@ -1,0 +1,3 @@
+mutation deleteDatabaseSchema($input: DeleteDatabaseSchemaInput!){
+    deleteDatabaseSchema(input: $input)
+}

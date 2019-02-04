@@ -5,6 +5,7 @@ import com.coxautodev.graphql.tools.GraphQLQueryResolver
 import com.coxautodev.graphql.tools.GraphQLResolver
 import graphql.schema.DataFetchingEnvironment
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseSchemaServiceBlocking
+import no.skatteetaten.aurora.gobo.integration.dbh.SchemaDeletionRequest
 import no.skatteetaten.aurora.gobo.resolvers.AccessDeniedException
 import no.skatteetaten.aurora.gobo.resolvers.affiliation.Affiliation
 import no.skatteetaten.aurora.gobo.security.isAnonymousUser
@@ -37,6 +38,11 @@ class DatabaseSchemaMutationResolver(private val databaseSchemaService: Database
     fun updateDatabaseSchema(input: DatabaseSchemaInput, dfe: DataFetchingEnvironment): Boolean {
         if (dfe.isAnonymousUser()) throw AccessDeniedException("Anonymous user cannot update database schema")
         return databaseSchemaService.updateDatabaseSchema(input.toSchemaCreationRequest())
+    }
+
+    fun deleteDatabaseSchema(input: SchemaDeletionRequest, dfe: DataFetchingEnvironment): Boolean {
+        if (dfe.isAnonymousUser()) throw AccessDeniedException("Anonymous user cannot delete database schema")
+        return databaseSchemaService.deleteDatabaseSchema(input)
     }
 }
 

@@ -54,3 +54,8 @@ data class SchemaCreationRequest(
     val jdbcUrl: String? = null,
     val password: String? = null
 )
+
+data class SchemaDeletionRequest(
+    val id: String,
+    val cooldownDurationHours: Long?
+)
