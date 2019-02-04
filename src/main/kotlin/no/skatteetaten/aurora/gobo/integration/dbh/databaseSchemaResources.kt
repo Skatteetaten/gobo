@@ -25,14 +25,12 @@ data class DatabaseSchemaResource(
     val metadata: DatabaseMetadataResource,
     val labels: Map<String, String>
 ) {
-    val affiliation: String
-        get() = labels.filter { it.key == "affiliation" }.map { it.value }.first()
-
-    val createdBy: String
-        get() = labels.filter { it.key == "userId" }.map { it.value }.first()
-
-    val appDbName: String
-        get() = labels.filter { it.key == "name" }.map { it.value }.first()
+    val environment: String by labels
+    val application: String by labels
+    val affiliation: String by labels
+    val createdBy: String by labels
+    val discriminator: String by labels
+    val description: String? by labels.withDefault { null }
 
     fun createdDateAsInstant(): Instant = Instant.ofEpochMilli(createdDate)
 
@@ -42,5 +40,22 @@ data class DatabaseSchemaResource(
         }
 
     fun containsRequiredLabels() =
-        labels.containsKey("affiliation") && labels.containsKey("userId") && labels.containsKey("name")
+        labels.containsKey("affiliation") &&
+            labels.containsKey("userId") &&
+            labels.containsKey("name") &&
+            labels.containsKey("environment") &&
+            labels.containsKey("application")
 }
+
+data class SchemaCreationRequest(
+    val id: String,
+    val labels: Map<String, String>,
+    val username: String? = null,
+    val jdbcUrl: String? = null,
+    val password: String? = null
+)
+
+data class SchemaDeletionRequest(
+    val id: String,
+    val cooldownDurationHours: Long?
+)

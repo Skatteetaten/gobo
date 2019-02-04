@@ -9,6 +9,8 @@ import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseInstanceResource
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseMetadataResource
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseSchemaResource
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseUserResource
+import no.skatteetaten.aurora.gobo.integration.dbh.SchemaCreationRequest
+import no.skatteetaten.aurora.gobo.integration.dbh.SchemaDeletionRequest
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentCommandResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentDetailsResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentRefResource
@@ -299,7 +301,15 @@ data class ApplicationDeploymentFilterResourceBuilder(val affiliation: String = 
 
 data class DatabaseSchemaResourceBuilder(
     val createdDate: Long = Instant.now().toEpochMilli(),
-    val lastUsedDate: Long? = Instant.now().toEpochMilli()
+    val lastUsedDate: Long? = Instant.now().toEpochMilli(),
+    val labels: Map<String, String> = mapOf(
+        "affiliation" to "aurora",
+        "userId" to "abc123",
+        "name" to "referanse",
+        "description" to "my database schema",
+        "environment" to "test",
+        "application" to "referanse"
+    )
 ) {
 
     fun build() =
@@ -313,10 +323,18 @@ data class DatabaseSchemaResourceBuilder(
             databaseInstance = DatabaseInstanceResource(engine = "ORACLE"),
             users = listOf(DatabaseUserResource("username", "password", "SCHEMA")),
             metadata = DatabaseMetadataResource(sizeInMb = 0.25),
-            labels = mapOf(
-                "affiliation" to "aurora",
-                "userId" to "abc123",
-                "name" to "referanse"
-            )
+            labels = labels
         )
+}
+
+data class SchemaCreationRequestBuilder(val id: String = "123") {
+
+    fun build() =
+        SchemaCreationRequest(id, emptyMap(), "username")
+}
+
+data class SchemaDeletionRequestBuilder(val id: String = "123", val cooldownDurationHours: Long? = null) {
+
+    fun build() =
+        SchemaDeletionRequest(id, cooldownDurationHours)
 }

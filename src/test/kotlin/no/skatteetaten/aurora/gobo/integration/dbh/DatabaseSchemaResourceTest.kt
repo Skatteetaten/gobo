@@ -17,7 +17,14 @@ class DatabaseSchemaResourceTest {
     fun `Get properties from labels`() {
         assert(databaseSchemaResource.affiliation).isEqualTo("aurora")
         assert(databaseSchemaResource.createdBy).isEqualTo("abc123")
-        assert(databaseSchemaResource.appDbName).isEqualTo("referanse")
+        assert(databaseSchemaResource.discriminator).isEqualTo("referanse")
+        assert(databaseSchemaResource.description).isEqualTo("my database schema")
+    }
+
+    @Test
+    fun `Get description given no labels return null`() {
+        val db = DatabaseSchemaResourceBuilder(labels = emptyMap()).build()
+        assert(db.description).isNull()
     }
 
     @Test

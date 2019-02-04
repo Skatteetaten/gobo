@@ -2,6 +2,7 @@ package no.skatteetaten.aurora.gobo.resolvers.databaseschema
 
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseSchemaResource
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseUserResource
+import no.skatteetaten.aurora.gobo.integration.dbh.SchemaCreationRequest
 import no.skatteetaten.aurora.gobo.resolvers.affiliation.Affiliation
 import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.ApplicationDeployment
 import java.time.Instant
@@ -18,7 +19,10 @@ data class DatabaseSchema(
     val type: String,
     val jdbcUrl: String,
     val name: String,
-    val appDbName: String,
+    val environment: String,
+    val application: String,
+    val discriminator: String,
+    val description: String?,
     val affiliation: Affiliation,
     val databaseEngine: String,
     val applicationDeployment: ApplicationDeployment?,
@@ -35,7 +39,10 @@ data class DatabaseSchema(
                 type = databaseSchema.type,
                 jdbcUrl = databaseSchema.jdbcUrl,
                 name = databaseSchema.name,
-                appDbName = databaseSchema.appDbName,
+                environment = databaseSchema.environment,
+                application = databaseSchema.application,
+                discriminator = databaseSchema.discriminator,
+                description = databaseSchema.description,
                 affiliation = affiliation,
                 databaseEngine = databaseSchema.databaseInstance.engine,
                 applicationDeployment = null,
@@ -46,4 +53,27 @@ data class DatabaseSchema(
                 users = databaseSchema.users.map { DatabaseUser.create(it) }
             )
     }
+}
+
+data class DatabaseSchemaInput(
+    val discriminator: String,
+    val userId: String,
+    val description: String,
+    val id: String,
+    val affiliation: String,
+    val application: String,
+    val environment: String
+) {
+    fun toSchemaCreationRequest() =
+        SchemaCreationRequest(
+            id,
+            mapOf(
+                "description" to description,
+                "name" to discriminator,
+                "userId" to userId,
+                "affiliation" to affiliation,
+                "application" to application,
+                "environment" to environment
+            )
+        )
 }

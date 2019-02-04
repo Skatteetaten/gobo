@@ -5,7 +5,10 @@ query getDatabaseSchema($id: String!) {
             name
         }
         name
-        appDbName
+        application
+        environment
+        discriminator
+        description
         databaseEngine
         applicationDeployment {
             id
