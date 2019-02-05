@@ -47,7 +47,7 @@ class DatabaseSchemaMutationResolverTest {
 
     private val variables = mapOf(
         "input" to jacksonObjectMapper().convertValue<Map<String, Any>>(
-            DatabaseSchemaInput(
+            DatabaseSchemaUpdateInput(
                 discriminator = "db1",
                 userId = "user",
                 description = "my db schema",

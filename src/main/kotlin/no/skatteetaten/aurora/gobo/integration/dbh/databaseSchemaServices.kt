@@ -53,7 +53,7 @@ class DatabaseSchemaService(
         }
     }
 
-    fun updateDatabaseSchema(input: SchemaCreationRequest): Mono<Boolean> {
+    fun updateDatabaseSchema(input: SchemaUpdateRequest): Mono<Boolean> {
         val response: Mono<Response<DatabaseSchemaResource>> = webClient
             .put()
             .uri("/api/v1/schema/${input.id}")
@@ -126,7 +126,7 @@ class DatabaseSchemaServiceBlocking(private val databaseSchemaService: DatabaseS
     fun getDatabaseSchema(id: String) =
         databaseSchemaService.getDatabaseSchema(id).blockWithTimeout()
 
-    fun updateDatabaseSchema(input: SchemaCreationRequest) =
+    fun updateDatabaseSchema(input: SchemaUpdateRequest) =
         databaseSchemaService.updateDatabaseSchema(input).blockNonNullWithTimeout()
 
     fun deleteDatabaseSchema(input: SchemaDeletionRequest) =

@@ -19,8 +19,8 @@ import io.mockk.every
 import io.mockk.mockk
 import no.skatteetaten.aurora.gobo.DatabaseSchemaResourceBuilder
 import no.skatteetaten.aurora.gobo.JdbcUserBuilder
-import no.skatteetaten.aurora.gobo.SchemaCreationRequestBuilder
 import no.skatteetaten.aurora.gobo.SchemaDeletionRequestBuilder
+import no.skatteetaten.aurora.gobo.SchemaUpdateRequestBuilder
 import no.skatteetaten.aurora.gobo.integration.MockWebServerTestTag
 import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
@@ -104,7 +104,7 @@ class DatabaseSchemaServiceBlockingTest {
         val response = Response(items = listOf(DatabaseSchemaResourceBuilder().build()))
         val request = server.execute(response) {
             val databaseSchema =
-                databaseSchemaService.updateDatabaseSchema(SchemaCreationRequestBuilder("123").build())
+                databaseSchemaService.updateDatabaseSchema(SchemaUpdateRequestBuilder("123").build())
             assertThat(databaseSchema).isNotNull()
         }
         assertThat(request).containsAuroraToken()
