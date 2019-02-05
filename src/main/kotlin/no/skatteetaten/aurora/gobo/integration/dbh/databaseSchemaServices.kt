@@ -103,7 +103,7 @@ class DatabaseSchemaService(
     }
 
     fun createDatabaseSchema(input: SchemaCreationRequest): Mono<Boolean> {
-        val response: Mono<Response<Boolean>> = webClient
+        val response: Mono<Response<DatabaseSchemaResource>> = webClient
             .post()
             .uri("/api/v1/schema/")
             .body(BodyInserters.fromObject(input))

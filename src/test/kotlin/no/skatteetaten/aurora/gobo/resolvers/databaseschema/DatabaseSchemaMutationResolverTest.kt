@@ -78,6 +78,20 @@ class DatabaseSchemaMutationResolverTest {
         )
     )
 
+    private val connectionVariables = mapOf(
+        "input" to jacksonObjectMapper().convertValue<Map<String, Any>>(
+            DatabaseSchemaCreationInput(
+                jdbcUser = JdbcUser("user", "pass", "url"),
+                discriminator = "db1",
+                userId = "user",
+                description = "my db schema",
+                affiliation = "paas",
+                application = "application",
+                environment = "test"
+            )
+        )
+    )
+
     @BeforeEach
     fun setUp() {
         given(openShiftUserLoader.findOpenShiftUserByToken(BDDMockito.anyString()))
@@ -151,11 +165,23 @@ class DatabaseSchemaMutationResolverTest {
     }
 
     @Test
-    fun `create database schema`() {
+    fun `Create database schema`() {
         given(databaseSchemaService.createDatabaseSchema(any())).willReturn(true)
         webTestClient.queryGraphQL(
             queryResource = createDatabaseSchemaMutation,
             variables = creationVariables,
+            token = "test-token"
+        )
+            .expectBody()
+            .graphqlData("createDatabaseSchema").isTrue()
+    }
+
+    @Test
+    fun `Create connection between existing database schema and dbh`() {
+        given(databaseSchemaService.createDatabaseSchema(any())).willReturn(true)
+        webTestClient.queryGraphQL(
+            queryResource = createDatabaseSchemaMutation,
+            variables = connectionVariables,
             token = "test-token"
         )
             .expectBody()

@@ -19,6 +19,7 @@ import io.mockk.every
 import io.mockk.mockk
 import no.skatteetaten.aurora.gobo.DatabaseSchemaResourceBuilder
 import no.skatteetaten.aurora.gobo.JdbcUserBuilder
+import no.skatteetaten.aurora.gobo.SchemaCreationRequestBuilder
 import no.skatteetaten.aurora.gobo.SchemaDeletionRequestBuilder
 import no.skatteetaten.aurora.gobo.SchemaUpdateRequestBuilder
 import no.skatteetaten.aurora.gobo.integration.MockWebServerTestTag
@@ -169,6 +170,21 @@ class DatabaseSchemaServiceBlockingTest {
         assertThat(request).containsAuroraToken()
         assertThat(request.path).endsWith("/validate")
         assertThat(requestId).isEqualTo("123")
+    }
+
+    @Test
+    fun `Create database schema`() {
+        val response = Response(items = listOf(DatabaseSchemaResourceBuilder().build()))
+        val request = server.execute(response) {
+            val success = databaseSchemaService.createDatabaseSchema(SchemaCreationRequestBuilder().build())
+            assertThat(success).isTrue()
+        }
+
+        val creationRequest = request.bodyAsObject<SchemaCreationRequest>()
+
+        assertThat(request).containsAuroraToken()
+        assertThat(request.path).endsWith("/")
+        assertThat(creationRequest.jdbcUser).isNotNull()
     }
 
     private fun Assert<RecordedRequest>.containsAuroraToken() = given { request ->

@@ -2,6 +2,7 @@ package no.skatteetaten.aurora.gobo.resolvers.databaseschema
 
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseSchemaResource
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseUserResource
+import no.skatteetaten.aurora.gobo.integration.dbh.JdbcUser
 import no.skatteetaten.aurora.gobo.integration.dbh.SchemaCreationRequest
 import no.skatteetaten.aurora.gobo.integration.dbh.SchemaUpdateRequest
 import no.skatteetaten.aurora.gobo.resolvers.affiliation.Affiliation
@@ -85,10 +86,12 @@ data class DatabaseSchemaCreationInput(
     val description: String,
     val affiliation: String,
     val application: String,
-    val environment: String
+    val environment: String,
+    val jdbcUser: JdbcUser? = null
 ) {
     fun toSchemaCreationRequest() =
         SchemaCreationRequest(
+            jdbcUser = jdbcUser,
             labels = mapOf(
                 "description" to description,
                 "name" to discriminator,
@@ -97,6 +100,5 @@ data class DatabaseSchemaCreationInput(
                 "application" to application,
                 "environment" to environment
             )
-
         )
 }
