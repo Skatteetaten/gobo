@@ -12,6 +12,11 @@ data class DatabaseUserResource(val username: String, val password: String, val 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class DatabaseMetadataResource(val sizeInMb: Double)
 
+/**
+ * labels:
+ * createdBy == userId
+ * discriminator == name
+ */
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class DatabaseSchemaResource(
     val id: String,
@@ -25,25 +30,18 @@ data class DatabaseSchemaResource(
     val metadata: DatabaseMetadataResource,
     val labels: Map<String, String>
 ) {
-    val environment: String
-        get() = getLabel("environment").first()
+    val environment: String by labels
+    val application: String by labels
+    val affiliation: String by labels
+    val description: String? by labels.withDefault { null }
 
-    val application: String
-        get() = getLabel("application").first()
-
-    val affiliation: String
-        get() = getLabel("affiliation").first()
-
+    private val userId: String by labels
     val createdBy: String
-        get() = getLabel("userId").first()
+        get() = userId
 
+    // Using filter because there is a collision on "name", property and label is called "name"
     val discriminator: String
-        get() = getLabel("name").first()
-
-    val description: String?
-        get() = getLabel("description").firstOrNull()
-
-    private fun getLabel(key: String) = labels.filter { it.key == key }.map { it.value }
+        get() = labels.filter { it.key == "name" }.values.first()
 
     fun createdDateAsInstant(): Instant = Instant.ofEpochMilli(createdDate)
 
