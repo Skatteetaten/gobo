@@ -55,6 +55,11 @@ class DatabaseSchemaMutationResolver(private val databaseSchemaService: Database
         if (dfe.isAnonymousUser()) throw AccessDeniedException("Anonymous user cannot test jdbc connection")
         return databaseSchemaService.testJdbcConnection(id)
     }
+
+    fun createDatabaseSchema(input: DatabaseSchemaCreationInput, dfe: DataFetchingEnvironment): Boolean {
+        if (dfe.isAnonymousUser()) throw AccessDeniedException("Anonymous user cannot create database schema")
+        return databaseSchemaService.createDatabaseSchema(input.toSchemaCreationRequest())
+    }
 }
 
 @Component

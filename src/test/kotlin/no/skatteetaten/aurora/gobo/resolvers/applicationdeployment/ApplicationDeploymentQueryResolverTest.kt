@@ -4,6 +4,7 @@ import no.skatteetaten.aurora.gobo.ApplicationDeploymentResourceBuilder
 import no.skatteetaten.aurora.gobo.GraphQLTest
 import no.skatteetaten.aurora.gobo.OpenShiftUserBuilder
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
+import no.skatteetaten.aurora.gobo.resolvers.graphqlData
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import no.skatteetaten.aurora.gobo.security.OpenShiftUserLoader
 import org.junit.jupiter.api.AfterEach
@@ -21,7 +22,7 @@ import org.springframework.test.web.reactive.server.WebTestClient
 @GraphQLTest
 class ApplicationDeploymentQueryResolverTest {
 
-    @Value("classpath:graphql/getApplicationDeployment.graphql")
+    @Value("classpath:graphql/queries/getApplicationDeployment.graphql")
     private lateinit var getApplicationsQuery: Resource
 
     @Autowired
@@ -51,9 +52,9 @@ class ApplicationDeploymentQueryResolverTest {
         webTestClient.queryGraphQL(getApplicationsQuery, variables, "test-token")
             .expectStatus().isOk
             .expectBody()
-            .jsonPath("$.data.applicationDeployment.id").isEqualTo("123")
-            .jsonPath("$.data.applicationDeployment.status.reports").exists()
-            .jsonPath("$.data.applicationDeployment.status.reasons").exists()
-            .jsonPath("$.data.applicationDeployment.message").exists()
+            .graphqlData("applicationDeployment.id").isEqualTo("123")
+            .graphqlData("applicationDeployment.status.reports").exists()
+            .graphqlData("applicationDeployment.status.reasons").exists()
+            .graphqlData("applicationDeployment.message").exists()
     }
 }

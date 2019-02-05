@@ -3,6 +3,7 @@ package no.skatteetaten.aurora.gobo.resolvers.unclematt
 import no.skatteetaten.aurora.gobo.GraphQLTest
 import no.skatteetaten.aurora.gobo.ProbeResultListBuilder
 import no.skatteetaten.aurora.gobo.integration.unclematt.ProbeServiceBlocking
+import no.skatteetaten.aurora.gobo.resolvers.graphqlData
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import no.skatteetaten.aurora.gobo.resolvers.scan.ScanStatus
 import org.junit.jupiter.api.Test
@@ -16,7 +17,7 @@ import org.springframework.test.web.reactive.server.WebTestClient
 @GraphQLTest
 class ScanQueryResolverTest {
 
-    @Value("classpath:graphql/scan.graphql")
+    @Value("classpath:graphql/queries/scan.graphql")
     private lateinit var scanQuery: Resource
 
     @Autowired
@@ -33,17 +34,17 @@ class ScanQueryResolverTest {
         webTestClient.queryGraphQL(scanQuery, variables)
             .expectStatus().isOk
             .expectBody()
-            .jsonPath("data.scan.status").isEqualTo(ScanStatus.CLOSED.name)
-            .jsonPath("data.scan.hostName").isNotEmpty
-            .jsonPath("data.scan.port").isNumber
-            .jsonPath("data.scan.failed.totalCount").isNumber
-            .jsonPath("data.scan.failed.edges").isArray
-            .jsonPath("data.scan.failed.edges[0].node.status").isEqualTo(ScanStatus.CLOSED.name)
-            .jsonPath("data.scan.failed.edges[1].node.status").isEqualTo(ScanStatus.UNKNOWN.name)
-            .jsonPath("data.scan.failed.edges[0].node.resolvedIp").isNotEmpty
-            .jsonPath("data.scan.open.totalCount").isNumber
-            .jsonPath("data.scan.open.edges").isArray
-            .jsonPath("data.scan.open.edges[0].node.status").isEqualTo(ScanStatus.OPEN.name)
-            .jsonPath("data.scan.open.edges[0].node.resolvedIp").isNotEmpty
+            .graphqlData("scan.status").isEqualTo(ScanStatus.CLOSED.name)
+            .graphqlData("scan.hostName").isNotEmpty
+            .graphqlData("scan.port").isNumber
+            .graphqlData("scan.failed.totalCount").isNumber
+            .graphqlData("scan.failed.edges").isArray
+            .graphqlData("scan.failed.edges[0].node.status").isEqualTo(ScanStatus.CLOSED.name)
+            .graphqlData("scan.failed.edges[1].node.status").isEqualTo(ScanStatus.UNKNOWN.name)
+            .graphqlData("scan.failed.edges[0].node.resolvedIp").isNotEmpty
+            .graphqlData("scan.open.totalCount").isNumber
+            .graphqlData("scan.open.edges").isArray
+            .graphqlData("scan.open.edges[0].node.status").isEqualTo(ScanStatus.OPEN.name)
+            .graphqlData("scan.open.edges[0].node.resolvedIp").isNotEmpty
     }
 }

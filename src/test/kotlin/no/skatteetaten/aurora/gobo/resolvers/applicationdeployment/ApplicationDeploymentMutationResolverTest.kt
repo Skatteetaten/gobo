@@ -1,6 +1,7 @@
 package no.skatteetaten.aurora.gobo.resolvers.applicationdeployment
 
 import no.skatteetaten.aurora.gobo.GraphQLTest
+import no.skatteetaten.aurora.gobo.resolvers.graphqlData
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import no.skatteetaten.aurora.gobo.service.ApplicationUpgradeService
 import org.junit.jupiter.api.AfterEach
@@ -17,16 +18,16 @@ import org.springframework.test.web.reactive.server.WebTestClient
 
 @GraphQLTest
 class ApplicationDeploymentMutationResolverTest {
-    @Value("classpath:graphql/redeployWithVersion.graphql")
+    @Value("classpath:graphql/mutations/redeployWithVersion.graphql")
     private lateinit var redeployWithVersionMutation: Resource
 
-    @Value("classpath:graphql/redeployWithCurrentVersion.graphql")
+    @Value("classpath:graphql/mutations/redeployWithCurrentVersion.graphql")
     private lateinit var redeployWithCurrentVersionMutation: Resource
 
-    @Value("classpath:graphql/refreshApplicationDeployment.graphql")
+    @Value("classpath:graphql/mutations/refreshApplicationDeployment.graphql")
     private lateinit var refreshApplicationDeploymentByDeploymentIdMutation: Resource
 
-    @Value("classpath:graphql/refreshApplicationDeployments.graphql")
+    @Value("classpath:graphql/mutations/refreshApplicationDeployments.graphql")
     private lateinit var refreshApplicationDeploymentsByAffiliationsMutation: Resource
 
     @Autowired
@@ -48,7 +49,7 @@ class ApplicationDeploymentMutationResolverTest {
             )
         )
         webTestClient.queryGraphQL(redeployWithVersionMutation, variables).expectBody()
-            .jsonPath("$.data.redeployWithVersion").isNotEmpty
+            .graphqlData("redeployWithVersion").isNotEmpty
     }
 
     @Test
@@ -59,7 +60,7 @@ class ApplicationDeploymentMutationResolverTest {
             )
         )
         webTestClient.queryGraphQL(redeployWithCurrentVersionMutation, variables).expectBody()
-            .jsonPath("$.data.redeployWithCurrentVersion").isNotEmpty
+            .graphqlData("redeployWithCurrentVersion").isNotEmpty
     }
 
     @Test
@@ -74,7 +75,7 @@ class ApplicationDeploymentMutationResolverTest {
         webTestClient.queryGraphQL(refreshApplicationDeploymentByDeploymentIdMutation, variables)
             .expectStatus().isOk
             .expectBody()
-            .jsonPath("$.data.refreshApplicationDeployment").isNotEmpty
+            .graphqlData("refreshApplicationDeployment").isNotEmpty
     }
 
     @Test
@@ -89,6 +90,6 @@ class ApplicationDeploymentMutationResolverTest {
         webTestClient.queryGraphQL(refreshApplicationDeploymentsByAffiliationsMutation, variables)
             .expectStatus().isOk
             .expectBody()
-            .jsonPath("$.data.refreshApplicationDeployments").isNotEmpty
+            .graphqlData("refreshApplicationDeployments").isNotEmpty
     }
 }

@@ -28,7 +28,7 @@ import org.springframework.test.web.reactive.server.WebTestClient
 @GraphQLTest
 class ApplicationDeploymentDetailsResolverTest {
 
-    @Value("classpath:graphql/getApplicationsWithPods.graphql")
+    @Value("classpath:graphql/queries/getApplicationsWithPods.graphql")
     private lateinit var getRepositoriesAndTagsQuery: Resource
 
     @Autowired

@@ -8,6 +8,7 @@ import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageRegistryServic
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
 import no.skatteetaten.aurora.gobo.integration.mokey.AuroraNamespacePermissions
 import no.skatteetaten.aurora.gobo.integration.mokey.PermissionService
+import no.skatteetaten.aurora.gobo.resolvers.graphqlData
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageTag
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import no.skatteetaten.aurora.gobo.security.OpenShiftUserLoader
@@ -27,9 +28,9 @@ import reactor.core.publisher.toMono
 @GraphQLTest
 class ApplicationWithLatestDigestQueryResolverTest {
     private val imageDetails =
-        "\$.data.applications.edges[0].node.applicationDeployments[0].details.imageDetails"
+        "applications.edges[0].node.applicationDeployments[0].details.imageDetails"
 
-    @Value("classpath:graphql/getApplicationsWithLatestDigest.graphql")
+    @Value("classpath:graphql/queries/getApplicationsWithLatestDigest.graphql")
     private lateinit var getApplicationsQuery: Resource
 
     @Autowired
@@ -79,9 +80,9 @@ class ApplicationWithLatestDigestQueryResolverTest {
         webTestClient.queryGraphQL(getApplicationsQuery, variables, "test-token")
             .expectStatus().isOk
             .expectBody()
-            .jsonPath("$.data.applications.totalCount").isNumber
-            .jsonPath("$imageDetails.dockerImageTagReference").isEqualTo("docker.registry/group/name:2")
-            .jsonPath("$imageDetails.digest").isEqualTo("sha256:123")
-            .jsonPath("$imageDetails.isLatestDigest").isEqualTo(true)
+            .graphqlData("applications.totalCount").isNumber
+            .graphqlData("$imageDetails.dockerImageTagReference").isEqualTo("docker.registry/group/name:2")
+            .graphqlData("$imageDetails.digest").isEqualTo("sha256:123")
+            .graphqlData("$imageDetails.isLatestDigest").isEqualTo(true)
     }
 }

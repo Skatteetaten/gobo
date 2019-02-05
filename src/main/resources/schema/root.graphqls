@@ -33,6 +33,7 @@ type Mutation {
   deleteDatabaseSchema(input: DeleteDatabaseSchemaInput!): Boolean
   testJdbcConnectionForJdbcUser(input: JdbcUserInput!): Boolean
   testJdbcConnectionForId(id: String!): Boolean
+  createDatabaseSchema(input: DatabaseSchemaCreationInput): Boolean
 }
 
 type PageInfo {

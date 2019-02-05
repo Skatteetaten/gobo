@@ -102,6 +102,19 @@ class DatabaseSchemaService(
         }
     }
 
+    fun createDatabaseSchema(input: SchemaCreationRequest): Mono<Boolean> {
+        val response: Mono<Response<Boolean>> = webClient
+            .post()
+            .uri("/api/v1/schema/")
+            .body(BodyInserters.fromObject(input))
+            .header(HttpHeaders.AUTHORIZATION, "$HEADER_AURORA_TOKEN ${sharedSecretReader.secret}")
+            .retrieve()
+            .bodyToMono()
+        return response.flatMap {
+            it.success.toMono()
+        }
+    }
+
     private fun Mono<Response<DatabaseSchemaResource>>.items() =
         this.flatMap { r ->
             if (!r.success) SourceSystemException(message = r.message, sourceSystem = "dbh").toMono()
@@ -137,6 +150,9 @@ class DatabaseSchemaServiceBlocking(private val databaseSchemaService: DatabaseS
 
     fun testJdbcConnection(id: String) =
         databaseSchemaService.testJdbcConnection(id = id).blockNonNullWithTimeout()
+
+    fun createDatabaseSchema(input: SchemaCreationRequest) =
+        databaseSchemaService.createDatabaseSchema(input).blockNonNullWithTimeout()
 
     private fun <T> Mono<T>.blockWithTimeout(): T? =
         this.blockAndHandleError(Duration.ofSeconds(30), "dbh")

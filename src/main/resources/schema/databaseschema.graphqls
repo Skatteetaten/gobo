@@ -33,6 +33,15 @@ input DatabaseSchemaUpdateInput {
   application: String!
 }
 
+input DatabaseSchemaCreationInput {
+  discriminator: String!
+  userId: String!
+  description: String
+  affiliation: String!
+  environment: String!
+  application: String!
+}
+
 input DeleteDatabaseSchemaInput {
   id: String!
   cooldownDurationHours: Long
