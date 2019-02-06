@@ -1,3 +1,3 @@
-mutation createDatabaseSchema($input: DatabaseSchemaCreationInput!){
+mutation createDatabaseSchema($input: CreateDatabaseSchemaInput!){
     createDatabaseSchema(input: $input)
 }
