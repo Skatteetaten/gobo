@@ -10,6 +10,7 @@ import no.skatteetaten.aurora.gobo.OpenShiftUserBuilder
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseSchemaServiceBlocking
 import no.skatteetaten.aurora.gobo.integration.dbh.JdbcUser
 import no.skatteetaten.aurora.gobo.resolvers.graphqlData
+import no.skatteetaten.aurora.gobo.resolvers.graphqlErrors
 import no.skatteetaten.aurora.gobo.resolvers.isFalse
 import no.skatteetaten.aurora.gobo.resolvers.isTrue
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
@@ -162,6 +163,17 @@ class DatabaseSchemaMutationResolverTest {
         )
             .expectBody()
             .graphqlData("testJdbcConnectionForId").isTrue()
+    }
+
+    @Test
+    fun `Test JDBC connection for id without token`() {
+        webTestClient.queryGraphQL(
+            queryResource = testJdbcConnectionForIdMutation,
+            variables = mapOf("id" to "123")
+        )
+            .expectBody()
+            .graphqlErrors("[0][?(@.message =~ /.*Anonymous user cannot test jdbc connection/)]")
+            .isNotEmpty
     }
 
     @Test
