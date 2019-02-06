@@ -6,6 +6,7 @@ import assertk.assertions.contains
 import assertk.assertions.endsWith
 import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
+import assertk.assertions.isFalse
 import assertk.assertions.isInstanceOf
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
@@ -169,6 +170,15 @@ class DatabaseSchemaServiceBlockingTest {
         assertThat(request).containsAuroraToken()
         assertThat(request.path).endsWith("/validate")
         assertThat(requestId).isEqualTo("123")
+    }
+
+    @Test
+    fun `Test jdbc connection for id given failing connection`() {
+        val response = Response(items = listOf(false))
+        server.execute(response) {
+            val success = databaseSchemaService.testJdbcConnection("123")
+            assertThat(success).isFalse()
+        }
     }
 
     private fun Assert<RecordedRequest>.containsAuroraToken() = given { request ->
