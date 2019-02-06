@@ -36,7 +36,7 @@ class DatabaseSchemaQueryResolver(private val databaseSchemaService: DatabaseSch
 @Component
 class DatabaseSchemaMutationResolver(private val databaseSchemaService: DatabaseSchemaServiceBlocking) :
     GraphQLMutationResolver {
-    fun updateDatabaseSchema(input: DatabaseSchemaUpdateInput, dfe: DataFetchingEnvironment): Boolean {
+    fun updateDatabaseSchema(input: UpdateDatabaseSchemaInput, dfe: DataFetchingEnvironment): Boolean {
         if (dfe.isAnonymousUser()) throw AccessDeniedException("Anonymous user cannot update database schema")
         return databaseSchemaService.updateDatabaseSchema(input.toSchemaUpdateRequest())
     }
@@ -56,7 +56,7 @@ class DatabaseSchemaMutationResolver(private val databaseSchemaService: Database
         return databaseSchemaService.testJdbcConnection(id)
     }
 
-    fun createDatabaseSchema(input: DatabaseSchemaCreationInput, dfe: DataFetchingEnvironment): Boolean {
+    fun createDatabaseSchema(input: CreateDatabaseSchemaInput, dfe: DataFetchingEnvironment): Boolean {
         if (dfe.isAnonymousUser()) throw AccessDeniedException("Anonymous user cannot create database schema")
         return databaseSchemaService.createDatabaseSchema(input.toSchemaCreationRequest())
     }

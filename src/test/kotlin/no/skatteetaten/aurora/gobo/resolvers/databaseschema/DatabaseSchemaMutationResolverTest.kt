@@ -53,7 +53,7 @@ class DatabaseSchemaMutationResolverTest {
 
     private val updateVariables = mapOf(
         "input" to jacksonObjectMapper().convertValue<Map<String, Any>>(
-            DatabaseSchemaUpdateInput(
+            UpdateDatabaseSchemaInput(
                 discriminator = "db1",
                 userId = "user",
                 description = "my db schema",
@@ -67,7 +67,7 @@ class DatabaseSchemaMutationResolverTest {
 
     private val creationVariables = mapOf(
         "input" to jacksonObjectMapper().convertValue<Map<String, Any>>(
-            DatabaseSchemaCreationInput(
+            CreateDatabaseSchemaInput(
                 discriminator = "db1",
                 userId = "user",
                 description = "my db schema",
@@ -80,7 +80,7 @@ class DatabaseSchemaMutationResolverTest {
 
     private val connectionVariables = mapOf(
         "input" to jacksonObjectMapper().convertValue<Map<String, Any>>(
-            DatabaseSchemaCreationInput(
+            CreateDatabaseSchemaInput(
                 jdbcUser = JdbcUser("user", "pass", "url"),
                 discriminator = "db1",
                 userId = "user",

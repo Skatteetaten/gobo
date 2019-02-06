@@ -23,7 +23,7 @@ type DatabaseSchema {
   users: [DatabaseUser]!
 }
 
-input DatabaseSchemaUpdateInput {
+input UpdateDatabaseSchemaInput {
   discriminator: String!
   userId: String!
   description: String
@@ -33,7 +33,7 @@ input DatabaseSchemaUpdateInput {
   application: String!
 }
 
-input DatabaseSchemaCreationInput {
+input CreateDatabaseSchemaInput {
   discriminator: String!
   userId: String!
   description: String

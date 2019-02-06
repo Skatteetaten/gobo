@@ -57,7 +57,7 @@ data class DatabaseSchema(
     }
 }
 
-data class DatabaseSchemaUpdateInput(
+data class UpdateDatabaseSchemaInput(
     val discriminator: String,
     val userId: String,
     val description: String,
@@ -80,7 +80,7 @@ data class DatabaseSchemaUpdateInput(
         )
 }
 
-data class DatabaseSchemaCreationInput(
+data class CreateDatabaseSchemaInput(
     val discriminator: String,
     val userId: String,
     val description: String,
