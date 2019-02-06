@@ -98,7 +98,7 @@ class DatabaseSchemaService(
             .retrieve()
             .bodyToMono()
         return response.flatMap {
-            it.success.toMono()
+            it.items.first().toMono()
         }
     }
 
