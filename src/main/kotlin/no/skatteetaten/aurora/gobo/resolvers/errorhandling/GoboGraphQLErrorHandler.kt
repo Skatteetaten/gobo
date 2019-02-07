@@ -2,7 +2,6 @@ package no.skatteetaten.aurora.gobo.resolvers.errorhandling
 
 import graphql.ExceptionWhileDataFetching
 import graphql.GraphQLError
-import graphql.servlet.GenericGraphQLError
 import graphql.servlet.GraphQLErrorHandler
 import no.skatteetaten.aurora.gobo.GoboException
 import org.springframework.stereotype.Component
@@ -13,7 +12,7 @@ class GoboGraphQLErrorHandler : GraphQLErrorHandler {
         errors ?: return mutableListOf()
         val errorsMap = errors.map {
             if (it is ExceptionWhileDataFetching && it.exception is GoboException) {
-                GenericGraphQLError(it.message)
+                GraphQLExceptionWrapper(it)
             } else {
                 it
             }
