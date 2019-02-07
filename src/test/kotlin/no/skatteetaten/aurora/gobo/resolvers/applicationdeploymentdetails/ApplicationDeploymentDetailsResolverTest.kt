@@ -1,6 +1,6 @@
 package no.skatteetaten.aurora.gobo.resolvers.applicationdeploymentdetails
 
-import assertk.assert
+import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentDetailsBuilder
@@ -68,15 +68,15 @@ class ApplicationDeploymentDetailsResolverTest {
                 val firstDeployment = applications.edges[0].node.applicationDeployments[0]
                 val pod = firstDeployment.details.podResources[0]
                 val managementResponses = pod.managementResponses
-                assert(managementResponses.health.textResponse).isEqualTo(healthResponseJson)
-                assert(managementResponses.info.textResponse).isEqualTo(infoResponseJson)
-                assert(pod.deployTag).isEqualTo("tag")
-                assert(pod.phase).isEqualTo("status")
-                assert(pod.ready).isFalse()
-                assert(pod.restartCount).isEqualTo(3)
-                assert(pod.containers.size).isEqualTo(2)
-                assert(pod.containers[0].restartCount).isEqualTo(1)
-                assert(pod.containers[1].restartCount).isEqualTo(2)
+                assertThat(managementResponses.health.textResponse).isEqualTo(healthResponseJson)
+                assertThat(managementResponses.info.textResponse).isEqualTo(infoResponseJson)
+                assertThat(pod.deployTag).isEqualTo("tag")
+                assertThat(pod.phase).isEqualTo("status")
+                assertThat(pod.ready).isFalse()
+                assertThat(pod.restartCount).isEqualTo(3)
+                assertThat(pod.containers.size).isEqualTo(2)
+                assertThat(pod.containers[0].restartCount).isEqualTo(1)
+                assertThat(pod.containers[1].restartCount).isEqualTo(2)
             }
     }
 }
@@ -84,7 +84,15 @@ class ApplicationDeploymentDetailsResolverTest {
 class QueryResponse {
     data class HttpResponse(val textResponse: String)
     data class ManagementResponses(val info: HttpResponse, val health: HttpResponse)
-    data class PodResource(val managementResponses: ManagementResponses, val phase: String, val deployTag: String, val ready: Boolean, val restartCount: Int, val containers: List<ContainerResource>)
+    data class PodResource(
+        val managementResponses: ManagementResponses,
+        val phase: String,
+        val deployTag: String,
+        val ready: Boolean,
+        val restartCount: Int,
+        val containers: List<ContainerResource>
+    )
+
     data class ApplicationDetails(val podResources: List<PodResource>)
     data class ApplicationDeployment(val details: ApplicationDetails)
     data class Application(val applicationDeployments: List<ApplicationDeployment>)

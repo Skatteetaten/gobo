@@ -1,31 +1,38 @@
 package no.skatteetaten.aurora.gobo.integration.dbh
 
-import assertk.assert
+import assertk.Assert
+import assertk.assertThat
 import assertk.assertions.contains
 import assertk.assertions.endsWith
 import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
+import assertk.assertions.isFalse
 import assertk.assertions.isInstanceOf
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import assertk.assertions.message
+import assertk.assertions.support.expected
 import assertk.catch
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.jayway.jsonpath.JsonPath
 import io.mockk.every
 import io.mockk.mockk
 import no.skatteetaten.aurora.gobo.DatabaseSchemaResourceBuilder
+import no.skatteetaten.aurora.gobo.JdbcUserBuilder
 import no.skatteetaten.aurora.gobo.SchemaCreationRequestBuilder
 import no.skatteetaten.aurora.gobo.SchemaDeletionRequestBuilder
 import no.skatteetaten.aurora.gobo.integration.MockWebServerTestTag
 import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
+import no.skatteetaten.aurora.gobo.integration.bodyAsObject
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseSchemaService.Companion.HEADER_COOLDOWN_DURATION_HOURS
 import no.skatteetaten.aurora.gobo.integration.execute
 import no.skatteetaten.aurora.gobo.security.SharedSecretReader
 import okhttp3.mockwebserver.MockWebServer
+import okhttp3.mockwebserver.RecordedRequest
 import org.junit.jupiter.api.Test
+import org.springframework.http.HttpHeaders
 import org.springframework.web.reactive.function.client.WebClient.create
 
 @MockWebServerTestTag
@@ -42,10 +49,11 @@ class DatabaseSchemaServiceBlockingTest {
         val response = Response(items = listOf(DatabaseSchemaResourceBuilder().build()))
         val request = server.execute(response) {
             val databaseSchemas = databaseSchemaService.getDatabaseSchemas("paas")
-            assert(databaseSchemas).hasSize(1)
+            assertThat(databaseSchemas).hasSize(1)
         }
-        assert(request.path).contains("affiliation")
-        assert(request.path).contains("paas")
+        assertThat(request).containsAuroraToken()
+        assertThat(request.path).contains("affiliation")
+        assertThat(request.path).contains("paas")
     }
 
     @Test
@@ -63,10 +71,11 @@ class DatabaseSchemaServiceBlockingTest {
 
         val request = server.execute(json) {
             val databaseSchemas = databaseSchemaService.getDatabaseSchemas("paas")
-            assert(databaseSchemas).hasSize(1)
+            assertThat(databaseSchemas).hasSize(1)
         }
-        assert(request.path).contains("affiliation")
-        assert(request.path).contains("paas")
+        assertThat(request).containsAuroraToken()
+        assertThat(request.path).contains("affiliation")
+        assertThat(request.path).contains("paas")
     }
 
     @Test
@@ -74,10 +83,9 @@ class DatabaseSchemaServiceBlockingTest {
         val response = Response<DatabaseSchemaResource>(message = "failed", success = false, items = emptyList())
         server.execute(response) {
             val exception = catch { databaseSchemaService.getDatabaseSchemas("paas") }
-            assert(exception).isNotNull {
-                it.isInstanceOf(SourceSystemException::class)
-                it.message().isEqualTo("failed")
-            }
+            assertThat(exception).isNotNull()
+                .isInstanceOf(SourceSystemException::class)
+                .message().isEqualTo("failed")
         }
     }
 
@@ -86,9 +94,10 @@ class DatabaseSchemaServiceBlockingTest {
         val response = Response(items = listOf(DatabaseSchemaResourceBuilder().build()))
         val request = server.execute(response) {
             val databaseSchema = databaseSchemaService.getDatabaseSchema("abc123")
-            assert(databaseSchema).isNotNull()
+            assertThat(databaseSchema).isNotNull()
         }
-        assert(request.path).endsWith("/abc123")
+        assertThat(request).containsAuroraToken()
+        assertThat(request.path).endsWith("/abc123")
     }
 
     @Test
@@ -97,9 +106,10 @@ class DatabaseSchemaServiceBlockingTest {
         val request = server.execute(response) {
             val databaseSchema =
                 databaseSchemaService.updateDatabaseSchema(SchemaCreationRequestBuilder("123").build())
-            assert(databaseSchema).isNotNull()
+            assertThat(databaseSchema).isNotNull()
         }
-        assert(request.path).endsWith("/123")
+        assertThat(request).containsAuroraToken()
+        assertThat(request.path).endsWith("/123")
     }
 
     @Test
@@ -107,10 +117,11 @@ class DatabaseSchemaServiceBlockingTest {
         val response = Response(items = emptyList<DatabaseSchemaResource>())
         val request = server.execute(response) {
             val deleted = databaseSchemaService.deleteDatabaseSchema(SchemaDeletionRequestBuilder(id = "123").build())
-            assert(deleted).isTrue()
+            assertThat(deleted).isTrue()
         }
-        assert(request.path).endsWith("/123")
-        assert(request.headers[HEADER_COOLDOWN_DURATION_HOURS]).isNull()
+        assertThat(request).containsAuroraToken()
+        assertThat(request.path).endsWith("/123")
+        assertThat(request.headers[HEADER_COOLDOWN_DURATION_HOURS]).isNull()
     }
 
     @Test
@@ -123,9 +134,57 @@ class DatabaseSchemaServiceBlockingTest {
                     cooldownDurationHours = 2
                 ).build()
             )
-            assert(deleted).isTrue()
+            assertThat(deleted).isTrue()
         }
-        assert(request.path).endsWith("/123")
-        assert(request.headers[HEADER_COOLDOWN_DURATION_HOURS]).isEqualTo("2")
+        assertThat(request).containsAuroraToken()
+        assertThat(request.path).endsWith("/123")
+        assertThat(request.headers[HEADER_COOLDOWN_DURATION_HOURS]).isEqualTo("2")
+    }
+
+    @Test
+    fun `Test jdbc connection for jdbcUser`() {
+        val jdbcUser = JdbcUserBuilder().build()
+        val response = Response(items = listOf(true))
+        val request = server.execute(response) {
+            val success = databaseSchemaService.testJdbcConnection(jdbcUser)
+            assertThat(success).isTrue()
+        }
+
+        val requestJdbcUser = request.bodyAsObject<JdbcUser>("$.jdbcUser")
+
+        assertThat(request).containsAuroraToken()
+        assertThat(request.path).endsWith("/validate")
+        assertThat(requestJdbcUser).isEqualTo(jdbcUser)
+    }
+
+    @Test
+    fun `Test jdbc connection for id`() {
+        val response = Response(items = listOf(true))
+        val request = server.execute(response) {
+            val success = databaseSchemaService.testJdbcConnection("123")
+            assertThat(success).isTrue()
+        }
+
+        val requestId = request.bodyAsObject<String>("$.id")
+
+        assertThat(request).containsAuroraToken()
+        assertThat(request.path).endsWith("/validate")
+        assertThat(requestId).isEqualTo("123")
+    }
+
+    @Test
+    fun `Test jdbc connection for id given failing connection`() {
+        val response = Response(items = listOf(false))
+        server.execute(response) {
+            val success = databaseSchemaService.testJdbcConnection("123")
+            assertThat(success).isFalse()
+        }
+    }
+
+    private fun Assert<RecordedRequest>.containsAuroraToken() = given { request ->
+        request.headers[HttpHeaders.AUTHORIZATION]?.let {
+            if (it.startsWith(DatabaseSchemaService.HEADER_AURORA_TOKEN)) return
+        }
+        expected("Authorization header to contain ${DatabaseSchemaService.HEADER_AURORA_TOKEN}")
     }
 }

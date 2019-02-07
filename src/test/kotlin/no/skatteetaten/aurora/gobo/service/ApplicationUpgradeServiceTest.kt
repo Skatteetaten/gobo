@@ -1,6 +1,6 @@
 package no.skatteetaten.aurora.gobo.service
 
-import assertk.assert
+import assertk.assertThat
 import assertk.assertions.contains
 import assertk.assertions.isEqualTo
 import assertk.assertions.isInstanceOf
@@ -50,11 +50,11 @@ class ApplicationUpgradeServiceTest {
             upgradeService.upgrade("token", "applicationDeploymentId", "version")
         }
 
-        assert(requests[0].path).isEqualTo("/mokey/api/auth/applicationdeploymentdetails/applicationDeploymentId")
-        assert(requests[1].path).isEqualTo("/boober/FilesCurrent")
-        assert(requests[2].path).isEqualTo("/boober/AuroraConfigFileCurrent")
-        assert(requests[3].path).isEqualTo("/boober/Apply")
-        assert(requests[4].path).isEqualTo("/mokey/api/auth/refresh")
+        assertThat(requests[0].path).isEqualTo("/mokey/api/auth/applicationdeploymentdetails/applicationDeploymentId")
+        assertThat(requests[1].path).isEqualTo("/boober/FilesCurrent")
+        assertThat(requests[2].path).isEqualTo("/boober/AuroraConfigFileCurrent")
+        assertThat(requests[3].path).isEqualTo("/boober/Apply")
+        assertThat(requests[4].path).isEqualTo("/mokey/api/auth/refresh")
     }
 
     @ParameterizedTest
@@ -65,7 +65,7 @@ class ApplicationUpgradeServiceTest {
     )
     fun `Handle exception from AuroraConfigService`(socketPolicy: SocketPolicy) {
         val failureResponse = MockResponse().apply { this.socketPolicy = socketPolicy }
-        assert {
+        assertThat {
             server.execute(failureResponse) {
                 upgradeService.upgrade("token", "applicationDeploymentId", "version")
             }
@@ -77,17 +77,14 @@ class ApplicationUpgradeServiceTest {
 
     @Test
     fun `Handle error response from AuroraConfigService`() {
-        assert {
+        assertThat {
             server.execute(404, "Not found") {
                 upgradeService.upgrade("token", "applicationDeploymentId", "version")
             }
         }.thrownError {
             server.takeRequest()
             isInstanceOf(SourceSystemException::class)
-            message().isNotNull {
-                it.contains("404")
-                it.contains("Not Found")
-            }
+            message().isNotNull().contains("404")
         }
     }
 

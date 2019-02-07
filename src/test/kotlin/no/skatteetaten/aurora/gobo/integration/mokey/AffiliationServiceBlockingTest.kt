@@ -1,6 +1,6 @@
 package no.skatteetaten.aurora.gobo.integration.mokey
 
-import assertk.assert
+import assertk.assertThat
 import assertk.assertions.contains
 import assertk.assertions.isNotEmpty
 import no.skatteetaten.aurora.gobo.integration.SpringTestTag
@@ -23,7 +23,7 @@ class AffiliationServiceBlockingTest {
     @Test
     fun `Get affiliations`() {
         val affiliations = affiliationServiceBlocking.getAllAffiliations()
-        assert(affiliations).isNotEmpty()
-        assert(affiliations).contains("paas")
+        assertThat(affiliations).isNotEmpty()
+        assertThat(affiliations).contains("paas")
     }
 }

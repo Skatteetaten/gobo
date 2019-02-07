@@ -31,6 +31,8 @@ type Mutation {
   updateUserSettings(input: UserSettingsInput!): Boolean
   updateDatabaseSchema(input: DatabaseSchemaInput!): Boolean
   deleteDatabaseSchema(input: DeleteDatabaseSchemaInput!): Boolean
+  testJdbcConnectionForJdbcUser(input: JdbcUserInput!): Boolean
+  testJdbcConnectionForId(id: String!): Boolean
 }
 
 type PageInfo {

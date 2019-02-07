@@ -1,6 +1,6 @@
 package no.skatteetaten.aurora.gobo.integration.imageregistry
 
-import assertk.assert
+import assertk.assertThat
 import assertk.assertions.containsAll
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
@@ -52,7 +52,7 @@ class ImageRegistryServiceBlockingTest {
     fun `verify fetches all tags for specified repo`() {
         val request = server.execute(tagsListResponse) {
             val tags = imageRegistry.findTagNamesInRepoOrderedByCreatedDateDesc(imageRepo)
-            assert(tags).containsAll(
+            assertThat(tags).containsAll(
                 "1",
                 "develop-SNAPSHOT",
                 "1.0.0-rc.2-b2.2.3-oracle8-1.4.0",
@@ -61,8 +61,8 @@ class ImageRegistryServiceBlockingTest {
             )
         }
 
-        assert(request.path).isEqualTo("/v2/$imageRepoName/tags/list")
-        assert(request.headers[HttpHeaders.AUTHORIZATION]).isNull()
+        assertThat(request.path).isEqualTo("/v2/$imageRepoName/tags/list")
+        assertThat(request.headers[HttpHeaders.AUTHORIZATION]).isNull()
     }
 
     @Test
@@ -74,29 +74,29 @@ class ImageRegistryServiceBlockingTest {
 
         val request = server.execute(tagsListResponse) {
             val tags = imageRegistry.findTagNamesInRepoOrderedByCreatedDateDesc(imageRepo)
-            assert(tags).isNotNull()
+            assertThat(tags).isNotNull()
         }
 
-        assert(request.path).isEqualTo("/v2/$imageRepoName/tags/list")
-        assert(request.headers[HttpHeaders.AUTHORIZATION]).isEqualTo("Bearer token")
+        assertThat(request.path).isEqualTo("/v2/$imageRepoName/tags/list")
+        assertThat(request.headers[HttpHeaders.AUTHORIZATION]).isEqualTo("Bearer token")
     }
 
     @Test
     fun `verify tag can be found by name`() {
         val request = server.execute(manifestResponse) {
             val tag = imageRegistry.findTagByName(imageRepo, tagName)
-            assert(tag.created).isEqualTo(Instant.parse("2017-09-25T11:38:20.361177648Z"))
-            assert(tag.name).isEqualTo(tagName)
-            assert(tag.type).isEqualTo(ImageTagType.MAJOR)
+            assertThat(tag.created).isEqualTo(Instant.parse("2017-09-25T11:38:20.361177648Z"))
+            assertThat(tag.name).isEqualTo(tagName)
+            assertThat(tag.type).isEqualTo(ImageTagType.MAJOR)
         }
 
-        assert(request.path).isEqualTo("/v2/$imageRepoName/manifests/$tagName")
+        assertThat(request.path).isEqualTo("/v2/$imageRepoName/manifests/$tagName")
     }
 
     @Test
     fun `Throw exception when bad request is returned from registry`() {
         server.execute(404, "Not found") {
-            assert {
+            assertThat {
                 imageRegistry.findTagByName(imageRepo, tagName)
             }.thrownError {
                 message().isEqualTo("No metadata for tag=$tagName in repo=${imageRepo.repository}")

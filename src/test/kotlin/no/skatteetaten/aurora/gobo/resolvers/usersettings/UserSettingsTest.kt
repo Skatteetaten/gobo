@@ -1,6 +1,6 @@
 package no.skatteetaten.aurora.gobo.resolvers.usersettings
 
-import assertk.assert
+import assertk.assertThat
 import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
 import org.junit.jupiter.api.Test
@@ -17,15 +17,15 @@ class UserSettingsTest {
     @Test
     fun `Get all applicationDeploymentFilters`() {
         val filters = userSettings.applicationDeploymentFilters()
-        assert(filters).hasSize(2)
-        assert(filters[0].affiliation).isEqualTo("aurora")
-        assert(filters[1].affiliation).isEqualTo("paas")
+        assertThat(filters).hasSize(2)
+        assertThat(filters[0].affiliation).isEqualTo("aurora")
+        assertThat(filters[1].affiliation).isEqualTo("paas")
     }
 
     @Test
     fun `Get applicationDeploymentFilters for affiliation`() {
         val filters = userSettings.applicationDeploymentFilters(listOf("aurora"))
-        assert(filters).hasSize(1)
-        assert(filters[0].affiliation).isEqualTo("aurora")
+        assertThat(filters).hasSize(1)
+        assertThat(filters[0].affiliation).isEqualTo("aurora")
     }
 }

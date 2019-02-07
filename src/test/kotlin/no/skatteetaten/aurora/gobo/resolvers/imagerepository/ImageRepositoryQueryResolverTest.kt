@@ -1,6 +1,6 @@
 package no.skatteetaten.aurora.gobo.resolvers.imagerepository
 
-import assertk.assert
+import assertk.assertThat
 import assertk.assertions.containsExactly
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotEmpty
@@ -81,12 +81,12 @@ class ImageRepositoryQueryResolverTest {
             .expectBody(QueryResponse.Response::class.java)
             .returnResult().let { result ->
                 result.responseBody!!.data.imageRepositories.forEachIndexed { repoIndex, repository ->
-                    assert(repository.repository).isEqualTo(testData[repoIndex].repoString)
-                    assert(repository.tags.totalCount).isEqualTo(testData[repoIndex].tags.size)
-                    assert(repository.tags.edges.size).isEqualTo(testData[repoIndex].tags.size)
+                    assertThat(repository.repository).isEqualTo(testData[repoIndex].repoString)
+                    assertThat(repository.tags.totalCount).isEqualTo(testData[repoIndex].tags.size)
+                    assertThat(repository.tags.edges.size).isEqualTo(testData[repoIndex].tags.size)
                     repository.tags.edges.forEachIndexed { edgeIndex, edge ->
-                        assert(edge.node.name).isEqualTo(testData[repoIndex].tags[edgeIndex])
-                        assert(edge.node.lastModified).isEqualTo(Instant.EPOCH.toString())
+                        assertThat(edge.node.name).isEqualTo(testData[repoIndex].tags[edgeIndex])
+                        assertThat(edge.node.lastModified).isEqualTo(Instant.EPOCH.toString())
                     }
                 }
             }
@@ -103,11 +103,11 @@ class ImageRepositoryQueryResolverTest {
             .expectBody(QueryResponse.Response::class.java)
             .returnResult().let { result ->
                 val tags = result.responseBody!!.data.imageRepositories[0].tags
-                assert(tags.totalCount).isEqualTo(testData[0].tags.size)
-                assert(tags.edges.size).isEqualTo(pageSize)
-                assert(tags.edges.map { it.node.name }).containsExactly("1", "1.0", "1.0.0")
-                assert(tags.pageInfo!!.startCursor).isNotEmpty()
-                assert(tags.pageInfo.hasNextPage).isTrue()
+                assertThat(tags.totalCount).isEqualTo(testData[0].tags.size)
+                assertThat(tags.edges.size).isEqualTo(pageSize)
+                assertThat(tags.edges.map { it.node.name }).containsExactly("1", "1.0", "1.0.0")
+                assertThat(tags.pageInfo!!.startCursor).isNotEmpty()
+                assertThat(tags.pageInfo.hasNextPage).isTrue()
             }
     }
 

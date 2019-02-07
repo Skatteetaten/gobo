@@ -1,6 +1,6 @@
 package no.skatteetaten.aurora.gobo.integration.dbh
 
-import assertk.assert
+import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNull
 import no.skatteetaten.aurora.gobo.DatabaseSchemaResourceBuilder
@@ -15,30 +15,30 @@ class DatabaseSchemaResourceTest {
 
     @Test
     fun `Get properties from labels`() {
-        assert(databaseSchemaResource.affiliation).isEqualTo("aurora")
-        assert(databaseSchemaResource.createdBy).isEqualTo("abc123")
-        assert(databaseSchemaResource.discriminator).isEqualTo("referanse")
-        assert(databaseSchemaResource.description).isEqualTo("my database schema")
+        assertThat(databaseSchemaResource.affiliation).isEqualTo("aurora")
+        assertThat(databaseSchemaResource.createdBy).isEqualTo("abc123")
+        assertThat(databaseSchemaResource.discriminator).isEqualTo("referanse")
+        assertThat(databaseSchemaResource.description).isEqualTo("my database schema")
     }
 
     @Test
     fun `Get description given no labels return null`() {
         val db = DatabaseSchemaResourceBuilder(labels = emptyMap()).build()
-        assert(db.description).isNull()
+        assertThat(db.description).isNull()
     }
 
     @Test
     fun `Get milliseconds as Instant`() {
         val created = databaseSchemaResource.createdDateAsInstant()
         val lastUsed = databaseSchemaResource.lastUsedDateAsInstant()
-        assert(created).isEqualTo(now)
-        assert(lastUsed).isEqualTo(now)
+        assertThat(created).isEqualTo(now)
+        assertThat(lastUsed).isEqualTo(now)
     }
 
     @Test
     fun `Get lastUsed with null value`() {
         val db = DatabaseSchemaResourceBuilder(lastUsedDate = null).build()
         val lastUsed = db.lastUsedDateAsInstant()
-        assert(lastUsed).isNull()
+        assertThat(lastUsed).isNull()
     }
 }

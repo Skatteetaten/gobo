@@ -12,6 +12,11 @@ data class DatabaseUserResource(val username: String, val password: String, val 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class DatabaseMetadataResource(val sizeInMb: Double)
 
+/**
+ * labels:
+ * createdBy == userId
+ * discriminator == name
+ */
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class DatabaseSchemaResource(
     val id: String,
@@ -28,9 +33,15 @@ data class DatabaseSchemaResource(
     val environment: String by labels
     val application: String by labels
     val affiliation: String by labels
-    val createdBy: String by labels
-    val discriminator: String by labels
     val description: String? by labels.withDefault { null }
+
+    private val userId: String by labels
+    val createdBy: String
+        get() = userId
+
+    // Using filter because there is a collision on "name", property and label is called "name"
+    val discriminator: String
+        get() = labels.filter { it.key == "name" }.values.first()
 
     fun createdDateAsInstant(): Instant = Instant.ofEpochMilli(createdDate)
 
@@ -58,4 +69,10 @@ data class SchemaCreationRequest(
 data class SchemaDeletionRequest(
     val id: String,
     val cooldownDurationHours: Long?
+)
+
+data class JdbcUser(
+    val username: String,
+    val password: String,
+    val jdbcUrl: String
 )
