@@ -9,6 +9,10 @@ import no.skatteetaten.aurora.gobo.JdbcUserBuilder
 import no.skatteetaten.aurora.gobo.OpenShiftUserBuilder
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseSchemaServiceBlocking
 import no.skatteetaten.aurora.gobo.integration.dbh.JdbcUser
+import no.skatteetaten.aurora.gobo.resolvers.graphqlData
+import no.skatteetaten.aurora.gobo.resolvers.graphqlErrors
+import no.skatteetaten.aurora.gobo.resolvers.isFalse
+import no.skatteetaten.aurora.gobo.resolvers.isTrue
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import no.skatteetaten.aurora.gobo.security.OpenShiftUserLoader
 import org.junit.jupiter.api.AfterEach
@@ -24,17 +28,20 @@ import org.springframework.test.web.reactive.server.WebTestClient
 
 @GraphQLTest
 class DatabaseSchemaMutationResolverTest {
-    @Value("classpath:graphql/updateDatabaseSchema.graphql")
+    @Value("classpath:graphql/mutations/updateDatabaseSchema.graphql")
     private lateinit var updateDatabaseSchemaMutation: Resource
 
-    @Value("classpath:graphql/deleteDatabaseSchema.graphql")
+    @Value("classpath:graphql/mutations/deleteDatabaseSchema.graphql")
     private lateinit var deleteDatabaseSchemaMutation: Resource
 
-    @Value("classpath:graphql/testJdbcConnectionForJdbcUser.graphql")
+    @Value("classpath:graphql/mutations/testJdbcConnectionForJdbcUser.graphql")
     private lateinit var testJdbcConnectionForJdbcUserMutation: Resource
 
-    @Value("classpath:graphql/testJdbcConnectionForId.graphql")
+    @Value("classpath:graphql/mutations/testJdbcConnectionForId.graphql")
     private lateinit var testJdbcConnectionForIdMutation: Resource
+
+    @Value("classpath:graphql/mutations/createDatabaseSchema.graphql")
+    private lateinit var createDatabaseSchemaMutation: Resource
 
     @Autowired
     private lateinit var webTestClient: WebTestClient
@@ -45,13 +52,40 @@ class DatabaseSchemaMutationResolverTest {
     @MockBean
     private lateinit var openShiftUserLoader: OpenShiftUserLoader
 
-    private val variables = mapOf(
+    private val updateVariables = mapOf(
         "input" to jacksonObjectMapper().convertValue<Map<String, Any>>(
-            DatabaseSchemaInput(
+            UpdateDatabaseSchemaInput(
                 discriminator = "db1",
                 userId = "user",
                 description = "my db schema",
                 id = "1234",
+                affiliation = "paas",
+                application = "application",
+                environment = "test"
+            )
+        )
+    )
+
+    private val creationVariables = mapOf(
+        "input" to jacksonObjectMapper().convertValue<Map<String, Any>>(
+            CreateDatabaseSchemaInput(
+                discriminator = "db1",
+                userId = "user",
+                description = "my db schema",
+                affiliation = "paas",
+                application = "application",
+                environment = "test"
+            )
+        )
+    )
+
+    private val connectionVariables = mapOf(
+        "input" to jacksonObjectMapper().convertValue<Map<String, Any>>(
+            CreateDatabaseSchemaInput(
+                jdbcUser = JdbcUser("user", "pass", "url"),
+                discriminator = "db1",
+                userId = "user",
+                description = "my db schema",
                 affiliation = "paas",
                 application = "application",
                 environment = "test"
@@ -73,11 +107,11 @@ class DatabaseSchemaMutationResolverTest {
         given(databaseSchemaService.updateDatabaseSchema(any())).willReturn(true)
         webTestClient.queryGraphQL(
             queryResource = updateDatabaseSchemaMutation,
-            variables = variables,
+            variables = updateVariables,
             token = "test-token"
         )
             .expectBody()
-            .jsonPath("$.data.updateDatabaseSchema").isEqualTo(true)
+            .graphqlData("updateDatabaseSchema").isTrue()
     }
 
     @Test
@@ -85,11 +119,11 @@ class DatabaseSchemaMutationResolverTest {
         given(databaseSchemaService.updateDatabaseSchema(any())).willReturn(false)
         webTestClient.queryGraphQL(
             queryResource = updateDatabaseSchemaMutation,
-            variables = variables,
+            variables = updateVariables,
             token = "test-token"
         )
             .expectBody()
-            .jsonPath("$.data.updateDatabaseSchema").isEqualTo(false)
+            .graphqlData("updateDatabaseSchema").isFalse()
     }
 
     @Test
@@ -102,7 +136,7 @@ class DatabaseSchemaMutationResolverTest {
             token = "test-token"
         )
             .expectBody()
-            .jsonPath("$.data.deleteDatabaseSchema").isEqualTo(true)
+            .graphqlData("deleteDatabaseSchema").isTrue()
     }
 
     @Test
@@ -116,7 +150,7 @@ class DatabaseSchemaMutationResolverTest {
             token = "test-token"
         )
             .expectBody()
-            .jsonPath("$.data.testJdbcConnectionForJdbcUser").isEqualTo(true)
+            .graphqlData("testJdbcConnectionForJdbcUser").isTrue()
     }
 
     @Test
@@ -128,6 +162,41 @@ class DatabaseSchemaMutationResolverTest {
             token = "test-token"
         )
             .expectBody()
-            .jsonPath("$.data.testJdbcConnectionForId").isEqualTo(true)
+            .graphqlData("testJdbcConnectionForId").isTrue()
+    }
+
+    @Test
+    fun `Test JDBC connection for id without token`() {
+        webTestClient.queryGraphQL(
+            queryResource = testJdbcConnectionForIdMutation,
+            variables = mapOf("id" to "123")
+        )
+            .expectBody()
+            .graphqlErrors("[0][?(@.message =~ /.*Anonymous user cannot test jdbc connection/)]")
+            .isNotEmpty
+    }
+
+    @Test
+    fun `Create database schema`() {
+        given(databaseSchemaService.createDatabaseSchema(any())).willReturn(true)
+        webTestClient.queryGraphQL(
+            queryResource = createDatabaseSchemaMutation,
+            variables = creationVariables,
+            token = "test-token"
+        )
+            .expectBody()
+            .graphqlData("createDatabaseSchema").isTrue()
+    }
+
+    @Test
+    fun `Create connection between existing database schema and dbh`() {
+        given(databaseSchemaService.createDatabaseSchema(any())).willReturn(true)
+        webTestClient.queryGraphQL(
+            queryResource = createDatabaseSchemaMutation,
+            variables = connectionVariables,
+            token = "test-token"
+        )
+            .expectBody()
+            .graphqlData("createDatabaseSchema").isTrue()
     }
 }

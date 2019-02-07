@@ -4,6 +4,7 @@ import no.skatteetaten.aurora.gobo.ApplicationResourceBuilder
 import no.skatteetaten.aurora.gobo.GraphQLTest
 import no.skatteetaten.aurora.gobo.integration.mokey.AffiliationServiceBlocking
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
+import no.skatteetaten.aurora.gobo.resolvers.graphqlData
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
@@ -18,7 +19,7 @@ import org.springframework.test.web.reactive.server.WebTestClient
 @GraphQLTest
 class AffiliationQueryResolverTest {
 
-    @Value("classpath:graphql/getAffiliations.graphql")
+    @Value("classpath:graphql/queries/getAffiliations.graphql")
     private lateinit var getAffiliationsQuery: Resource
 
     @Autowired
@@ -42,7 +43,7 @@ class AffiliationQueryResolverTest {
         webTestClient.queryGraphQL(getAffiliationsQuery)
             .expectStatus().isOk
             .expectBody()
-            .jsonPath("$.data.affiliations.totalCount").isNumber
-            .jsonPath("$.data.affiliations.edges[0].node.name").isNotEmpty
+            .graphqlData("affiliations.totalCount").isNumber
+            .graphqlData("affiliations.edges[0].node.name").isNotEmpty
     }
 }

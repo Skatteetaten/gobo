@@ -4,6 +4,8 @@ import no.skatteetaten.aurora.gobo.DatabaseSchemaResourceBuilder
 import no.skatteetaten.aurora.gobo.GraphQLTest
 import no.skatteetaten.aurora.gobo.OpenShiftUserBuilder
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseSchemaServiceBlocking
+import no.skatteetaten.aurora.gobo.resolvers.graphqlData
+import no.skatteetaten.aurora.gobo.resolvers.graphqlErrors
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import no.skatteetaten.aurora.gobo.security.OpenShiftUserLoader
 import org.junit.jupiter.api.AfterEach
@@ -21,12 +23,10 @@ import org.springframework.test.web.reactive.server.WebTestClient
 @GraphQLTest
 class DatabaseSchemaQueryResolverTest {
 
-    private val databaseSchemasPath = "$.data.databaseSchemas"
-
-    @Value("classpath:graphql/getDatabaseSchemasWithAffiliation.graphql")
+    @Value("classpath:graphql/queries/getDatabaseSchemasWithAffiliation.graphql")
     private lateinit var getDatabaseSchemasWithAffiliationQuery: Resource
 
-    @Value("classpath:graphql/getDatabaseSchemaWithId.graphql")
+    @Value("classpath:graphql/queries/getDatabaseSchemaWithId.graphql")
     private lateinit var getDatabaseSchemaWithIdQuery: Resource
 
     @Autowired
@@ -62,7 +62,7 @@ class DatabaseSchemaQueryResolverTest {
         )
             .expectStatus().isOk
             .expectBody()
-            .jsonPath("$.errors[0].message").isNotEmpty
+            .graphqlErrors("[0].message").isNotEmpty
     }
 
     @Test
@@ -75,10 +75,10 @@ class DatabaseSchemaQueryResolverTest {
         )
             .expectStatus().isOk
             .expectBody()
-            .jsonPath("$databaseSchemasPath.length()").isEqualTo(1)
-            .jsonPath("$databaseSchemasPath[0].databaseEngine").isEqualTo("ORACLE")
-            .jsonPath("$databaseSchemasPath[0].affiliation.name").isEqualTo("paas")
-            .jsonPath("$databaseSchemasPath[0].createdBy").isEqualTo("abc123")
+            .graphqlData("databaseSchemas.length()").isEqualTo(1)
+            .graphqlData("databaseSchemas[0].databaseEngine").isEqualTo("ORACLE")
+            .graphqlData("databaseSchemas[0].affiliation.name").isEqualTo("paas")
+            .graphqlData("databaseSchemas[0].createdBy").isEqualTo("abc123")
     }
 
     @Test
@@ -86,8 +86,8 @@ class DatabaseSchemaQueryResolverTest {
         webTestClient.queryGraphQL(queryResource = getDatabaseSchemaWithIdQuery, token = "test-token")
             .expectStatus().isOk
             .expectBody()
-            .jsonPath("$.data.databaseSchema.databaseEngine").doesNotExist()
-            .jsonPath("$.errors.length()").isEqualTo(1)
+            .graphqlData("databaseSchema.databaseEngine").doesNotExist()
+            .graphqlErrors("length()").isEqualTo(1)
     }
 
     @Test
@@ -100,6 +100,6 @@ class DatabaseSchemaQueryResolverTest {
         )
             .expectStatus().isOk
             .expectBody()
-            .jsonPath("$.data.databaseSchema.databaseEngine").isEqualTo("ORACLE")
+            .graphqlData("databaseSchema.databaseEngine").isEqualTo("ORACLE")
     }
 }

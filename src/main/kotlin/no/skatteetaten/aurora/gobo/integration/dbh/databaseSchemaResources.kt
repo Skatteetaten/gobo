@@ -1,6 +1,7 @@
 package no.skatteetaten.aurora.gobo.integration.dbh
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonProperty
 import java.time.Instant
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -59,11 +60,16 @@ data class DatabaseSchemaResource(
 }
 
 data class SchemaCreationRequest(
+    val labels: Map<String, String>,
+    @JsonProperty("schema")
+    val jdbcUser: JdbcUser? = null
+)
+
+data class SchemaUpdateRequest(
     val id: String,
     val labels: Map<String, String>,
-    val username: String? = null,
-    val jdbcUrl: String? = null,
-    val password: String? = null
+    @JsonProperty("schema")
+    val jdbcUser: JdbcUser? = null
 )
 
 data class SchemaDeletionRequest(

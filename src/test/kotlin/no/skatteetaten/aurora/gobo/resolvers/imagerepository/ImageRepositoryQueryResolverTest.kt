@@ -11,6 +11,7 @@ import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageRegistryServic
 import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageRepoDto
 import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageTagDto
 import no.skatteetaten.aurora.gobo.resolvers.createQuery
+import no.skatteetaten.aurora.gobo.resolvers.graphqlErrors
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository.Companion.fromRepoString
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import org.junit.jupiter.api.AfterEach
@@ -28,10 +29,10 @@ import java.time.Instant.EPOCH
 
 @GraphQLTest
 class ImageRepositoryQueryResolverTest {
-    @Value("classpath:graphql/getImageRepositories.graphql")
+    @Value("classpath:graphql/queries/getImageRepositories.graphql")
     private lateinit var reposWithTagsQuery: Resource
 
-    @Value("classpath:graphql/getImageTagsWithPaging.graphql")
+    @Value("classpath:graphql/queries/getImageTagsWithPaging.graphql")
     private lateinit var tagsWithPagingQuery: Resource
 
     @Autowired
@@ -120,10 +121,10 @@ class ImageRepositoryQueryResolverTest {
         webTestClient.queryGraphQL(reposWithTagsQuery, variables)
             .expectStatus().isOk
             .expectBody()
-            .jsonPath("$.errors.length()").isEqualTo(1)
-            .jsonPath("$.errors[0].extensions.code").exists()
-            .jsonPath("$.errors[0].extensions.cause").exists()
-            .jsonPath("$.errors[0].extensions.errorMessage").exists()
+            .graphqlErrors("length()").isEqualTo(1)
+            .graphqlErrors("[0].extensions.code").exists()
+            .graphqlErrors("[0].extensions.cause").exists()
+            .graphqlErrors("[0].extensions.errorMessage").exists()
     }
 }
 

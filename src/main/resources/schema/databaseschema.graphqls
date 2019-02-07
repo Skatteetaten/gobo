@@ -23,7 +23,7 @@ type DatabaseSchema {
   users: [DatabaseUser]!
 }
 
-input DatabaseSchemaInput {
+input UpdateDatabaseSchemaInput {
   discriminator: String!
   userId: String!
   description: String
@@ -31,6 +31,16 @@ input DatabaseSchemaInput {
   affiliation: String!
   environment: String!
   application: String!
+}
+
+input CreateDatabaseSchemaInput {
+  discriminator: String!
+  userId: String!
+  description: String
+  affiliation: String!
+  environment: String!
+  application: String!
+  jdbcUser: JdbcUserInput
 }
 
 input DeleteDatabaseSchemaInput {

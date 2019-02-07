@@ -5,6 +5,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import no.skatteetaten.aurora.gobo.GraphQLTest
 import no.skatteetaten.aurora.gobo.OpenShiftUserBuilder
 import no.skatteetaten.aurora.gobo.integration.boober.UserSettingsService
+import no.skatteetaten.aurora.gobo.resolvers.graphqlData
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import no.skatteetaten.aurora.gobo.security.OpenShiftUserLoader
 import org.junit.jupiter.api.AfterEach
@@ -23,7 +24,7 @@ import org.springframework.test.web.reactive.server.WebTestClient
 @GraphQLTest
 class UserSettingsMutationResolverTest {
 
-    @Value("classpath:graphql/updateUserSettings.graphql")
+    @Value("classpath:graphql/mutations/updateUserSettings.graphql")
     private lateinit var updateUserSettingsMutation: Resource
 
     @Autowired
@@ -63,7 +64,7 @@ class UserSettingsMutationResolverTest {
             token = "test-token"
         ).expectStatus().isOk
             .expectBody()
-            .jsonPath("$.data.updateUserSettings").isEqualTo(true)
+            .graphqlData("updateUserSettings").isEqualTo(true)
 
         verify(userSettingsService).updateUserSettings("test-token", userSettings)
     }

@@ -36,9 +36,9 @@ class DatabaseSchemaQueryResolver(private val databaseSchemaService: DatabaseSch
 @Component
 class DatabaseSchemaMutationResolver(private val databaseSchemaService: DatabaseSchemaServiceBlocking) :
     GraphQLMutationResolver {
-    fun updateDatabaseSchema(input: DatabaseSchemaInput, dfe: DataFetchingEnvironment): Boolean {
+    fun updateDatabaseSchema(input: UpdateDatabaseSchemaInput, dfe: DataFetchingEnvironment): Boolean {
         if (dfe.isAnonymousUser()) throw AccessDeniedException("Anonymous user cannot update database schema")
-        return databaseSchemaService.updateDatabaseSchema(input.toSchemaCreationRequest())
+        return databaseSchemaService.updateDatabaseSchema(input.toSchemaUpdateRequest())
     }
 
     fun deleteDatabaseSchema(input: SchemaDeletionRequest, dfe: DataFetchingEnvironment): Boolean {
@@ -54,6 +54,11 @@ class DatabaseSchemaMutationResolver(private val databaseSchemaService: Database
     fun testJdbcConnectionForId(id: String, dfe: DataFetchingEnvironment): Boolean {
         if (dfe.isAnonymousUser()) throw AccessDeniedException("Anonymous user cannot test jdbc connection")
         return databaseSchemaService.testJdbcConnection(id)
+    }
+
+    fun createDatabaseSchema(input: CreateDatabaseSchemaInput, dfe: DataFetchingEnvironment): Boolean {
+        if (dfe.isAnonymousUser()) throw AccessDeniedException("Anonymous user cannot create database schema")
+        return databaseSchemaService.createDatabaseSchema(input.toSchemaCreationRequest())
     }
 }
 

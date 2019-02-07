@@ -2,7 +2,9 @@ package no.skatteetaten.aurora.gobo.resolvers.databaseschema
 
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseSchemaResource
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseUserResource
+import no.skatteetaten.aurora.gobo.integration.dbh.JdbcUser
 import no.skatteetaten.aurora.gobo.integration.dbh.SchemaCreationRequest
+import no.skatteetaten.aurora.gobo.integration.dbh.SchemaUpdateRequest
 import no.skatteetaten.aurora.gobo.resolvers.affiliation.Affiliation
 import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.ApplicationDeployment
 import java.time.Instant
@@ -55,7 +57,7 @@ data class DatabaseSchema(
     }
 }
 
-data class DatabaseSchemaInput(
+data class UpdateDatabaseSchemaInput(
     val discriminator: String,
     val userId: String,
     val description: String,
@@ -64,10 +66,33 @@ data class DatabaseSchemaInput(
     val application: String,
     val environment: String
 ) {
+    fun toSchemaUpdateRequest() =
+        SchemaUpdateRequest(
+            id = id,
+            labels = mapOf(
+                "description" to description,
+                "name" to discriminator,
+                "userId" to userId,
+                "affiliation" to affiliation,
+                "application" to application,
+                "environment" to environment
+            )
+        )
+}
+
+data class CreateDatabaseSchemaInput(
+    val discriminator: String,
+    val userId: String,
+    val description: String,
+    val affiliation: String,
+    val application: String,
+    val environment: String,
+    val jdbcUser: JdbcUser? = null
+) {
     fun toSchemaCreationRequest() =
         SchemaCreationRequest(
-            id,
-            mapOf(
+            jdbcUser = jdbcUser,
+            labels = mapOf(
                 "description" to description,
                 "name" to discriminator,
                 "userId" to userId,
