@@ -56,7 +56,7 @@ class DatabaseSchemaMutationResolverTest {
         "input" to jacksonObjectMapper().convertValue<Map<String, Any>>(
             UpdateDatabaseSchemaInput(
                 discriminator = "db1",
-                userId = "user",
+                createdBy = "user",
                 description = "my db schema",
                 id = "1234",
                 affiliation = "paas",
@@ -70,7 +70,7 @@ class DatabaseSchemaMutationResolverTest {
         "input" to jacksonObjectMapper().convertValue<Map<String, Any>>(
             CreateDatabaseSchemaInput(
                 discriminator = "db1",
-                userId = "user",
+                createdBy = "user",
                 description = "my db schema",
                 affiliation = "paas",
                 application = "application",
@@ -84,7 +84,7 @@ class DatabaseSchemaMutationResolverTest {
             CreateDatabaseSchemaInput(
                 jdbcUser = JdbcUser("user", "pass", "url"),
                 discriminator = "db1",
-                userId = "user",
+                createdBy = "user",
                 description = "my db schema",
                 affiliation = "paas",
                 application = "application",
