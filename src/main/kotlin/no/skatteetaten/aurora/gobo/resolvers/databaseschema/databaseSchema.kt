@@ -59,7 +59,7 @@ data class DatabaseSchema(
 
 data class UpdateDatabaseSchemaInput(
     val discriminator: String,
-    val userId: String,
+    val createdBy: String,
     val description: String,
     val id: String,
     val affiliation: String,
@@ -72,7 +72,7 @@ data class UpdateDatabaseSchemaInput(
             labels = mapOf(
                 "description" to description,
                 "name" to discriminator,
-                "userId" to userId,
+                "userId" to createdBy,
                 "affiliation" to affiliation,
                 "application" to application,
                 "environment" to environment
@@ -82,7 +82,7 @@ data class UpdateDatabaseSchemaInput(
 
 data class CreateDatabaseSchemaInput(
     val discriminator: String,
-    val userId: String,
+    val createdBy: String,
     val description: String,
     val affiliation: String,
     val application: String,
@@ -95,7 +95,7 @@ data class CreateDatabaseSchemaInput(
             labels = mapOf(
                 "description" to description,
                 "name" to discriminator,
-                "userId" to userId,
+                "userId" to createdBy,
                 "affiliation" to affiliation,
                 "application" to application,
                 "environment" to environment

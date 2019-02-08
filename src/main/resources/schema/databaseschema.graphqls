@@ -25,7 +25,7 @@ type DatabaseSchema {
 
 input UpdateDatabaseSchemaInput {
   discriminator: String!
-  userId: String!
+  createdBy: String!
   description: String
   id: String!
   affiliation: String!
@@ -35,7 +35,7 @@ input UpdateDatabaseSchemaInput {
 
 input CreateDatabaseSchemaInput {
   discriminator: String!
-  userId: String!
+  createdBy: String!
   description: String
   affiliation: String!
   environment: String!
