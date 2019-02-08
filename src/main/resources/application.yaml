@@ -44,10 +44,7 @@ gobo:
         url: http://mokey-aurora.utv.paas.skead.no
     cantus:
         url: http://cantus.demo.utv.paas.skead.no
-    docker-registry:
-        url: https://test-docker-registry-internal-group.aurora.skead.no
-    cantus:
-        url: http://localhost:8090
+
 
 management:
     server:
