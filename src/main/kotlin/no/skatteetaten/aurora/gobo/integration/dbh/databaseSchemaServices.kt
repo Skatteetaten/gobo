@@ -105,19 +105,19 @@ class DatabaseSchemaService(
 
     fun createDatabaseSchema(input: SchemaCreationRequest): Mono<Boolean> {
         val missingLabels = input.findMissingLabels()
-        if (missingLabels.isEmpty()) {
-            val response: Mono<Response<DatabaseSchemaResource>> = webClient
-                .post()
-                .uri("/api/v1/schema/")
-                .body(BodyInserters.fromObject(input))
-                .header(HttpHeaders.AUTHORIZATION, "$HEADER_AURORA_TOKEN ${sharedSecretReader.secret}")
-                .retrieve()
-                .bodyToMono()
-            return response.flatMap {
-                it.success.toMono()
-            }
-        } else {
-            throw MissingLabelException("Missing labels in mutation input: $missingLabels")
+        if (missingLabels.isNotEmpty()) {
+            return Mono.error<Boolean>(MissingLabelException("Missing labels in mutation input: $missingLabels"))
+        }
+
+        val response: Mono<Response<DatabaseSchemaResource>> = webClient
+            .post()
+            .uri("/api/v1/schema/")
+            .body(BodyInserters.fromObject(input))
+            .header(HttpHeaders.AUTHORIZATION, "$HEADER_AURORA_TOKEN ${sharedSecretReader.secret}")
+            .retrieve()
+            .bodyToMono()
+        return response.flatMap {
+            it.success.toMono()
         }
     }
 
