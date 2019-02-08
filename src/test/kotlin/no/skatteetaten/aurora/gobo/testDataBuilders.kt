@@ -335,10 +335,20 @@ data class SchemaUpdateRequestBuilder(val id: String = "123", val jdbcUser: Jdbc
         SchemaUpdateRequest(id, emptyMap(), null)
 }
 
-data class SchemaCreationRequestBuilder(val id: String = "123") {
+data class SchemaCreationRequestBuilder(
+    val id: String = "123",
+    val labels: Map<String, String> = mapOf(
+        "affiliation" to "paas",
+        "name" to "ref-db",
+        "environment" to "test",
+        "application" to "referanse"
+    )
+) {
 
     fun build() =
-        SchemaCreationRequest(emptyMap(), JdbcUser(username = "username", password = "pass", jdbcUrl = "url"))
+        SchemaCreationRequest(
+            labels, JdbcUser(username = "username", password = "pass", jdbcUrl = "url")
+        )
 }
 
 data class SchemaDeletionRequestBuilder(val id: String = "123", val cooldownDurationHours: Long? = null) {

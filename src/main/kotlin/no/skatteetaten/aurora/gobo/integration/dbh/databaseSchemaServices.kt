@@ -5,6 +5,7 @@ import no.skatteetaten.aurora.gobo.TargetService
 import no.skatteetaten.aurora.gobo.createObjectMapper
 import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
+import no.skatteetaten.aurora.gobo.resolvers.MissingLabelException
 import no.skatteetaten.aurora.gobo.resolvers.blockAndHandleError
 import no.skatteetaten.aurora.gobo.resolvers.blockNonNullAndHandleError
 import no.skatteetaten.aurora.gobo.security.SharedSecretReader
@@ -103,6 +104,11 @@ class DatabaseSchemaService(
     }
 
     fun createDatabaseSchema(input: SchemaCreationRequest): Mono<Boolean> {
+        val missingLabels = input.findMissingLabels()
+        if (missingLabels.isNotEmpty()) {
+            return Mono.error<Boolean>(MissingLabelException("Missing labels in mutation input: $missingLabels"))
+        }
+
         val response: Mono<Response<DatabaseSchemaResource>> = webClient
             .post()
             .uri("/api/v1/schema/")
