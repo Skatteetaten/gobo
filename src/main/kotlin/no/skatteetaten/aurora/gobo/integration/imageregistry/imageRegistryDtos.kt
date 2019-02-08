@@ -42,3 +42,19 @@ data class ImageTagDto(val name: String, var created: Instant) {
     val type: ImageTagType
         get() = ImageTagType.typeOf(name)
 }
+
+data class ImageTag(val name: String, val type: ImageTagType)
+
+data class ImageTagsDto(val tags: List<ImageTag>) {
+    companion object {
+        fun toDto(tagResponse: AuroraResponse<TagResource>) =
+            ImageTagsDto(
+                tagResponse.items.map {
+                    ImageTag(
+                        name = it.name,
+                        type = it.type
+                    )
+                }.reversed()
+            )
+    }
+}

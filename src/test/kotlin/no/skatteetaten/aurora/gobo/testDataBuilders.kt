@@ -1,10 +1,12 @@
 package no.skatteetaten.aurora.gobo
 
 import io.fabric8.kubernetes.api.model.ObjectMeta
+import io.fabric8.openshift.api.model.Image
 import io.fabric8.openshift.api.model.User
 import no.skatteetaten.aurora.gobo.integration.boober.ApplicationDeploymentFilterResource
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileResource
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileType
+import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageTagType
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentCommandResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentDetailsResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentRefResource
@@ -112,7 +114,7 @@ data class ApplicationDeploymentBuilder(val affiliation: String = "paas") {
             environment = "environment",
             namespaceId = "namespaceId",
             status = Status("code", "comment", listOf(), listOf()),
-            version = Version(ImageTag(ImageRepository("", "", ""), "deployTag"), "auroraVersion", "releaseTo"),
+            version = Version(ImageTag(ImageRepository("", "", ""), "deployTag", ImageTagType.typeOf("deployTag")), "auroraVersion", "releaseTo"),
             dockerImageRepo = "dockerImageRepo",
             time = defaultInstant,
             applicationId = "appId"
