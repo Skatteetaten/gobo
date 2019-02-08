@@ -104,7 +104,7 @@ class DatabaseSchemaService(
     }
 
     fun createDatabaseSchema(input: SchemaCreationRequest): Mono<Boolean> {
-        val missingLabels = input.findMissingLabels()
+        val missingLabels = input.findMissingOrEmptyLabels()
         if (missingLabels.isNotEmpty()) {
             return Mono.error<Boolean>(MissingLabelException("Missing labels in mutation input: $missingLabels"))
         }

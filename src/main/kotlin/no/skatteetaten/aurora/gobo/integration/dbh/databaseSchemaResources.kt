@@ -68,7 +68,7 @@ data class SchemaCreationRequest(
         "affiliation", "name", "environment", "application"
     )
 
-    fun findMissingLabels(): List<String> = requiredLabels.filterNot { labels.keys.contains(it) }
+    fun findMissingOrEmptyLabels(): List<String> = requiredLabels.filter { labels[it]?.isEmpty() ?: true }
 }
 
 data class SchemaUpdateRequest(

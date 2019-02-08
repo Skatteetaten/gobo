@@ -11,7 +11,22 @@ class SchemaCreationRequestTest {
     fun `Find missing labels`() {
         val schemaCreationRequest =
             SchemaCreationRequestBuilder(labels = mapOf("affiliation" to "paas", "environment" to "test")).build()
-        val missingLabels = schemaCreationRequest.findMissingLabels()
+        val missingLabels = schemaCreationRequest.findMissingOrEmptyLabels()
+        assertThat(missingLabels).containsAll("application", "name")
+    }
+
+    @Test
+    fun `Find empty labels`() {
+        val schemaCreationRequest =
+            SchemaCreationRequestBuilder(
+                labels = mapOf(
+                    "affiliation" to "paas",
+                    "environment" to "test",
+                    "application" to "",
+                    "name" to ""
+                )
+            ).build()
+        val missingLabels = schemaCreationRequest.findMissingOrEmptyLabels()
         assertThat(missingLabels).containsAll("application", "name")
     }
 }
