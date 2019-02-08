@@ -52,6 +52,7 @@ data class ApplicationDeployment(
                     ImageTag(ImageRepository("", "", ""), deployment.version.deployTag, ImageTagType.typeOf(deployment.version.deployTag)),
                     deployment.version.auroraVersion,
                     deployment.version.releaseTo
+
                 ),
                 time = deployment.time,
                 dockerImageRepo = deployment.dockerImageRepo,

@@ -53,7 +53,6 @@ class ImageRegistryServiceBlocking(
             it.get().uri("/no_skatteetaten_aurora_demo/whoami/tags")
         } ?: AuroraResponse())
 
-
     }
 
     private fun getImageMetaData(imageRepoDto: ImageRepoDto, tag: String): ImageMetadata? {
@@ -61,9 +60,9 @@ class ImageRegistryServiceBlocking(
 
         return execute(registryMetadata.authenticationMethod) {
             it.get().uri("/{imageRepoDto.imageName}/{tag}/manifest", imageRepoDto.imageName, tag)
-
         }
     }
+
 
 
     private final inline fun <reified T : Any> execute(
