@@ -63,7 +63,13 @@ data class SchemaCreationRequest(
     val labels: Map<String, String>,
     @JsonProperty("schema")
     val jdbcUser: JdbcUser? = null
-)
+) {
+    private val requiredLabels = listOf(
+        "affiliation", "name", "environment", "application"
+    )
+
+    fun findMissingLabels(): List<String> = requiredLabels.filterNot { labels.keys.contains(it) }
+}
 
 data class SchemaUpdateRequest(
     val id: String,

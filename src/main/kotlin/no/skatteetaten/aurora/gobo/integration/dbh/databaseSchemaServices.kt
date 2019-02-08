@@ -5,6 +5,7 @@ import no.skatteetaten.aurora.gobo.TargetService
 import no.skatteetaten.aurora.gobo.createObjectMapper
 import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
+import no.skatteetaten.aurora.gobo.resolvers.MissingLabelException
 import no.skatteetaten.aurora.gobo.resolvers.blockAndHandleError
 import no.skatteetaten.aurora.gobo.resolvers.blockNonNullAndHandleError
 import no.skatteetaten.aurora.gobo.security.SharedSecretReader
@@ -103,15 +104,20 @@ class DatabaseSchemaService(
     }
 
     fun createDatabaseSchema(input: SchemaCreationRequest): Mono<Boolean> {
-        val response: Mono<Response<DatabaseSchemaResource>> = webClient
-            .post()
-            .uri("/api/v1/schema/")
-            .body(BodyInserters.fromObject(input))
-            .header(HttpHeaders.AUTHORIZATION, "$HEADER_AURORA_TOKEN ${sharedSecretReader.secret}")
-            .retrieve()
-            .bodyToMono()
-        return response.flatMap {
-            it.success.toMono()
+        val missingLabels = input.findMissingLabels()
+        if (missingLabels.isEmpty()) {
+            val response: Mono<Response<DatabaseSchemaResource>> = webClient
+                .post()
+                .uri("/api/v1/schema/")
+                .body(BodyInserters.fromObject(input))
+                .header(HttpHeaders.AUTHORIZATION, "$HEADER_AURORA_TOKEN ${sharedSecretReader.secret}")
+                .retrieve()
+                .bodyToMono()
+            return response.flatMap {
+                it.success.toMono()
+            }
+        } else {
+            throw MissingLabelException("Missing labels in mutation input: $missingLabels")
         }
     }
 
