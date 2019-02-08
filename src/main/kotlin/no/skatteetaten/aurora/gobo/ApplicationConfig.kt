@@ -70,7 +70,9 @@ class ApplicationConfig(
     fun webClientCantus(): WebClient {
         logger.info("Configuring Cantus WebClient with base Url={}", cantusUrl)
 
-        return webClientBuilder().baseUrl(cantusUrl).build()
+        return webClientBuilder()
+            .baseUrl(cantusUrl)
+            .build()
     }
 
     @Bean

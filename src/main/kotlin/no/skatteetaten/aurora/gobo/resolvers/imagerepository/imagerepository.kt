@@ -40,10 +40,10 @@ data class ImageRepository(
 
 data class ImageTag(
     val imageRepository: ImageRepository,
-    val name: String
+    val name: String,
+    val type: ImageTagType
 ) {
 
-    val type: ImageTagType get() = typeOf(name)
 
     companion object {
         private val logger = LoggerFactory.getLogger(ImageTag::class.java)
@@ -53,7 +53,7 @@ data class ImageTag(
             logger.debug("Create image tag from string=$tagString")
             val repo = tagString.substringBeforeLast(":")
             val tag = tagString.substringAfterLast(":")
-            return ImageTag(imageRepository = ImageRepository.fromRepoString(repo), name = tag)
+            return ImageTag(imageRepository = ImageRepository.fromRepoString(repo), name = tag, type = typeOf(tag))
         }
     }
 }

@@ -45,39 +45,29 @@ class ImageRegistryServiceBlocking(
         } ?: throw SourceSystemException("No metadata for tag=$tagName in repo=${imageRepoDto.repository}")
     }
 
-    fun findTagNamesInRepoOrderedByCreatedDateDesc(imageRepoDto: ImageRepoDto): List<String> {
+    fun findTagNamesInRepoOrderedByCreatedDateDesc(imageRepoDto: ImageRepoDto): ImageTagsDto {
         val registryMetadata = registryMetadataResolver.getMetadataForRegistry(imageRepoDto.registry)
 
-        val tagsOrderedByCreatedDate: List<String>? = getTags(imageRepoDto, registryMetadata.authenticationMethod)
-
-        // The current image registry returns the tag names in the order they were CREATED. There does not, however,
-        // seem to be a way to affect what property the tags are ordered by or the direction they are ordered in, so
-        // there is a chance this order is an "undocumented feature" of the api. We will rely on this feature for the
-        // time being, though, as it allows for some queries to be significantly quicker than fetching the individual
-        // CREATED dates for each tag, and then sort.
-        return tagsOrderedByCreatedDate?.reversed() ?: emptyList()
+        return ImageTagsDto.toDto(execute(registryMetadata.authenticationMethod) {
+            it.get().uri("/no_skatteetaten_aurora_demo/whoami/tags")
+        } ?: AuroraResponse())
     }
 
     private fun getImageMetaData(imageRepoDto: ImageRepoDto, tag: String): ImageMetadata? {
         val registryMetadata = registryMetadataResolver.getMetadataForRegistry(imageRepoDto.registry)
+
         return execute(registryMetadata.authenticationMethod) {
-            it.get().uri("/{imageName}/{imageTag}/manifest", imageRepoDto.imageName, tag)
+            it.get().uri("/{imageRepoDto.imageName}/{tag}/manifest", imageRepoDto.imageName, tag)
+
         }
     }
-
-    private fun getTags(
-        imageRepoDto: ImageRepoDto,
-        authenticationMethod: AuthenticationMethod
-    ): List<String>? =
-        execute(authenticationMethod) {
-            it.get().uri("/{imageName}/tags", imageRepoDto.imageName)
-        }
 
     private final inline fun <reified T : Any> execute(
         authenticationMethod: AuthenticationMethod,
         fn: (WebClient) -> WebClient.RequestHeadersSpec<*>
     ): T? = fn(webClient)
         .headers {
+            //TODO: This logic is in Cantus. How to do this properly? Gobo should always send a token to Cantus
             if (authenticationMethod == AuthenticationMethod.KUBERNETES_TOKEN) {
                 it.set("Authorization", "Bearer ${tokenProvider.token}")
             }

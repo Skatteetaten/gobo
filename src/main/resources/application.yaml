@@ -43,7 +43,7 @@ gobo:
     mokey:
         url: http://mokey-aurora.utv.paas.skead.no
     cantus:
-        url: localhost:8090
+        url: http://cantus.demo.utv.paas.skead.no
 
 management:
     server:

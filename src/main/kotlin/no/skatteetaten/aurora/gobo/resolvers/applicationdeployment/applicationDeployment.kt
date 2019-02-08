@@ -1,5 +1,6 @@
 package no.skatteetaten.aurora.gobo.resolvers.applicationdeployment
 
+import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageTagType
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationResource
 import no.skatteetaten.aurora.gobo.integration.mokey.StatusCheckResource
@@ -48,9 +49,9 @@ data class ApplicationDeployment(
                 version = Version(
                     // TODO: This is far from ideal and manually adding ImageTag here should be considered a temporary
                     // adjustment. We need to move ImageTag out of version.
-                    deployTag = ImageTag(ImageRepository("", "", ""), deployment.version.deployTag),
-                    auroraVersion = deployment.version.auroraVersion,
-                    releaseTo = deployment.version.releaseTo
+                    ImageTag(ImageRepository("", "", ""), deployment.version.deployTag, ImageTagType.typeOf(deployment.version.deployTag)),
+                    deployment.version.auroraVersion,
+                    deployment.version.releaseTo
                 ),
                 time = deployment.time,
                 dockerImageRepo = deployment.dockerImageRepo,
