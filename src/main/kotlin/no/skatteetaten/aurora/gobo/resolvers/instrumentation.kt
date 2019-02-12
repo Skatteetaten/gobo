@@ -23,7 +23,7 @@ class GoboInstrumentation : SimpleInstrumentation() {
         executionInput?.let {
             val query = it.query
             if (query.trimStart().startsWith("mutation")) {
-                logger.info("Mutation: $query")
+                logger.info("Mutation: $query - Variable keys: ${it.variables.keys}")
             } else {
                 logger.info("Query: $query - Variables: ${it.variables}")
             }
@@ -37,7 +37,6 @@ class GoboInstrumentation : SimpleInstrumentation() {
     ): ExecutionContext {
         val selectionSet = executionContext?.operationDefinition?.selectionSet ?: SelectionSet(emptyList())
         fields.updateFieldNames(selectionSet)
-
         return super.instrumentExecutionContext(executionContext, parameters)
     }
 }
@@ -45,7 +44,7 @@ class GoboInstrumentation : SimpleInstrumentation() {
 class Fields {
     private val _names: MutableSet<String> = mutableSetOf()
     val names: Set<String>
-        get() = _names.toSet()
+        get() = _names.sorted().toSet()
 
     fun updateFieldNames(selectionSet: SelectionSet?, parent: String? = null) {
         selectionSet?.selections?.map {
