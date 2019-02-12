@@ -48,10 +48,11 @@ class Fields {
 
     fun updateFieldNames(selectionSet: SelectionSet?, parent: String? = null) {
         selectionSet?.selections?.map {
-            val name = (it as Field).name
-            val fullName = if (parent == null) name else "$parent.$name"
-            _names.add(fullName)
-            updateFieldNames(it.selectionSet, fullName)
+            if (it is Field) {
+                val fullName = if (parent == null) it.name else "$parent.${it.name}"
+                _names.add(fullName)
+                updateFieldNames(it.selectionSet, fullName)
+            }
         }
     }
 }
