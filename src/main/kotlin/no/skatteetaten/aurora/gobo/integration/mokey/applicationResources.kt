@@ -117,6 +117,12 @@ data class AuroraConfigRefResource(
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+data class ApplicationDeploymentWithDbResource(
+    val databaseId: String,
+    val applicationDeployments: List<ApplicationDeploymentResource>
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class ApplicationDeploymentResource(
     val identifier: String,
     val name: String,

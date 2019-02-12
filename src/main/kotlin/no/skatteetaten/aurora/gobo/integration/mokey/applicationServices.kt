@@ -30,8 +30,8 @@ class ApplicationServiceBlocking(private val applicationService: ApplicationServ
     fun refreshApplicationDeployment(token: String, refreshParams: RefreshParams) =
         applicationService.refreshApplicationDeployment(token, refreshParams).blockWithTimeout()
 
-    fun getApplicationDeploymentsForDatabase(token: String, databaseId: String) =
-        applicationService.getApplicationDeploymentsForDatabase(token, databaseId).blockNonNullWithTimeout()
+    fun getApplicationDeploymentsForDatabase(token: String, databaseIds: List<String>) =
+        applicationService.getApplicationDeploymentsForDatabase(token, databaseIds).blockNonNullWithTimeout()
 
     private fun <T> Mono<T>.blockNonNullWithTimeout() = this.blockNonNullAndHandleError(Duration.ofSeconds(30), "mokey")
     private fun <T> Mono<T>.blockWithTimeout() = this.blockAndHandleError(Duration.ofSeconds(30), "mokey")
@@ -84,11 +84,13 @@ class ApplicationService(@TargetService(ServiceTypes.MOKEY) val webClient: WebCl
 
     fun getApplicationDeploymentsForDatabase(
         token: String,
-        databaseId: String
-    ): Mono<List<ApplicationDeploymentResource>> {
+        databaseIds: List<String>
+    ): Mono<List<ApplicationDeploymentWithDbResource>> {
+        data class Payload(val databaseIds: List<String>)
         return webClient
-            .get()
-            .uri("/api/auth/applicationdeploymentdetails/database/{databaseId}", databaseId)
+            .post()
+            .uri("/api/auth/applicationdeploymentwithdb")
+            .body(BodyInserters.fromObject(Payload(databaseIds)))
             .header(HttpHeaders.AUTHORIZATION, "Bearer $token")
             .retrieve()
             .bodyToMono()

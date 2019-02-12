@@ -1,19 +1,20 @@
 package no.skatteetaten.aurora.gobo.resolvers
 
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.async
-import kotlinx.coroutines.newFixedThreadPoolContext
 import kotlinx.coroutines.runBlocking
 import no.skatteetaten.aurora.gobo.resolvers.user.User
 import org.dataloader.DataLoader
 import org.dataloader.Try
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.Executors
 
 interface KeyDataLoader<K, V> {
     fun getByKey(user: User, key: K): Try<V>
 }
 
-val context = newFixedThreadPoolContext(6, "dataloader")
+val context = Executors.newFixedThreadPool(6).asCoroutineDispatcher()
 
 /*
   You this if you have a service that loads a single id. Will make requests in parallel
@@ -30,5 +31,20 @@ fun <K, V> batchDataLoaderMappedSingle(user: User, keyDataLoader: KeyDataLoader<
                 }
                 deferred.map { it.await() }.toMap()
             }
+        }
+    }
+
+
+interface MultiKeyDataLoader<K, V> {
+    fun getByKeys(user: User, keys: MutableSet<K>): Map<K, V>
+}
+
+/*
+  You this if you have a service that loads a single id. Will make requests in parallel
+ */
+fun <K, V> batchDataLoaderMapped(user: User, keyDataLoader: MultiKeyDataLoader<K, V>): DataLoader<K, V> =
+    DataLoader.newMappedDataLoader { keys: MutableSet<K> ->
+        CompletableFuture.supplyAsync {
+            keyDataLoader.getByKeys(user, keys)
         }
     }

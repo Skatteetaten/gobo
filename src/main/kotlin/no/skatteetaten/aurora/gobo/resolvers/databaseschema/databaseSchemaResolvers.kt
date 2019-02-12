@@ -11,9 +11,10 @@ import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
 import no.skatteetaten.aurora.gobo.resolvers.AccessDeniedException
 import no.skatteetaten.aurora.gobo.resolvers.affiliation.Affiliation
 import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.ApplicationDeployment
-import no.skatteetaten.aurora.gobo.security.currentUser
+import no.skatteetaten.aurora.gobo.resolvers.multiLoader
 import no.skatteetaten.aurora.gobo.security.isAnonymousUser
 import org.springframework.stereotype.Component
+import java.util.concurrent.CompletableFuture
 
 @Component
 class DatabaseSchemaQueryResolver(
@@ -72,9 +73,9 @@ class DatabaseSchemaMutationResolver(private val databaseSchemaService: Database
 @Component
 class DatabaseSchemaResolver(val applicationService: ApplicationServiceBlocking) : GraphQLResolver<DatabaseSchema> {
 
-    fun applicationDeployments(schema: DatabaseSchema, dfe: DataFetchingEnvironment): List<ApplicationDeployment> {
-        return applicationService.getApplicationDeploymentsForDatabase(dfe.currentUser().token, schema.id).map {
-            ApplicationDeployment.create(it)
-        }
-    }
+    fun applicationDeployments(
+        schema: DatabaseSchema,
+        dfe: DataFetchingEnvironment
+    ): CompletableFuture<List<ApplicationDeployment>> =
+        dfe.multiLoader(DatabaseSchemaDataLoader::class).load(schema.id)
 }
