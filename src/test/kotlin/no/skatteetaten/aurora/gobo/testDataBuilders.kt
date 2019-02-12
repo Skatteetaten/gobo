@@ -158,6 +158,7 @@ data class ApplicationDeploymentDetailsBuilder(
                 deployTag = "foobar",
                 paused = pause
             ),
+            databases = listOf(),
             podResources = listOf(
                 PodResourceResource(
                     name = "name",

@@ -10,6 +10,8 @@ spring:
         active: local
 
 gobo:
+    dbh:
+        url: http://dbh
     mokey:
         url: http://mokey
     boober:
@@ -39,6 +41,8 @@ spring:
     profiles: local
 
 gobo:
+    dbh:
+        url: http://dbh-aurora.utv.paas.skead.no
     boober:
         url: http://boober-aurora.utv.paas.skead.no
     mokey:
