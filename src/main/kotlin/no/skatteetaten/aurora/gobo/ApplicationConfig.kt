@@ -19,6 +19,8 @@ import org.springframework.web.reactive.function.client.ExchangeFilterFunction
 import org.springframework.web.reactive.function.client.ExchangeStrategies
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.core.publisher.toMono
+import reactor.netty.http.client.HttpClient
+import reactor.netty.tcp.SslProvider
 import java.util.concurrent.TimeUnit
 import kotlin.math.min
 
@@ -77,9 +79,8 @@ class ApplicationConfig(
     @TargetService(ServiceTypes.DBH)
     fun webClientDbh() = webClientBuilder().baseUrl(dbhUrl).build()
 
-    private fun webClientBuilder(ssl: Boolean = false): WebClient.Builder {
-
-        return WebClient
+    fun webClientBuilder(ssl: Boolean = false) =
+        WebClient
             .builder()
             .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .exchangeStrategies(exchangeStrategies())
@@ -92,7 +93,6 @@ class ApplicationConfig(
                 it.toMono()
             })
             .clientConnector(clientConnector(ssl))
-    }
 
     private fun exchangeStrategies(): ExchangeStrategies {
         val objectMapper = createObjectMapper()
@@ -105,21 +105,24 @@ class ApplicationConfig(
             .build()
     }
 
-    private fun clientConnector(ssl: Boolean = false) =
-        ReactorClientHttpConnector { options ->
-            if (ssl) {
-                val sslContext = SslContextBuilder
-                    .forClient()
-                    .trustManager(InsecureTrustManagerFactory.INSTANCE)
-                    .build()
-                options.sslContext(sslContext)
+    private fun clientConnector(ssl: Boolean = false): ReactorClientHttpConnector {
+        val httpClient = HttpClient.create().compress(true)
+            .tcpConfiguration {
+                it.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectionTimeout)
+                    .doOnConnected { connection ->
+                        connection.addHandlerLast(ReadTimeoutHandler(readTimeout.toLong(), TimeUnit.MILLISECONDS))
+                    }
             }
 
-            options
-                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectionTimeout)
-                .compression(true)
-                .afterNettyContextInit {
-                    it.addHandlerLast(ReadTimeoutHandler(readTimeout.toLong(), TimeUnit.MILLISECONDS))
-                }
+        if (ssl) {
+            val sslProvider = SslProvider.builder().sslContext(
+                SslContextBuilder.forClient().trustManager(InsecureTrustManagerFactory.INSTANCE)
+            ).defaultConfiguration(SslProvider.DefaultConfigurationType.NONE).build()
+            httpClient.tcpConfiguration {
+                it.secure(sslProvider)
+            }
         }
+
+        return ReactorClientHttpConnector(httpClient)
+    }
 }
