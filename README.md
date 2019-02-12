@@ -20,3 +20,8 @@ Tags:
 * **graphql**, tests for the graphql resolvers
 * **spring**, tests using the spring container
 * **mockwebserver**, tests using [MockWebServer](https://github.com/square/okhttp/tree/master/mockwebserver)
+
+
+## GraphQL tracing
+
+To enable tracing: `gobo.graphql.tracing-enabled=true`

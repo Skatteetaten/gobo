@@ -1,0 +1,7 @@
+type GoboUsage {
+  usedFields: [String]!
+}
+
+type Gobo {
+  usage: GoboUsage!
+}
