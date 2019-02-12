@@ -2,12 +2,26 @@ package no.skatteetaten.aurora.gobo.integration.imageregistry
 
 import java.time.Instant
 
-data class ImageRepoDto(val registry: String, val namespace: String, val name: String) {
+data class ImageRepoDto(
+    val registry: String,
+    val namespace: String,
+    val name: String,
+    val tag: String? = null
+) {
     val repository: String
         get() = listOf(registry, namespace, name).joinToString("/")
 
     val imageName: String
         get() = "$namespace/$name"
+
+    val imageTagName: String
+        get() = "$namespace/$name/$tag"
+
+    val mappedTemplateVars = mapOf(
+        "namespace" to namespace,
+        "name" to name,
+        "tag" to tag
+    )
 }
 
 enum class ImageTagType {
@@ -38,23 +52,31 @@ enum class ImageTagType {
     }
 }
 
-data class ImageTagDto(val name: String, var created: Instant) {
-    val type: ImageTagType
-        get() = ImageTagType.typeOf(name)
-}
+data class Tag(val name: String, val type: ImageTagType)
 
-data class ImageTag(val name: String, val type: ImageTagType)
-
-data class ImageTagsDto(val tags: List<ImageTag>) {
+data class TagsDto(val tags: List<Tag>) {
     companion object {
         fun toDto(tagResponse: AuroraResponse<TagResource>) =
-            ImageTagsDto(
+            TagsDto(
                 tagResponse.items.map {
-                    ImageTag(
+                    Tag(
                         name = it.name,
                         type = it.type
                     )
                 }.reversed()
+            )
+    }
+}
+
+data class ImageTagDto(
+    val dockerDigest: String,
+    val created: Instant?
+) {
+    companion object {
+        fun toDto(imageTagResponse: AuroraResponse<ImageTagResource>): ImageTagDto =
+            ImageTagDto(
+                dockerDigest = imageTagResponse.items[0].dockerDigest,
+                created = imageTagResponse.items[0].timeline.buildEnded
             )
     }
 }

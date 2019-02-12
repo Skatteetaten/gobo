@@ -68,4 +68,4 @@ data class ImageTagsConnection(
     constructor(paged: PagedEdges<ImageTagEdge>) : this(paged.edges, paged.pageInfo, paged.totalCount)
 }
 
-fun ImageRepository.toImageRepo() = ImageRepoDto(this.registryUrl, this.namespace, this.name)
+fun ImageRepository.toImageRepo(tag: String) = ImageRepoDto(this.registryUrl, this.namespace, this.name, tag)
