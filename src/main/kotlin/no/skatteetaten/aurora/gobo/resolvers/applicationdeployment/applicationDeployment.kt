@@ -53,6 +53,7 @@ data class ApplicationDeployment(
                     deployment.version.auroraVersion,
                     deployment.version.releaseTo
 
+
                 ),
                 time = deployment.time,
                 dockerImageRepo = deployment.dockerImageRepo,

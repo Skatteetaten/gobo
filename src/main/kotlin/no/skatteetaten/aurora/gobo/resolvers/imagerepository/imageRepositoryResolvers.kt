@@ -5,7 +5,8 @@ import com.coxautodev.graphql.tools.GraphQLResolver
 import graphql.schema.DataFetchingEnvironment
 import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageRegistryServiceBlocking
 import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageTagType
-import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageTagsDto
+import no.skatteetaten.aurora.gobo.integration.imageregistry.TagsDto
+import no.skatteetaten.aurora.gobo.resolvers.EmptyResponseException
 import no.skatteetaten.aurora.gobo.resolvers.loader
 import no.skatteetaten.aurora.gobo.resolvers.pageEdges
 import org.springframework.stereotype.Component
@@ -29,10 +30,10 @@ class ImageRepositoryResolver(val imageRegistryServiceBlocking: ImageRegistrySer
     ): ImageTagsConnection {
 
         val tagsInRepo = try {
-            imageRegistryServiceBlocking.findTagNamesInRepoOrderedByCreatedDateDesc(imageRepository.toImageRepo())
+            imageRegistryServiceBlocking.findTagNamesInRepoOrderedByCreatedDateDesc(imageRepository.toImageRepo(""))
         } catch (e: Exception) {
             // TODO: Indicate error to caller
-            ImageTagsDto(emptyList())
+            throw e
         }
         val matchingTags = tagsInRepo.tags
             .map { ImageTag(

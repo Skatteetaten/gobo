@@ -19,12 +19,12 @@ interface RegistryMetadataResolver {
 }
 
 @Component
-class DefaultRegistryMetadataResolver(@Value("\${gobo.internal-registry.url:docker-registry.default.svc:5000}") val internalRegistryAddress: String) :
+class DefaultRegistryMetadataResolver(@Value("\${gobo.cantus.url}") val internalCantusUrl: String) :
     RegistryMetadataResolver {
 
     override fun getMetadataForRegistry(registry: String): RegistryMetadata {
 
-        val isInternalRegistry = registry == internalRegistryAddress
+        val isInternalRegistry = registry == internalCantusUrl
         return if (isInternalRegistry) RegistryMetadata(registry, "http", KUBERNETES_TOKEN, isInternalRegistry)
         else RegistryMetadata(registry, "https", NONE, isInternalRegistry)
     }
