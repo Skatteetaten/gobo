@@ -54,7 +54,7 @@ class DatabaseSchemaService(
         }
     }
 
-    fun updateDatabaseSchema(input: SchemaUpdateRequest): Mono<Boolean> {
+    fun updateDatabaseSchema(input: SchemaUpdateRequest): Mono<DatabaseSchemaResource> {
         val response: Mono<Response<DatabaseSchemaResource>> = webClient
             .put()
             .uri("/api/v1/schema/${input.id}")
@@ -63,7 +63,7 @@ class DatabaseSchemaService(
             .retrieve()
             .bodyToMono()
         return response.flatMap {
-            it.success.toMono()
+            it.items.first().toMono()
         }
     }
 
@@ -103,10 +103,10 @@ class DatabaseSchemaService(
         }
     }
 
-    fun createDatabaseSchema(input: SchemaCreationRequest): Mono<Boolean> {
+    fun createDatabaseSchema(input: SchemaCreationRequest): Mono<DatabaseSchemaResource> {
         val missingLabels = input.findMissingOrEmptyLabels()
         if (missingLabels.isNotEmpty()) {
-            return Mono.error<Boolean>(MissingLabelException("Missing labels in mutation input: $missingLabels"))
+            return Mono.error<DatabaseSchemaResource>(MissingLabelException("Missing labels in mutation input: $missingLabels"))
         }
 
         val response: Mono<Response<DatabaseSchemaResource>> = webClient
@@ -117,7 +117,7 @@ class DatabaseSchemaService(
             .retrieve()
             .bodyToMono()
         return response.flatMap {
-            it.success.toMono()
+            it.items.first().toMono()
         }
     }
 

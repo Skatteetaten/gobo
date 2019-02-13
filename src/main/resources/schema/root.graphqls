@@ -21,11 +21,11 @@ type Mutation {
   refreshApplicationDeployment(input: RefreshByApplicationDeploymentIdInput!): Boolean
   refreshApplicationDeployments(input: RefreshByAffiliationsInput!): Boolean
   updateUserSettings(input: UserSettingsInput!): Boolean
-  updateDatabaseSchema(input: UpdateDatabaseSchemaInput!): Boolean
+  updateDatabaseSchema(input: UpdateDatabaseSchemaInput!): DatabaseSchema
   deleteDatabaseSchema(input: DeleteDatabaseSchemaInput!): Boolean
   testJdbcConnectionForJdbcUser(input: JdbcUserInput!): Boolean
   testJdbcConnectionForId(id: String!): Boolean
-  createDatabaseSchema(input: CreateDatabaseSchemaInput): Boolean
+  createDatabaseSchema(input: CreateDatabaseSchemaInput): DatabaseSchema
 }
 
 type PageInfo {

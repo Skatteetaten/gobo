@@ -1,3 +1,5 @@
 mutation createDatabaseSchema($input: CreateDatabaseSchemaInput!){
-    createDatabaseSchema(input: $input)
+    createDatabaseSchema(input: $input){
+      id
+    }
 }
