@@ -11,7 +11,7 @@ import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
 import no.skatteetaten.aurora.gobo.resolvers.AccessDeniedException
 import no.skatteetaten.aurora.gobo.resolvers.affiliation.Affiliation
 import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.ApplicationDeployment
-import no.skatteetaten.aurora.gobo.resolvers.multiLoader
+import no.skatteetaten.aurora.gobo.resolvers.multipleKeysLoader
 import no.skatteetaten.aurora.gobo.security.isAnonymousUser
 import org.springframework.stereotype.Component
 import java.util.concurrent.CompletableFuture
@@ -77,5 +77,5 @@ class DatabaseSchemaResolver(val applicationService: ApplicationServiceBlocking)
         schema: DatabaseSchema,
         dfe: DataFetchingEnvironment
     ): CompletableFuture<List<ApplicationDeployment>> =
-        dfe.multiLoader(DatabaseSchemaDataLoader::class).load(schema.id)
+        dfe.multipleKeysLoader(DatabaseSchemaDataLoader::class).load(schema.id)
 }

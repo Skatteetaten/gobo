@@ -31,7 +31,7 @@ fun <T : KeyDataLoader<*, V>, V> DataFetchingEnvironment.loader(type: KClass<T>)
         .getDataLoader<Any, Try<V>>(key) ?: throw IllegalStateException("No $key found")
 }
 
-fun <T : MultiKeyDataLoader<*, V>, V> DataFetchingEnvironment.multiLoader(type: KClass<T>): DataLoader<Any, V> {
+fun <T : MultipleKeysDataLoader<*, V>, V> DataFetchingEnvironment.multipleKeysLoader(type: KClass<T>): DataLoader<Any, V> {
     val key = "${type.simpleName}"
     return this.getContext<GraphQLContext>().dataLoaderRegistry.get()
         .getDataLoader<Any, V>(key) ?: throw IllegalStateException("No $key found")

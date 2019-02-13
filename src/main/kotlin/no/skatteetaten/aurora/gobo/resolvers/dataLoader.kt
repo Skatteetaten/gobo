@@ -17,7 +17,7 @@ interface KeyDataLoader<K, V> {
 val context = Executors.newFixedThreadPool(6).asCoroutineDispatcher()
 
 /*
-  You this if you have a service that loads a single id. Will make requests in parallel
+  Use this if you have a service that loads a single id. Will make requests in parallel
  */
 fun <K, V> batchDataLoaderMappedSingle(user: User, keyDataLoader: KeyDataLoader<K, V>): DataLoader<K, V> =
     DataLoader.newMappedDataLoaderWithTry { keys: Set<K> ->
@@ -35,16 +35,16 @@ fun <K, V> batchDataLoaderMappedSingle(user: User, keyDataLoader: KeyDataLoader<
     }
 
 
-interface MultiKeyDataLoader<K, V> {
+interface MultipleKeysDataLoader<K, V> {
     fun getByKeys(user: User, keys: MutableSet<K>): Map<K, V>
 }
 
 /*
-  You this if you have a service that loads a single id. Will make requests in parallel
+  Use this if you have a service that loads multiple ids.
  */
-fun <K, V> batchDataLoaderMapped(user: User, keyDataLoader: MultiKeyDataLoader<K, V>): DataLoader<K, V> =
+fun <K, V> batchDataLoaderMappedMultiple(user: User, keysDataLoader: MultipleKeysDataLoader<K, V>): DataLoader<K, V> =
     DataLoader.newMappedDataLoader { keys: MutableSet<K> ->
         CompletableFuture.supplyAsync {
-            keyDataLoader.getByKeys(user, keys)
+            keysDataLoader.getByKeys(user, keys)
         }
     }
