@@ -172,7 +172,7 @@ data class ApplicationDeploymentDetailsBuilder(
                 deployTag = "foobar",
                 paused = pause
             ),
-            databases = listOf("abc-def-ghi-jkl"),
+            databases = listOf("123"),
             podResources = listOf(
                 PodResourceResource(
                     name = "name",
