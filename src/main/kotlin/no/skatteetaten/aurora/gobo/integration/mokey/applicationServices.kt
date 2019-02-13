@@ -88,7 +88,7 @@ class ApplicationService(@TargetService(ServiceTypes.MOKEY) val webClient: WebCl
     ): Mono<List<ApplicationDeploymentWithDbResource>> {
         return webClient
             .post()
-            .uri("/api/auth/applicationdeploymentbyresource/database")
+            .uri("/api/auth/applicationdeploymentbyresource/databases")
             .body(BodyInserters.fromObject(object {
                 val databaseIds
                     get() = databaseIds
