@@ -13,8 +13,8 @@ class DatabaseSchemaDataLoader(
     override fun getByKeys(user: User, keys: MutableSet<String>): Map<String, List<ApplicationDeployment>> {
         val resources = applicationService.getApplicationDeploymentsForDatabase(user.token, keys.toList())
         return keys.associate { key ->
-            val applicationDeployments = resources.filter { resource ->
-                resource.databaseId == key
+            val applicationDeployments = resources.filter {
+                it.databaseId == key
             }.flatMap {
                 it.applicationDeployments
             }.map {
