@@ -51,7 +51,7 @@ class DatabaseSchemaQueryResolverTest {
         given(databaseSchemaService.getDatabaseSchema("myDbId"))
             .willReturn(DatabaseSchemaResourceBuilder().build())
 
-        given(applicationService.getApplicationDeploymentsForDatabase("test-token", listOf("123"))).willReturn(
+        given(applicationService.getApplicationDeploymentsForDatabases("test-token", listOf("123"))).willReturn(
             listOf(
                 ApplicationDeploymentWithDbResourceBuilder("123").build()
             )

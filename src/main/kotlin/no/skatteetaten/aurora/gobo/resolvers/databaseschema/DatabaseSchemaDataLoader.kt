@@ -11,7 +11,7 @@ class DatabaseSchemaDataLoader(
     private val applicationService: ApplicationServiceBlocking
 ) : MultipleKeysDataLoader<String, List<ApplicationDeployment>> {
     override fun getByKeys(user: User, keys: MutableSet<String>): Map<String, List<ApplicationDeployment>> {
-        val resources = applicationService.getApplicationDeploymentsForDatabase(user.token, keys.toList())
+        val resources = applicationService.getApplicationDeploymentsForDatabases(user.token, keys.toList())
         return keys.associate { key ->
             val applicationDeployments = resources.filter {
                 it.databaseId == key
