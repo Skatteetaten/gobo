@@ -64,6 +64,8 @@ class ImageRegistryServiceBlocking(
         fn: (WebClient) -> WebClient.RequestHeadersSpec<*>
     ): T = fn(webClient)
         .headers {
+
+            //TODO: Burde Gobo gjøre det på denne måten eller bruke tokenprovider?
             it.set("Authorization", "Bearer $token")
         }
         .retrieve()

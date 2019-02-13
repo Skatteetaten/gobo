@@ -10,6 +10,7 @@ import no.skatteetaten.aurora.gobo.resolvers.EmptyResponseException
 import no.skatteetaten.aurora.gobo.resolvers.loader
 import no.skatteetaten.aurora.gobo.resolvers.pageEdges
 import org.springframework.stereotype.Component
+import javax.servlet.http.HttpServletRequest
 
 @Component
 class ImageRepositoryQueryResolver : GraphQLQueryResolver {
@@ -51,6 +52,9 @@ class ImageRepositoryResolver(val imageRegistryServiceBlocking: ImageRegistrySer
 @Component
 class ImageRepositoryTagResolver : GraphQLResolver<ImageTag> {
 
-    fun lastModified(imageTag: ImageTag, dfe: DataFetchingEnvironment) =
+    fun lastModified(imageTag: ImageTag, dfe: DataFetchingEnvironment) {
+        val request: HttpServletRequest = dfe.getContext()
+        println(request.getHeader("Authorization"))
         dfe.loader(ImageTagDataLoader::class).load(imageTag)
+    }
 }
