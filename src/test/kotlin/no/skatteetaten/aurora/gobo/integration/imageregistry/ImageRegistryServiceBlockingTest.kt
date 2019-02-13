@@ -31,12 +31,12 @@ class ImageRegistryServiceBlockingTest {
 
     private val server = MockWebServer()
     private val url = server.url("/")
-    private val imageRepo = ImageRepository.fromRepoString("${url.host()}:${url.port()}/$imageRepoName").toImageRepo()
+    private val imageRepo = ImageRepository.fromRepoString("/$imageRepoName").toImageRepo(tagName)
 
     private val defaultRegistryMetadataResolver = mockk<DefaultRegistryMetadataResolver>()
     private val tokenProvider = mockk<TokenProvider>()
     private val imageRegistry = ImageRegistryServiceBlocking(
-        defaultRegistryMetadataResolver, WebClient.create(url.toString()), tokenProvider
+        defaultRegistryMetadataResolver, WebClient.create(url.toString()), tokenProvider, ImageRegistryUrlBuilder()
     )
 
     @BeforeEach
@@ -53,7 +53,7 @@ class ImageRegistryServiceBlockingTest {
         val tagsListResponse = MockResponse().setJsonFileAsBody("cantusTags.json")
         val request = server.execute(tagsListResponse) {
             val tags = imageRegistry.findTagNamesInRepoOrderedByCreatedDateDesc(imageRepo)
-            assert(tags).containsAll(
+            assert(tags.tags).containsAll(
                 "2",
                 "foo",
                 "jarle_test-SNAPSHOT",
@@ -96,10 +96,8 @@ class ImageRegistryServiceBlockingTest {
         val response = MockResponse().setJsonFileAsBody("cantusManifest.json")
 
         val request = server.execute(response) {
-            val tag = imageRegistry.findTagByName(imageRepo, tagName)
+            val tag = imageRegistry.findTagByName(imageRepo)
             assert(tag.created).isEqualTo(Instant.parse("2018-11-05T14:01:22.654389192Z"))
-            assert(tag.name).isEqualTo(tagName)
-            assert(tag.type).isEqualTo(ImageTagType.MAJOR)
         }
 
         assert(request.getRequestPath()).isEqualTo("/$imageRepoName/$tagName/manifest")
@@ -110,7 +108,7 @@ class ImageRegistryServiceBlockingTest {
     fun `Throw exception when bad request is returned from registry`() {
         server.execute(404, "Not found") {
             assert {
-                imageRegistry.findTagByName(imageRepo, tagName)
+                imageRegistry.findTagByName(imageRepo)
             }.thrownError {
                 message().isEqualTo("Error in response, status:404 message:Not Found")
             }
