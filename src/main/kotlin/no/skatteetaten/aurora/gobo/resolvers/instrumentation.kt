@@ -23,9 +23,9 @@ class GoboInstrumentation : SimpleInstrumentation() {
         executionInput?.let {
             val query = it.query
             if (query.trimStart().startsWith("mutation")) {
-                logger.info("Mutation: $query - Variable keys: ${it.variables.keys}")
+                logger.info("mutation=\"$query\" - variable-keys=${it.variables.keys}")
             } else {
-                logger.info("Query: $query - Variables: ${it.variables}")
+                logger.info("query=\"$query\" - variables=${it.variables}")
             }
         }
         return super.instrumentExecutionInput(executionInput, parameters)
