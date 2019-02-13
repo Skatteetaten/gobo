@@ -32,9 +32,9 @@ class ImageRegistryServiceBlocking(
 
     fun findTagNamesInRepoOrderedByCreatedDateDesc(imageRepoDto: ImageRepoDto): TagsDto {
         val registryMetadata = registryMetadataResolver.getMetadataForRegistry(imageRepoDto.registry)
+        val token = ""
 
-
-        return TagsDto.toDto(execute(registryMetadata.authenticationMethod) {
+        return TagsDto.toDto(execute(token) {
             it.get().uri(
                 urlBuilder.createTagsUrl(imageRepoDto, registryMetadata),
                 imageRepoDto.mappedTemplateVars
@@ -46,7 +46,8 @@ class ImageRegistryServiceBlocking(
     private fun getAuroraResponseImageTagResource(imageRepoDto: ImageRepoDto): ImageTagDto {
         val registryMetadata = registryMetadataResolver.getMetadataForRegistry(imageRepoDto.registry)
 
-        val auroraImageTagResource: AuroraResponse<ImageTagResource> = execute(registryMetadata.authenticationMethod) {
+        val token = ""
+        val auroraImageTagResource: AuroraResponse<ImageTagResource> = execute(token) {
             it.get().uri(
                 urlBuilder.createImageTagUrl(imageRepoDto, registryMetadata),
                 imageRepoDto.mappedTemplateVars
@@ -59,14 +60,11 @@ class ImageRegistryServiceBlocking(
 
 
     private final inline fun <reified T : Any> execute(
-        authenticationMethod: AuthenticationMethod,
+        token: String,
         fn: (WebClient) -> WebClient.RequestHeadersSpec<*>
     ): T = fn(webClient)
         .headers {
-            //TODO: This logic is in Cantus. How to do this properly? Gobo should always send a token to Cantus
-            if (authenticationMethod == AuthenticationMethod.KUBERNETES_TOKEN) {
-                it.set("Authorization", "Bearer ${tokenProvider.token}")
-            }
+            it.set("Authorization", "Bearer $token")
         }
         .retrieve()
         .bodyToMono<T>()

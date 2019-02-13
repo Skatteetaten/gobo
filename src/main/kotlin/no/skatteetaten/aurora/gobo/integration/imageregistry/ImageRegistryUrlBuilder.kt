@@ -13,7 +13,8 @@ class ImageRegistryUrlBuilder {
         registryMetadata: RegistryMetadata
     ): String {
         logger.debug("Retrieving type=TagResource from  url=${registryMetadata.registry} image=${imageRepoDto.imageName}")
-        return "/{namespace}/{name}/tags"
+        val path = "/{namespace}/{name}/tags"
+        return imageRepoDto.addOverrideIfExists(path)
     }
 
     fun createImageTagUrl(
@@ -21,6 +22,11 @@ class ImageRegistryUrlBuilder {
         registryMetadata: RegistryMetadata
     ): String {
         logger.debug("Retrieving type=ImageTagResource from  url=${registryMetadata.registry} image=${imageRepoDto.imageTagName}")
-        return "/{namespace}/{name}/{tag}/manifest"
+        val path = "/{namespace}/{name}/{tag}/manifest"
+        return imageRepoDto.addOverrideIfExists(path)
     }
+
+    fun ImageRepoDto.addOverrideIfExists(path: String) =
+        if (this.registry.isEmpty()) path
+        else "$path?dockerRegistryUrl=${this.registry}"
 }
