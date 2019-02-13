@@ -28,4 +28,13 @@ class DefaultRegistryMetadataResolverTest {
         assertThat(metadata.apiSchema).isEqualTo("https")
         assertThat(metadata.authenticationMethod).isEqualTo(NONE)
     }
+
+    @Test
+    fun `verify metadata for internal IP`() {
+        val metadata = metadataResolver.getMetadataForRegistry("127.0.0.1:5000")
+
+        assertThat(metadata.apiSchema).isEqualTo("http")
+        assertThat(metadata.authenticationMethod).isEqualTo(KUBERNETES_TOKEN)
+        assertThat(metadata.isInternal).isEqualTo(true)
+    }
 }
