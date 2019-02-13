@@ -12,7 +12,23 @@ data class RegistryMetadata(
     val apiSchema: String,
     val authenticationMethod: AuthenticationMethod,
     val isInternal: Boolean
-)
+) {
+    companion object {
+        fun http(registry: String) = RegistryMetadata(
+            registry = registry,
+            apiSchema = "http",
+            authenticationMethod = KUBERNETES_TOKEN,
+            isInternal = true
+        )
+
+        fun https(registry: String) = RegistryMetadata(
+            registry = registry,
+            apiSchema = "https",
+            authenticationMethod = NONE,
+            isInternal = false
+        )
+    }
+}
 
 interface RegistryMetadataResolver {
     fun getMetadataForRegistry(registry: String): RegistryMetadata
@@ -22,10 +38,16 @@ interface RegistryMetadataResolver {
 class DefaultRegistryMetadataResolver(@Value("\${gobo.internal-registry.url:docker-registry.default.svc:5000}") val internalRegistryAddress: String) :
     RegistryMetadataResolver {
 
-    override fun getMetadataForRegistry(registry: String): RegistryMetadata {
+    private val ipV4WithPortRegex =
+        "^((25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\.){3}(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]):[0-9]{1,4}\$".toRegex()
 
-        val isInternalRegistry = registry == internalRegistryAddress
-        return if (isInternalRegistry) RegistryMetadata(registry, "http", KUBERNETES_TOKEN, isInternalRegistry)
-        else RegistryMetadata(registry, "https", NONE, isInternalRegistry)
-    }
+    private fun isInternal(registry: String) =
+        registry == internalRegistryAddress || registry.matches(ipV4WithPortRegex)
+
+    override fun getMetadataForRegistry(registry: String) =
+        if (isInternal(registry)) {
+            RegistryMetadata.http(registry)
+        } else {
+            RegistryMetadata.https(registry)
+        }
 }

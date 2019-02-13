@@ -21,22 +21,29 @@ import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.SocketPolicy
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
 import org.springframework.hateoas.Link
 
+@TestInstance(TestInstance.Lifecycle.PER_METHOD)
 @MockWebServerTestTag
 class ApplicationUpgradeServiceTest {
 
     private val server = MockWebServer()
     private val url = server.url("/")
 
-    private val config = ApplicationConfig("${url}mokey", "${url}unclematt", "${url}dbh", 500, 500)
-
+    private val config = ApplicationConfig("${url}mokey", "${url}unclematt", "${url}dbh", 50, 50)
     private val auroraConfigService = AuroraConfigService(BooberWebClient("${url}boober", config.webClientBoober()))
     private val applicationService = ApplicationServiceBlocking(ApplicationService(config.webClientMokey()))
     private val upgradeService = ApplicationUpgradeService(applicationService, auroraConfigService)
+
+    @AfterEach
+    fun tearDown() {
+        server.shutdown()
+    }
 
     @Test
     fun `Update application deployment version`() {
@@ -60,8 +67,8 @@ class ApplicationUpgradeServiceTest {
     @ParameterizedTest
     @EnumSource(
         value = SocketPolicy::class,
-        names = ["STALL_SOCKET_AT_START", "NO_RESPONSE"],
-        mode = EnumSource.Mode.EXCLUDE
+        names = ["DISCONNECT_AFTER_REQUEST", "DISCONNECT_DURING_RESPONSE_BODY", "NO_RESPONSE"],
+        mode = EnumSource.Mode.INCLUDE
     )
     fun `Handle exception from AuroraConfigService`(socketPolicy: SocketPolicy) {
         val failureResponse = MockResponse().apply { this.socketPolicy = socketPolicy }

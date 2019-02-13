@@ -1,0 +1,7 @@
+{
+    gobo {
+        usage {
+            usedFields
+        }
+    }
+}

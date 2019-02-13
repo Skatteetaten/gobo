@@ -1,13 +1,12 @@
 package no.skatteetaten.aurora.gobo.resolvers.imagerepository
 
-import graphql.relay.DefaultEdge
-import graphql.relay.PageInfo
-import no.skatteetaten.aurora.gobo.resolvers.Connection
-import no.skatteetaten.aurora.gobo.resolvers.Cursor
-import no.skatteetaten.aurora.gobo.resolvers.PagedEdges
 import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageRepoDto
 import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageTagType
 import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageTagType.Companion.typeOf
+import no.skatteetaten.aurora.gobo.resolvers.GoboConnection
+import no.skatteetaten.aurora.gobo.resolvers.GoboEdge
+import no.skatteetaten.aurora.gobo.resolvers.GoboPageInfo
+import no.skatteetaten.aurora.gobo.resolvers.GoboPagedEdges
 import org.slf4j.LoggerFactory
 
 data class ImageRepository(
@@ -58,14 +57,14 @@ data class ImageTag(
     }
 }
 
-data class ImageTagEdge(private val node: ImageTag) : DefaultEdge<ImageTag>(node, Cursor(node.name))
+data class ImageTagEdge(val node: ImageTag) : GoboEdge(node.name)
 
 data class ImageTagsConnection(
     override val edges: List<ImageTagEdge>,
-    override val pageInfo: PageInfo?,
+    override val pageInfo: GoboPageInfo?,
     override val totalCount: Int = edges.size
-) : Connection<ImageTagEdge>() {
-    constructor(paged: PagedEdges<ImageTagEdge>) : this(paged.edges, paged.pageInfo, paged.totalCount)
+) : GoboConnection<ImageTagEdge>() {
+    constructor(paged: GoboPagedEdges<ImageTagEdge>) : this(paged.edges, paged.pageInfo, paged.totalCount)
 }
 
 fun ImageRepository.toImageRepo() = ImageRepoDto(this.registryUrl, this.namespace, this.name)

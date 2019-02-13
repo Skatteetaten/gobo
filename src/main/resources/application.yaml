@@ -16,6 +16,9 @@ gobo:
         url: http://boober
     unclematt:
         url: http://unclematt-aurora-daemons.utv.paas.skead.no
+    graphql:
+        tracing-enabled: false
+
 aurora:
     starter:
         headerfilter:

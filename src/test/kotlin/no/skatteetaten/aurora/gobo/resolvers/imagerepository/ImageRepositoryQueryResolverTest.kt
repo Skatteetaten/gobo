@@ -3,13 +3,15 @@ package no.skatteetaten.aurora.gobo.resolvers.imagerepository
 import assertk.assertThat
 import assertk.assertions.containsExactly
 import assertk.assertions.isEqualTo
-import assertk.assertions.isNotEmpty
+import assertk.assertions.isNotEqualTo
+import assertk.assertions.isNotNull
 import assertk.assertions.isTrue
 import no.skatteetaten.aurora.gobo.GraphQLTest
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageRegistryServiceBlocking
 import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageRepoDto
 import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageTagDto
+import no.skatteetaten.aurora.gobo.resolvers.GoboPageInfo
 import no.skatteetaten.aurora.gobo.resolvers.createQuery
 import no.skatteetaten.aurora.gobo.resolvers.graphqlErrors
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository.Companion.fromRepoString
@@ -107,8 +109,8 @@ class ImageRepositoryQueryResolverTest {
                 assertThat(tags.totalCount).isEqualTo(testData[0].tags.size)
                 assertThat(tags.edges.size).isEqualTo(pageSize)
                 assertThat(tags.edges.map { it.node.name }).containsExactly("1", "1.0", "1.0.0")
-                assertThat(tags.pageInfo!!.startCursor).isNotEmpty()
-                assertThat(tags.pageInfo.hasNextPage).isTrue()
+                assertThat(tags.pageInfo?.startCursor).isNotEqualTo("")
+                assertThat(tags.pageInfo?.hasNextPage).isNotNull().isTrue()
             }
     }
 
@@ -129,10 +131,9 @@ class ImageRepositoryQueryResolverTest {
 }
 
 class QueryResponse {
-    data class PageInfo(val startCursor: String, val hasNextPage: Boolean)
     data class Tag(val name: String, val lastModified: String)
     data class Edge(val node: Tag)
-    data class Tags(val totalCount: Int, val edges: List<Edge>, val pageInfo: PageInfo?)
+    data class Tags(val totalCount: Int, val edges: List<Edge>, val pageInfo: GoboPageInfo?)
     data class ImageRepository(val repository: String?, val tags: Tags)
     data class ImageRepositories(val imageRepositories: List<ImageRepository>)
     data class Response(val data: ImageRepositories)

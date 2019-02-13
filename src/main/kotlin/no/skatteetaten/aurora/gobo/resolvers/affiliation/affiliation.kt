@@ -1,13 +1,12 @@
 package no.skatteetaten.aurora.gobo.resolvers.affiliation
 
-import graphql.relay.DefaultEdge
-import graphql.relay.PageInfo
-import no.skatteetaten.aurora.gobo.resolvers.Connection
-import no.skatteetaten.aurora.gobo.resolvers.Cursor
+import no.skatteetaten.aurora.gobo.resolvers.GoboConnection
+import no.skatteetaten.aurora.gobo.resolvers.GoboEdge
+import no.skatteetaten.aurora.gobo.resolvers.GoboPageInfo
 
 data class Affiliation(val name: String)
 
-data class AffiliationEdge(private val node: Affiliation) : DefaultEdge<Affiliation>(node, Cursor(node.name))
+data class AffiliationEdge(val node: Affiliation) : GoboEdge(node.name)
 
-data class AffiliationsConnection(override val edges: List<AffiliationEdge>, override val pageInfo: PageInfo?) :
-    Connection<AffiliationEdge>()
+data class AffiliationsConnection(override val edges: List<AffiliationEdge>, override val pageInfo: GoboPageInfo?) :
+    GoboConnection<AffiliationEdge>()
