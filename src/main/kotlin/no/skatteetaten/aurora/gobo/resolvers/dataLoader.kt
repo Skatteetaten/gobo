@@ -34,7 +34,6 @@ fun <K, V> batchDataLoaderMappedSingle(user: User, keyDataLoader: KeyDataLoader<
         }
     }
 
-
 interface MultipleKeysDataLoader<K, V> {
     fun getByKeys(user: User, keys: MutableSet<K>): Map<K, V>
 }
