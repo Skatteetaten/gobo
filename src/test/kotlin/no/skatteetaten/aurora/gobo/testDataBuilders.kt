@@ -7,6 +7,14 @@ import no.skatteetaten.aurora.gobo.integration.boober.ApplicationDeploymentFilte
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileResource
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileType
 import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageTagType
+import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseInstanceResource
+import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseMetadataResource
+import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseSchemaResource
+import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseUserResource
+import no.skatteetaten.aurora.gobo.integration.dbh.JdbcUser
+import no.skatteetaten.aurora.gobo.integration.dbh.SchemaCreationRequest
+import no.skatteetaten.aurora.gobo.integration.dbh.SchemaDeletionRequest
+import no.skatteetaten.aurora.gobo.integration.dbh.SchemaUpdateRequest
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentCommandResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentDetailsResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentRefResource
@@ -293,4 +301,65 @@ data class ApplicationDeploymentFilterResourceBuilder(val affiliation: String = 
             applications = listOf("app1", "app2"),
             environments = listOf("env1", "env2")
         )
+}
+
+data class DatabaseSchemaResourceBuilder(
+    val createdDate: Long = Instant.now().toEpochMilli(),
+    val lastUsedDate: Long? = Instant.now().toEpochMilli(),
+    val labels: Map<String, String> = mapOf(
+        "affiliation" to "aurora",
+        "userId" to "abc123",
+        "name" to "referanse",
+        "description" to "my database schema",
+        "environment" to "test",
+        "application" to "referanse"
+    )
+) {
+
+    fun build() =
+        DatabaseSchemaResource(
+            id = "123",
+            type = "MANAGED",
+            jdbcUrl = "jdbc:oracle:thin:@localhost:1521/db",
+            name = "name",
+            createdDate = createdDate,
+            lastUsedDate = lastUsedDate,
+            databaseInstance = DatabaseInstanceResource(engine = "ORACLE"),
+            users = listOf(DatabaseUserResource("username", "password", "SCHEMA")),
+            metadata = DatabaseMetadataResource(sizeInMb = 0.25),
+            labels = labels
+        )
+}
+
+data class SchemaUpdateRequestBuilder(val id: String = "123", val jdbcUser: JdbcUser? = null) {
+
+    fun build() =
+        SchemaUpdateRequest(id, emptyMap(), null)
+}
+
+data class SchemaCreationRequestBuilder(
+    val id: String = "123",
+    val labels: Map<String, String> = mapOf(
+        "affiliation" to "paas",
+        "name" to "ref-db",
+        "environment" to "test",
+        "application" to "referanse"
+    )
+) {
+
+    fun build() =
+        SchemaCreationRequest(
+            labels, JdbcUser(username = "username", password = "pass", jdbcUrl = "url")
+        )
+}
+
+data class SchemaDeletionRequestBuilder(val id: String = "123", val cooldownDurationHours: Long? = null) {
+
+    fun build() =
+        SchemaDeletionRequest(id, cooldownDurationHours)
+}
+
+class JdbcUserBuilder {
+
+    fun build() = JdbcUser(username = "abc123", password = "pass", jdbcUrl = "url")
 }

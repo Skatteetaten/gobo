@@ -1,6 +1,6 @@
 package no.skatteetaten.aurora.gobo.security
 
-import assertk.assert
+import assertk.assertThat
 import assertk.assertions.isEqualTo
 import io.mockk.clearMocks
 import io.mockk.every
@@ -23,7 +23,7 @@ class CurrentUserTest {
     @Test
     fun `Get current user given no principal return anonymous user`() {
         val user = request.currentUser()
-        assert(user).isEqualTo(ANONYMOUS_USER)
+        assertThat(user).isEqualTo(ANONYMOUS_USER)
     }
 
     @Test
@@ -32,8 +32,8 @@ class CurrentUserTest {
         every { request.userPrincipal } returns token
 
         val user = request.currentUser()
-        assert(user.id).isEqualTo("username")
-        assert(user.token).isEqualTo("token")
-        assert(user.name).isEqualTo("fullName")
+        assertThat(user.id).isEqualTo("username")
+        assertThat(user.token).isEqualTo("token")
+        assertThat(user.name).isEqualTo("fullName")
     }
 }

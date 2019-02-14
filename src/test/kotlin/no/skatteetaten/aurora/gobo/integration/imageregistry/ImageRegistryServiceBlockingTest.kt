@@ -1,6 +1,6 @@
 package no.skatteetaten.aurora.gobo.integration.imageregistry
 
-import assertk.assert
+import assertk.assertThat
 import assertk.assertions.containsAll
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
@@ -9,6 +9,7 @@ import assertk.assertions.message
 import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
+import no.skatteetaten.aurora.gobo.integration.MockWebServerTestTag
 import no.skatteetaten.aurora.gobo.integration.execute
 import no.skatteetaten.aurora.gobo.integration.imageregistry.AuthenticationMethod.KUBERNETES_TOKEN
 import no.skatteetaten.aurora.gobo.integration.imageregistry.AuthenticationMethod.NONE
@@ -24,6 +25,7 @@ import org.springframework.http.HttpHeaders
 import org.springframework.web.reactive.function.client.WebClient
 import java.time.Instant
 
+@MockWebServerTestTag
 class ImageRegistryServiceBlockingTest {
 
     private val imageRepoName = "no_skatteetaten_aurora_demo/whoami"
@@ -53,7 +55,7 @@ class ImageRegistryServiceBlockingTest {
         val tagsListResponse = MockResponse().setJsonFileAsBody("cantusTags.json")
         val request = server.execute(tagsListResponse) {
             val tags = imageRegistry.findTagNamesInRepoOrderedByCreatedDateDesc(imageRepo)
-            assert(tags.tags).containsAll(
+            assertThat(tags.tags).containsAll(
                 "2",
                 "foo",
                 "jarle_test-SNAPSHOT",
@@ -67,9 +69,9 @@ class ImageRegistryServiceBlockingTest {
             )
         }
 
-        assert(request.getRequestPath()).isEqualTo("/$imageRepoName/tags")
+        assertThat(request.getRequestPath()).isEqualTo("/$imageRepoName/tags")
 
-        assert(request.headers[HttpHeaders.AUTHORIZATION]).isNull()
+        assertThat(request.headers[HttpHeaders.AUTHORIZATION]).isNull()
     }
 
     @Test
@@ -83,12 +85,12 @@ class ImageRegistryServiceBlockingTest {
 
         val request = server.execute(response) {
             val tags = imageRegistry.findTagNamesInRepoOrderedByCreatedDateDesc(imageRepo)
-            assert(tags).isNotNull()
+            assertThat(tags).isNotNull()
         }
 
-        assert(request.getRequestPath()).isEqualTo("/$imageRepoName/tags")
+        assertThat(request.getRequestPath()).isEqualTo("/$imageRepoName/tags")
 
-        assert(request.headers[HttpHeaders.AUTHORIZATION]).isEqualTo("Bearer token")
+        assertThat(request.headers[HttpHeaders.AUTHORIZATION]).isEqualTo("Bearer token")
     }
 
     @Test
@@ -97,17 +99,16 @@ class ImageRegistryServiceBlockingTest {
 
         val request = server.execute(response) {
             val tag = imageRegistry.findTagByName(imageRepo)
-            assert(tag.created).isEqualTo(Instant.parse("2018-11-05T14:01:22.654389192Z"))
+            assertThat(tag.created).isEqualTo(Instant.parse("2018-11-05T14:01:22.654389192Z"))
         }
 
-        assert(request.getRequestPath()).isEqualTo("/$imageRepoName/$tagName/manifest")
-
+        assertThat(request.getRequestPath()).isEqualTo("/$imageRepoName/$tagName/manifest")
     }
 
     @Test
     fun `Throw exception when bad request is returned from registry`() {
         server.execute(404, "Not found") {
-            assert {
+            assertThat {
                 imageRegistry.findTagByName(imageRepo)
             }.thrownError {
                 message().isEqualTo("Error in response, status:404 message:Not Found")

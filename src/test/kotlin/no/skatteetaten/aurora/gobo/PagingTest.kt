@@ -1,13 +1,13 @@
 package no.skatteetaten.aurora.gobo
 
-import assertk.assert
+import assertk.assertThat
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
 import assertk.assertions.isNull
-import graphql.relay.DefaultEdge
-import no.skatteetaten.aurora.gobo.resolvers.Cursor
-import no.skatteetaten.aurora.gobo.resolvers.PagedEdges
+import no.skatteetaten.aurora.gobo.resolvers.GoboCursor
+import no.skatteetaten.aurora.gobo.resolvers.GoboEdge
+import no.skatteetaten.aurora.gobo.resolvers.GoboPagedEdges
 import no.skatteetaten.aurora.gobo.resolvers.pageEdges
 import org.junit.jupiter.api.Test
 
@@ -26,14 +26,14 @@ class PagingTest {
         ).forEach {
             val pagedEdges = pageEdges(emptyList(), it.first, it.after)
 
-            assert(pagedEdges.edges).isEmpty()
-            assert(pagedEdges.totalCount).isEqualTo(0)
+            assertThat(pagedEdges.edges).isEmpty()
+            assertThat(pagedEdges.totalCount).isEqualTo(0)
 
             val pageInfo = pagedEdges.pageInfo
-            assert(pageInfo.startCursor).isNull()
-            assert(pageInfo.endCursor).isNull()
-            assert(pageInfo.isHasNextPage).isFalse()
-            assert(pageInfo.isHasPreviousPage).isFalse()
+            assertThat(pageInfo.startCursor).isNull()
+            assertThat(pageInfo.endCursor).isNull()
+            assertThat(pageInfo.hasNextPage).isFalse()
+            assertThat(pageInfo.hasPreviousPage).isFalse()
         }
     }
 
@@ -69,14 +69,14 @@ class PagingTest {
         hasNexPage = true
     )
 
-    data class Edge(private val node: String) : DefaultEdge<String>(node, Cursor(node))
+    data class Edge(val node: String) : GoboEdge(node)
 
     companion object {
         val edges = toEdges("A", "B", "C", "D", "E")
         fun toEdges(vararg names: String) = names.map { Edge(it) }
-        fun cursorOf(s: String): String = Cursor(s).value
+        fun cursorOf(s: String): String = GoboCursor(s).value
         fun verify(
-            pageEdges: PagedEdges<Edge>,
+            pageEdges: GoboPagedEdges<Edge>,
             expectedEdges: List<Edge>,
             hasPrevPage: Boolean,
             hasNexPage: Boolean
@@ -84,14 +84,14 @@ class PagingTest {
 
             val (edges, pageInfo, totalCount) = pageEdges
 
-            assert(totalCount).isEqualTo(Companion.edges.size)
+            assertThat(totalCount).isEqualTo(Companion.edges.size)
 
-            assert(edges.size).isEqualTo(expectedEdges.size)
-            assert(edges).isEqualTo(expectedEdges)
-            assert(pageInfo.isHasPreviousPage).isEqualTo(hasPrevPage)
-            assert(pageInfo.isHasNextPage).isEqualTo(hasNexPage)
-            assert(pageInfo.startCursor.value).isEqualTo(expectedEdges.first().cursor.value)
-            assert(pageInfo.endCursor.value).isEqualTo(expectedEdges.last().cursor.value)
+            assertThat(edges.size).isEqualTo(expectedEdges.size)
+            assertThat(edges).isEqualTo(expectedEdges)
+            assertThat(pageInfo.hasPreviousPage).isEqualTo(hasPrevPage)
+            assertThat(pageInfo.hasNextPage).isEqualTo(hasNexPage)
+            assertThat(pageInfo.startCursor?.value).isEqualTo(expectedEdges.first().cursor.value)
+            assertThat(pageInfo.endCursor?.value).isEqualTo(expectedEdges.last().cursor.value)
         }
     }
 }

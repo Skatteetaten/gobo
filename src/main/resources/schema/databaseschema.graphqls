@@ -1,0 +1,55 @@
+type DatabaseUser {
+  username: String!
+  password: String!
+  type: String!
+}
+
+type DatabaseSchema {
+  id: String!
+  type: String!
+  jdbcUrl: String!
+  affiliation: Affiliation!
+  name: String!
+  application: String!
+  environment: String!
+  discriminator: String!
+  description: String
+  databaseEngine: String!
+  applicationDeployment: ApplicationDeployment
+  createdBy: String!
+  createdDate: DateTime!
+  lastUsedDate: DateTime
+  sizeInMb: Float!
+  users: [DatabaseUser]!
+}
+
+input UpdateDatabaseSchemaInput {
+  discriminator: String!
+  createdBy: String!
+  description: String
+  id: String!
+  affiliation: String!
+  environment: String!
+  application: String!
+}
+
+input CreateDatabaseSchemaInput {
+  discriminator: String!
+  createdBy: String!
+  description: String
+  affiliation: String!
+  environment: String!
+  application: String!
+  jdbcUser: JdbcUserInput
+}
+
+input DeleteDatabaseSchemaInput {
+  id: String!
+  cooldownDurationHours: Long
+}
+
+input JdbcUserInput {
+  username: String!
+  password: String!
+  jdbcUrl: String!
+}

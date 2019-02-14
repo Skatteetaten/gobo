@@ -5,6 +5,7 @@ import no.skatteetaten.aurora.gobo.GraphQLTest
 import no.skatteetaten.aurora.gobo.OpenShiftUserBuilder
 import no.skatteetaten.aurora.gobo.integration.boober.UserSettingsResource
 import no.skatteetaten.aurora.gobo.integration.boober.UserSettingsService
+import no.skatteetaten.aurora.gobo.resolvers.graphqlData
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import no.skatteetaten.aurora.gobo.security.OpenShiftUserLoader
 import org.junit.jupiter.api.AfterEach
@@ -22,12 +23,12 @@ import org.springframework.test.web.reactive.server.WebTestClient
 @GraphQLTest
 class UserSettingsQueryResolverTest {
 
-    private val filters = "\$.data.userSettings.applicationDeploymentFilters"
+    private val filters = "userSettings.applicationDeploymentFilters"
 
-    @Value("classpath:graphql/getUserSettingsWithAffiliation.graphql")
+    @Value("classpath:graphql/queries/getUserSettingsWithAffiliation.graphql")
     private lateinit var getUserSettingsWithAffiliationQuery: Resource
 
-    @Value("classpath:graphql/getUserSettings.graphql")
+    @Value("classpath:graphql/queries/getUserSettings.graphql")
     private lateinit var getUserSettingsQuery: Resource
 
     @Autowired
@@ -66,9 +67,9 @@ class UserSettingsQueryResolverTest {
             )
             .expectStatus().isOk
             .expectBody()
-            .jsonPath("$filters.length()").isEqualTo(2)
-            .jsonPath("$filters[0].affiliation").isEqualTo("aurora")
-            .jsonPath("$filters[1].affiliation").isEqualTo("paas")
+            .graphqlData("$filters.length()").isEqualTo(2)
+            .graphqlData("$filters[0].affiliation").isEqualTo("aurora")
+            .graphqlData("$filters[1].affiliation").isEqualTo("paas")
     }
 
     @Test
@@ -81,11 +82,11 @@ class UserSettingsQueryResolverTest {
             )
             .expectStatus().isOk
             .expectBody()
-            .jsonPath("$filters.length()").isEqualTo(1)
-            .jsonPath("$filters[0].name").isNotEmpty
-            .jsonPath("$filters[0].default").isBoolean
-            .jsonPath("$filters[0].affiliation").isEqualTo("aurora")
-            .jsonPath("$filters[0].applications").isNotEmpty
-            .jsonPath("$filters[0].environments").isNotEmpty
+            .graphqlData("$filters.length()").isEqualTo(1)
+            .graphqlData("$filters[0].name").isNotEmpty
+            .graphqlData("$filters[0].default").isBoolean
+            .graphqlData("$filters[0].affiliation").isEqualTo("aurora")
+            .graphqlData("$filters[0].applications").isNotEmpty
+            .graphqlData("$filters[0].environments").isNotEmpty
     }
 }

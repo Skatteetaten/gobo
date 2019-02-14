@@ -7,6 +7,7 @@ import no.skatteetaten.aurora.gobo.OpenShiftUserBuilder
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
 import no.skatteetaten.aurora.gobo.integration.mokey.AuroraNamespacePermissions
 import no.skatteetaten.aurora.gobo.integration.mokey.PermissionService
+import no.skatteetaten.aurora.gobo.resolvers.graphqlData
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import no.skatteetaten.aurora.gobo.security.OpenShiftUserLoader
 import org.junit.jupiter.api.AfterEach
@@ -24,9 +25,9 @@ import reactor.core.publisher.toMono
 
 @GraphQLTest
 class ApplicationQueryResolverTest {
-    private val firstApplicationDeployment = "\$.data.applications.edges[0].node.applicationDeployments[0]"
+    private val firstApplicationDeployment = "applications.edges[0].node.applicationDeployments[0]"
 
-    @Value("classpath:graphql/getApplications.graphql")
+    @Value("classpath:graphql/queries/getApplications.graphql")
     private lateinit var getApplicationsQuery: Resource
 
     @Autowired
@@ -70,11 +71,11 @@ class ApplicationQueryResolverTest {
         webTestClient.queryGraphQL(getApplicationsQuery, variables, "test-token")
             .expectStatus().isOk
             .expectBody()
-            .jsonPath("$.data.applications.totalCount").isNumber
-            .jsonPath("$firstApplicationDeployment.affiliation.name").isNotEmpty
-            .jsonPath("$firstApplicationDeployment.namespace.name").isNotEmpty
-            .jsonPath("$firstApplicationDeployment.namespace.permission.paas.admin").isNotEmpty
-            .jsonPath("$firstApplicationDeployment.details.buildTime").isNotEmpty
-            .jsonPath("$firstApplicationDeployment.details.deployDetails.paused").isEqualTo(false)
+            .graphqlData("applications.totalCount").isNumber
+            .graphqlData("$firstApplicationDeployment.affiliation.name").isNotEmpty
+            .graphqlData("$firstApplicationDeployment.namespace.name").isNotEmpty
+            .graphqlData("$firstApplicationDeployment.namespace.permission.paas.admin").isNotEmpty
+            .graphqlData("$firstApplicationDeployment.details.buildTime").isNotEmpty
+            .graphqlData("$firstApplicationDeployment.details.deployDetails.paused").isEqualTo(false)
     }
 }

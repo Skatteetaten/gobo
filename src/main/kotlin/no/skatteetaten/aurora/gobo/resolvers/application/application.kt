@@ -1,10 +1,9 @@
 package no.skatteetaten.aurora.gobo.resolvers.application
 
-import graphql.relay.DefaultEdge
-import graphql.relay.PageInfo
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationResource
-import no.skatteetaten.aurora.gobo.resolvers.Connection
-import no.skatteetaten.aurora.gobo.resolvers.Cursor
+import no.skatteetaten.aurora.gobo.resolvers.GoboConnection
+import no.skatteetaten.aurora.gobo.resolvers.GoboEdge
+import no.skatteetaten.aurora.gobo.resolvers.GoboPageInfo
 import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.ApplicationDeployment
 import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.ApplicationDeploymentBuilder
 import no.skatteetaten.aurora.gobo.resolvers.createPageInfo
@@ -15,10 +14,7 @@ data class Application(
     val applicationDeployments: List<ApplicationDeployment>
 )
 
-data class ApplicationEdge(private val node: Application) : DefaultEdge<Application>(
-    node,
-    Cursor(node.name)
-) {
+data class ApplicationEdge(val node: Application) : GoboEdge(node.name) {
     companion object {
         fun create(resource: ApplicationResource, applicationDeployments: List<ApplicationDeployment>) =
             ApplicationEdge(
@@ -33,8 +29,8 @@ data class ApplicationEdge(private val node: Application) : DefaultEdge<Applicat
 
 data class ApplicationsConnection(
     override val edges: List<ApplicationEdge>,
-    override val pageInfo: PageInfo = createPageInfo(edges)
-) : Connection<ApplicationEdge>()
+    override val pageInfo: GoboPageInfo = createPageInfo(edges)
+) : GoboConnection<ApplicationEdge>()
 
 private val deploymentBuilder = ApplicationDeploymentBuilder()
 

@@ -1,6 +1,6 @@
 package no.skatteetaten.aurora.gobo.integration.imageregistry
 
-import assertk.assert
+import assertk.assertThat
 import assertk.assertions.isEqualTo
 import no.skatteetaten.aurora.gobo.integration.imageregistry.AuthenticationMethod.KUBERNETES_TOKEN
 import no.skatteetaten.aurora.gobo.integration.imageregistry.AuthenticationMethod.NONE
@@ -15,9 +15,9 @@ class DefaultRegistryMetadataResolverTest {
 
         val metadata = metadataResolver.getMetadataForRegistry("docker-registry.default.svc:5000")
 
-        assert(metadata.apiSchema).isEqualTo("http")
-        assert(metadata.authenticationMethod).isEqualTo(KUBERNETES_TOKEN)
-        assert(metadata.isInternal).isEqualTo(true)
+        assertThat(metadata.apiSchema).isEqualTo("http")
+        assertThat(metadata.authenticationMethod).isEqualTo(KUBERNETES_TOKEN)
+        assertThat(metadata.isInternal).isEqualTo(true)
     }
 
     @Test
@@ -25,7 +25,16 @@ class DefaultRegistryMetadataResolverTest {
 
         val metadata = metadataResolver.getMetadataForRegistry("docker-registry.somesuch.no:5000")
 
-        assert(metadata.apiSchema).isEqualTo("https")
-        assert(metadata.authenticationMethod).isEqualTo(NONE)
+        assertThat(metadata.apiSchema).isEqualTo("https")
+        assertThat(metadata.authenticationMethod).isEqualTo(NONE)
+    }
+
+    @Test
+    fun `verify metadata for internal IP`() {
+        val metadata = metadataResolver.getMetadataForRegistry("127.0.0.1:5000")
+
+        assertThat(metadata.apiSchema).isEqualTo("http")
+        assertThat(metadata.authenticationMethod).isEqualTo(KUBERNETES_TOKEN)
+        assertThat(metadata.isInternal).isEqualTo(true)
     }
 }

@@ -1,0 +1,25 @@
+query getDatabaseSchema($id: String!) {
+    databaseSchema(id: $id) {
+        id
+        affiliation {
+            name
+        }
+        name
+        application
+        environment
+        discriminator
+        description
+        databaseEngine
+        applicationDeployment {
+            id
+        }
+        createdBy
+        createdDate
+        lastUsedDate
+        users {
+            username
+            password
+            type
+        }
+    }
+}

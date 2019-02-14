@@ -41,13 +41,14 @@ fun <T> Mono<T>.blockAndHandleError(duration: Duration = Duration.ofSeconds(30),
 
 fun <T> Mono<T>.handleError(sourceSystem: String?) =
     this.doOnError {
-        if (it is WebClientResponseException) {
-            throw SourceSystemException(
+        when (it) {
+            is WebClientResponseException -> throw SourceSystemException(
                 message = "Error in response, status:${it.statusCode} message:${it.statusText}",
                 cause = it,
                 sourceSystem = sourceSystem,
                 code = it.statusCode.name
             )
+            is SourceSystemException -> throw it
+            else -> throw SourceSystemException("Error response", it)
         }
-        throw SourceSystemException("Error response", it)
     }

@@ -1,0 +1,3 @@
+mutation testJdbcConnectionForId($id: String!){
+    testJdbcConnectionForId(id: $id)
+}

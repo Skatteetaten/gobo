@@ -1,15 +1,20 @@
 package no.skatteetaten.aurora.gobo.integration.unclematt
 
-import assertk.assert
-import assertk.assertions.hasMessageContaining
+import assertk.assertThat
+import assertk.assertions.contains
 import assertk.assertions.isEqualTo
 import assertk.assertions.isInstanceOf
+import assertk.assertions.isNotNull
+import assertk.assertions.message
+import assertk.catch
+import no.skatteetaten.aurora.gobo.integration.MockWebServerTestTag
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.integration.execute
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.jupiter.api.Test
 import org.springframework.web.reactive.function.client.WebClient
 
+@MockWebServerTestTag
 class ProbeFireWallTest {
 
     private val server = MockWebServer()
@@ -20,24 +25,24 @@ class ProbeFireWallTest {
     fun `happy day`() {
         server.execute(probeResponse) {
             val probeResultList = probeService.probeFirewall("server.test.no", 9999)
-            assert(probeResultList.size).isEqualTo(2)
+            assertThat(probeResultList.size).isEqualTo(2)
         }
     }
 
     @Test
     fun `throws correct exception when backend returns 404`() {
-        assert {
+        val exception = catch {
             server.execute(404, "") {
                 probeService.probeFirewall("server.test.no", 9999)
             }
-        }.thrownError {
-            isInstanceOf(SourceSystemException::class)
-            hasMessageContaining("404")
         }
+        assertThat(exception).isNotNull()
+            .isInstanceOf(SourceSystemException::class)
+            .message().isNotNull().contains("404")
     }
 }
 
-private val probeResponse = """[
+private const val probeResponse = """[
     {
         "result": {
         "status": "OPEN",

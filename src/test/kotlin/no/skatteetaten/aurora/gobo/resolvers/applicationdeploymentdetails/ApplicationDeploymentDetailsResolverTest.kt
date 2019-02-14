@@ -1,6 +1,6 @@
 package no.skatteetaten.aurora.gobo.resolvers.applicationdeploymentdetails
 
-import assertk.assert
+import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentDetailsBuilder
@@ -28,7 +28,7 @@ import org.springframework.test.web.reactive.server.WebTestClient
 @GraphQLTest
 class ApplicationDeploymentDetailsResolverTest {
 
-    @Value("classpath:graphql/getApplicationsWithPods.graphql")
+    @Value("classpath:graphql/queries/getApplicationsWithPods.graphql")
     private lateinit var getRepositoriesAndTagsQuery: Resource
 
     @Autowired
@@ -59,7 +59,7 @@ class ApplicationDeploymentDetailsResolverTest {
     fun tearDown() = reset(applicationServiceBlocking, openShiftUserLoader)
 
     @Test
-    fun `Query for deployments and pod statlus`() {
+    fun `Query for deployments and pod status`() {
         webTestClient.queryGraphQL(queryResource = getRepositoriesAndTagsQuery, token = "test-token")
             .expectStatus().isOk
             .expectBody(QueryResponse.Response::class.java)
@@ -68,15 +68,15 @@ class ApplicationDeploymentDetailsResolverTest {
                 val firstDeployment = applications.edges[0].node.applicationDeployments[0]
                 val pod = firstDeployment.details.podResources[0]
                 val managementResponses = pod.managementResponses
-                assert(managementResponses.health.textResponse).isEqualTo(healthResponseJson)
-                assert(managementResponses.info.textResponse).isEqualTo(infoResponseJson)
-                assert(pod.deployTag).isEqualTo("tag")
-                assert(pod.phase).isEqualTo("status")
-                assert(pod.ready).isFalse()
-                assert(pod.restartCount).isEqualTo(3)
-                assert(pod.containers.size).isEqualTo(2)
-                assert(pod.containers[0].restartCount).isEqualTo(1)
-                assert(pod.containers[1].restartCount).isEqualTo(2)
+                assertThat(managementResponses.health.textResponse).isEqualTo(healthResponseJson)
+                assertThat(managementResponses.info.textResponse).isEqualTo(infoResponseJson)
+                assertThat(pod.deployTag).isEqualTo("tag")
+                assertThat(pod.phase).isEqualTo("status")
+                assertThat(pod.ready).isFalse()
+                assertThat(pod.restartCount).isEqualTo(3)
+                assertThat(pod.containers.size).isEqualTo(2)
+                assertThat(pod.containers[0].restartCount).isEqualTo(1)
+                assertThat(pod.containers[1].restartCount).isEqualTo(2)
             }
     }
 }

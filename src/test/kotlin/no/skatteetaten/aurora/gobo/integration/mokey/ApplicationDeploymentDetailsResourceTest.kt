@@ -1,6 +1,6 @@
 package no.skatteetaten.aurora.gobo.integration.mokey
 
-import assertk.assert
+import assertk.assertThat
 import assertk.assertions.hasMessage
 import assertk.assertions.isEqualTo
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentDetailsBuilder
@@ -14,12 +14,12 @@ class ApplicationDeploymentDetailsResourceTest {
     @Test
     fun `Get existing link`() {
         val link = details.link("myLink")
-        assert(link).isEqualTo("http://localhost")
+        assertThat(link).isEqualTo("http://localhost")
     }
 
     @Test
     fun `Throw exception when link is not found`() {
-        assert {
+        assertThat {
             details.link("unknownLink")
         }.thrownError {
             hasMessage("Link with rel unknownLink was not found")

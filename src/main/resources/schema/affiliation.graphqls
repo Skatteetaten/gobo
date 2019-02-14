@@ -11,5 +11,6 @@ type AffiliationEdge {
 
 type Affiliation {
   name: String!
+  databaseSchemas: [DatabaseSchema]
 }
 

@@ -1,5 +1,8 @@
 package no.skatteetaten.aurora.gobo.integration
 
+import com.fasterxml.jackson.module.kotlin.convertValue
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.jayway.jsonpath.JsonPath
 import no.skatteetaten.aurora.gobo.createObjectMapper
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -61,4 +64,9 @@ fun MockResponse.setJsonFileAsBody(fileName: String): MockResponse {
     val json = classPath.file.readText()
     this.addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_UTF8_VALUE)
     return this.setBody(json)
+}
+
+inline fun <reified T> RecordedRequest.bodyAsObject(path: String = "$"): T {
+    val content: Any = JsonPath.parse(String(body.readByteArray())).read(path)
+    return jacksonObjectMapper().convertValue(content)
 }

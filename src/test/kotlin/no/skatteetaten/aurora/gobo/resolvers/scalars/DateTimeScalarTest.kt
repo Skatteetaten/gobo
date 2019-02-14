@@ -1,6 +1,6 @@
 package no.skatteetaten.aurora.gobo.resolvers.scalars
 
-import assertk.assert
+import assertk.assertThat
 import assertk.assertions.isEqualTo
 import graphql.language.IntValue
 import graphql.language.StringValue
@@ -17,18 +17,18 @@ class DateTimeScalarTest {
     @Test
     fun `Serialize dateTime`() {
         val serialized = dateTimeScalar.coercing.serialize(instant)
-        assert(serialized).isEqualTo(instant.toString())
+        assertThat(serialized).isEqualTo(instant.toString())
     }
 
     @Test
     fun `Parse StringValue`() {
         val value = dateTimeScalar.coercing.parseValue(StringValue(instant.toString()))
-        assert(value).isEqualTo(instant)
+        assertThat(value).isEqualTo(instant)
     }
 
     @Test
     fun `Parse IntValue`() {
         val value = dateTimeScalar.coercing.parseValue(IntValue(BigInteger.valueOf(instant.toEpochMilli())))
-        assert(value).isEqualTo(instant)
+        assertThat(value).isEqualTo(instant)
     }
 }
