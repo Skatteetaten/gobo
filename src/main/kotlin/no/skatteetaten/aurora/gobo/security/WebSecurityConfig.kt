@@ -24,14 +24,14 @@ class WebSecurityConfig(
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 
         http.authenticationProvider(preAuthenticationProvider(openShiftAuthenticationUserDetailsService))
-                .addFilter(requestHeaderAuthenticationFilter())
-                .authorizeRequests()
-                .requestMatchers(forPort(managementPort)).permitAll()
-                .antMatchers("/public/**").permitAll()
-                .antMatchers("/graphql").permitAll()
-                .antMatchers("/graphiql").permitAll()
-                .antMatchers("/vendor/**").permitAll()
-                .anyRequest().authenticated()
+            .addFilter(requestHeaderAuthenticationFilter())
+            .authorizeRequests()
+            .requestMatchers(forPort(managementPort)).permitAll()
+            .antMatchers("/public/**").permitAll()
+            .antMatchers("/graphql").permitAll()
+            .antMatchers("/graphiql").permitAll()
+            .antMatchers("/vendor/**").permitAll()
+            .anyRequest().authenticated()
     }
 
     private fun forPort(port: Int) = RequestMatcher { request: HttpServletRequest -> port == request.localPort }
