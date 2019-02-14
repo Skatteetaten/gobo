@@ -10,8 +10,6 @@ spring:
         active: local
 
 gobo:
-    dbh:
-        url: http://dbh
     mokey:
         url: http://mokey
     boober:
