@@ -4,6 +4,7 @@ import com.fasterxml.jackson.module.kotlin.convertValue
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.reset
+import no.skatteetaten.aurora.gobo.DatabaseSchemaResourceBuilder
 import no.skatteetaten.aurora.gobo.GraphQLTest
 import no.skatteetaten.aurora.gobo.JdbcUserBuilder
 import no.skatteetaten.aurora.gobo.OpenShiftUserBuilder
@@ -11,7 +12,6 @@ import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseSchemaServiceBlocking
 import no.skatteetaten.aurora.gobo.integration.dbh.JdbcUser
 import no.skatteetaten.aurora.gobo.resolvers.graphqlData
 import no.skatteetaten.aurora.gobo.resolvers.graphqlErrors
-import no.skatteetaten.aurora.gobo.resolvers.isFalse
 import no.skatteetaten.aurora.gobo.resolvers.isTrue
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import no.skatteetaten.aurora.gobo.security.OpenShiftUserLoader
@@ -104,26 +104,14 @@ class DatabaseSchemaMutationResolverTest {
 
     @Test
     fun `Mutate database schema return true given response success`() {
-        given(databaseSchemaService.updateDatabaseSchema(any())).willReturn(true)
+        given(databaseSchemaService.updateDatabaseSchema(any())).willReturn(DatabaseSchemaResourceBuilder().build())
         webTestClient.queryGraphQL(
             queryResource = updateDatabaseSchemaMutation,
             variables = updateVariables,
             token = "test-token"
         )
             .expectBody()
-            .graphqlData("updateDatabaseSchema").isTrue()
-    }
-
-    @Test
-    fun `Mutate database schema return false given response failure`() {
-        given(databaseSchemaService.updateDatabaseSchema(any())).willReturn(false)
-        webTestClient.queryGraphQL(
-            queryResource = updateDatabaseSchemaMutation,
-            variables = updateVariables,
-            token = "test-token"
-        )
-            .expectBody()
-            .graphqlData("updateDatabaseSchema").isFalse()
+            .graphqlData("updateDatabaseSchema.id").isEqualTo("123")
     }
 
     @Test
@@ -178,25 +166,25 @@ class DatabaseSchemaMutationResolverTest {
 
     @Test
     fun `Create database schema`() {
-        given(databaseSchemaService.createDatabaseSchema(any())).willReturn(true)
+        given(databaseSchemaService.createDatabaseSchema(any())).willReturn(DatabaseSchemaResourceBuilder().build())
         webTestClient.queryGraphQL(
             queryResource = createDatabaseSchemaMutation,
             variables = creationVariables,
             token = "test-token"
         )
             .expectBody()
-            .graphqlData("createDatabaseSchema").isTrue()
+            .graphqlData("createDatabaseSchema.id").isEqualTo("123")
     }
 
     @Test
     fun `Create connection between existing database schema and dbh`() {
-        given(databaseSchemaService.createDatabaseSchema(any())).willReturn(true)
+        given(databaseSchemaService.createDatabaseSchema(any())).willReturn(DatabaseSchemaResourceBuilder().build())
         webTestClient.queryGraphQL(
             queryResource = createDatabaseSchemaMutation,
             variables = connectionVariables,
             token = "test-token"
         )
             .expectBody()
-            .graphqlData("createDatabaseSchema").isTrue()
+            .graphqlData("createDatabaseSchema.id").isEqualTo("123")
     }
 }
