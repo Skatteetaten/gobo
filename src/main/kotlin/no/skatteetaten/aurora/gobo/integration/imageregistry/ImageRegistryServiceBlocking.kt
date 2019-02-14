@@ -32,9 +32,8 @@ class ImageRegistryServiceBlocking(
 
     fun findTagNamesInRepoOrderedByCreatedDateDesc(imageRepoDto: ImageRepoDto): TagsDto {
         val registryMetadata = registryMetadataResolver.getMetadataForRegistry(imageRepoDto.registry)
-        val token = ""
 
-        return TagsDto.toDto(execute(token) {
+        return TagsDto.toDto(execute (registryMetadata.authenticationMethod){
             it.get().uri(
                 urlBuilder.createTagsUrl(imageRepoDto, registryMetadata),
                 imageRepoDto.mappedTemplateVars
@@ -46,8 +45,7 @@ class ImageRegistryServiceBlocking(
     private fun getAuroraResponseImageTagResource(imageRepoDto: ImageRepoDto): ImageTagDto {
         val registryMetadata = registryMetadataResolver.getMetadataForRegistry(imageRepoDto.registry)
 
-        val token = ""
-        val auroraImageTagResource: AuroraResponse<ImageTagResource> = execute(token) {
+        val auroraImageTagResource: AuroraResponse<ImageTagResource> = execute (registryMetadata.authenticationMethod){
             it.get().uri(
                 urlBuilder.createImageTagUrl(imageRepoDto, registryMetadata),
                 imageRepoDto.mappedTemplateVars
@@ -60,13 +58,14 @@ class ImageRegistryServiceBlocking(
 
 
     private final inline fun <reified T : Any> execute(
-        token: String,
+        authenticationMethod: AuthenticationMethod,
         fn: (WebClient) -> WebClient.RequestHeadersSpec<*>
     ): T = fn(webClient)
         .headers {
-
             //TODO: Burde Gobo gjøre det på denne måten eller bruke tokenprovider?
-            it.set("Authorization", "Bearer $token")
+            if (authenticationMethod == AuthenticationMethod.KUBERNETES_TOKEN) {
+                it.set("Authorization", "Bearer ${tokenProvider.token}")
+            }
         }
         .retrieve()
         .bodyToMono<T>()
