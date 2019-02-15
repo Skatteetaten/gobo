@@ -1,11 +1,7 @@
 package no.skatteetaten.aurora.gobo.resolvers.imagerepository
 
 import assertk.assertThat
-import assertk.assertions.containsExactly
 import assertk.assertions.isEqualTo
-import assertk.assertions.isNotEqualTo
-import assertk.assertions.isNotNull
-import assertk.assertions.isTrue
 import no.skatteetaten.aurora.gobo.GraphQLTest
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageRegistryServiceBlocking
@@ -13,8 +9,10 @@ import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageRepoDto
 import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageTagDto
 import no.skatteetaten.aurora.gobo.resolvers.GoboPageInfo
 import no.skatteetaten.aurora.gobo.resolvers.createQuery
+import no.skatteetaten.aurora.gobo.resolvers.graphqlDataWithPrefix
 import no.skatteetaten.aurora.gobo.resolvers.graphqlErrors
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository.Companion.fromRepoString
+import no.skatteetaten.aurora.gobo.resolvers.isTrue
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -99,18 +97,17 @@ class ImageRepositoryQueryResolverTest {
     fun `Query for tags with paging`() {
         val pageSize = 3
         val variables = mapOf("repositories" to testData[0].imageRepoDto.repository, "pageSize" to pageSize)
-        val query = createQuery(tagsWithPagingQuery, variables)
-
         webTestClient.queryGraphQL(tagsWithPagingQuery, variables)
             .expectStatus().isOk
-            .expectBody(QueryResponse.Response::class.java)
-            .returnResult().let { result ->
-                val tags = result.responseBody!!.data.imageRepositories[0].tags
-                assertThat(tags.totalCount).isEqualTo(testData[0].tags.size)
-                assertThat(tags.edges.size).isEqualTo(pageSize)
-                assertThat(tags.edges.map { it.node.name }).containsExactly("1", "1.0", "1.0.0")
-                assertThat(tags.pageInfo?.startCursor).isNotEqualTo("")
-                assertThat(tags.pageInfo?.hasNextPage).isNotNull().isTrue()
+            .expectBody()
+            .graphqlDataWithPrefix("imageRepositories[0].tags") {
+                it.graphqlData("totalCount").isEqualTo(testData[0].tags.size)
+                it.graphqlData("edges.length()").isEqualTo(pageSize)
+                it.graphqlData("edges[0].node.name").isEqualTo("1")
+                it.graphqlData("edges[1].node.name").isEqualTo("1.0")
+                it.graphqlData("edges[2].node.name").isEqualTo("1.0.0")
+                it.graphqlData("pageInfo.startCursor").isNotEmpty
+                it.graphqlData("pageInfo.hasNextPage").isTrue()
             }
     }
 

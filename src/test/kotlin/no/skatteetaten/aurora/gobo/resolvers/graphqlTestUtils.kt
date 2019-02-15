@@ -48,6 +48,15 @@ fun WebTestClient.queryGraphQL(
         .exchange()
 }
 
+fun WebTestClient.BodyContentSpec.graphqlDataWithPrefix(prefix: String, fn: (data: GraphqlDataWithPrefix) -> Unit): WebTestClient.BodyContentSpec {
+    fn(GraphqlDataWithPrefix(prefix, this))
+    return this
+}
+
+class GraphqlDataWithPrefix(private val prefix: String, private val bodyContentSpec: WebTestClient.BodyContentSpec) {
+    fun graphqlData(jsonPath: String) = bodyContentSpec.graphqlJsonPath(jsonPath, "data.$prefix")
+}
+
 fun WebTestClient.BodyContentSpec.graphqlData(jsonPath: String) =
     graphqlJsonPath(jsonPath, "data")
 
