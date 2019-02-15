@@ -2,7 +2,6 @@ package no.skatteetaten.aurora.gobo.integration.imageregistry
 
 import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
-import no.skatteetaten.aurora.gobo.resolvers.blockAndHandleError
 import no.skatteetaten.aurora.gobo.resolvers.blockNonNullAndHandleError
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageTag
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.toImageRepo
@@ -10,7 +9,6 @@ import no.skatteetaten.aurora.gobo.resolvers.imagerepository.toImageRepo
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.bodyToMono
-
 
 @Service
 class ImageRegistryServiceBlocking(
@@ -33,7 +31,7 @@ class ImageRegistryServiceBlocking(
     fun findTagNamesInRepoOrderedByCreatedDateDesc(imageRepoDto: ImageRepoDto): TagsDto {
         val registryMetadata = registryMetadataResolver.getMetadataForRegistry(imageRepoDto.registry)
 
-        return TagsDto.toDto(execute (registryMetadata.authenticationMethod){
+        return TagsDto.toDto(execute(registryMetadata.authenticationMethod) {
             it.get().uri(
                 urlBuilder.createTagsUrl(imageRepoDto, registryMetadata),
                 imageRepoDto.mappedTemplateVars
@@ -45,24 +43,22 @@ class ImageRegistryServiceBlocking(
     private fun getAuroraResponseImageTagResource(imageRepoDto: ImageRepoDto): ImageTagDto {
         val registryMetadata = registryMetadataResolver.getMetadataForRegistry(imageRepoDto.registry)
 
-        val auroraImageTagResource: AuroraResponse<ImageTagResource> = execute (registryMetadata.authenticationMethod){
-            it.get().uri(
-                urlBuilder.createImageTagUrl(imageRepoDto, registryMetadata),
-                imageRepoDto.mappedTemplateVars
-            )
-
+        val auroraImageTagResource: AuroraResponse<ImageTagResource> =
+            execute(registryMetadata.authenticationMethod) {
+                it.get().uri(
+                    urlBuilder.createImageTagUrl(imageRepoDto, registryMetadata),
+                    imageRepoDto.mappedTemplateVars
+                )
             }
+
         return ImageTagDto.toDto(auroraImageTagResource)
     }
-
-
 
     private final inline fun <reified T : Any> execute(
         authenticationMethod: AuthenticationMethod,
         fn: (WebClient) -> WebClient.RequestHeadersSpec<*>
     ): T = fn(webClient)
         .headers {
-            //TODO: Burde Gobo gjøre det på denne måten eller bruke tokenprovider?
             if (authenticationMethod == AuthenticationMethod.KUBERNETES_TOKEN) {
                 it.set("Authorization", "Bearer ${tokenProvider.token}")
             }

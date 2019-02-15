@@ -1,11 +1,15 @@
 package no.skatteetaten.aurora.gobo.integration.imageregistry
 
+import assertk.Assert
+import assertk.all
 import assertk.assertThat
 import assertk.assertions.containsAll
 import assertk.assertions.isEqualTo
+import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.message
+import assertk.assertions.support.expected
 import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
@@ -54,19 +58,23 @@ class ImageRegistryServiceBlockingTest {
     fun `verify fetches all tags for specified repo`() {
         val tagsListResponse = MockResponse().setJsonFileAsBody("cantusTags.json")
         val request = server.execute(tagsListResponse) {
-            val tags = imageRegistry.findTagNamesInRepoOrderedByCreatedDateDesc(imageRepo)
-            assertThat(tags.tags).containsAll(
-                "2",
-                "foo",
-                "jarle_test-SNAPSHOT",
+            val listOfTags = listOf(
+                "SNAPSHOT--dev-20170912.120730-1-b1.4.1-wingnut-8.141.1",
+                "dev-SNAPSHOT",
                 "latest",
-                "martintest",
-                "prod",
-                "test",
-                "testing",
-                "trigger_test-SNAPSHOT",
-                "yo"
+                "1",
+                "1.0",
+                "1.0.0"
             )
+
+            val expectedTags = TagsDto(
+                listOfTags.map {
+                    Tag(it, ImageTagType.typeOf(it))
+                }
+            )
+
+            val tags = imageRegistry.findTagNamesInRepoOrderedByCreatedDateDesc(imageRepo)
+            assertThat(tags).containsAllTags(expectedTags)
         }
 
         assertThat(request.getRequestPath()).isEqualTo("/$imageRepoName/tags")
@@ -85,7 +93,8 @@ class ImageRegistryServiceBlockingTest {
 
         val request = server.execute(response) {
             val tags = imageRegistry.findTagNamesInRepoOrderedByCreatedDateDesc(imageRepo)
-            assertThat(tags).isNotNull()
+            assertThat(tags.tags).isNotNull()
+            assertThat(tags.tags).isNotEmpty()
         }
 
         assertThat(request.getRequestPath()).isEqualTo("/$imageRepoName/tags")
@@ -111,10 +120,21 @@ class ImageRegistryServiceBlockingTest {
             assertThat {
                 imageRegistry.findTagByName(imageRepo)
             }.thrownError {
-                message().isEqualTo("Error in response, status:404 message:Not Found")
+                message().isEqualTo("Error in response, status=404 message=Not Found")
             }
         }
     }
 
     private fun RecordedRequest.getRequestPath() = this.path.replace("%2F", "/")
+    private fun Assert<TagsDto>.containsAllTags(expectedTags: TagsDto) =
+        given { tagsDto ->
+            if (
+            expectedTags.tags.all { expectedTag ->
+                tagsDto.tags.any { actualTag ->
+                    actualTag.name == expectedTag.name
+                }
+            }) return
+
+            expected("Some tags were not present")
+        }
 }

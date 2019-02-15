@@ -17,10 +17,14 @@ gobo:
         url: http://boober
     unclematt:
         url: http://unclematt-aurora-daemons.utv.paas.skead.no
-    graphql:
-        tracing-enabled: false
+    dbh:
+        url: http://dbh
+    docker-registry:
+        url: https://test-docker-registry-internal-group.aurora.skead.no
     cantus:
         url: http://cantus
+    graphql:
+        tracing-enabled: false
 
 aurora:
     starter:
@@ -46,6 +50,8 @@ gobo:
         url: http://mokey-aurora.utv.paas.skead.no
     cantus:
         url: http://m96405-cantus.aurora.utv.paas.skead.no
+    docker-registry:
+        url: https://test-docker-registry-internal-group.aurora.skead.no
 
 
 management:
