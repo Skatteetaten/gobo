@@ -12,6 +12,8 @@ abstract class GoboConnection<T> {
 
 class GoboCursor(input: String) {
     val value: String = Base64Utils.encodeToString(input.toByteArray())
+
+    override fun toString() = value
 }
 
 abstract class GoboEdge(name: String) {

@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.core.io.Resource
 import org.springframework.test.web.reactive.server.WebTestClient
+import org.springframework.util.Base64Utils
 
 @GraphQLTest
 class AffiliationQueryResolverTest {
@@ -43,7 +44,12 @@ class AffiliationQueryResolverTest {
         webTestClient.queryGraphQL(getAffiliationsQuery)
             .expectStatus().isOk
             .expectBody()
-            .graphqlData("affiliations.totalCount").isNumber
-            .graphqlData("affiliations.edges[0].node.name").isNotEmpty
+            .graphqlData("affiliations.totalCount").isEqualTo(2)
+            .graphqlData("affiliations.edges[0].node.name").isEqualTo("paas")
+            .graphqlData("affiliations.edges[0].cursor").isEqualTo("paas".toBase64())
+            .graphqlData("affiliations.edges[1].node.name").isEqualTo("demo")
+            .graphqlData("affiliations.edges[1].cursor").isEqualTo("demo".toBase64())
     }
+
+    private fun String.toBase64() = Base64Utils.encodeToString(this.toByteArray())
 }
