@@ -51,7 +51,7 @@ class ImageRegistryServiceBlocking(
                 )
             }
 
-        return ImageTagDto.toDto(auroraImageTagResource)
+        return ImageTagDto.toDto(auroraImageTagResource, imageRepoDto.imageTagName)
     }
 
     private final inline fun <reified T : Any> execute(

@@ -70,12 +70,14 @@ data class TagsDto(val tags: List<Tag>) {
 
 data class ImageTagDto(
     val dockerDigest: String,
+    val name: String,
     val created: Instant?
 ) {
     companion object {
-        fun toDto(imageTagResponse: AuroraResponse<ImageTagResource>): ImageTagDto =
+        fun toDto(imageTagResponse: AuroraResponse<ImageTagResource>, tagName: String): ImageTagDto =
             ImageTagDto(
                 dockerDigest = imageTagResponse.items[0].dockerDigest,
+                name = tagName,
                 created = imageTagResponse.items[0].timeline.buildEnded
             )
     }

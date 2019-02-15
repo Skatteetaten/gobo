@@ -66,7 +66,9 @@ class ImageRepositoryQueryResolverTest {
                 })
             )
             data.tags
-                .map { ImageTagDto(it, created = EPOCH) }
+                .map {
+                    ImageTagDto(name = it, created = EPOCH, dockerDigest = "sha256")
+                }
                 .forEach {
                     given(
                         imageRegistryServiceBlocking.findTagByName(
