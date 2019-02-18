@@ -86,16 +86,14 @@ class ApplicationService(@TargetService(ServiceTypes.MOKEY) val webClient: WebCl
         token: String,
         databaseIds: List<String>
     ): Mono<List<ApplicationDeploymentWithDbResource>> {
-        return webClient
+        val res = webClient
             .post()
             .uri("/api/auth/applicationdeploymentbyresource/databases")
-            .body(BodyInserters.fromObject(object {
-                val databaseIds
-                    get() = databaseIds
-            }))
+            .body(BodyInserters.fromObject(mapOf("databaseIds" to databaseIds)))
             .header(HttpHeaders.AUTHORIZATION, "Bearer $token")
             .retrieve()
-            .bodyToMono()
+
+        return res.bodyToMono()
     }
 
     private fun buildQueryParams(affiliations: List<String>): LinkedMultiValueMap<String, String> =
