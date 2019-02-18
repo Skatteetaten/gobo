@@ -15,7 +15,6 @@ import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageTagType
 import no.skatteetaten.aurora.gobo.integration.imageregistry.Tag
 import no.skatteetaten.aurora.gobo.integration.imageregistry.TagsDto
 import no.skatteetaten.aurora.gobo.resolvers.GoboPageInfo
-import no.skatteetaten.aurora.gobo.resolvers.createQuery
 import no.skatteetaten.aurora.gobo.resolvers.graphqlErrors
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository.Companion.fromRepoString
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
@@ -90,8 +89,8 @@ class ImageRepositoryQueryResolverTest {
         val variables = mapOf("repositories" to testData.map { it.imageRepoDto.repository })
         webTestClient.queryGraphQL(reposWithTagsQuery, variables)
             .expectStatus().isOk
-            .expectBody (QueryResponse.Response::class.java)
-                .returnResult().let { result ->
+            .expectBody(QueryResponse.Response::class.java)
+            .returnResult().let { result ->
                 result.responseBody!!.data.imageRepositories.forEachIndexed { repoIndex, repository ->
                     assertThat(repository.repository).isEqualTo(testData[repoIndex].repoString)
                     assertThat(repository.tags.totalCount).isEqualTo(testData[repoIndex].tags.size)
@@ -101,7 +100,6 @@ class ImageRepositoryQueryResolverTest {
                         assertThat(edge.node.lastModified).isEqualTo(Instant.EPOCH.toString())
                     }
                 }
-
             }
     }
 

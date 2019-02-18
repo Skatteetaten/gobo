@@ -1,16 +1,12 @@
 package no.skatteetaten.aurora.gobo.integration.imageregistry
 
 import assertk.Assert
-import assertk.all
 import assertk.assertThat
-import assertk.assertions.containsAll
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
-import assertk.assertions.message
 import assertk.assertions.support.expected
-import assertk.catch
 import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
@@ -31,8 +27,8 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 import org.springframework.http.HttpHeaders
-import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.http.HttpStatus
+import org.springframework.web.reactive.function.client.WebClient
 import java.time.Instant
 
 @MockWebServerTestTag
@@ -145,7 +141,6 @@ class ImageRegistryServiceBlockingTest {
                     assertThat(it.message).endsWith("status=$statusCode message=${HttpStatus.valueOf(statusCode).reasonPhrase}")
                 }
             }
-
         }
     }
 
@@ -153,11 +148,11 @@ class ImageRegistryServiceBlockingTest {
     private fun Assert<TagsDto>.containsAllTags(expectedTags: TagsDto) =
         given { tagsDto ->
             if (
-            expectedTags.tags.all { expectedTag ->
-                tagsDto.tags.any { actualTag ->
-                    actualTag.name == expectedTag.name
-                }
-            }) return
+                expectedTags.tags.all { expectedTag ->
+                    tagsDto.tags.any { actualTag ->
+                        actualTag.name == expectedTag.name
+                    }
+                }) return
 
             expected("Some tags were not present")
         }
@@ -165,11 +160,13 @@ class ImageRegistryServiceBlockingTest {
 
 private fun Assert<String?>.endsWith(message: String) {
     given {
-        if(it.isNullOrEmpty()) expected("Exception message was null or empty")
-        if(it.endsWith(message)) return
+        if (it.isNullOrEmpty()) expected("Exception message was null or empty")
+        if (it.endsWith(message)) return
 
-        expected("Exception message does not end with the specified message " +
-            "\nexpected=$message" +
-            "\nactual=$it")
+        expected(
+            "Exception message does not end with the specified message " +
+                "\nexpected=$message" +
+                "\nactual=$it"
+        )
     }
 }

@@ -25,11 +25,14 @@ class GraphQLConfig {
 
     @Bean
     fun executionStrategies(): Map<String, ExecutionStrategy> =
-            mapOf(
-                    GraphQLWebAutoConfiguration.QUERY_EXECUTION_STRATEGY to AsyncExecutionStrategy(GoboDataFetcherExceptionHandler()
-                    ),GraphQLWebAutoConfiguration.MUTATION_EXECUTION_STRATEGY to AsyncExecutionStrategy(),
-                    GraphQLWebAutoConfiguration.SUBSCRIPTION_EXECUTION_STRATEGY to SubscriptionExecutionStrategy()
-            )@Bean
+        mapOf(
+            GraphQLWebAutoConfiguration.QUERY_EXECUTION_STRATEGY to AsyncExecutionStrategy(
+                GoboDataFetcherExceptionHandler()
+            ), GraphQLWebAutoConfiguration.MUTATION_EXECUTION_STRATEGY to AsyncExecutionStrategy(),
+            GraphQLWebAutoConfiguration.SUBSCRIPTION_EXECUTION_STRATEGY to SubscriptionExecutionStrategy()
+        )
+
+    @Bean
     @ConditionalOnProperty(name = ["gobo.graphql.tracing-enabled"], havingValue = "true", matchIfMissing = false)
     fun tracingInstrumentation(): Instrumentation = TracingInstrumentation()
 }

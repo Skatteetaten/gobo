@@ -5,12 +5,10 @@ import com.coxautodev.graphql.tools.GraphQLResolver
 import graphql.schema.DataFetchingEnvironment
 import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageRegistryServiceBlocking
 import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageTagType
-import no.skatteetaten.aurora.gobo.integration.imageregistry.Tag
 import no.skatteetaten.aurora.gobo.integration.imageregistry.TagsDto
 import no.skatteetaten.aurora.gobo.resolvers.loader
 import no.skatteetaten.aurora.gobo.resolvers.pageEdges
 import org.springframework.stereotype.Component
-import javax.servlet.http.HttpServletRequest
 
 @Component
 class ImageRepositoryQueryResolver : GraphQLQueryResolver {
@@ -33,14 +31,16 @@ class ImageRepositoryResolver(val imageRegistryServiceBlocking: ImageRegistrySer
         val tagsInRepo = try {
             imageRegistryServiceBlocking.findTagNamesInRepoOrderedByCreatedDateDesc(imageRepository.toImageRepo())
         } catch (e: Exception) {
-            //TODO: indicate error to caller
+            // TODO: indicate error to caller
             TagsDto(emptyList())
         }
         val matchingTags = tagsInRepo.tags
-            .map { ImageTag(
-                imageRepository = imageRepository,
-                name = it.name
-            ) }
+            .map {
+                ImageTag(
+                    imageRepository = imageRepository,
+                    name = it.name
+                )
+            }
             .filter { types == null || it.type in types }
 
         val allEdges = matchingTags.map { ImageTagEdge(it) }

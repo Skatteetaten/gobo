@@ -1,12 +1,10 @@
 package no.skatteetaten.aurora.gobo
 
 import io.fabric8.kubernetes.api.model.ObjectMeta
-import io.fabric8.openshift.api.model.Image
 import io.fabric8.openshift.api.model.User
 import no.skatteetaten.aurora.gobo.integration.boober.ApplicationDeploymentFilterResource
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileResource
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileType
-import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageTagType
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseInstanceResource
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseMetadataResource
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseSchemaResource

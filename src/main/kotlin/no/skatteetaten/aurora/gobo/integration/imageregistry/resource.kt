@@ -38,4 +38,3 @@ data class AuroraResponse<T : HalResource>(
     val exception: Throwable? = null,
     val count: Int = items.size
 ) : HalResource()
-

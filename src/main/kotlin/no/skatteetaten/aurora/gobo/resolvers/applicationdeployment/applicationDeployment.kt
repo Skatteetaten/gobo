@@ -1,6 +1,5 @@
 package no.skatteetaten.aurora.gobo.resolvers.applicationdeployment
 
-import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageTagType
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationResource
 import no.skatteetaten.aurora.gobo.integration.mokey.StatusCheckResource
@@ -52,7 +51,6 @@ data class ApplicationDeployment(
                     ImageTag(ImageRepository("", "", ""), deployment.version.deployTag),
                     deployment.version.auroraVersion,
                     deployment.version.releaseTo
-
 
                 ),
                 time = deployment.time,

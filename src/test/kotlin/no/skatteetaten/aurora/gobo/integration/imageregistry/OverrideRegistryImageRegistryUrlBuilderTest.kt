@@ -1,9 +1,5 @@
 package no.skatteetaten.aurora.gobo.integration.imageregistry
 
-import assertk.assertThat
-import assertk.assertions.isEqualTo
-import org.junit.jupiter.api.Test
-
 class OverrideRegistryImageRegistryUrlBuilderTest {
 /*
 
