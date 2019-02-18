@@ -11,7 +11,7 @@ import no.skatteetaten.aurora.gobo.OpenShiftUserBuilder
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseSchemaServiceBlocking
 import no.skatteetaten.aurora.gobo.integration.dbh.JdbcUser
 import no.skatteetaten.aurora.gobo.resolvers.graphqlData
-import no.skatteetaten.aurora.gobo.resolvers.graphqlErrors
+import no.skatteetaten.aurora.gobo.resolvers.graphqlErrorsFirst
 import no.skatteetaten.aurora.gobo.resolvers.isTrue
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import no.skatteetaten.aurora.gobo.security.OpenShiftUserLoader
@@ -160,7 +160,7 @@ class DatabaseSchemaMutationResolverTest {
             variables = mapOf("id" to "123")
         )
             .expectBody()
-            .graphqlErrors("[0][?(@.message =~ /.*Anonymous user cannot test jdbc connection/)]")
+            .graphqlErrorsFirst("[?(@.message =~ /.*Anonymous user cannot test jdbc connection/)]")
             .isNotEmpty
     }
 
