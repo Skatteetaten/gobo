@@ -10,23 +10,29 @@ import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.message
 import assertk.assertions.support.expected
+import assertk.catch
 import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
 import no.skatteetaten.aurora.gobo.integration.MockWebServerTestTag
+import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.integration.execute
 import no.skatteetaten.aurora.gobo.integration.imageregistry.AuthenticationMethod.KUBERNETES_TOKEN
 import no.skatteetaten.aurora.gobo.integration.imageregistry.AuthenticationMethod.NONE
 import no.skatteetaten.aurora.gobo.integration.setJsonFileAsBody
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository
+import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageTag
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.toImageRepo
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.RecordedRequest
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 import org.springframework.http.HttpHeaders
 import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.http.HttpStatus
 import java.time.Instant
 
 @MockWebServerTestTag
@@ -103,6 +109,19 @@ class ImageRegistryServiceBlockingTest {
     }
 
     @Test
+    fun `verify dockerContentDigest can be found`() {
+        val response = MockResponse().setJsonFileAsBody("cantusManifest.json")
+
+        val request = server.execute(response) {
+            val imageTag = ImageTag(ImageRepository.fromRepoString(imageRepo.repository), tagName)
+            val dockerContentDigest = imageRegistry.resolveTagToSha(imageTag)
+            assertThat(dockerContentDigest).isEqualTo("sha256:9d044d853c40b42ba52c576e1d71e5cee7dc4d1b328650e0780cd983cb474ed0")
+        }
+
+        assertThat(request.getRequestPath()).isEqualTo("/$imageRepoName/$tagName/manifest")
+    }
+
+    @Test
     fun `verify tag can be found by name`() {
         val response = MockResponse().setJsonFileAsBody("cantusManifest.json")
 
@@ -114,14 +133,19 @@ class ImageRegistryServiceBlockingTest {
         assertThat(request.getRequestPath()).isEqualTo("/$imageRepoName/$tagName/manifest")
     }
 
-    @Test
-    fun `Throw exception when bad request is returned from registry`() {
-        server.execute(404, "Not found") {
+    @ParameterizedTest
+    @ValueSource(ints = [400, 401, 403, 404, 418, 500, 501])
+    fun `get tags given error from Cantus throw exception`(statusCode: Int) {
+        server.execute(statusCode, HttpStatus.valueOf(statusCode)) {
             assertThat {
-                imageRegistry.findTagByName(imageRepo, tagName)
+                imageRegistry.findTagNamesInRepoOrderedByCreatedDateDesc(imageRepo)
             }.thrownError {
-                message().isEqualTo("Error in response, status=404 message=Not Found")
+                given {
+                    assertThat(it::class).isEqualTo(SourceSystemException::class)
+                    assertThat(it.message).endsWith("status=$statusCode message=${HttpStatus.valueOf(statusCode).reasonPhrase}")
+                }
             }
+
         }
     }
 
@@ -137,4 +161,15 @@ class ImageRegistryServiceBlockingTest {
 
             expected("Some tags were not present")
         }
+}
+
+private fun Assert<String?>.endsWith(message: String) {
+    given {
+        if(it.isNullOrEmpty()) expected("Exception message was null or empty")
+        if(it.endsWith(message)) return
+
+        expected("Exception message does not end with the specified message " +
+            "\nexpected=$message" +
+            "\nactual=$it")
+    }
 }
