@@ -24,7 +24,6 @@ import no.skatteetaten.aurora.gobo.SchemaCreationRequestBuilder
 import no.skatteetaten.aurora.gobo.SchemaDeletionRequestBuilder
 import no.skatteetaten.aurora.gobo.SchemaUpdateRequestBuilder
 import no.skatteetaten.aurora.gobo.integration.MockWebServerTestTag
-import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.integration.bodyAsObject
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseSchemaService.Companion.HEADER_COOLDOWN_DURATION_HOURS
@@ -47,7 +46,7 @@ class DatabaseSchemaServiceBlockingTest {
 
     @Test
     fun `Get database schemas given affiliation`() {
-        val response = Response(items = listOf(DatabaseSchemaResourceBuilder().build()))
+        val response = DbhResponse.ok(DatabaseSchemaResourceBuilder().build())
         val request = server.execute(response) {
             val databaseSchemas = databaseSchemaService.getDatabaseSchemas("paas")
             assertThat(databaseSchemas).hasSize(1)
@@ -66,7 +65,7 @@ class DatabaseSchemaServiceBlockingTest {
             "name" to "ref"
         )
         val databaseSchema = DatabaseSchemaResourceBuilder().build()
-        val response = Response(items = listOf(databaseSchema, databaseSchema))
+        val response = DbhResponse.ok(databaseSchema, databaseSchema)
         val json = JsonPath.parse(jacksonObjectMapper().writeValueAsString(response))
             .set("$.items[0].labels", labelsMissingEnv).jsonString()
 
@@ -81,18 +80,18 @@ class DatabaseSchemaServiceBlockingTest {
 
     @Test
     fun `Get database schemas return failed response`() {
-        val response = Response<DatabaseSchemaResource>(message = "failed", success = false, items = emptyList())
+        val response = DbhResponse.failed("test error")
         server.execute(response) {
             val exception = catch { databaseSchemaService.getDatabaseSchemas("paas") }
             assertThat(exception).isNotNull()
                 .isInstanceOf(SourceSystemException::class)
-                .message().isEqualTo("failed")
+                .message().isEqualTo("status=Failed error=test error")
         }
     }
 
     @Test
     fun `Get database schema given id`() {
-        val response = Response(items = listOf(DatabaseSchemaResourceBuilder().build()))
+        val response = DbhResponse.ok<DatabaseSchemaResource>()
         val request = server.execute(response) {
             val databaseSchema = databaseSchemaService.getDatabaseSchema("abc123")
             assertThat(databaseSchema).isNotNull()
@@ -103,7 +102,7 @@ class DatabaseSchemaServiceBlockingTest {
 
     @Test
     fun `Update database schema`() {
-        val response = Response(items = listOf(DatabaseSchemaResourceBuilder().build()))
+        val response = DbhResponse.ok(DatabaseSchemaResourceBuilder().build())
         val request = server.execute(response) {
             val databaseSchema =
                 databaseSchemaService.updateDatabaseSchema(SchemaUpdateRequestBuilder("123").build())
@@ -115,7 +114,7 @@ class DatabaseSchemaServiceBlockingTest {
 
     @Test
     fun `Delete database schema without cooldownDurationHours`() {
-        val response = Response(items = emptyList<DatabaseSchemaResource>())
+        val response = DbhResponse.ok<DatabaseSchemaResource>()
         val request = server.execute(response) {
             val deleted = databaseSchemaService.deleteDatabaseSchema(SchemaDeletionRequestBuilder(id = "123").build())
             assertThat(deleted).isTrue()
@@ -127,7 +126,7 @@ class DatabaseSchemaServiceBlockingTest {
 
     @Test
     fun `Delete database schema with cooldownDurationHours`() {
-        val response = Response(items = emptyList<DatabaseSchemaResource>())
+        val response = DbhResponse.ok<DatabaseSchemaResource>()
         val request = server.execute(response) {
             val deleted = databaseSchemaService.deleteDatabaseSchema(
                 SchemaDeletionRequestBuilder(
@@ -145,7 +144,7 @@ class DatabaseSchemaServiceBlockingTest {
     @Test
     fun `Test jdbc connection for jdbcUser`() {
         val jdbcUser = JdbcUserBuilder().build()
-        val response = Response(items = listOf(true))
+        val response = DbhResponse.ok(true)
         val request = server.execute(response) {
             val success = databaseSchemaService.testJdbcConnection(jdbcUser)
             assertThat(success).isTrue()
@@ -160,7 +159,7 @@ class DatabaseSchemaServiceBlockingTest {
 
     @Test
     fun `Test jdbc connection for id`() {
-        val response = Response(items = listOf(true))
+        val response = DbhResponse.ok(true)
         val request = server.execute(response) {
             val success = databaseSchemaService.testJdbcConnection("123")
             assertThat(success).isTrue()
@@ -175,7 +174,7 @@ class DatabaseSchemaServiceBlockingTest {
 
     @Test
     fun `Test jdbc connection for id given failing connection`() {
-        val response = Response(items = listOf(false))
+        val response = DbhResponse.ok(false)
         server.execute(response) {
             val success = databaseSchemaService.testJdbcConnection("123")
             assertThat(success).isFalse()
@@ -184,9 +183,10 @@ class DatabaseSchemaServiceBlockingTest {
 
     @Test
     fun `Create database schema`() {
-        val response = Response(items = listOf(DatabaseSchemaResourceBuilder().build()))
+        val response = DbhResponse.ok(DatabaseSchemaResourceBuilder().build())
         val request = server.execute(response) {
-            val createdDatabaseSchema = databaseSchemaService.createDatabaseSchema(SchemaCreationRequestBuilder().build())
+            val createdDatabaseSchema =
+                databaseSchemaService.createDatabaseSchema(SchemaCreationRequestBuilder().build())
             assertThat(createdDatabaseSchema.id).isEqualTo("123")
         }
 

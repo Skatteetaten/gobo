@@ -3,7 +3,6 @@ package no.skatteetaten.aurora.gobo.integration.dbh
 import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
 import no.skatteetaten.aurora.gobo.createObjectMapper
-import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.resolvers.MissingLabelException
 import no.skatteetaten.aurora.gobo.resolvers.blockAndHandleError
@@ -29,7 +28,7 @@ class DatabaseSchemaService(
     }
 
     fun getDatabaseSchemas(affiliation: String): Mono<List<DatabaseSchemaResource>> {
-        val response: Mono<Response<DatabaseSchemaResource>> = webClient
+        val response: Mono<DbhResponse<*>> = webClient
             .get()
             .uri {
                 it.path("/api/v1/schema/").queryParam("labels", "affiliation=$affiliation").build()
@@ -41,29 +40,25 @@ class DatabaseSchemaService(
         return response.items()
     }
 
-    fun getDatabaseSchema(id: String): Mono<DatabaseSchemaResource> {
-        val response: Mono<Response<DatabaseSchemaResource>> = webClient
-            .get()
-            .uri("/api/v1/schema/$id")
-            .header(HttpHeaders.AUTHORIZATION, "$HEADER_AURORA_TOKEN ${sharedSecretReader.secret}")
-            .retrieve()
-            .bodyToMono()
-
-        return response.items().flatMap {
-            it.first().toMono()
-        }
-    }
+    fun getDatabaseSchema(id: String) = webClient
+        .get()
+        .uri("/api/v1/schema/$id")
+        .header(HttpHeaders.AUTHORIZATION, "$HEADER_AURORA_TOKEN ${sharedSecretReader.secret}")
+        .retrieve()
+        .bodyToMono<DbhResponse<*>>()
+        .item()
 
     fun updateDatabaseSchema(input: SchemaUpdateRequest): Mono<DatabaseSchemaResource> {
-        val response: Mono<Response<DatabaseSchemaResource>> = webClient
+        val response: Mono<DbhResponse<*>> = webClient
             .put()
             .uri("/api/v1/schema/${input.id}")
             .body(BodyInserters.fromObject(input))
             .header(HttpHeaders.AUTHORIZATION, "aurora-token ${sharedSecretReader.secret}")
             .retrieve()
             .bodyToMono()
-        return response.flatMap {
-            it.items.first().toMono()
+
+        return response.items().flatMap {
+            it.first().toMono()
         }
     }
 
@@ -77,14 +72,15 @@ class DatabaseSchemaService(
             requestSpec.header(HEADER_COOLDOWN_DURATION_HOURS, it.toString())
         }
 
-        val response: Mono<Response<DatabaseSchemaResource>> = requestSpec.retrieve().bodyToMono()
-        return response.flatMap {
-            it.success.toMono()
+        val response: Mono<DbhResponse<*>> = requestSpec.retrieve().bodyToMono()
+
+        return response.items().flatMap {
+            (it.size == 1).toMono()
         }
     }
 
     fun testJdbcConnection(id: String? = null, user: JdbcUser? = null): Mono<Boolean> {
-        val response: Mono<Response<Boolean>> = webClient
+        val response: Mono<DbhResponse<Boolean>> = webClient
             .put()
             .uri("/api/v1/schema/validate")
             .body(
@@ -98,6 +94,7 @@ class DatabaseSchemaService(
             .header(HttpHeaders.AUTHORIZATION, "$HEADER_AURORA_TOKEN ${sharedSecretReader.secret}")
             .retrieve()
             .bodyToMono()
+
         return response.flatMap {
             it.items.first().toMono()
         }
@@ -109,7 +106,7 @@ class DatabaseSchemaService(
             return Mono.error(MissingLabelException("Missing labels in mutation input: $missingLabels"))
         }
 
-        val response: Mono<Response<DatabaseSchemaResource>> = webClient
+        val response: Mono<DbhResponse<DatabaseSchemaResource>> = webClient
             .post()
             .uri("/api/v1/schema/")
             .body(BodyInserters.fromObject(input))
@@ -121,18 +118,27 @@ class DatabaseSchemaService(
         }
     }
 
-    private fun Mono<Response<DatabaseSchemaResource>>.items() =
+    private fun Mono<DbhResponse<*>>.item() = this.items().map {
+        it.firstOrNull()
+    }
+
+    private fun Mono<DbhResponse<*>>.items() =
         this.flatMap { r ->
-            if (!r.success) SourceSystemException(message = r.message, sourceSystem = "dbh").toMono()
-            else if (r.count == 0) Mono.empty()
-            else r.items.map { item ->
-                createObjectMapper().convertValue(
-                    item,
-                    DatabaseSchemaResource::class.java
-                )
-            }.filter { dbSchema ->
-                dbSchema.containsRequiredLabels()
-            }.toMono<List<DatabaseSchemaResource>>()
+            when {
+                r.isFailure() -> {
+                    val errorMessage = r.items.firstOrNull() ?: ""
+                    SourceSystemException(
+                        message = "status=${r.status} error=${errorMessage as String}",
+                        sourceSystem = "dbh"
+                    ).toMono()
+                }
+                r.isEmpty() -> Mono.empty()
+                else -> r.items.map { item ->
+                    createObjectMapper().convertValue(item, DatabaseSchemaResource::class.java)
+                }.filter { dbSchema ->
+                    dbSchema.containsRequiredLabels()
+                }.toMono<List<DatabaseSchemaResource>>()
+            }
         }
 }
 
