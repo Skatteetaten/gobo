@@ -2,6 +2,7 @@
   affiliations {
     totalCount
     edges {
+      cursor
       node {
         name
       }
