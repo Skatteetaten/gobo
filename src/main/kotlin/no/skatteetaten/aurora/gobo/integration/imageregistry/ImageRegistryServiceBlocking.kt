@@ -19,13 +19,13 @@ class ImageRegistryServiceBlocking(
 ) {
 
     fun resolveTagToSha(key: ImageTag): String {
-        val imageTagDto: ImageTagDto = getAuroraResponseImageTagResource(key.imageRepository.toImageRepo(key.name))
+        val imageTagDto: ImageTagDto = getAuroraResponseImageTagResource(key.imageRepository.toImageRepo(), key.name)
 
         return imageTagDto.dockerDigest
     }
 
-    fun findTagByName(imageRepoDto: ImageRepoDto): ImageTagDto {
-        return getAuroraResponseImageTagResource(imageRepoDto)
+    fun findTagByName(imageRepoDto: ImageRepoDto, imageTag: String): ImageTagDto {
+        return getAuroraResponseImageTagResource(imageRepoDto, imageTag)
     }
 
     fun findTagNamesInRepoOrderedByCreatedDateDesc(imageRepoDto: ImageRepoDto): TagsDto {
@@ -40,18 +40,18 @@ class ImageRegistryServiceBlocking(
         )
     }
 
-    private fun getAuroraResponseImageTagResource(imageRepoDto: ImageRepoDto): ImageTagDto {
+    private fun getAuroraResponseImageTagResource(imageRepoDto: ImageRepoDto, imageTag: String): ImageTagDto {
         val registryMetadata = registryMetadataResolver.getMetadataForRegistry(imageRepoDto.registry)
 
         val auroraImageTagResource: AuroraResponse<ImageTagResource> =
             execute(registryMetadata.authenticationMethod) {
                 it.get().uri(
-                    urlBuilder.createImageTagUrl(imageRepoDto, registryMetadata),
-                    imageRepoDto.mappedTemplateVars
+                    urlBuilder.createImageTagUrl(imageRepoDto, registryMetadata, imageTag),
+                    imageRepoDto.mappedTemplateVars.plus("tag" to imageTag)
                 )
             }
 
-        return ImageTagDto.toDto(auroraImageTagResource, imageRepoDto.imageTagName)
+        return ImageTagDto.toDto(auroraImageTagResource, imageTag)
     }
 
     private final inline fun <reified T : Any> execute(

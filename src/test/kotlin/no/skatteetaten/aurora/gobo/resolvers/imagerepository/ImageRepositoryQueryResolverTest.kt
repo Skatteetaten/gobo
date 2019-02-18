@@ -47,7 +47,7 @@ class ImageRepositoryQueryResolverTest {
     private lateinit var imageRegistryServiceBlocking: ImageRegistryServiceBlocking
 
     class ImageRepoData(val repoString: String, val tags: List<String>) {
-        val imageRepoDto: ImageRepoDto get() = fromRepoString(repoString).toImageRepo("1")
+        val imageRepoDto: ImageRepoDto get() = fromRepoString(repoString).toImageRepo()
     }
 
     val testData = mapOf(
@@ -60,11 +60,13 @@ class ImageRepositoryQueryResolverTest {
     @BeforeEach
     fun setUp() {
         testData.forEach { data: ImageRepoData ->
-            given(imageRegistryServiceBlocking.findTagNamesInRepoOrderedByCreatedDateDesc(data.imageRepoDto)).willReturn(
-                TagsDto(data.tags.map {
-                    Tag(name = it, type = ImageTagType.typeOf(it))
-                })
-            )
+            given(imageRegistryServiceBlocking.findTagNamesInRepoOrderedByCreatedDateDesc(data.imageRepoDto))
+                .willReturn(
+                    TagsDto(data.tags.map {
+                        Tag(name = it, type = ImageTagType.typeOf(it))
+                    }
+                    )
+                )
             data.tags
                 .map {
                     ImageTagDto(name = it, created = EPOCH, dockerDigest = "sha256")
@@ -72,7 +74,8 @@ class ImageRepositoryQueryResolverTest {
                 .forEach {
                     given(
                         imageRegistryServiceBlocking.findTagByName(
-                            data.imageRepoDto
+                            data.imageRepoDto,
+                            it.name
                         )
                     ).willReturn(it)
                 }
@@ -87,8 +90,8 @@ class ImageRepositoryQueryResolverTest {
         val variables = mapOf("repositories" to testData.map { it.imageRepoDto.repository })
         webTestClient.queryGraphQL(reposWithTagsQuery, variables)
             .expectStatus().isOk
-            .expectBody(QueryResponse.Response::class.java)
-            .returnResult().let { result ->
+            .expectBody (QueryResponse.Response::class.java)
+                .returnResult().let { result ->
                 result.responseBody!!.data.imageRepositories.forEachIndexed { repoIndex, repository ->
                     assertThat(repository.repository).isEqualTo(testData[repoIndex].repoString)
                     assertThat(repository.tags.totalCount).isEqualTo(testData[repoIndex].tags.size)
@@ -98,6 +101,7 @@ class ImageRepositoryQueryResolverTest {
                         assertThat(edge.node.lastModified).isEqualTo(Instant.EPOCH.toString())
                     }
                 }
+
             }
     }
 
@@ -105,7 +109,6 @@ class ImageRepositoryQueryResolverTest {
     fun `Query for tags with paging`() {
         val pageSize = 3
         val variables = mapOf("repositories" to testData[0].imageRepoDto.repository, "pageSize" to pageSize)
-        val query = createQuery(tagsWithPagingQuery, variables)
 
         webTestClient.queryGraphQL(tagsWithPagingQuery, variables)
             .expectStatus().isOk
@@ -122,7 +125,7 @@ class ImageRepositoryQueryResolverTest {
 
     @Test
     fun `Get errors when findByTagName fails with exception`() {
-        given(imageRegistryServiceBlocking.findTagByName(testData[0].imageRepoDto))
+        given(imageRegistryServiceBlocking.findTagByName(testData[0].imageRepoDto, testData[0].tags[0]))
             .willThrow(SourceSystemException("test exception", RuntimeException("testing testing")))
 
         val variables = mapOf("repositories" to testData[0].imageRepoDto.repository)

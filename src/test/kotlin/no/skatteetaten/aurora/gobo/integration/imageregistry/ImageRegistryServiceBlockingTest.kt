@@ -37,7 +37,7 @@ class ImageRegistryServiceBlockingTest {
 
     private val server = MockWebServer()
     private val url = server.url("/")
-    private val imageRepo = ImageRepository.fromRepoString("/$imageRepoName").toImageRepo(tagName)
+    private val imageRepo = ImageRepository.fromRepoString("/$imageRepoName").toImageRepo()
 
     private val defaultRegistryMetadataResolver = mockk<DefaultRegistryMetadataResolver>()
     private val tokenProvider = mockk<TokenProvider>()
@@ -107,7 +107,7 @@ class ImageRegistryServiceBlockingTest {
         val response = MockResponse().setJsonFileAsBody("cantusManifest.json")
 
         val request = server.execute(response) {
-            val tag = imageRegistry.findTagByName(imageRepo)
+            val tag = imageRegistry.findTagByName(imageRepo, tagName)
             assertThat(tag.created).isEqualTo(Instant.parse("2018-11-05T14:01:22.654389192Z"))
         }
 
@@ -118,7 +118,7 @@ class ImageRegistryServiceBlockingTest {
     fun `Throw exception when bad request is returned from registry`() {
         server.execute(404, "Not found") {
             assertThat {
-                imageRegistry.findTagByName(imageRepo)
+                imageRegistry.findTagByName(imageRepo, tagName)
             }.thrownError {
                 message().isEqualTo("Error in response, status=404 message=Not Found")
             }

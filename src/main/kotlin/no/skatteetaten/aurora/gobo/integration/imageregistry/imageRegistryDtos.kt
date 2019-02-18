@@ -5,8 +5,7 @@ import java.time.Instant
 data class ImageRepoDto(
     val registry: String,
     val namespace: String,
-    val name: String,
-    val tag: String? = null
+    val name: String
 ) {
     val repository: String
         get() = listOf(registry, namespace, name).joinToString("/")
@@ -14,13 +13,9 @@ data class ImageRepoDto(
     val imageName: String
         get() = "$namespace/$name"
 
-    val imageTagName: String
-        get() = "$namespace/$name/$tag"
-
     val mappedTemplateVars = mapOf(
         "namespace" to namespace,
-        "name" to name,
-        "tag" to tag
+        "name" to name
     )
 }
 

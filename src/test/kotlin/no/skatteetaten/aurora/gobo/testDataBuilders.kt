@@ -130,7 +130,7 @@ data class ApplicationDeploymentBuilder(
             environment = "environment",
             namespaceId = "namespaceId",
             status = Status("code", "comment", listOf(), listOf()),
-            version = Version(ImageTag(ImageRepository("", "", ""), "deployTag", ImageTagType.typeOf("deployTag")), "auroraVersion", "releaseTo"),
+            version = Version(ImageTag(ImageRepository("", "", ""), "deployTag"), "auroraVersion", "releaseTo"),
             dockerImageRepo = "dockerImageRepo",
             time = defaultInstant,
             applicationId = "appId",

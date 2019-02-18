@@ -31,7 +31,7 @@ class ImageRepositoryResolver(val imageRegistryServiceBlocking: ImageRegistrySer
     ): ImageTagsConnection {
 
         val tagsInRepo = try {
-            imageRegistryServiceBlocking.findTagNamesInRepoOrderedByCreatedDateDesc(imageRepository.toImageRepo(""))
+            imageRegistryServiceBlocking.findTagNamesInRepoOrderedByCreatedDateDesc(imageRepository.toImageRepo())
         } catch (e: Exception) {
             //TODO: indicate error to caller
             TagsDto(emptyList())
@@ -39,8 +39,7 @@ class ImageRepositoryResolver(val imageRegistryServiceBlocking: ImageRegistrySer
         val matchingTags = tagsInRepo.tags
             .map { ImageTag(
                 imageRepository = imageRepository,
-                name = it.name,
-                type = it.type
+                name = it.name
             ) }
             .filter { types == null || it.type in types }
 
@@ -52,9 +51,6 @@ class ImageRepositoryResolver(val imageRegistryServiceBlocking: ImageRegistrySer
 @Component
 class ImageRepositoryTagResolver : GraphQLResolver<ImageTag> {
 
-    fun lastModified(imageTag: ImageTag, dfe: DataFetchingEnvironment) {
-        val request: HttpServletRequest = dfe.getContext()
-        println(request.getHeader("Authorization"))
+    fun lastModified(imageTag: ImageTag, dfe: DataFetchingEnvironment) =
         dfe.loader(ImageTagDataLoader::class).load(imageTag)
-    }
 }
