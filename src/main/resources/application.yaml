@@ -49,7 +49,7 @@ gobo:
     mokey:
         url: http://mokey-aurora.utv.paas.skead.no
     cantus:
-        url: http://m96405-cantus.aurora.utv.paas.skead.no
+        url: http://cantus-aurora.utv.paas.skead.no
     docker-registry:
         url: https://test-docker-registry-internal-group.aurora.skead.no
 
