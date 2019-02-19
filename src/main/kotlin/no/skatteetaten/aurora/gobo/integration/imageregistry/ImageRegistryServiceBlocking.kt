@@ -29,9 +29,12 @@ class ImageRegistryServiceBlocking(
     fun findTagNamesInRepoOrderedByCreatedDateDesc(imageRepoDto: ImageRepoDto): TagsDto {
         val registryMetadata = registryMetadataResolver.getMetadataForRegistry(imageRepoDto.registry)
 
-        logger.debug("Retrieving type=TagResource from  url=${registryMetadata.registry} image=${imageRepoDto.imageName}")
         return TagsDto.toDto(
-            execute(registryMetadata.authenticationMethod) {
+            execute(
+                requestType = "TagResource",
+                imageRepoDto = imageRepoDto,
+                authenticationMethod = registryMetadata.authenticationMethod
+            ) {
                 it.get().uri(
                     urlBuilder.createTagsUrl(imageRepoDto, registryMetadata),
                     imageRepoDto.mappedTemplateVars
@@ -43,9 +46,12 @@ class ImageRegistryServiceBlocking(
     private fun getAuroraResponseImageTagResource(imageRepoDto: ImageRepoDto): ImageTagDto {
         val registryMetadata = registryMetadataResolver.getMetadataForRegistry(imageRepoDto.registry)
 
-        logger.debug("Retrieving type=ImageTagResource from  url=${registryMetadata.registry} image=${imageRepoDto.imageName}")
         val auroraImageTagResource: AuroraResponse<ImageTagResource> =
-            execute(registryMetadata.authenticationMethod) {
+            execute(
+                requestType = "ImageTagResource",
+                imageRepoDto = imageRepoDto,
+                authenticationMethod = registryMetadata.authenticationMethod
+            ) {
                 it.get().uri(
                     urlBuilder.createImageTagUrl(imageRepoDto, registryMetadata),
                     imageRepoDto.mappedTemplateVars
@@ -56,6 +62,8 @@ class ImageRegistryServiceBlocking(
     }
 
     private final inline fun <reified T : Any> execute(
+        requestType: String,
+        imageRepoDto: ImageRepoDto,
         authenticationMethod: AuthenticationMethod,
         fn: (WebClient) -> WebClient.RequestHeadersSpec<*>
     ): T = fn(webClient)
@@ -63,6 +71,9 @@ class ImageRegistryServiceBlocking(
             if (authenticationMethod == AuthenticationMethod.KUBERNETES_TOKEN) {
                 it.set("Authorization", "Bearer ${tokenProvider.token}")
             }
+        }
+        .apply {
+            logger.debug("Retrieving type=$requestType from  url=${imageRepoDto.registry} image=${imageRepoDto.imageName}")
         }
         .retrieve()
         .bodyToMono<T>()
