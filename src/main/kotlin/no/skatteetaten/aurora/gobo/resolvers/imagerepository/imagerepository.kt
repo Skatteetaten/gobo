@@ -17,6 +17,12 @@ data class ImageRepository(
     val repository: String
         get() = listOf(registryUrl, namespace, name).joinToString("/")
 
+    fun toImageRepo() = ImageRepoDto(
+        registry = this.registryUrl,
+        namespace = this.namespace,
+        name = this.name
+    )
+
     companion object {
 
         private val logger = LoggerFactory.getLogger(ImageRepository::class.java)
@@ -66,8 +72,4 @@ data class ImageTagsConnection(
     constructor(paged: GoboPagedEdges<ImageTagEdge>) : this(paged.edges, paged.pageInfo, paged.totalCount)
 }
 
-fun ImageRepository.toImageRepo() = ImageRepoDto(
-    registry = this.registryUrl,
-    namespace = this.namespace,
-    name = this.name
-)
+

@@ -4,7 +4,7 @@ import no.skatteetaten.aurora.gobo.ApplicationDeploymentResourceBuilder
 import no.skatteetaten.aurora.gobo.GraphQLTest
 import no.skatteetaten.aurora.gobo.OpenShiftUserBuilder
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
-import no.skatteetaten.aurora.gobo.resolvers.graphqlData
+import no.skatteetaten.aurora.gobo.resolvers.graphqlDataWithPrefix
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import no.skatteetaten.aurora.gobo.security.OpenShiftUserLoader
 import org.junit.jupiter.api.AfterEach
@@ -52,9 +52,11 @@ class ApplicationDeploymentQueryResolverTest {
         webTestClient.queryGraphQL(getApplicationsQuery, variables, "test-token")
             .expectStatus().isOk
             .expectBody()
-            .graphqlData("applicationDeployment.id").isEqualTo("123")
-            .graphqlData("applicationDeployment.status.reports").exists()
-            .graphqlData("applicationDeployment.status.reasons").exists()
-            .graphqlData("applicationDeployment.message").exists()
+            .graphqlDataWithPrefix("applicationDeployment") {
+                it.graphqlData("id").isEqualTo("123")
+                it.graphqlData("status.reports").exists()
+                it.graphqlData("status.reasons").exists()
+                it.graphqlData("message").exists()
+            }
     }
 }

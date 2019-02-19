@@ -63,3 +63,7 @@ openshift:
 ---
 spring:
     profiles: openshift
+
+aurora:
+    token:
+        location: /u01/secrets/app/aurora-token/token

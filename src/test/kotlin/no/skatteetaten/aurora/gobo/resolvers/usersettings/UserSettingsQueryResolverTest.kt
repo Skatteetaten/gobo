@@ -5,7 +5,7 @@ import no.skatteetaten.aurora.gobo.GraphQLTest
 import no.skatteetaten.aurora.gobo.OpenShiftUserBuilder
 import no.skatteetaten.aurora.gobo.integration.boober.UserSettingsResource
 import no.skatteetaten.aurora.gobo.integration.boober.UserSettingsService
-import no.skatteetaten.aurora.gobo.resolvers.graphqlData
+import no.skatteetaten.aurora.gobo.resolvers.graphqlDataWithPrefix
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import no.skatteetaten.aurora.gobo.security.OpenShiftUserLoader
 import org.junit.jupiter.api.AfterEach
@@ -22,8 +22,6 @@ import org.springframework.test.web.reactive.server.WebTestClient
 
 @GraphQLTest
 class UserSettingsQueryResolverTest {
-
-    private val filters = "userSettings.applicationDeploymentFilters"
 
     @Value("classpath:graphql/queries/getUserSettingsWithAffiliation.graphql")
     private lateinit var getUserSettingsWithAffiliationQuery: Resource
@@ -67,9 +65,11 @@ class UserSettingsQueryResolverTest {
             )
             .expectStatus().isOk
             .expectBody()
-            .graphqlData("$filters.length()").isEqualTo(2)
-            .graphqlData("$filters[0].affiliation").isEqualTo("aurora")
-            .graphqlData("$filters[1].affiliation").isEqualTo("paas")
+            .graphqlDataWithPrefix("userSettings.applicationDeploymentFilters") {
+                it.graphqlData("length()").isEqualTo(2)
+                it.graphqlData("[0].affiliation").isEqualTo("aurora")
+                it.graphqlData("[1].affiliation").isEqualTo("paas")
+            }
     }
 
     @Test
@@ -82,11 +82,13 @@ class UserSettingsQueryResolverTest {
             )
             .expectStatus().isOk
             .expectBody()
-            .graphqlData("$filters.length()").isEqualTo(1)
-            .graphqlData("$filters[0].name").isNotEmpty
-            .graphqlData("$filters[0].default").isBoolean
-            .graphqlData("$filters[0].affiliation").isEqualTo("aurora")
-            .graphqlData("$filters[0].applications").isNotEmpty
-            .graphqlData("$filters[0].environments").isNotEmpty
+            .graphqlDataWithPrefix("userSettings.applicationDeploymentFilters") {
+                it.graphqlData("length()").isEqualTo(1)
+                it.graphqlDataFirst("name").isNotEmpty
+                it.graphqlDataFirst("default").isBoolean
+                it.graphqlDataFirst("affiliation").isEqualTo("aurora")
+                it.graphqlDataFirst("applications").isNotEmpty
+                it.graphqlDataFirst("environments").isNotEmpty
+            }
     }
 }

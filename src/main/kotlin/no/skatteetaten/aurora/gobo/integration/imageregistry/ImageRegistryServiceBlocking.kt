@@ -16,18 +16,14 @@ class ImageRegistryServiceBlocking(
     private val urlBuilder: ImageRegistryUrlBuilder
 ) {
 
-    fun resolveTagToSha(imageRepoDto: ImageRepoDto, imageTag: String): String {
-        val imageTagDto: ImageTagDto = findTagByName(imageRepoDto, imageTag)
+    fun resolveTagToSha(imageRepoDto: ImageRepoDto, imageTag: String) =
+        findTagByName(imageRepoDto, imageTag).dockerDigest
 
-        return imageTagDto.dockerDigest
-    }
 
     fun findTagByName(
         imageRepoDto: ImageRepoDto,
         imageTag: String
-    ): ImageTagDto {
-        return getAuroraResponseImageTagResource(imageRepoDto, imageTag)
-    }
+    ) = getAuroraResponseImageTagResource(imageRepoDto, imageTag)
 
     fun findTagNamesInRepoOrderedByCreatedDateDesc(imageRepoDto: ImageRepoDto): TagsDto {
         val registryMetadata = registryMetadataResolver.getMetadataForRegistry(imageRepoDto.registry)

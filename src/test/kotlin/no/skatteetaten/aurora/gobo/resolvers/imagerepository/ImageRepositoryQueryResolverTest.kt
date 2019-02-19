@@ -1,11 +1,5 @@
 package no.skatteetaten.aurora.gobo.resolvers.imagerepository
 
-import assertk.assertThat
-import assertk.assertions.containsExactly
-import assertk.assertions.isEqualTo
-import assertk.assertions.isNotEqualTo
-import assertk.assertions.isNotNull
-import assertk.assertions.isTrue
 import no.skatteetaten.aurora.gobo.GraphQLTest
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageRegistryServiceBlocking
@@ -14,9 +8,12 @@ import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageTagDto
 import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageTagType
 import no.skatteetaten.aurora.gobo.integration.imageregistry.Tag
 import no.skatteetaten.aurora.gobo.integration.imageregistry.TagsDto
-import no.skatteetaten.aurora.gobo.resolvers.GoboPageInfo
+import no.skatteetaten.aurora.gobo.resolvers.graphqlDataWithPrefix
+import no.skatteetaten.aurora.gobo.resolvers.graphqlDataWithPrefixAndIndex
 import no.skatteetaten.aurora.gobo.resolvers.graphqlErrors
+import no.skatteetaten.aurora.gobo.resolvers.graphqlErrorsFirst
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository.Companion.fromRepoString
+import no.skatteetaten.aurora.gobo.resolvers.isTrue
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -60,23 +57,13 @@ class ImageRepositoryQueryResolverTest {
     fun setUp() {
         testData.forEach { data: ImageRepoData ->
             given(imageRegistryServiceBlocking.findTagNamesInRepoOrderedByCreatedDateDesc(data.imageRepoDto))
-                .willReturn(
-                    TagsDto(data.tags.map {
-                        Tag(name = it, type = ImageTagType.typeOf(it))
-                    }
-                    )
-                )
+                .willReturn(TagsDto(data.tags.map { Tag(name = it, type = ImageTagType.typeOf(it)) }))
             data.tags
                 .map {
                     ImageTagDto(name = it, created = EPOCH, dockerDigest = "sha256")
                 }
                 .forEach {
-                    given(
-                        imageRegistryServiceBlocking.findTagByName(
-                            data.imageRepoDto,
-                            it.name
-                        )
-                    ).willReturn(it)
+                    given(imageRegistryServiceBlocking.findTagByName(data.imageRepoDto, it.name)).willReturn(it)
                 }
         }
     }
@@ -89,17 +76,16 @@ class ImageRepositoryQueryResolverTest {
         val variables = mapOf("repositories" to testData.map { it.imageRepoDto.repository })
         webTestClient.queryGraphQL(reposWithTagsQuery, variables)
             .expectStatus().isOk
-            .expectBody(QueryResponse.Response::class.java)
-            .returnResult().let { result ->
-                result.responseBody!!.data.imageRepositories.forEachIndexed { repoIndex, repository ->
-                    assertThat(repository.repository).isEqualTo(testData[repoIndex].repoString)
-                    assertThat(repository.tags.totalCount).isEqualTo(testData[repoIndex].tags.size)
-                    assertThat(repository.tags.edges.size).isEqualTo(testData[repoIndex].tags.size)
-                    repository.tags.edges.forEachIndexed { edgeIndex, edge ->
-                        assertThat(edge.node.name).isEqualTo(testData[repoIndex].tags[edgeIndex])
-                        assertThat(edge.node.lastModified).isEqualTo(Instant.EPOCH.toString())
-                    }
-                }
+            .expectBody()
+            .graphqlDataWithPrefixAndIndex("imageRepositories", endIndex = 1) {
+                val repository = testData[it.index]
+                it.graphqlData("repository").isEqualTo(repository.repoString)
+                it.graphqlData("tags.totalCount").isEqualTo(repository.tags.size)
+                it.graphqlData("tags.edges.length()").isEqualTo(repository.tags.size)
+                it.graphqlData("tags.edges[0].node.name").isEqualTo(repository.tags[0])
+                it.graphqlData("tags.edges[0].node.lastModified").isEqualTo(Instant.EPOCH.toString())
+                it.graphqlData("tags.edges[1].node.name").isEqualTo(repository.tags[1])
+                it.graphqlData("tags.edges[1].node.lastModified").isEqualTo(Instant.EPOCH.toString())
             }
     }
 
@@ -110,25 +96,21 @@ class ImageRepositoryQueryResolverTest {
 
         webTestClient.queryGraphQL(tagsWithPagingQuery, variables)
             .expectStatus().isOk
-            .expectBody(QueryResponse.Response::class.java)
-            .returnResult().let { result ->
-                val tags = result.responseBody!!.data.imageRepositories[0].tags
-                assertThat(tags.totalCount).isEqualTo(testData[0].tags.size)
-                assertThat(tags.edges.size).isEqualTo(pageSize)
-                assertThat(tags.edges.map { it.node.name }).containsExactly("1", "1.0", "1.0.0")
-                assertThat(tags.pageInfo?.startCursor).isNotEqualTo("")
-                assertThat(tags.pageInfo?.hasNextPage).isNotNull().isTrue()
+            .expectBody()
+            .graphqlDataWithPrefix("imageRepositories[0].tags") {
+                it.graphqlData("totalCount").isEqualTo(testData[0].tags.size)
+                it.graphqlData("edges.length()").isEqualTo(pageSize)
+                it.graphqlData("edges[0].node.name").isEqualTo("1")
+                it.graphqlData("edges[1].node.name").isEqualTo("1.0")
+                it.graphqlData("edges[2].node.name").isEqualTo("1.0.0")
+                it.graphqlData("pageInfo.startCursor").isNotEmpty
+                it.graphqlData("pageInfo.hasNextPage").isTrue()
             }
     }
 
     @Test
     fun `Get errors when findByTagName fails with exception`() {
-        given(
-            imageRegistryServiceBlocking.findTagByName(
-                testData[0].imageRepoDto,
-                testData[0].tags[0]
-            )
-        )
+        given(imageRegistryServiceBlocking.findTagByName(testData[0].imageRepoDto, testData[0].tags[0]))
             .willThrow(SourceSystemException("test exception", RuntimeException("testing testing")))
 
         val variables = mapOf("repositories" to testData[0].imageRepoDto.repository)
@@ -136,17 +118,8 @@ class ImageRepositoryQueryResolverTest {
             .expectStatus().isOk
             .expectBody()
             .graphqlErrors("length()").isEqualTo(1)
-            .graphqlErrors("[0].extensions.code").exists()
-            .graphqlErrors("[0].extensions.cause").exists()
-            .graphqlErrors("[0].extensions.errorMessage").exists()
+            .graphqlErrorsFirst("extensions.code").exists()
+            .graphqlErrorsFirst("extensions.cause").exists()
+            .graphqlErrorsFirst("extensions.errorMessage").exists()
     }
-}
-
-class QueryResponse {
-    data class Tag(val name: String, val lastModified: String)
-    data class Edge(val node: Tag)
-    data class Tags(val totalCount: Int, val edges: List<Edge>, val pageInfo: GoboPageInfo?)
-    data class ImageRepository(val repository: String?, val tags: Tags)
-    data class ImageRepositories(val imageRepositories: List<ImageRepository>)
-    data class Response(val data: ImageRepositories)
 }
