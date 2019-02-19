@@ -25,7 +25,7 @@ private fun createTestHateoasObjectMapper() =
         )
     }
 
-fun MockWebServer.enqueueJson(status: Int = 200, body: Any) {
+private fun MockWebServer.enqueueJson(status: Int = 200, body: Any) {
     val json = body as? String ?: createTestHateoasObjectMapper().writeValueAsString(body)
     val response = MockResponse()
         .setResponseCode(status)
@@ -34,37 +34,29 @@ fun MockWebServer.enqueueJson(status: Int = 200, body: Any) {
     this.enqueue(response)
 }
 
-fun MockWebServer.execute(status: Int, response: Any, fn: () -> Unit): RecordedRequest {
+private fun MockWebServer.execute(fn: () -> Unit): RecordedRequest {
     try {
-        this.enqueueJson(status, response)
         fn()
         return this.takeRequest()
     } catch (t: Throwable) {
         this.takeRequest()
         throw t
     }
+}
+
+fun MockWebServer.execute(status: Int, response: Any, fn: () -> Unit): RecordedRequest {
+    this.enqueueJson(status, response)
+    return this.execute(fn)
 }
 
 fun MockWebServer.execute(response: MockResponse, fn: () -> Unit): RecordedRequest {
-    try {
-        this.enqueue(response)
-        fn()
-        return this.takeRequest()
-    } catch (t: Throwable) {
-        this.takeRequest()
-        throw t
-    }
+    this.enqueue(response)
+    return this.execute(fn)
 }
 
 fun MockWebServer.execute(response: Any, fn: () -> Unit): RecordedRequest {
-    try {
-        this.enqueueJson(body = response)
-        fn()
-        return this.takeRequest()
-    } catch (t: Throwable) {
-        this.takeRequest()
-        throw t
-    }
+    this.enqueueJson(body = response)
+    return this.execute(fn)
 }
 
 fun MockWebServer.execute(vararg responses: Any, fn: () -> Unit): List<RecordedRequest> {
