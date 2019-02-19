@@ -31,10 +31,9 @@ class ImageRegistryServiceBlocking(
 
         return TagsDto.toDto(
             execute(
-                requestType = "TagResource",
-                imageRepoDto = imageRepoDto,
                 authenticationMethod = registryMetadata.authenticationMethod
             ) {
+                logger.debug("Retrieving type=TagResource from  url=${imageRepoDto.registry} image=${imageRepoDto.imageName}")
                 it.get().uri(
                     urlBuilder.createTagsUrl(imageRepoDto, registryMetadata),
                     imageRepoDto.mappedTemplateVars
@@ -47,11 +46,8 @@ class ImageRegistryServiceBlocking(
         val registryMetadata = registryMetadataResolver.getMetadataForRegistry(imageRepoDto.registry)
 
         val auroraImageTagResource: AuroraResponse<ImageTagResource> =
-            execute(
-                requestType = "ImageTagResource",
-                imageRepoDto = imageRepoDto,
-                authenticationMethod = registryMetadata.authenticationMethod
-            ) {
+            execute(registryMetadata.authenticationMethod) {
+                logger.debug("Retrieving type=ImageTagResource from  url=${imageRepoDto.registry} image=${imageRepoDto.imageName}")
                 it.get().uri(
                     urlBuilder.createImageTagUrl(imageRepoDto, registryMetadata),
                     imageRepoDto.mappedTemplateVars
@@ -62,8 +58,6 @@ class ImageRegistryServiceBlocking(
     }
 
     private final inline fun <reified T : Any> execute(
-        requestType: String,
-        imageRepoDto: ImageRepoDto,
         authenticationMethod: AuthenticationMethod,
         fn: (WebClient) -> WebClient.RequestHeadersSpec<*>
     ): T = fn(webClient)
@@ -71,9 +65,6 @@ class ImageRegistryServiceBlocking(
             if (authenticationMethod == AuthenticationMethod.KUBERNETES_TOKEN) {
                 it.set("Authorization", "Bearer ${tokenProvider.token}")
             }
-        }
-        .apply {
-            logger.debug("Retrieving type=$requestType from  url=${imageRepoDto.registry} image=${imageRepoDto.imageName}")
         }
         .retrieve()
         .bodyToMono<T>()
