@@ -39,7 +39,7 @@ class ImageRegistryServiceBlockingTest {
 
     private val server = MockWebServer()
     private val url = server.url("/")
-    private val imageRepo = ImageRepository.fromRepoString("/$imageRepoName").toImageRepo()
+    private val imageRepo = ImageRepository.fromRepoString("/$imageRepoName").toImageRepo(tagName)
 
     private val defaultRegistryMetadataResolver = mockk<DefaultRegistryMetadataResolver>()
     private val tokenProvider = mockk<TokenProvider>()
@@ -110,7 +110,7 @@ class ImageRegistryServiceBlockingTest {
 
         val request = server.execute(response) {
             val imageTag = ImageTag(ImageRepository.fromRepoString(imageRepo.repository), tagName)
-            val dockerContentDigest = imageRegistry.resolveTagToSha(imageTag)
+            val dockerContentDigest = imageRegistry.resolveTagToSha(imageRepo)
             assertThat(dockerContentDigest).isEqualTo("sha256:9d044d853c40b42ba52c576e1d71e5cee7dc4d1b328650e0780cd983cb474ed0")
         }
 
@@ -122,7 +122,7 @@ class ImageRegistryServiceBlockingTest {
         val response = MockResponse().setJsonFileAsBody("cantusManifest.json")
 
         val request = server.execute(response) {
-            val tag = imageRegistry.findTagByName(imageRepo, tagName)
+            val tag = imageRegistry.findTagByName(imageRepo)
             assertThat(tag.created).isEqualTo(Instant.parse("2018-11-05T14:01:22.654389192Z"))
         }
 

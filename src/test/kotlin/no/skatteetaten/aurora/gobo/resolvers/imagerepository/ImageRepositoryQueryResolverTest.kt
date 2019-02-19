@@ -47,6 +47,8 @@ class ImageRepositoryQueryResolverTest {
 
     class ImageRepoData(val repoString: String, val tags: List<String>) {
         val imageRepoDto: ImageRepoDto get() = fromRepoString(repoString).toImageRepo()
+
+        fun getImageRepoDtoWithTag(tag: String) = fromRepoString(repoString).toImageRepo(tag)
     }
 
     val testData = mapOf(
@@ -73,8 +75,7 @@ class ImageRepositoryQueryResolverTest {
                 .forEach {
                     given(
                         imageRegistryServiceBlocking.findTagByName(
-                            data.imageRepoDto,
-                            it.name
+                            data.getImageRepoDtoWithTag(it.name)
                         )
                     ).willReturn(it)
                 }
@@ -123,7 +124,7 @@ class ImageRepositoryQueryResolverTest {
 
     @Test
     fun `Get errors when findByTagName fails with exception`() {
-        given(imageRegistryServiceBlocking.findTagByName(testData[0].imageRepoDto, testData[0].tags[0]))
+        given(imageRegistryServiceBlocking.findTagByName(testData[0].getImageRepoDtoWithTag(testData[0].tags[0])))
             .willThrow(SourceSystemException("test exception", RuntimeException("testing testing")))
 
         val variables = mapOf("repositories" to testData[0].imageRepoDto.repository)

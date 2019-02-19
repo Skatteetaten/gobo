@@ -10,6 +10,7 @@ import no.skatteetaten.aurora.gobo.integration.mokey.AuroraNamespacePermissions
 import no.skatteetaten.aurora.gobo.integration.mokey.PermissionService
 import no.skatteetaten.aurora.gobo.resolvers.graphqlData
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageTag
+import no.skatteetaten.aurora.gobo.resolvers.imagerepository.toImageRepo
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import no.skatteetaten.aurora.gobo.security.OpenShiftUserLoader
 import org.junit.jupiter.api.AfterEach
@@ -64,8 +65,9 @@ class ApplicationWithLatestDigestQueryResolverTest {
         val details = ApplicationDeploymentDetailsBuilder().build()
 
         val tag = ImageTag.fromTagString(details.imageDetails!!.dockerImageTagReference!!)
+        val imageRepoDto = tag.imageRepository.toImageRepo(tag.name)
 
-        given(imageRegistryServiceBlocking.resolveTagToSha(tag)).willReturn("sha256:123")
+        given(imageRegistryServiceBlocking.resolveTagToSha(imageRepoDto)).willReturn("sha256:123")
 
         given(applicationServiceBlocking.getApplications(affiliations))
             .willReturn(listOf(ApplicationResourceBuilder().build()))

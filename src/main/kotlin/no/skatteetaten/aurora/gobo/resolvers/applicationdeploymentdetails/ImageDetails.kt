@@ -5,6 +5,7 @@ import graphql.schema.DataFetchingEnvironment
 import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageRegistryServiceBlocking
 import no.skatteetaten.aurora.gobo.resolvers.KeyDataLoader
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageTag
+import no.skatteetaten.aurora.gobo.resolvers.imagerepository.toImageRepo
 import no.skatteetaten.aurora.gobo.resolvers.loader
 import no.skatteetaten.aurora.gobo.resolvers.user.User
 import org.dataloader.Try
@@ -37,7 +38,8 @@ class ImageDetailsResolver : GraphQLResolver<ImageDetails> {
     ) : KeyDataLoader<ImageTagDigestDTO, Boolean> {
         override fun getByKey(user: User, key: ImageTagDigestDTO): Try<Boolean> {
             return Try.tryCall {
-                imageRegistryServiceBlocking.resolveTagToSha(key.imageTag) == key.expecedDigest
+                val imageRepoDto = key.imageTag.imageRepository.toImageRepo(key.imageTag.name)
+                imageRegistryServiceBlocking.resolveTagToSha(imageRepoDto) == key.expecedDigest
             }
         }
     }

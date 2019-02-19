@@ -19,10 +19,9 @@ class ImageRegistryUrlBuilder {
 
     fun createImageTagUrl(
         imageRepoDto: ImageRepoDto,
-        registryMetadata: RegistryMetadata,
-        imageTag: String
+        registryMetadata: RegistryMetadata
     ): String {
-        logger.debug("Retrieving type=ImageTagResource from  url=${registryMetadata.registry} image=${imageRepoDto.imageName}/$imageTag")
+        logger.debug("Retrieving type=ImageTagResource from  url=${registryMetadata.registry} image=${imageRepoDto.imageName}")
         val path = "/{namespace}/{name}/{tag}/manifest"
         return imageRepoDto.addOverrideToPathIfExists(path)
     }

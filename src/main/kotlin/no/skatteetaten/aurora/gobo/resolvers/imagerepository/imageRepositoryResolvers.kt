@@ -8,6 +8,7 @@ import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageTagType
 import no.skatteetaten.aurora.gobo.integration.imageregistry.TagsDto
 import no.skatteetaten.aurora.gobo.resolvers.loader
 import no.skatteetaten.aurora.gobo.resolvers.pageEdges
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 
 @Component
@@ -21,6 +22,8 @@ class ImageRepositoryQueryResolver : GraphQLQueryResolver {
 class ImageRepositoryResolver(val imageRegistryServiceBlocking: ImageRegistryServiceBlocking) :
     GraphQLResolver<ImageRepository> {
 
+    private val logger = LoggerFactory.getLogger(ImageRepositoryResolver::class.java)
+
     fun tags(
         imageRepository: ImageRepository,
         types: List<ImageTagType>?,
@@ -31,7 +34,10 @@ class ImageRepositoryResolver(val imageRegistryServiceBlocking: ImageRegistrySer
         val tagsInRepo = try {
             imageRegistryServiceBlocking.findTagNamesInRepoOrderedByCreatedDateDesc(imageRepository.toImageRepo())
         } catch (e: Exception) {
-            // TODO: indicate error to caller
+            logger.warn(
+                "Exception occurred in method=findTagNamesInRepoOrderedByCreatedDateDesc with input=${imageRepository.toImageRepo()}",
+                e
+            )
             TagsDto(emptyList())
         }
         val matchingTags = tagsInRepo.tags
