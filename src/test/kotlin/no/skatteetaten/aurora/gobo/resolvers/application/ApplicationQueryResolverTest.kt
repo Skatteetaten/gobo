@@ -8,6 +8,7 @@ import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
 import no.skatteetaten.aurora.gobo.integration.mokey.AuroraNamespacePermissions
 import no.skatteetaten.aurora.gobo.integration.mokey.PermissionService
 import no.skatteetaten.aurora.gobo.resolvers.graphqlData
+import no.skatteetaten.aurora.gobo.resolvers.graphqlDataWithPrefix
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import no.skatteetaten.aurora.gobo.security.OpenShiftUserLoader
 import org.junit.jupiter.api.AfterEach
@@ -25,7 +26,6 @@ import reactor.core.publisher.toMono
 
 @GraphQLTest
 class ApplicationQueryResolverTest {
-    private val firstApplicationDeployment = "applications.edges[0].node.applicationDeployments[0]"
 
     @Value("classpath:graphql/queries/getApplications.graphql")
     private lateinit var getApplicationsQuery: Resource
@@ -72,10 +72,12 @@ class ApplicationQueryResolverTest {
             .expectStatus().isOk
             .expectBody()
             .graphqlData("applications.totalCount").isNumber
-            .graphqlData("$firstApplicationDeployment.affiliation.name").isNotEmpty
-            .graphqlData("$firstApplicationDeployment.namespace.name").isNotEmpty
-            .graphqlData("$firstApplicationDeployment.namespace.permission.paas.admin").isNotEmpty
-            .graphqlData("$firstApplicationDeployment.details.buildTime").isNotEmpty
-            .graphqlData("$firstApplicationDeployment.details.deployDetails.paused").isEqualTo(false)
+            .graphqlDataWithPrefix("applications.edges[0].node.applicationDeployments[0]") {
+                it.graphqlData("affiliation.name").isNotEmpty
+                it.graphqlData("namespace.name").isNotEmpty
+                it.graphqlData("namespace.permission.paas.admin").isNotEmpty
+                it.graphqlData("details.buildTime").isNotEmpty
+                it.graphqlData("details.deployDetails.paused").isEqualTo(false)
+            }
     }
 }

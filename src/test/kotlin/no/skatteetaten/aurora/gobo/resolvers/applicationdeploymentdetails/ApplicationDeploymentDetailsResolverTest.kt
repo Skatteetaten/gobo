@@ -1,8 +1,5 @@
 package no.skatteetaten.aurora.gobo.resolvers.applicationdeploymentdetails
 
-import assertk.assertThat
-import assertk.assertions.isEqualTo
-import assertk.assertions.isFalse
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentDetailsBuilder
 import no.skatteetaten.aurora.gobo.ApplicationResourceBuilder
 import no.skatteetaten.aurora.gobo.GraphQLTest
@@ -10,7 +7,8 @@ import no.skatteetaten.aurora.gobo.OpenShiftUserBuilder
 import no.skatteetaten.aurora.gobo.healthResponseJson
 import no.skatteetaten.aurora.gobo.infoResponseJson
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
-import no.skatteetaten.aurora.gobo.integration.mokey.ContainerResource
+import no.skatteetaten.aurora.gobo.resolvers.graphqlDataWithPrefix
+import no.skatteetaten.aurora.gobo.resolvers.isFalse
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import no.skatteetaten.aurora.gobo.security.OpenShiftUserLoader
 import org.junit.jupiter.api.AfterEach
@@ -62,42 +60,18 @@ class ApplicationDeploymentDetailsResolverTest {
     fun `Query for deployments and pod status`() {
         webTestClient.queryGraphQL(queryResource = getRepositoriesAndTagsQuery, token = "test-token")
             .expectStatus().isOk
-            .expectBody(QueryResponse.Response::class.java)
-            .returnResult().let { result ->
-                val applications = result.responseBody!!.data.applications
-                val firstDeployment = applications.edges[0].node.applicationDeployments[0]
-                val pod = firstDeployment.details.podResources[0]
-                val managementResponses = pod.managementResponses
-                assertThat(managementResponses.health.textResponse).isEqualTo(healthResponseJson)
-                assertThat(managementResponses.info.textResponse).isEqualTo(infoResponseJson)
-                assertThat(pod.deployTag).isEqualTo("tag")
-                assertThat(pod.phase).isEqualTo("status")
-                assertThat(pod.ready).isFalse()
-                assertThat(pod.restartCount).isEqualTo(3)
-                assertThat(pod.containers.size).isEqualTo(2)
-                assertThat(pod.containers[0].restartCount).isEqualTo(1)
-                assertThat(pod.containers[1].restartCount).isEqualTo(2)
+            .expectBody()
+            .graphqlDataWithPrefix("applications.edges[0].node.applicationDeployments[0].details.podResources[0]") { pod ->
+                pod.graphqlData("deployTag").isEqualTo("tag")
+                pod.graphqlData("phase").isEqualTo("status")
+                pod.graphqlData("ready").isFalse()
+                pod.graphqlData("restartCount").isEqualTo(3)
+                pod.graphqlData("containers.length()").isEqualTo(2)
+                pod.graphqlData("containers[0].restartCount").isEqualTo(1)
+                pod.graphqlData("containers[1].restartCount").isEqualTo(2)
+
+                pod.graphqlData("managementResponses.health.textResponse").isEqualTo(healthResponseJson)
+                pod.graphqlData("managementResponses.info.textResponse").isEqualTo(infoResponseJson)
             }
     }
-}
-
-class QueryResponse {
-    data class HttpResponse(val textResponse: String)
-    data class ManagementResponses(val info: HttpResponse, val health: HttpResponse)
-    data class PodResource(
-        val managementResponses: ManagementResponses,
-        val phase: String,
-        val deployTag: String,
-        val ready: Boolean,
-        val restartCount: Int,
-        val containers: List<ContainerResource>
-    )
-
-    data class ApplicationDetails(val podResources: List<PodResource>)
-    data class ApplicationDeployment(val details: ApplicationDetails)
-    data class Application(val applicationDeployments: List<ApplicationDeployment>)
-    data class ApplicationEdge(val node: Application)
-    data class ApplicationConnection(val edges: List<ApplicationEdge>)
-    data class Applications(val applications: ApplicationConnection)
-    data class Response(val data: Applications)
 }
