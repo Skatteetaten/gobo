@@ -19,7 +19,6 @@ class ImageRegistryServiceBlocking(
     fun resolveTagToSha(imageRepoDto: ImageRepoDto, imageTag: String) =
         findTagByName(imageRepoDto, imageTag).dockerDigest
 
-
     fun findTagByName(
         imageRepoDto: ImageRepoDto,
         imageTag: String

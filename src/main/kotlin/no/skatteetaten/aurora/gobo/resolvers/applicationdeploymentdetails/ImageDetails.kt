@@ -5,7 +5,6 @@ import graphql.schema.DataFetchingEnvironment
 import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageRegistryServiceBlocking
 import no.skatteetaten.aurora.gobo.resolvers.KeyDataLoader
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageTag
-import no.skatteetaten.aurora.gobo.resolvers.imagerepository.toImageRepo
 import no.skatteetaten.aurora.gobo.resolvers.loader
 import no.skatteetaten.aurora.gobo.resolvers.user.User
 import org.dataloader.Try

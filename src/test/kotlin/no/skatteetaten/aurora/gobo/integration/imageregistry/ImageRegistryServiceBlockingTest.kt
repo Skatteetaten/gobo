@@ -17,7 +17,6 @@ import no.skatteetaten.aurora.gobo.integration.imageregistry.AuthenticationMetho
 import no.skatteetaten.aurora.gobo.integration.imageregistry.AuthenticationMethod.NONE
 import no.skatteetaten.aurora.gobo.integration.setJsonFileAsBody
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository
-import no.skatteetaten.aurora.gobo.resolvers.imagerepository.toImageRepo
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.RecordedRequest

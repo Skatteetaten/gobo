@@ -11,7 +11,6 @@ import no.skatteetaten.aurora.gobo.integration.mokey.PermissionService
 import no.skatteetaten.aurora.gobo.resolvers.graphqlData
 import no.skatteetaten.aurora.gobo.resolvers.graphqlDataWithPrefix
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageTag
-import no.skatteetaten.aurora.gobo.resolvers.imagerepository.toImageRepo
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import no.skatteetaten.aurora.gobo.security.OpenShiftUserLoader
 import org.junit.jupiter.api.AfterEach
@@ -29,8 +28,6 @@ import reactor.core.publisher.toMono
 
 @GraphQLTest
 class ApplicationWithLatestDigestQueryResolverTest {
-    private val imageDetails =
-        "applications.edges[0].node.applicationDeployments[0].details.imageDetails"
 
     @Value("classpath:graphql/queries/getApplicationsWithLatestDigest.graphql")
     private lateinit var getApplicationsQuery: Resource

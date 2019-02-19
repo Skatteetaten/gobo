@@ -71,5 +71,3 @@ data class ImageTagsConnection(
 ) : GoboConnection<ImageTagEdge>() {
     constructor(paged: GoboPagedEdges<ImageTagEdge>) : this(paged.edges, paged.pageInfo, paged.totalCount)
 }
-
-
