@@ -2,10 +2,11 @@ package no.skatteetaten.aurora.gobo.integration.imageregistry
 
 import assertk.assertThat
 import assertk.assertions.containsAll
+import assertk.assertions.hasMessage
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
-import assertk.assertions.message
+import assertk.catch
 import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
@@ -95,13 +96,13 @@ class ImageRegistryServiceBlockingTest {
 
     @Test
     fun `Throw exception when bad request is returned from registry`() {
-        server.execute(404, "Not found") {
-            assertThat {
+        val exception = catch {
+            server.execute(404, "Not found") {
                 imageRegistry.findTagByName(imageRepo, tagName)
-            }.thrownError {
-                message().isEqualTo("No metadata for tag=$tagName in repo=${imageRepo.repository}")
             }
         }
+
+        assertThat(exception).isNotNull().hasMessage("No metadata for tag=$tagName in repo=${imageRepo.repository}")
     }
 }
 

@@ -6,6 +6,7 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isInstanceOf
 import assertk.assertions.isNotNull
 import assertk.assertions.message
+import assertk.catch
 import com.fasterxml.jackson.databind.node.TextNode
 import no.skatteetaten.aurora.gobo.ApplicationConfig
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentDetailsBuilder
@@ -72,27 +73,26 @@ class ApplicationUpgradeServiceTest {
     )
     fun `Handle exception from AuroraConfigService`(socketPolicy: SocketPolicy) {
         val failureResponse = MockResponse().apply { this.socketPolicy = socketPolicy }
-        assertThat {
+        val exception = catch {
             server.execute(failureResponse) {
                 upgradeService.upgrade("token", "applicationDeploymentId", "version")
             }
-        }.thrownError {
-            server.takeRequest()
-            isInstanceOf(SourceSystemException::class)
         }
+
+        assertThat(exception).isNotNull().isInstanceOf(SourceSystemException::class)
     }
 
     @Test
     fun `Handle error response from AuroraConfigService`() {
-        assertThat {
+        val exception = catch {
             server.execute(404, "Not found") {
                 upgradeService.upgrade("token", "applicationDeploymentId", "version")
             }
-        }.thrownError {
-            server.takeRequest()
-            isInstanceOf(SourceSystemException::class)
-            message().isNotNull().contains("404")
         }
+
+        assertThat(exception)
+            .isNotNull().isInstanceOf(SourceSystemException::class)
+            .message().isNotNull().contains("404")
     }
 
     private fun applicationDeploymentDetailsResponse() =

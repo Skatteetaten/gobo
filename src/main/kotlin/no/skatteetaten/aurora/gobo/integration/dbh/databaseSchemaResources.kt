@@ -98,7 +98,7 @@ data class DbhResponse<T>(val status: String, val items: List<T>, val totalCount
         fun failed() = DbhResponse("Failed", emptyList<String>())
     }
 
-    fun isOk() = status == "OK"
-    fun isFailure() = status == "Failed"
+    fun isOk() = status.toLowerCase() == "ok"
+    fun isFailure() = status.toLowerCase() == "failed"
     fun isEmpty() = totalCount == 0
 }

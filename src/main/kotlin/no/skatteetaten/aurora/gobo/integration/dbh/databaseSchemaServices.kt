@@ -14,6 +14,7 @@ import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.bodyToMono
 import reactor.core.publisher.Mono
+import reactor.core.publisher.switchIfEmpty
 import reactor.core.publisher.toMono
 import java.time.Duration
 
@@ -73,10 +74,7 @@ class DatabaseSchemaService(
         }
 
         val response: Mono<DbhResponse<*>> = requestSpec.retrieve().bodyToMono()
-
-        return response.items().flatMap {
-            (it.size == 1).toMono()
-        }
+        return response.blockNonNullAndHandleError(sourceSystem = "dbh").isOk().toMono()
     }
 
     fun testJdbcConnection(id: String? = null, user: JdbcUser? = null): Mono<Boolean> {
@@ -118,9 +116,9 @@ class DatabaseSchemaService(
         }
     }
 
-    private fun Mono<DbhResponse<*>>.item() = this.items().map {
-        it.firstOrNull()
-    }
+    private fun Mono<DbhResponse<*>>.item() = this.items()
+        .switchIfEmpty { Mono.empty() }
+        .map { it.firstOrNull() }
 
     private fun Mono<DbhResponse<*>>.items() =
         this.flatMap { r ->

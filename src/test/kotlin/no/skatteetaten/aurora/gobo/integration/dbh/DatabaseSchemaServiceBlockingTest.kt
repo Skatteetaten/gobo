@@ -91,7 +91,7 @@ class DatabaseSchemaServiceBlockingTest {
 
     @Test
     fun `Get database schema given id`() {
-        val response = DbhResponse.ok<DatabaseSchemaResource>()
+        val response = DbhResponse.ok(DatabaseSchemaResourceBuilder().build())
         val request = server.execute(response) {
             val databaseSchema = databaseSchemaService.getDatabaseSchema("abc123")
             assertThat(databaseSchema).isNotNull()

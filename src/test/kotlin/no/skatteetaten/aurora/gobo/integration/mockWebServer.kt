@@ -35,27 +35,49 @@ fun MockWebServer.enqueueJson(status: Int = 200, body: Any) {
 }
 
 fun MockWebServer.execute(status: Int, response: Any, fn: () -> Unit): RecordedRequest {
-    this.enqueueJson(status, response)
-    fn()
-    return this.takeRequest()
+    try {
+        this.enqueueJson(status, response)
+        fn()
+        return this.takeRequest()
+    } catch (t: Throwable) {
+        this.takeRequest()
+        throw t
+    }
 }
 
 fun MockWebServer.execute(response: MockResponse, fn: () -> Unit): RecordedRequest {
-    this.enqueue(response)
-    fn()
-    return this.takeRequest()
+    try {
+        this.enqueue(response)
+        fn()
+        return this.takeRequest()
+    } catch (t: Throwable) {
+        this.takeRequest()
+        throw t
+    }
 }
 
 fun MockWebServer.execute(response: Any, fn: () -> Unit): RecordedRequest {
-    this.enqueueJson(body = response)
-    fn()
-    return this.takeRequest()
+    try {
+        this.enqueueJson(body = response)
+        fn()
+        return this.takeRequest()
+    } catch (t: Throwable) {
+        this.takeRequest()
+        throw t
+    }
 }
 
 fun MockWebServer.execute(vararg responses: Any, fn: () -> Unit): List<RecordedRequest> {
-    responses.forEach { this.enqueueJson(body = it) }
-    fn()
-    return (1..responses.size).toList().map { this.takeRequest() }
+    fun takeRequests() = (1..responses.size).toList().map { this.takeRequest() }
+
+    try {
+        responses.forEach { this.enqueueJson(body = it) }
+        fn()
+        return takeRequests()
+    } catch (t: Throwable) {
+        takeRequests()
+        throw t
+    }
 }
 
 inline fun <reified T> RecordedRequest.bodyAsObject(path: String = "$"): T {
