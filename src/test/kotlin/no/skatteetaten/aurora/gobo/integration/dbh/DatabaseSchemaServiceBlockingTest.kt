@@ -101,6 +101,17 @@ class DatabaseSchemaServiceBlockingTest {
     }
 
     @Test
+    fun `Get database schema given non-existing id return null`() {
+        val response = DbhResponse.ok<DatabaseSchemaResource>()
+        val request = server.execute(response) {
+            val databaseSchema = databaseSchemaService.getDatabaseSchema("abc123")
+            assertThat(databaseSchema).isNull()
+        }
+        assertThat(request).containsAuroraToken()
+        assertThat(request.path).endsWith("/abc123")
+    }
+
+    @Test
     fun `Update database schema`() {
         val response = DbhResponse.ok(DatabaseSchemaResourceBuilder().build())
         val request = server.execute(response) {
