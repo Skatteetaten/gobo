@@ -66,9 +66,8 @@ data class ImageTagsConnection(
     constructor(paged: GoboPagedEdges<ImageTagEdge>) : this(paged.edges, paged.pageInfo, paged.totalCount)
 }
 
-fun ImageRepository.toImageRepo(tag: String = "") = ImageRepoDto(
+fun ImageRepository.toImageRepo() = ImageRepoDto(
     registry = this.registryUrl,
     namespace = this.namespace,
-    name = this.name,
-    tag = tag
+    name = this.name
 )

@@ -16,14 +16,17 @@ class ImageRegistryServiceBlocking(
     private val urlBuilder: ImageRegistryUrlBuilder
 ) {
 
-    fun resolveTagToSha(imageRepoDto: ImageRepoDto): String {
-        val imageTagDto: ImageTagDto = getAuroraResponseImageTagResource(imageRepoDto)
+    fun resolveTagToSha(imageRepoDto: ImageRepoDto, imageTag: String): String {
+        val imageTagDto: ImageTagDto = findTagByName(imageRepoDto, imageTag)
 
         return imageTagDto.dockerDigest
     }
 
-    fun findTagByName(imageRepoDto: ImageRepoDto): ImageTagDto {
-        return getAuroraResponseImageTagResource(imageRepoDto)
+    fun findTagByName(
+        imageRepoDto: ImageRepoDto,
+        imageTag: String
+    ): ImageTagDto {
+        return getAuroraResponseImageTagResource(imageRepoDto, imageTag)
     }
 
     fun findTagNamesInRepoOrderedByCreatedDateDesc(imageRepoDto: ImageRepoDto): TagsDto {
@@ -42,19 +45,22 @@ class ImageRegistryServiceBlocking(
         )
     }
 
-    private fun getAuroraResponseImageTagResource(imageRepoDto: ImageRepoDto): ImageTagDto {
+    private fun getAuroraResponseImageTagResource(
+        imageRepoDto: ImageRepoDto,
+        imageTag: String
+    ): ImageTagDto {
         val registryMetadata = registryMetadataResolver.getMetadataForRegistry(imageRepoDto.registry)
 
         val auroraImageTagResource: AuroraResponse<ImageTagResource> =
             execute(registryMetadata.authenticationMethod) {
-                logger.debug("Retrieving type=ImageTagResource from  url=${imageRepoDto.registry} image=${imageRepoDto.imageName}")
+                logger.debug("Retrieving type=ImageTagResource from  url=${imageRepoDto.registry} image=${imageRepoDto.imageName}/$imageTag")
                 it.get().uri(
                     urlBuilder.createImageTagUrl(imageRepoDto, registryMetadata),
-                    imageRepoDto.mappedTemplateVars
+                    imageRepoDto.mappedTemplateVars.plus("tag" to imageTag)
                 )
             }
 
-        return ImageTagDto.toDto(auroraImageTagResource, imageRepoDto.tag)
+        return ImageTagDto.toDto(auroraImageTagResource, imageTag)
     }
 
     private final inline fun <reified T : Any> execute(

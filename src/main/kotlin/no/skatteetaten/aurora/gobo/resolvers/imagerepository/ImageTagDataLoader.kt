@@ -13,9 +13,10 @@ class ImageTagDataLoader(
 ) : KeyDataLoader<ImageTag, Instant> {
     override fun getByKey(user: User, key: ImageTag): Try<Instant> {
         return Try.tryCall {
-            val imageRepo = key.imageRepository.toImageRepo(key.name)
+            val imageRepo = key.imageRepository.toImageRepo()
             imageRegistryServiceBlocking.findTagByName(
-                imageRepoDto = imageRepo
+                imageRepoDto = imageRepo,
+                imageTag = key.name
             ).created
         }
     }

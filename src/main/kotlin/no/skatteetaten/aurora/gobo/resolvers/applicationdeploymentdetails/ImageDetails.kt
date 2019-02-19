@@ -38,8 +38,8 @@ class ImageDetailsResolver : GraphQLResolver<ImageDetails> {
     ) : KeyDataLoader<ImageTagDigestDTO, Boolean> {
         override fun getByKey(user: User, key: ImageTagDigestDTO): Try<Boolean> {
             return Try.tryCall {
-                val imageRepoDto = key.imageTag.imageRepository.toImageRepo(key.imageTag.name)
-                imageRegistryServiceBlocking.resolveTagToSha(imageRepoDto) == key.expecedDigest
+                val imageRepoDto = key.imageTag.imageRepository.toImageRepo()
+                imageRegistryServiceBlocking.resolveTagToSha(imageRepoDto, key.imageTag.name) == key.expecedDigest
             }
         }
     }

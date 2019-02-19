@@ -17,7 +17,6 @@ import no.skatteetaten.aurora.gobo.integration.imageregistry.AuthenticationMetho
 import no.skatteetaten.aurora.gobo.integration.imageregistry.AuthenticationMethod.NONE
 import no.skatteetaten.aurora.gobo.integration.setJsonFileAsBody
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository
-import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageTag
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.toImageRepo
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -39,7 +38,7 @@ class ImageRegistryServiceBlockingTest {
 
     private val server = MockWebServer()
     private val url = server.url("/")
-    private val imageRepo = ImageRepository.fromRepoString("/$imageRepoName").toImageRepo(tagName)
+    private val imageRepo = ImageRepository.fromRepoString("/$imageRepoName").toImageRepo()
 
     private val defaultRegistryMetadataResolver = mockk<DefaultRegistryMetadataResolver>()
     private val tokenProvider = mockk<TokenProvider>()
@@ -109,8 +108,7 @@ class ImageRegistryServiceBlockingTest {
         val response = MockResponse().setJsonFileAsBody("cantusManifest.json")
 
         val request = server.execute(response) {
-            val imageTag = ImageTag(ImageRepository.fromRepoString(imageRepo.repository), tagName)
-            val dockerContentDigest = imageRegistry.resolveTagToSha(imageRepo)
+            val dockerContentDigest = imageRegistry.resolveTagToSha(imageRepo, tagName)
             assertThat(dockerContentDigest).isEqualTo("sha256:9d044d853c40b42ba52c576e1d71e5cee7dc4d1b328650e0780cd983cb474ed0")
         }
 
@@ -122,7 +120,7 @@ class ImageRegistryServiceBlockingTest {
         val response = MockResponse().setJsonFileAsBody("cantusManifest.json")
 
         val request = server.execute(response) {
-            val tag = imageRegistry.findTagByName(imageRepo)
+            val tag = imageRegistry.findTagByName(imageRepo, tagName)
             assertThat(tag.created).isEqualTo(Instant.parse("2018-11-05T14:01:22.654389192Z"))
         }
 
