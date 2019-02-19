@@ -12,7 +12,6 @@ class ImageRegistryUrlBuilder {
         imageRepoDto: ImageRepoDto,
         registryMetadata: RegistryMetadata
     ): String {
-        logger.debug("Retrieving type=TagResource from  url=${registryMetadata.registry} image=${imageRepoDto.imageName}")
         val path = "/{namespace}/{name}/tags"
         return imageRepoDto.addOverrideToPathIfExists(path)
     }
@@ -21,7 +20,6 @@ class ImageRegistryUrlBuilder {
         imageRepoDto: ImageRepoDto,
         registryMetadata: RegistryMetadata
     ): String {
-        logger.debug("Retrieving type=ImageTagResource from  url=${registryMetadata.registry} image=${imageRepoDto.imageName}")
         val path = "/{namespace}/{name}/{tag}/manifest"
         return imageRepoDto.addOverrideToPathIfExists(path)
     }

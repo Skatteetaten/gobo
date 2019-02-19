@@ -29,18 +29,21 @@ class ImageRegistryServiceBlocking(
     fun findTagNamesInRepoOrderedByCreatedDateDesc(imageRepoDto: ImageRepoDto): TagsDto {
         val registryMetadata = registryMetadataResolver.getMetadataForRegistry(imageRepoDto.registry)
 
-        return TagsDto.toDto(execute(registryMetadata.authenticationMethod) {
-            it.get().uri(
-                urlBuilder.createTagsUrl(imageRepoDto, registryMetadata),
-                imageRepoDto.mappedTemplateVars
-            )
-        }
+        logger.debug("Retrieving type=TagResource from  url=${registryMetadata.registry} image=${imageRepoDto.imageName}")
+        return TagsDto.toDto(
+            execute(registryMetadata.authenticationMethod) {
+                it.get().uri(
+                    urlBuilder.createTagsUrl(imageRepoDto, registryMetadata),
+                    imageRepoDto.mappedTemplateVars
+                )
+            }
         )
     }
 
     private fun getAuroraResponseImageTagResource(imageRepoDto: ImageRepoDto): ImageTagDto {
         val registryMetadata = registryMetadataResolver.getMetadataForRegistry(imageRepoDto.registry)
 
+        logger.debug("Retrieving type=ImageTagResource from  url=${registryMetadata.registry} image=${imageRepoDto.imageName}")
         val auroraImageTagResource: AuroraResponse<ImageTagResource> =
             execute(registryMetadata.authenticationMethod) {
                 it.get().uri(

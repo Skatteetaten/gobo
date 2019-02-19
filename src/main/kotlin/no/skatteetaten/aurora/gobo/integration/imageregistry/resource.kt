@@ -12,7 +12,7 @@ data class ImageTagResource(
     val dockerVersion: String,
     val dockerDigest: String,
     val java: JavaImage? = null,
-    val node: NodeImage? = null
+    val node: NodeJsImage? = null
 ) : HalResource()
 
 data class JavaImage(
@@ -27,8 +27,8 @@ data class ImageBuildTimeline(
     val buildEnded: Instant?
 )
 
-data class NodeImage(
-    val nodeVersion: String
+data class NodeJsImage(
+    val nodeJsVersion: String
 )
 
 data class AuroraResponse<T : HalResource>(
