@@ -4,6 +4,7 @@ import assertk.Assert
 import assertk.assertThat
 import assertk.assertions.contains
 import assertk.assertions.endsWith
+import assertk.assertions.hasMessage
 import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
@@ -104,8 +105,21 @@ class DatabaseSchemaServiceBlockingTest {
     fun `Get database schema given non-existing id return null`() {
         val response = DbhResponse.ok<DatabaseSchemaResource>()
         val request = server.execute(response) {
-            val databaseSchema = databaseSchemaService.getDatabaseSchema("abc123")
-            assertThat(databaseSchema).isNull()
+            val exception = catch { databaseSchemaService.getDatabaseSchema("abc123") }
+            assertThat(exception).isNotNull().isInstanceOf(SourceSystemException::class)
+        }
+        assertThat(request).containsAuroraToken()
+        assertThat(request.path).endsWith("/abc123")
+    }
+
+    @Test
+    fun `Get database schema given non-existing id return failed`() {
+        val response = DbhResponse.failed("test message")
+        val request = server.execute(response) {
+            val exception = catch { databaseSchemaService.getDatabaseSchema("abc123") }
+            assertThat(exception).isNotNull()
+                .isInstanceOf(SourceSystemException::class)
+                .hasMessage("status=Failed error=test message")
         }
         assertThat(request).containsAuroraToken()
         assertThat(request.path).endsWith("/abc123")

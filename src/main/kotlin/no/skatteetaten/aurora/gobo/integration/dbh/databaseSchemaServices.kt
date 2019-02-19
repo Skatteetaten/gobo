@@ -14,7 +14,6 @@ import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.bodyToMono
 import reactor.core.publisher.Mono
-import reactor.core.publisher.switchIfEmpty
 import reactor.core.publisher.toMono
 import java.time.Duration
 
@@ -49,19 +48,14 @@ class DatabaseSchemaService(
         .bodyToMono<DbhResponse<*>>()
         .item()
 
-    fun updateDatabaseSchema(input: SchemaUpdateRequest): Mono<DatabaseSchemaResource> {
-        val response: Mono<DbhResponse<*>> = webClient
-            .put()
-            .uri("/api/v1/schema/${input.id}")
-            .body(BodyInserters.fromObject(input))
-            .header(HttpHeaders.AUTHORIZATION, "aurora-token ${sharedSecretReader.secret}")
-            .retrieve()
-            .bodyToMono()
-
-        return response.items().flatMap {
-            it.first().toMono()
-        }
-    }
+    fun updateDatabaseSchema(input: SchemaUpdateRequest) = webClient
+        .put()
+        .uri("/api/v1/schema/${input.id}")
+        .body(BodyInserters.fromObject(input))
+        .header(HttpHeaders.AUTHORIZATION, "aurora-token ${sharedSecretReader.secret}")
+        .retrieve()
+        .bodyToMono<DbhResponse<*>>()
+        .item()
 
     fun deleteDatabaseSchema(input: SchemaDeletionRequest): Mono<Boolean> {
         val requestSpec = webClient
@@ -74,7 +68,7 @@ class DatabaseSchemaService(
         }
 
         val response: Mono<DbhResponse<*>> = requestSpec.retrieve().bodyToMono()
-        return response.blockNonNullAndHandleError(sourceSystem = "dbh").isOk().toMono()
+        return response.map { it.isOk() }
     }
 
     fun testJdbcConnection(id: String? = null, user: JdbcUser? = null): Mono<Boolean> {
@@ -104,40 +98,39 @@ class DatabaseSchemaService(
             return Mono.error(MissingLabelException("Missing labels in mutation input: $missingLabels"))
         }
 
-        val response: Mono<DbhResponse<DatabaseSchemaResource>> = webClient
+        return webClient
             .post()
             .uri("/api/v1/schema/")
             .body(BodyInserters.fromObject(input))
             .header(HttpHeaders.AUTHORIZATION, "$HEADER_AURORA_TOKEN ${sharedSecretReader.secret}")
             .retrieve()
-            .bodyToMono()
-        return response.flatMap {
-            it.items.first().toMono()
-        }
+            .bodyToMono<DbhResponse<*>>()
+            .item()
     }
 
-    private fun Mono<DbhResponse<*>>.item() = this.items()
-        .switchIfEmpty { Mono.empty() }
-        .map { it.firstOrNull() }
+    private fun Mono<DbhResponse<*>>.item() = this.items().map { it.first() }
 
     private fun Mono<DbhResponse<*>>.items() =
-        this.flatMap { r ->
+        this.flatMap {
             when {
-                r.isFailure() -> {
-                    val errorMessage = r.items.firstOrNull() ?: ""
-                    SourceSystemException(
-                        message = "status=${r.status} error=${errorMessage as String}",
-                        sourceSystem = "dbh"
-                    ).toMono()
-                }
-                r.isEmpty() -> Mono.empty()
-                else -> r.items.map { item ->
-                    createObjectMapper().convertValue(item, DatabaseSchemaResource::class.java)
-                }.filter { dbSchema ->
-                    dbSchema.containsRequiredLabels()
-                }.toMono<List<DatabaseSchemaResource>>()
+                it.isFailure() -> onFailure(it)
+                it.isEmpty() -> Mono.empty()
+                else -> onSuccess(it)
             }
         }
+
+    private fun onFailure(r: DbhResponse<*>): Mono<List<DatabaseSchemaResource>> =
+        SourceSystemException(
+            message = "status=${r.status} error=${(r.items.firstOrNull() ?: "") as String}",
+            sourceSystem = "dbh"
+        ).toMono()
+
+    private fun onSuccess(r: DbhResponse<*>) =
+        r.items.map {
+            createObjectMapper().convertValue(it, DatabaseSchemaResource::class.java)
+        }.filter {
+            it.containsRequiredLabels()
+        }.toMono()
 }
 
 @Service
@@ -146,10 +139,10 @@ class DatabaseSchemaServiceBlocking(private val databaseSchemaService: DatabaseS
     fun getDatabaseSchemas(affiliation: String) =
         databaseSchemaService.getDatabaseSchemas(affiliation).blockWithTimeout() ?: emptyList()
 
-    fun getDatabaseSchema(id: String) =
-        databaseSchemaService.getDatabaseSchema(id).blockWithTimeout()
+    fun getDatabaseSchema(id: String): DatabaseSchemaResource =
+        databaseSchemaService.getDatabaseSchema(id).blockNonNullWithTimeout()
 
-    fun updateDatabaseSchema(input: SchemaUpdateRequest) =
+    fun updateDatabaseSchema(input: SchemaUpdateRequest): DatabaseSchemaResource =
         databaseSchemaService.updateDatabaseSchema(input).blockNonNullWithTimeout()
 
     fun deleteDatabaseSchema(input: SchemaDeletionRequest) =
