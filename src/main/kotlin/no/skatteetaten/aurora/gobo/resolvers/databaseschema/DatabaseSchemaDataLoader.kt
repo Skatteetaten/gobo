@@ -14,7 +14,7 @@ class DatabaseSchemaDataLoader(
         val resources = applicationService.getApplicationDeploymentsForDatabases(user.token, keys.toList())
         return keys.associate { key ->
             val applicationDeployments = resources.filter {
-                it.databaseId == key
+                it.identifier == key
             }.flatMap {
                 it.applicationDeployments
             }.map {

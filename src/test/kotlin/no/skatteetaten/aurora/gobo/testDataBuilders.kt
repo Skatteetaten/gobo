@@ -89,7 +89,7 @@ data class ApplicationDeploymentWithDbResourceBuilder(
 ) {
     fun build(): ApplicationDeploymentWithDbResource =
         ApplicationDeploymentWithDbResource(
-            databaseId = databaseId,
+            identifier = databaseId,
             applicationDeployments = applicationDeployments ?: listOf(
                 ApplicationDeploymentResourceBuilder().build()
             )
