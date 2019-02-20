@@ -2,6 +2,7 @@ package no.skatteetaten.aurora.gobo.resolvers.databaseschema
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import no.skatteetaten.aurora.gobo.ApplicationConfig
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentWithDbResourceBuilder
 import no.skatteetaten.aurora.gobo.integration.MockWebServerTestTag
 import no.skatteetaten.aurora.gobo.integration.execute
@@ -12,7 +13,6 @@ import okhttp3.mockwebserver.MockWebServer
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
-import org.springframework.web.reactive.function.client.WebClient
 
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
 @MockWebServerTestTag
@@ -20,7 +20,9 @@ class DatabaseSchemaDataLoaderTest {
 
     private val server = MockWebServer()
     private val url = server.url("/")
-    private val applicationService = ApplicationServiceBlocking(ApplicationService(WebClient.create(url.toString())))
+    private val applicationConfig = ApplicationConfig("", "", url.toString(), 100, 100)
+    private val dbhClient = applicationConfig.webClientDbh()
+    private val applicationService = ApplicationServiceBlocking(ApplicationService(dbhClient))
     private val dataLoader = DatabaseSchemaDataLoader(applicationService)
 
     @AfterEach
