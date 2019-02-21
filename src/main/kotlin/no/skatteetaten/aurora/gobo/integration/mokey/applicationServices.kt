@@ -87,9 +87,10 @@ class ApplicationService(@TargetService(ServiceTypes.MOKEY) val webClient: WebCl
         databaseIds: List<String>
     ): Mono<List<ApplicationDeploymentWithDbResource>> =
         webClient
-            .get()
-            .uri("/api/auth/applicationdeploymentbyresource/databases?databaseids=${databaseIds.joinToString(",")}")
+            .post()
+            .uri("/api/auth/applicationdeploymentbyresource/databases")
             .header(HttpHeaders.AUTHORIZATION, "Bearer $token")
+            .body(BodyInserters.fromObject(databaseIds))
             .retrieve()
             .bodyToMono()
 
