@@ -7,7 +7,9 @@ import no.skatteetaten.aurora.gobo.OpenShiftUserBuilder
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseSchemaServiceBlocking
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
 import no.skatteetaten.aurora.gobo.resolvers.graphqlData
+import no.skatteetaten.aurora.gobo.resolvers.graphqlDataWithPrefix
 import no.skatteetaten.aurora.gobo.resolvers.graphqlErrors
+import no.skatteetaten.aurora.gobo.resolvers.graphqlErrorsFirst
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import no.skatteetaten.aurora.gobo.security.OpenShiftUserLoader
 import org.junit.jupiter.api.AfterEach
@@ -73,7 +75,7 @@ class DatabaseSchemaQueryResolverTest {
         )
             .expectStatus().isOk
             .expectBody()
-            .graphqlErrors("[0].message").isNotEmpty
+            .graphqlErrorsFirst("message").isNotEmpty
     }
 
     @Test
@@ -87,10 +89,12 @@ class DatabaseSchemaQueryResolverTest {
             .expectStatus().isOk
             .expectBody()
             .graphqlData("databaseSchemas.length()").isEqualTo(1)
-            .graphqlData("databaseSchemas[0].databaseEngine").isEqualTo("ORACLE")
-            .graphqlData("databaseSchemas[0].affiliation.name").isEqualTo("paas")
-            .graphqlData("databaseSchemas[0].createdBy").isEqualTo("abc123")
-            .graphqlData("databaseSchemas[0].applicationDeployments.length()").isEqualTo(1)
+            .graphqlDataWithPrefix("databaseSchemas[0]") {
+                it.graphqlData("databaseEngine").isEqualTo("ORACLE")
+                it.graphqlData("affiliation.name").isEqualTo("paas")
+                it.graphqlData("createdBy").isEqualTo("abc123")
+                it.graphqlData(".applicationDeployments.length()").isEqualTo(1)
+            }
     }
 
     @Test
