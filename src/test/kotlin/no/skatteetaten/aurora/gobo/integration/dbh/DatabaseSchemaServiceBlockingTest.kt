@@ -27,7 +27,8 @@ import no.skatteetaten.aurora.gobo.integration.MockWebServerTestTag
 import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.integration.bodyAsObject
-import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseSchemaService.Companion.HEADER_COOLDOWN_DURATION_HOURS
+import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseSchemaServiceReactive.Companion.HEADER_AURORA_TOKEN
+import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseSchemaServiceReactive.Companion.HEADER_COOLDOWN_DURATION_HOURS
 import no.skatteetaten.aurora.gobo.integration.execute
 import no.skatteetaten.aurora.gobo.security.SharedSecretReader
 import okhttp3.mockwebserver.MockWebServer
@@ -43,7 +44,7 @@ class DatabaseSchemaServiceBlockingTest {
         every { secret } returns "abc123"
     }
     private val databaseSchemaService =
-        DatabaseSchemaServiceBlocking(DatabaseSchemaService(sharedSecretReader, create(server.url("/").toString())))
+        DatabaseSchemaServiceBlocking(DatabaseSchemaServiceReactive(sharedSecretReader, create(server.url("/").toString())))
 
     @Test
     fun `Get database schemas given affiliation`() {
@@ -199,8 +200,8 @@ class DatabaseSchemaServiceBlockingTest {
 
     private fun Assert<RecordedRequest>.containsAuroraToken() = given { request ->
         request.headers[HttpHeaders.AUTHORIZATION]?.let {
-            if (it.startsWith(DatabaseSchemaService.HEADER_AURORA_TOKEN)) return
+            if (it.startsWith(HEADER_AURORA_TOKEN)) return
         }
-        expected("Authorization header to contain ${DatabaseSchemaService.HEADER_AURORA_TOKEN}")
+        expected("Authorization header to contain $HEADER_AURORA_TOKEN")
     }
 }

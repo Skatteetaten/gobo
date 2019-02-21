@@ -12,6 +12,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Primary
+import org.springframework.core.Ordered
+import org.springframework.core.annotation.Order
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.http.client.reactive.ReactorClientHttpConnector
@@ -36,15 +38,13 @@ enum class ServiceTypes {
 @Qualifier
 annotation class TargetService(val value: ServiceTypes)
 
+@Order(Ordered.HIGHEST_PRECEDENCE)
 @Component
 @ConditionalOnProperty("integrations.dbh.url")
 class RequiresDbh
 
 @Configuration
 class ApplicationConfig(
-    @Value("\${gobo.mokey.url}") val mokeyUrl: String,
-    @Value("\${gobo.unclematt.url}") val uncleMattUrl: String,
-    @Value("\${integrations.dbh.url:}") val dbhUrl: String = "",
     @Value("\${gobo.webclient.read-timeout:30000}") val readTimeout: Int,
     @Value("\${gobo.webclient.connection-timeout:30000}") val connectionTimeout: Int
 ) {
@@ -54,24 +54,16 @@ class ApplicationConfig(
     @Bean
     @Primary
     @TargetService(ServiceTypes.MOKEY)
-    fun webClientMokey(): WebClient {
-
+    fun webClientMokey(@Value("\${gobo.mokey.url}") mokeyUrl: String): WebClient {
         logger.info("Configuring Mokey WebClient with baseUrl={}", mokeyUrl)
-
-        return webClientBuilder()
-            .baseUrl(mokeyUrl)
-            .build()
+        return webClientBuilder().baseUrl(mokeyUrl).build()
     }
 
     @Bean
     @TargetService(ServiceTypes.UNCLEMATT)
-    fun webClientUncleMatt(): WebClient {
-
+    fun webClientUncleMatt(@Value("\${gobo.unclematt.url}") uncleMattUrl: String): WebClient {
         logger.info("Configuring UncleMatt WebClient with baseUrl={}", uncleMattUrl)
-
-        return webClientBuilder()
-            .baseUrl(uncleMattUrl)
-            .build()
+        return webClientBuilder().baseUrl(uncleMattUrl).build()
     }
 
     @Bean
@@ -85,7 +77,7 @@ class ApplicationConfig(
     @ConditionalOnBean(RequiresDbh::class)
     @Bean
     @TargetService(ServiceTypes.DBH)
-    fun webClientDbh() = webClientBuilder().baseUrl(dbhUrl).build()
+    fun webClientDbh(@Value("\${integrations.dbh.url}") dbhUrl: String) = webClientBuilder().baseUrl(dbhUrl).build()
 
     fun webClientBuilder(ssl: Boolean = false) =
         WebClient

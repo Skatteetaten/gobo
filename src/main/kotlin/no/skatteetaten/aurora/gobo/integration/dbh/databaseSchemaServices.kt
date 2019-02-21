@@ -6,11 +6,13 @@ import no.skatteetaten.aurora.gobo.TargetService
 import no.skatteetaten.aurora.gobo.createObjectMapper
 import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
+import no.skatteetaten.aurora.gobo.resolvers.IntegrationDisabledException
 import no.skatteetaten.aurora.gobo.resolvers.MissingLabelException
 import no.skatteetaten.aurora.gobo.resolvers.blockAndHandleError
 import no.skatteetaten.aurora.gobo.resolvers.blockNonNullAndHandleError
 import no.skatteetaten.aurora.gobo.security.SharedSecretReader
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.http.HttpHeaders
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.BodyInserters
@@ -22,7 +24,7 @@ import java.time.Duration
 
 @Service
 @ConditionalOnBean(RequiresDbh::class)
-class DatabaseSchemaService(
+class DatabaseSchemaServiceReactive(
     private val sharedSecretReader: SharedSecretReader,
     @TargetService(ServiceTypes.DBH) private val webClient: WebClient
 ) {
@@ -139,29 +141,40 @@ class DatabaseSchemaService(
         }
 }
 
+interface DatabaseSchemaService {
+    fun getDatabaseSchemas(affiliation: String): List<DatabaseSchemaResource>
+    fun getDatabaseSchema(id: String): DatabaseSchemaResource?
+    fun updateDatabaseSchema(input: SchemaUpdateRequest): DatabaseSchemaResource
+    fun deleteDatabaseSchema(input: SchemaDeletionRequest): Boolean
+    fun testJdbcConnection(user: JdbcUser): Boolean
+    fun testJdbcConnection(id: String): Boolean
+    fun createDatabaseSchema(input: SchemaCreationRequest): DatabaseSchemaResource
+}
+
 @Service
 @ConditionalOnBean(RequiresDbh::class)
-class DatabaseSchemaServiceBlocking(private val databaseSchemaService: DatabaseSchemaService) {
+class DatabaseSchemaServiceBlocking(private val databaseSchemaService: DatabaseSchemaServiceReactive) :
+    DatabaseSchemaService {
 
-    fun getDatabaseSchemas(affiliation: String) =
+    override fun getDatabaseSchemas(affiliation: String) =
         databaseSchemaService.getDatabaseSchemas(affiliation).blockWithTimeout() ?: emptyList()
 
-    fun getDatabaseSchema(id: String) =
+    override fun getDatabaseSchema(id: String) =
         databaseSchemaService.getDatabaseSchema(id).blockWithTimeout()
 
-    fun updateDatabaseSchema(input: SchemaUpdateRequest) =
+    override fun updateDatabaseSchema(input: SchemaUpdateRequest) =
         databaseSchemaService.updateDatabaseSchema(input).blockNonNullWithTimeout()
 
-    fun deleteDatabaseSchema(input: SchemaDeletionRequest) =
+    override fun deleteDatabaseSchema(input: SchemaDeletionRequest) =
         databaseSchemaService.deleteDatabaseSchema(input).blockNonNullWithTimeout()
 
-    fun testJdbcConnection(user: JdbcUser) =
+    override fun testJdbcConnection(user: JdbcUser) =
         databaseSchemaService.testJdbcConnection(user = user).blockNonNullWithTimeout()
 
-    fun testJdbcConnection(id: String) =
+    override fun testJdbcConnection(id: String) =
         databaseSchemaService.testJdbcConnection(id = id).blockNonNullWithTimeout()
 
-    fun createDatabaseSchema(input: SchemaCreationRequest) =
+    override fun createDatabaseSchema(input: SchemaCreationRequest) =
         databaseSchemaService.createDatabaseSchema(input).blockNonNullWithTimeout()
 
     private fun <T> Mono<T>.blockWithTimeout(): T? =
@@ -169,4 +182,19 @@ class DatabaseSchemaServiceBlocking(private val databaseSchemaService: DatabaseS
 
     private fun <T> Mono<T>.blockNonNullWithTimeout(): T =
         this.blockNonNullAndHandleError(Duration.ofSeconds(30), "dbh")
+}
+
+@Service
+@ConditionalOnMissingBean(RequiresDbh::class)
+class DatabaseSchemaServiceDisabled : DatabaseSchemaService {
+    override fun getDatabaseSchemas(affiliation: String) = integrationDisabled()
+    override fun getDatabaseSchema(id: String) = integrationDisabled()
+    override fun updateDatabaseSchema(input: SchemaUpdateRequest) = integrationDisabled()
+    override fun deleteDatabaseSchema(input: SchemaDeletionRequest) = integrationDisabled()
+    override fun testJdbcConnection(user: JdbcUser) = integrationDisabled()
+    override fun testJdbcConnection(id: String) = integrationDisabled()
+    override fun createDatabaseSchema(input: SchemaCreationRequest) = integrationDisabled()
+
+    private fun integrationDisabled(): Nothing =
+        throw IntegrationDisabledException("DBH integration is disabled for this environment")
 }

@@ -2,9 +2,8 @@ package no.skatteetaten.aurora.gobo.resolvers.databaseschema
 
 import com.coxautodev.graphql.tools.GraphQLMutationResolver
 import com.coxautodev.graphql.tools.GraphQLQueryResolver
-import com.coxautodev.graphql.tools.GraphQLResolver
 import graphql.schema.DataFetchingEnvironment
-import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseSchemaServiceBlocking
+import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseSchemaService
 import no.skatteetaten.aurora.gobo.integration.dbh.JdbcUser
 import no.skatteetaten.aurora.gobo.integration.dbh.SchemaDeletionRequest
 import no.skatteetaten.aurora.gobo.resolvers.AccessDeniedException
@@ -13,7 +12,7 @@ import no.skatteetaten.aurora.gobo.security.isAnonymousUser
 import org.springframework.stereotype.Component
 
 @Component
-class DatabaseSchemaQueryResolver(private val databaseSchemaService: DatabaseSchemaServiceBlocking) :
+class DatabaseSchemaQueryResolver(private val databaseSchemaService: DatabaseSchemaService) :
     GraphQLQueryResolver {
 
     fun databaseSchemas(affiliations: List<String>, dfe: DataFetchingEnvironment): List<DatabaseSchema> {
@@ -34,7 +33,7 @@ class DatabaseSchemaQueryResolver(private val databaseSchemaService: DatabaseSch
 }
 
 @Component
-class DatabaseSchemaMutationResolver(private val databaseSchemaService: DatabaseSchemaServiceBlocking) :
+class DatabaseSchemaMutationResolver(private val databaseSchemaService: DatabaseSchemaService) :
     GraphQLMutationResolver {
     fun updateDatabaseSchema(input: UpdateDatabaseSchemaInput, dfe: DataFetchingEnvironment): DatabaseSchema {
         if (dfe.isAnonymousUser()) throw AccessDeniedException("Anonymous user cannot update database schema")
@@ -63,6 +62,3 @@ class DatabaseSchemaMutationResolver(private val databaseSchemaService: Database
             .let { DatabaseSchema.create(it, Affiliation(it.affiliation)) }
     }
 }
-
-@Component
-class DatabaseSchemaResolver : GraphQLResolver<DatabaseSchema>

@@ -7,3 +7,5 @@ class AccessDeniedException(message: String, cause: Throwable? = null, errorMess
 
 class MissingLabelException(message: String, cause: Throwable? = null, errorMessage: String = message) :
     GoboException(message = message, cause = cause, errorMessage = errorMessage)
+
+class IntegrationDisabledException(message: String) : GoboException(message = message)
