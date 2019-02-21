@@ -14,8 +14,6 @@ gobo:
         url: http://mokey
     boober:
         url: http://boober
-    dbh:
-        url: http://dbh
     unclematt:
         url: http://unclematt-aurora-daemons.utv.paas.skead.no
     graphql:

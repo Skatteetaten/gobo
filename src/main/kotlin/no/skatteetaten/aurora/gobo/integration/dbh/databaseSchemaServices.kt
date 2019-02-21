@@ -1,5 +1,6 @@
 package no.skatteetaten.aurora.gobo.integration.dbh
 
+import no.skatteetaten.aurora.gobo.RequiresDbh
 import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
 import no.skatteetaten.aurora.gobo.createObjectMapper
@@ -9,6 +10,7 @@ import no.skatteetaten.aurora.gobo.resolvers.MissingLabelException
 import no.skatteetaten.aurora.gobo.resolvers.blockAndHandleError
 import no.skatteetaten.aurora.gobo.resolvers.blockNonNullAndHandleError
 import no.skatteetaten.aurora.gobo.security.SharedSecretReader
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.http.HttpHeaders
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.BodyInserters
@@ -19,6 +21,7 @@ import reactor.core.publisher.toMono
 import java.time.Duration
 
 @Service
+@ConditionalOnBean(RequiresDbh::class)
 class DatabaseSchemaService(
     private val sharedSecretReader: SharedSecretReader,
     @TargetService(ServiceTypes.DBH) private val webClient: WebClient
@@ -137,6 +140,7 @@ class DatabaseSchemaService(
 }
 
 @Service
+@ConditionalOnBean(RequiresDbh::class)
 class DatabaseSchemaServiceBlocking(private val databaseSchemaService: DatabaseSchemaService) {
 
     fun getDatabaseSchemas(affiliation: String) =

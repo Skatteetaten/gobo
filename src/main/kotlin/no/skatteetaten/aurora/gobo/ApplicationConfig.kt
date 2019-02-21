@@ -7,6 +7,8 @@ import io.netty.handler.timeout.ReadTimeoutHandler
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Primary
@@ -15,6 +17,7 @@ import org.springframework.http.MediaType
 import org.springframework.http.client.reactive.ReactorClientHttpConnector
 import org.springframework.http.codec.json.Jackson2JsonDecoder
 import org.springframework.http.codec.json.Jackson2JsonEncoder
+import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction
 import org.springframework.web.reactive.function.client.ExchangeStrategies
 import org.springframework.web.reactive.function.client.WebClient
@@ -33,11 +36,15 @@ enum class ServiceTypes {
 @Qualifier
 annotation class TargetService(val value: ServiceTypes)
 
+@Component
+@ConditionalOnProperty("integrations.dbh.url")
+class RequiresDbh
+
 @Configuration
 class ApplicationConfig(
     @Value("\${gobo.mokey.url}") val mokeyUrl: String,
     @Value("\${gobo.unclematt.url}") val uncleMattUrl: String,
-    @Value("\${gobo.dbh.url}") val dbhUrl: String,
+    @Value("\${integrations.dbh.url:}") val dbhUrl: String = "",
     @Value("\${gobo.webclient.read-timeout:30000}") val readTimeout: Int,
     @Value("\${gobo.webclient.connection-timeout:30000}") val connectionTimeout: Int
 ) {
@@ -75,6 +82,7 @@ class ApplicationConfig(
     @TargetService(ServiceTypes.BOOBER)
     fun webClientBoober() = webClientBuilder().build()
 
+    @ConditionalOnBean(RequiresDbh::class)
     @Bean
     @TargetService(ServiceTypes.DBH)
     fun webClientDbh() = webClientBuilder().baseUrl(dbhUrl).build()
