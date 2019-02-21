@@ -25,14 +25,14 @@ class ImageRegistryUrlBuilder {
 
 @Component
 @Primary
-@ConditionalOnProperty("gobo.docker-registry.url")
+@ConditionalOnProperty("integrations.docker-registry.url")
 /**
  * This component is convenient to use if you need to override the registry that is used in the imageRepoMetadata parameter
  * with a hard coded one. For instance during development if the acutal image registry is not available, but the image
  * may be found in a test/dev registry.
  */
 class OverrideRegistryImageRegistryUrlBuilder(
-    @Value("\${gobo.docker-registry.url}") val registryUrl: String
+    @Value("\${integrations.docker-registry.url}") val registryUrl: String
 ) : ImageRegistryUrlBuilder() {
 
     private val logger = LoggerFactory.getLogger(OverrideRegistryImageRegistryUrlBuilder::class.java)

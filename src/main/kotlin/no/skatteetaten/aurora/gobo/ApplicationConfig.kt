@@ -54,14 +54,14 @@ class ApplicationConfig(
     @Bean
     @Primary
     @TargetService(ServiceTypes.MOKEY)
-    fun webClientMokey(@Value("\${gobo.mokey.url}") mokeyUrl: String): WebClient {
+    fun webClientMokey(@Value("\${integrations.mokey.url}") mokeyUrl: String): WebClient {
         logger.info("Configuring Mokey WebClient with baseUrl={}", mokeyUrl)
         return webClientBuilder().baseUrl(mokeyUrl).build()
     }
 
     @Bean
     @TargetService(ServiceTypes.UNCLEMATT)
-    fun webClientUncleMatt(@Value("\${gobo.unclematt.url}") uncleMattUrl: String): WebClient {
+    fun webClientUncleMatt(@Value("\${integrations.unclematt.url}") uncleMattUrl: String): WebClient {
         logger.info("Configuring UncleMatt WebClient with baseUrl={}", uncleMattUrl)
         return webClientBuilder().baseUrl(uncleMattUrl).build()
     }

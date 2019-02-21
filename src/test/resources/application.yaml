@@ -2,15 +2,13 @@ spring:
     main:
         banner-mode: "off"
 
-gobo:
+integrations:
   mokey:
     url: http://localhost:6565
   unclematt:
     url: http://localhost:6566
-
-integrations:
-    dbh:
-        url: http://localhost:6567
+  dbh:
+    url: http://localhost:6567
 
 aurora:
   token:
