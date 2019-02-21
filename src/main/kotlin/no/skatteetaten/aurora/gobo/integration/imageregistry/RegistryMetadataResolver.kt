@@ -35,7 +35,7 @@ interface RegistryMetadataResolver {
 }
 
 @Component
-class DefaultRegistryMetadataResolver(@Value("\${gobo.docker-registry.url}") val internalRegistryAddress: String) :
+class DefaultRegistryMetadataResolver(@Value("\${gobo.docker-registry.url:docker-registry.default.svc:5000}}") val internalRegistryAddress: String) :
     RegistryMetadataResolver {
 
     private val ipV4WithPortRegex =

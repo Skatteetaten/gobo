@@ -19,8 +19,6 @@ gobo:
         url: http://dbh
     unclematt:
         url: http://unclematt-aurora-daemons.utv.paas.skead.no
-    docker-registry:
-        url: https://test-docker-registry-internal-group.aurora.skead.no
     cantus:
         url: http://cantus
     graphql:
