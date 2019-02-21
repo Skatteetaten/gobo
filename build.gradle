@@ -64,7 +64,7 @@ dependencies {
       'org.springframework.boot:spring-boot-starter-webflux',
       'org.springframework.boot:spring-boot-starter-security',
       'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.1.1',
-      'org.springframework.boot:spring-boot-starter-hateoas'
+      'org.springframework.boot:spring-boot-starter-hateoas',
       'com.graphql-java-kickstart:graphql-spring-boot-starter:5.4.1',
       'com.graphql-java-kickstart:graphiql-spring-boot-starter:5.4.1',
       'com.graphql-java-kickstart:voyager-spring-boot-starter:5.4.1',
