@@ -1,9 +1,6 @@
 package no.skatteetaten.aurora.gobo.integration.imageregistry
 
-import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
-
-val logger = LoggerFactory.getLogger(ImageRegistryUrlBuilder::class.java)
 
 @Component
 class ImageRegistryUrlBuilder {

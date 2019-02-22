@@ -1,5 +1,6 @@
 package no.skatteetaten.aurora.gobo.resolvers.imagerepository
 
+import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageRepoDto
 import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageTagType
 import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageTagType.Companion.typeOf
@@ -7,7 +8,8 @@ import no.skatteetaten.aurora.gobo.resolvers.GoboConnection
 import no.skatteetaten.aurora.gobo.resolvers.GoboEdge
 import no.skatteetaten.aurora.gobo.resolvers.GoboPageInfo
 import no.skatteetaten.aurora.gobo.resolvers.GoboPagedEdges
-import org.slf4j.LoggerFactory
+
+private val logger = KotlinLogging.logger {}
 
 data class ImageRepository(
     val registryUrl: String,
@@ -24,8 +26,6 @@ data class ImageRepository(
     )
 
     companion object {
-
-        private val logger = LoggerFactory.getLogger(ImageRepository::class.java)
         /**
          * @param absoluteImageRepoPath Example docker-registry.aurora.sits.no:5000/no_skatteetaten_aurora/dbh
          */
@@ -50,10 +50,7 @@ data class ImageTag(
     val type: ImageTagType get() = typeOf(name)
 
     companion object {
-        private val logger = LoggerFactory.getLogger(ImageTag::class.java)
-
         fun fromTagString(tagString: String): ImageTag {
-
             logger.debug("Create image tag from string=$tagString")
             val repo = tagString.substringBeforeLast(":")
             val tag = tagString.substringAfterLast(":")
