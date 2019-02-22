@@ -7,6 +7,7 @@ import no.skatteetaten.aurora.gobo.createObjectMapper
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.RecordedRequest
+import org.springframework.core.io.ClassPathResource
 import org.springframework.hateoas.core.AnnotationRelProvider
 import org.springframework.hateoas.hal.HalConfiguration
 import org.springframework.hateoas.hal.Jackson2HalModule
@@ -56,6 +57,13 @@ fun MockWebServer.execute(vararg responses: Any, fn: () -> Unit): List<RecordedR
     responses.forEach { this.enqueueJson(body = it) }
     fn()
     return (1..responses.size).toList().map { this.takeRequest() }
+}
+
+fun MockResponse.setJsonFileAsBody(fileName: String): MockResponse {
+    val classPath = ClassPathResource("/$fileName")
+    val json = classPath.file.readText()
+    this.addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_UTF8_VALUE)
+    return this.setBody(json)
 }
 
 inline fun <reified T> RecordedRequest.bodyAsObject(path: String = "$"): T {

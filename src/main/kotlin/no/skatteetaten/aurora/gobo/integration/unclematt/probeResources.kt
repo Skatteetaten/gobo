@@ -17,7 +17,11 @@ data class Result(
     val dnsname: String?,
     val resolvedIp: String?,
     val port: String?
-)
+) {
+    companion object {
+        fun unknownResult() = Result(ProbeStatus.UNKNOWN, null, null, null, null)
+    }
+}
 
 enum class ProbeStatus {
     ERROR,
@@ -26,5 +30,6 @@ enum class ProbeStatus {
     OPEN,
     CLOSED,
     FILTERED,
-    @JsonEnumDefaultValue UNKNOWN
+    @JsonEnumDefaultValue
+    UNKNOWN
 }

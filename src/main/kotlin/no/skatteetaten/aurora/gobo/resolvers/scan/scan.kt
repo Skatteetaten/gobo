@@ -3,6 +3,7 @@ package no.skatteetaten.aurora.gobo.resolvers.scan
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.integration.unclematt.ProbeResult
 import no.skatteetaten.aurora.gobo.integration.unclematt.ProbeStatus
+import no.skatteetaten.aurora.gobo.integration.unclematt.Result
 
 data class Scan(
     val status: ScanStatus,
@@ -52,12 +53,26 @@ data class Scan(
             return createNodeDetails(probeResultList) { status -> status == ProbeStatus.OPEN }
         }
 
-        private fun createNodeDetails(probeResultList: List<ProbeResult>, condition: (ProbeStatus) -> Boolean): NodeDetailsConnection {
+        private fun createNodeDetails(
+            probeResultList: List<ProbeResult>,
+            condition: (ProbeStatus) -> Boolean
+        ): NodeDetailsConnection {
             return NodeDetailsConnection(probeResultList.filter {
                 condition(it.result?.status ?: ProbeStatus.UNKNOWN)
             }.map {
-                NodeDetailsEdge(NodeDetails(mapStatus(it.result?.status
-                    ?: ProbeStatus.UNKNOWN), it.result?.message, ClusterNode(it.hostIp), it.result?.resolvedIp))
+                val res = it.result ?: Result.unknownResult()
+                val scanStatus = mapStatus(
+                    res.status
+                )
+
+                NodeDetailsEdge(
+                    NodeDetails(
+                        status = scanStatus,
+                        message = res.message,
+                        clusterNode = ClusterNode(it.hostIp),
+                        resolvedIp = res.resolvedIp
+                    )
+                )
             })
         }
     }
