@@ -1,10 +1,12 @@
 package no.skatteetaten.aurora.gobo.security
 
-import org.slf4j.LoggerFactory
+import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import java.io.File
 import java.io.IOException
+
+private val logger = KotlinLogging.logger {}
 
 /**
  * Component for reading the shared secret used for authentication. You may specify the shared secret directly using
@@ -16,8 +18,6 @@ class SharedSecretReader(
     @Value("\${aurora.token.value:}") private val secretValue: String?
 ) {
 
-    private val log = LoggerFactory.getLogger(SharedSecretReader::class.java)
-
     val secret = initSecret(secretValue)
 
     private fun initSecret(secretValue: String?) =
@@ -27,7 +27,7 @@ class SharedSecretReader(
             if (secretValue.isNullOrEmpty()) {
                 val secretFile = File(secretLocation).absoluteFile
                 try {
-                    log.info("Reading token from file {}", secretFile.absolutePath)
+                    logger.info("Reading token from file {}", secretFile.absolutePath)
                     secretFile.readText()
                 } catch (e: IOException) {
                     throw IllegalStateException("Unable to read shared secret from specified location [${secretFile.absolutePath}]")
