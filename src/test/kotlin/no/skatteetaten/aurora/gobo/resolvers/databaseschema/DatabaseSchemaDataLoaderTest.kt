@@ -39,9 +39,10 @@ class DatabaseSchemaDataLoaderTest {
 
     @Test
     fun `Get ApplicationDeployments by database ids`() {
-        val resource = ApplicationDeploymentWithDbResourceBuilder("123").build()
-        val request = server.execute(listOf(resource)) {
-            val result = dataLoader.getByKeys(User("username", "token"), mutableSetOf("123"))
+        val resource1 = ApplicationDeploymentWithDbResourceBuilder("123").build()
+        val resource2 = ApplicationDeploymentWithDbResourceBuilder("456").build()
+        val request = server.execute(listOf(resource1, resource2)) {
+            val result = dataLoader.getByKeys(User("username", "token"), mutableSetOf("123", "456"))
             assertThat(result["123"]?.size).isEqualTo(1)
         }
 
