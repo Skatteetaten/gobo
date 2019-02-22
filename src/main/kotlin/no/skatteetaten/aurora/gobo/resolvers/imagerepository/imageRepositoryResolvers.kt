@@ -5,8 +5,10 @@ import com.coxautodev.graphql.tools.GraphQLResolver
 import graphql.schema.DataFetchingEnvironment
 import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageRegistryServiceBlocking
 import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageTagType
+import no.skatteetaten.aurora.gobo.integration.imageregistry.TagsDto
 import no.skatteetaten.aurora.gobo.resolvers.loader
 import no.skatteetaten.aurora.gobo.resolvers.pageEdges
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 
 @Component
@@ -20,6 +22,8 @@ class ImageRepositoryQueryResolver : GraphQLQueryResolver {
 class ImageRepositoryResolver(val imageRegistryServiceBlocking: ImageRegistryServiceBlocking) :
     GraphQLResolver<ImageRepository> {
 
+    private val logger = LoggerFactory.getLogger(ImageRepositoryResolver::class.java)
+
     fun tags(
         imageRepository: ImageRepository,
         types: List<ImageTagType>?,
@@ -30,11 +34,19 @@ class ImageRepositoryResolver(val imageRegistryServiceBlocking: ImageRegistrySer
         val tagsInRepo = try {
             imageRegistryServiceBlocking.findTagNamesInRepoOrderedByCreatedDateDesc(imageRepository.toImageRepo())
         } catch (e: Exception) {
-            // TODO: Indicate error to caller
-            emptyList<String>()
+            logger.warn(
+                "Exception occurred in method=findTagNamesInRepoOrderedByCreatedDateDesc with input=${imageRepository.toImageRepo()}",
+                e
+            )
+            TagsDto(emptyList())
         }
-        val matchingTags = tagsInRepo
-            .map { ImageTag(imageRepository, it) }
+        val matchingTags = tagsInRepo.tags
+            .map {
+                ImageTag(
+                    imageRepository = imageRepository,
+                    name = it.name
+                )
+            }
             .filter { types == null || it.type in types }
 
         val allEdges = matchingTags.map { ImageTagEdge(it) }
@@ -45,5 +57,6 @@ class ImageRepositoryResolver(val imageRegistryServiceBlocking: ImageRegistrySer
 @Component
 class ImageRepositoryTagResolver : GraphQLResolver<ImageTag> {
 
-    fun lastModified(imageTag: ImageTag, dfe: DataFetchingEnvironment) = dfe.loader(ImageTagDataLoader::class).load(imageTag)
+    fun lastModified(imageTag: ImageTag, dfe: DataFetchingEnvironment) =
+        dfe.loader(ImageTagDataLoader::class).load(imageTag)
 }

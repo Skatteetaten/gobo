@@ -5,6 +5,9 @@ import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageRegistryServiceBlocking
 import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageRepoDto
 import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageTagDto
+import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageTagType
+import no.skatteetaten.aurora.gobo.integration.imageregistry.Tag
+import no.skatteetaten.aurora.gobo.integration.imageregistry.TagsDto
 import no.skatteetaten.aurora.gobo.resolvers.graphqlDataWithPrefix
 import no.skatteetaten.aurora.gobo.resolvers.graphqlDataWithPrefixAndIndex
 import no.skatteetaten.aurora.gobo.resolvers.graphqlErrors
@@ -54,9 +57,11 @@ class ImageRepositoryQueryResolverTest {
     fun setUp() {
         testData.forEach { data: ImageRepoData ->
             given(imageRegistryServiceBlocking.findTagNamesInRepoOrderedByCreatedDateDesc(data.imageRepoDto))
-                .willReturn(data.tags)
+                .willReturn(TagsDto(data.tags.map { Tag(name = it, type = ImageTagType.typeOf(it)) }))
             data.tags
-                .map { ImageTagDto(it, created = EPOCH) }
+                .map {
+                    ImageTagDto(name = it, created = EPOCH, dockerDigest = "sha256")
+                }
                 .forEach {
                     given(imageRegistryServiceBlocking.findTagByName(data.imageRepoDto, it.name)).willReturn(it)
                 }
@@ -88,6 +93,7 @@ class ImageRepositoryQueryResolverTest {
     fun `Query for tags with paging`() {
         val pageSize = 3
         val variables = mapOf("repositories" to testData[0].imageRepoDto.repository, "pageSize" to pageSize)
+
         webTestClient.queryGraphQL(tagsWithPagingQuery, variables)
             .expectStatus().isOk
             .expectBody()

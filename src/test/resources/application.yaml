@@ -3,16 +3,21 @@ spring:
         banner-mode: "off"
 
 gobo:
-  mokey:
-    url: http://localhost:6565
-  unclematt:
-    url: http://localhost:6566
-  dbh:
-    url: http://localhost:6567
+    mokey:
+        url: http://localhost:6565
+    unclematt:
+        url: http://localhost:6566
+    dbh:
+        url: http://localhost:6567
+    cantus:
+        url: http://localhost:6568
+    docker-registry:
+        url: https://test-docker-registry-internal-group.aurora.skead.no
 
 aurora:
   token:
     value: abc123
+
 
 openshift:
   cluster: http://localhost

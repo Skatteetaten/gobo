@@ -15,7 +15,7 @@ type DatabaseSchema {
   discriminator: String!
   description: String
   databaseEngine: String!
-  applicationDeployment: ApplicationDeployment
+  applicationDeployments: [ApplicationDeployment!]!
   createdBy: String!
   createdDate: DateTime!
   lastUsedDate: DateTime

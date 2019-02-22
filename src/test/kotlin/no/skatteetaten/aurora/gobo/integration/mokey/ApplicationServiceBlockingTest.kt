@@ -31,4 +31,10 @@ class ApplicationServiceBlockingTest {
         val details = applicationService.getApplicationDeploymentDetails("paas", "foo")
         assertThat(details).isNotNull()
     }
+
+    @Test
+    fun `Get application deployments for database ids`() {
+        val applicationDeployments = applicationService.getApplicationDeploymentsForDatabases("", listOf("123"))
+        assertThat(applicationDeployments).isNotNull()
+    }
 }

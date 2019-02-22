@@ -28,8 +28,7 @@ class GraphQLConfig {
         mapOf(
             GraphQLWebAutoConfiguration.QUERY_EXECUTION_STRATEGY to AsyncExecutionStrategy(
                 GoboDataFetcherExceptionHandler()
-            ),
-            GraphQLWebAutoConfiguration.MUTATION_EXECUTION_STRATEGY to AsyncExecutionStrategy(),
+            ), GraphQLWebAutoConfiguration.MUTATION_EXECUTION_STRATEGY to AsyncExecutionStrategy(),
             GraphQLWebAutoConfiguration.SUBSCRIPTION_EXECUTION_STRATEGY to SubscriptionExecutionStrategy()
         )
 

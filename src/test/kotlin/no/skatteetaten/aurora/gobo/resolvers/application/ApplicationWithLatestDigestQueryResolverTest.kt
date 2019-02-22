@@ -28,8 +28,6 @@ import reactor.core.publisher.toMono
 
 @GraphQLTest
 class ApplicationWithLatestDigestQueryResolverTest {
-    private val imageDetails =
-        "applications.edges[0].node.applicationDeployments[0].details.imageDetails"
 
     @Value("classpath:graphql/queries/getApplicationsWithLatestDigest.graphql")
     private lateinit var getApplicationsQuery: Resource
@@ -65,8 +63,9 @@ class ApplicationWithLatestDigestQueryResolverTest {
         val details = ApplicationDeploymentDetailsBuilder().build()
 
         val tag = ImageTag.fromTagString(details.imageDetails!!.dockerImageTagReference!!)
+        val imageRepoDto = tag.imageRepository.toImageRepo()
 
-        given(imageRegistryServiceBlocking.resolveTagToSha(tag)).willReturn("sha256:123")
+        given(imageRegistryServiceBlocking.resolveTagToSha(imageRepoDto, tag.name)).willReturn("sha256:123")
 
         given(applicationServiceBlocking.getApplications(affiliations))
             .willReturn(listOf(ApplicationResourceBuilder().build()))

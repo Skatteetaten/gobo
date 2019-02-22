@@ -118,6 +118,7 @@ data class ApplicationDeploymentDetails(
     val buildTime: Instant?,
     val imageDetails: ImageDetails?,
     val gitInfo: GitInfo?,
+    val databases: List<String>,
     val podResources: List<PodResource>,
     val deploymentSpecs: DeploymentSpecs,
     val deployDetails: DeployDetails?
@@ -133,6 +134,7 @@ data class ApplicationDeploymentDetails(
                         dockerImageTagReference = it.dockerImageTagReference
                     )
                 },
+                databases = resource.databases ?: listOf(),
                 gitInfo = resource.gitInfo?.let { GitInfo(it.commitId, it.commitTime) },
                 podResources = resource.podResources.map { PodResource.create(it) },
                 deploymentSpecs = DeploymentSpecs(

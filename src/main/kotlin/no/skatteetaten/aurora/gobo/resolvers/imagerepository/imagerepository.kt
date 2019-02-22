@@ -19,6 +19,12 @@ data class ImageRepository(
     val repository: String
         get() = listOf(registryUrl, namespace, name).joinToString("/")
 
+    fun toImageRepo() = ImageRepoDto(
+        registry = this.registryUrl,
+        namespace = this.namespace,
+        name = this.name
+    )
+
     companion object {
         /**
          * @param absoluteImageRepoPath Example docker-registry.aurora.sits.no:5000/no_skatteetaten_aurora/dbh
@@ -41,7 +47,6 @@ data class ImageTag(
     val imageRepository: ImageRepository,
     val name: String
 ) {
-
     val type: ImageTagType get() = typeOf(name)
 
     companion object {
@@ -63,5 +68,3 @@ data class ImageTagsConnection(
 ) : GoboConnection<ImageTagEdge>() {
     constructor(paged: GoboPagedEdges<ImageTagEdge>) : this(paged.edges, paged.pageInfo, paged.totalCount)
 }
-
-fun ImageRepository.toImageRepo() = ImageRepoDto(this.registryUrl, this.namespace, this.name)
