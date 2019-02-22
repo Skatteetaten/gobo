@@ -48,11 +48,47 @@ fun WebTestClient.queryGraphQL(
         .exchange()
 }
 
+fun WebTestClient.BodyContentSpec.graphqlDataWithPrefix(
+    prefix: String,
+    fn: (data: GraphqlDataWithPrefix) -> Unit
+): WebTestClient.BodyContentSpec {
+    fn(GraphqlDataWithPrefix(prefix, this))
+    return this
+}
+
+fun WebTestClient.BodyContentSpec.graphqlDataWithPrefixAndIndex(
+    prefix: String,
+    startIndex: Int = 0,
+    endIndex: Int = 0,
+    fn: (data: GraphqlDataWithPrefixAndIndex) -> Unit
+): WebTestClient.BodyContentSpec {
+    for (i in startIndex..endIndex) {
+        fn(GraphqlDataWithPrefixAndIndex(prefix, i, this))
+    }
+    return this
+}
+
+class GraphqlDataWithPrefix(private val prefix: String, private val bodyContentSpec: WebTestClient.BodyContentSpec) {
+    fun graphqlData(jsonPath: String) = bodyContentSpec.graphqlJsonPath(jsonPath, "data.$prefix")
+    fun graphqlDataFirst(jsonPath: String) = bodyContentSpec.graphqlJsonPath(jsonPath, "data.$prefix[0]")
+}
+
+class GraphqlDataWithPrefixAndIndex(
+    private val prefix: String,
+    val index: Int,
+    private val bodyContentSpec: WebTestClient.BodyContentSpec
+) {
+    fun graphqlData(jsonPath: String) = bodyContentSpec.graphqlJsonPath(jsonPath, "data.$prefix[$index]")
+}
+
 fun WebTestClient.BodyContentSpec.graphqlData(jsonPath: String) =
     graphqlJsonPath(jsonPath, "data")
 
 fun WebTestClient.BodyContentSpec.graphqlErrors(jsonPath: String) =
     graphqlJsonPath(jsonPath, "errors")
+
+fun WebTestClient.BodyContentSpec.graphqlErrorsFirst(jsonPath: String) =
+    graphqlJsonPath(jsonPath, "errors[0]")
 
 private fun WebTestClient.BodyContentSpec.graphqlJsonPath(jsonPath: String, type: String): JsonPathAssertions {
     val expression = if (jsonPath.startsWith("[")) {
