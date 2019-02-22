@@ -6,13 +6,13 @@ import graphql.execution.instrumentation.SimpleInstrumentation
 import graphql.execution.instrumentation.parameters.InstrumentationExecutionParameters
 import graphql.language.Field
 import graphql.language.SelectionSet
-import org.slf4j.LoggerFactory
+import mu.KotlinLogging
 import org.springframework.stereotype.Component
+
+private val logger = KotlinLogging.logger {}
 
 @Component
 class GoboInstrumentation : SimpleInstrumentation() {
-
-    private val logger = LoggerFactory.getLogger(GoboInstrumentation::class.java)
 
     val fields = Fields()
 

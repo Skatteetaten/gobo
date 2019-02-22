@@ -1,6 +1,6 @@
 package no.skatteetaten.aurora.gobo.integration.imageregistry
 
-import org.slf4j.LoggerFactory
+import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Primary
@@ -23,6 +23,8 @@ class ImageRegistryUrlBuilder {
     }
 }
 
+private val logger = KotlinLogging.logger {}
+
 @Component
 @Primary
 @ConditionalOnProperty("integrations.docker-registry.url")
@@ -34,8 +36,6 @@ class ImageRegistryUrlBuilder {
 class OverrideRegistryImageRegistryUrlBuilder(
     @Value("\${integrations.docker-registry.url}") val registryUrl: String
 ) : ImageRegistryUrlBuilder() {
-
-    private val logger = LoggerFactory.getLogger(OverrideRegistryImageRegistryUrlBuilder::class.java)
 
     init {
         logger.info("Override docker registry with url=$registryUrl")

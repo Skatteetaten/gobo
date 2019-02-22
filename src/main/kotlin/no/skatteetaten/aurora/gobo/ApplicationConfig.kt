@@ -4,7 +4,7 @@ import io.netty.channel.ChannelOption
 import io.netty.handler.ssl.SslContextBuilder
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory
 import io.netty.handler.timeout.ReadTimeoutHandler
-import org.slf4j.LoggerFactory
+import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
@@ -38,18 +38,19 @@ enum class ServiceTypes {
 @Qualifier
 annotation class TargetService(val value: ServiceTypes)
 
+
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @Component
 @ConditionalOnProperty("integrations.dbh.url")
 class RequiresDbh
+
+private val logger = KotlinLogging.logger {}
 
 @Configuration
 class ApplicationConfig(
     @Value("\${gobo.webclient.read-timeout:30000}") val readTimeout: Int,
     @Value("\${gobo.webclient.connection-timeout:30000}") val connectionTimeout: Int
 ) {
-
-    private val logger = LoggerFactory.getLogger(ApplicationConfig::class.java)
 
     @Bean
     @Primary

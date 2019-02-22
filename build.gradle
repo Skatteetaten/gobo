@@ -69,7 +69,8 @@ dependencies {
       'com.graphql-java-kickstart:voyager-spring-boot-starter:5.4.1',
       'com.graphql-java-kickstart:graphql-java-tools:5.4.1',
       'com.github.fge:json-patch:1.9',
-      'org.springframework.boot:spring-boot-devtools'
+      'org.springframework.boot:spring-boot-devtools',
+      'io.github.microutils:kotlin-logging:1.6.25'
   )
 
   [
