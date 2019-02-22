@@ -3,18 +3,18 @@ package no.skatteetaten.aurora.gobo.security
 import io.fabric8.kubernetes.client.ConfigBuilder
 import io.fabric8.kubernetes.client.KubernetesClientException
 import io.fabric8.openshift.client.DefaultOpenShiftClient
-import org.slf4j.LoggerFactory
+import mu.KotlinLogging
 import org.slf4j.MDC
 import org.springframework.security.core.userdetails.AuthenticationUserDetailsService
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken
 import org.springframework.stereotype.Component
 
+private val logger = KotlinLogging.logger {}
+
 @Component
 class OpenShiftAuthenticationUserDetailsService :
     AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken> {
-
-    private val logger = LoggerFactory.getLogger(OpenShiftAuthenticationUserDetailsService::class.java)
 
     override fun loadUserDetails(token: PreAuthenticatedAuthenticationToken): UserDetails {
         val principal = token.principal as io.fabric8.openshift.api.model.User
@@ -34,8 +34,6 @@ class OpenShiftAuthenticationUserDetailsService :
 
 @Component
 class OpenShiftUserLoader {
-    private val logger = LoggerFactory.getLogger(OpenShiftUserLoader::class.java)
-
     fun findOpenShiftUserByToken(token: String): io.fabric8.openshift.api.model.User? {
         return try {
             DefaultOpenShiftClient(ConfigBuilder().withOauthToken(token).build()).currentUser()
