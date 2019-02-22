@@ -93,7 +93,7 @@ class DatabaseSchemaQueryResolverTest {
                 it.graphqlData("databaseEngine").isEqualTo("ORACLE")
                 it.graphqlData("affiliation.name").isEqualTo("paas")
                 it.graphqlData("createdBy").isEqualTo("abc123")
-                it.graphqlData(".applicationDeployments.length()").isEqualTo(1)
+                it.graphqlData("applicationDeployments.length()").isEqualTo(1)
             }
     }
 
