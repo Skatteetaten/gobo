@@ -7,13 +7,19 @@ import graphql.schema.DataFetchingEnvironment
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseSchemaServiceBlocking
 import no.skatteetaten.aurora.gobo.integration.dbh.JdbcUser
 import no.skatteetaten.aurora.gobo.integration.dbh.SchemaDeletionRequest
+import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
 import no.skatteetaten.aurora.gobo.resolvers.AccessDeniedException
 import no.skatteetaten.aurora.gobo.resolvers.affiliation.Affiliation
+import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.ApplicationDeployment
+import no.skatteetaten.aurora.gobo.resolvers.multipleKeysLoader
 import no.skatteetaten.aurora.gobo.security.isAnonymousUser
 import org.springframework.stereotype.Component
+import java.util.concurrent.CompletableFuture
 
 @Component
-class DatabaseSchemaQueryResolver(private val databaseSchemaService: DatabaseSchemaServiceBlocking) :
+class DatabaseSchemaQueryResolver(
+    private val databaseSchemaService: DatabaseSchemaServiceBlocking
+) :
     GraphQLQueryResolver {
 
     fun databaseSchemas(affiliations: List<String>, dfe: DataFetchingEnvironment): List<DatabaseSchema> {
@@ -65,4 +71,11 @@ class DatabaseSchemaMutationResolver(private val databaseSchemaService: Database
 }
 
 @Component
-class DatabaseSchemaResolver : GraphQLResolver<DatabaseSchema>
+class DatabaseSchemaResolver(val applicationService: ApplicationServiceBlocking) : GraphQLResolver<DatabaseSchema> {
+
+    fun applicationDeployments(
+        schema: DatabaseSchema,
+        dfe: DataFetchingEnvironment
+    ): CompletableFuture<List<ApplicationDeployment>> =
+        dfe.multipleKeysLoader(DatabaseSchemaDataLoader::class).load(schema.id)
+}

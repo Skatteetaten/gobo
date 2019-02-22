@@ -10,7 +10,7 @@ query getDatabaseSchemas($affiliations: [String!]!) {
         discriminator
         description
         databaseEngine
-        applicationDeployment {
+        applicationDeployments {
             id
         }
         createdBy
