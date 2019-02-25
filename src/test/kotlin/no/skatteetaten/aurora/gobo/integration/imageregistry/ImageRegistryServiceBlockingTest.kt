@@ -132,13 +132,12 @@ class ImageRegistryServiceBlockingTest {
 
     @Test
     fun `Throw exception when bad request is returned from registry`() {
-        val exception = catch {
-            server.execute(404, "Not found") {
+        server.execute(404, "Not found") {
+            val exception = catch {
                 imageRegistry.findTagByName(imageRepo, tagName)
             }
+            assertThat(exception).isNotNull().hasMessage("Error in response, status=404 message=Not Found")
         }
-
-        assertThat(exception).isNotNull().hasMessage("Error in response, status=404 message=Not Found")
     }
 
     @ParameterizedTest

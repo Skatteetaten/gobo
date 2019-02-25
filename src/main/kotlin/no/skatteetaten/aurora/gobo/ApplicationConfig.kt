@@ -7,14 +7,19 @@ import io.netty.handler.timeout.ReadTimeoutHandler
 import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Primary
+import org.springframework.core.Ordered
+import org.springframework.core.annotation.Order
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.http.client.reactive.ReactorClientHttpConnector
 import org.springframework.http.codec.json.Jackson2JsonDecoder
 import org.springframework.http.codec.json.Jackson2JsonEncoder
+import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction
 import org.springframework.web.reactive.function.client.ExchangeStrategies
 import org.springframework.web.reactive.function.client.WebClient
@@ -33,14 +38,15 @@ enum class ServiceTypes {
 @Qualifier
 annotation class TargetService(val value: ServiceTypes)
 
+@Order(Ordered.HIGHEST_PRECEDENCE)
+@Component
+@ConditionalOnProperty("integrations.dbh.url")
+class RequiresDbh
+
 private val logger = KotlinLogging.logger {}
 
 @Configuration
 class ApplicationConfig(
-    @Value("\${gobo.mokey.url}") val mokeyUrl: String,
-    @Value("\${gobo.unclematt.url}") val uncleMattUrl: String,
-    @Value("\${gobo.dbh.url}") val dbhUrl: String,
-    @Value("\${gobo.cantus.url}") val cantusUrl: String,
     @Value("\${gobo.webclient.read-timeout:30000}") val readTimeout: Int,
     @Value("\${gobo.webclient.connection-timeout:30000}") val connectionTimeout: Int
 ) {
@@ -48,29 +54,21 @@ class ApplicationConfig(
     @Bean
     @Primary
     @TargetService(ServiceTypes.MOKEY)
-    fun webClientMokey(): WebClient {
-
+    fun webClientMokey(@Value("\${integrations.mokey.url}") mokeyUrl: String): WebClient {
         logger.info("Configuring Mokey WebClient with baseUrl={}", mokeyUrl)
-
-        return webClientBuilder()
-            .baseUrl(mokeyUrl)
-            .build()
+        return webClientBuilder().baseUrl(mokeyUrl).build()
     }
 
     @Bean
     @TargetService(ServiceTypes.UNCLEMATT)
-    fun webClientUncleMatt(): WebClient {
-
+    fun webClientUncleMatt(@Value("\${integrations.unclematt.url}") uncleMattUrl: String): WebClient {
         logger.info("Configuring UncleMatt WebClient with baseUrl={}", uncleMattUrl)
-
-        return webClientBuilder()
-            .baseUrl(uncleMattUrl)
-            .build()
+        return webClientBuilder().baseUrl(uncleMattUrl).build()
     }
 
     @Bean
     @TargetService(ServiceTypes.CANTUS)
-    fun webClientCantus(): WebClient {
+    fun webClientCantus(@Value("\${integrations.cantus.url}") cantusUrl: String): WebClient {
         logger.info("Configuring Cantus WebClient with base Url={}", cantusUrl)
 
         return webClientBuilder()
@@ -82,9 +80,10 @@ class ApplicationConfig(
     @TargetService(ServiceTypes.BOOBER)
     fun webClientBoober() = webClientBuilder().build()
 
+    @ConditionalOnBean(RequiresDbh::class)
     @Bean
     @TargetService(ServiceTypes.DBH)
-    fun webClientDbh() = webClientBuilder().baseUrl(dbhUrl).build()
+    fun webClientDbh(@Value("\${integrations.dbh.url}") dbhUrl: String) = webClientBuilder().baseUrl(dbhUrl).build()
 
     fun webClientBuilder(ssl: Boolean = false) =
         WebClient

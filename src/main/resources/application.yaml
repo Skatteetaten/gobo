@@ -1,26 +1,26 @@
 info:
     dependencies:
-        mokey: ${gobo.mokey.url}
-        boober: ${gobo.boober.url}
-        docker: ${gobo.docker-registry.url}
-        unclematt: ${gobo.unclematt.url}
-        cantus: ${gobo.cantus.url}
+        mokey: ${integrations.mokey.url}
+        boober: ${integrations.boober.url}
+        docker: ${integrations.docker-registry.url}
+        unclematt: ${integrations.unclematt.url}
+        cantus: ${integrations.cantus.url}
 
 spring:
     profiles:
         active: local
 
-gobo:
+integrations:
     mokey:
         url: http://mokey
     boober:
         url: http://boober
-    dbh:
-        url: http://dbh
     unclematt:
         url: http://unclematt-aurora-daemons.utv.paas.skead.no
     cantus:
         url: http://cantus
+
+gobo:
     graphql:
         tracing-enabled: false
 
@@ -41,9 +41,7 @@ logging:
 spring:
     profiles: local
 
-gobo:
-    dbh:
-        url: http://dbh-aurora.utv.paas.skead.no
+integrations:
     boober:
         url: http://boober-aurora.utv.paas.skead.no
     mokey:
@@ -52,7 +50,6 @@ gobo:
         url: http://cantus-aurora.utv.paas.skead.no
     docker-registry:
         url: https://test-docker-registry-internal-group.aurora.skead.no
-
 
 management:
     server:

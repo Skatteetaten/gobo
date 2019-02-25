@@ -4,7 +4,7 @@ import com.coxautodev.graphql.tools.GraphQLMutationResolver
 import com.coxautodev.graphql.tools.GraphQLQueryResolver
 import com.coxautodev.graphql.tools.GraphQLResolver
 import graphql.schema.DataFetchingEnvironment
-import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseSchemaServiceBlocking
+import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseSchemaService
 import no.skatteetaten.aurora.gobo.integration.dbh.JdbcUser
 import no.skatteetaten.aurora.gobo.integration.dbh.SchemaDeletionRequest
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
@@ -17,9 +17,7 @@ import org.springframework.stereotype.Component
 import java.util.concurrent.CompletableFuture
 
 @Component
-class DatabaseSchemaQueryResolver(
-    private val databaseSchemaService: DatabaseSchemaServiceBlocking
-) :
+class DatabaseSchemaQueryResolver(private val databaseSchemaService: DatabaseSchemaService) :
     GraphQLQueryResolver {
 
     fun databaseSchemas(affiliations: List<String>, dfe: DataFetchingEnvironment): List<DatabaseSchema> {
@@ -40,7 +38,7 @@ class DatabaseSchemaQueryResolver(
 }
 
 @Component
-class DatabaseSchemaMutationResolver(private val databaseSchemaService: DatabaseSchemaServiceBlocking) :
+class DatabaseSchemaMutationResolver(private val databaseSchemaService: DatabaseSchemaService) :
     GraphQLMutationResolver {
     fun updateDatabaseSchema(input: UpdateDatabaseSchemaInput, dfe: DataFetchingEnvironment): DatabaseSchema {
         if (dfe.isAnonymousUser()) throw AccessDeniedException("Anonymous user cannot update database schema")

@@ -13,7 +13,7 @@ class DatabaseSchemaServiceTest {
     private val sharedSecretReader = mockk<SharedSecretReader>().apply {
         every { secret } returns "secret"
     }
-    private val databaseSchemaService = DatabaseSchemaService(sharedSecretReader, WebClient.create())
+    private val databaseSchemaService = DatabaseSchemaServiceReactive(sharedSecretReader, WebClient.create())
 
     @Test
     fun `Create database schema given missing labels throw exception`() {

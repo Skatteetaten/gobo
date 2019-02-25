@@ -3,7 +3,7 @@ package no.skatteetaten.aurora.gobo.resolvers.affiliation
 import com.coxautodev.graphql.tools.GraphQLQueryResolver
 import com.coxautodev.graphql.tools.GraphQLResolver
 import graphql.schema.DataFetchingEnvironment
-import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseSchemaServiceBlocking
+import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseSchemaService
 import no.skatteetaten.aurora.gobo.integration.mokey.AffiliationServiceBlocking
 import no.skatteetaten.aurora.gobo.resolvers.databaseschema.DatabaseSchema
 import no.skatteetaten.aurora.gobo.security.currentUser
@@ -37,7 +37,7 @@ class AffiliationQueryResolver(
 }
 
 @Component
-class AffiliationResolver(private val databaseSchemaService: DatabaseSchemaServiceBlocking) :
+class AffiliationResolver(private val databaseSchemaService: DatabaseSchemaService) :
     GraphQLResolver<Affiliation> {
 
     fun databaseSchemas(affiliation: Affiliation) =

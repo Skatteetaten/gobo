@@ -18,7 +18,7 @@ import java.net.URI
 
 @Service
 class BooberWebClient(
-    @Value("\${gobo.boober.url:}") val booberUrl: String?,
+    @Value("\${integrations.boober.url:}") val booberUrl: String?,
     @TargetService(ServiceTypes.BOOBER) val webClient: WebClient
 ) {
 
