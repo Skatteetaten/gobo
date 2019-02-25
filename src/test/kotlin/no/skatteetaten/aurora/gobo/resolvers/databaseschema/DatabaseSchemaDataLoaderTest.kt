@@ -19,16 +19,12 @@ import org.junit.jupiter.api.TestInstance
 class DatabaseSchemaDataLoaderTest {
 
     private val server = MockWebServer()
-    private val url = server.url("/")
+    private val dbhUrl = server.url("/").toString()
     private val applicationConfig = ApplicationConfig(
-        mokeyUrl = "",
-        uncleMattUrl = "",
-        dbhUrl = url.toString(),
-        cantusUrl = "",
         connectionTimeout = 100,
         readTimeout = 100
     )
-    private val dbhClient = applicationConfig.webClientDbh()
+    private val dbhClient = applicationConfig.webClientDbh(dbhUrl)
     private val applicationService = ApplicationServiceBlocking(ApplicationService(dbhClient))
     private val dataLoader = DatabaseSchemaDataLoader(applicationService)
 

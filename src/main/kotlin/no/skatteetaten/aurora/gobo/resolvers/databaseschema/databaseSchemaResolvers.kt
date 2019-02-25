@@ -2,6 +2,7 @@ package no.skatteetaten.aurora.gobo.resolvers.databaseschema
 
 import com.coxautodev.graphql.tools.GraphQLMutationResolver
 import com.coxautodev.graphql.tools.GraphQLQueryResolver
+import com.coxautodev.graphql.tools.GraphQLResolver
 import graphql.schema.DataFetchingEnvironment
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseSchemaService
 import no.skatteetaten.aurora.gobo.integration.dbh.JdbcUser

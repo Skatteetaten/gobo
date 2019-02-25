@@ -38,7 +38,6 @@ enum class ServiceTypes {
 @Qualifier
 annotation class TargetService(val value: ServiceTypes)
 
-
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @Component
 @ConditionalOnProperty("integrations.dbh.url")
@@ -69,7 +68,7 @@ class ApplicationConfig(
 
     @Bean
     @TargetService(ServiceTypes.CANTUS)
-    fun webClientCantus(@Value("\${integrations.cantus.url}") val cantusUrl: String): WebClient {
+    fun webClientCantus(@Value("\${integrations.cantus.url}") cantusUrl: String): WebClient {
         logger.info("Configuring Cantus WebClient with base Url={}", cantusUrl)
 
         return webClientBuilder()

@@ -2,11 +2,15 @@ package no.skatteetaten.aurora.gobo.integration.imageregistry
 
 import assertk.Assert
 import assertk.assertThat
+import assertk.assertions.hasMessage
 import assertk.assertions.isEqualTo
+import assertk.assertions.isInstanceOf
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
+import assertk.assertions.message
 import assertk.assertions.support.expected
+import assertk.catch
 import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
@@ -126,18 +130,24 @@ class ImageRegistryServiceBlockingTest {
         assertThat(request.getRequestPath()).isEqualTo("/$imageRepoName/$tagName/manifest")
     }
 
+    @Test
+    fun `Throw exception when bad request is returned from registry`() {
+        server.execute(404, "Not found") {
+            val exception = catch {
+                imageRegistry.findTagByName(imageRepo, tagName)
+            }
+            assertThat(exception).isNotNull().hasMessage("Error in response, status=404 message=Not Found")
+        }
+    }
+
     @ParameterizedTest
     @ValueSource(ints = [400, 401, 403, 404, 418, 500, 501])
     fun `get tags given error from Cantus throw exception`(statusCode: Int) {
         server.execute(statusCode, HttpStatus.valueOf(statusCode)) {
-            assertThat {
-                imageRegistry.findTagNamesInRepoOrderedByCreatedDateDesc(imageRepo)
-            }.thrownError {
-                given {
-                    assertThat(it::class).isEqualTo(SourceSystemException::class)
-                    assertThat(it.message).endsWith("status=$statusCode message=${HttpStatus.valueOf(statusCode).reasonPhrase}")
-                }
-            }
+            val exception = catch { imageRegistry.findTagNamesInRepoOrderedByCreatedDateDesc(imageRepo) }
+            assertThat(exception).isNotNull()
+                .isInstanceOf(SourceSystemException::class)
+                .message().endsWith("status=$statusCode message=${HttpStatus.valueOf(statusCode).reasonPhrase}")
         }
     }
 
