@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit
 import kotlin.math.min
 
 enum class ServiceTypes {
-    MOKEY, DOCKER, BOOBER, UNCLEMATT, DBH
+    MOKEY, BOOBER, UNCLEMATT, CANTUS, DBH
 }
 
 @Target(AnnotationTarget.TYPE, AnnotationTarget.FUNCTION, AnnotationTarget.FIELD, AnnotationTarget.VALUE_PARAMETER)
@@ -68,8 +68,14 @@ class ApplicationConfig(
     }
 
     @Bean
-    @TargetService(ServiceTypes.DOCKER)
-    fun webClientDocker() = webClientBuilder(ssl = true).build()
+    @TargetService(ServiceTypes.CANTUS)
+    fun webClientCantus(@Value("\${integrations.cantus.url}") val cantusUrl: String): WebClient {
+        logger.info("Configuring Cantus WebClient with base Url={}", cantusUrl)
+
+        return webClientBuilder()
+            .baseUrl(cantusUrl)
+            .build()
+    }
 
     @Bean
     @TargetService(ServiceTypes.BOOBER)

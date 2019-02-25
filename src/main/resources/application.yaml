@@ -4,6 +4,7 @@ info:
         boober: ${integrations.boober.url}
         docker: ${integrations.docker-registry.url}
         unclematt: ${integrations.unclematt.url}
+        cantus: ${integrations.cantus.url}
 
 spring:
     profiles:
@@ -16,6 +17,8 @@ integrations:
         url: http://boober
     unclematt:
         url: http://unclematt-aurora-daemons.utv.paas.skead.no
+    cantus:
+        url: http://cantus
 
 gobo:
     graphql:
@@ -43,6 +46,8 @@ integrations:
         url: http://boober-aurora.utv.paas.skead.no
     mokey:
         url: http://mokey-aurora.utv.paas.skead.no
+    cantus:
+        url: http://cantus-aurora.utv.paas.skead.no
     docker-registry:
         url: https://test-docker-registry-internal-group.aurora.skead.no
 

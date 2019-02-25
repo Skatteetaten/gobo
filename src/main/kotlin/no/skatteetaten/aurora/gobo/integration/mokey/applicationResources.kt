@@ -91,6 +91,7 @@ data class ApplicationDeploymentDetailsResource(
     val gitInfo: GitInfoResource?,
     val imageDetails: ImageDetailsResource?,
     val podResources: List<PodResourceResource>,
+    val databases: List<String>?,
     val dependencies: Map<String, String> = emptyMap(),
     val applicationDeploymentCommand: ApplicationDeploymentCommandResource,
     val deployDetails: DeployDetailsResource?
@@ -113,6 +114,12 @@ data class ApplicationDeploymentRefResource(val environment: String, val applica
 data class AuroraConfigRefResource(
     val name: String,
     val refName: String
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class ApplicationDeploymentWithDbResource(
+    val identifier: String,
+    val applicationDeployments: List<ApplicationDeploymentResource>
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)

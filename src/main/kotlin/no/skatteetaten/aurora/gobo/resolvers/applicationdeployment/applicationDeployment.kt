@@ -48,9 +48,10 @@ data class ApplicationDeployment(
                 version = Version(
                     // TODO: This is far from ideal and manually adding ImageTag here should be considered a temporary
                     // adjustment. We need to move ImageTag out of version.
-                    deployTag = ImageTag(ImageRepository("", "", ""), deployment.version.deployTag),
-                    auroraVersion = deployment.version.auroraVersion,
-                    releaseTo = deployment.version.releaseTo
+                    ImageTag(ImageRepository("", "", ""), deployment.version.deployTag),
+                    deployment.version.auroraVersion,
+                    deployment.version.releaseTo
+
                 ),
                 time = deployment.time,
                 dockerImageRepo = deployment.dockerImageRepo,

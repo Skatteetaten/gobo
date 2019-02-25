@@ -31,8 +31,14 @@ fun <T : KeyDataLoader<*, V>, V> DataFetchingEnvironment.loader(type: KClass<T>)
         .getDataLoader<Any, Try<V>>(key) ?: throw IllegalStateException("No $key found")
 }
 
+fun <T : MultipleKeysDataLoader<*, V>, V> DataFetchingEnvironment.multipleKeysLoader(type: KClass<T>): DataLoader<Any, V> {
+    val key = "${type.simpleName}"
+    return this.getContext<GraphQLContext>().dataLoaderRegistry.get()
+        .getDataLoader<Any, V>(key) ?: throw IllegalStateException("No $key found")
+}
+
 fun <T> Mono<T>.blockNonNullAndHandleError(duration: Duration = Duration.ofSeconds(30), sourceSystem: String? = null) =
-    this.switchIfEmpty(SourceSystemException("Empty response").toMono())
+    this.switchIfEmpty(SourceSystemException("Empty response", sourceSystem = sourceSystem).toMono())
         .blockAndHandleError(duration, sourceSystem)!!
 
 fun <T> Mono<T>.blockAndHandleError(duration: Duration = Duration.ofSeconds(30), sourceSystem: String? = null) =
@@ -43,7 +49,7 @@ fun <T> Mono<T>.handleError(sourceSystem: String?) =
     this.doOnError {
         when (it) {
             is WebClientResponseException -> throw SourceSystemException(
-                message = "Error in response, status:${it.statusCode} message:${it.statusText}",
+                message = "Error in response, status=${it.rawStatusCode} message=${it.statusText}",
                 cause = it,
                 sourceSystem = sourceSystem,
                 code = it.statusCode.name

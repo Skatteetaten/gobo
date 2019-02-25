@@ -17,6 +17,7 @@ import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentComman
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentDetailsResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentRefResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentResource
+import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentWithDbResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationResource
 import no.skatteetaten.aurora.gobo.integration.mokey.AuroraConfigRefResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ContainerResource
@@ -81,6 +82,19 @@ val envResponseJson = """{
 
 @Language("JSON")
 val healthResponseJson: String = """{"status": "UP"}"""
+
+data class ApplicationDeploymentWithDbResourceBuilder(
+    val databaseId: String,
+    val applicationDeployments: List<ApplicationDeploymentResource>? = null
+) {
+    fun build(): ApplicationDeploymentWithDbResource =
+        ApplicationDeploymentWithDbResource(
+            identifier = databaseId,
+            applicationDeployments = applicationDeployments ?: listOf(
+                ApplicationDeploymentResourceBuilder().build()
+            )
+        )
+}
 
 data class ApplicationDeploymentResourceBuilder(
     val affiliation: String = "paas",
@@ -158,6 +172,7 @@ data class ApplicationDeploymentDetailsBuilder(
                 deployTag = "foobar",
                 paused = pause
             ),
+            databases = listOf("123"),
             podResources = listOf(
                 PodResourceResource(
                     name = "name",

@@ -10,7 +10,7 @@ query getDatabaseSchema($id: String!) {
         discriminator
         description
         databaseEngine
-        applicationDeployment {
+        applicationDeployments {
             id
         }
         createdBy

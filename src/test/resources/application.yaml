@@ -9,6 +9,8 @@ integrations:
     url: http://localhost:6566
   dbh:
     url: http://localhost:6567
+  cantus:
+    url: http://localhost:6568
 
 aurora:
   token:

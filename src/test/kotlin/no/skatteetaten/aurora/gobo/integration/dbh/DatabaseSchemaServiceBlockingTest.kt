@@ -187,7 +187,8 @@ class DatabaseSchemaServiceBlockingTest {
     fun `Create database schema`() {
         val response = Response(items = listOf(DatabaseSchemaResourceBuilder().build()))
         val request = server.execute(response) {
-            val createdDatabaseSchema = databaseSchemaService.createDatabaseSchema(SchemaCreationRequestBuilder().build())
+            val createdDatabaseSchema =
+                databaseSchemaService.createDatabaseSchema(SchemaCreationRequestBuilder().build())
             assertThat(createdDatabaseSchema.id).isEqualTo("123")
         }
 
