@@ -88,3 +88,17 @@ data class JdbcUser(
     val password: String,
     val jdbcUrl: String
 )
+
+data class DbhResponse<T>(val status: String, val items: List<T>, val totalCount: Int = items.size) {
+    companion object {
+        fun <T> ok(vararg items: T) = DbhResponse("OK", items.toList())
+        fun <T> ok(item: T) = DbhResponse("OK", listOf(item))
+        fun <T> ok() = DbhResponse("OK", emptyList<T>())
+        fun failed(item: String) = DbhResponse("Failed", listOf(item))
+        fun failed() = DbhResponse("Failed", emptyList<String>())
+    }
+
+    fun isOk() = status.toLowerCase() == "ok"
+    fun isFailure() = status.toLowerCase() == "failed"
+    fun isEmpty() = totalCount == 0
+}

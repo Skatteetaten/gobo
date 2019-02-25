@@ -3,6 +3,8 @@ package no.skatteetaten.aurora.gobo.integration.mokey
 import assertk.assertThat
 import assertk.assertions.hasMessage
 import assertk.assertions.isEqualTo
+import assertk.assertions.isNotNull
+import assertk.catch
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentDetailsBuilder
 import org.junit.jupiter.api.Test
 import org.springframework.hateoas.Link
@@ -19,10 +21,7 @@ class ApplicationDeploymentDetailsResourceTest {
 
     @Test
     fun `Throw exception when link is not found`() {
-        assertThat {
-            details.link("unknownLink")
-        }.thrownError {
-            hasMessage("Link with rel unknownLink was not found")
-        }
+        val exception = catch { details.link("unknownLink") }
+        assertThat(exception).isNotNull().hasMessage("Link with rel unknownLink was not found")
     }
 }
