@@ -3,12 +3,12 @@ package no.skatteetaten.aurora.gobo.resolvers.imagerepository
 import com.coxautodev.graphql.tools.GraphQLQueryResolver
 import com.coxautodev.graphql.tools.GraphQLResolver
 import graphql.schema.DataFetchingEnvironment
+import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageRegistryServiceBlocking
 import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageTagType
 import no.skatteetaten.aurora.gobo.integration.imageregistry.TagsDto
 import no.skatteetaten.aurora.gobo.resolvers.loader
 import no.skatteetaten.aurora.gobo.resolvers.pageEdges
-import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 
 @Component
@@ -18,11 +18,11 @@ class ImageRepositoryQueryResolver : GraphQLQueryResolver {
         repositories.map { ImageRepository.fromRepoString(it) }
 }
 
+private val logger = KotlinLogging.logger { }
+
 @Component
 class ImageRepositoryResolver(val imageRegistryServiceBlocking: ImageRegistryServiceBlocking) :
     GraphQLResolver<ImageRepository> {
-
-    private val logger = LoggerFactory.getLogger(ImageRepositoryResolver::class.java)
 
     fun tags(
         imageRepository: ImageRepository,
@@ -34,10 +34,9 @@ class ImageRepositoryResolver(val imageRegistryServiceBlocking: ImageRegistrySer
         val tagsInRepo = try {
             imageRegistryServiceBlocking.findTagNamesInRepoOrderedByCreatedDateDesc(imageRepository.toImageRepo())
         } catch (e: Exception) {
-            logger.warn(
-                "Exception occurred in method=findTagNamesInRepoOrderedByCreatedDateDesc with input=${imageRepository.toImageRepo()}",
-                e
-            )
+            logger.warn(e) {
+                "Exception occurred in method=findTagNamesInRepoOrderedByCreatedDateDesc with input=${imageRepository.toImageRepo()}"
+            }
             TagsDto(emptyList())
         }
         val matchingTags = tagsInRepo.tags
