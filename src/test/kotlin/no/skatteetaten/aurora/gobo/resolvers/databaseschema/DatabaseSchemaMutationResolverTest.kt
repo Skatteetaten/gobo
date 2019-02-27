@@ -10,6 +10,7 @@ import no.skatteetaten.aurora.gobo.JdbcUserBuilder
 import no.skatteetaten.aurora.gobo.OpenShiftUserBuilder
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseSchemaServiceBlocking
 import no.skatteetaten.aurora.gobo.integration.dbh.JdbcUser
+import no.skatteetaten.aurora.gobo.integration.dbh.SchemaDeletionResponse
 import no.skatteetaten.aurora.gobo.resolvers.graphqlData
 import no.skatteetaten.aurora.gobo.resolvers.graphqlErrorsFirst
 import no.skatteetaten.aurora.gobo.resolvers.isTrue
@@ -31,8 +32,8 @@ class DatabaseSchemaMutationResolverTest {
     @Value("classpath:graphql/mutations/updateDatabaseSchema.graphql")
     private lateinit var updateDatabaseSchemaMutation: Resource
 
-    @Value("classpath:graphql/mutations/deleteDatabaseSchema.graphql")
-    private lateinit var deleteDatabaseSchemaMutation: Resource
+    @Value("classpath:graphql/mutations/deleteDatabaseSchemas.graphql")
+    private lateinit var deleteDatabaseSchemasMutation: Resource
 
     @Value("classpath:graphql/mutations/testJdbcConnectionForJdbcUser.graphql")
     private lateinit var testJdbcConnectionForJdbcUserMutation: Resource
@@ -115,16 +116,23 @@ class DatabaseSchemaMutationResolverTest {
     }
 
     @Test
-    fun `Delete database schema given id`() {
-        given(databaseSchemaService.deleteDatabaseSchema(any())).willReturn(true)
-        val deleteVariables = mapOf("input" to mapOf("id" to "abc123"))
+    fun `Delete database schema given ids`() {
+        given(databaseSchemaService.deleteDatabaseSchemas(any())).willReturn(
+            listOf(SchemaDeletionResponse.success("abc123"), SchemaDeletionResponse.failed("bcd234")))
+
+        val request = DeleteDatabaseSchemasInput(listOf("abc123", "bcd234"))
+        val deleteVariables = mapOf("input" to jacksonObjectMapper().convertValue<Map<String, Any>>(request))
+
         webTestClient.queryGraphQL(
-            queryResource = deleteDatabaseSchemaMutation,
+            queryResource = deleteDatabaseSchemasMutation,
             variables = deleteVariables,
             token = "test-token"
         )
             .expectBody()
-            .graphqlData("deleteDatabaseSchema").isTrue()
+            .graphqlData("deleteDatabaseSchemas.succeeded.length()").isEqualTo(1)
+            .graphqlData("deleteDatabaseSchemas.succeeded[0]").isEqualTo("abc123")
+            .graphqlData("deleteDatabaseSchemas.failed.length()").isEqualTo(1)
+            .graphqlData("deleteDatabaseSchemas.failed[0]").isEqualTo("bcd234")
     }
 
     @Test
