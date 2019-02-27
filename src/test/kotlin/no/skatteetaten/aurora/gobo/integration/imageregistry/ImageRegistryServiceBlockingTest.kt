@@ -17,8 +17,6 @@ import io.mockk.mockk
 import no.skatteetaten.aurora.gobo.integration.MockWebServerTestTag
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.integration.execute
-import no.skatteetaten.aurora.gobo.integration.imageregistry.AuthenticationMethod.KUBERNETES_TOKEN
-import no.skatteetaten.aurora.gobo.integration.imageregistry.AuthenticationMethod.NONE
 import no.skatteetaten.aurora.gobo.integration.setJsonFileAsBody
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository
 import okhttp3.mockwebserver.MockResponse
@@ -41,21 +39,17 @@ class ImageRegistryServiceBlockingTest {
 
     private val server = MockWebServer()
     private val url = server.url("/")
-    private val imageRepo = ImageRepository.fromRepoString("/$imageRepoName").toImageRepo()
+    private val imageRepo = ImageRepository.fromRepoString("docker.com/$imageRepoName").toImageRepo()
 
-    private val defaultRegistryMetadataResolver = mockk<DefaultRegistryMetadataResolver>()
     private val tokenProvider = mockk<TokenProvider>()
     private val imageRegistry = ImageRegistryServiceBlocking(
-        defaultRegistryMetadataResolver, WebClient.create(url.toString()), tokenProvider, ImageRegistryUrlBuilder()
+        WebClient.create(url.toString()), tokenProvider, ImageRegistryUrlBuilder()
     )
 
     @BeforeEach
     fun setUp() {
-        clearMocks(defaultRegistryMetadataResolver, tokenProvider)
-
-        every {
-            defaultRegistryMetadataResolver.getMetadataForRegistry(any())
-        } returns RegistryMetadata("${url.host()}:${url.port()}", "http", NONE, false)
+        clearMocks(tokenProvider)
+        every { tokenProvider.token } returns "token"
     }
 
     @Test
@@ -81,17 +75,14 @@ class ImageRegistryServiceBlockingTest {
             assertThat(tags).containsAllTags(expectedTags)
         }
 
-        assertThat(request.getRequestPath()).isEqualTo("/$imageRepoName/tags")
+        assertThat(request.getRequestPath()).isEqualTo("/$imageRepoName/tags?dockerRegistryUrl=$url")
 
         assertThat(request.headers[HttpHeaders.AUTHORIZATION]).isNull()
     }
 
     @Test
     fun `fetch all tags with authorization header`() {
-        every { tokenProvider.token } returns "token"
-        every {
-            defaultRegistryMetadataResolver.getMetadataForRegistry(any())
-        } returns RegistryMetadata("${url.host()}:${url.port()}", "http", KUBERNETES_TOKEN, false)
+
 
         val response = MockResponse().setJsonFileAsBody("cantusTags.json")
 

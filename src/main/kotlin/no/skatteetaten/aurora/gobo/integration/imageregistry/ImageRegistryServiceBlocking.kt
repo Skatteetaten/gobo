@@ -19,7 +19,7 @@ class ImageRegistryServiceBlocking(
 ) {
 
     fun resolveTagToSha(imageRepoDto: ImageRepoDto, imageTag: String) =
-        findTagByName(imageRepoDto, imageTag).dockerDigest
+        getAuroraResponseImageTagResource(imageRepoDto, imageTag).dockerDigest
 
     fun findTagByName(
         imageRepoDto: ImageRepoDto,

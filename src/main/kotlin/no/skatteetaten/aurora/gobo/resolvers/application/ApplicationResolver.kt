@@ -1,12 +1,11 @@
 package no.skatteetaten.aurora.gobo.resolvers.application
 
 import com.coxautodev.graphql.tools.GraphQLResolver
-import no.skatteetaten.aurora.gobo.integration.imageregistry.RegistryMetadataResolver
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository
 import org.springframework.stereotype.Component
 
 @Component
-class ApplicationResolver(private val registryMetadataResolver: RegistryMetadataResolver) :
+class ApplicationResolver() :
     GraphQLResolver<Application> {
 
     fun imageRepository(application: Application): ImageRepository? = application.imageRepository
@@ -19,8 +18,6 @@ class ApplicationResolver(private val registryMetadataResolver: RegistryMetadata
         get(): ImageRepository? = this.applicationDeployments.asSequence()
             .mapNotNull { it.dockerImageRepo }
             .map { ImageRepository.fromRepoString(it) }
-            .firstOrNull {
-                val metadata = registryMetadataResolver.getMetadataForRegistry(it.registryUrl)
-                !metadata.isInternal
-            }
+            //TODO: hva skal vi gjøre med denne? Er man nødt til å spørre cantus om repository er internt eller ikke?
+            .firstOrNull()
 }
