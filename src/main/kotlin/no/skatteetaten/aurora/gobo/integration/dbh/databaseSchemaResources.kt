@@ -103,9 +103,4 @@ data class DbhResponse<T>(val status: String, val items: List<T>, val totalCount
     fun isEmpty() = totalCount == 0
 }
 
-data class SchemaDeletionResponse(val id: String, val success: Boolean) {
-    companion object {
-        fun success(id: String) = SchemaDeletionResponse(id, true)
-        fun failed(id: String) = SchemaDeletionResponse(id, false)
-    }
-}
+data class SchemaDeletionResponse(val id: String, val success: Boolean)

@@ -118,7 +118,11 @@ class DatabaseSchemaMutationResolverTest {
     @Test
     fun `Delete database schema given ids`() {
         given(databaseSchemaService.deleteDatabaseSchemas(any())).willReturn(
-            listOf(SchemaDeletionResponse.success("abc123"), SchemaDeletionResponse.failed("bcd234")))
+            listOf(
+                SchemaDeletionResponse(id = "abc123", success = true),
+                SchemaDeletionResponse(id = "bcd234", success = false)
+            )
+        )
 
         val request = DeleteDatabaseSchemasInput(listOf("abc123", "bcd234"))
         val deleteVariables = mapOf("input" to jacksonObjectMapper().convertValue<Map<String, Any>>(request))
