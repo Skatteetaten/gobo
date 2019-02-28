@@ -29,5 +29,5 @@ class DockerRegistry(@Value("\${integrations.internal-registry.url:docker-regist
         "^((25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\.){3}(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]):[0-9]{1,4}\$".toRegex()
 
     fun isInternal(registry: String) =
-        registry == internalRegistryAddress || registry.matches(ipV4WithPortRegex)
+       registry == internalRegistryAddress || registry.matches(ipV4WithPortRegex)
 }
