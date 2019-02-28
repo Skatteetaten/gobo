@@ -1,9 +1,9 @@
 package no.skatteetaten.aurora.gobo.resolvers.imagerepository
 
 import mu.KotlinLogging
-import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageRepoDto
-import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageTagType
-import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageTagType.Companion.typeOf
+import no.skatteetaten.aurora.gobo.integration.cantus.ImageRepoDto
+import no.skatteetaten.aurora.gobo.integration.cantus.ImageTagType
+import no.skatteetaten.aurora.gobo.integration.cantus.ImageTagType.Companion.typeOf
 import no.skatteetaten.aurora.gobo.resolvers.GoboConnection
 import no.skatteetaten.aurora.gobo.resolvers.GoboEdge
 import no.skatteetaten.aurora.gobo.resolvers.GoboPageInfo

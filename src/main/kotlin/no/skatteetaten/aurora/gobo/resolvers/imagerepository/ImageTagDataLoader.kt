@@ -1,6 +1,6 @@
 package no.skatteetaten.aurora.gobo.resolvers.imagerepository
 
-import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageRegistryServiceBlocking
+import no.skatteetaten.aurora.gobo.integration.cantus.ImageRegistryServiceBlocking
 import no.skatteetaten.aurora.gobo.resolvers.KeyDataLoader
 import no.skatteetaten.aurora.gobo.resolvers.user.User
 import org.dataloader.Try
@@ -16,7 +16,8 @@ class ImageTagDataLoader(
             val imageRepo = key.imageRepository.toImageRepo()
             imageRegistryServiceBlocking.findTagByName(
                 imageRepoDto = imageRepo,
-                imageTag = key.name
+                imageTag = key.name,
+                token = user.token
             ).created
         }
     }

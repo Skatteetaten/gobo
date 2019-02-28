@@ -4,7 +4,7 @@ import no.skatteetaten.aurora.gobo.ApplicationDeploymentDetailsBuilder
 import no.skatteetaten.aurora.gobo.ApplicationResourceBuilder
 import no.skatteetaten.aurora.gobo.GraphQLTest
 import no.skatteetaten.aurora.gobo.OpenShiftUserBuilder
-import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageRegistryServiceBlocking
+import no.skatteetaten.aurora.gobo.integration.cantus.ImageRegistryServiceBlocking
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
 import no.skatteetaten.aurora.gobo.integration.mokey.AuroraNamespacePermissions
 import no.skatteetaten.aurora.gobo.integration.mokey.PermissionService
@@ -65,7 +65,7 @@ class ApplicationWithLatestDigestQueryResolverTest {
         val tag = ImageTag.fromTagString(details.imageDetails!!.dockerImageTagReference!!)
         val imageRepoDto = tag.imageRepository.toImageRepo()
 
-        given(imageRegistryServiceBlocking.resolveTagToSha(imageRepoDto, tag.name)).willReturn("sha256:123")
+        given(imageRegistryServiceBlocking.resolveTagToSha(imageRepoDto, tag.name, "test-token")).willReturn("sha256:123")
 
         given(applicationServiceBlocking.getApplications(affiliations))
             .willReturn(listOf(ApplicationResourceBuilder().build()))

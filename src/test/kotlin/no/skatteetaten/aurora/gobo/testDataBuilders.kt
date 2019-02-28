@@ -110,7 +110,7 @@ data class ApplicationDeploymentResourceBuilder(
             namespace = "namespace",
             status = StatusResource("code", "", listOf(), listOf()),
             version = VersionResource("deployTag", "auroraVersion", "releaseTo"),
-            dockerImageRepo = "dockerImageRepo",
+            dockerImageRepo = "127.0.0.1:5000/aurora/whoami",
             time = Instant.EPOCH,
             message = msg
         ).apply {
