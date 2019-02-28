@@ -7,16 +7,20 @@ import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageRegistryServiceBlocking
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageTagType
 import no.skatteetaten.aurora.gobo.integration.cantus.TagsDto
+import no.skatteetaten.aurora.gobo.resolvers.AccessDeniedException
 import no.skatteetaten.aurora.gobo.resolvers.loader
 import no.skatteetaten.aurora.gobo.resolvers.pageEdges
 import no.skatteetaten.aurora.gobo.security.currentUser
+import no.skatteetaten.aurora.gobo.security.isAnonymousUser
 import org.springframework.stereotype.Component
 
 @Component
 class ImageRepositoryQueryResolver : GraphQLQueryResolver {
 
-    fun getImageRepositories(repositories: List<String>) =
-        repositories.map { ImageRepository.fromRepoString(it) }
+    fun getImageRepositories(repositories: List<String>, dfe: DataFetchingEnvironment): List<ImageRepository> {
+        if (dfe.isAnonymousUser()) throw AccessDeniedException("Anonymous user cannot access imagrepositories")
+        return repositories.map { ImageRepository.fromRepoString(it) }
+    }
 }
 
 private val logger = KotlinLogging.logger { }

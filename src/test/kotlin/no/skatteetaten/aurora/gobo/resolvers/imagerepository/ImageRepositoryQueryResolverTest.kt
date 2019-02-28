@@ -1,6 +1,7 @@
 package no.skatteetaten.aurora.gobo.resolvers.imagerepository
 
 import no.skatteetaten.aurora.gobo.GraphQLTest
+import no.skatteetaten.aurora.gobo.OpenShiftUserBuilder
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageRegistryServiceBlocking
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageRepoDto
@@ -15,9 +16,11 @@ import no.skatteetaten.aurora.gobo.resolvers.graphqlErrorsFirst
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository.Companion.fromRepoString
 import no.skatteetaten.aurora.gobo.resolvers.isTrue
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
+import no.skatteetaten.aurora.gobo.security.OpenShiftUserLoader
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.mockito.BDDMockito
 import org.mockito.BDDMockito.given
 import org.mockito.BDDMockito.reset
 import org.springframework.beans.factory.annotation.Autowired
@@ -42,6 +45,9 @@ class ImageRepositoryQueryResolverTest {
     @MockBean
     private lateinit var imageRegistryServiceBlocking: ImageRegistryServiceBlocking
 
+    @MockBean
+    private lateinit var openShiftUserLoader: OpenShiftUserLoader
+
     class ImageRepoData(val repoString: String, val tags: List<String>) {
         val imageRepoDto: ImageRepoDto get() = fromRepoString(repoString).toImageRepo()
     }
@@ -56,25 +62,28 @@ class ImageRepositoryQueryResolverTest {
     @BeforeEach
     fun setUp() {
         testData.forEach { data: ImageRepoData ->
-            given(imageRegistryServiceBlocking.findTagNamesInRepoOrderedByCreatedDateDesc(data.imageRepoDto, ""))
+            given(imageRegistryServiceBlocking.findTagNamesInRepoOrderedByCreatedDateDesc(data.imageRepoDto, "test-token"))
                 .willReturn(TagsDto(data.tags.map { Tag(name = it, type = ImageTagType.typeOf(it)) }))
             data.tags
                 .map {
                     ImageTagDto(name = it, created = EPOCH, dockerDigest = "sha256")
                 }
                 .forEach {
-                    given(imageRegistryServiceBlocking.findTagByName(data.imageRepoDto, it.name, "")).willReturn(it)
+                    given(imageRegistryServiceBlocking.findTagByName(data.imageRepoDto, it.name, "test-token")).willReturn(it)
                 }
         }
+
+        given(openShiftUserLoader.findOpenShiftUserByToken(BDDMockito.anyString()))
+            .willReturn(OpenShiftUserBuilder().build())
     }
 
     @AfterEach
-    fun tearDown() = reset(imageRegistryServiceBlocking)
+    fun tearDown() = reset(imageRegistryServiceBlocking, openShiftUserLoader)
 
     @Test
     fun `Query for repositories and tags`() {
         val variables = mapOf("repositories" to testData.map { it.imageRepoDto.repository })
-        webTestClient.queryGraphQL(reposWithTagsQuery, variables)
+        webTestClient.queryGraphQL(reposWithTagsQuery, variables, "test-token")
             .expectStatus().isOk
             .expectBody()
             .graphqlDataWithPrefixAndIndex("imageRepositories", endIndex = 1) {
@@ -94,7 +103,7 @@ class ImageRepositoryQueryResolverTest {
         val pageSize = 3
         val variables = mapOf("repositories" to testData[0].imageRepoDto.repository, "pageSize" to pageSize)
 
-        webTestClient.queryGraphQL(tagsWithPagingQuery, variables)
+        webTestClient.queryGraphQL(tagsWithPagingQuery, variables, "test-token")
             .expectStatus().isOk
             .expectBody()
             .graphqlDataWithPrefix("imageRepositories[0].tags") {
@@ -110,11 +119,11 @@ class ImageRepositoryQueryResolverTest {
 
     @Test
     fun `Get errors when findByTagName fails with exception`() {
-        given(imageRegistryServiceBlocking.findTagByName(testData[0].imageRepoDto, testData[0].tags[0], ""))
+        given(imageRegistryServiceBlocking.findTagByName(testData[0].imageRepoDto, testData[0].tags[0], "test-token"))
             .willThrow(SourceSystemException("test exception", RuntimeException("testing testing")))
 
         val variables = mapOf("repositories" to testData[0].imageRepoDto.repository)
-        webTestClient.queryGraphQL(reposWithTagsQuery, variables)
+        webTestClient.queryGraphQL(reposWithTagsQuery, variables, "test-token")
             .expectStatus().isOk
             .expectBody()
             .graphqlErrors("length()").isEqualTo(1)
