@@ -38,7 +38,7 @@ class ImageRegistryServiceBlockingTest {
 
     private val token: String = "token"
     private val imageRegistry = ImageRegistryServiceBlocking(
-        WebClient.create(url.toString()), UrlBuilder()
+        WebClient.create(url.toString())
     )
 
     @Test

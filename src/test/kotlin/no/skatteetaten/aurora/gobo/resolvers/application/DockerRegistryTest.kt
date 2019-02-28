@@ -1,7 +1,6 @@
 package no.skatteetaten.aurora.gobo.resolvers.application
 
 import assertk.assertThat
-import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
 import assertk.assertions.isTrue
 import org.junit.jupiter.api.Test
