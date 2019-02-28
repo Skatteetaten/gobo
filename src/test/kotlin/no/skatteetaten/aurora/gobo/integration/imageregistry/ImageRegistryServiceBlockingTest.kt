@@ -45,9 +45,8 @@ class ImageRegistryServiceBlockingTest {
 
     private val defaultRegistryMetadataResolver = mockk<DefaultRegistryMetadataResolver>()
     private val tokenProvider = mockk<TokenProvider>()
-    private val imageRegistry = ImageRegistryServiceBlocking(
-        defaultRegistryMetadataResolver, WebClient.create(url.toString()), tokenProvider, ImageRegistryUrlBuilder()
-    )
+    private val imageRegistry =
+        ImageRegistryServiceBlocking(defaultRegistryMetadataResolver, WebClient.create(url.toString()), tokenProvider)
 
     @BeforeEach
     fun setUp() {

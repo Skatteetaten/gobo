@@ -15,8 +15,7 @@ private val logger = KotlinLogging.logger {}
 class ImageRegistryServiceBlocking(
     private val registryMetadataResolver: RegistryMetadataResolver,
     @TargetService(ServiceTypes.CANTUS) val webClient: WebClient,
-    val tokenProvider: TokenProvider,
-    private val urlBuilder: ImageRegistryUrlBuilder
+    val tokenProvider: TokenProvider
 ) {
 
     fun resolveTagToSha(imageRepoDto: ImageRepoDto, imageTag: String) =
@@ -36,7 +35,7 @@ class ImageRegistryServiceBlocking(
             ) {
                 logger.debug("Retrieving type=TagResource from  url=${imageRepoDto.registry} image=${imageRepoDto.imageName}")
                 it.get().uri(
-                    urlBuilder.createTagsUrl(imageRepoDto, registryMetadata),
+                    "/tags?repoUrl=${imageRepoDto.repository}",
                     imageRepoDto.mappedTemplateVars
                 )
             }
@@ -53,7 +52,7 @@ class ImageRegistryServiceBlocking(
             execute(registryMetadata.authenticationMethod) {
                 logger.debug("Retrieving type=ImageTagResource from  url=${imageRepoDto.registry} image=${imageRepoDto.imageName}/$imageTag")
                 it.get().uri(
-                    urlBuilder.createImageTagUrl(imageRepoDto, registryMetadata),
+                    "/manifest?tagUrl=${imageRepoDto.repository}/$imageTag",
                     imageRepoDto.mappedTemplateVars.plus("tag" to imageTag)
                 )
             }
