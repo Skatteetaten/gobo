@@ -1,4 +1,4 @@
-package no.skatteetaten.aurora.gobo.integration.imageregistry
+package no.skatteetaten.aurora.gobo.integration.cantus
 
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.ServiceTypes
@@ -14,21 +14,21 @@ private val logger = KotlinLogging.logger {}
 @Service
 class ImageRegistryServiceBlocking(
     @TargetService(ServiceTypes.CANTUS) val webClient: WebClient,
-    val tokenProvider: TokenProvider,
-    private val urlBuilder: ImageRegistryUrlBuilder
+    private val urlBuilder: UrlBuilder
 ) {
 
-    fun resolveTagToSha(imageRepoDto: ImageRepoDto, imageTag: String) =
-        getAuroraResponseImageTagResource(imageRepoDto, imageTag).dockerDigest
+    fun resolveTagToSha(imageRepoDto: ImageRepoDto, imageTag: String, token: String) =
+        getAuroraResponseImageTagResource(imageRepoDto, imageTag, token).dockerDigest
 
     fun findTagByName(
         imageRepoDto: ImageRepoDto,
-        imageTag: String
-    ) = getAuroraResponseImageTagResource(imageRepoDto, imageTag)
+        imageTag: String,
+        token: String
+    ) = getAuroraResponseImageTagResource(imageRepoDto, imageTag, token)
 
-    fun findTagNamesInRepoOrderedByCreatedDateDesc(imageRepoDto: ImageRepoDto) =
+    fun findTagNamesInRepoOrderedByCreatedDateDesc(imageRepoDto: ImageRepoDto, token: String) =
         TagsDto.toDto(
-            execute{
+            execute(token) {
                 logger.debug("Retrieving type=TagResource from  url=${imageRepoDto.registry} image=${imageRepoDto.imageName}")
                 it.get().uri(
                     urlBuilder.createTagsUrl(imageRepoDto),
@@ -37,14 +37,14 @@ class ImageRegistryServiceBlocking(
             }
         )
 
-
     private fun getAuroraResponseImageTagResource(
         imageRepoDto: ImageRepoDto,
-        imageTag: String
+        imageTag: String,
+        token: String
     ): ImageTagDto {
 
         val auroraImageTagResource: AuroraResponse<ImageTagResource> =
-            execute {
+            execute(token) {
                 logger.debug("Retrieving type=ImageTagResource from  url=${imageRepoDto.registry} image=${imageRepoDto.imageName}/$imageTag")
                 it.get().uri(
                     urlBuilder.createImageTagUrl(imageRepoDto),
@@ -56,10 +56,11 @@ class ImageRegistryServiceBlocking(
     }
 
     private final inline fun <reified T : Any> execute(
+        token: String,
         fn: (WebClient) -> WebClient.RequestHeadersSpec<*>
     ): T = fn(webClient)
         .headers {
-            it.set("Authorization", "Bearer ${tokenProvider.token}")
+            it.set("Authorization", "Bearer $token")
         }
         .retrieve()
         .bodyToMono<T>()

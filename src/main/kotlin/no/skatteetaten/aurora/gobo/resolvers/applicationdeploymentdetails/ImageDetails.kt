@@ -3,7 +3,7 @@ package no.skatteetaten.aurora.gobo.resolvers.applicationdeploymentdetails
 import com.coxautodev.graphql.tools.GraphQLResolver
 import graphql.schema.DataFetchingEnvironment
 import mu.KotlinLogging
-import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageRegistryServiceBlocking
+import no.skatteetaten.aurora.gobo.integration.cantus.ImageRegistryServiceBlocking
 import no.skatteetaten.aurora.gobo.resolvers.KeyDataLoader
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageTag
 import no.skatteetaten.aurora.gobo.resolvers.loader
@@ -39,7 +39,7 @@ class ImageDetailsResolver : GraphQLResolver<ImageDetails> {
         override fun getByKey(user: User, key: ImageTagDigestDTO): Try<Boolean> {
             return Try.tryCall {
                 val imageRepoDto = key.imageTag.imageRepository.toImageRepo()
-                imageRegistryServiceBlocking.resolveTagToSha(imageRepoDto, key.imageTag.name) == key.expecedDigest
+                imageRegistryServiceBlocking.resolveTagToSha(imageRepoDto, key.imageTag.name, user.token) == key.expecedDigest
             }
         }
     }

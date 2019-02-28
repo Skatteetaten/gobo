@@ -1,4 +1,4 @@
-package no.skatteetaten.aurora.gobo.integration.imageregistry
+package no.skatteetaten.aurora.gobo.integration.cantus
 
 import uk.q3c.rest.hal.HalResource
 import java.time.Instant

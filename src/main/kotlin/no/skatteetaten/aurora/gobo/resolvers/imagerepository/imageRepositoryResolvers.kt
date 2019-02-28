@@ -4,11 +4,12 @@ import com.coxautodev.graphql.tools.GraphQLQueryResolver
 import com.coxautodev.graphql.tools.GraphQLResolver
 import graphql.schema.DataFetchingEnvironment
 import mu.KotlinLogging
-import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageRegistryServiceBlocking
-import no.skatteetaten.aurora.gobo.integration.imageregistry.ImageTagType
-import no.skatteetaten.aurora.gobo.integration.imageregistry.TagsDto
+import no.skatteetaten.aurora.gobo.integration.cantus.ImageRegistryServiceBlocking
+import no.skatteetaten.aurora.gobo.integration.cantus.ImageTagType
+import no.skatteetaten.aurora.gobo.integration.cantus.TagsDto
 import no.skatteetaten.aurora.gobo.resolvers.loader
 import no.skatteetaten.aurora.gobo.resolvers.pageEdges
+import no.skatteetaten.aurora.gobo.security.currentUser
 import org.springframework.stereotype.Component
 
 @Component
@@ -28,11 +29,12 @@ class ImageRepositoryResolver(val imageRegistryServiceBlocking: ImageRegistrySer
         imageRepository: ImageRepository,
         types: List<ImageTagType>?,
         first: Int? = null,
-        after: String? = null
+        after: String? = null,
+        dfe: DataFetchingEnvironment
     ): ImageTagsConnection {
 
         val tagsInRepo = try {
-            imageRegistryServiceBlocking.findTagNamesInRepoOrderedByCreatedDateDesc(imageRepository.toImageRepo())
+            imageRegistryServiceBlocking.findTagNamesInRepoOrderedByCreatedDateDesc(imageRepository.toImageRepo(), dfe.currentUser().token)
         } catch (e: Exception) {
             logger.warn(e) {
                 "Exception occurred in method=findTagNamesInRepoOrderedByCreatedDateDesc with input=${imageRepository.toImageRepo()}"

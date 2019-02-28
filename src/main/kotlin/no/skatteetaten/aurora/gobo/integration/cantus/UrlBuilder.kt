@@ -1,9 +1,9 @@
-package no.skatteetaten.aurora.gobo.integration.imageregistry
+package no.skatteetaten.aurora.gobo.integration.cantus
 
 import org.springframework.stereotype.Component
 
 @Component
-class ImageRegistryUrlBuilder {
+class UrlBuilder {
 
     fun createTagsUrl(
         imageRepoDto: ImageRepoDto

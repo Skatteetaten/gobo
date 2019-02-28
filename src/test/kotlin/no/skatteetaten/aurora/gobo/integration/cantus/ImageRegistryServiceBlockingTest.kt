@@ -1,4 +1,4 @@
-package no.skatteetaten.aurora.gobo.integration.imageregistry
+package no.skatteetaten.aurora.gobo.integration.cantus
 
 import assertk.Assert
 import assertk.assertThat
@@ -7,13 +7,9 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isInstanceOf
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
-import assertk.assertions.isNull
 import assertk.assertions.message
 import assertk.assertions.support.expected
 import assertk.catch
-import io.mockk.clearMocks
-import io.mockk.every
-import io.mockk.mockk
 import no.skatteetaten.aurora.gobo.integration.MockWebServerTestTag
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.integration.execute
@@ -22,7 +18,6 @@ import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.RecordedRequest
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
@@ -41,16 +36,10 @@ class ImageRegistryServiceBlockingTest {
     private val url = server.url("/")
     private val imageRepo = ImageRepository.fromRepoString("docker.com/$imageRepoName").toImageRepo()
 
-    private val tokenProvider = mockk<TokenProvider>()
+    private val token: String = "token"
     private val imageRegistry = ImageRegistryServiceBlocking(
-        WebClient.create(url.toString()), tokenProvider, ImageRegistryUrlBuilder()
+        WebClient.create(url.toString()), UrlBuilder()
     )
-
-    @BeforeEach
-    fun setUp() {
-        clearMocks(tokenProvider)
-        every { tokenProvider.token } returns "token"
-    }
 
     @Test
     fun `verify fetches all tags for specified repo`() {
@@ -71,28 +60,27 @@ class ImageRegistryServiceBlockingTest {
                 }
             )
 
-            val tags = imageRegistry.findTagNamesInRepoOrderedByCreatedDateDesc(imageRepo)
+            val tags = imageRegistry.findTagNamesInRepoOrderedByCreatedDateDesc(imageRepo, token)
             assertThat(tags).containsAllTags(expectedTags)
         }
 
-        assertThat(request.getRequestPath()).isEqualTo("/$imageRepoName/tags?dockerRegistryUrl=$url")
+        assertThat(request.getRequestPath()).isEqualTo("/$imageRepoName/tags?dockerRegistryUrl=docker.com")
 
-        assertThat(request.headers[HttpHeaders.AUTHORIZATION]).isNull()
+        assertThat(request.headers[HttpHeaders.AUTHORIZATION]).isNotNull()
     }
 
     @Test
     fun `fetch all tags with authorization header`() {
 
-
         val response = MockResponse().setJsonFileAsBody("cantusTags.json")
 
         val request = server.execute(response) {
-            val tags = imageRegistry.findTagNamesInRepoOrderedByCreatedDateDesc(imageRepo)
+            val tags = imageRegistry.findTagNamesInRepoOrderedByCreatedDateDesc(imageRepo, token)
             assertThat(tags.tags).isNotNull()
             assertThat(tags.tags).isNotEmpty()
         }
 
-        assertThat(request.getRequestPath()).isEqualTo("/$imageRepoName/tags")
+        assertThat(request.getRequestPath()).isEqualTo("/$imageRepoName/tags?dockerRegistryUrl=docker.com")
 
         assertThat(request.headers[HttpHeaders.AUTHORIZATION]).isEqualTo("Bearer token")
     }
@@ -102,11 +90,11 @@ class ImageRegistryServiceBlockingTest {
         val response = MockResponse().setJsonFileAsBody("cantusManifest.json")
 
         val request = server.execute(response) {
-            val dockerContentDigest = imageRegistry.resolveTagToSha(imageRepo, tagName)
+            val dockerContentDigest = imageRegistry.resolveTagToSha(imageRepo, tagName, token)
             assertThat(dockerContentDigest).isEqualTo("sha256:9d044d853c40b42ba52c576e1d71e5cee7dc4d1b328650e0780cd983cb474ed0")
         }
 
-        assertThat(request.getRequestPath()).isEqualTo("/$imageRepoName/$tagName/manifest")
+        assertThat(request.getRequestPath()).isEqualTo("/$imageRepoName/$tagName/manifest?dockerRegistryUrl=docker.com")
     }
 
     @Test
@@ -114,18 +102,18 @@ class ImageRegistryServiceBlockingTest {
         val response = MockResponse().setJsonFileAsBody("cantusManifest.json")
 
         val request = server.execute(response) {
-            val tag = imageRegistry.findTagByName(imageRepo, tagName)
+            val tag = imageRegistry.findTagByName(imageRepo, tagName, token)
             assertThat(tag.created).isEqualTo(Instant.parse("2018-11-05T14:01:22.654389192Z"))
         }
 
-        assertThat(request.getRequestPath()).isEqualTo("/$imageRepoName/$tagName/manifest")
+        assertThat(request.getRequestPath()).isEqualTo("/$imageRepoName/$tagName/manifest?dockerRegistryUrl=docker.com")
     }
 
     @Test
     fun `Throw exception when bad request is returned from registry`() {
         server.execute(404, "Not found") {
             val exception = catch {
-                imageRegistry.findTagByName(imageRepo, tagName)
+                imageRegistry.findTagByName(imageRepo, tagName, token)
             }
             assertThat(exception).isNotNull().hasMessage("Error in response, status=404 message=Not Found")
         }
@@ -135,7 +123,7 @@ class ImageRegistryServiceBlockingTest {
     @ValueSource(ints = [400, 401, 403, 404, 418, 500, 501])
     fun `get tags given error from Cantus throw exception`(statusCode: Int) {
         server.execute(statusCode, HttpStatus.valueOf(statusCode)) {
-            val exception = catch { imageRegistry.findTagNamesInRepoOrderedByCreatedDateDesc(imageRepo) }
+            val exception = catch { imageRegistry.findTagNamesInRepoOrderedByCreatedDateDesc(imageRepo, token) }
             assertThat(exception).isNotNull()
                 .isInstanceOf(SourceSystemException::class)
                 .message().endsWith("status=$statusCode message=${HttpStatus.valueOf(statusCode).reasonPhrase}")

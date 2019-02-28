@@ -1,4 +1,4 @@
-package no.skatteetaten.aurora.gobo.integration.imageregistry
+package no.skatteetaten.aurora.gobo.integration.cantus
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
