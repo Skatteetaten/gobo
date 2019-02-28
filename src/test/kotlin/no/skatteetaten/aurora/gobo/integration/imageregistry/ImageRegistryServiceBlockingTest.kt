@@ -80,7 +80,7 @@ class ImageRegistryServiceBlockingTest {
             assertThat(tags).containsAllTags(expectedTags)
         }
 
-        assertThat(request.getRequestPath()).isEqualTo("/$imageRepoName/tags")
+        assertThat(request.getRequestPath()).isEqualTo("/tags?repoUrl=${imageRepo.repository}")
 
         assertThat(request.headers[HttpHeaders.AUTHORIZATION]).isNull()
     }
@@ -100,7 +100,7 @@ class ImageRegistryServiceBlockingTest {
             assertThat(tags.tags).isNotEmpty()
         }
 
-        assertThat(request.getRequestPath()).isEqualTo("/$imageRepoName/tags")
+        assertThat(request.getRequestPath()).isEqualTo("/tags?repoUrl=${imageRepo.repository}")
 
         assertThat(request.headers[HttpHeaders.AUTHORIZATION]).isEqualTo("Bearer token")
     }
@@ -114,7 +114,7 @@ class ImageRegistryServiceBlockingTest {
             assertThat(dockerContentDigest).isEqualTo("sha256:9d044d853c40b42ba52c576e1d71e5cee7dc4d1b328650e0780cd983cb474ed0")
         }
 
-        assertThat(request.getRequestPath()).isEqualTo("/$imageRepoName/$tagName/manifest")
+        assertThat(request.getRequestPath()).isEqualTo("/manifest?tagUrl=${imageRepo.repository}/$tagName")
     }
 
     @Test
@@ -126,7 +126,7 @@ class ImageRegistryServiceBlockingTest {
             assertThat(tag.created).isEqualTo(Instant.parse("2018-11-05T14:01:22.654389192Z"))
         }
 
-        assertThat(request.getRequestPath()).isEqualTo("/$imageRepoName/$tagName/manifest")
+        assertThat(request.getRequestPath()).isEqualTo("/manifest?tagUrl=${imageRepo.repository}/$tagName")
     }
 
     @Test
