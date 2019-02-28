@@ -2,6 +2,8 @@ package no.skatteetaten.aurora.gobo.resolvers.application
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import assertk.assertions.isFalse
+import assertk.assertions.isTrue
 import org.junit.jupiter.api.Test
 
 class DockerRegistryTest {
@@ -11,20 +13,20 @@ class DockerRegistryTest {
     fun `verify internal registry is recognized as internal`() {
         val isInternal = dockerRegistry.isInternal("docker-registry.default.svc:5000")
 
-        assertThat(isInternal).isEqualTo(true)
+        assertThat(isInternal).isTrue()
     }
 
     @Test
     fun `verify central registry is recognized as not internal`() {
         val isInternal = dockerRegistry.isInternal("docker-registry.somesuch.no:5000")
 
-        assertThat(isInternal).isEqualTo(false)
+        assertThat(isInternal).isFalse()
     }
 
     @Test
     fun `verify internal IP is recognized as internal registry`() {
         val isInternal = dockerRegistry.isInternal("127.0.0.1:5000")
 
-        assertThat(isInternal).isEqualTo(true)
+        assertThat(isInternal).isTrue()
     }
 }
