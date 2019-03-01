@@ -3,11 +3,17 @@ package no.skatteetaten.aurora.gobo.integration.cantus
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
+import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.resolvers.blockNonNullAndHandleError
+import no.skatteetaten.aurora.gobo.resolvers.handleError
+import org.springframework.boot.actuate.autoconfigure.metrics.MetricsProperties
 
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.bodyToMono
+import reactor.core.publisher.Mono
+import reactor.core.publisher.toMono
+import uk.q3c.rest.hal.HalResource
 
 private val logger = KotlinLogging.logger {}
 
@@ -54,7 +60,7 @@ class ImageRegistryServiceBlocking(
         return ImageTagDto.toDto(auroraImageTagResource, imageTag)
     }
 
-    private final inline fun <reified T : Any> execute(
+    private final inline fun <reified T: Any> execute(
         token: String,
         fn: (WebClient) -> WebClient.RequestHeadersSpec<*>
     ): T = fn(webClient)
@@ -63,5 +69,17 @@ class ImageRegistryServiceBlocking(
         }
         .retrieve()
         .bodyToMono<T>()
-        .blockNonNullAndHandleError(sourceSystem = "cantus")
+        .blockAndHandleCantusFailure()
+
+    private fun <T: Any> Mono<T>.blockAndHandleCantusFailure(): T =
+        this.handleError("cantus")
+            .switchIfEmpty(SourceSystemException("Empty response", sourceSystem = "cantus").toMono())
+            .map {
+            if(it is AuroraResponse<*>) {
+               if (it.failureCount > 0) {
+                   throw SourceSystemException(it.failure[0].errorMessage)
+               }
+            }
+            it
+        }.block()!!
 }

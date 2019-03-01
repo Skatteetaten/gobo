@@ -10,6 +10,8 @@ import assertk.assertions.isNotNull
 import assertk.assertions.message
 import assertk.assertions.support.expected
 import assertk.catch
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import no.skatteetaten.aurora.gobo.AuroraResponseBuilder
 import no.skatteetaten.aurora.gobo.integration.MockWebServerTestTag
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.integration.execute
@@ -109,20 +111,16 @@ class ImageRegistryServiceBlockingTest {
         assertThat(request.getRequestPath()).isEqualTo("/manifest?tagUrl=${imageRepo.repository}/$tagName")
     }
 
-    @Test
-    fun `Throw exception when bad request is returned from registry`() {
-        server.execute(404, "Not found") {
-            val exception = catch {
-                imageRegistry.findTagByName(imageRepo, tagName, token)
-            }
-            assertThat(exception).isNotNull().hasMessage("Error in response, status=404 message=Not Found")
-        }
-    }
-
     @ParameterizedTest
     @ValueSource(ints = [400, 401, 403, 404, 418, 500, 501])
     fun `get tags given error from Cantus throw exception`(statusCode: Int) {
-        server.execute(statusCode, HttpStatus.valueOf(statusCode)) {
+        val response = AuroraResponseBuilder(status = statusCode, url = "").build()
+        val mockResponse = MockResponse()
+            .setBody(jacksonObjectMapper().writeValueAsString(response))
+            .setResponseCode(200)
+            .setHeader("Content-Type", "application/json")
+
+        server.execute(mockResponse) {
             val exception = catch { imageRegistry.findTagNamesInRepoOrderedByCreatedDateDesc(imageRepo, token) }
             assertThat(exception).isNotNull()
                 .isInstanceOf(SourceSystemException::class)

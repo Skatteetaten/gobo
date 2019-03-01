@@ -5,6 +5,8 @@ import io.fabric8.openshift.api.model.User
 import no.skatteetaten.aurora.gobo.integration.boober.ApplicationDeploymentFilterResource
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileResource
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileType
+import no.skatteetaten.aurora.gobo.integration.cantus.AuroraResponse
+import no.skatteetaten.aurora.gobo.integration.cantus.CantusFailure
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseInstanceResource
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseMetadataResource
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseSchemaResource
@@ -39,6 +41,8 @@ import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageTag
 import org.intellij.lang.annotations.Language
 import org.springframework.hateoas.Link
+import org.springframework.http.HttpStatus
+import uk.q3c.rest.hal.HalResource
 import java.time.Instant
 
 val defaultInstant = Instant.parse("2018-01-01T00:00:01Z")
@@ -375,4 +379,42 @@ data class SchemaDeletionRequestBuilder(val id: String = "123", val cooldownDura
 class JdbcUserBuilder {
 
     fun build() = JdbcUser(username = "abc123", password = "pass", jdbcUrl = "url")
+}
+
+data class AuroraResponseBuilder(val status: Int, val url: String) {
+    val statusCode: HttpStatus
+            get() = HttpStatus.valueOf(status)
+
+    fun build(): AuroraResponse<HalResource> {
+        val message = when {
+            statusCode.is4xxClientError -> {
+                when (statusCode.value()) {
+                    404 -> "Resource could not be found"
+                    400 -> "Invalid request"
+                    403 -> "Forbidden"
+                    else -> "There has occurred a client error"
+                }
+            }
+            statusCode.is5xxServerError -> {
+                when (statusCode.value()) {
+                    500 -> "An internal server error has occurred in the docker registry"
+                    else -> "A server error has occurred"
+                }
+            }
+
+            else ->
+                "Unknown error occurred"
+        }
+
+        val cantusFailure = CantusFailure(
+            url = url,
+            errorMessage = "$message status=${statusCode.value()} message=${statusCode.reasonPhrase}"
+        )
+
+        return AuroraResponse<HalResource>(
+            failure = listOf(cantusFailure)
+        )
+
+
+    }
 }

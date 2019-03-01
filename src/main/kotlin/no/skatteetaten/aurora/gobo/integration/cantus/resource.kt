@@ -1,5 +1,6 @@
 package no.skatteetaten.aurora.gobo.integration.cantus
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import uk.q3c.rest.hal.HalResource
 import java.time.Instant
 
@@ -31,10 +32,18 @@ data class NodeJsImage(
     val nodeJsVersion: String
 )
 
-data class AuroraResponse<T : HalResource>(
+data class CantusFailure(
+    val url: String,
+    val errorMessage: String
+)
+
+data class AuroraResponse<T : HalResource?>(
     val items: List<T> = emptyList(),
+    val failure: List<CantusFailure> = emptyList(),
     val success: Boolean = true,
     val message: String = "OK",
-    val exception: Throwable? = null,
-    val count: Int = items.size
+    val failureCount: Int = failure.size,
+    val successCount: Int = items.size,
+    val count: Int = failureCount + successCount
 ) : HalResource()
+
