@@ -72,12 +72,13 @@ class ApplicationQueryResolverTest {
             .expectStatus().isOk
             .expectBody()
             .graphqlData("applications.totalCount").isNumber
-            .graphqlDataWithPrefix("applications.edges[0].node.applicationDeployments[0]") {
-                it.graphqlData("affiliation.name").isNotEmpty
-                it.graphqlData("namespace.name").isNotEmpty
-                it.graphqlData("namespace.permission.paas.admin").isNotEmpty
-                it.graphqlData("details.buildTime").isNotEmpty
-                it.graphqlData("details.deployDetails.paused").isEqualTo(false)
+            .graphqlDataWithPrefix("applications.edges[0].node") {
+                it.graphqlData("applicationDeployments[0].affiliation.name").isNotEmpty
+                it.graphqlData("applicationDeployments[0].namespace.name").isNotEmpty
+                it.graphqlData("applicationDeployments[0].namespace.permission.paas.admin").isNotEmpty
+                it.graphqlData("applicationDeployments[0].details.buildTime").isNotEmpty
+                it.graphqlData("applicationDeployments[0].details.deployDetails.paused").isEqualTo(false)
+                it.graphqlData("imageRepository.repository").doesNotExist()
             }
     }
 }
