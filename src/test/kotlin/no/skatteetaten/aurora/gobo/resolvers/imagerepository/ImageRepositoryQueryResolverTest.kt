@@ -66,10 +66,10 @@ class ImageRepositoryQueryResolverTest {
                 .willReturn(TagsDto(data.tags.map { Tag(name = it, type = ImageTagType.typeOf(it)) }))
             data.tags
                 .map {
-                    ImageTagDto(name = it, created = EPOCH, dockerDigest = "sha256")
+                    ImageTagDto(imageTag = it, created = EPOCH, dockerDigest = "sha256", imageRepoDto = data.imageRepoDto)
                 }
                 .forEach {
-                    given(imageRegistryServiceBlocking.findTagByName(data.imageRepoDto, it.name, "test-token")).willReturn(it)
+                    given(imageRegistryServiceBlocking.findTagByName(data.imageRepoDto, it.imageTag, "test-token")).willReturn(it)
                 }
         }
 

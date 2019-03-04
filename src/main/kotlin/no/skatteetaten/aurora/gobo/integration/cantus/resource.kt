@@ -13,23 +13,21 @@ data class ImageTagResource(
     val dockerVersion: String,
     val dockerDigest: String,
     val java: JavaImage? = null,
-    val node: NodeJsImage? = null
+    val node: NodeJsImage? = null,
+    val requsestUrl: String
 ) : HalResource()
+
+data class NodeJsImage(val nodeJsVersion: String)
 
 data class JavaImage(
     val major: String,
     val minor: String,
-    val build: String,
-    val jolokia: String?
+    val build: String
 )
 
 data class ImageBuildTimeline(
     val buildStarted: Instant?,
     val buildEnded: Instant?
-)
-
-data class NodeJsImage(
-    val nodeJsVersion: String
 )
 
 data class CantusFailure(

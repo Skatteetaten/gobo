@@ -15,8 +15,18 @@ data class ImageRepoDto(
 
     val mappedTemplateVars = mapOf(
         "namespace" to namespace,
-        "name" to name
+        "imageTag" to name
     )
+
+    companion object {
+
+        fun fromList(imageRepo: List<String>) =
+            ImageRepoDto(
+                registry = imageRepo[0],
+                namespace = imageRepo[1],
+                name = imageRepo[2]
+            )
+    }
 }
 
 enum class ImageTagType {
@@ -65,15 +75,17 @@ data class TagsDto(val tags: List<Tag>) {
 
 data class ImageTagDto(
     val dockerDigest: String,
-    val name: String,
-    val created: Instant?
+    val imageTag: String,
+    val created: Instant?,
+    val imageRepoDto: ImageRepoDto
 ) {
     companion object {
-        fun toDto(imageTagResponse: AuroraResponse<ImageTagResource>, tagName: String): ImageTagDto =
+        fun toDto(imageTagResponse: AuroraResponse<ImageTagResource>, tagName: String, imageRepoDto: ImageRepoDto): ImageTagDto =
             ImageTagDto(
                 dockerDigest = imageTagResponse.items[0].dockerDigest,
-                name = tagName,
-                created = imageTagResponse.items[0].timeline.buildEnded
+                imageTag = tagName,
+                created = imageTagResponse.items[0].timeline.buildEnded,
+                imageRepoDto = imageRepoDto
             )
     }
 }

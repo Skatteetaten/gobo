@@ -9,10 +9,13 @@ import no.skatteetaten.aurora.gobo.integration.cantus.ImageTagType
 import no.skatteetaten.aurora.gobo.integration.cantus.TagsDto
 import no.skatteetaten.aurora.gobo.resolvers.AccessDeniedException
 import no.skatteetaten.aurora.gobo.resolvers.loader
+import no.skatteetaten.aurora.gobo.resolvers.multipleKeysLoader
 import no.skatteetaten.aurora.gobo.resolvers.pageEdges
 import no.skatteetaten.aurora.gobo.security.currentUser
 import no.skatteetaten.aurora.gobo.security.isAnonymousUser
 import org.springframework.stereotype.Component
+import java.time.Instant
+import java.util.concurrent.CompletableFuture
 
 @Component
 class ImageRepositoryQueryResolver : GraphQLQueryResolver {
@@ -62,6 +65,6 @@ class ImageRepositoryResolver(val imageRegistryServiceBlocking: ImageRegistrySer
 @Component
 class ImageRepositoryTagResolver : GraphQLResolver<ImageTag> {
 
-    fun lastModified(imageTag: ImageTag, dfe: DataFetchingEnvironment) =
-        dfe.loader(ImageTagDataLoader::class).load(imageTag)
+    fun lastModified(imageTag: ImageTag, dfe: DataFetchingEnvironment): CompletableFuture<Instant> =
+        dfe.multipleKeysLoader(ImageTagDataLoader::class).load(imageTag)
 }
