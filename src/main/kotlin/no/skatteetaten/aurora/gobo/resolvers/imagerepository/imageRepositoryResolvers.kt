@@ -8,7 +8,6 @@ import no.skatteetaten.aurora.gobo.integration.cantus.ImageRegistryServiceBlocki
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageTagType
 import no.skatteetaten.aurora.gobo.integration.cantus.TagsDto
 import no.skatteetaten.aurora.gobo.resolvers.AccessDeniedException
-import no.skatteetaten.aurora.gobo.resolvers.loader
 import no.skatteetaten.aurora.gobo.resolvers.multipleKeysLoader
 import no.skatteetaten.aurora.gobo.resolvers.pageEdges
 import no.skatteetaten.aurora.gobo.security.currentUser
@@ -41,7 +40,10 @@ class ImageRepositoryResolver(val imageRegistryServiceBlocking: ImageRegistrySer
     ): ImageTagsConnection {
 
         val tagsInRepo = try {
-            imageRegistryServiceBlocking.findTagNamesInRepoOrderedByCreatedDateDesc(imageRepository.toImageRepo(), dfe.currentUser().token)
+            imageRegistryServiceBlocking.findTagNamesInRepoOrderedByCreatedDateDesc(
+                imageRepository.toImageRepo(),
+                dfe.currentUser().token
+            )
         } catch (e: Exception) {
             logger.warn(e) {
                 "Exception occurred in method=findTagNamesInRepoOrderedByCreatedDateDesc with input=${imageRepository.toImageRepo()}"
@@ -65,6 +67,6 @@ class ImageRepositoryResolver(val imageRegistryServiceBlocking: ImageRegistrySer
 @Component
 class ImageRepositoryTagResolver : GraphQLResolver<ImageTag> {
 
-    fun lastModified(imageTag: ImageTag, dfe: DataFetchingEnvironment): CompletableFuture<Instant> =
+    fun lastModified(imageTag: ImageTag, dfe: DataFetchingEnvironment): CompletableFuture<Instant?> =
         dfe.multipleKeysLoader(ImageTagDataLoader::class).load(imageTag)
 }

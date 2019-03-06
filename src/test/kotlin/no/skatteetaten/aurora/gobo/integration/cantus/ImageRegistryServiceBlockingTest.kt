@@ -2,7 +2,6 @@ package no.skatteetaten.aurora.gobo.integration.cantus
 
 import assertk.Assert
 import assertk.assertThat
-import assertk.assertions.hasMessage
 import assertk.assertions.isEqualTo
 import assertk.assertions.isInstanceOf
 import assertk.assertions.isNotEmpty

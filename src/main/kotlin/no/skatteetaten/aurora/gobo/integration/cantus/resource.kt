@@ -1,6 +1,5 @@
 package no.skatteetaten.aurora.gobo.integration.cantus
 
-import com.fasterxml.jackson.annotation.JsonIgnore
 import uk.q3c.rest.hal.HalResource
 import java.time.Instant
 
@@ -14,7 +13,7 @@ data class ImageTagResource(
     val dockerDigest: String,
     val java: JavaImage? = null,
     val node: NodeJsImage? = null,
-    val requsestUrl: String
+    val requestUrl: String
 ) : HalResource()
 
 data class NodeJsImage(val nodeJsVersion: String)

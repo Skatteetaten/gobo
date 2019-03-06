@@ -44,7 +44,12 @@ class DatabaseSchemaServiceBlockingTest {
         every { secret } returns "abc123"
     }
     private val databaseSchemaService =
-        DatabaseSchemaServiceBlocking(DatabaseSchemaServiceReactive(sharedSecretReader, create(server.url("/").toString())))
+        DatabaseSchemaServiceBlocking(
+            DatabaseSchemaServiceReactive(
+                sharedSecretReader,
+                create(server.url("/").toString())
+            )
+        )
 
     @Test
     fun `Get database schemas given affiliation`() {

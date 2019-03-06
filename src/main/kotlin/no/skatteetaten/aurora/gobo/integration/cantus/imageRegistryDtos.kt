@@ -2,6 +2,12 @@ package no.skatteetaten.aurora.gobo.integration.cantus
 
 import java.time.Instant
 
+fun String.decomposeToImageRepoSegments(): List<String> {
+    val segments = this.split("/")
+    if (segments.size != 3) throw IllegalArgumentException("The string [$this] does not appear to be a valid image repository reference")
+    return segments
+}
+
 data class ImageRepoDto(
     val registry: String,
     val namespace: String,
@@ -19,6 +25,16 @@ data class ImageRepoDto(
     )
 
     companion object {
+
+        fun fromRepoString(imageRepo: String): ImageRepoDto {
+            val (registry, namespace, name) = imageRepo.decomposeToImageRepoSegments()
+
+            return ImageRepoDto(
+                registry = registry,
+                namespace = namespace,
+                name = name
+            )
+        }
 
         fun fromList(imageRepo: List<String>) =
             ImageRepoDto(
@@ -57,7 +73,7 @@ enum class ImageTagType {
     }
 }
 
-data class Tag(val name: String, val type: ImageTagType)
+data class Tag(val name: String, val type: ImageTagType = ImageTagType.typeOf(name))
 
 data class TagsDto(val tags: List<Tag>) {
     companion object {
@@ -74,13 +90,17 @@ data class TagsDto(val tags: List<Tag>) {
 }
 
 data class ImageTagDto(
-    val dockerDigest: String,
+    val dockerDigest: String? = null,
     val imageTag: String,
-    val created: Instant?,
+    val created: Instant? = null,
     val imageRepoDto: ImageRepoDto
 ) {
     companion object {
-        fun toDto(imageTagResponse: AuroraResponse<ImageTagResource>, tagName: String, imageRepoDto: ImageRepoDto): ImageTagDto =
+        fun toDto(
+            imageTagResponse: AuroraResponse<ImageTagResource>,
+            tagName: String,
+            imageRepoDto: ImageRepoDto
+        ): ImageTagDto =
             ImageTagDto(
                 dockerDigest = imageTagResponse.items[0].dockerDigest,
                 imageTag = tagName,

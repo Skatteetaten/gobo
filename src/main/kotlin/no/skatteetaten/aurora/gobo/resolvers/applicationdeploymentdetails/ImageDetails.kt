@@ -39,7 +39,11 @@ class ImageDetailsResolver : GraphQLResolver<ImageDetails> {
         override fun getByKey(user: User, key: ImageTagDigestDTO): Try<Boolean> {
             return Try.tryCall {
                 val imageRepoDto = key.imageTag.imageRepository.toImageRepo()
-                imageRegistryServiceBlocking.resolveTagToSha(imageRepoDto, key.imageTag.name, user.token) == key.expecedDigest
+                imageRegistryServiceBlocking.resolveTagToSha(
+                    imageRepoDto,
+                    key.imageTag.name,
+                    user.token
+                ) == key.expecedDigest
             }
         }
     }

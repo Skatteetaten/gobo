@@ -5,14 +5,32 @@ import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.resolvers.handleError
+import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageTag
 
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.bodyToMono
+import org.springframework.web.util.UriComponentsBuilder
 import reactor.core.publisher.Mono
 import reactor.core.publisher.toMono
 
 private val logger = KotlinLogging.logger {}
+
+data class ImageRepoAndTags(val imageRepository: String, val imageTags: List<String>) {
+    fun getTagUrls() = imageTags.map { "$imageRepository/$it" }
+
+    companion object {
+        fun fromImageTags(imageTags: Set<ImageTag>) =
+            imageTags.groupBy { it.imageRepository.repository }.map { entry ->
+                val imageTagStrings = entry.value.map { it.name }
+                ImageRepoAndTags(entry.key, imageTagStrings)
+
+            }
+    }
+}
+
+private fun List<ImageRepoAndTags>.getAllTagUrls() =
+    this.flatMap { it.getTagUrls() }
 
 @Service
 class ImageRegistryServiceBlocking(
@@ -29,42 +47,18 @@ class ImageRegistryServiceBlocking(
     ) = getAuroraResponseImageTagResource(imageRepoDto, imageTag, token)
 
     fun findTagsByName(
-        imageReposDto: List<ImageRepoDto>,
-        imageTags: List<String>,
+        imageReposAndTags: List<ImageRepoAndTags>,
         token: String
-    ): List<ImageTagDto> {
-        val pairedImageTagsAndRepos = imageTags zip imageReposDto
+    ): AuroraResponse<ImageTagResource> {
 
+        val tagPath = UriComponentsBuilder
+            .fromPath("/manifest")
+            .queryParam("tagUrls", imageReposAndTags.getAllTagUrls())
+            .build()
+            .toUriString()
 
-        val uri = "/manifest?${pairedImageTagsAndRepos.getAllTagUrls()}"
-        val nothing = ""
-        val auroraImageTagResource: AuroraResponse<ImageTagResource> =
-            execute(token) {
-                it.get().uri (
-                    "/manifest?${pairedImageTagsAndRepos.getAllTagUrls()}"
-
-                    )
-            }
-
-        return auroraImageTagResource.items.map { imageTagResource ->
-            val requestUrlParts = imageTagResource.requsestUrl.split("/")
-
-            val imageRepoDto = ImageRepoDto.fromList(requestUrlParts.dropLast(1))
-
-            ImageTagDto(
-                dockerDigest = imageTagResource.dockerDigest,
-                imageTag = requestUrlParts.last(),
-                imageRepoDto = imageRepoDto,
-                created = imageTagResource.timeline.buildEnded
-
-        ) }
+        return execute(token) { it.get().uri(tagPath) }
     }
-
-
-    fun List<Pair<String, ImageRepoDto>>.getAllTagUrls() =
-        this.joinToString(separator = "&") { pairsOfTagAndRepo ->
-            "tagUrls=${pairsOfTagAndRepo.second.repository}/${pairsOfTagAndRepo.first}"
-        }
 
     fun findTagNamesInRepoOrderedByCreatedDateDesc(imageRepoDto: ImageRepoDto, token: String) =
         TagsDto.toDto(
@@ -95,7 +89,7 @@ class ImageRegistryServiceBlocking(
         return ImageTagDto.toDto(auroraImageTagResource, imageTag, imageRepoDto)
     }
 
-    private final inline fun <reified T: Any> execute(
+    private final inline fun <reified T : Any> execute(
         token: String,
         fn: (WebClient) -> WebClient.RequestHeadersSpec<*>
     ): T = fn(webClient)
@@ -106,15 +100,15 @@ class ImageRegistryServiceBlocking(
         .bodyToMono<T>()
         .blockAndHandleCantusFailure()
 
-    private fun <T: Any> Mono<T>.blockAndHandleCantusFailure(): T =
+    private fun <T : Any> Mono<T>.blockAndHandleCantusFailure(): T =
         this.handleError("cantus")
             .switchIfEmpty(SourceSystemException("Empty response", sourceSystem = "cantus").toMono())
             .map {
-            if(it is AuroraResponse<*>) {
-               if (it.failureCount > 0) {
-                   throw SourceSystemException(it.failure[0].errorMessage)
-               }
-            }
-            it
-        }.block()!!
+                if (it is AuroraResponse<*>) {
+                    if (it.failureCount > 0) {
+                        throw SourceSystemException(it.failure[0].errorMessage)
+                    }
+                }
+                it
+            }.block()!!
 }

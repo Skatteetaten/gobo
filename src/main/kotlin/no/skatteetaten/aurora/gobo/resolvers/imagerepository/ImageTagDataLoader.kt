@@ -1,33 +1,46 @@
 package no.skatteetaten.aurora.gobo.resolvers.imagerepository
 
+import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageRegistryServiceBlocking
+import no.skatteetaten.aurora.gobo.integration.cantus.ImageRepoAndTags
 import no.skatteetaten.aurora.gobo.resolvers.MultipleKeysDataLoader
 import no.skatteetaten.aurora.gobo.resolvers.user.User
+import org.dataloader.Try
 import org.springframework.stereotype.Component
 import java.time.Instant
 
 @Component
 class ImageTagDataLoader(
     val imageRegistryServiceBlocking: ImageRegistryServiceBlocking
-) : MultipleKeysDataLoader<ImageTag, Instant> {
-    override fun getByKeys(user: User, keys: MutableSet<ImageTag>): Map<ImageTag, Instant> {
+) : MultipleKeysDataLoader<ImageTag, Instant?> {
+    override fun getByKeys(user: User, keys: MutableSet<ImageTag>): Map<ImageTag, Try<Instant?>> {
 
-        val imageRepos = keys.map { it.imageRepository.toImageRepo()}
-        val responses = imageRegistryServiceBlocking.findTagsByName(
-            imageReposDto = imageRepos,
-            imageTags = keys.toList().map { it.name },
-            token = user.token
-        )
+        val imageReposAndTags = ImageRepoAndTags.fromImageTags(keys)
 
-        return keys.associate {imageTag ->
-            val imageRepoDto = imageTag.imageRepository.toImageRepo()
-            val filteredResponses = responses
-                .filter {it.imageTag == imageTag.name && imageRepoDto == it.imageRepoDto}
-                .map { it.created ?: Instant.EPOCH }
+        return try {
+            val auroraResponse =
+                imageRegistryServiceBlocking.findTagsByName(
+                    imageReposAndTags = imageReposAndTags,
+                    token = user.token
+                )
 
-            imageTag to filteredResponses.first()
+            val successes = auroraResponse.items.associate { imageTagResource ->
+                val imageTag = ImageTag.fromTagString(imageTagResource.requestUrl, "/")
+
+                imageTag to Try.succeeded(imageTagResource.timeline.buildEnded)
+            }
+
+            val failures = auroraResponse.failure.associate {
+                val imageTag = ImageTag.fromTagString(it.url, "/")
+
+                imageTag to Try.failed<Instant?>(
+                    SourceSystemException(message = it.errorMessage, sourceSystem = "cantus")
+                )
+            }
+
+            successes + failures
+        } catch (e: SourceSystemException) {
+            keys.associate { it to Try.failed<Instant>(e) }
         }
-
-
     }
 }

@@ -39,7 +39,7 @@ class DatabaseSchemaDataLoaderTest {
         val resource2 = ApplicationDeploymentWithDbResourceBuilder("456").build()
         val request = server.execute(listOf(resource1, resource2)) {
             val result = dataLoader.getByKeys(User("username", "token"), mutableSetOf("123", "456"))
-            assertThat(result["123"]?.size).isEqualTo(1)
+            assertThat(result["123"]?.get()?.size).isEqualTo(1)
         }
 
         assertThat(request.path).isEqualTo("/api/auth/applicationdeploymentbyresource/databases")

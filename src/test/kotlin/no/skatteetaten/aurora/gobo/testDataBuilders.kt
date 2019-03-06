@@ -383,7 +383,7 @@ class JdbcUserBuilder {
 
 data class AuroraResponseBuilder(val status: Int, val url: String) {
     val statusCode: HttpStatus
-            get() = HttpStatus.valueOf(status)
+        get() = HttpStatus.valueOf(status)
 
     fun build(): AuroraResponse<HalResource> {
         val message = when {
@@ -411,10 +411,8 @@ data class AuroraResponseBuilder(val status: Int, val url: String) {
             errorMessage = "$message status=${statusCode.value()} message=${statusCode.reasonPhrase}"
         )
 
-        return AuroraResponse<HalResource>(
+        return AuroraResponse(
             failure = listOf(cantusFailure)
         )
-
-
     }
 }

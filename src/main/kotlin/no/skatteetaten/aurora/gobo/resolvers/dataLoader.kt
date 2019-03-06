@@ -35,14 +35,14 @@ fun <K, V> batchDataLoaderMappedSingle(user: User, keyDataLoader: KeyDataLoader<
     }
 
 interface MultipleKeysDataLoader<K, V> {
-    fun getByKeys(user: User, keys: MutableSet<K>): Map<K, V>
+    fun getByKeys(user: User, keys: MutableSet<K>): Map<K, Try<V>>
 }
 
 /*
   Use this if you have a service that loads multiple ids.
  */
 fun <K, V> batchDataLoaderMappedMultiple(user: User, keysDataLoader: MultipleKeysDataLoader<K, V>): DataLoader<K, V> =
-    DataLoader.newMappedDataLoader { keys: MutableSet<K> ->
+    DataLoader.newMappedDataLoaderWithTry { keys: MutableSet<K> ->
         CompletableFuture.supplyAsync {
             keysDataLoader.getByKeys(user, keys)
         }
