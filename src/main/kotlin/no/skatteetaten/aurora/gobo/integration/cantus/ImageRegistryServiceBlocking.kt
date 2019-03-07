@@ -24,7 +24,6 @@ data class ImageRepoAndTags(val imageRepository: String, val imageTags: List<Str
             imageTags.groupBy { it.imageRepository.repository }.map { entry ->
                 val imageTagStrings = entry.value.map { it.name }
                 ImageRepoAndTags(entry.key, imageTagStrings)
-
             }
     }
 }
@@ -74,7 +73,7 @@ class ImageRegistryServiceBlocking(
             }.blockAndHandleCantusFailure()
         )
 
-    private inline fun <reified T: Any> execute(
+    private inline fun <reified T : Any> execute(
         token: String,
         fn: (WebClient) -> WebClient.RequestHeadersSpec<*>
     ): Mono<T> = fn(webClient)
@@ -85,11 +84,9 @@ class ImageRegistryServiceBlocking(
         .bodyToMono<T>()
         .handleGenericError()
 
-
     private fun <T> Mono<T>.handleGenericError(): Mono<T> =
         this.handleError("cantus")
             .switchIfEmpty(SourceSystemException("Empty response", sourceSystem = "cantus").toMono())
-
 
     private fun <T> Mono<T>.blockAndHandleCantusFailure(): T =
             this.map {

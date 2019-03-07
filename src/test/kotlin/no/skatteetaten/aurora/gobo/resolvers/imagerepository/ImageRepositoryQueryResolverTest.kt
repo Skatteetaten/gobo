@@ -227,5 +227,3 @@ class ImageRepositoryQueryResolverTest {
         return AuroraResponse(items = successResource, failure = failureResource)
     }
 }
-
-

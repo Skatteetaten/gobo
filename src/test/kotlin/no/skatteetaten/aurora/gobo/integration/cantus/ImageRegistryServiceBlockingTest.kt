@@ -140,7 +140,7 @@ class ImageRegistryServiceBlockingTest {
             assertThat(auroraResponseFailure.failure.first().errorMessage).endsWith("status=404 message=Not Found")
         }
 
-        assertThat (request.getRequestPath()).isEqualTo("/manifest?tagUrls=$repository/$tag")
+        assertThat(request.getRequestPath()).isEqualTo("/manifest?tagUrls=$repository/$tag")
     }
 
     @ParameterizedTest

@@ -43,4 +43,3 @@ data class AuroraResponse<T : HalResource?>(
     val successCount: Int = items.size,
     val count: Int = failureCount + successCount
 ) : HalResource()
-
