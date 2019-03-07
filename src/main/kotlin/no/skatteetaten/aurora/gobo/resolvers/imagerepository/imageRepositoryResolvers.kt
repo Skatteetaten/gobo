@@ -6,6 +6,7 @@ import graphql.schema.DataFetchingEnvironment
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageRegistryServiceBlocking
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageTagType
+import no.skatteetaten.aurora.gobo.integration.cantus.Tag
 import no.skatteetaten.aurora.gobo.integration.cantus.TagsDto
 import no.skatteetaten.aurora.gobo.resolvers.AccessDeniedException
 import no.skatteetaten.aurora.gobo.resolvers.multipleKeysLoader
@@ -39,29 +40,20 @@ class ImageRepositoryResolver(val imageRegistryServiceBlocking: ImageRegistrySer
         dfe: DataFetchingEnvironment
     ): ImageTagsConnection {
 
-        val tagsInRepo = try {
+        val imageTags =
             imageRegistryServiceBlocking.findTagNamesInRepoOrderedByCreatedDateDesc(
-                imageRepository.toImageRepo(),
-                dfe.currentUser().token
-            )
-        } catch (e: Exception) {
-            logger.warn(e) {
-                "Exception occurred in method=findTagNamesInRepoOrderedByCreatedDateDesc with input=${imageRepository.toImageRepo()}"
-            }
-            TagsDto(emptyList())
-        }
-        val matchingTags = tagsInRepo.tags
-            .map {
-                ImageTag(
-                    imageRepository = imageRepository,
-                    name = it.name
-                )
-            }
-            .filter { types == null || it.type in types }
+                imageRepoDto = imageRepository.toImageRepo(),
+                token = dfe.currentUser().token
+            ).tags.toImageTags(imageRepository, types)
 
-        val allEdges = matchingTags.map { ImageTagEdge(it) }
+        val allEdges = imageTags.map { ImageTagEdge(it) }
+
         return ImageTagsConnection(pageEdges(allEdges, first, after))
     }
+
+    fun List<Tag>.toImageTags(imageRepository: ImageRepository, types: List<ImageTagType>?) = this
+        .map { ImageTag(imageRepository = imageRepository, name = it.name) }
+        .filter { types == null || it.type in types }
 }
 
 @Component

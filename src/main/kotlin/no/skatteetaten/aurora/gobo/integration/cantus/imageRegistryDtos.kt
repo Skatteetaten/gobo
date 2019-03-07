@@ -35,13 +35,6 @@ data class ImageRepoDto(
                 name = name
             )
         }
-
-        fun fromList(imageRepo: List<String>) =
-            ImageRepoDto(
-                registry = imageRepo[0],
-                namespace = imageRepo[1],
-                name = imageRepo[2]
-            )
     }
 }
 

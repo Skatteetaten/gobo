@@ -386,7 +386,7 @@ data class AuroraResponseBuilder(val status: Int, val url: String) {
         get() = HttpStatus.valueOf(status)
 
     fun build(): AuroraResponse<HalResource> {
-        val message = when {
+        val statusMessage = when {
             statusCode.is4xxClientError -> {
                 when (statusCode.value()) {
                     404 -> "Resource could not be found"
@@ -406,13 +406,16 @@ data class AuroraResponseBuilder(val status: Int, val url: String) {
                 "Unknown error occurred"
         }
 
+        val errorMessage = "$statusMessage status=${statusCode.value()} message=${statusCode.reasonPhrase}"
+
         val cantusFailure = CantusFailure(
             url = url,
-            errorMessage = "$message status=${statusCode.value()} message=${statusCode.reasonPhrase}"
+            errorMessage = errorMessage
         )
 
         return AuroraResponse(
-            failure = listOf(cantusFailure)
+            failure = listOf(cantusFailure),
+            message = errorMessage
         )
     }
 }

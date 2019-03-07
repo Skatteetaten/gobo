@@ -37,14 +37,17 @@ class ImageRegistryServiceBlocking(
     @TargetService(ServiceTypes.CANTUS) val webClient: WebClient
 ) {
 
-    fun resolveTagToSha(imageRepoDto: ImageRepoDto, imageTag: String, token: String) =
-        getAuroraResponseImageTagResource(imageRepoDto, imageTag, token).dockerDigest
-
-    fun findTagByName(
-        imageRepoDto: ImageRepoDto,
-        imageTag: String,
-        token: String
-    ) = getAuroraResponseImageTagResource(imageRepoDto, imageTag, token)
+    fun resolveTagToSha(imageRepoDto: ImageRepoDto, imageTag: String, token: String): String? {
+        val auroraImageTagResource: AuroraResponse<ImageTagResource> =
+            execute<AuroraResponse<ImageTagResource>>(token) {
+                logger.debug("Retrieving type=ImageTagResource from  url=${imageRepoDto.registry} image=${imageRepoDto.imageName}/$imageTag")
+                it.get().uri(
+                    "/manifest?tagUrl=${imageRepoDto.registry}/{namespace}/{imageTag}/{tag}",
+                    imageRepoDto.mappedTemplateVars.plus("tag" to imageTag)
+                )
+            }.block()!!
+        return ImageTagDto.toDto(auroraImageTagResource, imageTag, imageRepoDto).dockerDigest
+    }
 
     fun findTagsByName(
         imageReposAndTags: List<ImageRepoAndTags>,
@@ -57,58 +60,43 @@ class ImageRegistryServiceBlocking(
             .build()
             .toUriString()
 
-        return execute(token) { it.get().uri(tagPath) }
+        return execute<AuroraResponse<ImageTagResource>>(token) { it.get().uri(tagPath) }.block()!!
     }
 
     fun findTagNamesInRepoOrderedByCreatedDateDesc(imageRepoDto: ImageRepoDto, token: String) =
         TagsDto.toDto(
-            execute(token) {
+            execute<AuroraResponse<TagResource>>(token) {
                 logger.debug("Retrieving type=TagResource from  url=${imageRepoDto.registry} image=${imageRepoDto.imageName}")
                 it.get().uri(
                     "/tags?repoUrl=${imageRepoDto.registry}/{namespace}/{imageTag}",
                     imageRepoDto.mappedTemplateVars
                 )
-            }
+            }.blockAndHandleCantusFailure()
         )
 
-    private fun getAuroraResponseImageTagResource(
-        imageRepoDto: ImageRepoDto,
-        imageTag: String,
-        token: String
-    ): ImageTagDto {
-
-        val auroraImageTagResource: AuroraResponse<ImageTagResource> =
-            execute(token) {
-                logger.debug("Retrieving type=ImageTagResource from  url=${imageRepoDto.registry} image=${imageRepoDto.imageName}/$imageTag")
-                it.get().uri(
-                    "/manifest?tagUrl=${imageRepoDto.registry}/{namespace}/{imageTag}/{tag}",
-                    imageRepoDto.mappedTemplateVars.plus("tag" to imageTag)
-                )
-            }
-
-        return ImageTagDto.toDto(auroraImageTagResource, imageTag, imageRepoDto)
-    }
-
-    private final inline fun <reified T : Any> execute(
+    private inline fun <reified T: Any> execute(
         token: String,
         fn: (WebClient) -> WebClient.RequestHeadersSpec<*>
-    ): T = fn(webClient)
+    ): Mono<T> = fn(webClient)
         .headers {
             it.set("Authorization", "Bearer $token")
         }
         .retrieve()
         .bodyToMono<T>()
-        .blockAndHandleCantusFailure()
+        .handleGenericError()
 
-    private fun <T : Any> Mono<T>.blockAndHandleCantusFailure(): T =
+
+    private fun <T> Mono<T>.handleGenericError(): Mono<T> =
         this.handleError("cantus")
             .switchIfEmpty(SourceSystemException("Empty response", sourceSystem = "cantus").toMono())
-            .map {
-                if (it is AuroraResponse<*>) {
-                    if (it.failureCount > 0) {
-                        throw SourceSystemException(it.failure[0].errorMessage)
-                    }
+
+
+    private fun <T> Mono<T>.blockAndHandleCantusFailure(): T =
+            this.map {
+                if (it is AuroraResponse<*> && it.failureCount > 0) {
+                    throw SourceSystemException(message = it.message, sourceSystem = "cantus")
+                } else {
+                    it
                 }
-                it
             }.block()!!
 }
