@@ -21,7 +21,8 @@ data class NodeJsImage(val nodeJsVersion: String)
 data class JavaImage(
     val major: String,
     val minor: String,
-    val build: String
+    val build: String,
+    val jolokia: String?
 )
 
 data class ImageBuildTimeline(
