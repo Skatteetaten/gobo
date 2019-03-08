@@ -8,6 +8,7 @@ import no.skatteetaten.aurora.gobo.resolvers.handleError
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageTag
 
 import org.springframework.stereotype.Service
+import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.bodyToMono
 import org.springframework.web.util.UriComponentsBuilder
@@ -41,7 +42,7 @@ class ImageRegistryServiceBlocking(
             execute<AuroraResponse<ImageTagResource>>(token) {
                 logger.debug("Retrieving type=ImageTagResource from  url=${imageRepoDto.registry} image=${imageRepoDto.imageName}/$imageTag")
                 it.get().uri(
-                    "/manifest?tagUrl=${imageRepoDto.registry}/{namespace}/{imageTag}/{tag}",
+                    "/manifest?tagUrls=${imageRepoDto.registry}/{namespace}/{imageTag}/{tag}",
                     imageRepoDto.mappedTemplateVars.plus("tag" to imageTag)
                 )
             }.block()!!
@@ -52,10 +53,12 @@ class ImageRegistryServiceBlocking(
         imageReposAndTags: List<ImageRepoAndTags>,
         token: String
     ): AuroraResponse<ImageTagResource> {
+        val tagUrlsQueryParameters =
+            LinkedMultiValueMap<String, String>().apply { addAll("tagUrls", imageReposAndTags.getAllTagUrls()) }
 
         val tagPath = UriComponentsBuilder
             .fromPath("/manifest")
-            .queryParam("tagUrls", imageReposAndTags.getAllTagUrls())
+            .queryParams(tagUrlsQueryParameters)
             .build()
             .toUriString()
 
@@ -89,11 +92,11 @@ class ImageRegistryServiceBlocking(
             .switchIfEmpty(SourceSystemException("Empty response", sourceSystem = "cantus").toMono())
 
     private fun <T> Mono<T>.blockAndHandleCantusFailure(): T =
-            this.map {
-                if (it is AuroraResponse<*> && it.failureCount > 0) {
-                    throw SourceSystemException(message = it.message, sourceSystem = "cantus")
-                } else {
-                    it
-                }
-            }.block()!!
+        this.map {
+            if (it is AuroraResponse<*> && it.failureCount > 0) {
+                throw SourceSystemException(message = it.message, sourceSystem = "cantus")
+            } else {
+                it
+            }
+        }.block()!!
 }

@@ -97,7 +97,7 @@ class ImageRegistryServiceBlockingTest {
             assertThat(dockerContentDigest).isEqualTo("sha256:9d044d853c40b42ba52c576e1d71e5cee7dc4d1b328650e0780cd983cb474ed0")
         }
 
-        assertThat(request.getRequestPath()).isEqualTo("/manifest?tagUrl=${imageRepo.repository}/$tagName")
+        assertThat(request.getRequestPath()).isEqualTo("/manifest?tagUrls=${imageRepo.repository}/$tagName")
     }
 
     @Test
@@ -119,9 +119,9 @@ class ImageRegistryServiceBlockingTest {
 
         assertThat(request.getRequestPath())
             .isEqualTo(
-                "/manifest?tagUrls=" +
-                    "${firstImageRepoAndTags.imageRepository}/${firstImageRepoAndTags.imageTags.first()}," +
-                    "${secondImageRepoAndTags.imageRepository}/${secondImageRepoAndTags.imageTags.first()}"
+                "/manifest?" +
+                    "tagUrls=${firstImageRepoAndTags.imageRepository}/${firstImageRepoAndTags.imageTags.first()}&" +
+                    "tagUrls=${secondImageRepoAndTags.imageRepository}/${secondImageRepoAndTags.imageTags.first()}"
             )
     }
 
