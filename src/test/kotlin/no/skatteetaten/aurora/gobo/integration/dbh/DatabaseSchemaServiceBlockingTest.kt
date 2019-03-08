@@ -134,31 +134,52 @@ class DatabaseSchemaServiceBlockingTest {
 
     @Test
     fun `Delete database schema without cooldownDurationHours`() {
-        val response = DbhResponse.ok<DatabaseSchemaResource>()
-        val request = server.execute(response) {
-            val deleted = databaseSchemaService.deleteDatabaseSchema(SchemaDeletionRequestBuilder(id = "123").build())
-            assertThat(deleted).isTrue()
+        val ok = DbhResponse.ok<DatabaseSchemaResource>()
+        val failed = DbhResponse.failed()
+        val requests = server.execute(ok, ok, failed) {
+            val deletionRequests = listOf(
+                SchemaDeletionRequestBuilder(id = "ok1").build(),
+                SchemaDeletionRequestBuilder(id = "ok2").build(),
+                SchemaDeletionRequestBuilder(id = "failed").build()
+            )
+            val deleted = databaseSchemaService.deleteDatabaseSchemas(deletionRequests)
+            assertThat(deleted.size).isEqualTo(3)
+            assertThat(deleted).succeeded(2)
+            assertThat(deleted).failed(1)
         }
-        assertThat(request).containsAuroraToken()
-        assertThat(request.path).endsWith("/123")
-        assertThat(request.headers[HEADER_COOLDOWN_DURATION_HOURS]).isNull()
+        assertThat(requests).containsAuroraTokens()
+        assertThat(requests).containsPath("/ok1")
+        assertThat(requests).containsPath("/ok2")
+        assertThat(requests).containsPath("/failed")
+        assertThat(requests.first().headers[HEADER_COOLDOWN_DURATION_HOURS]).isNull()
     }
 
     @Test
     fun `Delete database schema with cooldownDurationHours`() {
         val response = DbhResponse.ok<DatabaseSchemaResource>()
         val request = server.execute(response) {
-            val deleted = databaseSchemaService.deleteDatabaseSchema(
-                SchemaDeletionRequestBuilder(
-                    id = "123",
-                    cooldownDurationHours = 2
-                ).build()
+            val deleted = databaseSchemaService.deleteDatabaseSchemas(
+                listOf(
+                    SchemaDeletionRequestBuilder(
+                        id = "123",
+                        cooldownDurationHours = 2
+                    ).build()
+                )
             )
-            assertThat(deleted).isTrue()
+            assertThat(deleted.size).isEqualTo(1)
         }
         assertThat(request).containsAuroraToken()
         assertThat(request.path).endsWith("/123")
         assertThat(request.headers[HEADER_COOLDOWN_DURATION_HOURS]).isEqualTo("2")
+    }
+
+    @Test
+    fun `Delete database schema ser ut error response`() {
+        server.execute(404, DbhResponse.failed()) {
+            val exception =
+                catch { databaseSchemaService.deleteDatabaseSchemas(listOf(SchemaDeletionRequestBuilder().build())) }
+            assertThat(exception).isNotNull().isInstanceOf(SourceSystemException::class)
+        }
     }
 
     @Test
@@ -222,5 +243,29 @@ class DatabaseSchemaServiceBlockingTest {
             if (it.startsWith(HEADER_AURORA_TOKEN)) return
         }
         expected("Authorization header to contain $HEADER_AURORA_TOKEN")
+    }
+
+    private fun Assert<List<RecordedRequest>>.containsAuroraTokens() = given { requests ->
+        val tokens = requests.filter { request ->
+            request.headers[HttpHeaders.AUTHORIZATION]?.startsWith(HEADER_AURORA_TOKEN) ?: false
+        }
+        if (tokens.size == requests.size) return
+        expected("Authorization header to contain $HEADER_AURORA_TOKEN")
+    }
+
+    private fun Assert<List<RecordedRequest>>.containsPath(endingWith: String) = given { requests ->
+        val values = requests.filter { it.path.endsWith(endingWith) }
+        if (values.isNotEmpty()) return
+        expected("Requests to end with path $endingWith")
+    }
+
+    private fun Assert<List<SchemaDeletionResponse>>.succeeded(count: Int) = given { responses ->
+        if (responses.filter { it.success }.size == count) return
+        expected("Succeeded responses size to equal $count")
+    }
+
+    private fun Assert<List<SchemaDeletionResponse>>.failed(count: Int) = given { responses ->
+        if (responses.filter { !it.success }.size == count) return
+        expected("Failed responses size to equal $count")
     }
 }

@@ -4,6 +4,8 @@ import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseSchemaResource
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseUserResource
 import no.skatteetaten.aurora.gobo.integration.dbh.JdbcUser
 import no.skatteetaten.aurora.gobo.integration.dbh.SchemaCreationRequest
+import no.skatteetaten.aurora.gobo.integration.dbh.SchemaDeletionRequest
+import no.skatteetaten.aurora.gobo.integration.dbh.SchemaDeletionResponse
 import no.skatteetaten.aurora.gobo.integration.dbh.SchemaUpdateRequest
 import no.skatteetaten.aurora.gobo.resolvers.affiliation.Affiliation
 import java.time.Instant
@@ -98,4 +100,21 @@ data class CreateDatabaseSchemaInput(
                 "environment" to environment
             )
         )
+}
+
+data class DeleteDatabaseSchemasInput(val ids: List<String>) {
+    fun toSchemaDeletionRequests() = ids.map { SchemaDeletionRequest(it) }
+}
+
+data class DeleteDatabaseSchemasResponse(
+    val succeeded: List<String> = emptyList(),
+    val failed: List<String> = emptyList()
+) {
+    companion object {
+        fun create(responses: List<SchemaDeletionResponse>) =
+            DeleteDatabaseSchemasResponse(
+                succeeded = responses.filter { it.success }.map { it.id },
+                failed = responses.filter { !it.success }.map { it.id }
+            )
+    }
 }

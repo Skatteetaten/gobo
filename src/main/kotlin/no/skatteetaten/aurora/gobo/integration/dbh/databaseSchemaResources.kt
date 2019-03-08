@@ -80,7 +80,7 @@ data class SchemaUpdateRequest(
 
 data class SchemaDeletionRequest(
     val id: String,
-    val cooldownDurationHours: Long?
+    val cooldownDurationHours: Long? = null
 )
 
 data class JdbcUser(
@@ -102,3 +102,5 @@ data class DbhResponse<T>(val status: String, val items: List<T>, val totalCount
     fun isFailure() = status.toLowerCase() == "failed"
     fun isEmpty() = totalCount == 0
 }
+
+data class SchemaDeletionResponse(val id: String, val success: Boolean)
