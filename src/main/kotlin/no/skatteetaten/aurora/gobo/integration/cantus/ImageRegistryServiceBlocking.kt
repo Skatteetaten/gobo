@@ -95,8 +95,8 @@ class ImageRegistryServiceBlocking(
         this.map {
             if (it is AuroraResponse<*> && it.failureCount > 0) {
                 throw SourceSystemException(message = it.message, sourceSystem = "cantus")
-            } else {
-                it
             }
+
+            it
         }.block()!!
 }
