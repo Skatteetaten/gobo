@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.bodyToMono
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.core.publisher.toMono
 import java.time.Duration
@@ -62,18 +63,23 @@ class DatabaseSchemaServiceReactive(
         .bodyToMono<DbhResponse<*>>()
         .item()
 
-    fun deleteDatabaseSchema(input: SchemaDeletionRequest): Mono<Boolean> {
-        val requestSpec = webClient
-            .delete()
-            .uri("/api/v1/schema/${input.id}")
-            .header(HttpHeaders.AUTHORIZATION, "$HEADER_AURORA_TOKEN ${sharedSecretReader.secret}")
+    fun deleteDatabaseSchemas(input: List<SchemaDeletionRequest>): Flux<SchemaDeletionResponse> {
+        val responses = input.map { request ->
+            val requestSpec = webClient
+                .delete()
+                .uri("/api/v1/schema/${request.id}")
+                .header(HttpHeaders.AUTHORIZATION, "$HEADER_AURORA_TOKEN ${sharedSecretReader.secret}")
 
-        input.cooldownDurationHours?.let {
-            requestSpec.header(HEADER_COOLDOWN_DURATION_HOURS, it.toString())
+            request.cooldownDurationHours?.let {
+                requestSpec.header(HEADER_COOLDOWN_DURATION_HOURS, it.toString())
+            }
+
+            requestSpec.retrieve().bodyToMono<DbhResponse<*>>().map {
+                request.id to it
+            }
         }
 
-        val response: Mono<DbhResponse<*>> = requestSpec.retrieve().bodyToMono()
-        return response.map { it.isOk() }
+        return Flux.merge(responses).map { SchemaDeletionResponse(id = it.first, success = it.second.isOk()) }
     }
 
     fun testJdbcConnection(id: String? = null, user: JdbcUser? = null): Mono<Boolean> {
@@ -138,13 +144,16 @@ class DatabaseSchemaServiceReactive(
 }
 
 interface DatabaseSchemaService {
-    fun getDatabaseSchemas(affiliation: String): List<DatabaseSchemaResource>
-    fun getDatabaseSchema(id: String): DatabaseSchemaResource?
-    fun updateDatabaseSchema(input: SchemaUpdateRequest): DatabaseSchemaResource
-    fun deleteDatabaseSchema(input: SchemaDeletionRequest): Boolean
-    fun testJdbcConnection(user: JdbcUser): Boolean
-    fun testJdbcConnection(id: String): Boolean
-    fun createDatabaseSchema(input: SchemaCreationRequest): DatabaseSchemaResource
+    fun getDatabaseSchemas(affiliation: String): List<DatabaseSchemaResource> = integrationDisabled()
+    fun getDatabaseSchema(id: String): DatabaseSchemaResource? = integrationDisabled()
+    fun updateDatabaseSchema(input: SchemaUpdateRequest): DatabaseSchemaResource = integrationDisabled()
+    fun deleteDatabaseSchemas(input: List<SchemaDeletionRequest>): List<SchemaDeletionResponse> = integrationDisabled()
+    fun testJdbcConnection(user: JdbcUser): Boolean = integrationDisabled()
+    fun testJdbcConnection(id: String): Boolean = integrationDisabled()
+    fun createDatabaseSchema(input: SchemaCreationRequest): DatabaseSchemaResource = integrationDisabled()
+
+    private fun integrationDisabled(): Nothing =
+        throw IntegrationDisabledException("DBH integration is disabled for this environment")
 }
 
 @Service
@@ -158,11 +167,11 @@ class DatabaseSchemaServiceBlocking(private val databaseSchemaService: DatabaseS
     override fun getDatabaseSchema(id: String) =
         databaseSchemaService.getDatabaseSchema(id).blockWithTimeout()
 
-    override fun updateDatabaseSchema(input: SchemaUpdateRequest) =
+    override fun updateDatabaseSchema(input: SchemaUpdateRequest): DatabaseSchemaResource =
         databaseSchemaService.updateDatabaseSchema(input).blockNonNullWithTimeout()
 
-    override fun deleteDatabaseSchema(input: SchemaDeletionRequest) =
-        databaseSchemaService.deleteDatabaseSchema(input).blockNonNullWithTimeout()
+    override fun deleteDatabaseSchemas(input: List<SchemaDeletionRequest>): List<SchemaDeletionResponse> =
+        databaseSchemaService.deleteDatabaseSchemas(input).collectList().blockNonNullWithTimeout()
 
     override fun testJdbcConnection(user: JdbcUser) =
         databaseSchemaService.testJdbcConnection(user = user).blockNonNullWithTimeout()
@@ -182,15 +191,4 @@ class DatabaseSchemaServiceBlocking(private val databaseSchemaService: DatabaseS
 
 @Service
 @ConditionalOnMissingBean(RequiresDbh::class)
-class DatabaseSchemaServiceDisabled : DatabaseSchemaService {
-    override fun getDatabaseSchemas(affiliation: String) = integrationDisabled()
-    override fun getDatabaseSchema(id: String) = integrationDisabled()
-    override fun updateDatabaseSchema(input: SchemaUpdateRequest) = integrationDisabled()
-    override fun deleteDatabaseSchema(input: SchemaDeletionRequest) = integrationDisabled()
-    override fun testJdbcConnection(user: JdbcUser) = integrationDisabled()
-    override fun testJdbcConnection(id: String) = integrationDisabled()
-    override fun createDatabaseSchema(input: SchemaCreationRequest) = integrationDisabled()
-
-    private fun integrationDisabled(): Nothing =
-        throw IntegrationDisabledException("DBH integration is disabled for this environment")
-}
+class DatabaseSchemaServiceDisabled : DatabaseSchemaService

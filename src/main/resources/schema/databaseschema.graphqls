@@ -43,9 +43,13 @@ input CreateDatabaseSchemaInput {
   jdbcUser: JdbcUserInput
 }
 
-input DeleteDatabaseSchemaInput {
-  id: String!
-  cooldownDurationHours: Long
+input DeleteDatabaseSchemasInput {
+  ids: [String!]!
+}
+
+type DeleteDatabaseSchemasResponse {
+  succeeded: [String]!
+  failed: [String]!
 }
 
 input JdbcUserInput {

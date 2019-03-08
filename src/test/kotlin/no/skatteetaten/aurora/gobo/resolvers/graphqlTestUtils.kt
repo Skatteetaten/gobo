@@ -2,6 +2,7 @@ package no.skatteetaten.aurora.gobo.resolvers
 
 import com.fasterxml.jackson.core.util.BufferRecyclers
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import mu.KotlinLogging
 import org.springframework.core.io.Resource
 import org.springframework.http.HttpHeaders
 import org.springframework.test.web.reactive.server.JsonPathAssertions
@@ -46,6 +47,13 @@ fun WebTestClient.queryGraphQL(
     return requestSpec
         .body(BodyInserters.fromObject(query))
         .exchange()
+}
+
+private val logger = KotlinLogging.logger { }
+fun WebTestClient.BodyContentSpec.logResult() {
+    this.returnResult().responseBody?.let {
+        logger.info { "Response body: $it" }
+    }
 }
 
 fun WebTestClient.BodyContentSpec.graphqlDataWithPrefix(

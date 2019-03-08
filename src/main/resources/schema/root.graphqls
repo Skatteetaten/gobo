@@ -22,7 +22,7 @@ type Mutation {
   refreshApplicationDeployments(input: RefreshByAffiliationsInput!): Boolean
   updateUserSettings(input: UserSettingsInput!): Boolean
   updateDatabaseSchema(input: UpdateDatabaseSchemaInput!): DatabaseSchema
-  deleteDatabaseSchema(input: DeleteDatabaseSchemaInput!): Boolean
+  deleteDatabaseSchemas(input: DeleteDatabaseSchemasInput!): DeleteDatabaseSchemasResponse
   testJdbcConnectionForJdbcUser(input: JdbcUserInput!): Boolean
   testJdbcConnectionForId(id: String!): Boolean
   createDatabaseSchema(input: CreateDatabaseSchemaInput): DatabaseSchema

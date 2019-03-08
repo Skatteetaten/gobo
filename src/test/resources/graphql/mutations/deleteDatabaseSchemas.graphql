@@ -1,0 +1,6 @@
+mutation deleteDatabaseSchemas($input: DeleteDatabaseSchemasInput!){
+    deleteDatabaseSchemas(input: $input) {
+        succeeded
+        failed
+    }
+}
