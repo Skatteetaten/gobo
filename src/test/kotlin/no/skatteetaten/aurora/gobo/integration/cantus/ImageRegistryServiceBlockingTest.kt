@@ -8,7 +8,6 @@ import assertk.assertions.isGreaterThan
 import assertk.assertions.isInstanceOf
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
-import assertk.assertions.message
 import assertk.assertions.support.expected
 import assertk.catch
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
@@ -24,11 +23,9 @@ import okhttp3.mockwebserver.RecordedRequest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
-import org.springframework.cloud.contract.stubrunner.spring.AutoConfigureStubRunner
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.web.reactive.function.client.WebClient
-import java.time.Instant
 
 @MockWebServerTestTag
 class ImageRegistryServiceBlockingTest {
@@ -45,7 +42,6 @@ class ImageRegistryServiceBlockingTest {
         WebClient.create(url.toString())
     )
 
-
     @Test
     fun `fetch all tags with authorization header`() {
 
@@ -61,7 +57,6 @@ class ImageRegistryServiceBlockingTest {
 
         assertThat(request.headers[HttpHeaders.AUTHORIZATION]).isEqualTo("Bearer token")
     }
-
 
     @Test
     fun `getTagsByName given non existing tag for image return AuroraResponse with CantusFailure`() {

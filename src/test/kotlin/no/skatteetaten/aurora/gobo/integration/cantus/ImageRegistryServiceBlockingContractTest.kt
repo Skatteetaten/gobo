@@ -21,16 +21,16 @@ import java.time.Instant
     webEnvironment = SpringBootTest.WebEnvironment.NONE,
     classes = [ApplicationConfig::class, ImageRegistryServiceBlocking::class]
 )
-@AutoConfigureStubRunner(ids = ["no.skatteetaten.aurora:cantus:+:stubs:6568"])
+@AutoConfigureStubRunner(ids = ["no.skatteetaten.aurora:cantus:1.5.0:stubs:6568"])
 class ImageRegistryServiceBlockingContractTest {
 
     @Autowired
     lateinit var imageRegistry: ImageRegistryServiceBlocking
 
     private val imageRepoName = "no_skatteetaten_aurora_demo/whoami"
-    private val tagName = "2"
+    private val tagName = "1"
 
-    private val imageRepo = ImageRepository.fromRepoString("docker.com/$imageRepoName").toImageRepo()
+    private val imageRepo = ImageRepository.fromRepoString("/$imageRepoName").toImageRepo()
 
     private val token: String = "token"
 
@@ -55,8 +55,7 @@ class ImageRegistryServiceBlockingContractTest {
     fun `get tagsByName given repositories and tagNames return AuroraResponse`() {
 
         val imageReposAndTags = listOf(
-            ImageRepoAndTags("docker1.no/no_skatteetaten_aurora_demo/whoami", listOf("2")),
-            ImageRepoAndTags("docker2.no/no_skatteetaten_aurora_demo/whoami", listOf("1"))
+            ImageRepoAndTags("/no_skatteetaten_aurora_demo/whoami", listOf("1"))
         )
 
         val auroraResponse = imageRegistry.findTagsByName(imageReposAndTags, token)
