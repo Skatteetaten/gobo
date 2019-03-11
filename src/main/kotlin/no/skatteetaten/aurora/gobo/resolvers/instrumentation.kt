@@ -25,7 +25,7 @@ class GoboInstrumentation : SimpleInstrumentation() {
         parameters: InstrumentationExecutionParameters?
     ): ExecutionInput {
         executionInput?.let {
-            val query = it.query
+            val query = it.query.removeNewLines()
             if (query.trimStart().startsWith("mutation")) {
                 logger.info("mutation=\"$query\" - variable-keys=${it.variables.keys}")
             } else {
