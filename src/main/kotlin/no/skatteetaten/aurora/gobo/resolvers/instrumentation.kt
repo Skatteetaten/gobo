@@ -11,6 +11,10 @@ import org.springframework.stereotype.Component
 
 private val logger = KotlinLogging.logger {}
 
+fun String.removeNewLines() =
+    this.replace("\n", " ")
+        .replace(Regex("\\s+"), " ")
+
 @Component
 class GoboInstrumentation : SimpleInstrumentation() {
 
