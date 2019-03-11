@@ -3,6 +3,9 @@ package no.skatteetaten.aurora.gobo.integration.cantus
 import assertk.Assert
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import assertk.assertions.isNotEmpty
+import assertk.assertions.isNotNull
+import assertk.assertions.startsWith
 import assertk.assertions.support.expected
 import no.skatteetaten.aurora.gobo.ApplicationConfig
 import no.skatteetaten.aurora.gobo.integration.SpringTestTag
@@ -33,30 +36,19 @@ class ImageRegistryServiceBlockingContractTest {
 
     @Test
     fun `verify fetches all tags for specified repo`() {
-        val listOfTags = listOf(
-            "SNAPSHOT--dev-20170912.120730-1-b1.4.1-wingnut-8.141.1",
-            "dev-SNAPSHOT",
-            "latest",
-            "1",
-            "1.2",
-            "1.0.0"
-        )
-
-        val expectedTags = TagsDto(
-            listOfTags.map {
-                Tag(it, ImageTagType.typeOf(it))
-            }
-        )
 
         val tags = imageRegistry.findTagNamesInRepoOrderedByCreatedDateDesc(imageRepo, token)
-        assertThat(tags).containsAllTags(expectedTags)
+        assertThat(tags.tags).isNotEmpty()
     }
 
     @Test
     fun `verify dockerContentDigest can be found`() {
 
         val dockerContentDigest = imageRegistry.resolveTagToSha(imageRepo, tagName, token)
-        assertThat(dockerContentDigest).isEqualTo("sha256:9d044d853c40b42ba52c576e1d71e5cee7dc4d1b328650e0780cd983cb474ed0")
+
+        assertThat(dockerContentDigest)
+            .isNotNull()
+            .startsWith("sha256:")
     }
 
     @Test
@@ -68,18 +60,6 @@ class ImageRegistryServiceBlockingContractTest {
         )
 
         val auroraResponse = imageRegistry.findTagsByName(imageReposAndTags, token)
-        assertThat(auroraResponse.items.first().timeline.buildEnded).isEqualTo(Instant.parse("2018-11-05T14:01:22.654389192Z"))
+        assertThat(auroraResponse.items.first().timeline.buildEnded).isNotNull()
     }
-
-    private fun Assert<TagsDto>.containsAllTags(expectedTags: TagsDto) =
-        given { tagsDto ->
-            if (
-                expectedTags.tags.all { expectedTag ->
-                    tagsDto.tags.any { actualTag ->
-                        actualTag.name == expectedTag.name
-                    }
-                }) return
-
-            expected("Some tags were not present")
-        }
 }
