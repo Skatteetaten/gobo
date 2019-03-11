@@ -38,7 +38,8 @@ class ApplicationUpgradeServiceTest {
 
     private val config = ApplicationConfig(50, 50)
     private val auroraConfigService = AuroraConfigService(BooberWebClient("${url}boober", config.webClientBoober()))
-    private val applicationService = ApplicationServiceBlocking(ApplicationService(config.webClientMokey("${url}mokey")))
+    private val applicationService =
+        ApplicationServiceBlocking(ApplicationService(config.webClientMokey("${url}mokey")))
     private val upgradeService = ApplicationUpgradeService(applicationService, auroraConfigService)
 
     @AfterEach

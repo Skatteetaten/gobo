@@ -12,8 +12,11 @@ data class ImageTagResource(
     val dockerVersion: String,
     val dockerDigest: String,
     val java: JavaImage? = null,
-    val node: NodeJsImage? = null
+    val node: NodeJsImage? = null,
+    val requestUrl: String
 ) : HalResource()
+
+data class NodeJsImage(val nodeJsVersion: String)
 
 data class JavaImage(
     val major: String,
@@ -27,14 +30,17 @@ data class ImageBuildTimeline(
     val buildEnded: Instant?
 )
 
-data class NodeJsImage(
-    val nodeJsVersion: String
+data class CantusFailure(
+    val url: String,
+    val errorMessage: String
 )
 
-data class AuroraResponse<T : HalResource>(
+data class AuroraResponse<T : HalResource?>(
     val items: List<T> = emptyList(),
+    val failure: List<CantusFailure> = emptyList(),
     val success: Boolean = true,
     val message: String = "OK",
-    val exception: Throwable? = null,
-    val count: Int = items.size
+    val failureCount: Int = failure.size,
+    val successCount: Int = items.size,
+    val count: Int = failureCount + successCount
 ) : HalResource()

@@ -3,17 +3,21 @@ package no.skatteetaten.aurora.gobo.resolvers.imagerepository
 import no.skatteetaten.aurora.gobo.GraphQLTest
 import no.skatteetaten.aurora.gobo.OpenShiftUserBuilder
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
+import no.skatteetaten.aurora.gobo.integration.cantus.AuroraResponse
+import no.skatteetaten.aurora.gobo.integration.cantus.CantusFailure
+import no.skatteetaten.aurora.gobo.integration.cantus.ImageBuildTimeline
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageRegistryServiceBlocking
+import no.skatteetaten.aurora.gobo.integration.cantus.ImageRepoAndTags
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageRepoDto
-import no.skatteetaten.aurora.gobo.integration.cantus.ImageTagDto
+import no.skatteetaten.aurora.gobo.integration.cantus.ImageTagResource
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageTagType
 import no.skatteetaten.aurora.gobo.integration.cantus.Tag
 import no.skatteetaten.aurora.gobo.integration.cantus.TagsDto
+import no.skatteetaten.aurora.gobo.resolvers.graphqlData
 import no.skatteetaten.aurora.gobo.resolvers.graphqlDataWithPrefix
 import no.skatteetaten.aurora.gobo.resolvers.graphqlDataWithPrefixAndIndex
 import no.skatteetaten.aurora.gobo.resolvers.graphqlErrors
 import no.skatteetaten.aurora.gobo.resolvers.graphqlErrorsFirst
-import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository.Companion.fromRepoString
 import no.skatteetaten.aurora.gobo.resolvers.isTrue
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import no.skatteetaten.aurora.gobo.security.OpenShiftUserLoader
@@ -30,6 +34,22 @@ import org.springframework.core.io.Resource
 import org.springframework.test.web.reactive.server.WebTestClient
 import java.time.Instant
 import java.time.Instant.EPOCH
+
+private fun ImageRepoAndTags.toImageTagResource() =
+    this.imageTags.map {
+        ImageTagResource(
+            requestUrl = "${this.imageRepository}/$it",
+            dockerDigest = "sha256",
+            dockerVersion = "2",
+            timeline = ImageBuildTimeline(null, EPOCH)
+        )
+    }
+
+private fun List<ImageRepoAndTags>.getTagCount() =
+    this.flatMap { it.imageTags }.size
+
+private fun ImageRepoAndTags.copyImageTagSublist(toIndex: Int) =
+    this.copy(imageTags = this.imageTags.subList(0, toIndex))
 
 @GraphQLTest
 class ImageRepositoryQueryResolverTest {
@@ -48,29 +68,28 @@ class ImageRepositoryQueryResolverTest {
     @MockBean
     private lateinit var openShiftUserLoader: OpenShiftUserLoader
 
-    class ImageRepoData(val repoString: String, val tags: List<String>) {
-        val imageRepoDto: ImageRepoDto get() = fromRepoString(repoString).toImageRepo()
-    }
+    private val imageReposAndTags = listOf(
+        ImageRepoAndTags(
+            imageRepository = "docker-registry.aurora.sits.no:5000/aurora/openshift-jenkins-master",
+            imageTags = listOf("1", "1.0", "1.0.0", "1.0.1", "latest", "feature_something-SNAPSHOT")
+        ),
+        ImageRepoAndTags(
+            imageRepository = "docker-registry.aurora.sits.no:5000/aurora/openshift-jenkins-slave",
+            imageTags = listOf("2", "2.1", "2.1.3", "latest", "dev-SNAPSHOT")
+        )
+    )
 
-    val testData = mapOf(
-        "docker-registry.aurora.sits.no:5000/aurora/openshift-jenkins-master" to
-            listOf("1", "1.0", "1.0.0", "1.0.1", "latest", "feature_something-SNAPSHOT"),
-        "docker-registry.aurora.sits.no:5000/aurora/openshift-jenkins-slave" to
-            listOf("2", "2.1", "2.1.3", "latest", "dev-SNAPSHOT")
-    ).map { ImageRepoData(it.key, it.value) }
+    private val auroraResponse = createAuroraResponse()
 
     @BeforeEach
     fun setUp() {
-        testData.forEach { data: ImageRepoData ->
-            given(imageRegistryServiceBlocking.findTagNamesInRepoOrderedByCreatedDateDesc(data.imageRepoDto, "test-token"))
-                .willReturn(TagsDto(data.tags.map { Tag(name = it, type = ImageTagType.typeOf(it)) }))
-            data.tags
-                .map {
-                    ImageTagDto(name = it, created = EPOCH, dockerDigest = "sha256")
-                }
-                .forEach {
-                    given(imageRegistryServiceBlocking.findTagByName(data.imageRepoDto, it.name, "test-token")).willReturn(it)
-                }
+        imageReposAndTags.forEach { imageRepoAndTags ->
+            given(
+                imageRegistryServiceBlocking.findTagNamesInRepoOrderedByCreatedDateDesc(
+                    ImageRepoDto.fromRepoString(imageRepoAndTags.imageRepository),
+                    "test-token"
+                )
+            ).willReturn(TagsDto(imageRepoAndTags.imageTags.map { Tag(name = it, type = ImageTagType.typeOf(it)) }))
         }
 
         given(openShiftUserLoader.findOpenShiftUserByToken(BDDMockito.anyString()))
@@ -82,18 +101,22 @@ class ImageRepositoryQueryResolverTest {
 
     @Test
     fun `Query for repositories and tags`() {
-        val variables = mapOf("repositories" to testData.map { it.imageRepoDto.repository })
+
+        given(imageRegistryServiceBlocking.findTagsByName(imageReposAndTags, "test-token")).willReturn(auroraResponse)
+
+        val variables = mapOf("repositories" to imageReposAndTags.map { it.imageRepository })
         webTestClient.queryGraphQL(reposWithTagsQuery, variables, "test-token")
             .expectStatus().isOk
             .expectBody()
             .graphqlDataWithPrefixAndIndex("imageRepositories", endIndex = 1) {
-                val repository = testData[it.index]
-                it.graphqlData("repository").isEqualTo(repository.repoString)
-                it.graphqlData("tags.totalCount").isEqualTo(repository.tags.size)
-                it.graphqlData("tags.edges.length()").isEqualTo(repository.tags.size)
-                it.graphqlData("tags.edges[0].node.name").isEqualTo(repository.tags[0])
+                val imageRepoAndTags = imageReposAndTags[it.index]
+
+                it.graphqlData("repository").isEqualTo(imageRepoAndTags.imageRepository)
+                it.graphqlData("tags.totalCount").isEqualTo(imageRepoAndTags.imageTags.size)
+                it.graphqlData("tags.edges.length()").isEqualTo(imageRepoAndTags.imageTags.size)
+                it.graphqlData("tags.edges[0].node.name").isEqualTo(imageRepoAndTags.imageTags[0])
                 it.graphqlData("tags.edges[0].node.lastModified").isEqualTo(Instant.EPOCH.toString())
-                it.graphqlData("tags.edges[1].node.name").isEqualTo(repository.tags[1])
+                it.graphqlData("tags.edges[1].node.name").isEqualTo(imageRepoAndTags.imageTags[1])
                 it.graphqlData("tags.edges[1].node.lastModified").isEqualTo(Instant.EPOCH.toString())
             }
     }
@@ -101,13 +124,20 @@ class ImageRepositoryQueryResolverTest {
     @Test
     fun `Query for tags with paging`() {
         val pageSize = 3
-        val variables = mapOf("repositories" to testData[0].imageRepoDto.repository, "pageSize" to pageSize)
+        val variables = mapOf("repositories" to imageReposAndTags.first().imageRepository, "pageSize" to pageSize)
+
+        given(
+            imageRegistryServiceBlocking.findTagsByName(
+                listOf(imageReposAndTags.first()),
+                "test-token"
+            )
+        ).willReturn(createAuroraResponse(pageSize))
 
         webTestClient.queryGraphQL(tagsWithPagingQuery, variables, "test-token")
             .expectStatus().isOk
             .expectBody()
             .graphqlDataWithPrefix("imageRepositories[0].tags") {
-                it.graphqlData("totalCount").isEqualTo(testData[0].tags.size)
+                it.graphqlData("totalCount").isEqualTo(imageReposAndTags.first().imageTags.size)
                 it.graphqlData("edges.length()").isEqualTo(pageSize)
                 it.graphqlData("edges[0].node.name").isEqualTo("1")
                 it.graphqlData("edges[1].node.name").isEqualTo("1.0")
@@ -118,17 +148,82 @@ class ImageRepositoryQueryResolverTest {
     }
 
     @Test
-    fun `Get errors when findByTagName fails with exception`() {
-        given(imageRegistryServiceBlocking.findTagByName(testData[0].imageRepoDto, testData[0].tags[0], "test-token"))
+    fun `Get errors when findTagsByName fails with exception`() {
+        given(
+            imageRegistryServiceBlocking.findTagsByName(
+                listOf(imageReposAndTags.first()),
+                "test-token"
+            )
+        )
             .willThrow(SourceSystemException("test exception", RuntimeException("testing testing")))
 
-        val variables = mapOf("repositories" to testData[0].imageRepoDto.repository)
+        val variables = mapOf("repositories" to imageReposAndTags.first().imageRepository)
         webTestClient.queryGraphQL(reposWithTagsQuery, variables, "test-token")
             .expectStatus().isOk
             .expectBody()
-            .graphqlErrors("length()").isEqualTo(1)
+            .graphqlData("imageRepositories[0].tags.totalCount").isEqualTo(6)
+            .graphqlErrors("length()").isEqualTo(6)
             .graphqlErrorsFirst("extensions.code").exists()
             .graphqlErrorsFirst("extensions.cause").exists()
             .graphqlErrorsFirst("extensions.errorMessage").exists()
+    }
+
+    @Test
+    fun `Get items and failures when findTagsByName return partial result`() {
+        reset(imageRegistryServiceBlocking)
+        val firstImageRepoAndTags = imageReposAndTags.first()
+
+        val tagsDto = TagsDto(
+            listOf(
+                Tag(firstImageRepoAndTags.imageTags[0]),
+                Tag(firstImageRepoAndTags.imageTags[1])
+            )
+        )
+
+        given(
+            imageRegistryServiceBlocking
+                .findTagNamesInRepoOrderedByCreatedDateDesc(
+                    imageRepoDto = ImageRepoDto.fromRepoString(firstImageRepoAndTags.imageRepository),
+                    token = "test-token"
+                )
+        ).willReturn(tagsDto)
+
+        val partialAuroraResponse = createAuroraResponse(0, 1)
+        val imageReposAndTags1 = listOf(firstImageRepoAndTags.copyImageTagSublist(2))
+        given(imageRegistryServiceBlocking.findTagsByName(imageReposAndTags1, "test-token")).willReturn(
+            partialAuroraResponse
+        )
+
+        val variables = mapOf("repositories" to firstImageRepoAndTags.imageRepository)
+        webTestClient.queryGraphQL(reposWithTagsQuery, variables, "test-token")
+            .expectStatus().isOk
+            .expectBody()
+            .graphqlDataWithPrefix("imageRepositories[0]") {
+                val repository = imageReposAndTags.first()
+
+                it.graphqlData("repository").isEqualTo(repository.imageRepository)
+                it.graphqlData("tags.totalCount").isEqualTo(2)
+            }
+            .graphqlErrors("length()").isEqualTo(1)
+            .graphqlErrorsFirst("extensions.errorMessage").exists()
+    }
+
+    private fun createAuroraResponse(itemsCount: Int = imageReposAndTags.getTagCount()): AuroraResponse<ImageTagResource> {
+        val imageTagResources = imageReposAndTags.flatMap { it.toImageTagResource() }.subList(0, itemsCount)
+
+        return AuroraResponse(items = imageTagResources)
+    }
+
+    private fun createAuroraResponse(successIndex: Int, failureIndex: Int): AuroraResponse<ImageTagResource> {
+        val successResource = listOf(imageReposAndTags.first().toImageTagResource()[successIndex])
+        val failureResource =
+            listOf(
+                CantusFailure(
+                    url = imageReposAndTags.first().getTagUrls()[failureIndex],
+                    errorMessage = "Error response"
+                )
+            )
+
+        return AuroraResponse(items = successResource, failure = failureResource)
     }
 }

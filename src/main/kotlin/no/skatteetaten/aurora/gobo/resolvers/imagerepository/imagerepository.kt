@@ -4,6 +4,7 @@ import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageRepoDto
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageTagType
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageTagType.Companion.typeOf
+import no.skatteetaten.aurora.gobo.integration.cantus.decomposeToImageRepoSegments
 import no.skatteetaten.aurora.gobo.resolvers.GoboConnection
 import no.skatteetaten.aurora.gobo.resolvers.GoboEdge
 import no.skatteetaten.aurora.gobo.resolvers.GoboPageInfo
@@ -30,15 +31,8 @@ data class ImageRepository(
          * @param absoluteImageRepoPath Example docker-registry.aurora.sits.no:5000/no_skatteetaten_aurora/dbh
          */
         fun fromRepoString(absoluteImageRepoPath: String): ImageRepository {
-            val (registryUrl, namespace, name) = decompose(absoluteImageRepoPath)
+            val (registryUrl, namespace, name) = absoluteImageRepoPath.decomposeToImageRepoSegments()
             return ImageRepository(registryUrl, namespace, name)
-        }
-
-        private fun decompose(imageRepoString: String): List<String> {
-            logger.debug("decomposing segments from repoString=$imageRepoString")
-            val segments = imageRepoString.split("/")
-            if (segments.size != 3) throw IllegalArgumentException("The string [$imageRepoString] does not appear to be a valid image repository reference")
-            return segments
         }
     }
 }
@@ -50,10 +44,10 @@ data class ImageTag(
     val type: ImageTagType get() = typeOf(name)
 
     companion object {
-        fun fromTagString(tagString: String): ImageTag {
+        fun fromTagString(tagString: String, lastDelimiter: String = ":"): ImageTag {
             logger.debug("Create image tag from string=$tagString")
-            val repo = tagString.substringBeforeLast(":")
-            val tag = tagString.substringAfterLast(":")
+            val repo = tagString.substringBeforeLast(lastDelimiter)
+            val tag = tagString.substringAfterLast(lastDelimiter)
             return ImageTag(imageRepository = ImageRepository.fromRepoString(repo), name = tag)
         }
     }

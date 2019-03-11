@@ -2,14 +2,17 @@ package no.skatteetaten.aurora.gobo.integration.cantus
 
 import assertk.Assert
 import assertk.assertThat
-import assertk.assertions.hasMessage
+import assertk.assertions.endsWith
 import assertk.assertions.isEqualTo
+import assertk.assertions.isGreaterThan
 import assertk.assertions.isInstanceOf
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import assertk.assertions.message
 import assertk.assertions.support.expected
 import assertk.catch
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import no.skatteetaten.aurora.gobo.AuroraResponseBuilder
 import no.skatteetaten.aurora.gobo.integration.MockWebServerTestTag
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.integration.execute
@@ -64,7 +67,7 @@ class ImageRegistryServiceBlockingTest {
             assertThat(tags).containsAllTags(expectedTags)
         }
 
-        assertThat(request.getRequestPath()).isEqualTo("/$imageRepoName/tags?dockerRegistryUrl=docker.com")
+        assertThat(request.getRequestPath()).isEqualTo("/tags?repoUrl=${imageRepo.repository}")
 
         assertThat(request.headers[HttpHeaders.AUTHORIZATION]).isNotNull()
     }
@@ -80,7 +83,7 @@ class ImageRegistryServiceBlockingTest {
             assertThat(tags.tags).isNotEmpty()
         }
 
-        assertThat(request.getRequestPath()).isEqualTo("/$imageRepoName/tags?dockerRegistryUrl=docker.com")
+        assertThat(request.getRequestPath()).isEqualTo("/tags?repoUrl=${imageRepo.repository}")
 
         assertThat(request.headers[HttpHeaders.AUTHORIZATION]).isEqualTo("Bearer token")
     }
@@ -94,43 +97,79 @@ class ImageRegistryServiceBlockingTest {
             assertThat(dockerContentDigest).isEqualTo("sha256:9d044d853c40b42ba52c576e1d71e5cee7dc4d1b328650e0780cd983cb474ed0")
         }
 
-        assertThat(request.getRequestPath()).isEqualTo("/$imageRepoName/$tagName/manifest?dockerRegistryUrl=docker.com")
+        assertThat(request.getRequestPath()).isEqualTo("/manifest?tagUrls=${imageRepo.repository}/$tagName")
     }
 
     @Test
-    fun `verify tag can be found by name`() {
+    fun `get tagsByName given repositories and tagNames return AuroraResponse`() {
         val response = MockResponse().setJsonFileAsBody("cantusManifest.json")
 
+        val imageReposAndTags = listOf(
+            ImageRepoAndTags("docker1.no/no_skatteetaten_aurora_demo/whoami", listOf("2")),
+            ImageRepoAndTags("docker2.no/no_skatteetaten_aurora_demo/whoami", listOf("1"))
+        )
+
         val request = server.execute(response) {
-            val tag = imageRegistry.findTagByName(imageRepo, tagName, token)
-            assertThat(tag.created).isEqualTo(Instant.parse("2018-11-05T14:01:22.654389192Z"))
+            val auroraResponse = imageRegistry.findTagsByName(imageReposAndTags, token)
+            assertThat(auroraResponse.items.first().timeline.buildEnded).isEqualTo(Instant.parse("2018-11-05T14:01:22.654389192Z"))
         }
 
-        assertThat(request.getRequestPath()).isEqualTo("/$imageRepoName/$tagName/manifest?dockerRegistryUrl=docker.com")
+        val firstImageRepoAndTags = imageReposAndTags.first()
+        val secondImageRepoAndTags = imageReposAndTags[1]
+
+        assertThat(request.getRequestPath())
+            .isEqualTo(
+                "/manifest?" +
+                    "tagUrls=${firstImageRepoAndTags.imageRepository}/${firstImageRepoAndTags.imageTags.first()}&" +
+                    "tagUrls=${secondImageRepoAndTags.imageRepository}/${secondImageRepoAndTags.imageTags.first()}"
+            )
     }
 
     @Test
-    fun `Throw exception when bad request is returned from registry`() {
-        server.execute(404, "Not found") {
-            val exception = catch {
-                imageRegistry.findTagByName(imageRepo, tagName, token)
-            }
-            assertThat(exception).isNotNull().hasMessage("Error in response, status=404 message=Not Found")
+    fun `getTagsByName given non existing tag for image return AuroraResponse with CantusFailure`() {
+        val response = MockResponse().setJsonFileAsBody("cantusManifestFailure.json")
+        val repository = "docker1.no/no_skatteetaten_aurora_demo/whoami"
+        val tag = "20"
+        val imageRepoAndTags =
+            listOf(ImageRepoAndTags(repository, listOf(tag)))
+
+        val request = server.execute(response) {
+            val auroraResponseFailure = imageRegistry.findTagsByName(imageRepoAndTags, token)
+            assertThat(auroraResponseFailure.failureCount).isGreaterThan(0)
+            assertThat(auroraResponseFailure.failure.first().url).isEqualTo("$repository/$tag")
+            assertThat(auroraResponseFailure.failure.first().errorMessage).endsWith("status=404 message=Not Found")
         }
+
+        assertThat(request.getRequestPath()).isEqualTo("/manifest?tagUrls=$repository/$tag")
     }
 
     @ParameterizedTest
     @ValueSource(ints = [400, 401, 403, 404, 418, 500, 501])
     fun `get tags given error from Cantus throw exception`(statusCode: Int) {
-        server.execute(statusCode, HttpStatus.valueOf(statusCode)) {
+        val response = AuroraResponseBuilder(status = statusCode, url = "").build()
+        val mockResponse = MockResponse()
+            .setBody(jacksonObjectMapper().writeValueAsString(response))
+            .setResponseCode(200)
+            .setHeader("Content-Type", "application/json")
+
+        server.execute(mockResponse) {
             val exception = catch { imageRegistry.findTagNamesInRepoOrderedByCreatedDateDesc(imageRepo, token) }
             assertThat(exception).isNotNull()
                 .isInstanceOf(SourceSystemException::class)
-                .message().endsWith("status=$statusCode message=${HttpStatus.valueOf(statusCode).reasonPhrase}")
+
+            assertThat(
+                exception?.message ?: ""
+            ).endsWith("status=$statusCode message=${HttpStatus.valueOf(statusCode).reasonPhrase}")
         }
     }
 
-    private fun RecordedRequest.getRequestPath() = this.path.replace("%2F", "/")
+    private fun RecordedRequest.getRequestPath() =
+        this.path
+            .replace("%2F", "/")
+            .replace("%5D", "")
+            .replace("%5B", "")
+            .replace("%20", "")
+
     private fun Assert<TagsDto>.containsAllTags(expectedTags: TagsDto) =
         given { tagsDto ->
             if (
@@ -142,17 +181,4 @@ class ImageRegistryServiceBlockingTest {
 
             expected("Some tags were not present")
         }
-}
-
-private fun Assert<String?>.endsWith(message: String) {
-    given {
-        if (it.isNullOrEmpty()) expected("Exception message was null or empty")
-        if (it.endsWith(message)) return
-
-        expected(
-            "Exception message does not end with the specified message " +
-                "\nexpected=$message" +
-                "\nactual=$it"
-        )
-    }
 }

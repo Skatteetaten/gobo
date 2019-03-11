@@ -3,65 +3,100 @@ package no.skatteetaten.aurora.gobo.integration.cantus
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
-import no.skatteetaten.aurora.gobo.resolvers.blockNonNullAndHandleError
+import no.skatteetaten.aurora.gobo.integration.SourceSystemException
+import no.skatteetaten.aurora.gobo.resolvers.handleError
+import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageTag
 
 import org.springframework.stereotype.Service
+import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.bodyToMono
+import org.springframework.web.util.UriComponentsBuilder
+import reactor.core.publisher.Mono
+import reactor.core.publisher.toMono
 
 private val logger = KotlinLogging.logger {}
+
+data class ImageRepoAndTags(val imageRepository: String, val imageTags: List<String>) {
+    fun getTagUrls() = imageTags.map { "$imageRepository/$it" }
+
+    companion object {
+        fun fromImageTags(imageTags: Set<ImageTag>) =
+            imageTags.groupBy { it.imageRepository.repository }.map { entry ->
+                val imageTagStrings = entry.value.map { it.name }
+                ImageRepoAndTags(entry.key, imageTagStrings)
+            }
+    }
+}
+
+private fun List<ImageRepoAndTags>.getAllTagUrls() =
+    this.flatMap { it.getTagUrls() }
 
 @Service
 class ImageRegistryServiceBlocking(
     @TargetService(ServiceTypes.CANTUS) val webClient: WebClient
 ) {
 
-    fun resolveTagToSha(imageRepoDto: ImageRepoDto, imageTag: String, token: String) =
-        getAuroraResponseImageTagResource(imageRepoDto, imageTag, token).dockerDigest
+    fun resolveTagToSha(imageRepoDto: ImageRepoDto, imageTag: String, token: String): String? {
+        val auroraImageTagResource: AuroraResponse<ImageTagResource> =
+            execute<AuroraResponse<ImageTagResource>>(token) {
+                logger.debug("Retrieving type=ImageTagResource from  url=${imageRepoDto.registry} image=${imageRepoDto.imageName}/$imageTag")
+                it.get().uri(
+                    "/manifest?tagUrls=${imageRepoDto.registry}/{namespace}/{imageTag}/{tag}",
+                    imageRepoDto.mappedTemplateVars.plus("tag" to imageTag)
+                )
+            }.block()!!
+        return ImageTagDto.toDto(auroraImageTagResource, imageTag, imageRepoDto).dockerDigest
+    }
 
-    fun findTagByName(
-        imageRepoDto: ImageRepoDto,
-        imageTag: String,
+    fun findTagsByName(
+        imageReposAndTags: List<ImageRepoAndTags>,
         token: String
-    ) = getAuroraResponseImageTagResource(imageRepoDto, imageTag, token)
+    ): AuroraResponse<ImageTagResource> {
+        val tagUrlsQueryParameters =
+            LinkedMultiValueMap<String, String>().apply { addAll("tagUrls", imageReposAndTags.getAllTagUrls()) }
+
+        val tagPath = UriComponentsBuilder
+            .fromPath("/manifest")
+            .queryParams(tagUrlsQueryParameters)
+            .build()
+            .toUriString()
+
+        return execute<AuroraResponse<ImageTagResource>>(token) { it.get().uri(tagPath) }.block()!!
+    }
 
     fun findTagNamesInRepoOrderedByCreatedDateDesc(imageRepoDto: ImageRepoDto, token: String) =
         TagsDto.toDto(
-            execute(token) {
+            execute<AuroraResponse<TagResource>>(token) {
                 logger.debug("Retrieving type=TagResource from  url=${imageRepoDto.registry} image=${imageRepoDto.imageName}")
                 it.get().uri(
-                    "/{namespace}/{name}/tags?dockerRegistryUrl=${imageRepoDto.registry}",
+                    "/tags?repoUrl=${imageRepoDto.registry}/{namespace}/{imageTag}",
                     imageRepoDto.mappedTemplateVars
                 )
-            }
+            }.blockAndHandleCantusFailure()
         )
 
-    private fun getAuroraResponseImageTagResource(
-        imageRepoDto: ImageRepoDto,
-        imageTag: String,
-        token: String
-    ): ImageTagDto {
-
-        val auroraImageTagResource: AuroraResponse<ImageTagResource> =
-            execute(token) {
-                logger.debug("Retrieving type=ImageTagResource from  url=${imageRepoDto.registry} image=${imageRepoDto.imageName}/$imageTag")
-                it.get().uri(
-                    "/{namespace}/{name}/{tag}/manifest?dockerRegistryUrl=${imageRepoDto.registry}",
-                    imageRepoDto.mappedTemplateVars.plus("tag" to imageTag)
-                )
-            }
-
-        return ImageTagDto.toDto(auroraImageTagResource, imageTag)
-    }
-
-    private final inline fun <reified T : Any> execute(
+    private inline fun <reified T : Any> execute(
         token: String,
         fn: (WebClient) -> WebClient.RequestHeadersSpec<*>
-    ): T = fn(webClient)
+    ): Mono<T> = fn(webClient)
         .headers {
             it.set("Authorization", "Bearer $token")
         }
         .retrieve()
         .bodyToMono<T>()
-        .blockNonNullAndHandleError(sourceSystem = "cantus")
+        .handleGenericError()
+
+    private fun <T> Mono<T>.handleGenericError(): Mono<T> =
+        this.handleError("cantus")
+            .switchIfEmpty(SourceSystemException("Empty response", sourceSystem = "cantus").toMono())
+
+    private fun <T> Mono<T>.blockAndHandleCantusFailure(): T =
+        this.map {
+            if (it is AuroraResponse<*> && it.failureCount > 0) {
+                throw SourceSystemException(message = it.message, sourceSystem = "cantus")
+            }
+
+            it
+        }.block()!!
 }
