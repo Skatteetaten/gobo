@@ -11,6 +11,10 @@ import org.springframework.stereotype.Component
 
 private val logger = KotlinLogging.logger {}
 
+fun String.removeNewLines() =
+    this.replace("\n", " ")
+        .replace(Regex("\\s+"), " ")
+
 @Component
 class GoboInstrumentation : SimpleInstrumentation() {
 
@@ -21,7 +25,7 @@ class GoboInstrumentation : SimpleInstrumentation() {
         parameters: InstrumentationExecutionParameters?
     ): ExecutionInput {
         executionInput?.let {
-            val query = it.query
+            val query = it.query.removeNewLines()
             if (query.trimStart().startsWith("mutation")) {
                 logger.info("mutation=\"$query\" - variable-keys=${it.variables.keys}")
             } else {
