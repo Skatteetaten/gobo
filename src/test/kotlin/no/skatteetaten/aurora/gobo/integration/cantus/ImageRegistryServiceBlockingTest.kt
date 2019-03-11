@@ -45,33 +45,6 @@ class ImageRegistryServiceBlockingTest {
         WebClient.create(url.toString())
     )
 
-    @Test
-    fun `verify fetches all tags for specified repo`() {
-        val tagsListResponse = MockResponse().setJsonFileAsBody("cantusTags.json")
-        val request = server.execute(tagsListResponse) {
-            val listOfTags = listOf(
-                "SNAPSHOT--dev-20170912.120730-1-b1.4.1-wingnut-8.141.1",
-                "dev-SNAPSHOT",
-                "latest",
-                "1",
-                "1.0",
-                "1.0.0"
-            )
-
-            val expectedTags = TagsDto(
-                listOfTags.map {
-                    Tag(it, ImageTagType.typeOf(it))
-                }
-            )
-
-            val tags = imageRegistry.findTagNamesInRepoOrderedByCreatedDateDesc(imageRepo, token)
-            assertThat(tags).containsAllTags(expectedTags)
-        }
-
-        assertThat(request.getRequestPath()).isEqualTo("/tags?repoUrl=${imageRepo.repository}")
-
-        assertThat(request.headers[HttpHeaders.AUTHORIZATION]).isNotNull()
-    }
 
     @Test
     fun `fetch all tags with authorization header`() {
@@ -89,42 +62,6 @@ class ImageRegistryServiceBlockingTest {
         assertThat(request.headers[HttpHeaders.AUTHORIZATION]).isEqualTo("Bearer token")
     }
 
-    @Test
-    fun `verify dockerContentDigest can be found`() {
-        val response = MockResponse().setJsonFileAsBody("cantusManifest.json")
-
-        val request = server.execute(response) {
-            val dockerContentDigest = imageRegistry.resolveTagToSha(imageRepo, tagName, token)
-            assertThat(dockerContentDigest).isEqualTo("sha256:9d044d853c40b42ba52c576e1d71e5cee7dc4d1b328650e0780cd983cb474ed0")
-        }
-
-        assertThat(request.getRequestPath()).isEqualTo("/manifest?tagUrls=${imageRepo.repository}/$tagName")
-    }
-
-    @Test
-    fun `get tagsByName given repositories and tagNames return AuroraResponse`() {
-        val response = MockResponse().setJsonFileAsBody("cantusManifest.json")
-
-        val imageReposAndTags = listOf(
-            ImageRepoAndTags("docker1.no/no_skatteetaten_aurora_demo/whoami", listOf("2")),
-            ImageRepoAndTags("docker2.no/no_skatteetaten_aurora_demo/whoami", listOf("1"))
-        )
-
-        val request = server.execute(response) {
-            val auroraResponse = imageRegistry.findTagsByName(imageReposAndTags, token)
-            assertThat(auroraResponse.items.first().timeline.buildEnded).isEqualTo(Instant.parse("2018-11-05T14:01:22.654389192Z"))
-        }
-
-        val firstImageRepoAndTags = imageReposAndTags.first()
-        val secondImageRepoAndTags = imageReposAndTags[1]
-
-        assertThat(request.getRequestPath())
-            .isEqualTo(
-                "/manifest?" +
-                    "tagUrls=${firstImageRepoAndTags.imageRepository}/${firstImageRepoAndTags.imageTags.first()}&" +
-                    "tagUrls=${secondImageRepoAndTags.imageRepository}/${secondImageRepoAndTags.imageTags.first()}"
-            )
-    }
 
     @Test
     fun `getTagsByName given non existing tag for image return AuroraResponse with CantusFailure`() {
