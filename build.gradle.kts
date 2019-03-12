@@ -13,11 +13,8 @@ plugins {
     id("no.skatteetaten.gradle.aurora") version "2.0.2"
 }
 
+val springCloudContractVersion: String = project.property("aurora.springCloudContractVersion") as String
 dependencies {
-    implementation("no.skatteetaten.aurora.springboot:aurora-spring-boot2-starter:2.0.0")
-
-    implementation("org.jetbrains.kotlin:kotlin-reflect:1.3.21")
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.1.1")
 
     implementation("org.springframework.retry:spring-retry")
@@ -32,16 +29,13 @@ dependencies {
     implementation("com.graphql-java-kickstart:graphql-java-tools:5.5.1")
 
     implementation("uk.q3c.rest:hal-kotlin:0.5.4.0.db32476")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
     implementation("io.fabric8:openshift-client:4.1.3")
     implementation("com.fkorotkov:kubernetes-dsl:2.0.1")
     implementation("com.github.fge:json-patch:1.9")
-    implementation("io.github.microutils:kotlin-logging:1.6.25")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
-    testImplementation("org.springframework.cloud:spring-cloud-starter-contract-stub-runner:2.1.1.RELEASE")
+    testImplementation("org.springframework.cloud:spring-cloud-starter-contract-stub-runner:$springCloudContractVersion")
     testImplementation("io.mockk:mockk:1.9.2")
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.13")
     testImplementation("io.projectreactor:reactor-test")
