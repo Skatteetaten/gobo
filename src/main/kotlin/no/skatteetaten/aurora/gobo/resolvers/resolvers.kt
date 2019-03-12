@@ -51,6 +51,9 @@ fun <T> Mono<T>.handleError(sourceSystem: String?) =
     this.doOnError {
         when (it) {
             is WebClientResponseException -> {
+                it.request?.let { request ->
+                    logger.error { "Error request url:${request.uri.toASCIIString()}" }
+                }
                 logger.error { "Error response body: ${it.responseBodyAsString}" }
                 throw SourceSystemException(
                     message = "Error in response, status=${it.rawStatusCode} message=${it.statusText}",
