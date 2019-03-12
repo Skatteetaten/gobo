@@ -27,6 +27,7 @@ dependencies {
     implementation("com.graphql-java-kickstart:voyager-spring-boot-starter:5.7.0")
     implementation("com.graphql-java-kickstart:graphql-java-tools:5.5.1")
 
+    implementation("uk.q3c.rest:hal-kotlin:0.5.4.0.db32476")
     implementation("io.fabric8:openshift-client:4.1.3")
     implementation("com.fkorotkov:kubernetes-dsl:2.0.1")
     implementation("com.github.fge:json-patch:1.9")
