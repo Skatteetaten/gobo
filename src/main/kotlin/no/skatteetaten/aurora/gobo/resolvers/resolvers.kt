@@ -2,6 +2,7 @@ package no.skatteetaten.aurora.gobo.resolvers
 
 import graphql.schema.DataFetchingEnvironment
 import graphql.servlet.GraphQLContext
+import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import org.dataloader.DataLoader
 import org.dataloader.Try
@@ -45,15 +46,19 @@ fun <T> Mono<T>.blockAndHandleError(duration: Duration = Duration.ofSeconds(30),
     this.handleError(sourceSystem)
         .block(duration)
 
+private val logger = KotlinLogging.logger { }
 fun <T> Mono<T>.handleError(sourceSystem: String?) =
     this.doOnError {
         when (it) {
-            is WebClientResponseException -> throw SourceSystemException(
-                message = "Error in response, status=${it.rawStatusCode} message=${it.statusText}",
-                cause = it,
-                sourceSystem = sourceSystem,
-                code = it.statusCode.name
-            )
+            is WebClientResponseException -> {
+                logger.error { "Error response body: ${it.responseBodyAsString}" }
+                throw SourceSystemException(
+                    message = "Error in response, status=${it.rawStatusCode} message=${it.statusText}",
+                    cause = it,
+                    sourceSystem = sourceSystem,
+                    code = it.statusCode.name
+                )
+            }
             is SourceSystemException -> throw it
             else -> throw SourceSystemException(message = it.message ?: "", cause = it, errorMessage = "Error response")
         }
