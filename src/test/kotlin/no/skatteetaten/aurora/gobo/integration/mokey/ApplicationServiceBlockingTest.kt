@@ -14,7 +14,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 @SpringTestTag
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
-@AutoConfigureStubRunner
+@AutoConfigureStubRunner(ids = ["no.skatteetaten.aurora:mokey:+:stubs:6565"])
 class ApplicationServiceBlockingTest {
 
     @Autowired

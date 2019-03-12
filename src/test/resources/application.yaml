@@ -21,7 +21,6 @@ openshift:
 
 stubrunner:
   stubs-mode: remote
-  ids: no.skatteetaten.aurora:mokey:+:stubs:6565
   repositoryRoot: http://aurora/nexus/service/local/repositories/releases/content
 
 # INFO log enable to view the resolved version of the stubs artifact
