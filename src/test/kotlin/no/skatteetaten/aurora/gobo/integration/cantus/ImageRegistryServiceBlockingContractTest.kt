@@ -1,6 +1,8 @@
 package no.skatteetaten.aurora.gobo.integration.cantus
 
 import assertk.assertThat
+import assertk.assertions.endsWith
+import assertk.assertions.isGreaterThan
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import assertk.assertions.startsWith
@@ -21,7 +23,7 @@ import org.springframework.cloud.contract.stubrunner.spring.AutoConfigureStubRun
 class ImageRegistryServiceBlockingContractTest {
 
     @Autowired
-    lateinit var imageRegistry: ImageRegistryServiceBlocking
+    private lateinit var imageRegistry: ImageRegistryServiceBlocking
 
     private val imageRepoName = "docker1.no/no_skatteetaten_aurora_demo/whoami"
     private val tagName = "1"
@@ -58,5 +60,18 @@ class ImageRegistryServiceBlockingContractTest {
         val auroraResponse = imageRegistry.findTagsByName(imageReposAndTags, token)
         assertThat(auroraResponse.items.forEach { it.timeline.buildEnded != null })
         assertThat(auroraResponse.failure.forEach { it.errorMessage.isNotEmpty() })
+    }
+
+    @Test
+    fun `getTagsByName given non existing tag for image return AuroraResponse with CantusFailure`() {
+        val repository = "docker1.no/no_skatteetaten_aurora_demo/whoami"
+        val tag = "10"
+        val imageRepoAndTags =
+            listOf(ImageRepoAndTags(repository, listOf(tag)))
+
+        val auroraResponseFailure = imageRegistry.findTagsByName(imageRepoAndTags, token)
+        assertThat(auroraResponseFailure.failureCount).isGreaterThan(0)
+        assertThat(auroraResponseFailure.failure.all { it.url.isNotEmpty() })
+        assertThat(auroraResponseFailure.failure.any { it.errorMessage.endsWith("status=404 message=Not Found") })
     }
 }
