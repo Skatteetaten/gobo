@@ -18,7 +18,6 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.1.1")
 
     implementation("org.springframework.retry:spring-retry")
-    implementation("org.springframework.boot:spring-boot-devtools")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-hateoas")
@@ -28,7 +27,6 @@ dependencies {
     implementation("com.graphql-java-kickstart:voyager-spring-boot-starter:5.7.0")
     implementation("com.graphql-java-kickstart:graphql-java-tools:5.5.1")
 
-    implementation("uk.q3c.rest:hal-kotlin:0.5.4.0.db32476")
     implementation("io.fabric8:openshift-client:4.1.3")
     implementation("com.fkorotkov:kubernetes-dsl:2.0.1")
     implementation("com.github.fge:json-patch:1.9")
