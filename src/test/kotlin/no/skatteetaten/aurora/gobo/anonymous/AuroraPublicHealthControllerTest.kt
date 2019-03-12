@@ -1,6 +1,7 @@
 package no.skatteetaten.aurora.gobo.anonymous
 
 import no.skatteetaten.aurora.gobo.ApplicationResourceBuilder
+import no.skatteetaten.aurora.gobo.integration.SpringTestTag
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
 import org.junit.jupiter.api.Test
 import org.mockito.BDDMockito.given
@@ -12,6 +13,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
+@SpringTestTag
 @WebMvcTest(value = [AuroraPublicHealthController::class], secure = false)
 class AuroraPublicHealthControllerTest {
 
