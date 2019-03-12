@@ -35,7 +35,9 @@ import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.RecordedRequest
 import org.junit.jupiter.api.Test
 import org.springframework.http.HttpHeaders
+import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClient.create
+import java.net.UnknownHostException
 
 @MockWebServerTestTag
 class DatabaseSchemaServiceBlockingTest {
@@ -236,6 +238,18 @@ class DatabaseSchemaServiceBlockingTest {
         assertThat(request).containsAuroraToken()
         assertThat(request.path).endsWith("/")
         assertThat(creationRequest.jdbcUser).isNotNull()
+    }
+
+    @Test
+    fun `Get database schema given unknown hostname throw SourceSystemException`() {
+        val serviceWithUnknownHost =
+            DatabaseSchemaServiceBlocking(
+                DatabaseSchemaServiceReactive(sharedSecretReader, WebClient.create("http://unknown-hostname"))
+            )
+
+        val exception = catch { serviceWithUnknownHost.getDatabaseSchema("abc123") }
+        assertThat(exception).isNotNull().isInstanceOf(SourceSystemException::class)
+        assertThat(exception?.cause).isNotNull().isInstanceOf(UnknownHostException::class)
     }
 
     private fun Assert<RecordedRequest>.containsAuroraToken() = given { request ->

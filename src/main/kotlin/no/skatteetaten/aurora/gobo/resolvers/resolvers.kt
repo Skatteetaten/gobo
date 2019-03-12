@@ -55,6 +55,6 @@ fun <T> Mono<T>.handleError(sourceSystem: String?) =
                 code = it.statusCode.name
             )
             is SourceSystemException -> throw it
-            else -> throw SourceSystemException("Error response", it)
+            else -> throw SourceSystemException(message = it.message ?: "", cause = it, errorMessage = "Error response")
         }
     }
