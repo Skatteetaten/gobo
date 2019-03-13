@@ -22,7 +22,8 @@ class DatabaseSchemaDataLoaderTest {
     private val dbhUrl = server.url("/").toString()
     private val applicationConfig = ApplicationConfig(
         connectionTimeout = 100,
-        readTimeout = 100
+        readTimeout = 100,
+        applicationName = ""
     )
     private val dbhClient = applicationConfig.webClientDbh(dbhUrl)
     private val applicationService = ApplicationServiceBlocking(ApplicationService(dbhClient))
