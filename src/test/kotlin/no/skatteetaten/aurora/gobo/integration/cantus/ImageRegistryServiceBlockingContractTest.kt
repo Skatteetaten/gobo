@@ -1,7 +1,6 @@
 package no.skatteetaten.aurora.gobo.integration.cantus
 
 import assertk.assertThat
-import assertk.assertions.endsWith
 import assertk.assertions.isGreaterThan
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull

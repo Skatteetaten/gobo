@@ -2,7 +2,6 @@ package no.skatteetaten.aurora.gobo.integration
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import no.skatteetaten.aurora.filter.logging.AuroraHeaderFilter
 import no.skatteetaten.aurora.gobo.ApplicationConfig
 import no.skatteetaten.aurora.gobo.HEADER_KLIENTID
 import okhttp3.mockwebserver.MockResponse
@@ -23,18 +22,14 @@ class DefaultHeadersTest {
     private lateinit var applicationConfig: ApplicationConfig
 
     @Test
-    fun `Verify default headers`() {
+    fun `Verify KlientID header`() {
         val webClient = applicationConfig.webClientBuilder(false).baseUrl(url.toString()).build()
 
-        val response = MockResponse().apply {
-            setHeader(AuroraHeaderFilter.KORRELASJONS_ID, "abc123")
-        }
-        val request = server.execute(response) {
+        val request = server.execute(MockResponse()) {
             webClient.get().retrieve().bodyToMono<Unit>().block()
         }
 
         val headers = request.headers
         assertThat(headers[HEADER_KLIENTID]).isEqualTo("gobo")
-        assertThat(headers[AuroraHeaderFilter.KORRELASJONS_ID]).isEqualTo("abc123")
     }
 }
