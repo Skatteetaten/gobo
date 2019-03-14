@@ -39,7 +39,7 @@ dependencies {
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.13")
     testImplementation("io.projectreactor:reactor-test")
     testImplementation("com.nhaarman:mockito-kotlin:1.6.0")
-    testImplementation("com.squareup.okhttp3:mockwebserver:3.13.1")
+    testImplementation("com.squareup.okhttp3:mockwebserver:3.14.0")
 }
 
 
