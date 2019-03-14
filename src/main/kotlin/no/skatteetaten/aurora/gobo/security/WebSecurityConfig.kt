@@ -30,6 +30,7 @@ class WebSecurityConfig(
             .antMatchers("/public/**").permitAll()
             .antMatchers("/graphql").permitAll()
             .antMatchers("/graphiql").permitAll()
+            .antMatchers("/altair").permitAll()
             .antMatchers("/voyager").permitAll()
             .antMatchers("/vendor/**").permitAll()
             .anyRequest().authenticated()
