@@ -5,6 +5,8 @@ import io.netty.handler.ssl.SslContextBuilder
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory
 import io.netty.handler.timeout.ReadTimeoutHandler
 import mu.KotlinLogging
+import no.skatteetaten.aurora.filter.logging.AuroraHeaderFilter
+import no.skatteetaten.aurora.filter.logging.RequestKorrelasjon
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
@@ -29,6 +31,8 @@ import reactor.netty.tcp.SslProvider
 import java.util.concurrent.TimeUnit
 import kotlin.math.min
 
+val HEADER_KLIENTID = "KlientID"
+
 enum class ServiceTypes {
     MOKEY, BOOBER, UNCLEMATT, CANTUS, DBH
 }
@@ -48,7 +52,8 @@ private val logger = KotlinLogging.logger {}
 @Configuration
 class ApplicationConfig(
     @Value("\${gobo.webclient.read-timeout:30000}") val readTimeout: Int,
-    @Value("\${gobo.webclient.connection-timeout:30000}") val connectionTimeout: Int
+    @Value("\${gobo.webclient.connection-timeout:30000}") val connectionTimeout: Int,
+    @Value("\${spring.application.name}") val applicationName: String
 ) {
 
     @Bean
@@ -89,6 +94,8 @@ class ApplicationConfig(
         WebClient
             .builder()
             .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .defaultHeader(HEADER_KLIENTID, applicationName)
+            .defaultHeader(AuroraHeaderFilter.KORRELASJONS_ID, RequestKorrelasjon.getId())
             .exchangeStrategies(exchangeStrategies())
             .filter(ExchangeFilterFunction.ofRequestProcessor {
                 val bearer = it.headers()[HttpHeaders.AUTHORIZATION]?.firstOrNull()?.let { token ->

@@ -31,8 +31,8 @@ class DatabaseSchemaResourceTest {
     fun `Get milliseconds as Instant`() {
         val created = databaseSchemaResource.createdDateAsInstant()
         val lastUsed = databaseSchemaResource.lastUsedDateAsInstant()
-        assertThat(created).isEqualTo(now)
-        assertThat(lastUsed).isEqualTo(now)
+        assertThat(created.epochSecond).isEqualTo(now.epochSecond)
+        assertThat(lastUsed?.epochSecond).isEqualTo(now.epochSecond)
     }
 
     @Test

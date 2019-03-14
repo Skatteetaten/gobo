@@ -1,4 +1,6 @@
 spring:
+    application:
+        name: gobo
     main:
         banner-mode: "off"
 

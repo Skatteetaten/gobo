@@ -7,6 +7,8 @@ info:
         cantus: ${integrations.cantus.url}
 
 spring:
+    application:
+        name: gobo
     profiles:
         active: local
 
