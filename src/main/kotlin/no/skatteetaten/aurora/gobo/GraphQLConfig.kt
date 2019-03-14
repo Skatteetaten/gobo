@@ -1,7 +1,9 @@
 package no.skatteetaten.aurora.gobo
 
 import com.coxautodev.graphql.tools.SchemaParserOptions
-import com.oembedler.moon.graphql.boot.GraphQLWebAutoConfiguration
+import com.oembedler.moon.graphql.boot.GraphQLWebAutoConfiguration.MUTATION_EXECUTION_STRATEGY
+import com.oembedler.moon.graphql.boot.GraphQLWebAutoConfiguration.QUERY_EXECUTION_STRATEGY
+import com.oembedler.moon.graphql.boot.GraphQLWebAutoConfiguration.SUBSCRIPTION_EXECUTION_STRATEGY
 import graphql.execution.AsyncExecutionStrategy
 import graphql.execution.ExecutionStrategy
 import graphql.execution.SubscriptionExecutionStrategy
@@ -24,13 +26,14 @@ class GraphQLConfig {
             .build()
 
     @Bean
-    fun executionStrategies(): Map<String, ExecutionStrategy> =
-        mapOf(
-            GraphQLWebAutoConfiguration.QUERY_EXECUTION_STRATEGY to AsyncExecutionStrategy(
-                GoboDataFetcherExceptionHandler()
-            ), GraphQLWebAutoConfiguration.MUTATION_EXECUTION_STRATEGY to AsyncExecutionStrategy(),
-            GraphQLWebAutoConfiguration.SUBSCRIPTION_EXECUTION_STRATEGY to SubscriptionExecutionStrategy()
+    fun executionStrategies(): Map<String, ExecutionStrategy> {
+        val exceptionHandler = GoboDataFetcherExceptionHandler()
+        return mapOf(
+            QUERY_EXECUTION_STRATEGY to AsyncExecutionStrategy(exceptionHandler),
+            MUTATION_EXECUTION_STRATEGY to AsyncExecutionStrategy(exceptionHandler),
+            SUBSCRIPTION_EXECUTION_STRATEGY to SubscriptionExecutionStrategy(exceptionHandler)
         )
+    }
 
     @Bean
     @ConditionalOnProperty(name = ["gobo.graphql.tracing-enabled"], havingValue = "true", matchIfMissing = false)
