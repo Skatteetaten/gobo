@@ -24,6 +24,7 @@ dependencies {
 
     implementation("com.graphql-java-kickstart:graphql-spring-boot-starter:5.7.0")
     implementation("com.graphql-java-kickstart:graphiql-spring-boot-starter:5.7.0")
+    implementation("com.graphql-java-kickstart:altair-spring-boot-starter:5.7.0")
     implementation("com.graphql-java-kickstart:voyager-spring-boot-starter:5.7.0")
     implementation("com.graphql-java-kickstart:graphql-java-tools:5.5.1")
 
