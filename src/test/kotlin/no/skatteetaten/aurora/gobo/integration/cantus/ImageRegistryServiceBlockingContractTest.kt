@@ -8,11 +8,13 @@ import assertk.assertions.startsWith
 import no.skatteetaten.aurora.gobo.ApplicationConfig
 import no.skatteetaten.aurora.gobo.integration.SpringTestTag
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.cloud.contract.stubrunner.spring.AutoConfigureStubRunner
 
+@Disabled("Requires new mockmvc contract tests")
 @SpringTestTag
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.NONE,
