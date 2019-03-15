@@ -38,7 +38,7 @@ class OpenShiftUserLoader {
         return try {
             DefaultOpenShiftClient(ConfigBuilder().withOauthToken(token).build()).currentUser()
         } catch (e: KubernetesClientException) {
-            logger.info("Exception when trying to get the current user", e)
+            logger.info("Exception when trying to get the current user, ${e.message}")
             null
         }
     }
