@@ -6,12 +6,10 @@ import no.skatteetaten.aurora.gobo.TargetService
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.resolvers.handleError
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageTag
-
 import org.springframework.stereotype.Service
-import org.springframework.util.LinkedMultiValueMap
+import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.bodyToMono
-import org.springframework.web.util.UriComponentsBuilder
 import reactor.core.publisher.Mono
 import reactor.core.publisher.toMono
 
@@ -38,13 +36,12 @@ class ImageRegistryServiceBlocking(
 ) {
 
     fun resolveTagToSha(imageRepoDto: ImageRepoDto, imageTag: String, token: String): String? {
+        val requestBody = BodyInserters.fromObject(listOf("${imageRepoDto.repository}/$imageTag"))
+
         val auroraImageTagResource: AuroraResponse<ImageTagResource> =
             execute<AuroraResponse<ImageTagResource>>(token) {
                 logger.debug("Retrieving type=ImageTagResource from  url=${imageRepoDto.registry} image=${imageRepoDto.imageName}/$imageTag")
-                it.get().uri(
-                    "/manifest?tagUrls=${imageRepoDto.registry}/{namespace}/{imageTag}/{tag}",
-                    imageRepoDto.mappedTemplateVars.plus("tag" to imageTag)
-                )
+                it.post().uri("/manifest").body(requestBody)
             }.block()!!
         return ImageTagDto.toDto(auroraImageTagResource, imageTag, imageRepoDto).dockerDigest
     }
@@ -53,18 +50,14 @@ class ImageRegistryServiceBlocking(
         imageReposAndTags: List<ImageRepoAndTags>,
         token: String
     ): AuroraResponse<ImageTagResource> {
-        val tagUrlsQueryParameters =
-            LinkedMultiValueMap<String, String>().apply { addAll("tagUrls", imageReposAndTags.getAllTagUrls()) }
+        val tagUrls = imageReposAndTags.getAllTagUrls()
+        val requestBody = BodyInserters.fromObject(tagUrls)
 
-        val tagPath = UriComponentsBuilder
-            .fromPath("/manifest")
-            .queryParams(tagUrlsQueryParameters)
-            .build()
-            .toUriString()
-
-        return execute<AuroraResponse<ImageTagResource>>(token) { it.get().uri(tagPath) }.block()!!
+        return execute<AuroraResponse<ImageTagResource>>(token) {
+            it.post().uri("/manifest").body(requestBody)
+        }.block()!!
     }
-    //test
+
     fun findTagNamesInRepoOrderedByCreatedDateDesc(imageRepoDto: ImageRepoDto, token: String) =
         TagsDto.toDto(
             execute<AuroraResponse<TagResource>>(token) {
