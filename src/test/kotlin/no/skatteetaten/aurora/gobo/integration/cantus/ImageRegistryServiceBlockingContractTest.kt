@@ -20,10 +20,7 @@ import org.springframework.cloud.contract.stubrunner.spring.AutoConfigureStubRun
     webEnvironment = SpringBootTest.WebEnvironment.NONE,
     classes = [ApplicationConfig::class, ImageRegistryServiceBlocking::class]
 )
-@AutoConfigureStubRunner(
-    ids = ["no.skatteetaten.aurora:cantus:AOS_3290_post_for_queryparametre-SNAPSHOT:stubs:6568"],
-    repositoryRoot = "http://aurora/nexus/content/repositories/snapshots"
-)
+@AutoConfigureStubRunner(ids = ["no.skatteetaten.aurora:cantus:+:stubs:6568"])
 class ImageRegistryServiceBlockingContractTest {
 
     @Autowired
