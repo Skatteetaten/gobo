@@ -51,7 +51,7 @@ class ImageRegistryServiceBlockingContractTest {
     }
 
     @Test
-    fun `get tagsByName given repositories and tagNames return AuroraResponse`() {
+    fun `getTagsByName given repositories and tagNames return AuroraResponse`() {
 
         val imageReposAndTags = listOf(
             ImageRepoAndTags("docker1.no/no_skatteetaten_aurora_demo/whoami", listOf("1")),
