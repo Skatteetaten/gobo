@@ -1,0 +1,15 @@
+{
+    certificates {
+        totalCount
+        edges {
+            cursor
+            node {
+                id
+                cn
+                issuedDate
+                revokedDate
+                expiresDate
+            }
+        }
+    }
+}
