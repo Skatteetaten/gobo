@@ -7,10 +7,10 @@ import assertk.assertions.isSameAs
 import no.skatteetaten.aurora.gobo.ApplicationConfig
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentDetailsBuilder
 import no.skatteetaten.aurora.gobo.integration.MockWebServerTestTag
-import no.skatteetaten.aurora.gobo.integration.execute
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
 import no.skatteetaten.aurora.gobo.resolvers.user.User
+import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.execute
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.SocketPolicy
@@ -41,14 +41,14 @@ class ApplicationDeploymentDetailsDataLoaderTest {
         val request = server.execute(ApplicationDeploymentDetailsBuilder().build()) {
             val result = dataLoader.getByKey(User("username", "token"), ("applicationDeploymentId"))
             assertThat(result).isNotNull()
-        }
+        }.first()
 
         assertThat(request.path).isEqualTo("/api/auth/applicationdeploymentdetails/applicationDeploymentId")
     }
 
     @Test
     fun `Handle 404 from ApplicationService`() {
-        server.execute(404, "Not found") {
+        server.execute(404 to "Not found") {
             val result = dataLoader.getByKey(User("username", "token"), "applicationDeploymentId")
             assertThat(result.isFailure).isSameAs(true)
         }

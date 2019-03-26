@@ -9,8 +9,8 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import no.skatteetaten.aurora.gobo.AuroraResponseBuilder
 import no.skatteetaten.aurora.gobo.integration.MockWebServerTestTag
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
-import no.skatteetaten.aurora.gobo.integration.execute
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository
+import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.execute
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.jupiter.params.ParameterizedTest
@@ -43,12 +43,10 @@ class ImageRegistryServiceBlockingTest {
 
         server.execute(mockResponse) {
             val exception = catch { imageRegistry.findTagNamesInRepoOrderedByCreatedDateDesc(imageRepo, token) }
-            assertThat(exception).isNotNull()
-                .isInstanceOf(SourceSystemException::class)
+            assertThat(exception).isNotNull().isInstanceOf(SourceSystemException::class)
 
-            assertThat(
-                exception?.message ?: ""
-            ).endsWith("status=$statusCode message=${HttpStatus.valueOf(statusCode).reasonPhrase}")
+            assertThat(exception?.message ?: "")
+                .endsWith("status=$statusCode message=${HttpStatus.valueOf(statusCode).reasonPhrase}")
         }
     }
 }

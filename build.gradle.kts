@@ -41,6 +41,7 @@ dependencies {
     testImplementation("io.projectreactor:reactor-test")
     testImplementation("com.nhaarman:mockito-kotlin:1.6.0")
     testImplementation("com.squareup.okhttp3:mockwebserver:3.14.0")
+    testImplementation("no.skatteetaten.aurora:mockmvc-extensions-kotlin:0.6.2")
 }
 
 

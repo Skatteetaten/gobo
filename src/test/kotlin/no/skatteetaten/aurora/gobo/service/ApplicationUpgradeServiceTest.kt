@@ -11,18 +11,21 @@ import com.fasterxml.jackson.databind.node.TextNode
 import no.skatteetaten.aurora.gobo.ApplicationConfig
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentDetailsBuilder
 import no.skatteetaten.aurora.gobo.AuroraConfigFileBuilder
+import no.skatteetaten.aurora.gobo.createTestObjectMapper
 import no.skatteetaten.aurora.gobo.integration.MockWebServerTestTag
 import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigService
 import no.skatteetaten.aurora.gobo.integration.boober.BooberWebClient
-import no.skatteetaten.aurora.gobo.integration.execute
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
+import no.skatteetaten.aurora.mockmvc.extensions.TestObjectMapperConfigurer
+import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.execute
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.SocketPolicy
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.params.ParameterizedTest
@@ -42,8 +45,14 @@ class ApplicationUpgradeServiceTest {
         ApplicationServiceBlocking(ApplicationService(config.webClientMokey("${url}mokey")))
     private val upgradeService = ApplicationUpgradeService(applicationService, auroraConfigService)
 
+    @BeforeEach
+    fun setUp() {
+        TestObjectMapperConfigurer.objectMapper = createTestObjectMapper()
+    }
+
     @AfterEach
     fun tearDown() {
+        TestObjectMapperConfigurer.reset()
         server.shutdown()
     }
 
@@ -86,7 +95,7 @@ class ApplicationUpgradeServiceTest {
     @Test
     fun `Handle error response from AuroraConfigService`() {
         val exception = catch {
-            server.execute(404, "Not found") {
+            server.execute(404 to "Not found") {
                 upgradeService.upgrade("token", "applicationDeploymentId", "version")
             }
         }
