@@ -1,1 +1,0 @@
-org.springframework.cloud.contract.verifier.dsl.wiremock.WireMockExtensions=no.skatteetaten.aurora.gobo.MockMvcWireMockExtensions
