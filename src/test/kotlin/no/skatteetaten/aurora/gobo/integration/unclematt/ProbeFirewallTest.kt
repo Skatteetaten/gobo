@@ -9,7 +9,7 @@ import assertk.assertions.message
 import assertk.catch
 import no.skatteetaten.aurora.gobo.integration.MockWebServerTestTag
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
-import no.skatteetaten.aurora.gobo.integration.execute
+import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.execute
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.jupiter.api.Test
 import org.springframework.web.reactive.function.client.WebClient
@@ -32,7 +32,7 @@ class ProbeFireWallTest {
     @Test
     fun `throws correct exception when backend returns 404`() {
         val exception = catch {
-            server.execute(404, "") {
+            server.execute(404 to "") {
                 probeService.probeFirewall("server.test.no", 9999)
             }
         }

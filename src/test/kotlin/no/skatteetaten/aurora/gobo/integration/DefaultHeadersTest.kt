@@ -4,6 +4,7 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import no.skatteetaten.aurora.gobo.ApplicationConfig
 import no.skatteetaten.aurora.gobo.HEADER_KLIENTID
+import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.execute
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.jupiter.api.Test
@@ -29,7 +30,7 @@ class DefaultHeadersTest {
             webClient.get().retrieve().bodyToMono<Unit>().block()
         }
 
-        val headers = request.headers
+        val headers = request.first().headers
         assertThat(headers[HEADER_KLIENTID]).isEqualTo("gobo")
     }
 }
