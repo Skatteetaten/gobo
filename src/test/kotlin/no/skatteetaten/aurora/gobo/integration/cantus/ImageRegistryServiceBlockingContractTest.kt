@@ -67,7 +67,7 @@ class ImageRegistryServiceBlockingContractTest {
     fun `get tags given non existing image return AuroraResponse with CantusFailure`() {
         val missingImageRepo = imageRepo.copy(name = "missing")
 
-        val exception = catch {imageRegistry.findTagNamesInRepoOrderedByCreatedDateDesc(missingImageRepo, token)}
+        val exception = catch { imageRegistry.findTagNamesInRepoOrderedByCreatedDateDesc(missingImageRepo, token) }
 
         assertThat(exception).isNotNull().isInstanceOf(SourceSystemException::class)
     }
