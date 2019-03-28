@@ -7,7 +7,7 @@ import java.time.Instant
 
 data class Certificate(
     val id: String,
-    val cn: String,
+    val dn: String,
     val issuedDate: Instant?,
     val revokedDate: Instant?,
     val expiresDate: Instant?

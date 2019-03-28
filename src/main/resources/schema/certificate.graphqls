@@ -11,7 +11,7 @@ type CertificateEdge {
 
 type Certificate {
   id: String!
-  cn: String!
+  dn: String!
   issuedDate: DateTime
   revokedDate: DateTime
   expiresDate: DateTime

@@ -1,7 +1,9 @@
 package no.skatteetaten.aurora.gobo.resolvers.certificate
 
+import no.skatteetaten.aurora.gobo.CertificateBuilder
 import no.skatteetaten.aurora.gobo.GraphQLTest
 import no.skatteetaten.aurora.gobo.OpenShiftUserBuilder
+import no.skatteetaten.aurora.gobo.integration.skap.CertificateServiceBlocking
 import no.skatteetaten.aurora.gobo.resolvers.graphqlData
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import no.skatteetaten.aurora.gobo.security.OpenShiftUserLoader
@@ -29,6 +31,9 @@ class CertificateResolverTest {
     @MockBean
     private lateinit var openShiftUserLoader: OpenShiftUserLoader
 
+    @MockBean
+    private lateinit var certificateService: CertificateServiceBlocking
+
     @BeforeEach
     fun setUp() {
         given(openShiftUserLoader.findOpenShiftUserByToken(anyString())).willReturn(OpenShiftUserBuilder().build())
@@ -39,6 +44,10 @@ class CertificateResolverTest {
 
     @Test
     fun `Get certificate list`() {
+        val certificate1 = CertificateBuilder().build()
+        val certificate2 = CertificateBuilder(id = "2", dn = ".atomhopper").build()
+        given(certificateService.getCertificates()).willReturn(listOf(certificate1, certificate2))
+
         webTestClient.queryGraphQL(queryResource = getCertificates, token = "test-token")
             .expectStatus().isOk
             .expectBody()
