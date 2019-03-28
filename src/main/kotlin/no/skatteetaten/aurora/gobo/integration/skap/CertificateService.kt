@@ -25,7 +25,7 @@ class CertificateService(
     fun getCertificates(): Mono<List<Certificate>> =
         webClient
             .get()
-            .uri("/certificate/v3")
+            .uri("/certificate/list")
             .header(HttpHeaders.AUTHORIZATION, "$HEADER_AURORA_TOKEN ${sharedSecretReader.secret}")
             .retrieve()
             .bodyToMono()
