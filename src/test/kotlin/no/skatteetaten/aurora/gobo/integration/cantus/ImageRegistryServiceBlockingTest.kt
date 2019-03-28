@@ -2,6 +2,7 @@ package no.skatteetaten.aurora.gobo.integration.cantus
 
 import assertk.assertThat
 import assertk.assertions.endsWith
+import assertk.assertions.isGreaterThan
 import assertk.assertions.isInstanceOf
 import assertk.assertions.isNotNull
 import assertk.catch
@@ -13,6 +14,7 @@ import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.execute
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 import org.springframework.http.HttpStatus
@@ -47,6 +49,25 @@ class ImageRegistryServiceBlockingTest {
 
             assertThat(exception?.message ?: "")
                 .endsWith("status=$statusCode message=${HttpStatus.valueOf(statusCode).reasonPhrase}")
+        }
+    }
+
+    @Test
+    fun `getTagsByName given non existing tag for image return AuroraResponse with CantusFailure`() {
+
+        val repository = "docker1.no/no_skatteetaten_aurora_demo/whoami"
+        val tag = "10"
+
+        val auroraResponse = AuroraResponseBuilder(status = 404, url = "$repository/$tag").build()
+
+        val imageRepoAndTags =
+            listOf(ImageRepoAndTags(repository, listOf(tag)))
+
+        server.execute(auroraResponse) {
+            val auroraResponseFailure = imageRegistry.findTagsByName(imageRepoAndTags, token)
+            assertThat(auroraResponseFailure.failureCount).isGreaterThan(0)
+            assertThat(auroraResponseFailure.failure.all { it.url.isNotEmpty() })
+            assertThat(auroraResponseFailure.failure.any { it.errorMessage.endsWith("status=404 message=Not Found") })
         }
     }
 }
