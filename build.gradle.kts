@@ -1,7 +1,7 @@
 plugins {
     id("org.jetbrains.kotlin.jvm") version "1.3.21"
     id("org.jetbrains.kotlin.plugin.spring") version "1.3.21"
-    id("org.jlleitschuh.gradle.ktlint") version "7.1.0"
+    id("org.jlleitschuh.gradle.ktlint") version "7.2.1"
 
     id("org.springframework.boot") version "2.1.3.RELEASE"
     id("org.asciidoctor.convert") version "1.6.0"
@@ -10,7 +10,7 @@ plugins {
     id("com.github.ben-manes.versions") version "0.21.0"
     id("se.patrikerdes.use-latest-versions") version "0.2.9"
 
-    id("no.skatteetaten.gradle.aurora") version "2.0.2"
+    id("no.skatteetaten.gradle.aurora") version "2.2.1"
 }
 
 val springCloudContractVersion: String = project.property("aurora.springCloudContractVersion") as String
@@ -22,10 +22,10 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-hateoas")
 
-    implementation("com.graphql-java-kickstart:graphql-spring-boot-starter:5.7.0")
-    implementation("com.graphql-java-kickstart:graphiql-spring-boot-starter:5.7.0")
-    implementation("com.graphql-java-kickstart:altair-spring-boot-starter:5.7.0")
-    implementation("com.graphql-java-kickstart:voyager-spring-boot-starter:5.7.0")
+    implementation("com.graphql-java-kickstart:graphql-spring-boot-starter:5.7.1")
+    implementation("com.graphql-java-kickstart:graphiql-spring-boot-starter:5.7.1")
+    implementation("com.graphql-java-kickstart:altair-spring-boot-starter:5.7.1")
+    implementation("com.graphql-java-kickstart:voyager-spring-boot-starter:5.7.1")
     implementation("com.graphql-java-kickstart:graphql-java-tools:5.5.1")
 
     implementation("uk.q3c.rest:hal-kotlin:0.5.4.0.db32476")
@@ -36,13 +36,13 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
     testImplementation("org.springframework.cloud:spring-cloud-starter-contract-stub-runner:$springCloudContractVersion")
-    testImplementation("io.mockk:mockk:1.9.2")
+    testImplementation("io.mockk:mockk:1.9.3")
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.13")
     testImplementation("io.projectreactor:reactor-test")
     testImplementation("com.nhaarman:mockito-kotlin:1.6.0")
     testImplementation("com.squareup.okhttp3:mockwebserver:3.14.0")
+    testImplementation("no.skatteetaten.aurora:mockmvc-extensions-kotlin:0.6.2")
 }
-
 
 tasks {
     fun createTagsArray(tags: Any?) = (tags as String).split(",").toTypedArray()

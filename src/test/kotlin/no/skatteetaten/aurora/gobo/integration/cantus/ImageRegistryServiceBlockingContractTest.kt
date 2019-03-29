@@ -1,20 +1,20 @@
 package no.skatteetaten.aurora.gobo.integration.cantus
 
 import assertk.assertThat
-import assertk.assertions.isGreaterThan
+import assertk.assertions.isInstanceOf
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import assertk.assertions.startsWith
+import assertk.catch
 import no.skatteetaten.aurora.gobo.ApplicationConfig
+import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.integration.SpringTestTag
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.cloud.contract.stubrunner.spring.AutoConfigureStubRunner
 
-@Disabled("Requires new mockmvc contract tests")
 @SpringTestTag
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.NONE,
@@ -26,7 +26,7 @@ class ImageRegistryServiceBlockingContractTest {
     @Autowired
     private lateinit var imageRegistry: ImageRegistryServiceBlocking
 
-    private val imageRepoName = "docker1.no/no_skatteetaten_aurora_demo/whoami"
+    private val imageRepoName = "url/namespace/name"
     private val tagName = "1"
 
     private val imageRepo = ImageRepository.fromRepoString(imageRepoName).toImageRepo()
@@ -64,15 +64,11 @@ class ImageRegistryServiceBlockingContractTest {
     }
 
     @Test
-    fun `getTagsByName given non existing tag for image return AuroraResponse with CantusFailure`() {
-        val repository = "docker1.no/no_skatteetaten_aurora_demo/whoami"
-        val tag = "10"
-        val imageRepoAndTags =
-            listOf(ImageRepoAndTags(repository, listOf(tag)))
+    fun `get tags given non existing image return AuroraResponse with CantusFailure`() {
+        val missingImageRepo = imageRepo.copy(name = "missing")
 
-        val auroraResponseFailure = imageRegistry.findTagsByName(imageRepoAndTags, token)
-        assertThat(auroraResponseFailure.failureCount).isGreaterThan(0)
-        assertThat(auroraResponseFailure.failure.all { it.url.isNotEmpty() })
-        assertThat(auroraResponseFailure.failure.any { it.errorMessage.endsWith("status=404 message=Not Found") })
+        val exception = catch { imageRegistry.findTagNamesInRepoOrderedByCreatedDateDesc(missingImageRepo, token) }
+
+        assertThat(exception).isNotNull().isInstanceOf(SourceSystemException::class)
     }
 }

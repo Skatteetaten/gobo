@@ -4,13 +4,16 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import no.skatteetaten.aurora.gobo.ApplicationConfig
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentWithDbResourceBuilder
+import no.skatteetaten.aurora.gobo.createTestObjectMapper
 import no.skatteetaten.aurora.gobo.integration.MockWebServerTestTag
-import no.skatteetaten.aurora.gobo.integration.execute
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
 import no.skatteetaten.aurora.gobo.resolvers.user.User
+import no.skatteetaten.aurora.mockmvc.extensions.TestObjectMapperConfigurer
+import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.execute
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 
@@ -29,8 +32,14 @@ class DatabaseSchemaDataLoaderTest {
     private val applicationService = ApplicationServiceBlocking(ApplicationService(dbhClient))
     private val dataLoader = DatabaseSchemaDataLoader(applicationService)
 
+    @BeforeEach
+    fun setUp() {
+        TestObjectMapperConfigurer.objectMapper = createTestObjectMapper()
+    }
+
     @AfterEach
     fun tearDown() {
+        TestObjectMapperConfigurer.reset()
         server.shutdown()
     }
 
@@ -41,7 +50,7 @@ class DatabaseSchemaDataLoaderTest {
         val request = server.execute(listOf(resource1, resource2)) {
             val result = dataLoader.getByKeys(User("username", "token"), mutableSetOf("123", "456"))
             assertThat(result["123"]?.get()?.size).isEqualTo(1)
-        }
+        }.first()
 
         assertThat(request.path).isEqualTo("/api/auth/applicationdeploymentbyresource/databases")
     }

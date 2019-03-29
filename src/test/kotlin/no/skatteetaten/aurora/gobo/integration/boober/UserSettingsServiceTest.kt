@@ -5,9 +5,9 @@ import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import no.skatteetaten.aurora.gobo.integration.MockWebServerTestTag
 import no.skatteetaten.aurora.gobo.integration.Response
-import no.skatteetaten.aurora.gobo.integration.execute
 import no.skatteetaten.aurora.gobo.resolvers.usersettings.ApplicationDeploymentFilter
 import no.skatteetaten.aurora.gobo.resolvers.usersettings.UserSettings
+import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.execute
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.jupiter.api.Test
 import org.springframework.http.HttpMethod
@@ -35,7 +35,7 @@ class UserSettingsServiceTest {
             val response = applicationDeploymentFilterService.getUserSettings("token")
             assertThat(response.applicationDeploymentFilters.size).isEqualTo(1)
             assertThat(response.applicationDeploymentFilters[0]).isEqualTo(filter)
-        }
+        }.first()
 
         assertThat(request.path).isEqualTo("/v1/users/annotations/applicationDeploymentFilters")
         assertThat(request.method).isEqualTo(HttpMethod.GET.name)
@@ -46,7 +46,7 @@ class UserSettingsServiceTest {
         val request = server.execute(Response(items = emptyList<UserSettingsResource>())) {
             val response = applicationDeploymentFilterService.getUserSettings("token")
             assertThat(response.applicationDeploymentFilters).isEmpty()
-        }
+        }.first()
 
         assertThat(request.path).isEqualTo("/v1/users/annotations/applicationDeploymentFilters")
         assertThat(request.method).isEqualTo(HttpMethod.GET.name)
@@ -57,7 +57,7 @@ class UserSettingsServiceTest {
         val userSettings = UserSettings(listOf(ApplicationDeploymentFilter(filter)))
         val request = server.execute(response) {
             applicationDeploymentFilterService.updateUserSettings("token", userSettings)
-        }
+        }.first()
 
         assertThat(request.path).isEqualTo("/v1/users/annotations/applicationDeploymentFilters")
         assertThat(request.method).isEqualTo(HttpMethod.PATCH.name)
@@ -68,7 +68,7 @@ class UserSettingsServiceTest {
         val userSettings = UserSettings(emptyList())
         val request = server.execute(Response(items = listOf(UserSettingsResource(emptyList())))) {
             applicationDeploymentFilterService.updateUserSettings("token", userSettings)
-        }
+        }.first()
 
         assertThat(request.path).isEqualTo("/v1/users/annotations/applicationDeploymentFilters")
         assertThat(request.method).isEqualTo(HttpMethod.PATCH.name)
