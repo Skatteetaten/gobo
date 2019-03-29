@@ -2,8 +2,9 @@ package no.skatteetaten.aurora.gobo.integration.cantus
 
 import assertk.assertThat
 import assertk.assertions.endsWith
-import assertk.assertions.isGreaterThan
+import assertk.assertions.isEqualTo
 import assertk.assertions.isInstanceOf
+import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import assertk.catch
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
@@ -65,9 +66,9 @@ class ImageRegistryServiceBlockingTest {
 
         server.execute(auroraResponse) {
             val auroraResponseFailure = imageRegistry.findTagsByName(imageRepoAndTags, token)
-            assertThat(auroraResponseFailure.failureCount).isGreaterThan(0)
-            assertThat(auroraResponseFailure.failure.all { it.url.isNotEmpty() })
-            assertThat(auroraResponseFailure.failure.any { it.errorMessage.endsWith("status=404 message=Not Found") })
+            assertThat(auroraResponseFailure.failureCount).isEqualTo(1)
+            assertThat(auroraResponseFailure.failure.first().url).isNotEmpty()
+            assertThat(auroraResponseFailure.failure.first().errorMessage).endsWith("status=404 message=Not Found")
         }
     }
 }
