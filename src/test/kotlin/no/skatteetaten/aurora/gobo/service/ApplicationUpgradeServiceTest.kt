@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.node.TextNode
 import no.skatteetaten.aurora.gobo.ApplicationConfig
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentDetailsBuilder
 import no.skatteetaten.aurora.gobo.AuroraConfigFileBuilder
-import no.skatteetaten.aurora.gobo.createHalTestObjectMapper
+import no.skatteetaten.aurora.gobo.createTestObjectMapper
 import no.skatteetaten.aurora.gobo.integration.MockWebServerTestTag
 import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
@@ -47,7 +47,7 @@ class ApplicationUpgradeServiceTest {
 
     @BeforeEach
     fun setUp() {
-        TestObjectMapperConfigurer.objectMapper = createHalTestObjectMapper()
+        TestObjectMapperConfigurer.objectMapper = createTestObjectMapper()
     }
 
     @AfterEach

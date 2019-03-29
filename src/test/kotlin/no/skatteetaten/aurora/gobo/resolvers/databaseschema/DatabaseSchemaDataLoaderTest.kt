@@ -4,7 +4,7 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import no.skatteetaten.aurora.gobo.ApplicationConfig
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentWithDbResourceBuilder
-import no.skatteetaten.aurora.gobo.createHalTestObjectMapper
+import no.skatteetaten.aurora.gobo.createTestObjectMapper
 import no.skatteetaten.aurora.gobo.integration.MockWebServerTestTag
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
@@ -34,7 +34,7 @@ class DatabaseSchemaDataLoaderTest {
 
     @BeforeEach
     fun setUp() {
-        TestObjectMapperConfigurer.objectMapper = createHalTestObjectMapper()
+        TestObjectMapperConfigurer.objectMapper = createTestObjectMapper()
     }
 
     @AfterEach
