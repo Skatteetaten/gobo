@@ -34,7 +34,7 @@ import kotlin.math.min
 val HEADER_KLIENTID = "KlientID"
 
 enum class ServiceTypes {
-    MOKEY, BOOBER, UNCLEMATT, CANTUS, DBH
+    MOKEY, BOOBER, UNCLEMATT, CANTUS, DBH, SKAP
 }
 
 @Target(AnnotationTarget.TYPE, AnnotationTarget.FUNCTION, AnnotationTarget.FIELD, AnnotationTarget.VALUE_PARAMETER)
@@ -84,6 +84,11 @@ class ApplicationConfig(
     @Bean
     @TargetService(ServiceTypes.BOOBER)
     fun webClientBoober() = webClientBuilder().build()
+
+    @Bean
+    @TargetService(ServiceTypes.SKAP)
+    fun webClientSkap(@Value("\${integrations.skap.url}") skapUrl: String) =
+        webClientBuilder().baseUrl(skapUrl).build()
 
     @ConditionalOnBean(RequiresDbh::class)
     @Bean

@@ -1,0 +1,18 @@
+type CertificatesConnection {
+  edges: [CertificateEdge]
+  totalCount: Int!
+  pageInfo: PageInfo
+}
+
+type CertificateEdge {
+  cursor: String
+  node: Certificate
+}
+
+type Certificate {
+  id: String!
+  dn: String!
+  issuedDate: DateTime
+  revokedDate: DateTime
+  expiresDate: DateTime
+}

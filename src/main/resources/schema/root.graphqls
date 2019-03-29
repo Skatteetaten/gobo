@@ -13,6 +13,7 @@ type Query {
   databaseSchemas(affiliations: [String!]!): [DatabaseSchema!]
   databaseSchema(id: String!): DatabaseSchema
   gobo: Gobo
+  certificates: CertificatesConnection
 }
 
 type Mutation {

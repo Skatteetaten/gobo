@@ -13,6 +13,8 @@ integrations:
     url: http://localhost:6567
   cantus:
     url: http://localhost:6568
+  skap:
+    url: http://localhost:6569
 
 aurora:
   token:

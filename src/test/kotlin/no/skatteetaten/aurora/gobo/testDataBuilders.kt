@@ -37,6 +37,7 @@ import no.skatteetaten.aurora.gobo.integration.unclematt.Result
 import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.ApplicationDeployment
 import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.Status
 import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.Version
+import no.skatteetaten.aurora.gobo.resolvers.certificate.Certificate
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageTag
 import org.intellij.lang.annotations.Language
@@ -418,4 +419,15 @@ data class AuroraResponseBuilder(val status: Int, val url: String) {
             message = errorMessage
         )
     }
+}
+
+data class CertificateBuilder(val id: String = "1", val dn: String = ".activemq") {
+
+    fun build() = Certificate(
+        id = id,
+        dn = dn,
+        issuedDate = Instant.now(),
+        revokedDate = Instant.now(),
+        expiresDate = Instant.now()
+    )
 }
