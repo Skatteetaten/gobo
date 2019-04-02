@@ -7,6 +7,7 @@ import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseSchemaService
 import no.skatteetaten.aurora.gobo.integration.mokey.AffiliationServiceBlocking
 import no.skatteetaten.aurora.gobo.resolvers.databaseschema.DatabaseSchema
 import no.skatteetaten.aurora.gobo.security.currentUser
+import no.skatteetaten.aurora.gobo.service.WebsealAffiliationService
 import org.springframework.stereotype.Component
 
 @Component
@@ -37,9 +38,14 @@ class AffiliationQueryResolver(
 }
 
 @Component
-class AffiliationResolver(private val databaseSchemaService: DatabaseSchemaService) :
-    GraphQLResolver<Affiliation> {
+class AffiliationResolver(
+    private val databaseSchemaService: DatabaseSchemaService,
+    private val websealAffiliationService: WebsealAffiliationService
+) : GraphQLResolver<Affiliation> {
 
     fun databaseSchemas(affiliation: Affiliation) =
         databaseSchemaService.getDatabaseSchemas(affiliation.name).map { DatabaseSchema.create(it, affiliation) }
+
+    fun websealStates(affiliation: Affiliation) =
+        websealAffiliationService.getWebsealState(affiliation.name)
 }

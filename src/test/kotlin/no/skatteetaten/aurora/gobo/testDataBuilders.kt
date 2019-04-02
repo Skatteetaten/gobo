@@ -438,7 +438,7 @@ data class CertificateResourceBuilder(val id: String = "1", val dn: String = ".a
 data class WebsealStateBuilder(val namespace: String = "test") {
 
     fun build() = WebsealState(
-        acl = Acl("name", true, true, emptyList()),
+        acl = Acl("acl-name", true, true, emptyList()),
         name = "test.no",
         namespace = namespace,
         routeName = "test-route",
@@ -454,7 +454,7 @@ data class WebsealStateBuilder(val namespace: String = "test") {
                 delegationSupport = "delegationSupport",
                 formsBasedSSO = "formsBasedSSO",
                 hostname = "hostname",
-                id = "id",
+                id = "junction-id",
                 insertWebSEALSessionCookies = "insertWebSEALSessionCookies",
                 insertWebSphereLTPACookies = "insertWebSphereLTPACookies",
                 junctionHardLimit = "junctionHardLimit",

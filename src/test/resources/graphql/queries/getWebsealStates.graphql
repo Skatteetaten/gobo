@@ -1,0 +1,18 @@
+query getWebsealStates($affiliation: String!) {
+    affiliations(name: $affiliation) {
+        edges {
+            node {
+                websealStates {
+                    name
+                    namespace
+                    acl {
+                        aclName
+                    }
+                    junctions {
+                        id
+                    }
+                }
+            }
+        }
+    }
+}

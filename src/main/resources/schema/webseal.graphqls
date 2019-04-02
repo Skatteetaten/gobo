@@ -1,0 +1,49 @@
+type Junction {
+  activeWorkerThreads: String!
+  allowWindowsStyleURLs: String!
+  authenticationHTTPheader: String!
+  basicAuthenticationMode: String!
+  booleanRuleHeader: String!
+  caseInsensitiveURLs: String!
+  currentRequests: String!
+  delegationSupport: String!
+  formsBasedSSO: String!
+  hostname: String!
+  id: String!
+  insertWebSEALSessionCookies: String!
+  insertWebSphereLTPACookies: String!
+  junctionHardLimit: String!
+  junctionSoftLimit: String!
+  mutuallyAuthenticated: String!
+  operationalState: String!
+  port: String!
+  queryContents: String!
+  queryContentsURL: String!
+  remoteAddressHTTPHeader: String!
+  requestEncoding: String!
+  server1: String!
+  serverDN: String!
+  serverState: String!
+  statefulJunction: String!
+  tfimjunctionSSO: String!
+  totalRequests: String!
+  type: String!
+  virtualHostJunctionLabel: String!
+  virtualHostname: String!
+  localIPAddress: String!
+}
+
+type Acl {
+  aclName: String!
+  anyOther: Boolean!
+  open: Boolean!
+  roles: [String!]!
+}
+
+type WebsealState {
+  acl: Acl!,
+  junctions: [Junction!]!
+  name: String!
+  namespace: String!
+  routeName: String!
+}
