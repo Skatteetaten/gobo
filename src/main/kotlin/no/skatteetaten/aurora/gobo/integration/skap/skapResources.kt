@@ -26,7 +26,6 @@ data class Junction(
     @JsonProperty("Basic authentication mode") val basicAuthenticationMode: String,
     @JsonProperty("Boolean Rule Header") val booleanRuleHeader: String,
     @JsonProperty("Case insensitive URLs") val caseInsensitiveURLs: String,
-    @JsonProperty("Current requests") val currentRequests: String?,
     @JsonProperty("Delegation support") val delegationSupport: String,
     @JsonProperty("Forms based SSO") val formsBasedSSO: String,
     @JsonProperty("Hostname") val hostname: String,
@@ -47,11 +46,12 @@ data class Junction(
     @JsonProperty("Server State") val serverState: String,
     @JsonProperty("Stateful junction") val statefulJunction: String,
     @JsonProperty("TFIM junction SSO") val tfimjunctionSSO: String,
-    @JsonProperty("Total requests") val totalRequests: String,
     @JsonProperty("Type") val type: String,
     @JsonProperty("Virtual Host Junction label") val virtualHostJunctionLabel: String,
     @JsonProperty("Virtual hostname") val virtualHostname: String,
-    @JsonProperty("local IP address") val localIPAddress: String
+    @JsonProperty("local IP address") val localIPAddress: String,
+    @JsonProperty("Current requests") val currentRequests: String?,
+    @JsonProperty("Total requests") val totalRequests: String?
 )
 
 data class Acl(

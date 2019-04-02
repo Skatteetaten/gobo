@@ -5,7 +5,6 @@ type Junction {
   basicAuthenticationMode: String!
   booleanRuleHeader: String!
   caseInsensitiveURLs: String!
-  currentRequests: String
   delegationSupport: String!
   formsBasedSSO: String!
   hostname: String!
@@ -26,11 +25,12 @@ type Junction {
   serverState: String!
   statefulJunction: String!
   tfimjunctionSSO: String!
-  totalRequests: String!
   type: String!
   virtualHostJunctionLabel: String!
   virtualHostname: String!
   localIPAddress: String!
+  currentRequests: String
+  totalRequests: String
 }
 
 type Acl {
