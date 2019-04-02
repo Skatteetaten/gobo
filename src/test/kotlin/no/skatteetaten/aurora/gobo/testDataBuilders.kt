@@ -435,12 +435,12 @@ data class CertificateResourceBuilder(val id: String = "1", val dn: String = ".a
     )
 }
 
-class WebsealStateBuilder {
+data class WebsealStateBuilder(val namespace: String = "test") {
 
     fun build() = WebsealState(
         acl = Acl("name", true, true, emptyList()),
         name = "test.no",
-        namespace = "test",
+        namespace = namespace,
         routeName = "test-route",
         junctions = listOf(
             Junction(
