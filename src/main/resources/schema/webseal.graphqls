@@ -5,7 +5,7 @@ type Junction {
   basicAuthenticationMode: String!
   booleanRuleHeader: String!
   caseInsensitiveURLs: String!
-  currentRequests: String!
+  currentRequests: String
   delegationSupport: String!
   formsBasedSSO: String!
   hostname: String!

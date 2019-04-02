@@ -26,7 +26,7 @@ data class Junction(
     @JsonProperty("Basic authentication mode") val basicAuthenticationMode: String,
     @JsonProperty("Boolean Rule Header") val booleanRuleHeader: String,
     @JsonProperty("Case insensitive URLs") val caseInsensitiveURLs: String,
-    @JsonProperty("Current requests") val currentRequests: String,
+    @JsonProperty("Current requests") val currentRequests: String?,
     @JsonProperty("Delegation support") val delegationSupport: String,
     @JsonProperty("Forms based SSO") val formsBasedSSO: String,
     @JsonProperty("Hostname") val hostname: String,

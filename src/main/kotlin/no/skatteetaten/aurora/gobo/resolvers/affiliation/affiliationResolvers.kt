@@ -43,9 +43,9 @@ class AffiliationResolver(
     private val websealAffiliationService: WebsealAffiliationService
 ) : GraphQLResolver<Affiliation> {
 
-    fun databaseSchemas(affiliation: Affiliation) =
+    fun databaseSchemas(affiliation: Affiliation) = // TODO check for token
         databaseSchemaService.getDatabaseSchemas(affiliation.name).map { DatabaseSchema.create(it, affiliation) }
 
-    fun websealStates(affiliation: Affiliation) =
+    fun websealStates(affiliation: Affiliation) = // TODO check for token
         websealAffiliationService.getWebsealState(affiliation.name)
 }
