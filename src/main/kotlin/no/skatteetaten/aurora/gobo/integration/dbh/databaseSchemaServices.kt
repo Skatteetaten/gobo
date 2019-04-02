@@ -4,6 +4,7 @@ import no.skatteetaten.aurora.gobo.RequiresDbh
 import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
 import no.skatteetaten.aurora.gobo.createObjectMapper
+import no.skatteetaten.aurora.gobo.integration.HEADER_AURORA_TOKEN
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.resolvers.IntegrationDisabledException
 import no.skatteetaten.aurora.gobo.resolvers.MissingLabelException
@@ -30,7 +31,6 @@ class DatabaseSchemaServiceReactive(
 ) {
     companion object {
         const val HEADER_COOLDOWN_DURATION_HOURS = "cooldown-duration-hours"
-        const val HEADER_AURORA_TOKEN = "aurora-token"
     }
 
     fun getDatabaseSchemas(affiliation: String): Mono<List<DatabaseSchemaResource>> {

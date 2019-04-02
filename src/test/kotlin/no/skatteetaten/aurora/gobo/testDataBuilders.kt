@@ -31,13 +31,16 @@ import no.skatteetaten.aurora.gobo.integration.mokey.ManagementResponsesResource
 import no.skatteetaten.aurora.gobo.integration.mokey.PodResourceResource
 import no.skatteetaten.aurora.gobo.integration.mokey.StatusResource
 import no.skatteetaten.aurora.gobo.integration.mokey.VersionResource
+import no.skatteetaten.aurora.gobo.integration.skap.Acl
+import no.skatteetaten.aurora.gobo.integration.skap.CertificateResource
+import no.skatteetaten.aurora.gobo.integration.skap.Junction
+import no.skatteetaten.aurora.gobo.integration.skap.WebsealState
 import no.skatteetaten.aurora.gobo.integration.unclematt.ProbeResult
 import no.skatteetaten.aurora.gobo.integration.unclematt.ProbeStatus
 import no.skatteetaten.aurora.gobo.integration.unclematt.Result
 import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.ApplicationDeployment
 import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.Status
 import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.Version
-import no.skatteetaten.aurora.gobo.resolvers.certificate.Certificate
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageTag
 import org.intellij.lang.annotations.Language
@@ -421,13 +424,59 @@ data class AuroraResponseBuilder(val status: Int, val url: String) {
     }
 }
 
-data class CertificateBuilder(val id: String = "1", val dn: String = ".activemq") {
+data class CertificateResourceBuilder(val id: String = "1", val dn: String = ".activemq") {
 
-    fun build() = Certificate(
+    fun build() = CertificateResource(
         id = id,
         dn = dn,
         issuedDate = Instant.now(),
         revokedDate = Instant.now(),
         expiresDate = Instant.now()
+    )
+}
+
+class WebsealStateBuilder {
+
+    fun build() = WebsealState(
+        acl = Acl("name", true, true, emptyList()),
+        name = "test.no",
+        namespace = "test",
+        routeName = "test-route",
+        junctions = listOf(
+            Junction(
+                activeWorkerThreads = "activeWorkerThreads",
+                allowWindowsStyleURLs = "allowWindowsStyleURLs",
+                authenticationHTTPheader = "authenticationHTTPheader",
+                basicAuthenticationMode = "basicAuthenticationMode",
+                booleanRuleHeader = "booleanRuleHeader",
+                caseInsensitiveURLs = "caseInsensitiveURLs",
+                currentRequests = "currentRequests",
+                delegationSupport = "delegationSupport",
+                formsBasedSSO = "formsBasedSSO",
+                hostname = "hostname",
+                id = "id",
+                insertWebSEALSessionCookies = "insertWebSEALSessionCookies",
+                insertWebSphereLTPACookies = "insertWebSphereLTPACookies",
+                junctionHardLimit = "junctionHardLimit",
+                junctionSoftLimit = "junctionSoftLimit",
+                mutuallyAuthenticated = "mutuallyAuthenticated",
+                operationalState = "operationalState",
+                port = "port",
+                queryContents = "queryContents",
+                queryContentsURL = "queryContentsURL",
+                remoteAddressHTTPHeader = "remoteAddressHTTPHeader",
+                requestEncoding = "requestEncoding",
+                server1 = "server1",
+                serverDN = "serverDN",
+                serverState = "serverState",
+                statefulJunction = "statefulJunction",
+                tfimjunctionSSO = "TFIMJunctionSSO",
+                totalRequests = "totalRequests",
+                type = "type",
+                virtualHostJunctionLabel = "virtualHostJunctionLabel",
+                virtualHostname = "virtualHostname",
+                localIPAddress = "localIPAddress"
+            )
+        )
     )
 }

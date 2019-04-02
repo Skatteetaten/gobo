@@ -1,5 +1,6 @@
 package no.skatteetaten.aurora.gobo.resolvers.certificate
 
+import no.skatteetaten.aurora.gobo.integration.skap.CertificateResource
 import no.skatteetaten.aurora.gobo.resolvers.GoboConnection
 import no.skatteetaten.aurora.gobo.resolvers.GoboEdge
 import no.skatteetaten.aurora.gobo.resolvers.GoboPageInfo
@@ -11,7 +12,18 @@ data class Certificate(
     val issuedDate: Instant?,
     val revokedDate: Instant?,
     val expiresDate: Instant?
-)
+) {
+    companion object {
+        fun create(resource: CertificateResource) =
+            Certificate(
+                id = resource.id,
+                dn = resource.dn,
+                issuedDate = resource.issuedDate,
+                revokedDate = resource.revokedDate,
+                expiresDate = resource.expiresDate
+            )
+    }
+}
 
 data class CertificateEdge(val node: Certificate) : GoboEdge(node.id)
 

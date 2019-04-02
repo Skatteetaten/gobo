@@ -51,7 +51,11 @@ class ApplicationService(@TargetService(ServiceTypes.MOKEY) val webClient: WebCl
             }
             .retrieve()
             .bodyToMono()
-        return resources.map { if (applications == null) it else it.filter { applications.contains(it.name) } }
+        return resources.map { resource ->
+            if (applications == null) resource else resource.filter {
+                applications.contains(it.name)
+            }
+        }
     }
 
     fun getApplication(id: String): Mono<ApplicationResource> {

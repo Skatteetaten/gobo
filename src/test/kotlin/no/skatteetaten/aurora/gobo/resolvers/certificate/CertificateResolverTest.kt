@@ -1,6 +1,6 @@
 package no.skatteetaten.aurora.gobo.resolvers.certificate
 
-import no.skatteetaten.aurora.gobo.CertificateBuilder
+import no.skatteetaten.aurora.gobo.CertificateResourceBuilder
 import no.skatteetaten.aurora.gobo.GraphQLTest
 import no.skatteetaten.aurora.gobo.OpenShiftUserBuilder
 import no.skatteetaten.aurora.gobo.integration.skap.CertificateServiceBlocking
@@ -44,8 +44,8 @@ class CertificateResolverTest {
 
     @Test
     fun `Get certificate list`() {
-        val certificate1 = CertificateBuilder().build()
-        val certificate2 = CertificateBuilder(id = "2", dn = ".atomhopper").build()
+        val certificate1 = CertificateResourceBuilder().build()
+        val certificate2 = CertificateResourceBuilder(id = "2", dn = ".atomhopper").build()
         given(certificateService.getCertificates()).willReturn(listOf(certificate1, certificate2))
 
         webTestClient.queryGraphQL(queryResource = getCertificates, token = "test-token")
