@@ -32,7 +32,7 @@ import no.skatteetaten.aurora.gobo.integration.mokey.PodResourceResource
 import no.skatteetaten.aurora.gobo.integration.mokey.StatusResource
 import no.skatteetaten.aurora.gobo.integration.mokey.VersionResource
 import no.skatteetaten.aurora.gobo.integration.skap.Acl
-import no.skatteetaten.aurora.gobo.integration.skap.CertificateResource
+import no.skatteetaten.aurora.gobo.integration.skap.Certificate
 import no.skatteetaten.aurora.gobo.integration.skap.Junction
 import no.skatteetaten.aurora.gobo.integration.skap.WebsealState
 import no.skatteetaten.aurora.gobo.integration.unclematt.ProbeResult
@@ -426,7 +426,7 @@ data class AuroraResponseBuilder(val status: Int, val url: String) {
 
 data class CertificateResourceBuilder(val id: String = "1", val dn: String = ".activemq") {
 
-    fun build() = CertificateResource(
+    fun build() = Certificate(
         id = id,
         dn = dn,
         issuedDate = Instant.now(),

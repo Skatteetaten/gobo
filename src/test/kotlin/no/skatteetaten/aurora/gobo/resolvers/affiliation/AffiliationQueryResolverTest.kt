@@ -45,11 +45,11 @@ class AffiliationQueryResolverTest {
             .expectStatus().isOk
             .expectBody()
             .graphqlDataWithPrefix("affiliations") {
-                it.graphqlData("totalCount").isEqualTo(2)
-                it.graphqlData("edges[0].node.name").isEqualTo("paas")
-                it.graphqlData("edges[0].cursor").isEqualTo("paas".toBase64())
-                it.graphqlData("edges[1].node.name").isEqualTo("demo")
-                it.graphqlData("edges[1].cursor").isEqualTo("demo".toBase64())
+                graphqlData("totalCount").isEqualTo(2)
+                graphqlData("edges[0].node.name").isEqualTo("paas")
+                graphqlData("edges[0].cursor").isEqualTo("paas".toBase64())
+                graphqlData("edges[1].node.name").isEqualTo("demo")
+                graphqlData("edges[1].cursor").isEqualTo("demo".toBase64())
             }
     }
 

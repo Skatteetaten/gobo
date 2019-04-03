@@ -90,10 +90,10 @@ class DatabaseSchemaQueryResolverTest {
             .expectBody()
             .graphqlData("databaseSchemas.length()").isEqualTo(1)
             .graphqlDataWithPrefix("databaseSchemas[0]") {
-                it.graphqlData("databaseEngine").isEqualTo("ORACLE")
-                it.graphqlData("affiliation.name").isEqualTo("paas")
-                it.graphqlData("createdBy").isEqualTo("abc123")
-                it.graphqlData("applicationDeployments.length()").isEqualTo(1)
+                graphqlData("databaseEngine").isEqualTo("ORACLE")
+                graphqlData("affiliation.name").isEqualTo("paas")
+                graphqlData("createdBy").isEqualTo("abc123")
+                graphqlData("applicationDeployments.length()").isEqualTo(1)
             }
     }
 

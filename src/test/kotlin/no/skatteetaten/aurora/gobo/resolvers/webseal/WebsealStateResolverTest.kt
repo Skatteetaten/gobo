@@ -55,9 +55,9 @@ class WebsealStateResolverTest {
             .expectStatus().isOk
             .expectBody()
             .graphqlDataWithPrefix("affiliations.edges[0].node.websealStates[0]") {
-                it.graphqlData("name").isEqualTo("test.no")
-                it.graphqlData("acl.aclName").isEqualTo("acl-name")
-                it.graphqlData("junctions[0].id").isEqualTo("junction-id")
+                graphqlData("name").isEqualTo("test.no")
+                graphqlData("acl.aclName").isEqualTo("acl-name")
+                graphqlData("junctions[0].id").isEqualTo("junction-id")
             }
     }
 }

@@ -109,15 +109,15 @@ class ImageRepositoryQueryResolverTest {
             .expectStatus().isOk
             .expectBody()
             .graphqlDataWithPrefixAndIndex("imageRepositories", endIndex = 1) {
-                val imageRepoAndTags = imageReposAndTags[it.index]
+                val imageRepoAndTags = imageReposAndTags[index]
 
-                it.graphqlData("repository").isEqualTo(imageRepoAndTags.imageRepository)
-                it.graphqlData("tags.totalCount").isEqualTo(imageRepoAndTags.imageTags.size)
-                it.graphqlData("tags.edges.length()").isEqualTo(imageRepoAndTags.imageTags.size)
-                it.graphqlData("tags.edges[0].node.name").isEqualTo(imageRepoAndTags.imageTags[0])
-                it.graphqlData("tags.edges[0].node.lastModified").isEqualTo(Instant.EPOCH.toString())
-                it.graphqlData("tags.edges[1].node.name").isEqualTo(imageRepoAndTags.imageTags[1])
-                it.graphqlData("tags.edges[1].node.lastModified").isEqualTo(Instant.EPOCH.toString())
+                graphqlData("repository").isEqualTo(imageRepoAndTags.imageRepository)
+                graphqlData("tags.totalCount").isEqualTo(imageRepoAndTags.imageTags.size)
+                graphqlData("tags.edges.length()").isEqualTo(imageRepoAndTags.imageTags.size)
+                graphqlData("tags.edges[0].node.name").isEqualTo(imageRepoAndTags.imageTags[0])
+                graphqlData("tags.edges[0].node.lastModified").isEqualTo(Instant.EPOCH.toString())
+                graphqlData("tags.edges[1].node.name").isEqualTo(imageRepoAndTags.imageTags[1])
+                graphqlData("tags.edges[1].node.lastModified").isEqualTo(Instant.EPOCH.toString())
             }
     }
 
@@ -137,13 +137,13 @@ class ImageRepositoryQueryResolverTest {
             .expectStatus().isOk
             .expectBody()
             .graphqlDataWithPrefix("imageRepositories[0].tags") {
-                it.graphqlData("totalCount").isEqualTo(imageReposAndTags.first().imageTags.size)
-                it.graphqlData("edges.length()").isEqualTo(pageSize)
-                it.graphqlData("edges[0].node.name").isEqualTo("1")
-                it.graphqlData("edges[1].node.name").isEqualTo("1.0")
-                it.graphqlData("edges[2].node.name").isEqualTo("1.0.0")
-                it.graphqlData("pageInfo.startCursor").isNotEmpty
-                it.graphqlData("pageInfo.hasNextPage").isTrue()
+                graphqlData("totalCount").isEqualTo(imageReposAndTags.first().imageTags.size)
+                graphqlData("edges.length()").isEqualTo(pageSize)
+                graphqlData("edges[0].node.name").isEqualTo("1")
+                graphqlData("edges[1].node.name").isEqualTo("1.0")
+                graphqlData("edges[2].node.name").isEqualTo("1.0.0")
+                graphqlData("pageInfo.startCursor").isNotEmpty
+                graphqlData("pageInfo.hasNextPage").isTrue()
             }
     }
 
@@ -201,8 +201,8 @@ class ImageRepositoryQueryResolverTest {
             .graphqlDataWithPrefix("imageRepositories[0]") {
                 val repository = imageReposAndTags.first()
 
-                it.graphqlData("repository").isEqualTo(repository.imageRepository)
-                it.graphqlData("tags.totalCount").isEqualTo(2)
+                graphqlData("repository").isEqualTo(repository.imageRepository)
+                graphqlData("tags.totalCount").isEqualTo(2)
             }
             .graphqlErrors("length()").isEqualTo(1)
             .graphqlErrorsFirst("extensions.errorMessage").exists()

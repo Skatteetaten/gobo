@@ -61,17 +61,17 @@ class ApplicationDeploymentDetailsResolverTest {
         webTestClient.queryGraphQL(queryResource = getRepositoriesAndTagsQuery, token = "test-token")
             .expectStatus().isOk
             .expectBody()
-            .graphqlDataWithPrefix("applications.edges[0].node.applicationDeployments[0].details.podResources[0]") { pod ->
-                pod.graphqlData("deployTag").isEqualTo("tag")
-                pod.graphqlData("phase").isEqualTo("status")
-                pod.graphqlData("ready").isFalse()
-                pod.graphqlData("restartCount").isEqualTo(3)
-                pod.graphqlData("containers.length()").isEqualTo(2)
-                pod.graphqlData("containers[0].restartCount").isEqualTo(1)
-                pod.graphqlData("containers[1].restartCount").isEqualTo(2)
+            .graphqlDataWithPrefix("applications.edges[0].node.applicationDeployments[0].details.podResources[0]") {
+                graphqlData("deployTag").isEqualTo("tag")
+                graphqlData("phase").isEqualTo("status")
+                graphqlData("ready").isFalse()
+                graphqlData("restartCount").isEqualTo(3)
+                graphqlData("containers.length()").isEqualTo(2)
+                graphqlData("containers[0].restartCount").isEqualTo(1)
+                graphqlData("containers[1].restartCount").isEqualTo(2)
 
-                pod.graphqlData("managementResponses.health.textResponse").isEqualTo(healthResponseJson)
-                pod.graphqlData("managementResponses.info.textResponse").isEqualTo(infoResponseJson)
+                graphqlData("managementResponses.health.textResponse").isEqualTo(healthResponseJson)
+                graphqlData("managementResponses.info.textResponse").isEqualTo(infoResponseJson)
             }
     }
 }

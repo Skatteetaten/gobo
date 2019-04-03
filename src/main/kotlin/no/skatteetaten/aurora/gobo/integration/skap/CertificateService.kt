@@ -18,7 +18,7 @@ class CertificateService(
     @TargetService(ServiceTypes.SKAP) private val webClient: WebClient
 ) {
 
-    fun getCertificates(): Mono<List<CertificateResource>> =
+    fun getCertificates(): Mono<List<Certificate>> =
         webClient
             .get()
             .uri("/certificate/list")

@@ -40,22 +40,22 @@ class ScanQueryResolverTest {
             .expectStatus().isOk
             .expectBody()
             .graphqlDataWithPrefix("scan") {
-                it.graphqlData("status").isEqualTo(ScanStatus.CLOSED.name)
-                it.graphqlData("hostName").isNotEmpty
-                it.graphqlData("port").isNumber
+                graphqlData("status").isEqualTo(ScanStatus.CLOSED.name)
+                graphqlData("hostName").isNotEmpty
+                graphqlData("port").isNumber
             }
             .graphqlDataWithPrefix("scan.failed") {
-                it.graphqlData("totalCount").isNumber
-                it.graphqlData("edges").isArray
-                it.graphqlData("edges[0].node.status").isEqualTo(ScanStatus.CLOSED.name)
-                it.graphqlData("edges[1].node.status").isEqualTo(ScanStatus.UNKNOWN.name)
-                it.graphqlData("edges[0].node.resolvedIp").isNotEmpty
+                graphqlData("totalCount").isNumber
+                graphqlData("edges").isArray
+                graphqlData("edges[0].node.status").isEqualTo(ScanStatus.CLOSED.name)
+                graphqlData("edges[1].node.status").isEqualTo(ScanStatus.UNKNOWN.name)
+                graphqlData("edges[0].node.resolvedIp").isNotEmpty
             }
             .graphqlDataWithPrefix("scan.open") {
-                it.graphqlData("totalCount").isNumber
-                it.graphqlData("edges").isArray
-                it.graphqlData("edges[0].node.status").isEqualTo(ScanStatus.OPEN.name)
-                it.graphqlData("edges[0].node.resolvedIp").isNotEmpty
+                graphqlData("totalCount").isNumber
+                graphqlData("edges").isArray
+                graphqlData("edges[0].node.status").isEqualTo(ScanStatus.OPEN.name)
+                graphqlData("edges[0].node.resolvedIp").isNotEmpty
             }
     }
 }

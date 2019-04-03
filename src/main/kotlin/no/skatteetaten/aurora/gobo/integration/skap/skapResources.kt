@@ -3,7 +3,7 @@ package no.skatteetaten.aurora.gobo.integration.skap
 import com.fasterxml.jackson.annotation.JsonProperty
 import java.time.Instant
 
-data class CertificateResource(
+data class Certificate(
     val id: String,
     val dn: String,
     val issuedDate: Instant?,
