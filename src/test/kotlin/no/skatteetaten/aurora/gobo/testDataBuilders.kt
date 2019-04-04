@@ -106,6 +106,7 @@ data class ApplicationDeploymentWithDbResourceBuilder(
 
 data class ApplicationDeploymentResourceBuilder(
     val affiliation: String = "paas",
+    val namespace: String = "namespace",
     val id: String = "id",
     val msg: String = "foo"
 ) {
@@ -115,7 +116,7 @@ data class ApplicationDeploymentResourceBuilder(
             name = "name",
             affiliation = affiliation,
             environment = "environment",
-            namespace = "namespace",
+            namespace = namespace,
             status = StatusResource("code", "", listOf(), listOf()),
             version = VersionResource("deployTag", "auroraVersion", "releaseTo"),
             dockerImageRepo = "127.0.0.1:5000/aurora/whoami",
@@ -127,13 +128,19 @@ data class ApplicationDeploymentResourceBuilder(
         }
 }
 
-data class ApplicationResourceBuilder(val name: String = "name") {
+data class ApplicationResourceBuilder(
+    val name: String = "name",
+    val affiliation: String = "paas",
+    val namespace: String = "namespace"
+) {
 
     fun build(): ApplicationResource =
         ApplicationResource(
             identifier = "id",
             name = name,
-            applicationDeployments = listOf(ApplicationDeploymentResourceBuilder().build())
+            applicationDeployments = listOf(
+                ApplicationDeploymentResourceBuilder(affiliation = affiliation, namespace = namespace).build()
+            )
         )
 }
 

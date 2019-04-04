@@ -51,7 +51,7 @@ data class Junction(
     @JsonProperty("Virtual hostname") val virtualHostname: String?,
     @JsonProperty("local IP address") val localIPAddress: String?,
     @JsonProperty("Current requests") val currentRequests: String?,
-    @JsonProperty("Total requests") val totalRequests: String?
+    @JsonProperty("Total requests ") val totalRequests: String?
 )
 
 data class Acl(

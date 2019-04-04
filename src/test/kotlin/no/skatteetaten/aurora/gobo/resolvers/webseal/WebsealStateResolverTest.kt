@@ -45,7 +45,7 @@ class WebsealStateResolverTest {
 
     @Test
     fun `Get WebSEAL states`() {
-        given(websealAffiliationService.getWebsealState(any())).willReturn(listOf(WebsealStateBuilder().build()))
+        given(websealAffiliationService.getWebsealState(any())).willReturn(mapOf("aurora" to listOf(WebsealStateBuilder().build())))
 
         webTestClient.queryGraphQL(
             queryResource = getWebsealStates,

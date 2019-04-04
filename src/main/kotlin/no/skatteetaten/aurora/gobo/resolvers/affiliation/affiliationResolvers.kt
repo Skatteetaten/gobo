@@ -8,10 +8,12 @@ import no.skatteetaten.aurora.gobo.integration.mokey.AffiliationServiceBlocking
 import no.skatteetaten.aurora.gobo.integration.skap.WebsealState
 import no.skatteetaten.aurora.gobo.resolvers.AccessDeniedException
 import no.skatteetaten.aurora.gobo.resolvers.databaseschema.DatabaseSchema
+import no.skatteetaten.aurora.gobo.resolvers.multipleKeysLoader
 import no.skatteetaten.aurora.gobo.security.currentUser
 import no.skatteetaten.aurora.gobo.security.isAnonymousUser
 import no.skatteetaten.aurora.gobo.service.WebsealAffiliationService
 import org.springframework.stereotype.Component
+import java.util.concurrent.CompletableFuture
 
 @Component
 class AffiliationQueryResolver(
@@ -39,6 +41,7 @@ class AffiliationQueryResolver(
         affiliationServiceBlocking.getAllAffiliations()
     }
 }
+
 @Component
 class AffiliationResolver(
     private val databaseSchemaService: DatabaseSchemaService,
@@ -50,8 +53,8 @@ class AffiliationResolver(
         return databaseSchemaService.getDatabaseSchemas(affiliation.name).map { DatabaseSchema.create(it, affiliation) }
     }
 
-    fun websealStates(affiliation: Affiliation, dfe: DataFetchingEnvironment): List<WebsealState> {
+    fun websealStates(affiliation: Affiliation, dfe: DataFetchingEnvironment): CompletableFuture<List<WebsealState>> {
         if (dfe.isAnonymousUser()) throw AccessDeniedException("Anonymous user cannot get WebSEAL states")
-        return websealAffiliationService.getWebsealState(affiliation.name)
+        return dfe.multipleKeysLoader(AffiliationDataLoader::class).load(affiliation.name)
     }
 }

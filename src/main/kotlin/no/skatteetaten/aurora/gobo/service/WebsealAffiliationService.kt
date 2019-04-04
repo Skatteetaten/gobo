@@ -10,9 +10,18 @@ class WebsealAffiliationService(
     private val applicationService: ApplicationServiceBlocking,
     private val websealService: WebsealServiceBlocking
 ) {
-    fun getWebsealState(affiliation: String): List<WebsealState> {
-        val applications = applicationService.getApplications(affiliations = listOf(affiliation))
-        val namespaces = applications.map { it.applicationDeployments }.flatten().map { it.namespace }
-        return websealService.getStates().filter { namespaces.contains(it.namespace) }
+    fun getWebsealState(affiliations: List<String>): Map<String, List<WebsealState>> {
+        val applicationDeployments = applicationService
+            .getApplications(affiliations = affiliations)
+            .flatMap { it.applicationDeployments }
+        val websealStates = websealService.getStates()
+
+        return applicationDeployments.groupBy { it.affiliation }
+            .map { entry ->
+                entry.key to websealStates.filter { websealState ->
+                    val namespaces = entry.value.map { it.namespace }
+                    namespaces.contains(websealState.namespace)
+                }
+            }.toMap()
     }
 }

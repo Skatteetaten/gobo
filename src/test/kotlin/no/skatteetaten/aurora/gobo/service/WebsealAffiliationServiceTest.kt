@@ -1,6 +1,7 @@
 package no.skatteetaten.aurora.gobo.service
 
 import assertk.assertThat
+import assertk.assertions.containsOnly
 import assertk.assertions.isEqualTo
 import io.mockk.every
 import io.mockk.mockk
@@ -13,12 +14,17 @@ import org.junit.jupiter.api.Test
 class WebsealAffiliationServiceTest {
 
     private val applicationService = mockk<ApplicationServiceBlocking> {
-        every { getApplications(any(), any()) } returns listOf(ApplicationResourceBuilder().build())
+        every { getApplications(any(), any()) } returns listOf(
+            ApplicationResourceBuilder(affiliation = "paas", namespace = "paas").build(),
+            ApplicationResourceBuilder(affiliation = "aurora", namespace = "aurora").build()
+        )
     }
     private val websealService = mockk<WebsealServiceBlocking> {
         every { getStates() } returns listOf(
-            WebsealStateBuilder(namespace = "namespace").build(),
-            WebsealStateBuilder(namespace = "aurora").build()
+            WebsealStateBuilder(namespace = "paas").build(),
+            WebsealStateBuilder(namespace = "aurora").build(),
+            WebsealStateBuilder(namespace = "test1").build(),
+            WebsealStateBuilder(namespace = "test2").build()
         )
     }
 
@@ -26,8 +32,11 @@ class WebsealAffiliationServiceTest {
 
     @Test
     fun `Get WebSEAL state for affiliation`() {
-        val states = websealAffiliationService.getWebsealState("paas")
-        assertThat(states.size).isEqualTo(1)
-        assertThat(states[0].namespace).isEqualTo("namespace")
+        val states = websealAffiliationService.getWebsealState(listOf("paas", "aurora"))
+        val namespaces = states.values.flatten().map { it.namespace }
+
+        assertThat(states.size).isEqualTo(2)
+        assertThat(states.keys).containsOnly("paas", "aurora")
+        assertThat(namespaces).containsOnly("paas", "aurora")
     }
 }
