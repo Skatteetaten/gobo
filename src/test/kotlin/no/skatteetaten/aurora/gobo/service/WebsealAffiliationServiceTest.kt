@@ -31,7 +31,7 @@ class WebsealAffiliationServiceTest {
     private val websealAffiliationService = WebsealAffiliationService(applicationService, websealService)
 
     @Test
-    fun `Get WebSEAL state for affiliation`() {
+    fun `Get WebSEAL state for affiliations`() {
         val states = websealAffiliationService.getWebsealState(listOf("paas", "aurora"))
         val namespaces = states.values.flatten().map { it.namespace }
 
