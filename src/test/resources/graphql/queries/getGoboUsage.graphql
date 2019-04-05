@@ -1,5 +1,6 @@
 {
     gobo {
+        startTime
         usage {
             usedFields {
                 name

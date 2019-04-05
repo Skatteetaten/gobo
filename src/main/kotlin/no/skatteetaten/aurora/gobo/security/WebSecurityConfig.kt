@@ -29,7 +29,6 @@ class WebSecurityConfig(
             .requestMatchers(forPort(managementPort)).permitAll()
             .antMatchers("/public/**").permitAll()
             .antMatchers("/graphql").permitAll()
-            .antMatchers("/graphiql").permitAll()
             .antMatchers("/altair").permitAll()
             .antMatchers("/voyager").permitAll()
             .antMatchers("/vendor/**").permitAll()

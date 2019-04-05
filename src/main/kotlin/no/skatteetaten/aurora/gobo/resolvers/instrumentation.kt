@@ -31,7 +31,7 @@ class GoboInstrumentation : SimpleInstrumentation() {
             if (query.trimStart().startsWith("mutation")) {
                 logger.info("mutation=\"$query\" - variable-keys=${it.variables.keys}")
             } else {
-                val variables = if(it.variables.isEmpty()) "" else " - variables=${it.variables}"
+                val variables = if (it.variables.isEmpty()) "" else " - variables=${it.variables}"
                 logger.info("query=\"$query\"$variables")
             }
         }

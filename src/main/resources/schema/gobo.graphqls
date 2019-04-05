@@ -4,9 +4,10 @@ type GoboField {
 }
 
 type GoboUsage {
-  usedFields: [GoboField]!
+  usedFields(nameContains: String): [GoboField]!
 }
 
 type Gobo {
+  startTime: DateTime
   usage: GoboUsage!
 }

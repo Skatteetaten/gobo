@@ -1,0 +1,10 @@
+query getApplicationDeployment($nameContains: String!) {
+    gobo {
+        usage {
+            usedFields(nameContains: $nameContains) {
+                name
+                count
+            }
+        }
+    }
+}
