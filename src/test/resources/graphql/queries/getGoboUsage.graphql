@@ -1,7 +1,11 @@
 {
     gobo {
+        startTime
         usage {
-            usedFields
+            usedFields {
+                name
+                count
+            }
         }
     }
 }

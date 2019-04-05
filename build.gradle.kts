@@ -22,14 +22,13 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-hateoas")
 
-    implementation("com.graphql-java-kickstart:graphql-spring-boot-starter:5.7.1")
-    implementation("com.graphql-java-kickstart:graphiql-spring-boot-starter:5.7.1")
-    implementation("com.graphql-java-kickstart:altair-spring-boot-starter:5.7.1")
-    implementation("com.graphql-java-kickstart:voyager-spring-boot-starter:5.7.1")
+    implementation("com.graphql-java-kickstart:graphql-spring-boot-starter:5.7.2")
+    implementation("com.graphql-java-kickstart:altair-spring-boot-starter:5.7.2")
+    implementation("com.graphql-java-kickstart:voyager-spring-boot-starter:5.7.2")
     implementation("com.graphql-java-kickstart:graphql-java-tools:5.5.1")
 
     implementation("uk.q3c.rest:hal-kotlin:0.5.4.0.db32476")
-    implementation("io.fabric8:openshift-client:4.1.3")
+    implementation("io.fabric8:openshift-client:4.2.0")
     implementation("com.fkorotkov:kubernetes-dsl:2.0.1")
     implementation("com.github.fge:json-patch:1.9")
 
@@ -41,7 +40,7 @@ dependencies {
     testImplementation("io.projectreactor:reactor-test")
     testImplementation("com.nhaarman:mockito-kotlin:1.6.0")
     testImplementation("com.squareup.okhttp3:mockwebserver:3.14.0")
-    testImplementation("no.skatteetaten.aurora:mockmvc-extensions-kotlin:0.6.2")
+    testImplementation("no.skatteetaten.aurora:mockmvc-extensions-kotlin:0.6.4")
 }
 
 tasks {
