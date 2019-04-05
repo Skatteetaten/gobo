@@ -8,6 +8,8 @@ import graphql.language.Field
 import graphql.language.SelectionSet
 import mu.KotlinLogging
 import org.springframework.stereotype.Component
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.LongAdder
 
 private val logger = KotlinLogging.logger {}
 
@@ -18,7 +20,7 @@ fun String.removeNewLines() =
 @Component
 class GoboInstrumentation : SimpleInstrumentation() {
 
-    val fields = Fields()
+    val usage = Usage()
 
     override fun instrumentExecutionInput(
         executionInput: ExecutionInput?,
@@ -40,21 +42,21 @@ class GoboInstrumentation : SimpleInstrumentation() {
         parameters: InstrumentationExecutionParameters?
     ): ExecutionContext {
         val selectionSet = executionContext?.operationDefinition?.selectionSet ?: SelectionSet(emptyList())
-        fields.updateFieldNames(selectionSet)
+        usage.updateFieldNames(selectionSet)
         return super.instrumentExecutionContext(executionContext, parameters)
     }
 }
 
-class Fields {
-    private val _names: MutableSet<String> = mutableSetOf()
-    val names: Set<String>
-        get() = _names.sorted().toSet()
+class Usage {
+    private val _fields: ConcurrentHashMap<String, LongAdder> = ConcurrentHashMap()
+    val fields: Map<String, LongAdder>
+        get() = _fields.toSortedMap()
 
     fun updateFieldNames(selectionSet: SelectionSet?, parent: String? = null) {
         selectionSet?.selections?.map {
             if (it is Field) {
                 val fullName = if (parent == null) it.name else "$parent.${it.name}"
-                _names.add(fullName)
+                _fields.computeIfAbsent(fullName) { LongAdder() }.increment()
                 updateFieldNames(it.selectionSet, fullName)
             }
         }

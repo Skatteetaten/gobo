@@ -1,5 +1,10 @@
+type GoboField {
+  name: String!
+  count: String!
+}
+
 type GoboUsage {
-  usedFields: [String]!
+  usedFields: [GoboField]!
 }
 
 type Gobo {

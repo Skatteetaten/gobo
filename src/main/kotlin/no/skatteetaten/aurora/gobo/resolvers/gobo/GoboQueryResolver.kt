@@ -7,5 +7,8 @@ import org.springframework.stereotype.Component
 @Component
 class GoboQueryResolver(private val goboInstrumentation: GoboInstrumentation) : GraphQLQueryResolver {
 
-    fun gobo() = Gobo(GoboUsage(goboInstrumentation.fields.names))
+    fun gobo(): Gobo {
+        val counters = goboInstrumentation.usage.fields.map { GoboField(it.key, it.value.sum()) }
+        return Gobo(GoboUsage(counters))
+    }
 }

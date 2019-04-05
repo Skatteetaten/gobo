@@ -1,5 +1,6 @@
 package no.skatteetaten.aurora.gobo.resolvers
 
+import assertk.all
 import assertk.assertThat
 import assertk.assertions.contains
 import assertk.assertions.hasSize
@@ -24,8 +25,11 @@ class GoboInstrumentationTest {
                 .executionId(ExecutionId.from("123"))
                 .operationDefinition(operationDefinition).build()
         goboInstrumentation.instrumentExecutionContext(executionContext, null)
-        assertThat(goboInstrumentation.fields.names).hasSize(1)
-        assertThat(goboInstrumentation.fields.names).contains("id")
+        assertThat(goboInstrumentation.usage.fields.keys).all {
+            hasSize(1)
+            contains("id")
+        }
+        assertThat(goboInstrumentation.usage.fields["id"]?.sum()).isEqualTo(1L)
     }
 
     @Test
@@ -35,7 +39,7 @@ class GoboInstrumentationTest {
                 .executionId(ExecutionId.from("123"))
                 .operationDefinition(OperationDefinition.newOperationDefinition().build()).build()
         goboInstrumentation.instrumentExecutionContext(executionContext, null)
-        assertThat(goboInstrumentation.fields.names).hasSize(0)
+        assertThat(goboInstrumentation.usage.fields.entries).hasSize(0)
     }
 
     @Test
@@ -44,13 +48,16 @@ class GoboInstrumentationTest {
         {
             gobo {
                 usage {
-                    usedFields
+                    usedFields {
+                        name
+                        count
+                    }
                 }
             }
         }
         """.trimIndent()
 
-        assertThat(query.removeNewLines()).isEqualTo("{ gobo { usage { usedFields } } }")
+        assertThat(query.removeNewLines()).isEqualTo("{ gobo { usage { usedFields { name count } } } }")
     }
 
     @Test

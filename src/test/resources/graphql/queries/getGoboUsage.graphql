@@ -1,7 +1,10 @@
 {
     gobo {
         usage {
-            usedFields
+            usedFields {
+                name
+                count
+            }
         }
     }
 }

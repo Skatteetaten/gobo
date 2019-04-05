@@ -1,7 +1,7 @@
 package no.skatteetaten.aurora.gobo.resolvers.gobo
 
 import no.skatteetaten.aurora.gobo.GraphQLTest
-import no.skatteetaten.aurora.gobo.resolvers.graphqlData
+import no.skatteetaten.aurora.gobo.resolvers.graphqlDataWithPrefix
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -23,6 +23,9 @@ class GoboQueryResolverTest {
         webTestClient.queryGraphQL(getGoboUsageQuery)
             .expectStatus().isOk
             .expectBody()
-            .graphqlData("gobo.usage.usedFields").isNotEmpty
+            .graphqlDataWithPrefix("gobo.usage.usedFields[0]") {
+                graphqlData("name").isNotEmpty
+                graphqlData("count").isNotEmpty
+            }
     }
 }
