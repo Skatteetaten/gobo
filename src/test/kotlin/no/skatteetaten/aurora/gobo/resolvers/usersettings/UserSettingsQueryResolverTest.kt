@@ -66,9 +66,9 @@ class UserSettingsQueryResolverTest {
             .expectStatus().isOk
             .expectBody()
             .graphqlDataWithPrefix("userSettings.applicationDeploymentFilters") {
-                it.graphqlData("length()").isEqualTo(2)
-                it.graphqlData("[0].affiliation").isEqualTo("aurora")
-                it.graphqlData("[1].affiliation").isEqualTo("paas")
+                graphqlData("length()").isEqualTo(2)
+                graphqlData("[0].affiliation").isEqualTo("aurora")
+                graphqlData("[1].affiliation").isEqualTo("paas")
             }
     }
 
@@ -83,12 +83,12 @@ class UserSettingsQueryResolverTest {
             .expectStatus().isOk
             .expectBody()
             .graphqlDataWithPrefix("userSettings.applicationDeploymentFilters") {
-                it.graphqlData("length()").isEqualTo(1)
-                it.graphqlDataFirst("name").isNotEmpty
-                it.graphqlDataFirst("default").isBoolean
-                it.graphqlDataFirst("affiliation").isEqualTo("aurora")
-                it.graphqlDataFirst("applications").isNotEmpty
-                it.graphqlDataFirst("environments").isNotEmpty
+                graphqlData("length()").isEqualTo(1)
+                graphqlDataFirst("name").isNotEmpty
+                graphqlDataFirst("default").isBoolean
+                graphqlDataFirst("affiliation").isEqualTo("aurora")
+                graphqlDataFirst("applications").isNotEmpty
+                graphqlDataFirst("environments").isNotEmpty
             }
     }
 }

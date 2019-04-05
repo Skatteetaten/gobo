@@ -53,10 +53,10 @@ class ApplicationDeploymentQueryResolverTest {
             .expectStatus().isOk
             .expectBody()
             .graphqlDataWithPrefix("applicationDeployment") {
-                it.graphqlData("id").isEqualTo("123")
-                it.graphqlData("status.reports").exists()
-                it.graphqlData("status.reasons").exists()
-                it.graphqlData("message").exists()
+                graphqlData("id").isEqualTo("123")
+                graphqlData("status.reports").exists()
+                graphqlData("status.reasons").exists()
+                graphqlData("message").exists()
             }
     }
 }

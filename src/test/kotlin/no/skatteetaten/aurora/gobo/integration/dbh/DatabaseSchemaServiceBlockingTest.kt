@@ -26,7 +26,8 @@ import no.skatteetaten.aurora.gobo.SchemaDeletionRequestBuilder
 import no.skatteetaten.aurora.gobo.SchemaUpdateRequestBuilder
 import no.skatteetaten.aurora.gobo.integration.MockWebServerTestTag
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
-import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseSchemaServiceReactive.Companion.HEADER_AURORA_TOKEN
+import no.skatteetaten.aurora.gobo.integration.containsAuroraToken
+import no.skatteetaten.aurora.gobo.integration.containsAuroraTokens
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseSchemaServiceReactive.Companion.HEADER_COOLDOWN_DURATION_HOURS
 import no.skatteetaten.aurora.gobo.security.SharedSecretReader
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.bodyAsObject
@@ -34,7 +35,6 @@ import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.execute
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.RecordedRequest
 import org.junit.jupiter.api.Test
-import org.springframework.http.HttpHeaders
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClient.create
 import java.net.UnknownHostException
@@ -245,21 +245,6 @@ class DatabaseSchemaServiceBlockingTest {
         val exception = catch { serviceWithUnknownHost.getDatabaseSchema("abc123") }
         assertThat(exception).isNotNull().isInstanceOf(SourceSystemException::class)
         assertThat(exception?.cause).isNotNull().isInstanceOf(UnknownHostException::class)
-    }
-
-    private fun Assert<RecordedRequest>.containsAuroraToken() = given { request ->
-        request.headers[HttpHeaders.AUTHORIZATION]?.let {
-            if (it.startsWith(HEADER_AURORA_TOKEN)) return
-        }
-        expected("Authorization header to contain $HEADER_AURORA_TOKEN")
-    }
-
-    private fun Assert<List<RecordedRequest>>.containsAuroraTokens() = given { requests ->
-        val tokens = requests.filter { request ->
-            request.headers[HttpHeaders.AUTHORIZATION]?.startsWith(HEADER_AURORA_TOKEN) ?: false
-        }
-        if (tokens.size == requests.size) return
-        expected("Authorization header to contain $HEADER_AURORA_TOKEN")
     }
 
     private fun Assert<List<RecordedRequest>>.containsPath(endingWith: String) = given { requests ->

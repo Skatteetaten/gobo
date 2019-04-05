@@ -13,24 +13,23 @@ import reactor.core.publisher.Mono
 import java.time.Duration
 
 @Service
-class CertificateService(
+class WebsealService(
     private val sharedSecretReader: SharedSecretReader,
     @TargetService(ServiceTypes.SKAP) private val webClient: WebClient
 ) {
 
-    fun getCertificates(): Mono<List<Certificate>> =
+    fun getStates(): Mono<List<WebsealState>> =
         webClient
             .get()
-            .uri("/certificate/list")
+            .uri("/webseal/v3")
             .header(HttpHeaders.AUTHORIZATION, "$HEADER_AURORA_TOKEN ${sharedSecretReader.secret}")
             .retrieve()
             .bodyToMono()
 }
 
 @Service
-class CertificateServiceBlocking(private val certificateService: CertificateService) {
+class WebsealServiceBlocking(private val websealService: WebsealService) {
+    fun getStates() = websealService.getStates().blockNonNullWithTimeout()
 
-    fun getCertificates() = certificateService.getCertificates().blockNonNullWithTimeout()
-
-    private fun <T> Mono<T>.blockNonNullWithTimeout() = this.blockNonNullAndHandleError(Duration.ofSeconds(30), "skap")
+    fun <T> Mono<T>.blockNonNullWithTimeout() = this.blockNonNullAndHandleError(Duration.ofSeconds(30), "skap")
 }

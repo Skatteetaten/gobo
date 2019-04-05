@@ -58,7 +58,7 @@ fun WebTestClient.BodyContentSpec.logResult() {
 
 fun WebTestClient.BodyContentSpec.graphqlDataWithPrefix(
     prefix: String,
-    fn: (data: GraphqlDataWithPrefix) -> Unit
+    fn: GraphqlDataWithPrefix.() -> Unit
 ): WebTestClient.BodyContentSpec {
     fn(GraphqlDataWithPrefix(prefix, this))
     return this
@@ -68,7 +68,7 @@ fun WebTestClient.BodyContentSpec.graphqlDataWithPrefixAndIndex(
     prefix: String,
     startIndex: Int = 0,
     endIndex: Int = 0,
-    fn: (data: GraphqlDataWithPrefixAndIndex) -> Unit
+    fn: GraphqlDataWithPrefixAndIndex.() -> Unit
 ): WebTestClient.BodyContentSpec {
     for (i in startIndex..endIndex) {
         fn(GraphqlDataWithPrefixAndIndex(prefix, i, this))

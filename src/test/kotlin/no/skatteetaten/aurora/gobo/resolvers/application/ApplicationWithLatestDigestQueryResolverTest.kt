@@ -88,9 +88,9 @@ class ApplicationWithLatestDigestQueryResolverTest {
             .expectBody()
             .graphqlData("applications.totalCount").isNumber
             .graphqlDataWithPrefix("applications.edges[0].node.applicationDeployments[0].details.imageDetails") {
-                it.graphqlData("dockerImageTagReference").isEqualTo("docker.registry/group/name:2")
-                it.graphqlData("digest").isEqualTo("sha256:123")
-                it.graphqlData("isLatestDigest").isEqualTo(true)
+                graphqlData("dockerImageTagReference").isEqualTo("docker.registry/group/name:2")
+                graphqlData("digest").isEqualTo("sha256:123")
+                graphqlData("isLatestDigest").isEqualTo(true)
             }
     }
 }

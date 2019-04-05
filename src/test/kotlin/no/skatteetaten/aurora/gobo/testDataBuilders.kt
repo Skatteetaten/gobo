@@ -31,13 +31,16 @@ import no.skatteetaten.aurora.gobo.integration.mokey.ManagementResponsesResource
 import no.skatteetaten.aurora.gobo.integration.mokey.PodResourceResource
 import no.skatteetaten.aurora.gobo.integration.mokey.StatusResource
 import no.skatteetaten.aurora.gobo.integration.mokey.VersionResource
+import no.skatteetaten.aurora.gobo.integration.skap.Acl
+import no.skatteetaten.aurora.gobo.integration.skap.Certificate
+import no.skatteetaten.aurora.gobo.integration.skap.Junction
+import no.skatteetaten.aurora.gobo.integration.skap.WebsealState
 import no.skatteetaten.aurora.gobo.integration.unclematt.ProbeResult
 import no.skatteetaten.aurora.gobo.integration.unclematt.ProbeStatus
 import no.skatteetaten.aurora.gobo.integration.unclematt.Result
 import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.ApplicationDeployment
 import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.Status
 import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.Version
-import no.skatteetaten.aurora.gobo.resolvers.certificate.Certificate
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageTag
 import org.intellij.lang.annotations.Language
@@ -103,6 +106,7 @@ data class ApplicationDeploymentWithDbResourceBuilder(
 
 data class ApplicationDeploymentResourceBuilder(
     val affiliation: String = "paas",
+    val namespace: String = "namespace",
     val id: String = "id",
     val msg: String = "foo"
 ) {
@@ -112,7 +116,7 @@ data class ApplicationDeploymentResourceBuilder(
             name = "name",
             affiliation = affiliation,
             environment = "environment",
-            namespace = "namespace",
+            namespace = namespace,
             status = StatusResource("code", "", listOf(), listOf()),
             version = VersionResource("deployTag", "auroraVersion", "releaseTo"),
             dockerImageRepo = "127.0.0.1:5000/aurora/whoami",
@@ -124,13 +128,19 @@ data class ApplicationDeploymentResourceBuilder(
         }
 }
 
-data class ApplicationResourceBuilder(val name: String = "name") {
+data class ApplicationResourceBuilder(
+    val name: String = "name",
+    val affiliation: String = "paas",
+    val namespace: String = "namespace"
+) {
 
     fun build(): ApplicationResource =
         ApplicationResource(
             identifier = "id",
             name = name,
-            applicationDeployments = listOf(ApplicationDeploymentResourceBuilder().build())
+            applicationDeployments = listOf(
+                ApplicationDeploymentResourceBuilder(affiliation = affiliation, namespace = namespace).build()
+            )
         )
 }
 
@@ -421,7 +431,7 @@ data class AuroraResponseBuilder(val status: Int, val url: String) {
     }
 }
 
-data class CertificateBuilder(val id: String = "1", val dn: String = ".activemq") {
+data class CertificateResourceBuilder(val id: String = "1", val dn: String = ".activemq") {
 
     fun build() = Certificate(
         id = id,
@@ -429,5 +439,51 @@ data class CertificateBuilder(val id: String = "1", val dn: String = ".activemq"
         issuedDate = Instant.now(),
         revokedDate = Instant.now(),
         expiresDate = Instant.now()
+    )
+}
+
+data class WebsealStateBuilder(val namespace: String = "test") {
+
+    fun build() = WebsealState(
+        acl = Acl("acl-name", true, true, emptyList()),
+        name = "test.no",
+        namespace = namespace,
+        routeName = "test-route",
+        junctions = listOf(
+            Junction(
+                activeWorkerThreads = "activeWorkerThreads",
+                allowWindowsStyleURLs = "allowWindowsStyleURLs",
+                authenticationHTTPheader = "authenticationHTTPheader",
+                basicAuthenticationMode = "basicAuthenticationMode",
+                booleanRuleHeader = "booleanRuleHeader",
+                caseInsensitiveURLs = "caseInsensitiveURLs",
+                currentRequests = "currentRequests",
+                delegationSupport = "delegationSupport",
+                formsBasedSSO = "formsBasedSSO",
+                hostname = "hostname",
+                id = "junction-id",
+                insertWebSEALSessionCookies = "insertWebSEALSessionCookies",
+                insertWebSphereLTPACookies = "insertWebSphereLTPACookies",
+                junctionHardLimit = "junctionHardLimit",
+                junctionSoftLimit = "junctionSoftLimit",
+                mutuallyAuthenticated = "mutuallyAuthenticated",
+                operationalState = "operationalState",
+                port = "port",
+                queryContents = "queryContents",
+                queryContentsURL = "queryContentsURL",
+                remoteAddressHTTPHeader = "remoteAddressHTTPHeader",
+                requestEncoding = "requestEncoding",
+                server1 = "server1",
+                serverDN = "serverDN",
+                serverState = "serverState",
+                statefulJunction = "statefulJunction",
+                tfimjunctionSSO = "TFIMJunctionSSO",
+                totalRequests = "totalRequests",
+                type = "type",
+                virtualHostJunctionLabel = "virtualHostJunctionLabel",
+                virtualHostname = "virtualHostname",
+                localIPAddress = "localIPAddress"
+            )
+        )
     )
 }
