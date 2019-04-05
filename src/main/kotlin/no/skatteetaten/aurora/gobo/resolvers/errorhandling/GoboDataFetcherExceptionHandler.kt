@@ -12,15 +12,15 @@ class GoboDataFetcherExceptionHandler : DataFetcherExceptionHandler {
     override fun accept(handlerParameters: DataFetcherExceptionHandlerParameters?) {
         handlerParameters ?: return
 
-        if (handlerParameters.exception is GoboException) {
+        val exception = handlerParameters.exception
+        if (exception is GoboException) {
             handlerParameters.executionContext?.addError(GraphQLExceptionWrapper(handlerParameters))
         }
 
-        val exceptionMessage = if (handlerParameters.exception is SourceSystemException) {
-            val exception = handlerParameters.exception as SourceSystemException
+        val exceptionMessage = if (exception is SourceSystemException) {
             "Exception in data fetcher, exception=\"${exception.message}\" - source=${exception.sourceSystem}"
         } else {
-            "Exception in data fetcher, exception=\"${handlerParameters.exception.message}\""
+            "Exception in data fetcher, exception=\"${exception.message}\""
         }
 
         logger.error { exceptionMessage }
