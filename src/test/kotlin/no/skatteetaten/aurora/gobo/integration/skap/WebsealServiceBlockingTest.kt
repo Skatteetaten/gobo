@@ -4,7 +4,7 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import io.mockk.every
 import io.mockk.mockk
-import no.skatteetaten.aurora.gobo.WebsealStateBuilder
+import no.skatteetaten.aurora.gobo.WebsealStateResourceBuilder
 import no.skatteetaten.aurora.gobo.integration.MockWebServerTestTag
 import no.skatteetaten.aurora.gobo.integration.containsAuroraToken
 import no.skatteetaten.aurora.gobo.security.SharedSecretReader
@@ -25,7 +25,7 @@ class WebsealServiceBlockingTest {
 
     @Test
     fun `Get WebSEAL state`() {
-        val websealState = WebsealStateBuilder().build()
+        val websealState = WebsealStateResourceBuilder().build()
         val request = server.execute(listOf(websealState, websealState)) {
             val states = websealService.getStates()
             assertThat(states.size).isEqualTo(2)

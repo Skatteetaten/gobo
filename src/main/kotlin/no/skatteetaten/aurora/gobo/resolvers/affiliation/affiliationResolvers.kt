@@ -5,7 +5,6 @@ import com.coxautodev.graphql.tools.GraphQLResolver
 import graphql.schema.DataFetchingEnvironment
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseSchemaService
 import no.skatteetaten.aurora.gobo.integration.mokey.AffiliationServiceBlocking
-import no.skatteetaten.aurora.gobo.integration.skap.WebsealState
 import no.skatteetaten.aurora.gobo.resolvers.AccessDeniedException
 import no.skatteetaten.aurora.gobo.resolvers.databaseschema.DatabaseSchema
 import no.skatteetaten.aurora.gobo.resolvers.multipleKeysLoader
