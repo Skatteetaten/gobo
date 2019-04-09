@@ -19,6 +19,9 @@ class GoboQueryResolverTest {
     @Value("classpath:graphql/queries/getGoboUsageFieldNameContains.graphql")
     private lateinit var getGoboUsageFieldNameContainsQuery: Resource
 
+    @Value("classpath:graphql/queries/getGoboUserUsage.graphql")
+    private lateinit var getGoboUserUsageQuery: Resource
+
     @Autowired
     private lateinit var webTestClient: WebTestClient
 
@@ -35,11 +38,22 @@ class GoboQueryResolverTest {
     }
 
     @Test
-    fun `Get gobo usage with field name containing`() {
+    fun `Get Gobo usage with field name containing`() {
         webTestClient.queryGraphQL(
             queryResource = getGoboUsageFieldNameContainsQuery,
             variables = mapOf("nameContains" to "gobo")
         )
             .expectStatus().isOk
+    }
+
+    @Test
+    fun `Get Gobo user usage`() {
+        webTestClient.queryGraphQL(getGoboUserUsageQuery)
+            .expectStatus().isOk
+            .expectBody()
+            .graphqlDataWithPrefix("gobo.usage.users[0]") {
+                graphqlData("name").isEqualTo("anonymous")
+                graphqlData("count").isNumber
+            }
     }
 }

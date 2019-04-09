@@ -6,7 +6,9 @@ import graphql.execution.instrumentation.SimpleInstrumentation
 import graphql.execution.instrumentation.parameters.InstrumentationExecutionParameters
 import graphql.language.Field
 import graphql.language.SelectionSet
+import graphql.servlet.GraphQLContext
 import mu.KotlinLogging
+import no.skatteetaten.aurora.gobo.security.currentUser
 import org.springframework.stereotype.Component
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.LongAdder
@@ -20,7 +22,8 @@ fun String.removeNewLines() =
 @Component
 class GoboInstrumentation : SimpleInstrumentation() {
 
-    val usage = Usage()
+    val fieldUsage = FieldUsage()
+    val userUsage = UserUsage()
 
     override fun instrumentExecutionInput(
         executionInput: ExecutionInput?,
@@ -43,23 +46,36 @@ class GoboInstrumentation : SimpleInstrumentation() {
         parameters: InstrumentationExecutionParameters?
     ): ExecutionContext {
         val selectionSet = executionContext?.operationDefinition?.selectionSet ?: SelectionSet(emptyList())
-        usage.updateFieldNames(selectionSet)
+        fieldUsage.update(selectionSet)
+        userUsage.update(executionContext)
         return super.instrumentExecutionContext(executionContext, parameters)
     }
 }
 
-class Usage {
+class FieldUsage {
     private val _fields: ConcurrentHashMap<String, LongAdder> = ConcurrentHashMap()
     val fields: Map<String, LongAdder>
         get() = _fields.toSortedMap()
 
-    fun updateFieldNames(selectionSet: SelectionSet?, parent: String? = null) {
+    fun update(selectionSet: SelectionSet?, parent: String? = null) {
         selectionSet?.selections?.map {
             if (it is Field) {
                 val fullName = if (parent == null) it.name else "$parent.${it.name}"
                 _fields.computeIfAbsent(fullName) { LongAdder() }.increment()
-                updateFieldNames(it.selectionSet, fullName)
+                update(it.selectionSet, fullName)
             }
+        }
+    }
+}
+
+class UserUsage {
+    val users: ConcurrentHashMap<String, LongAdder> = ConcurrentHashMap()
+
+    fun update(executionContext: ExecutionContext?) {
+        val context = executionContext?.context
+        if (context is GraphQLContext) {
+            val user = context.httpServletRequest.get().currentUser()
+            users.computeIfAbsent(user.id) { LongAdder() }.increment()
         }
     }
 }
