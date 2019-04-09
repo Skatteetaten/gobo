@@ -1,6 +1,5 @@
 package no.skatteetaten.aurora.gobo.resolvers.affiliation
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import no.skatteetaten.aurora.gobo.integration.skap.Acl
 import no.skatteetaten.aurora.gobo.integration.skap.WebsealStateResource
 
@@ -14,13 +13,11 @@ data class WebsealState(
 
     fun junctions(propertyNames: List<String>?) =
         junctions.map { junction ->
-            val filteredJunction = if (propertyNames == null) {
+            if (propertyNames == null) {
                 junction
             } else {
                 junction.filter { propertyNames.contains(it.key) }
             }
-
-            filteredJunction.map { jacksonObjectMapper().writeValueAsString(it) }
         }
 
     companion object {

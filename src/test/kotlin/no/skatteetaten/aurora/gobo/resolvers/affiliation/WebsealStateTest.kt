@@ -15,8 +15,8 @@ class WebsealStateTest {
 
         assertThat(junctions).hasSize(2)
         assertThat(junctions.first()).hasSize(2)
-        assertThat(junctions.first()[0]).contains("Active Worker Threads")
-        assertThat(junctions.first()[1]).contains("Allow Windows Style URLs")
+        assertThat(junctions[0].keys.first()).contains("Active Worker Threads")
+        assertThat(junctions[1].keys.first()).contains("Active Worker Threads")
     }
 
     @Test
