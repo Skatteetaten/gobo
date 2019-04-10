@@ -31,3 +31,8 @@ Tags:
 ## GraphQL tracing
 
 To enable tracing: `gobo.graphql.tracing-enabled=true`
+
+
+## Contract tests
+
+To run contract tests against a snapshot stub-jar file, set `gobo.stub.repository: snapshots` in `application.yaml`.
