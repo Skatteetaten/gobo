@@ -1,38 +1,3 @@
-type Junction {
-  activeWorkerThreads: String
-  allowWindowsStyleURLs: String
-  authenticationHTTPheader: String
-  basicAuthenticationMode: String
-  booleanRuleHeader: String
-  caseInsensitiveURLs: String
-  delegationSupport: String
-  formsBasedSSO: String
-  hostname: String
-  id: String
-  insertWebSEALSessionCookies: String
-  insertWebSphereLTPACookies: String
-  junctionHardLimit: String
-  junctionSoftLimit: String
-  mutuallyAuthenticated: String
-  operationalState: String
-  port: String
-  queryContents: String
-  queryContentsURL: String
-  remoteAddressHTTPHeader: String
-  requestEncoding: String
-  server1: String
-  serverDN: String
-  serverState: String
-  statefulJunction: String
-  tfimjunctionSSO: String
-  type: String
-  virtualHostJunctionLabel: String
-  virtualHostname: String
-  localIPAddress: String
-  currentRequests: String
-  totalRequests: String
-}
-
 type Acl {
   aclName: String!
   anyOther: Boolean!
@@ -42,7 +7,7 @@ type Acl {
 
 type WebsealState {
   acl: Acl!,
-  junctions: [Junction!]!
+  junctions(propertyNames: [String!]): [String!]!
   name: String!
   namespace: String!
   routeName: String!

@@ -18,7 +18,7 @@ class WebsealService(
     @TargetService(ServiceTypes.SKAP) private val webClient: WebClient
 ) {
 
-    fun getStates(): Mono<List<WebsealState>> =
+    fun getStates(): Mono<List<WebsealStateResource>> =
         webClient
             .get()
             .uri("/webseal/v3")

@@ -3,12 +3,7 @@ query getWebsealStates($affiliation: String!) {
         edges {
             node {
                 websealStates {
-                    name
-                    namespace
-                    acl {
-                        aclName
-                    }
-                    junctions
+                    junctions(propertyNames: ["Active Worker Threads"])
                 }
             }
         }

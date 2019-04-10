@@ -1,0 +1,10 @@
+{
+    gobo {
+        usage {
+            users {
+                name
+                count
+            }
+        }
+    }
+}

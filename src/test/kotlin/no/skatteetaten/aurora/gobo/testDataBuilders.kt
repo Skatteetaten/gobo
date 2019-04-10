@@ -33,8 +33,7 @@ import no.skatteetaten.aurora.gobo.integration.mokey.StatusResource
 import no.skatteetaten.aurora.gobo.integration.mokey.VersionResource
 import no.skatteetaten.aurora.gobo.integration.skap.Acl
 import no.skatteetaten.aurora.gobo.integration.skap.Certificate
-import no.skatteetaten.aurora.gobo.integration.skap.Junction
-import no.skatteetaten.aurora.gobo.integration.skap.WebsealState
+import no.skatteetaten.aurora.gobo.integration.skap.WebsealStateResource
 import no.skatteetaten.aurora.gobo.integration.unclematt.ProbeResult
 import no.skatteetaten.aurora.gobo.integration.unclematt.ProbeStatus
 import no.skatteetaten.aurora.gobo.integration.unclematt.Result
@@ -442,47 +441,20 @@ data class CertificateResourceBuilder(val id: String = "1", val dn: String = ".a
     )
 }
 
-data class WebsealStateBuilder(val namespace: String = "test") {
+data class WebsealStateResourceBuilder(val namespace: String = "test") {
 
-    fun build() = WebsealState(
+    fun build() = WebsealStateResource(
         acl = Acl("acl-name", true, true, emptyList()),
         name = "test.no",
         namespace = namespace,
         routeName = "test-route",
         junctions = listOf(
-            Junction(
-                activeWorkerThreads = "activeWorkerThreads",
-                allowWindowsStyleURLs = "allowWindowsStyleURLs",
-                authenticationHTTPheader = "authenticationHTTPheader",
-                basicAuthenticationMode = "basicAuthenticationMode",
-                booleanRuleHeader = "booleanRuleHeader",
-                caseInsensitiveURLs = "caseInsensitiveURLs",
-                currentRequests = "currentRequests",
-                delegationSupport = "delegationSupport",
-                formsBasedSSO = "formsBasedSSO",
-                hostname = "hostname",
-                id = "junction-id",
-                insertWebSEALSessionCookies = "insertWebSEALSessionCookies",
-                insertWebSphereLTPACookies = "insertWebSphereLTPACookies",
-                junctionHardLimit = "junctionHardLimit",
-                junctionSoftLimit = "junctionSoftLimit",
-                mutuallyAuthenticated = "mutuallyAuthenticated",
-                operationalState = "operationalState",
-                port = "port",
-                queryContents = "queryContents",
-                queryContentsURL = "queryContentsURL",
-                remoteAddressHTTPHeader = "remoteAddressHTTPHeader",
-                requestEncoding = "requestEncoding",
-                server1 = "server1",
-                serverDN = "serverDN",
-                serverState = "serverState",
-                statefulJunction = "statefulJunction",
-                tfimjunctionSSO = "TFIMJunctionSSO",
-                totalRequests = "totalRequests",
-                type = "type",
-                virtualHostJunctionLabel = "virtualHostJunctionLabel",
-                virtualHostname = "virtualHostname",
-                localIPAddress = "localIPAddress"
+            mapOf(
+                "Active Worker Threads" to "activeWorkerThreads1",
+                "Allow Windows Style URLs" to "allowWindowsStyleURLs"
+            ),
+            mapOf(
+                "Active Worker Threads" to "activeWorkerThreads2"
             )
         )
     )

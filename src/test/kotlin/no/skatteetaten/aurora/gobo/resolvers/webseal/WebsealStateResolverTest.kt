@@ -3,7 +3,7 @@ package no.skatteetaten.aurora.gobo.resolvers.webseal
 import com.nhaarman.mockito_kotlin.any
 import no.skatteetaten.aurora.gobo.GraphQLTest
 import no.skatteetaten.aurora.gobo.OpenShiftUserBuilder
-import no.skatteetaten.aurora.gobo.WebsealStateBuilder
+import no.skatteetaten.aurora.gobo.WebsealStateResourceBuilder
 import no.skatteetaten.aurora.gobo.resolvers.graphqlDataWithPrefix
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import no.skatteetaten.aurora.gobo.security.OpenShiftUserLoader
@@ -25,6 +25,9 @@ class WebsealStateResolverTest {
     @Value("classpath:graphql/queries/getWebsealStates.graphql")
     private lateinit var getWebsealStates: Resource
 
+    @Value("classpath:graphql/queries/getWebsealStatesWithPropertyNames.graphql")
+    private lateinit var getWebsealStatesWithPropertyNames: Resource
+
     @Autowired
     private lateinit var webTestClient: WebTestClient
 
@@ -45,7 +48,11 @@ class WebsealStateResolverTest {
 
     @Test
     fun `Get WebSEAL states`() {
-        given(websealAffiliationService.getWebsealState(any())).willReturn(mapOf("aurora" to listOf(WebsealStateBuilder().build())))
+        given(websealAffiliationService.getWebsealState(any())).willReturn(
+            mapOf(
+                "aurora" to listOf(WebsealStateResourceBuilder().build())
+            )
+        )
 
         webTestClient.queryGraphQL(
             queryResource = getWebsealStates,
@@ -57,7 +64,27 @@ class WebsealStateResolverTest {
             .graphqlDataWithPrefix("affiliations.edges[0].node.websealStates[0]") {
                 graphqlData("name").isEqualTo("test.no")
                 graphqlData("acl.aclName").isEqualTo("acl-name")
-                graphqlData("junctions[0].id").isEqualTo("junction-id")
+                graphqlData("junctions.length()").isEqualTo(2)
+            }
+    }
+
+    @Test
+    fun `Get WebSEAL states with property names`() {
+        given(websealAffiliationService.getWebsealState(any())).willReturn(
+            mapOf(
+                "aurora" to listOf(WebsealStateResourceBuilder().build())
+            )
+        )
+
+        webTestClient.queryGraphQL(
+            queryResource = getWebsealStatesWithPropertyNames,
+            variables = mapOf("affiliation" to "aurora"),
+            token = "test-token"
+        )
+            .expectStatus().isOk
+            .expectBody()
+            .graphqlDataWithPrefix("affiliations.edges[0].node.websealStates[0]") {
+                graphqlData("junctions.length()").isEqualTo(2)
             }
     }
 }

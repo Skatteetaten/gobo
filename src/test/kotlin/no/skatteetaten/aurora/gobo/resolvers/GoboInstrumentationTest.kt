@@ -25,11 +25,11 @@ class GoboInstrumentationTest {
                 .executionId(ExecutionId.from("123"))
                 .operationDefinition(operationDefinition).build()
         goboInstrumentation.instrumentExecutionContext(executionContext, null)
-        assertThat(goboInstrumentation.usage.fields.keys).all {
+        assertThat(goboInstrumentation.fieldUsage.fields.keys).all {
             hasSize(1)
             contains("id")
         }
-        assertThat(goboInstrumentation.usage.fields["id"]?.sum()).isEqualTo(1L)
+        assertThat(goboInstrumentation.fieldUsage.fields["id"]?.sum()).isEqualTo(1L)
     }
 
     @Test
@@ -39,7 +39,7 @@ class GoboInstrumentationTest {
                 .executionId(ExecutionId.from("123"))
                 .operationDefinition(OperationDefinition.newOperationDefinition().build()).build()
         goboInstrumentation.instrumentExecutionContext(executionContext, null)
-        assertThat(goboInstrumentation.usage.fields.entries).hasSize(0)
+        assertThat(goboInstrumentation.fieldUsage.fields.entries).hasSize(0)
     }
 
     @Test

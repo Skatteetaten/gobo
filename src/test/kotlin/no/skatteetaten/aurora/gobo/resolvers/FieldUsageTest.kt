@@ -9,14 +9,14 @@ import graphql.language.Field
 import graphql.language.SelectionSet
 import org.junit.jupiter.api.Test
 
-class UsageTest {
-    private val usage = Usage()
+class FieldUsageTest {
+    private val usage = FieldUsage()
 
     @Test
     fun `Get field name from SelectionSet`() {
         val id = SelectionSet.newSelectionSet().selections(listOf(Field("id"), Field("id"))).build()
         val databaseSchema = SelectionSet.newSelectionSet().selections(listOf(Field("databaseSchema", id))).build()
-        usage.updateFieldNames(databaseSchema)
+        usage.update(databaseSchema)
 
         val fields = usage.fields
         assertThat(fields.keys).all {

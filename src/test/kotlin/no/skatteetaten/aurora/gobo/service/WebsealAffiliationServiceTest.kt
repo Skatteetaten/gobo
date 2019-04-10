@@ -6,7 +6,7 @@ import assertk.assertions.isEqualTo
 import io.mockk.every
 import io.mockk.mockk
 import no.skatteetaten.aurora.gobo.ApplicationResourceBuilder
-import no.skatteetaten.aurora.gobo.WebsealStateBuilder
+import no.skatteetaten.aurora.gobo.WebsealStateResourceBuilder
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
 import no.skatteetaten.aurora.gobo.integration.skap.WebsealServiceBlocking
 import org.junit.jupiter.api.Test
@@ -21,10 +21,10 @@ class WebsealAffiliationServiceTest {
     }
     private val websealService = mockk<WebsealServiceBlocking> {
         every { getStates() } returns listOf(
-            WebsealStateBuilder(namespace = "paas").build(),
-            WebsealStateBuilder(namespace = "aurora").build(),
-            WebsealStateBuilder(namespace = "test1").build(),
-            WebsealStateBuilder(namespace = "test2").build()
+            WebsealStateResourceBuilder(namespace = "paas").build(),
+            WebsealStateResourceBuilder(namespace = "aurora").build(),
+            WebsealStateResourceBuilder(namespace = "test1").build(),
+            WebsealStateResourceBuilder(namespace = "test2").build()
         )
     }
 

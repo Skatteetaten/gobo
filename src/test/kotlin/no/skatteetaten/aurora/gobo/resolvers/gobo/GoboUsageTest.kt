@@ -5,7 +5,7 @@ import assertk.assertions.hasSize
 import org.junit.jupiter.api.Test
 
 class GoboUsageTest {
-    private val usage = GoboUsage(listOf(GoboField("abc", 1), GoboField("bcd", 1)))
+    private val usage = GoboUsage(listOf(GoboField("abc", 1), GoboField("bcd", 1)), emptyList())
 
     @Test
     fun `Get fields with name containing`() {
