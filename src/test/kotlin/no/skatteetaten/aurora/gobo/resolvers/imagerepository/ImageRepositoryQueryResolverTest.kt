@@ -122,6 +122,18 @@ class ImageRepositoryQueryResolverTest {
     }
 
     @Test
+    fun `Query for repositories with empty array input`() {
+        webTestClient.queryGraphQL(
+            queryResource = reposWithTagsQuery,
+            variables = mapOf("repositories" to listOf<String>()),
+            token = "test-token"
+        )
+            .expectStatus().isOk
+            .expectBody()
+            .graphqlErrorsFirst("message").isEqualTo("repositories is empty")
+    }
+
+    @Test
     fun `Query for tags with paging`() {
         val pageSize = 3
         val variables = mapOf("repositories" to imageReposAndTags.first().imageRepository, "pageSize" to pageSize)
