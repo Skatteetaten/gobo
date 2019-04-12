@@ -76,6 +76,7 @@ type ApplicationDeploymentDetails {
   podResources: [PodResource]
   deploymentSpecs: DeploymentSpecs
   deployDetails:DeployDetailsResource
+  serviceLinks: [Link]!
 }
 
 type DeployDetailsResource{
