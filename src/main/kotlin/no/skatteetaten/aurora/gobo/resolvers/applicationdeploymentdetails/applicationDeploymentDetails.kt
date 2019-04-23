@@ -121,7 +121,8 @@ data class ApplicationDeploymentDetails(
     val databases: List<String>,
     val podResources: List<PodResource>,
     val deploymentSpecs: DeploymentSpecs,
-    val deployDetails: DeployDetails?
+    val deployDetails: DeployDetails?,
+    val serviceLinks: List<Link>
 ) {
     companion object {
         fun create(resource: ApplicationDeploymentDetailsResource): ApplicationDeploymentDetails {
@@ -149,6 +150,14 @@ data class ApplicationDeploymentDetails(
                         phase = it.phase,
                         deployTag = it.deployTag,
                         paused = it.paused
+                    )
+                },
+                serviceLinks = resource.serviceLinks.entries.map {
+                    Link.create(
+                        org.springframework.hateoas.Link(
+                            it.value.href,
+                            it.key
+                        )
                     )
                 }
             )

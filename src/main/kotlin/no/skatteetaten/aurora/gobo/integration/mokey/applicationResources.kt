@@ -2,6 +2,7 @@ package no.skatteetaten.aurora.gobo.integration.mokey
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
+import org.springframework.hateoas.Link
 import org.springframework.hateoas.ResourceSupport
 import org.springframework.web.util.UriUtils
 import java.nio.charset.Charset
@@ -94,7 +95,8 @@ data class ApplicationDeploymentDetailsResource(
     val databases: List<String>?,
     val dependencies: Map<String, String> = emptyMap(),
     val applicationDeploymentCommand: ApplicationDeploymentCommandResource,
-    val deployDetails: DeployDetailsResource?
+    val deployDetails: DeployDetailsResource?,
+    val serviceLinks: Map<String, Link> = emptyMap()
 ) : ResourceSupport() {
 
     fun link(rel: String) = this.findLink(rel)
