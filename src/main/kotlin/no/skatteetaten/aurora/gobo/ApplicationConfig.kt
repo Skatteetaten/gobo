@@ -47,7 +47,6 @@ annotation class TargetService(val value: ServiceTypes)
 @ConditionalOnProperty("integrations.dbh.url")
 class RequiresDbh
 
-
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @Component
 @ConditionalOnProperty("integrations.skap.url")
