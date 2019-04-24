@@ -3,7 +3,7 @@ package no.skatteetaten.aurora.gobo.resolvers.certificate
 import no.skatteetaten.aurora.gobo.CertificateResourceBuilder
 import no.skatteetaten.aurora.gobo.GraphQLTest
 import no.skatteetaten.aurora.gobo.OpenShiftUserBuilder
-import no.skatteetaten.aurora.gobo.integration.skap.CertificateServiceBlocking
+import no.skatteetaten.aurora.gobo.integration.skap.CertificateService
 import no.skatteetaten.aurora.gobo.resolvers.graphqlData
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import no.skatteetaten.aurora.gobo.security.OpenShiftUserLoader
@@ -32,7 +32,7 @@ class CertificateResolverTest {
     private lateinit var openShiftUserLoader: OpenShiftUserLoader
 
     @MockBean
-    private lateinit var certificateService: CertificateServiceBlocking
+    private lateinit var certificateService: CertificateService
 
     @BeforeEach
     fun setUp() {

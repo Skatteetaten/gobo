@@ -20,7 +20,7 @@ class WebsealServiceBlockingTest {
         every { secret } returns "test-token"
     }
     private val websealService = WebsealServiceBlocking(
-        WebsealService(sharedSecretReader, WebClient.create(server.url("/").toString()))
+        WebsealServiceReactive(sharedSecretReader, WebClient.create(server.url("/").toString()))
     )
 
     @Test

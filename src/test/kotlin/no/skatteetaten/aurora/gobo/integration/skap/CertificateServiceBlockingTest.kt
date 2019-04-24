@@ -23,7 +23,12 @@ class CertificateServiceBlockingTest {
         every { secret } returns "test-token"
     }
     private val certificateService =
-        CertificateServiceBlocking(CertificateService(sharedSecretReader, WebClient.create(server.url("/").toString())))
+        CertificateServiceBlocking(
+            CertificateServiceReactive(
+                sharedSecretReader,
+                WebClient.create(server.url("/").toString())
+            )
+        )
 
     @Test
     fun `Get certificates`() {
