@@ -47,6 +47,12 @@ annotation class TargetService(val value: ServiceTypes)
 @ConditionalOnProperty("integrations.dbh.url")
 class RequiresDbh
 
+
+@Order(Ordered.HIGHEST_PRECEDENCE)
+@Component
+@ConditionalOnProperty("integrations.skap.url")
+class RequiresSkap
+
 private val logger = KotlinLogging.logger {}
 
 @Configuration
@@ -85,6 +91,7 @@ class ApplicationConfig(
     @TargetService(ServiceTypes.BOOBER)
     fun webClientBoober() = webClientBuilder().build()
 
+    @ConditionalOnBean(RequiresSkap::class)
     @Bean
     @TargetService(ServiceTypes.SKAP)
     fun webClientSkap(@Value("\${integrations.skap.url}") skapUrl: String) =

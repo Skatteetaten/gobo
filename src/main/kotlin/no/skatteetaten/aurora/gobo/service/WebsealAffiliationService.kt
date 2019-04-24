@@ -1,14 +1,14 @@
 package no.skatteetaten.aurora.gobo.service
 
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
-import no.skatteetaten.aurora.gobo.integration.skap.WebsealServiceBlocking
+import no.skatteetaten.aurora.gobo.integration.skap.WebsealService
 import no.skatteetaten.aurora.gobo.integration.skap.WebsealStateResource
 import org.springframework.stereotype.Service
 
 @Service
 class WebsealAffiliationService(
     private val applicationService: ApplicationServiceBlocking,
-    private val websealService: WebsealServiceBlocking
+    private val websealService: WebsealService
 ) {
     fun getWebsealState(affiliations: List<String>): Map<String, List<WebsealStateResource>> {
         val applicationDeployments = applicationService
