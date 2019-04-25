@@ -1,8 +1,13 @@
 package no.skatteetaten.aurora.gobo.resolvers
 
+import com.fasterxml.jackson.core.JsonProcessingException
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import graphql.schema.DataFetchingEnvironment
 import graphql.servlet.GraphQLContext
 import mu.KotlinLogging
+import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import org.dataloader.DataLoader
 import org.dataloader.Try
@@ -51,12 +56,12 @@ fun <T> Mono<T>.handleError(sourceSystem: String?) =
     this.doOnError {
         when (it) {
             is WebClientResponseException -> {
-                it.request?.let { request ->
-                    logger.error { "Error request url:${request.uri.toASCIIString()}" }
-                }
-                logger.error { "Error response body: ${it.responseBodyAsString}" }
+                val errorMessage = "Error in response, status=${it.rawStatusCode} message=${it.statusText}"
+                val message = it.readResponse()?.message ?: errorMessage
+
                 throw SourceSystemException(
-                    message = "Error in response, status=${it.rawStatusCode} message=${it.statusText}",
+                    message = message,
+                    errorMessage = errorMessage,
                     cause = it,
                     sourceSystem = sourceSystem,
                     code = it.statusCode.name
@@ -65,4 +70,21 @@ fun <T> Mono<T>.handleError(sourceSystem: String?) =
             is SourceSystemException -> throw it
             else -> throw SourceSystemException(message = it.message ?: "", cause = it, errorMessage = "Error response")
         }
+    }
+
+private fun WebClientResponseException.readResponse(): Response<*>? {
+    this.request?.let {
+        logger.error { "Error request url:${it.uri.toASCIIString()}" }
+    }
+
+    val body = this.responseBodyAsString
+    logger.error { "Error response body: $body" }
+    return jacksonObjectMapper().readResponse(body)
+}
+
+private fun ObjectMapper.readResponse(body: String) =
+    try {
+        this.readValue<Response<*>>(body)
+    } catch (e: JsonProcessingException) {
+        null
     }
