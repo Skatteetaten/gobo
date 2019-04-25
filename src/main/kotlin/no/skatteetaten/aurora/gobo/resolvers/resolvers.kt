@@ -1,5 +1,8 @@
 package no.skatteetaten.aurora.gobo.resolvers
 
+import com.jayway.jsonpath.Configuration
+import com.jayway.jsonpath.JsonPath
+import com.jayway.jsonpath.Option
 import graphql.schema.DataFetchingEnvironment
 import graphql.servlet.GraphQLContext
 import mu.KotlinLogging
@@ -51,12 +54,12 @@ fun <T> Mono<T>.handleError(sourceSystem: String?) =
     this.doOnError {
         when (it) {
             is WebClientResponseException -> {
-                it.request?.let { request ->
-                    logger.error { "Error request url:${request.uri.toASCIIString()}" }
-                }
-                logger.error { "Error response body: ${it.responseBodyAsString}" }
+                val errorMessage = "Error in response, status=${it.rawStatusCode} message=${it.statusText}"
+                val message = it.readResponse() ?: errorMessage
+
                 throw SourceSystemException(
-                    message = "Error in response, status=${it.rawStatusCode} message=${it.statusText}",
+                    message = message,
+                    errorMessage = errorMessage,
                     cause = it,
                     sourceSystem = sourceSystem,
                     code = it.statusCode.name
@@ -66,3 +69,15 @@ fun <T> Mono<T>.handleError(sourceSystem: String?) =
             else -> throw SourceSystemException(message = it.message ?: "", cause = it, errorMessage = "Error response")
         }
     }
+
+private fun WebClientResponseException.readResponse(): String? {
+    this.request?.let {
+        logger.error { "Error request url:${it.uri.toASCIIString()}" }
+    }
+
+    val body = this.responseBodyAsString
+    logger.error { "Error response body: $body" }
+
+    val json = JsonPath.parse(body, Configuration.defaultConfiguration().addOptions(Option.SUPPRESS_EXCEPTIONS))
+    return json.read<String>("$.message") ?: json.read<String>("$.items[0]")
+}
