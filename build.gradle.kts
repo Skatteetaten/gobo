@@ -31,6 +31,7 @@ dependencies {
     implementation("io.fabric8:openshift-client:4.2.0")
     implementation("com.fkorotkov:kubernetes-dsl:2.0.1")
     implementation("com.github.fge:json-patch:1.9")
+    implementation("com.jayway.jsonpath:json-path:2.4.0")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")

@@ -1,13 +1,11 @@
 package no.skatteetaten.aurora.gobo.resolvers
 
-import com.fasterxml.jackson.core.JsonProcessingException
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
+import com.jayway.jsonpath.Configuration
+import com.jayway.jsonpath.JsonPath
+import com.jayway.jsonpath.Option
 import graphql.schema.DataFetchingEnvironment
 import graphql.servlet.GraphQLContext
 import mu.KotlinLogging
-import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import org.dataloader.DataLoader
 import org.dataloader.Try
@@ -57,7 +55,7 @@ fun <T> Mono<T>.handleError(sourceSystem: String?) =
         when (it) {
             is WebClientResponseException -> {
                 val errorMessage = "Error in response, status=${it.rawStatusCode} message=${it.statusText}"
-                val message = it.readResponse()?.message ?: errorMessage
+                val message = it.readResponse() ?: errorMessage
 
                 throw SourceSystemException(
                     message = message,
@@ -72,19 +70,14 @@ fun <T> Mono<T>.handleError(sourceSystem: String?) =
         }
     }
 
-private fun WebClientResponseException.readResponse(): Response<*>? {
+private fun WebClientResponseException.readResponse(): String? {
     this.request?.let {
         logger.error { "Error request url:${it.uri.toASCIIString()}" }
     }
 
     val body = this.responseBodyAsString
     logger.error { "Error response body: $body" }
-    return jacksonObjectMapper().readResponse(body)
-}
 
-private fun ObjectMapper.readResponse(body: String) =
-    try {
-        this.readValue<Response<*>>(body)
-    } catch (e: JsonProcessingException) {
-        null
-    }
+    val json = JsonPath.parse(body, Configuration.defaultConfiguration().addOptions(Option.SUPPRESS_EXCEPTIONS))
+    return json.read<String>("$.message") ?: json.read<String>("$.items[0]")
+}
