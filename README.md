@@ -8,6 +8,21 @@ The component is named after Gobo from the TV-show Fraggle Rock (https://muppet.
 
 ## Development
 
+### Setup
+ 
+In order to use this project you must set repositories in your `~/.gradle/init.gradle` file
+ 
+     allprojects {
+         ext.repos= {
+             mavenCentral()
+             jcenter()
+         }
+         repositories repos
+         buildscript {
+          repositories repos
+         }
+     }
+
 Quickly deploy to test environment (fish shell):
 
     ./gradlew clean build -x test;
