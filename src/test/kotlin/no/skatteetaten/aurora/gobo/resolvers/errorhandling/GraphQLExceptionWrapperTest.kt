@@ -3,26 +3,23 @@ package no.skatteetaten.aurora.gobo.resolvers.errorhandling
 import assertk.assertThat
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
+import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import graphql.ExceptionWhileDataFetching
 import graphql.execution.DataFetcherExceptionHandlerParameters
 import graphql.execution.ExecutionPath
-import graphql.language.Field
-import graphql.language.SourceLocation
+import graphql.schema.DataFetchingEnvironment
+import io.mockk.mockk
 import no.skatteetaten.aurora.gobo.GoboException
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.resolvers.AccessDeniedException
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 
 class GraphQLExceptionWrapperTest {
-    private val sourceLocation = SourceLocation(0, 0)
+    private val env = mockk<DataFetchingEnvironment>(relaxed = true)
     private val paramsBuilder = DataFetcherExceptionHandlerParameters
         .newExceptionParameters()
-        /*
-        .field(Field.newField().sourceLocation(sourceLocation).name("name").build())
-        .path(ExecutionPath.parse(""))
-         */
+        .dataFetchingEnvironment(env)
 
     @Test
     fun `Create new GraphQLExceptionWrapper`() {
@@ -37,7 +34,7 @@ class GraphQLExceptionWrapperTest {
 
         val exceptionWrapper = GraphQLExceptionWrapper(handlerParams)
         assertThat(exceptionWrapper.message).isEqualTo("test exception")
-        assertThat(exceptionWrapper.locations[0]).isEqualTo(sourceLocation)
+        assertThat(exceptionWrapper.locations[0]).isNotNull()
         assertThat(exceptionWrapper.path).isEmpty()
         assertThat(exceptionWrapper.extensions["code"]).isEqualTo("INTERNAL_SERVER_ERROR")
         assertThat(exceptionWrapper.extensions["cause"]).isEqualTo(IllegalStateException::class.simpleName)
