@@ -1,7 +1,9 @@
 package no.skatteetaten.aurora.gobo.resolvers.errorhandling
 
+import graphql.ExceptionWhileDataFetching
 import graphql.execution.DataFetcherExceptionHandler
 import graphql.execution.DataFetcherExceptionHandlerParameters
+import graphql.execution.DataFetcherExceptionHandlerResult
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.GoboException
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
@@ -9,14 +11,10 @@ import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 private val logger = KotlinLogging.logger { }
 
 class GoboDataFetcherExceptionHandler : DataFetcherExceptionHandler {
-    override fun accept(handlerParameters: DataFetcherExceptionHandlerParameters?) {
-        handlerParameters ?: return
+    override fun onException(handlerParameters: DataFetcherExceptionHandlerParameters?): DataFetcherExceptionHandlerResult {
+        handlerParameters ?: return DataFetcherExceptionHandlerResult.newResult().build()
 
         val exception = handlerParameters.exception
-        if (exception is GoboException) {
-            handlerParameters.executionContext?.addError(GraphQLExceptionWrapper(handlerParameters))
-        }
-
         val exceptionMessage = if (exception is SourceSystemException) {
             "Exception in data fetcher, exception=\"${exception.message}\" - source=${exception.sourceSystem}"
         } else {
@@ -24,5 +22,15 @@ class GoboDataFetcherExceptionHandler : DataFetcherExceptionHandler {
         }
 
         logger.error { exceptionMessage }
+
+        val graphqlException = if (exception is GoboException) {
+            GraphQLExceptionWrapper(handlerParameters)
+        } else {
+            ExceptionWhileDataFetching(handlerParameters)
+        }
+        return DataFetcherExceptionHandlerResult.newResult(graphqlException).build()
     }
 }
+
+private fun ExceptionWhileDataFetching(handlerParameters: DataFetcherExceptionHandlerParameters) =
+    ExceptionWhileDataFetching(handlerParameters.path, handlerParameters.exception, handlerParameters.sourceLocation)

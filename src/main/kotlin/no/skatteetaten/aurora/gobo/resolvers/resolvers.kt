@@ -17,16 +17,10 @@ import kotlin.reflect.KClass
 
 val DataFetchingEnvironment.token: String?
     get() {
-        val context = this.executionContext.context
-        return when (context) {
-            is GraphQLContext -> {
-                val authorization = context.httpServletRequest
-                    .map { it.getHeader("Authorization") }
-                    .orElse(null)
-                authorization?.split(" ")?.lastOrNull()?.trim()
-            }
-            else -> null
-        }
+        val authorization = this.getContext<GraphQLContext>().httpServletRequest
+            .map { it.getHeader("Authorization") }
+            .orElse(null)
+        return authorization?.split(" ")?.lastOrNull()?.trim()
     }
 
 fun <T : KeyDataLoader<*, V>, V> DataFetchingEnvironment.loader(type: KClass<T>): DataLoader<Any, Try<V>> {

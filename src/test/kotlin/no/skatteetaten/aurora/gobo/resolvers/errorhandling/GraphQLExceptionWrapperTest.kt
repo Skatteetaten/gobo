@@ -12,14 +12,17 @@ import graphql.language.SourceLocation
 import no.skatteetaten.aurora.gobo.GoboException
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.resolvers.AccessDeniedException
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 
 class GraphQLExceptionWrapperTest {
     private val sourceLocation = SourceLocation(0, 0)
     private val paramsBuilder = DataFetcherExceptionHandlerParameters
         .newExceptionParameters()
+        /*
         .field(Field.newField().sourceLocation(sourceLocation).name("name").build())
         .path(ExecutionPath.parse(""))
+         */
 
     @Test
     fun `Create new GraphQLExceptionWrapper`() {

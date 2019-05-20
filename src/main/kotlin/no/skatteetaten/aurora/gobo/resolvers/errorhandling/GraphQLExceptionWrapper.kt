@@ -18,7 +18,7 @@ class GraphQLExceptionWrapper private constructor(
 ) : GraphQLError {
     constructor(handlerParameters: DataFetcherExceptionHandlerParameters) : this(
         exception = handlerParameters.exception,
-        location = handlerParameters.field.sourceLocation,
+        location = handlerParameters.sourceLocation,
         executionPath = handlerParameters.path
     )
 
