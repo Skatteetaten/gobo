@@ -15,22 +15,26 @@ class GoboDataFetcherExceptionHandler : DataFetcherExceptionHandler {
         handlerParameters ?: return DataFetcherExceptionHandlerResult.newResult().build()
 
         val exception = handlerParameters.exception
-        val exceptionMessage = if (exception is SourceSystemException) {
-            "Exception in data fetcher, exception=\"${exception.message}\" - source=${exception.sourceSystem}"
-        } else {
-            "Exception in data fetcher, exception=\"${exception.message}\""
-        }
-
-        logger.error { exceptionMessage }
+        exception.logExceptionInfo()
 
         val graphqlException = if (exception is GoboException) {
             GraphQLExceptionWrapper(handlerParameters)
         } else {
-            ExceptionWhileDataFetching(handlerParameters)
+            exceptionWhileDataFetching(handlerParameters)
         }
         return DataFetcherExceptionHandlerResult.newResult(graphqlException).build()
     }
 }
 
-private fun ExceptionWhileDataFetching(handlerParameters: DataFetcherExceptionHandlerParameters) =
+private fun Throwable.logExceptionInfo() {
+        val exceptionMessage = if (this is SourceSystemException) {
+            "Exception in data fetcher, exception=\"$message\" - source=$sourceSystem"
+        } else {
+            "Exception in data fetcher, exception=\"$message\""
+        }
+
+        logger.error { exceptionMessage }
+}
+
+private fun exceptionWhileDataFetching(handlerParameters: DataFetcherExceptionHandlerParameters) =
     ExceptionWhileDataFetching(handlerParameters.path, handlerParameters.exception, handlerParameters.sourceLocation)

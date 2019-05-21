@@ -4,18 +4,18 @@ plugins {
     id("org.jlleitschuh.gradle.ktlint") version "8.0.0"
 
     id("org.springframework.boot") version "2.1.5.RELEASE"
-    id("org.asciidoctor.convert") version "1.6.0"
+    id("org.asciidoctor.convert") version "2.2.0"
 
     id("com.gorylenko.gradle-git-properties") version "2.0.0"
     id("com.github.ben-manes.versions") version "0.21.0"
     id("se.patrikerdes.use-latest-versions") version "0.2.9"
 
-    id("no.skatteetaten.gradle.aurora") version "2.2.1"
+    id("no.skatteetaten.gradle.aurora") version "2.3.1"
 }
 
 val springCloudContractVersion: String = project.property("aurora.springCloudContractVersion") as String
 dependencies {
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.1.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.2.1")
 
     implementation("org.springframework.retry:spring-retry")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
