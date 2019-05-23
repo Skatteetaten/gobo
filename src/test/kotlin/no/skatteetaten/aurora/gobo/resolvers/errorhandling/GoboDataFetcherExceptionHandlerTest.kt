@@ -5,20 +5,13 @@ import assertk.assertions.hasSize
 import assertk.assertions.isInstanceOf
 import graphql.execution.DataFetcherExceptionHandlerParameters
 import graphql.schema.DataFetchingEnvironment
-import io.mockk.clearMocks
 import io.mockk.mockk
 import no.skatteetaten.aurora.gobo.GoboException
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 class GoboDataFetcherExceptionHandlerTest {
     private val exceptionHandler = GoboDataFetcherExceptionHandler()
     private val env = mockk<DataFetchingEnvironment>(relaxed = true)
-
-    @BeforeEach
-    fun setUp() {
-        clearMocks(env)
-    }
 
     @Test
     fun `Given GoboException add GraphQL error to execution context`() {

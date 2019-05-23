@@ -8,7 +8,6 @@ import assertk.assertions.isNull
 import graphql.ExceptionWhileDataFetching
 import graphql.execution.DataFetcherExceptionHandlerParameters
 import graphql.execution.ExecutionPath
-import graphql.schema.DataFetchingEnvironment
 import io.mockk.mockk
 import no.skatteetaten.aurora.gobo.GoboException
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
@@ -16,10 +15,9 @@ import no.skatteetaten.aurora.gobo.resolvers.AccessDeniedException
 import org.junit.jupiter.api.Test
 
 class GraphQLExceptionWrapperTest {
-    private val env = mockk<DataFetchingEnvironment>(relaxed = true)
     private val paramsBuilder = DataFetcherExceptionHandlerParameters
         .newExceptionParameters()
-        .dataFetchingEnvironment(env)
+        .dataFetchingEnvironment(mockk(relaxed = true))
 
     @Test
     fun `Create new GraphQLExceptionWrapper`() {
