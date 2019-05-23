@@ -15,7 +15,7 @@ private const val GUEST_USER_NAME = "Gjestebruker"
 val ANONYMOUS_USER = User(GUEST_USER_ID, GUEST_USER_NAME)
 
 fun DataFetchingEnvironment.currentUser(): User {
-    val request = (this.executionContext.context as GraphQLContext).httpServletRequest.get()
+    val request = this.getContext<GraphQLContext>().httpServletRequest.get()
     return request.currentUser()
 }
 
