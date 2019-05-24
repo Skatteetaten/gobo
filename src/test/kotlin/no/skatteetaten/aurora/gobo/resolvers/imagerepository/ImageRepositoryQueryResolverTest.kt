@@ -23,6 +23,7 @@ import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import no.skatteetaten.aurora.gobo.security.OpenShiftUserLoader
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.mockito.BDDMockito
 import org.mockito.BDDMockito.given
@@ -51,6 +52,7 @@ private fun List<ImageRepoAndTags>.getTagCount() =
 private fun ImageRepoAndTags.copyImageTagSublist(toIndex: Int) =
     this.copy(imageTags = this.imageTags.subList(0, toIndex))
 
+@Disabled
 @GraphQLTest
 class ImageRepositoryQueryResolverTest {
     @Value("classpath:graphql/queries/getImageRepositories.graphql")
