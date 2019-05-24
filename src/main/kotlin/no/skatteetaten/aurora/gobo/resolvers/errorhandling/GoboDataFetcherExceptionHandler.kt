@@ -27,13 +27,14 @@ class GoboDataFetcherExceptionHandler : DataFetcherExceptionHandler {
 }
 
 private fun Throwable.logExceptionInfo() {
-        val exceptionMessage = if (this is SourceSystemException) {
-            "Exception in data fetcher, exception=\"$message\" - source=$sourceSystem"
-        } else {
-            "Exception in data fetcher, exception=\"$message\""
-        }
+    val msg = "Exception in data fetcher, exception=\"${this::class.simpleName}\" - message=\"$message\""
+    val exceptionMessage = if (this is SourceSystemException) {
+        "$msg - source=$sourceSystem"
+    } else {
+        msg
+    }
 
-        logger.error { exceptionMessage }
+    logger.error { exceptionMessage }
 }
 
 private fun exceptionWhileDataFetching(handlerParameters: DataFetcherExceptionHandlerParameters) =
