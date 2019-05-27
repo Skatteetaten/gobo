@@ -13,12 +13,9 @@ private val logger = KotlinLogging.logger { }
 class GoboDataFetcherExceptionHandler : DataFetcherExceptionHandler {
     override fun onException(handlerParameters: DataFetcherExceptionHandlerParameters?): DataFetcherExceptionHandlerResult {
         handlerParameters ?: return DataFetcherExceptionHandlerResult.newResult().build()
-        handlerParameters.logSource()
+        handlerParameters.logErrorInfo()
 
-        val exception = handlerParameters.exception
-        exception.logExceptionInfo()
-
-        val graphqlException = if (exception is GoboException) {
+        val graphqlException = if (handlerParameters.exception is GoboException) {
             GraphQLExceptionWrapper(handlerParameters)
         } else {
             exceptionWhileDataFetching(handlerParameters)
@@ -27,24 +24,20 @@ class GoboDataFetcherExceptionHandler : DataFetcherExceptionHandler {
     }
 }
 
-private fun DataFetcherExceptionHandlerParameters.logSource() {
-    this.dataFetchingEnvironment?.getSource<Any>()?.let {
-        logger.error("Data source=\"$it\"")
-    }
-}
-
-private fun Throwable.logExceptionInfo() {
-    val exception = this::class.simpleName
-    val cause = this.cause?.let { it::class.simpleName } ?: ""
-    val source = if (this is SourceSystemException) {
-        this.sourceSystem
+private fun DataFetcherExceptionHandlerParameters.logErrorInfo() {
+    val exception = this.exception
+    val exceptionName = this::class.simpleName
+    val cause = exception.cause?.let { it::class.simpleName } ?: ""
+    val source = if (exception is SourceSystemException) {
+        exception.sourceSystem
     } else {
         ""
     }
 
     val msg =
-        "Exception in data fetcher, exception=\"$exception\" cause=\"$cause\" message=\"$message\" source=\"$source\""
-    logger.error { msg }
+        "Exception in data fetcher, exception=\"$exception\" cause=\"$cause\" message=\"$exceptionName\" source=\"$source\""
+    this.dataFetchingEnvironment?.getSource<Any>()
+        ?.let { logger.error("$msg\nData source=\"$it\"") } ?: logger.error { msg }
 }
 
 private fun exceptionWhileDataFetching(handlerParameters: DataFetcherExceptionHandlerParameters) =
