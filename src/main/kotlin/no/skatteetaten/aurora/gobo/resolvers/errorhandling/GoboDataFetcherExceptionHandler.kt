@@ -13,6 +13,7 @@ private val logger = KotlinLogging.logger { }
 class GoboDataFetcherExceptionHandler : DataFetcherExceptionHandler {
     override fun onException(handlerParameters: DataFetcherExceptionHandlerParameters?): DataFetcherExceptionHandlerResult {
         handlerParameters ?: return DataFetcherExceptionHandlerResult.newResult().build()
+        handlerParameters.logSource()
 
         val exception = handlerParameters.exception
         exception.logExceptionInfo()
@@ -23,6 +24,12 @@ class GoboDataFetcherExceptionHandler : DataFetcherExceptionHandler {
             exceptionWhileDataFetching(handlerParameters)
         }
         return DataFetcherExceptionHandlerResult.newResult(graphqlException).build()
+    }
+}
+
+private fun DataFetcherExceptionHandlerParameters.logSource() {
+    this.dataFetchingEnvironment?.getSource<Any>()?.let {
+        logger.error("Data source=\"$it\"")
     }
 }
 
