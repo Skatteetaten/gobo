@@ -15,6 +15,8 @@ import reactor.core.publisher.toMono
 
 private val logger = KotlinLogging.logger {}
 
+data class TagUrlsWrapper(val tagUrls: List<String>)
+
 data class ImageRepoAndTags(val imageRepository: String, val imageTags: List<String>) {
     fun getTagUrls() = imageTags.map { "$imageRepository/$it" }
 
@@ -28,7 +30,7 @@ data class ImageRepoAndTags(val imageRepository: String, val imageTags: List<Str
 }
 
 private fun List<ImageRepoAndTags>.getAllTagUrls() =
-    this.flatMap { it.getTagUrls() }
+    TagUrlsWrapper(this.flatMap { it.getTagUrls() })
 
 @Service
 class ImageRegistryServiceBlocking(
@@ -36,7 +38,9 @@ class ImageRegistryServiceBlocking(
 ) {
 
     fun resolveTagToSha(imageRepoDto: ImageRepoDto, imageTag: String, token: String): String? {
-        val requestBody = BodyInserters.fromObject(listOf("${imageRepoDto.repository}/$imageTag"))
+        val requestBody = BodyInserters.fromObject(
+            TagUrlsWrapper(listOf("${imageRepoDto.repository}/$imageTag"))
+        )
 
         val auroraImageTagResource: AuroraResponse<ImageTagResource> =
             execute<AuroraResponse<ImageTagResource>>(token) {
