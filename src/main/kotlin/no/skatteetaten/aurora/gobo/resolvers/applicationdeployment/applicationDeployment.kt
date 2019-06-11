@@ -48,7 +48,9 @@ data class ApplicationDeployment(
                 version = Version(
                     // TODO: This is far from ideal and manually adding ImageTag here should be considered a temporary
                     // adjustment. We need to move ImageTag out of version.
-                    ImageTag(ImageRepository.fromRepoString(deployment.dockerImageRepo ?: ""), deployment.version.deployTag),
+                    ImageTag(deployment.dockerImageRepo?.let { ImageRepository.fromRepoString(it) }
+                        ?: ImageRepository("", "", ""),
+                        deployment.version.deployTag),
                     deployment.version.auroraVersion,
                     deployment.version.releaseTo
 
