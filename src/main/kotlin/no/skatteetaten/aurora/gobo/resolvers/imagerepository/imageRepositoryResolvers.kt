@@ -13,7 +13,6 @@ import no.skatteetaten.aurora.gobo.resolvers.pageEdges
 import no.skatteetaten.aurora.gobo.security.currentUser
 import no.skatteetaten.aurora.gobo.security.isAnonymousUser
 import org.springframework.stereotype.Component
-import java.time.Instant
 import java.util.concurrent.CompletableFuture
 
 @Component
@@ -69,6 +68,6 @@ class ImageRepositoryResolver(val imageRegistryServiceBlocking: ImageRegistrySer
 @Component
 class ImageRepositoryTagResolver : GraphQLResolver<ImageTag> {
 
-    fun lastModified(imageTag: ImageTag, dfe: DataFetchingEnvironment): CompletableFuture<Instant?> =
+    fun image(imageTag: ImageTag, dfe: DataFetchingEnvironment): CompletableFuture<Image?> =
         dfe.multipleKeysLoader(ImageTagDataLoader::class).load(imageTag)
 }

@@ -6,7 +6,10 @@ query getImageRepositories($repositories: [String!]!){
             edges {
                 node {
                     name
-                    lastModified
+                    image {
+                        buildTime
+                        imageReference
+                    }
                 }
             }
         }

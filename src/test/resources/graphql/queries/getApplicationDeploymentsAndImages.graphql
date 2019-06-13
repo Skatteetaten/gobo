@@ -1,0 +1,20 @@
+query getApplications($id: String!, $repository: String!) {
+  applicationDeployment(id: $id) {
+    affiliation {
+      name
+    }
+  }
+  imageRepositories(repositories: [$repository]) {
+    repository
+    tags {
+      edges {
+        node {
+          image {
+            buildTime
+            imageReference
+          }
+        }
+      }
+    }
+  }
+}

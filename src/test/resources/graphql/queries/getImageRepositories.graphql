@@ -1,4 +1,4 @@
-query getImageRepositories($repositories: [String!]!){
+query getImageRepositories($repositories: [String!]!) {
     imageRepositories(repositories: $repositories) {
         repository
         tags(types: [LATEST, SNAPSHOT, MAJOR, MINOR, BUGFIX, AURORA_VERSION, AURORA_SNAPSHOT_VERSION, COMMIT_HASH], first: 15) {
@@ -6,7 +6,10 @@ query getImageRepositories($repositories: [String!]!){
             edges {
                 node {
                     name
-                    lastModified
+                    image {
+                        buildTime
+                        imageReference
+                    }
                 }
             }
         }

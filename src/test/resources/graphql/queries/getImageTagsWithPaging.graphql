@@ -1,4 +1,4 @@
-query getImageRepositories($repositories: [String!]!, $pageSize: Int!){
+query getImageRepositories($repositories: [String!]!, $pageSize: Int!) {
     imageRepositories(repositories: $repositories) {
         tags(types: [LATEST, SNAPSHOT, MAJOR, MINOR, BUGFIX, AURORA_VERSION, AURORA_SNAPSHOT_VERSION, COMMIT_HASH], first: $pageSize) {
             totalCount
@@ -9,7 +9,10 @@ query getImageRepositories($repositories: [String!]!, $pageSize: Int!){
             edges {
                 node {
                     name
-                    lastModified
+                    image {
+                        buildTime
+                        imageReference
+                    }
                 }
             }
         }

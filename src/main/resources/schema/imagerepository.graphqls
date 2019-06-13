@@ -17,7 +17,12 @@ type ImageTagEdge {
 type ImageTag {
   name: String!
   type: ImageTagType!
-  lastModified: DateTime
+  image: Image!
+}
+
+type Image {
+  buildTime: DateTime
+  imageReference: String!
 }
 
 enum ImageTagType {
