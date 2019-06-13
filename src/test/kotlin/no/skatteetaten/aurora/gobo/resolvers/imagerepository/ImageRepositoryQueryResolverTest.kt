@@ -63,6 +63,9 @@ class ImageRepositoryQueryResolverTest {
     @Value("classpath:graphql/queries/getImageRepositoriesWithNoTagFiltering.graphql")
     private lateinit var reposWithTagsWithoutFiltersQuery: Resource
 
+    @Value("classpath:graphql/queries/getImageRepositoriesWithOnlyFirstFilter.graphql")
+    private lateinit var reposWithOnlyFirstFilter: Resource
+
     @Autowired
     private lateinit var webTestClient: WebTestClient
 
@@ -147,7 +150,20 @@ class ImageRepositoryQueryResolverTest {
             .expectStatus().isOk
             .expectBody()
             .graphqlErrorsFirst("message")
-            .isEqualTo("Requests for tags without 'types' and 'first' filters are not allowed")
+            .isEqualTo("Validation error of type MissingFieldArgument: Missing field argument first @ 'imageRepositories/tags'")
+    }
+
+    @Test
+    fun `Query for tags with only first filter present`() {
+        webTestClient.queryGraphQL(
+            queryResource = reposWithOnlyFirstFilter,
+            variables = mapOf("repositories" to imageReposAndTags.first().imageRepository),
+            token = "test-token"
+        )
+            .expectStatus().isOk
+            .expectBody()
+            .graphqlErrorsFirst("message")
+            .isEqualTo("Validation error of type MissingFieldArgument: Missing field argument types @ 'imageRepositories/tags'")
     }
 
     @Test

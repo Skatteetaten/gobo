@@ -1,6 +1,6 @@
 type ImageRepository {
   repository: String!
-  tags(types: [ImageTagType!], first: Int, after: String): ImageTagsConnection!
+  tags(types: [ImageTagType!]!, first: Int!, after: String): ImageTagsConnection!
 }
 
 type ImageTagsConnection {

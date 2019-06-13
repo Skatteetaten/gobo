@@ -37,10 +37,6 @@ class ImageRepositoryResolver(val imageRegistryServiceBlocking: ImageRegistrySer
         after: String? = null,
         dfe: DataFetchingEnvironment
     ): ImageTagsConnection {
-        if (isNonFilteredRequest(dfe.arguments)) {
-            throw GoboException("Requests for tags without 'types' and 'first' filters are not allowed")
-        }
-
         val imageTags =
             imageRegistryServiceBlocking.findTagNamesInRepoOrderedByCreatedDateDesc(
                 imageRepoDto = imageRepository.toImageRepo(),
@@ -50,14 +46,6 @@ class ImageRepositoryResolver(val imageRegistryServiceBlocking: ImageRegistrySer
         val allEdges = imageTags.map { ImageTagEdge(it) }
 
         return ImageTagsConnection(pageEdges(allEdges, first, after))
-    }
-
-    private fun isNonFilteredRequest(arguments: MutableMap<String, Any>): Boolean {
-        return when {
-            arguments["types"] == null -> true
-            arguments["first"] == null -> true
-            else -> false
-        }
     }
 
     fun List<Tag>.toImageTags(imageRepository: ImageRepository, types: List<ImageTagType>?) = this
