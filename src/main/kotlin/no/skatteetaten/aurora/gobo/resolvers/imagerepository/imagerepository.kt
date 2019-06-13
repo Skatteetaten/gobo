@@ -9,6 +9,7 @@ import no.skatteetaten.aurora.gobo.resolvers.GoboConnection
 import no.skatteetaten.aurora.gobo.resolvers.GoboEdge
 import no.skatteetaten.aurora.gobo.resolvers.GoboPageInfo
 import no.skatteetaten.aurora.gobo.resolvers.GoboPagedEdges
+import java.time.Instant
 
 private val logger = KotlinLogging.logger {}
 
@@ -62,3 +63,5 @@ data class ImageTagsConnection(
 ) : GoboConnection<ImageTagEdge>() {
     constructor(paged: GoboPagedEdges<ImageTagEdge>) : this(paged.edges, paged.pageInfo, paged.totalCount)
 }
+
+data class Image(val buildTime: Instant?, val imageReference: String)

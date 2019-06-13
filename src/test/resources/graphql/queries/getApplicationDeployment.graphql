@@ -1,14 +1,22 @@
 query getApplicationDeployment($id: String!) {
-    applicationDeployment(id: $id) {
-        id
-        status {
-            reports {
-                name
-            }
-            reasons {
-                name
-            }
-        }
-        message
+  applicationDeployment(id: $id) {
+    id
+    status {
+      reports {
+        name
+      }
+      reasons {
+        name
+      }
     }
+    message
+    version {
+      deployTag {
+        image {
+          buildTime
+          imageReference
+        }
+      }
+    }
+  }
 }

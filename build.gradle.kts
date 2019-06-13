@@ -22,9 +22,9 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-hateoas")
 
-    implementation("com.graphql-java-kickstart:graphql-spring-boot-starter:5.8.1")
-    implementation("com.graphql-java-kickstart:altair-spring-boot-starter:5.8.1")
-    implementation("com.graphql-java-kickstart:voyager-spring-boot-starter:5.8.1")
+    implementation("com.graphql-java-kickstart:graphql-spring-boot-starter:5.9.0")
+    implementation("com.graphql-java-kickstart:altair-spring-boot-starter:5.9.0")
+    implementation("com.graphql-java-kickstart:voyager-spring-boot-starter:5.9.0")
     implementation("com.graphql-java-kickstart:graphql-java-tools:5.6.0")
 
     implementation("uk.q3c.rest:hal-kotlin:0.5.4.0.db32476")
