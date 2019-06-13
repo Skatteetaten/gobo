@@ -59,6 +59,9 @@ class ImageRepositoryQueryResolverTest {
     @Value("classpath:graphql/queries/getImageTagsWithPaging.graphql")
     private lateinit var tagsWithPagingQuery: Resource
 
+    @Value("classpath:graphql/queries/getImageRepositoriesWithNoTagFiltering.graphql")
+    private lateinit var reposWithTagsWithoutFiltersQuery: Resource
+
     @Autowired
     private lateinit var webTestClient: WebTestClient
 
@@ -131,6 +134,19 @@ class ImageRepositoryQueryResolverTest {
             .expectStatus().isOk
             .expectBody()
             .graphqlErrorsFirst("message").isEqualTo("repositories is empty")
+    }
+
+    @Test
+    fun `Query for tags with no filters present`() {
+        webTestClient.queryGraphQL(
+            queryResource = reposWithTagsWithoutFiltersQuery,
+            variables = mapOf("repositories" to imageReposAndTags.first().imageRepository),
+            token = "test-token"
+        )
+            .expectStatus().isOk
+            .expectBody()
+            .graphqlErrorsFirst("message")
+            .isEqualTo("Requests for tags without 'types' and 'first' filters are not allowed")
     }
 
     @Test
