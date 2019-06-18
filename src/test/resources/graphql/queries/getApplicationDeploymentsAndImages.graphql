@@ -6,7 +6,7 @@ query getApplications($id: String!, $repository: String!) {
   }
   imageRepositories(repositories: [$repository]) {
     repository
-    tags {
+    tags(types: [LATEST, SNAPSHOT, MAJOR, MINOR, BUGFIX, AURORA_VERSION, AURORA_SNAPSHOT_VERSION, COMMIT_HASH], first: 15) {
       edges {
         node {
           image {

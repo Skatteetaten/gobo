@@ -37,7 +37,6 @@ class ImageRepositoryResolver(val imageRegistryServiceBlocking: ImageRegistrySer
         after: String? = null,
         dfe: DataFetchingEnvironment
     ): ImageTagsConnection {
-
         val imageTags =
             imageRegistryServiceBlocking.findTagNamesInRepoOrderedByCreatedDateDesc(
                 imageRepoDto = imageRepository.toImageRepo(),
