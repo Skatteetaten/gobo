@@ -65,6 +65,7 @@ class ApplicationDeploymentDetailsResolverTest {
                 graphqlData("deployTag").isEqualTo("tag")
                 graphqlData("phase").isEqualTo("status")
                 graphqlData("ready").isFalse()
+                graphqlData("startTime").hasJsonPath()
                 graphqlData("restartCount").isEqualTo(3)
                 graphqlData("containers.length()").isEqualTo(2)
                 graphqlData("containers[0].restartCount").isEqualTo(1)

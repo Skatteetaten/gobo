@@ -8,6 +8,7 @@
                             phase
                             deployTag
                             ready
+                            startTime
                             restartCount
                             containers {
                                 name
