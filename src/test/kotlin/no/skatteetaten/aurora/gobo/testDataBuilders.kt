@@ -211,8 +211,6 @@ data class ApplicationDeploymentDetailsBuilder(
                             ready = false
                         )
                     ),
-                    startTime = Instant.now(),
-
                     managementResponses = ManagementResponsesResource(
                         links = ManagementEndpointResponseResource(
                             hasResponse = true,

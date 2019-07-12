@@ -36,7 +36,7 @@ data class ImageDetailsResource(
 class PodResourceResource(
     val name: String,
     val phase: String,
-    val startTime: Instant,
+    val startTime: Instant? = null,
     val replicaName: String?,
     val latestReplicaName: Boolean,
     val managementResponses: ManagementResponsesResource?,
