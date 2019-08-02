@@ -1,7 +1,7 @@
 def jenkinsfile
 
 def overrides = [
-    scriptVersion  : 'bugfix/javaversion-quickfix',
+    scriptVersion  : 'v6',
     pipelineScript: 'https://git.aurora.skead.no/scm/ao/aurora-pipeline-scripts.git',
     credentialsId: "github",
     checkstyle : false,
