@@ -15,7 +15,7 @@ class ProbeServiceBlocking(private val probeService: ProbeService) {
     fun probeFirewall(host: String, port: Int) =
         probeService.probeFirewall(host, port).blockWithTimeout() ?: emptyList()
 
-    private fun <T> Mono<T>.blockWithTimeout() = this.blockAndHandleError(Duration.ofSeconds(30), "unclematt")
+    private fun <T> Mono<T>.blockWithTimeout() = this.blockAndHandleError(Duration.ofSeconds(40), "unclematt")
 }
 
 @Service
