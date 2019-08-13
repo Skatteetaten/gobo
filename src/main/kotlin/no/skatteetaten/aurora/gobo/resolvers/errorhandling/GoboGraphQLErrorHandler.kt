@@ -2,7 +2,7 @@ package no.skatteetaten.aurora.gobo.resolvers.errorhandling
 
 import graphql.ExceptionWhileDataFetching
 import graphql.GraphQLError
-import graphql.servlet.GraphQLErrorHandler
+import graphql.servlet.core.GraphQLErrorHandler
 import no.skatteetaten.aurora.gobo.GoboException
 import org.springframework.stereotype.Component
 

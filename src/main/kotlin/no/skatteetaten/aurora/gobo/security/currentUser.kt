@@ -1,7 +1,7 @@
 package no.skatteetaten.aurora.gobo.security
 
 import graphql.schema.DataFetchingEnvironment
-import graphql.servlet.GraphQLContext
+import graphql.servlet.context.DefaultGraphQLServletContext
 import no.skatteetaten.aurora.gobo.resolvers.user.User
 import org.springframework.security.authentication.AnonymousAuthenticationToken
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
@@ -15,7 +15,7 @@ private const val GUEST_USER_NAME = "Gjestebruker"
 val ANONYMOUS_USER = User(GUEST_USER_ID, GUEST_USER_NAME)
 
 fun DataFetchingEnvironment.currentUser(): User {
-    val request = this.getContext<GraphQLContext>().httpServletRequest.get()
+    val request = this.getContext<DefaultGraphQLServletContext>().httpServletRequest
     return request.currentUser()
 }
 

@@ -4,7 +4,7 @@ import com.jayway.jsonpath.Configuration
 import com.jayway.jsonpath.JsonPath
 import com.jayway.jsonpath.Option
 import graphql.schema.DataFetchingEnvironment
-import graphql.servlet.GraphQLContext
+import graphql.servlet.context.GraphQLServletContext
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import org.dataloader.DataLoader
@@ -17,21 +17,19 @@ import kotlin.reflect.KClass
 
 val DataFetchingEnvironment.token: String?
     get() {
-        val authorization = this.getContext<GraphQLContext>().httpServletRequest
-            .map { it.getHeader("Authorization") }
-            .orElse(null)
+        val authorization = this.getContext<GraphQLServletContext>().httpServletRequest.getHeader("Authorization")
         return authorization?.split(" ")?.lastOrNull()?.trim()
     }
 
 fun <T : KeyDataLoader<*, V>, V> DataFetchingEnvironment.loader(type: KClass<T>): DataLoader<Any, Try<V>> {
     val key = "${type.simpleName}"
-    return this.getContext<GraphQLContext>().dataLoaderRegistry.get()
+    return this.getContext<GraphQLServletContext>().dataLoaderRegistry.get()
         .getDataLoader<Any, Try<V>>(key) ?: throw IllegalStateException("No $key found")
 }
 
 fun <T : MultipleKeysDataLoader<*, V>, V> DataFetchingEnvironment.multipleKeysLoader(type: KClass<T>): DataLoader<Any, V> {
     val key = "${type.simpleName}"
-    return this.getContext<GraphQLContext>().dataLoaderRegistry.get()
+    return this.getContext<GraphQLServletContext>().dataLoaderRegistry.get()
         .getDataLoader<Any, V>(key) ?: throw IllegalStateException("No $key found")
 }
 

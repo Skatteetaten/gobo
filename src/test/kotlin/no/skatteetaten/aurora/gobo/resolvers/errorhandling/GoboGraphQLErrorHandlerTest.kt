@@ -5,7 +5,7 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isSameAs
 import graphql.ExceptionWhileDataFetching
 import graphql.execution.ExecutionPath
-import graphql.servlet.GenericGraphQLError
+import graphql.servlet.core.GenericGraphQLError
 import no.skatteetaten.aurora.gobo.GoboException
 import org.junit.jupiter.api.Test
 
