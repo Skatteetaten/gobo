@@ -6,7 +6,7 @@ import graphql.execution.instrumentation.SimpleInstrumentation
 import graphql.execution.instrumentation.parameters.InstrumentationExecutionParameters
 import graphql.language.Field
 import graphql.language.SelectionSet
-import graphql.servlet.context.DefaultGraphQLServletContext
+import graphql.servlet.context.GraphQLServletContext
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.security.currentUser
 import org.springframework.stereotype.Component
@@ -73,7 +73,7 @@ class UserUsage {
 
     fun update(executionContext: ExecutionContext?) {
         val context = executionContext?.context
-        if (context is DefaultGraphQLServletContext) {
+        if (context is GraphQLServletContext) {
             val user = context.httpServletRequest.currentUser()
             users.computeIfAbsent(user.id) { LongAdder() }.increment()
         }
