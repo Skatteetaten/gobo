@@ -1,7 +1,7 @@
 package no.skatteetaten.aurora.gobo
 
-import graphql.servlet.GraphQLContext
-import graphql.servlet.GraphQLContextBuilder
+import graphql.servlet.context.DefaultGraphQLServletContext
+import graphql.servlet.context.GraphQLContextBuilder
 import no.skatteetaten.aurora.gobo.resolvers.KeyDataLoader
 import no.skatteetaten.aurora.gobo.resolvers.MultipleKeysDataLoader
 import no.skatteetaten.aurora.gobo.resolvers.batchDataLoaderMappedMultiple
@@ -28,7 +28,7 @@ class GoboGraphQLContextBuilder(
 
     override fun build() = throw UnsupportedOperationException()
 
-    private fun createContext(request: HttpServletRequest? = null): GraphQLContext {
+    private fun createContext(request: HttpServletRequest? = null): DefaultGraphQLServletContext {
         val currentUser = request?.currentUser() ?: ANONYMOUS_USER
         val registry = DataLoaderRegistry().apply {
             keyLoaders.forEach {
@@ -39,8 +39,6 @@ class GoboGraphQLContextBuilder(
             }
         }
 
-        return GraphQLContext(request).apply {
-            setDataLoaderRegistry(registry)
-        }
+        return DefaultGraphQLServletContext.createServletContext().with(request).with(registry).build()
     }
 }
