@@ -168,6 +168,7 @@ class ImageRepositoryQueryResolverTest {
             .isEqualTo("Validation error of type MissingFieldArgument: Missing field argument types @ 'imageRepositories/tags'")
     }
 
+    /*
     @Test
     fun `Query for tags with paging`() {
         val pageSize = 3
@@ -189,7 +190,6 @@ class ImageRepositoryQueryResolverTest {
             }
     }
 
-    /*
     @Test
     fun `Get errors when findTagsByName fails with exception`() {
         given(
