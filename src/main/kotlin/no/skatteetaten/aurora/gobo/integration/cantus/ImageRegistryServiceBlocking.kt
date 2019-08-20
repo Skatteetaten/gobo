@@ -62,7 +62,7 @@ class ImageRegistryServiceBlocking(
         }.block()!!
     }
 
-    fun findTagNamesInRepoOrderedByCreatedDateDesc(imageRepoDto: ImageRepoDto, token: String) =
+    fun findTagNamesInRepoOrderedByCreatedDateDesc(imageRepoDto: ImageRepoDto, token: String) : TagsDto =
         TagsDto.toDto(
             execute<AuroraResponse<TagResource>>(token) {
                 logger.debug("Retrieving type=TagResource from  url=${imageRepoDto.registry} image=${imageRepoDto.imageName}")

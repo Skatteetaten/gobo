@@ -7,11 +7,14 @@ import no.skatteetaten.aurora.gobo.GoboException
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageRegistryServiceBlocking
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageTagType
 import no.skatteetaten.aurora.gobo.integration.cantus.Tag
+import no.skatteetaten.aurora.gobo.integration.cantus.TagsDto
 import no.skatteetaten.aurora.gobo.resolvers.AccessDeniedException
+import no.skatteetaten.aurora.gobo.resolvers.loader
 import no.skatteetaten.aurora.gobo.resolvers.multipleKeysLoader
 import no.skatteetaten.aurora.gobo.resolvers.pageEdges
 import no.skatteetaten.aurora.gobo.security.currentUser
 import no.skatteetaten.aurora.gobo.security.isAnonymousUser
+import org.dataloader.Try
 import org.springframework.stereotype.Component
 import java.util.concurrent.CompletableFuture
 
@@ -36,17 +39,15 @@ class ImageRepositoryResolver(val imageRegistryServiceBlocking: ImageRegistrySer
         first: Int? = null,
         after: String? = null,
         dfe: DataFetchingEnvironment
-    ): ImageTagsConnection {
-        val imageTags =
-            imageRegistryServiceBlocking.findTagNamesInRepoOrderedByCreatedDateDesc(
-                imageRepoDto = imageRepository.toImageRepo(),
-                token = dfe.currentUser().token
-            ).tags.toImageTags(imageRepository, types)
+    ) = dfe.loader(ImageTagListDataLoader::class).load(imageRepository.toImageRepo())
+        .thenApply { tryDto ->
+            tryDto.map { dto ->
+                val imageTags = dto.tags.toImageTags(imageRepository, types)
+                val allEdges = imageTags.map { ImageTagEdge(it) }
 
-        val allEdges = imageTags.map { ImageTagEdge(it) }
-
-        return ImageTagsConnection(pageEdges(allEdges, first, after))
-    }
+                ImageTagsConnection(pageEdges(allEdges, first, after))
+            }
+        }
 
     fun List<Tag>.toImageTags(imageRepository: ImageRepository, types: List<ImageTagType>?) = this
         .map { ImageTag(imageRepository = imageRepository, name = it.name) }
