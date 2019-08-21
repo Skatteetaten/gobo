@@ -4,11 +4,14 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
+import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.resolvers.user.User
 import org.dataloader.DataLoader
 import org.dataloader.Try
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executors
+
+private val logger = KotlinLogging.logger {}
 
 interface KeyDataLoader<K, V> {
     fun getByKey(user: User, key: K): Try<V>
@@ -22,7 +25,7 @@ val context = Executors.newFixedThreadPool(6).asCoroutineDispatcher()
 fun <K, V> batchDataLoaderMappedSingle(user: User, keyDataLoader: KeyDataLoader<K, V>): DataLoader<K, V> =
     DataLoader.newMappedDataLoaderWithTry { keys: Set<K> ->
 
-        CompletableFuture.supplyAsync {
+        val a: CompletableFuture<Map<K, Try<V>>> = CompletableFuture.supplyAsync {
             runBlocking(context) {
                 val deferred: List<Deferred<Pair<K, Try<V>>>> = keys.map { key ->
                     async(context) {
@@ -31,6 +34,10 @@ fun <K, V> batchDataLoaderMappedSingle(user: User, keyDataLoader: KeyDataLoader<
                 }
                 deferred.map { it.await() }.toMap()
             }
+        }
+        a.thenApply {
+            logger.info("$it");
+            it
         }
     }
 

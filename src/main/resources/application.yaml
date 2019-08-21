@@ -57,7 +57,7 @@ integrations:
     mokey:
         url: http://mokey-aurora.utv.paas.skead.no
     cantus:
-        url: http://cantus.aurora.utv.paas.skead.no
+        url: http://aos-3464-cantus.aurora.utv.paas.skead.no
     docker-registry:
         url: https://test-docker-registry-internal-group.aurora.skead.no
 
@@ -67,6 +67,11 @@ management:
 
 openshift:
     cluster: utv
+
+aurora:
+    token:
+        value: token
+
 ---
 spring:
     profiles: openshift

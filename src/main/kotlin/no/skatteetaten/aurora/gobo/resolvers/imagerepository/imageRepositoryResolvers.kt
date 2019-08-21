@@ -7,11 +7,13 @@ import no.skatteetaten.aurora.gobo.GoboException
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageRegistryServiceBlocking
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageTagType
 import no.skatteetaten.aurora.gobo.integration.cantus.Tag
+import no.skatteetaten.aurora.gobo.integration.cantus.TagsDto
 import no.skatteetaten.aurora.gobo.resolvers.AccessDeniedException
 import no.skatteetaten.aurora.gobo.resolvers.loader
 import no.skatteetaten.aurora.gobo.resolvers.multipleKeysLoader
 import no.skatteetaten.aurora.gobo.resolvers.pageEdges
 import no.skatteetaten.aurora.gobo.security.isAnonymousUser
+import org.dataloader.Try
 import org.springframework.stereotype.Component
 import java.util.concurrent.CompletableFuture
 
@@ -36,8 +38,11 @@ class ImageRepositoryResolver(val imageRegistryServiceBlocking: ImageRegistrySer
         first: Int? = null,
         after: String? = null,
         dfe: DataFetchingEnvironment
-    ) = dfe.loader(ImageTagListDataLoader::class).load(imageRepository.toImageRepo())
-        .thenApply { tryDto ->
+    ): CompletableFuture<Try<ImageTagsConnection>> {
+
+        val result: CompletableFuture<Try<TagsDto>> =
+            dfe.loader(ImageTagListDataLoader::class).load(imageRepository.toImageRepo())
+        return result.thenApply { tryDto ->
             tryDto.map { dto ->
                 val imageTags = dto.tags.toImageTags(imageRepository, types)
                 val allEdges = imageTags.map { ImageTagEdge(it) }
@@ -45,6 +50,7 @@ class ImageRepositoryResolver(val imageRegistryServiceBlocking: ImageRegistrySer
                 ImageTagsConnection(pageEdges(allEdges, first, after))
             }
         }
+    }
 
     fun List<Tag>.toImageTags(imageRepository: ImageRepository, types: List<ImageTagType>?) = this
         .map { ImageTag(imageRepository = imageRepository, name = it.name) }
