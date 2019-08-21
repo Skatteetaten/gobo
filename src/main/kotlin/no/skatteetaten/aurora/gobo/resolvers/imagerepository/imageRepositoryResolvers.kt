@@ -7,14 +7,11 @@ import no.skatteetaten.aurora.gobo.GoboException
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageRegistryServiceBlocking
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageTagType
 import no.skatteetaten.aurora.gobo.integration.cantus.Tag
-import no.skatteetaten.aurora.gobo.integration.cantus.TagsDto
 import no.skatteetaten.aurora.gobo.resolvers.AccessDeniedException
 import no.skatteetaten.aurora.gobo.resolvers.loader
 import no.skatteetaten.aurora.gobo.resolvers.multipleKeysLoader
 import no.skatteetaten.aurora.gobo.resolvers.pageEdges
-import no.skatteetaten.aurora.gobo.security.currentUser
 import no.skatteetaten.aurora.gobo.security.isAnonymousUser
-import org.dataloader.Try
 import org.springframework.stereotype.Component
 import java.util.concurrent.CompletableFuture
 
