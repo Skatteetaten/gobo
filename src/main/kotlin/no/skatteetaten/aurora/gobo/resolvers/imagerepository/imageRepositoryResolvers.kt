@@ -43,11 +43,11 @@ class ImageRepositoryResolver(val imageRegistryServiceBlocking: ImageRegistrySer
                 val allEdges = imageTags.map { ImageTagEdge(it) }
                 ImageTagsConnection(pageEdges(allEdges, first, after))
             }
-}
 
-fun List<Tag>.toImageTags(imageRepository: ImageRepository, types: List<ImageTagType>?) = this
-    .map { ImageTag(imageRepository = imageRepository, name = it.name) }
-    .filter { types == null || it.type in types }
+    fun List<Tag>.toImageTags(imageRepository: ImageRepository, types: List<ImageTagType>?) = this
+        .map { ImageTag(imageRepository = imageRepository, name = it.name) }
+        .filter { types == null || it.type in types }
+}
 
 @Component
 class ImageRepositoryTagResolver : GraphQLResolver<ImageTag> {

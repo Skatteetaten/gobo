@@ -4,14 +4,11 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
-import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.resolvers.user.User
 import org.dataloader.DataLoader
 import org.dataloader.Try
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executors
-
-private val logger = KotlinLogging.logger {}
 
 interface KeyDataLoader<K, V> {
     fun getByKey(user: User, key: K): Try<V>
