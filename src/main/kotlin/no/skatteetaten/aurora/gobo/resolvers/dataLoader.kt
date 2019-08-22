@@ -24,8 +24,7 @@ val context = Executors.newFixedThreadPool(6).asCoroutineDispatcher()
  */
 fun <K, V> batchDataLoaderMappedSingle(user: User, keyDataLoader: KeyDataLoader<K, V>): DataLoader<K, V> =
     DataLoader.newMappedDataLoaderWithTry { keys: Set<K> ->
-
-        val a: CompletableFuture<Map<K, Try<V>>> = CompletableFuture.supplyAsync {
+        CompletableFuture.supplyAsync {
             runBlocking(context) {
                 val deferred: List<Deferred<Pair<K, Try<V>>>> = keys.map { key ->
                     async(context) {
@@ -34,10 +33,6 @@ fun <K, V> batchDataLoaderMappedSingle(user: User, keyDataLoader: KeyDataLoader<
                 }
                 deferred.map { it.await() }.toMap()
             }
-        }
-        a.thenApply {
-            logger.info("$it");
-            it
         }
     }
 

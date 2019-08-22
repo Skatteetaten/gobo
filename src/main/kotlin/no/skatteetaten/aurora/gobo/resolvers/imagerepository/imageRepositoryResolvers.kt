@@ -38,24 +38,21 @@ class ImageRepositoryResolver(val imageRegistryServiceBlocking: ImageRegistrySer
         first: Int? = null,
         after: String? = null,
         dfe: DataFetchingEnvironment
-    ): CompletableFuture<Try<ImageTagsConnection>> {
+    ): CompletableFuture<ImageTagsConnection> {
 
-        val result: CompletableFuture<Try<TagsDto>> =
-            dfe.loader(ImageTagListDataLoader::class).load(imageRepository.toImageRepo())
-        return result.thenApply { tryDto ->
-            tryDto.map { dto ->
-                val imageTags = dto.tags.toImageTags(imageRepository, types)
-                val allEdges = imageTags.map { ImageTagEdge(it) }
-
-                ImageTagsConnection(pageEdges(allEdges, first, after))
-            }
+        val result: CompletableFuture<TagsDto> =
+            dfe.loader(ImageTagListDataLoader::class).load(imageRepository.toImageRepo()) as CompletableFuture<TagsDto>
+        return result.thenApply { dto ->
+            val imageTags = dto.tags.toImageTags(imageRepository, types)
+            val allEdges = imageTags.map { ImageTagEdge(it) }
+            ImageTagsConnection(pageEdges(allEdges, first, after))
         }
     }
-
-    fun List<Tag>.toImageTags(imageRepository: ImageRepository, types: List<ImageTagType>?) = this
-        .map { ImageTag(imageRepository = imageRepository, name = it.name) }
-        .filter { types == null || it.type in types }
 }
+
+fun List<Tag>.toImageTags(imageRepository: ImageRepository, types: List<ImageTagType>?) = this
+    .map { ImageTag(imageRepository = imageRepository, name = it.name) }
+    .filter { types == null || it.type in types }
 
 @Component
 class ImageRepositoryTagResolver : GraphQLResolver<ImageTag> {
