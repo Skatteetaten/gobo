@@ -43,6 +43,7 @@ logging:
     level:
         no.skatteetaten: INFO
         org:
+            dataloader: DEBUG
             jboss: WARN
             hibernate: WARN
             springframework: WARN
