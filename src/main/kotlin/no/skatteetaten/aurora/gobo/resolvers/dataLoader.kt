@@ -21,7 +21,7 @@ val context = Executors.newFixedThreadPool(6).asCoroutineDispatcher()
  */
 fun <K, V> batchDataLoaderMappedSingle(user: User, keyDataLoader: KeyDataLoader<K, V>): DataLoader<K, V> =
     DataLoader.newMappedDataLoaderWithTry { keys: Set<K> ->
-        
+
         CompletableFuture.supplyAsync {
             runBlocking(context) {
                 val deferred: List<Deferred<Pair<K, Try<V>>>> = keys.map { key ->

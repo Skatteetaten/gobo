@@ -67,7 +67,6 @@ management:
 
 openshift:
     cluster: utv
-
 ---
 spring:
     profiles: openshift
