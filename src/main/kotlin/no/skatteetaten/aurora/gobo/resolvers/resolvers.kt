@@ -21,7 +21,13 @@ val DataFetchingEnvironment.token: String?
         return authorization?.split(" ")?.lastOrNull()?.trim()
     }
 
-fun <T : KeyDataLoader<*, V>, V> DataFetchingEnvironment.loader(type: KClass<T>): DataLoader<Any, Try<V>> {
+fun <T : KeyDataLoader<*, V>, V> DataFetchingEnvironment.loader(type: KClass<T>): DataLoader<Any, V> {
+    val key = "${type.simpleName}"
+    return this.getContext<GraphQLServletContext>().dataLoaderRegistry.get()
+        .getDataLoader<Any, V>(key) ?: throw IllegalStateException("No $key found")
+}
+
+fun <T : KeyDataLoader<*, V>, V> DataFetchingEnvironment.loader2(type: KClass<T>): DataLoader<Any, Try<V>> {
     val key = "${type.simpleName}"
     return this.getContext<GraphQLServletContext>().dataLoaderRegistry.get()
         .getDataLoader<Any, Try<V>>(key) ?: throw IllegalStateException("No $key found")
