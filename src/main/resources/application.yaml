@@ -59,7 +59,9 @@ integrations:
     cantus:
         url: http://cantus.aurora.utv.paas.skead.no
     docker-registry:
-        url: https://test-docker-registry-internal-group.aurora.skead.no
+        url: https://container-registry-internal-private-pull.aurora.skead.no:443
+
+aurora.token.value: token
 
 management:
     server:

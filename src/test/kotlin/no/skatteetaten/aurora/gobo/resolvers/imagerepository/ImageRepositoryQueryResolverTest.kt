@@ -1,7 +1,9 @@
 package no.skatteetaten.aurora.gobo.resolvers.imagerepository
 
+import com.nhaarman.mockito_kotlin.any
 import no.skatteetaten.aurora.gobo.GraphQLTest
 import no.skatteetaten.aurora.gobo.OpenShiftUserBuilder
+import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.integration.cantus.AuroraResponse
 import no.skatteetaten.aurora.gobo.integration.cantus.CantusFailure
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageBuildTimeline
@@ -13,8 +15,10 @@ import no.skatteetaten.aurora.gobo.integration.cantus.ImageTagType
 import no.skatteetaten.aurora.gobo.integration.cantus.Tag
 import no.skatteetaten.aurora.gobo.integration.cantus.TagsDto
 import no.skatteetaten.aurora.gobo.resolvers.graphqlDataWithPrefix
+import no.skatteetaten.aurora.gobo.resolvers.graphqlDataWithPrefixAndIndex
 import no.skatteetaten.aurora.gobo.resolvers.graphqlErrors
 import no.skatteetaten.aurora.gobo.resolvers.graphqlErrorsFirst
+import no.skatteetaten.aurora.gobo.resolvers.isTrue
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import no.skatteetaten.aurora.gobo.security.OpenShiftUserLoader
 import org.junit.jupiter.api.AfterEach
@@ -29,6 +33,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.core.io.Resource
 import org.springframework.test.web.reactive.server.WebTestClient
+import java.time.Instant
 import java.time.Instant.EPOCH
 
 private fun ImageRepoAndTags.toImageTagResource() =
@@ -101,7 +106,6 @@ class ImageRepositoryQueryResolverTest {
     @AfterEach
     fun tearDown() = reset(imageRegistryServiceBlocking, openShiftUserLoader)
 
-    /*
     @Test
     fun `Query for repositories and tags`() {
 
@@ -135,7 +139,6 @@ class ImageRepositoryQueryResolverTest {
             .expectBody()
             .graphqlErrorsFirst("message").isEqualTo("repositories is empty")
     }
-     */
 
     @Test
     fun `Query for tags with no filters present`() {
@@ -163,7 +166,6 @@ class ImageRepositoryQueryResolverTest {
             .isEqualTo("Validation error of type MissingFieldArgument: Missing field argument types @ 'imageRepositories/tags'")
     }
 
-    /*
     @Test
     fun `Query for tags with paging`() {
         val pageSize = 3
@@ -205,7 +207,6 @@ class ImageRepositoryQueryResolverTest {
             .graphqlErrorsFirst("extensions.errorMessage").exists()
 
     }
-     */
 
     @Disabled("partial results within same data loader used to work, but not any more. Bug in graphql library?")
     @Test

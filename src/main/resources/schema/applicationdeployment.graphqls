@@ -10,6 +10,7 @@ type ApplicationDeployment {
   details: ApplicationDeploymentDetails
   time: DateTime
   message: String
+    imageRepository: ImageRepository
 }
 
 type StatusCheck {

@@ -160,7 +160,8 @@ data class ApplicationDeploymentBuilder(
             dockerImageRepo = "dockerImageRepo",
             time = defaultInstant,
             applicationId = "appId",
-            message = message
+            message = message,
+            imageRepository = ImageRepository.fromRepoString("docker.registry/group/name")
         )
 }
 
