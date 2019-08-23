@@ -12,7 +12,6 @@ import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.bodyToMono
 import reactor.core.publisher.Mono
 import reactor.core.publisher.toMono
-import java.time.Duration
 
 private val logger = KotlinLogging.logger {}
 
@@ -96,6 +95,5 @@ class ImageRegistryServiceBlocking(
             } else {
                 Mono.just(it)
             }
-
         }.block()!!
 }

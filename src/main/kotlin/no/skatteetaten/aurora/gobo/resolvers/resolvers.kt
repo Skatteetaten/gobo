@@ -8,7 +8,6 @@ import graphql.servlet.context.GraphQLServletContext
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import org.dataloader.DataLoader
-import org.dataloader.Try
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import reactor.core.publisher.Mono
 import reactor.core.publisher.toMono
