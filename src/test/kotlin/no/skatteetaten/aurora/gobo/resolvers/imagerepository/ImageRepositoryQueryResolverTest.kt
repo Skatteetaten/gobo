@@ -205,7 +205,6 @@ class ImageRepositoryQueryResolverTest {
             .graphqlErrorsFirst("extensions.code").exists()
             .graphqlErrorsFirst("extensions.cause").exists()
             .graphqlErrorsFirst("extensions.errorMessage").exists()
-
     }
 
     @Disabled("partial results within same data loader used to work, but not any more. Bug in graphql library?")
