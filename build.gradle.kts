@@ -17,6 +17,7 @@ val springCloudContractVersion: String = project.property("aurora.springCloudCon
 dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.2.1")
 
+    implementation("org.apache.commons:commons-text:1.7")
     implementation("org.springframework.retry:spring-retry")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("org.springframework.boot:spring-boot-starter-security")

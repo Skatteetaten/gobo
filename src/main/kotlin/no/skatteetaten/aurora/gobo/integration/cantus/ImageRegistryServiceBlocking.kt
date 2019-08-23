@@ -12,6 +12,7 @@ import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.bodyToMono
 import reactor.core.publisher.Mono
 import reactor.core.publisher.toMono
+import java.time.Duration
 
 private val logger = KotlinLogging.logger {}
 
@@ -89,11 +90,12 @@ class ImageRegistryServiceBlocking(
             .switchIfEmpty(SourceSystemException("Empty response", sourceSystem = "cantus").toMono())
 
     private fun <T> Mono<T>.blockAndHandleCantusFailure(): T =
-        this.map {
+        this.flatMap {
             if (it is AuroraResponse<*> && it.failureCount > 0) {
-                throw SourceSystemException(message = it.message, sourceSystem = "cantus")
+                Mono.error(SourceSystemException(message = it.message, sourceSystem = "cantus"))
+            } else {
+                Mono.just(it)
             }
 
-            it
         }.block()!!
 }

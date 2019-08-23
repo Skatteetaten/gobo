@@ -26,6 +26,7 @@ class DatabaseSchemaDataLoaderTest {
     private val applicationConfig = ApplicationConfig(
         connectionTimeout = 100,
         readTimeout = 100,
+        writeTimeout = 100,
         applicationName = ""
     )
     private val dbhClient = applicationConfig.webClientDbh(dbhUrl)

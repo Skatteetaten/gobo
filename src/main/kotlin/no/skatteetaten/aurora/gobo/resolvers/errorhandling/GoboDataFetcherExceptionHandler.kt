@@ -26,6 +26,7 @@ class GoboDataFetcherExceptionHandler : DataFetcherExceptionHandler {
 
 private fun DataFetcherExceptionHandlerParameters.logErrorInfo() {
     val exception = this.exception
+    exception.printStackTrace()
     val exceptionName = this::class.simpleName
     val cause = exception.cause?.let { it::class.simpleName } ?: ""
     val source = if (exception is SourceSystemException) {
