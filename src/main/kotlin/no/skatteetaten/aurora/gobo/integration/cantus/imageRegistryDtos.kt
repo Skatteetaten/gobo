@@ -2,10 +2,16 @@ package no.skatteetaten.aurora.gobo.integration.cantus
 
 import java.time.Instant
 
+// Why is version separated with "/" and not ":"?
 fun String.decomposeToImageRepoSegments(): List<String> {
     val segments = this.split("/")
-    if (segments.size != 3) throw IllegalArgumentException("The string [$this] does not appear to be a valid image repository reference")
-    return segments
+    return when (segments.count()) {
+        1 -> listOf("library", segments[0], "latest")
+        // NB! two segments can also mean library/0/1 Why is not version split on ":"
+        2 -> listOf(segments[0], segments[1], "latest")
+        3 -> segments
+        else -> throw IllegalArgumentException("The string [$this] does not appear to be a valid image repository reference")
+    }
 }
 
 data class ImageRepoDto(
