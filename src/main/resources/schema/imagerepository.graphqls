@@ -18,7 +18,7 @@ type ImageTagEdge {
 type ImageTag {
   name: String!
   type: ImageTagType!
-  image: Image!
+  image: Image
 }
 
 type Image {
