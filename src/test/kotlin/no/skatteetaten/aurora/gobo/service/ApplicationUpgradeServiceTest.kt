@@ -68,11 +68,11 @@ class ApplicationUpgradeServiceTest {
             upgradeService.upgrade("token", "applicationDeploymentId", "version")
         }
 
-        assertThat(requests[0].path).isEqualTo("/mokey/api/auth/applicationdeploymentdetails/applicationDeploymentId")
-        assertThat(requests[1].path).isEqualTo("/boober/FilesCurrent")
-        assertThat(requests[2].path).isEqualTo("/boober/AuroraConfigFileCurrent")
-        assertThat(requests[3].path).isEqualTo("/boober/Apply")
-        assertThat(requests[4].path).isEqualTo("/mokey/api/auth/refresh")
+        assertThat(requests[0]?.path).isEqualTo("/mokey/api/auth/applicationdeploymentdetails/applicationDeploymentId")
+        assertThat(requests[1]?.path).isEqualTo("/boober/FilesCurrent")
+        assertThat(requests[2]?.path).isEqualTo("/boober/AuroraConfigFileCurrent")
+        assertThat(requests[3]?.path).isEqualTo("/boober/Apply")
+        assertThat(requests[4]?.path).isEqualTo("/mokey/api/auth/refresh")
     }
 
     @ParameterizedTest

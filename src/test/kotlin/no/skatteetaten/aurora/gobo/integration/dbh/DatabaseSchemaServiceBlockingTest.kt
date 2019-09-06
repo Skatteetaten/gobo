@@ -61,8 +61,8 @@ class DatabaseSchemaServiceBlockingTest {
             assertThat(databaseSchemas).hasSize(1)
         }.first()
         assertThat(request).containsAuroraToken()
-        assertThat(request.path).contains("affiliation")
-        assertThat(request.path).contains("paas")
+        assertThat(request?.path?.contains("affiliation"))
+        assertThat(request?.path?.contains("paas"))
     }
 
     @Test
@@ -83,8 +83,8 @@ class DatabaseSchemaServiceBlockingTest {
             assertThat(databaseSchemas).hasSize(1)
         }.first()
         assertThat(request).containsAuroraToken()
-        assertThat(request.path).contains("affiliation")
-        assertThat(request.path).contains("paas")
+        assertThat(request?.path?.contains("affiliation"))
+        assertThat(request?.path?.contains("paas"))
     }
 
     @Test
@@ -106,7 +106,7 @@ class DatabaseSchemaServiceBlockingTest {
             assertThat(databaseSchema).isNotNull()
         }.first()
         assertThat(request).containsAuroraToken()
-        assertThat(request.path).endsWith("/abc123")
+        assertThat(request?.path?.endsWith("/abc123"))
     }
 
     @Test
@@ -119,7 +119,7 @@ class DatabaseSchemaServiceBlockingTest {
                 .hasMessage("status=Failed error=test message")
         }.first()
         assertThat(request).containsAuroraToken()
-        assertThat(request.path).endsWith("/abc123")
+        assertThat(request?.path?.endsWith("/abc123"))
     }
 
     @Test
@@ -131,7 +131,7 @@ class DatabaseSchemaServiceBlockingTest {
             assertThat(databaseSchema).isNotNull()
         }.first()
         assertThat(request).containsAuroraToken()
-        assertThat(request.path).endsWith("/123")
+        assertThat(request?.path?.endsWith("/abc123"))
     }
 
     @Test
@@ -153,7 +153,7 @@ class DatabaseSchemaServiceBlockingTest {
         assertThat(requests).containsPath("/ok1")
         assertThat(requests).containsPath("/ok2")
         assertThat(requests).containsPath("/failed")
-        assertThat(requests.first().headers[HEADER_COOLDOWN_DURATION_HOURS]).isNull()
+        assertThat(requests.first()?.headers?.get(HEADER_COOLDOWN_DURATION_HOURS)).isNull()
     }
 
     @Test
@@ -166,8 +166,8 @@ class DatabaseSchemaServiceBlockingTest {
             assertThat(deleted.size).isEqualTo(1)
         }.first()
         assertThat(request).containsAuroraToken()
-        assertThat(request.path).endsWith("/123")
-        assertThat(request.headers[HEADER_COOLDOWN_DURATION_HOURS]).isEqualTo("2")
+        assertThat(request?.path?.endsWith("/123"))
+        assertThat(request?.headers?.get(HEADER_COOLDOWN_DURATION_HOURS)).isEqualTo("2")
     }
 
     @Test
@@ -188,10 +188,10 @@ class DatabaseSchemaServiceBlockingTest {
             assertThat(success).isTrue()
         }.first()
 
-        val requestJdbcUser = request.bodyAsObject<JdbcUser>("$.jdbcUser")
+        val requestJdbcUser = request?.bodyAsObject<JdbcUser>("$.jdbcUser")
 
         assertThat(request).containsAuroraToken()
-        assertThat(request.path).endsWith("/validate")
+        assertThat(request?.path?.endsWith("/validate"))
         assertThat(requestJdbcUser).isEqualTo(jdbcUser)
     }
 
@@ -203,10 +203,10 @@ class DatabaseSchemaServiceBlockingTest {
             assertThat(success).isTrue()
         }.first()
 
-        val requestId = request.bodyAsObject<String>("$.id")
+        val requestId = request?.bodyAsObject<String>("$.id")
 
         assertThat(request).containsAuroraToken()
-        assertThat(request.path).endsWith("/validate")
+        assertThat(request?.path?.endsWith("/validate"))
         assertThat(requestId).isEqualTo("123")
     }
 
@@ -228,11 +228,11 @@ class DatabaseSchemaServiceBlockingTest {
             assertThat(createdDatabaseSchema.id).isEqualTo("123")
         }.first()
 
-        val creationRequest = request.bodyAsObject<SchemaCreationRequest>()
+        val creationRequest = request?.bodyAsObject<SchemaCreationRequest>()
 
         assertThat(request).containsAuroraToken()
-        assertThat(request.path).endsWith("/")
-        assertThat(creationRequest.jdbcUser).isNotNull()
+        assertThat(request?.path?.endsWith("/"))
+        assertThat(creationRequest?.jdbcUser).isNotNull()
     }
 
     @Test
@@ -247,9 +247,9 @@ class DatabaseSchemaServiceBlockingTest {
         assertThat(exception?.cause).isNotNull().isInstanceOf(UnknownHostException::class)
     }
 
-    private fun Assert<List<RecordedRequest>>.containsPath(endingWith: String) = given { requests ->
-        val values = requests.filter { it.path.endsWith(endingWith) }
-        if (values.isNotEmpty()) return
+    private fun Assert<List<RecordedRequest?>>.containsPath(endingWith: String) = given { requests ->
+        val values = requests.filterNotNull().any { it.path?.endsWith(endingWith) ?: false }
+        if (values) return
         expected("Requests to end with path $endingWith")
     }
 

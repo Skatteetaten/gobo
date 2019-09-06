@@ -43,7 +43,7 @@ class ApplicationDeploymentDetailsDataLoaderTest {
             assertThat(result).isNotNull()
         }.first()
 
-        assertThat(request.path).isEqualTo("/api/auth/applicationdeploymentdetails/applicationDeploymentId")
+        assertThat(request?.path).isEqualTo("/api/auth/applicationdeploymentdetails/applicationDeploymentId")
     }
 
     @Test
