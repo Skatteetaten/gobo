@@ -2,17 +2,18 @@ package no.skatteetaten.aurora.gobo.security
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import assertk.assertions.isFailure
 import assertk.assertions.isInstanceOf
 import assertk.assertions.isNotNull
-import assertk.catch
 import org.junit.jupiter.api.Test
 
 class SharedSecretReaderTest {
 
     @Test
     fun `Init secret throw exception given null values `() {
-        val exception = catch { SharedSecretReader(null, null) }
-        assertThat(exception).isNotNull().isInstanceOf(IllegalArgumentException::class)
+        assertThat {
+            SharedSecretReader(null, null)
+        }.isNotNull().isFailure().isInstanceOf(IllegalArgumentException::class)
     }
 
     @Test
@@ -29,7 +30,8 @@ class SharedSecretReaderTest {
 
     @Test
     fun `Get secret given non-existing secret location throw exception`() {
-        val exception = catch { SharedSecretReader("non-existing-path/secret.txt", null) }
-        assertThat(exception).isNotNull().isInstanceOf(IllegalStateException::class)
+        assertThat {
+            SharedSecretReader("non-existing-path/secret.txt", null)
+        }.isNotNull().isFailure().isInstanceOf(IllegalStateException::class)
     }
 }

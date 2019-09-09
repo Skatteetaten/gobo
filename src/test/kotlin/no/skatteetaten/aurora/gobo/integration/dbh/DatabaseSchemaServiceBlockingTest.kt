@@ -2,11 +2,13 @@ package no.skatteetaten.aurora.gobo.integration.dbh
 
 import assertk.Assert
 import assertk.assertThat
+import assertk.assertions.cause
 import assertk.assertions.contains
 import assertk.assertions.endsWith
 import assertk.assertions.hasMessage
 import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
+import assertk.assertions.isFailure
 import assertk.assertions.isFalse
 import assertk.assertions.isInstanceOf
 import assertk.assertions.isNotNull
@@ -14,7 +16,6 @@ import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import assertk.assertions.message
 import assertk.assertions.support.expected
-import assertk.catch
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.jayway.jsonpath.JsonPath
 import io.mockk.every
@@ -61,8 +62,8 @@ class DatabaseSchemaServiceBlockingTest {
             assertThat(databaseSchemas).hasSize(1)
         }.first()
         assertThat(request).containsAuroraToken()
-        assertThat(request.path).contains("affiliation")
-        assertThat(request.path).contains("paas")
+        assertThat(request?.path).isNotNull().contains("affiliation")
+        assertThat(request?.path).isNotNull().contains("paas")
     }
 
     @Test
@@ -83,17 +84,17 @@ class DatabaseSchemaServiceBlockingTest {
             assertThat(databaseSchemas).hasSize(1)
         }.first()
         assertThat(request).containsAuroraToken()
-        assertThat(request.path).contains("affiliation")
-        assertThat(request.path).contains("paas")
+        assertThat(request?.path).isNotNull().contains("affiliation")
+        assertThat(request?.path).isNotNull().contains("paas")
     }
 
     @Test
     fun `Get database schemas return failed response`() {
         val response = DbhResponse.failed("test error")
         server.execute(response) {
-            val exception = catch { databaseSchemaService.getDatabaseSchemas("paas") }
-            assertThat(exception).isNotNull()
-                .isInstanceOf(SourceSystemException::class)
+            assertThat {
+                databaseSchemaService.getDatabaseSchemas("paas")
+            }.isNotNull().isFailure().isInstanceOf(SourceSystemException::class)
                 .message().isEqualTo("status=Failed error=test error")
         }
     }
@@ -106,20 +107,19 @@ class DatabaseSchemaServiceBlockingTest {
             assertThat(databaseSchema).isNotNull()
         }.first()
         assertThat(request).containsAuroraToken()
-        assertThat(request.path).endsWith("/abc123")
+        assertThat(request?.path).isNotNull().endsWith("/abc123")
     }
 
     @Test
     fun `Get database schema given non-existing id return failed`() {
         val response = DbhResponse.failed("test message")
         val request = server.execute(response) {
-            val exception = catch { databaseSchemaService.getDatabaseSchema("abc123") }
-            assertThat(exception).isNotNull()
-                .isInstanceOf(SourceSystemException::class)
+            assertThat { databaseSchemaService.getDatabaseSchema("abc123") }
+                .isNotNull().isFailure().isInstanceOf(SourceSystemException::class)
                 .hasMessage("status=Failed error=test message")
         }.first()
         assertThat(request).containsAuroraToken()
-        assertThat(request.path).endsWith("/abc123")
+        assertThat(request?.path).isNotNull().endsWith("/abc123")
     }
 
     @Test
@@ -131,7 +131,7 @@ class DatabaseSchemaServiceBlockingTest {
             assertThat(databaseSchema).isNotNull()
         }.first()
         assertThat(request).containsAuroraToken()
-        assertThat(request.path).endsWith("/123")
+        assertThat(request?.path).isNotNull().endsWith("/123")
     }
 
     @Test
@@ -153,7 +153,7 @@ class DatabaseSchemaServiceBlockingTest {
         assertThat(requests).containsPath("/ok1")
         assertThat(requests).containsPath("/ok2")
         assertThat(requests).containsPath("/failed")
-        assertThat(requests.first().headers[HEADER_COOLDOWN_DURATION_HOURS]).isNull()
+        assertThat(requests.first()?.headers?.get(HEADER_COOLDOWN_DURATION_HOURS)).isNull()
     }
 
     @Test
@@ -166,16 +166,16 @@ class DatabaseSchemaServiceBlockingTest {
             assertThat(deleted.size).isEqualTo(1)
         }.first()
         assertThat(request).containsAuroraToken()
-        assertThat(request.path).endsWith("/123")
-        assertThat(request.headers[HEADER_COOLDOWN_DURATION_HOURS]).isEqualTo("2")
+        assertThat(request?.path).isNotNull().endsWith("/123")
+        assertThat(request?.headers?.get(HEADER_COOLDOWN_DURATION_HOURS)).isEqualTo("2")
     }
 
     @Test
     fun `Delete database schema ser ut error response`() {
         server.execute(404 to DbhResponse.failed()) {
-            val exception =
-                catch { databaseSchemaService.deleteDatabaseSchemas(listOf(SchemaDeletionRequestBuilder().build())) }
-            assertThat(exception).isNotNull().isInstanceOf(SourceSystemException::class)
+            assertThat {
+                databaseSchemaService.deleteDatabaseSchemas(listOf(SchemaDeletionRequestBuilder().build()))
+            }.isNotNull().isFailure().isInstanceOf(SourceSystemException::class)
         }
     }
 
@@ -188,10 +188,10 @@ class DatabaseSchemaServiceBlockingTest {
             assertThat(success).isTrue()
         }.first()
 
-        val requestJdbcUser = request.bodyAsObject<JdbcUser>("$.jdbcUser")
+        val requestJdbcUser = request?.bodyAsObject<JdbcUser>("$.jdbcUser")
 
         assertThat(request).containsAuroraToken()
-        assertThat(request.path).endsWith("/validate")
+        assertThat(request?.path).isNotNull().endsWith("/validate")
         assertThat(requestJdbcUser).isEqualTo(jdbcUser)
     }
 
@@ -203,10 +203,10 @@ class DatabaseSchemaServiceBlockingTest {
             assertThat(success).isTrue()
         }.first()
 
-        val requestId = request.bodyAsObject<String>("$.id")
+        val requestId = request?.bodyAsObject<String>("$.id")
 
         assertThat(request).containsAuroraToken()
-        assertThat(request.path).endsWith("/validate")
+        assertThat(request?.path).isNotNull().endsWith("/validate")
         assertThat(requestId).isEqualTo("123")
     }
 
@@ -228,11 +228,11 @@ class DatabaseSchemaServiceBlockingTest {
             assertThat(createdDatabaseSchema.id).isEqualTo("123")
         }.first()
 
-        val creationRequest = request.bodyAsObject<SchemaCreationRequest>()
+        val creationRequest = request?.bodyAsObject<SchemaCreationRequest>()
 
         assertThat(request).containsAuroraToken()
-        assertThat(request.path).endsWith("/")
-        assertThat(creationRequest.jdbcUser).isNotNull()
+        assertThat(request?.path).isNotNull().endsWith("/")
+        assertThat(creationRequest?.jdbcUser).isNotNull()
     }
 
     @Test
@@ -242,14 +242,14 @@ class DatabaseSchemaServiceBlockingTest {
                 DatabaseSchemaServiceReactive(sharedSecretReader, WebClient.create("http://unknown-hostname"))
             )
 
-        val exception = catch { serviceWithUnknownHost.getDatabaseSchema("abc123") }
-        assertThat(exception).isNotNull().isInstanceOf(SourceSystemException::class)
-        assertThat(exception?.cause).isNotNull().isInstanceOf(UnknownHostException::class)
+        assertThat { serviceWithUnknownHost.getDatabaseSchema("abc123") }
+            .isNotNull().isFailure().isInstanceOf(SourceSystemException::class)
+            .cause().isNotNull().isInstanceOf(UnknownHostException::class)
     }
 
-    private fun Assert<List<RecordedRequest>>.containsPath(endingWith: String) = given { requests ->
-        val values = requests.filter { it.path.endsWith(endingWith) }
-        if (values.isNotEmpty()) return
+    private fun Assert<List<RecordedRequest?>>.containsPath(endingWith: String) = given { requests ->
+        val values = requests.filterNotNull().any { it.path?.endsWith(endingWith) ?: false }
+        if (values) return
         expected("Requests to end with path $endingWith")
     }
 

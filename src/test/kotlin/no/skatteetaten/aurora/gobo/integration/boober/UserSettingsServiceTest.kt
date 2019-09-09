@@ -37,8 +37,8 @@ class UserSettingsServiceTest {
             assertThat(response.applicationDeploymentFilters[0]).isEqualTo(filter)
         }.first()
 
-        assertThat(request.path).isEqualTo("/v1/users/annotations/applicationDeploymentFilters")
-        assertThat(request.method).isEqualTo(HttpMethod.GET.name)
+        assertThat(request?.path).isEqualTo("/v1/users/annotations/applicationDeploymentFilters")
+        assertThat(request?.method).isEqualTo(HttpMethod.GET.name)
     }
 
     @Test
@@ -48,8 +48,8 @@ class UserSettingsServiceTest {
             assertThat(response.applicationDeploymentFilters).isEmpty()
         }.first()
 
-        assertThat(request.path).isEqualTo("/v1/users/annotations/applicationDeploymentFilters")
-        assertThat(request.method).isEqualTo(HttpMethod.GET.name)
+        assertThat(request?.path).isEqualTo("/v1/users/annotations/applicationDeploymentFilters")
+        assertThat(request?.method).isEqualTo(HttpMethod.GET.name)
     }
 
     @Test
@@ -59,8 +59,8 @@ class UserSettingsServiceTest {
             applicationDeploymentFilterService.updateUserSettings("token", userSettings)
         }.first()
 
-        assertThat(request.path).isEqualTo("/v1/users/annotations/applicationDeploymentFilters")
-        assertThat(request.method).isEqualTo(HttpMethod.PATCH.name)
+        assertThat(request?.path).isEqualTo("/v1/users/annotations/applicationDeploymentFilters")
+        assertThat(request?.method).isEqualTo(HttpMethod.PATCH.name)
     }
 
     @Test
@@ -70,7 +70,7 @@ class UserSettingsServiceTest {
             applicationDeploymentFilterService.updateUserSettings("token", userSettings)
         }.first()
 
-        assertThat(request.path).isEqualTo("/v1/users/annotations/applicationDeploymentFilters")
-        assertThat(request.method).isEqualTo(HttpMethod.PATCH.name)
+        assertThat(request?.path).isEqualTo("/v1/users/annotations/applicationDeploymentFilters")
+        assertThat(request?.method).isEqualTo(HttpMethod.PATCH.name)
     }
 }
