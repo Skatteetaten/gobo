@@ -3,10 +3,11 @@ package no.skatteetaten.aurora.gobo.integration.cantus
 import assertk.assertThat
 import assertk.assertions.endsWith
 import assertk.assertions.isEqualTo
+import assertk.assertions.isFailure
 import assertk.assertions.isInstanceOf
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
-import assertk.catch
+import assertk.assertions.messageContains
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import no.skatteetaten.aurora.gobo.AuroraResponseBuilder
 import no.skatteetaten.aurora.gobo.integration.MockWebServerTestTag
@@ -45,11 +46,10 @@ class ImageRegistryServiceBlockingTest {
             .setHeader("Content-Type", "application/json")
 
         server.execute(mockResponse) {
-            val exception = catch { imageRegistry.findTagNamesInRepoOrderedByCreatedDateDesc(imageRepo, token) }
-            assertThat(exception).isNotNull().isInstanceOf(SourceSystemException::class)
-
-            assertThat(exception?.message ?: "")
-                .endsWith("status=$statusCode message=${HttpStatus.valueOf(statusCode).reasonPhrase}")
+            assertThat {
+                imageRegistry.findTagNamesInRepoOrderedByCreatedDateDesc(imageRepo, token)
+            }.isNotNull().isFailure().isInstanceOf(SourceSystemException::class)
+                .messageContains("status=$statusCode message=${HttpStatus.valueOf(statusCode).reasonPhrase}")
         }
     }
 

@@ -1,11 +1,11 @@
 package no.skatteetaten.aurora.gobo.integration.cantus
 
 import assertk.assertThat
+import assertk.assertions.isFailure
 import assertk.assertions.isInstanceOf
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import assertk.assertions.startsWith
-import assertk.catch
 import no.skatteetaten.aurora.gobo.ApplicationConfig
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.integration.SpringTestTag
@@ -67,8 +67,8 @@ class ImageRegistryServiceBlockingContractTest {
     fun `get tags given non existing image return AuroraResponse with CantusFailure`() {
         val missingImageRepo = imageRepo.copy(name = "missing")
 
-        val exception = catch { imageRegistry.findTagNamesInRepoOrderedByCreatedDateDesc(missingImageRepo, token) }
-
-        assertThat(exception).isNotNull().isInstanceOf(SourceSystemException::class)
+        assertThat {
+            imageRegistry.findTagNamesInRepoOrderedByCreatedDateDesc(missingImageRepo, token)
+        }.isNotNull().isFailure().isInstanceOf(SourceSystemException::class)
     }
 }

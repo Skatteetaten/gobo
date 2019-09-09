@@ -30,7 +30,7 @@ class DefaultHeadersTest {
             webClient.get().retrieve().bodyToMono<Unit>().block()
         }
 
-        val headers = request.first().headers
-        assertThat(headers[HEADER_KLIENTID]).isEqualTo("gobo")
+        val headers = request.first()?.headers
+        assertThat(headers?.get(HEADER_KLIENTID)).isEqualTo("gobo")
     }
 }

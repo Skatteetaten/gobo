@@ -29,7 +29,7 @@ dependencies {
 
     implementation("uk.q3c.rest:hal-kotlin:0.5.4.0.db32476")
     implementation("io.fabric8:openshift-client:4.4.1")
-    implementation("com.fkorotkov:kubernetes-dsl:2.1")
+    implementation("com.fkorotkov:kubernetes-dsl:2.2")
     implementation("com.github.fge:json-patch:1.9")
     implementation("com.jayway.jsonpath:json-path:2.4.0")
 
@@ -37,10 +37,10 @@ dependencies {
     testImplementation("org.springframework.security:spring-security-test")
     testImplementation("org.springframework.cloud:spring-cloud-starter-contract-stub-runner:$springCloudContractVersion")
     testImplementation("io.mockk:mockk:1.9.3")
-    testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.16")
+    testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.19")
     testImplementation("io.projectreactor:reactor-test")
     testImplementation("com.nhaarman:mockito-kotlin:1.6.0")
-    testImplementation("no.skatteetaten.aurora:mockmvc-extensions-kotlin:0.6.5")
+    testImplementation("no.skatteetaten.aurora:mockmvc-extensions-kotlin:1.0.0")
 }
 
 tasks {

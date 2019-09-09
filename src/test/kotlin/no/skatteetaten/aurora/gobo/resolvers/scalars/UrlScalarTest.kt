@@ -2,9 +2,9 @@ package no.skatteetaten.aurora.gobo.resolvers.scalars
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import assertk.assertions.isFailure
 import assertk.assertions.isNotNull
 import assertk.assertions.message
-import assertk.catch
 import graphql.language.IntValue
 import graphql.language.StringValue
 import org.junit.jupiter.api.Test
@@ -29,15 +29,18 @@ class UrlScalarTest {
 
     @Test
     fun `Throw exception when url is not valid`() {
-        val exception = catch { urlScalar.coercing.parseValue(StringValue("This is not a valid url")) }
-        assertThat(exception).isNotNull().message()
+        assertThat {
+            urlScalar.coercing.parseValue(StringValue("This is not a valid url"))
+        }.isNotNull().isFailure().message()
             .isEqualTo("Input string 'This is not a valid url' could not be parsed into a URL")
     }
 
     @Test
     fun `Throw exception when parsing unsupported type`() {
         val input = IntValue(BigInteger.valueOf(123))
-        val exception = catch { urlScalar.coercing.parseValue(input) }
-        assertThat(exception).isNotNull().message().isEqualTo("Invalid value '$input' for URL")
+        assertThat {
+            urlScalar.coercing.parseValue(input)
+        }.isNotNull().isFailure().message()
+            .isEqualTo("Invalid value '$input' for URL")
     }
 }

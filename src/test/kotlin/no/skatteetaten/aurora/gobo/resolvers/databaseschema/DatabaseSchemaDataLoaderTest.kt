@@ -52,6 +52,6 @@ class DatabaseSchemaDataLoaderTest {
             assertThat(result["123"]?.get()?.size).isEqualTo(1)
         }.first()
 
-        assertThat(request.path).isEqualTo("/api/auth/applicationdeploymentbyresource/databases")
+        assertThat(request?.path).isEqualTo("/api/auth/applicationdeploymentbyresource/databases")
     }
 }
