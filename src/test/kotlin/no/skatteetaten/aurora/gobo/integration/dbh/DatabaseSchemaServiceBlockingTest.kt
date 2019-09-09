@@ -16,7 +16,6 @@ import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import assertk.assertions.message
 import assertk.assertions.support.expected
-import assertk.catch
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.jayway.jsonpath.JsonPath
 import io.mockk.every
@@ -119,10 +118,9 @@ class DatabaseSchemaServiceBlockingTest {
                 .isNotNull().isFailure().isInstanceOf(SourceSystemException::class)
                 .hasMessage("status=Failed error=test message")
         }.first()
-            assertThat(request).containsAuroraToken()
-            assertThat(request?.path).isNotNull().endsWith("/abc123")
-        }
-    
+        assertThat(request).containsAuroraToken()
+        assertThat(request?.path).isNotNull().endsWith("/abc123")
+    }
 
     @Test
     fun `Update database schema`() {
@@ -133,7 +131,7 @@ class DatabaseSchemaServiceBlockingTest {
             assertThat(databaseSchema).isNotNull()
         }.first()
         assertThat(request).containsAuroraToken()
-        assertThat(request?.path).isNotNull().endsWith("/abc123")
+        assertThat(request?.path).isNotNull().endsWith("/123")
     }
 
     @Test
@@ -181,87 +179,87 @@ class DatabaseSchemaServiceBlockingTest {
         }
     }
 
-        @Test
-        fun `Test jdbc connection for jdbcUser`() {
-            val jdbcUser = JdbcUserBuilder().build()
-            val response = DbhResponse.ok(true)
-            val request = server.execute(response) {
-                val success = databaseSchemaService.testJdbcConnection(jdbcUser)
-                assertThat(success).isTrue()
-            }.first()
+    @Test
+    fun `Test jdbc connection for jdbcUser`() {
+        val jdbcUser = JdbcUserBuilder().build()
+        val response = DbhResponse.ok(true)
+        val request = server.execute(response) {
+            val success = databaseSchemaService.testJdbcConnection(jdbcUser)
+            assertThat(success).isTrue()
+        }.first()
 
-            val requestJdbcUser = request?.bodyAsObject<JdbcUser>("$.jdbcUser")
+        val requestJdbcUser = request?.bodyAsObject<JdbcUser>("$.jdbcUser")
 
-            assertThat(request).containsAuroraToken()
-            assertThat(request?.path).isNotNull().endsWith("/validate")
-            assertThat(requestJdbcUser).isEqualTo(jdbcUser)
-        }
+        assertThat(request).containsAuroraToken()
+        assertThat(request?.path).isNotNull().endsWith("/validate")
+        assertThat(requestJdbcUser).isEqualTo(jdbcUser)
+    }
 
-        @Test
-        fun `Test jdbc connection for id`() {
-            val response = DbhResponse.ok(true)
-            val request = server.execute(response) {
-                val success = databaseSchemaService.testJdbcConnection("123")
-                assertThat(success).isTrue()
-            }.first()
+    @Test
+    fun `Test jdbc connection for id`() {
+        val response = DbhResponse.ok(true)
+        val request = server.execute(response) {
+            val success = databaseSchemaService.testJdbcConnection("123")
+            assertThat(success).isTrue()
+        }.first()
 
-            val requestId = request?.bodyAsObject<String>("$.id")
+        val requestId = request?.bodyAsObject<String>("$.id")
 
-            assertThat(request).containsAuroraToken()
-            assertThat(request?.path).isNotNull().endsWith("/validate")
-            assertThat(requestId).isEqualTo("123")
-        }
+        assertThat(request).containsAuroraToken()
+        assertThat(request?.path).isNotNull().endsWith("/validate")
+        assertThat(requestId).isEqualTo("123")
+    }
 
-        @Test
-        fun `Test jdbc connection for id given failing connection`() {
-            val response = DbhResponse.ok(false)
-            server.execute(response) {
-                val success = databaseSchemaService.testJdbcConnection("123")
-                assertThat(success).isFalse()
-            }
-        }
-
-        @Test
-        fun `Create database schema`() {
-            val response = DbhResponse.ok(DatabaseSchemaResourceBuilder().build())
-            val request = server.execute(response) {
-                val createdDatabaseSchema =
-                    databaseSchemaService.createDatabaseSchema(SchemaCreationRequestBuilder().build())
-                assertThat(createdDatabaseSchema.id).isEqualTo("123")
-            }.first()
-
-            val creationRequest = request?.bodyAsObject<SchemaCreationRequest>()
-
-            assertThat(request).containsAuroraToken()
-            assertThat(request?.path).isNotNull().endsWith("/")
-            assertThat(creationRequest?.jdbcUser).isNotNull()
-        }
-
-        @Test
-        fun `Get database schema given unknown hostname throw SourceSystemException`() {
-            val serviceWithUnknownHost =
-                DatabaseSchemaServiceBlocking(
-                    DatabaseSchemaServiceReactive(sharedSecretReader, WebClient.create("http://unknown-hostname"))
-                )
-
-            assertThat{ serviceWithUnknownHost.getDatabaseSchema("abc123") }
-                .isNotNull().isFailure().isInstanceOf(SourceSystemException::class)
-                .cause().isNotNull().isInstanceOf(UnknownHostException::class)
-        }
-
-        private fun Assert<List<RecordedRequest?>>.containsPath(endingWith: String) = given { requests ->
-            val values = requests.filterNotNull().any { it.path?.endsWith(endingWith) ?: false }
-            if (values) return
-            expected("Requests to end with path $endingWith")
-        }
-
-        private fun Assert<List<SchemaDeletionResponse>>.succeeded(count: Int) = given { responses ->
-            if (responses.filter { it.success }.size == count) return
-            expected("Succeeded responses size to equal $count")
-        }
-
-        private fun Assert<List<SchemaDeletionResponse>>.failed(count: Int) = given { responses ->
-            if (responses.filter { !it.success }.size == count) return
-            expected("Failed responses size to equal $count")
+    @Test
+    fun `Test jdbc connection for id given failing connection`() {
+        val response = DbhResponse.ok(false)
+        server.execute(response) {
+            val success = databaseSchemaService.testJdbcConnection("123")
+            assertThat(success).isFalse()
         }
     }
+
+    @Test
+    fun `Create database schema`() {
+        val response = DbhResponse.ok(DatabaseSchemaResourceBuilder().build())
+        val request = server.execute(response) {
+            val createdDatabaseSchema =
+                databaseSchemaService.createDatabaseSchema(SchemaCreationRequestBuilder().build())
+            assertThat(createdDatabaseSchema.id).isEqualTo("123")
+        }.first()
+
+        val creationRequest = request?.bodyAsObject<SchemaCreationRequest>()
+
+        assertThat(request).containsAuroraToken()
+        assertThat(request?.path).isNotNull().endsWith("/")
+        assertThat(creationRequest?.jdbcUser).isNotNull()
+    }
+
+    @Test
+    fun `Get database schema given unknown hostname throw SourceSystemException`() {
+        val serviceWithUnknownHost =
+            DatabaseSchemaServiceBlocking(
+                DatabaseSchemaServiceReactive(sharedSecretReader, WebClient.create("http://unknown-hostname"))
+            )
+
+        assertThat { serviceWithUnknownHost.getDatabaseSchema("abc123") }
+            .isNotNull().isFailure().isInstanceOf(SourceSystemException::class)
+            .cause().isNotNull().isInstanceOf(UnknownHostException::class)
+    }
+
+    private fun Assert<List<RecordedRequest?>>.containsPath(endingWith: String) = given { requests ->
+        val values = requests.filterNotNull().any { it.path?.endsWith(endingWith) ?: false }
+        if (values) return
+        expected("Requests to end with path $endingWith")
+    }
+
+    private fun Assert<List<SchemaDeletionResponse>>.succeeded(count: Int) = given { responses ->
+        if (responses.filter { it.success }.size == count) return
+        expected("Succeeded responses size to equal $count")
+    }
+
+    private fun Assert<List<SchemaDeletionResponse>>.failed(count: Int) = given { responses ->
+        if (responses.filter { !it.success }.size == count) return
+        expected("Failed responses size to equal $count")
+    }
+}
