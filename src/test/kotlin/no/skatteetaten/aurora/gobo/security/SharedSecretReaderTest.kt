@@ -30,8 +30,8 @@ class SharedSecretReaderTest {
 
     @Test
     fun `Get secret given non-existing secret location throw exception`() {
-        assertThat { 
-            SharedSecretReader("non-existing-path/secret.txt", null) 
+        assertThat {
+            SharedSecretReader("non-existing-path/secret.txt", null)
         }.isNotNull().isFailure().isInstanceOf(IllegalStateException::class)
     }
 }
