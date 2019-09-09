@@ -3,10 +3,10 @@ package no.skatteetaten.aurora.gobo.service
 import assertk.assertThat
 import assertk.assertions.contains
 import assertk.assertions.isEqualTo
+import assertk.assertions.isFailure
 import assertk.assertions.isInstanceOf
 import assertk.assertions.isNotNull
 import assertk.assertions.message
-import assertk.catch
 import com.fasterxml.jackson.databind.node.TextNode
 import no.skatteetaten.aurora.gobo.ApplicationConfig
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentDetailsBuilder
@@ -68,11 +68,12 @@ class ApplicationUpgradeServiceTest {
             upgradeService.upgrade("token", "applicationDeploymentId", "version")
         }
 
-        assertThat(requests[0]?.path).isEqualTo("/mokey/api/auth/applicationdeploymentdetails/applicationDeploymentId")
-        assertThat(requests[1]?.path).isEqualTo("/boober/FilesCurrent")
-        assertThat(requests[2]?.path).isEqualTo("/boober/AuroraConfigFileCurrent")
-        assertThat(requests[3]?.path).isEqualTo("/boober/Apply")
-        assertThat(requests[4]?.path).isEqualTo("/mokey/api/auth/refresh")
+        assertThat(requests[0]?.path).isNotNull()
+            .isEqualTo("/mokey/api/auth/applicationdeploymentdetails/applicationDeploymentId")
+        assertThat(requests[1]?.path).isNotNull().isEqualTo("/boober/FilesCurrent")
+        assertThat(requests[2]?.path).isNotNull().isEqualTo("/boober/AuroraConfigFileCurrent")
+        assertThat(requests[3]?.path).isNotNull().isEqualTo("/boober/Apply")
+        assertThat(requests[4]?.path).isNotNull().isEqualTo("/mokey/api/auth/refresh")
     }
 
     @ParameterizedTest
@@ -83,26 +84,23 @@ class ApplicationUpgradeServiceTest {
     )
     fun `Handle exception from AuroraConfigService`(socketPolicy: SocketPolicy) {
         val failureResponse = MockResponse().apply { this.socketPolicy = socketPolicy }
-        val exception = catch {
-            server.execute(failureResponse) {
-                upgradeService.upgrade("token", "applicationDeploymentId", "version")
-            }
-        }
 
-        assertThat(exception).isNotNull().isInstanceOf(SourceSystemException::class)
+        server.execute(failureResponse) {
+            assertThat {
+                upgradeService.upgrade("token", "applicationDeploymentId", "version")
+            }.isNotNull().isFailure().isInstanceOf(SourceSystemException::class)
+        }
     }
 
     @Test
     fun `Handle error response from AuroraConfigService`() {
-        val exception = catch {
-            server.execute(404 to "Not found") {
-                upgradeService.upgrade("token", "applicationDeploymentId", "version")
-            }
-        }
 
-        assertThat(exception)
-            .isNotNull().isInstanceOf(SourceSystemException::class)
-            .message().isNotNull().contains("404")
+        server.execute(404 to "Not found") {
+            assertThat {
+                upgradeService.upgrade("token", "applicationDeploymentId", "version")
+            }.isNotNull().isFailure().isInstanceOf(SourceSystemException::class)
+                .message().isNotNull().contains("404")
+        }
     }
 
     private fun applicationDeploymentDetailsResponse() =
