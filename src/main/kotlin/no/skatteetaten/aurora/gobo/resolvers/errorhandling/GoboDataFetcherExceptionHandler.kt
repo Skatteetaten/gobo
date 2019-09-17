@@ -1,5 +1,6 @@
 package no.skatteetaten.aurora.gobo.resolvers.errorhandling
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import graphql.ExceptionWhileDataFetching
 import graphql.execution.DataFetcherExceptionHandler
 import graphql.execution.DataFetcherExceptionHandlerParameters
@@ -42,8 +43,10 @@ private fun DataFetcherExceptionHandlerParameters.logErrorInfo() {
         else logger.warn(message)
     }
 
-    this.dataFetchingEnvironment?.getSource<Any>()
-        ?.let { log("$msg\nData source=\"$it\"") } ?: log(msg)
+    this.dataFetchingEnvironment?.getSource<Any>()?.let {
+        val dataSource = jacksonObjectMapper().writeValueAsString(it)
+        log("$msg\ndataSource=${it.javaClass.simpleName} dataSourceValue=$dataSource")
+    } ?: log(msg)
 }
 
 private fun exceptionWhileDataFetching(handlerParameters: DataFetcherExceptionHandlerParameters) =
