@@ -44,8 +44,8 @@ private fun DataFetcherExceptionHandlerParameters.logErrorInfo() {
     }
 
     this.dataFetchingEnvironment?.getSource<Any>()?.let {
-        val dataSource = jacksonObjectMapper().writeValueAsString(it)
-        log("$msg\ndataSource=${it.javaClass.simpleName} dataSourceValue=$dataSource")
+        val dataSourceValue = jacksonObjectMapper().writeValueAsString(it)
+        log("$msg\ndataSource=${it.javaClass.simpleName} dataSourceValue=$dataSourceValue")
     } ?: log(msg)
 }
 
