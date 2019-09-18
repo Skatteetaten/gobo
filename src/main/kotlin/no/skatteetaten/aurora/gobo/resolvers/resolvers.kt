@@ -64,7 +64,7 @@ fun <T> Mono<T>.handleError(sourceSystem: String?) =
 
 private fun WebClientResponseException.readResponse(): String? {
     this.request?.let {
-        logger.debug { "Error request url:${it.uri.toASCIIString()}" }
+        logger.info { "Error request url:${it.uri.toASCIIString()}" }
     }
 
     val body = this.responseBodyAsString
