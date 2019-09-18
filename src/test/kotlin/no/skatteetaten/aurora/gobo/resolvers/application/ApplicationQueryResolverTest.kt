@@ -76,6 +76,7 @@ class ApplicationQueryResolverTest {
                 graphqlData("applicationDeployments[0].affiliation.name").isNotEmpty
                 graphqlData("applicationDeployments[0].namespace.name").isNotEmpty
                 graphqlData("applicationDeployments[0].namespace.permission.paas.admin").isNotEmpty
+                graphqlData("applicationDeployments[0].details.updatedBy").isNotEmpty
                 graphqlData("applicationDeployments[0].details.buildTime").isNotEmpty
                 graphqlData("applicationDeployments[0].details.deployDetails.paused").isEqualTo(false)
                 graphqlData("imageRepository.repository").doesNotExist()

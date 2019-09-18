@@ -18,6 +18,7 @@ query getApplications($affiliations: [String!]!) {
               }
             }
             details {
+              updatedBy
               buildTime
               deployDetails {
                  paused
