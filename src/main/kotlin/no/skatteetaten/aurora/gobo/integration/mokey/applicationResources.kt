@@ -88,6 +88,7 @@ data class ManagementEndpointErrorResource(
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class ApplicationDeploymentDetailsResource(
+    val updatedBy: String?,
     val buildTime: Instant?,
     val gitInfo: GitInfoResource?,
     val imageDetails: ImageDetailsResource?,
