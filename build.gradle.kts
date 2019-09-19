@@ -15,8 +15,6 @@ plugins {
 
 val springCloudContractVersion: String = project.property("aurora.springCloudContractVersion") as String
 
-extra["jackson-bom.version"] = "2.10.0.pr3"
-
 dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.1")
 
