@@ -115,6 +115,7 @@ class Link private constructor(val name: String, val url: URL) {
 }
 
 data class ApplicationDeploymentDetails(
+    val updatedBy: String?,
     val buildTime: Instant?,
     val imageDetails: ImageDetails?,
     val gitInfo: GitInfo?,
@@ -127,6 +128,7 @@ data class ApplicationDeploymentDetails(
     companion object {
         fun create(resource: ApplicationDeploymentDetailsResource): ApplicationDeploymentDetails {
             return ApplicationDeploymentDetails(
+                updatedBy = resource.updatedBy,
                 buildTime = resource.buildTime,
                 imageDetails = resource.imageDetails?.let {
                     ImageDetails(
