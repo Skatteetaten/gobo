@@ -1,19 +1,25 @@
 package no.skatteetaten.aurora.gobo.resolvers.imagerepository
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver
+import mu.KotlinLogging
+
 import com.coxautodev.graphql.tools.GraphQLResolver
 import graphql.schema.DataFetchingEnvironment
+import no.skatteetaten.aurora.gobo.AuroraIntegration
 import no.skatteetaten.aurora.gobo.GoboException
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageRegistryServiceBlocking
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageTagType
 import no.skatteetaten.aurora.gobo.integration.cantus.Tag
 import no.skatteetaten.aurora.gobo.resolvers.AccessDeniedException
+import no.skatteetaten.aurora.gobo.resolvers.loader
 import no.skatteetaten.aurora.gobo.resolvers.multipleKeysLoader
 import no.skatteetaten.aurora.gobo.resolvers.pageEdges
-import no.skatteetaten.aurora.gobo.security.currentUser
 import no.skatteetaten.aurora.gobo.security.isAnonymousUser
+import org.apache.commons.text.StringSubstitutor
 import org.springframework.stereotype.Component
 import java.util.concurrent.CompletableFuture
+
+private val logger = KotlinLogging.logger {}
 
 @Component
 class ImageRepositoryQueryResolver : GraphQLQueryResolver {
@@ -27,8 +33,22 @@ class ImageRepositoryQueryResolver : GraphQLQueryResolver {
 }
 
 @Component
-class ImageRepositoryResolver(val imageRegistryServiceBlocking: ImageRegistryServiceBlocking) :
-    GraphQLResolver<ImageRepository> {
+class ImageRepositoryResolver(
+    val imageRegistryServiceBlocking: ImageRegistryServiceBlocking,
+    val aurora: AuroraIntegration
+) : GraphQLResolver<ImageRepository> {
+
+    fun guiUrl(
+        imageRepository: ImageRepository,
+        dfe: DataFetchingEnvironment
+    ): String? {
+        logger.debug { "Trying to find guiUrl for $imageRepository with configured repositories ${aurora.docker.values.map { it.url }.joinToString { "," }}" }
+        val replacer =
+            StringSubstitutor(mapOf("group" to imageRepository.namespace, "name" to imageRepository.name), "@", "@")
+        return aurora.docker.values.find { it.url == imageRepository.registryUrl }?.let {
+            replacer.replace(it.guiUrlPattern)
+        }
+    }
 
     fun tags(
         imageRepository: ImageRepository,
@@ -36,17 +56,13 @@ class ImageRepositoryResolver(val imageRegistryServiceBlocking: ImageRegistrySer
         first: Int? = null,
         after: String? = null,
         dfe: DataFetchingEnvironment
-    ): ImageTagsConnection {
-        val imageTags =
-            imageRegistryServiceBlocking.findTagNamesInRepoOrderedByCreatedDateDesc(
-                imageRepoDto = imageRepository.toImageRepo(),
-                token = dfe.currentUser().token
-            ).tags.toImageTags(imageRepository, types)
-
-        val allEdges = imageTags.map { ImageTagEdge(it) }
-
-        return ImageTagsConnection(pageEdges(allEdges, first, after))
-    }
+    ) =
+        dfe.loader(ImageTagListDataLoader::class).load(imageRepository.toImageRepo())
+            .thenApply { dto ->
+                val imageTags = dto.tags.toImageTags(imageRepository, types)
+                val allEdges = imageTags.map { ImageTagEdge(it) }
+                ImageTagsConnection(pageEdges(allEdges, first, after))
+            }
 
     fun List<Tag>.toImageTags(imageRepository: ImageRepository, types: List<ImageTagType>?) = this
         .map { ImageTag(imageRepository = imageRepository, name = it.name) }

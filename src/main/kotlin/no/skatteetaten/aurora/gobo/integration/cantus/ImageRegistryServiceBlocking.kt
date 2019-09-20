@@ -89,11 +89,11 @@ class ImageRegistryServiceBlocking(
             .switchIfEmpty(SourceSystemException("Empty response", sourceSystem = "cantus").toMono())
 
     private fun <T> Mono<T>.blockAndHandleCantusFailure(): T =
-        this.map {
+        this.flatMap {
             if (it is AuroraResponse<*> && it.failureCount > 0) {
-                throw SourceSystemException(message = it.message, sourceSystem = "cantus")
+                Mono.error(SourceSystemException(message = it.message, sourceSystem = "cantus"))
+            } else {
+                Mono.just(it)
             }
-
-            it
         }.block()!!
 }

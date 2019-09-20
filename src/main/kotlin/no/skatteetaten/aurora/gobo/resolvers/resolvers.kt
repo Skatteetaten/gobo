@@ -8,7 +8,6 @@ import graphql.servlet.context.GraphQLServletContext
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import org.dataloader.DataLoader
-import org.dataloader.Try
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import reactor.core.publisher.Mono
 import reactor.core.publisher.toMono
@@ -21,10 +20,10 @@ val DataFetchingEnvironment.token: String?
         return authorization?.split(" ")?.lastOrNull()?.trim()
     }
 
-fun <T : KeyDataLoader<*, V>, V> DataFetchingEnvironment.loader(type: KClass<T>): DataLoader<Any, Try<V>> {
+fun <T : KeyDataLoader<*, V>, V> DataFetchingEnvironment.loader(type: KClass<T>): DataLoader<Any, V> {
     val key = "${type.simpleName}"
     return this.getContext<GraphQLServletContext>().dataLoaderRegistry.get()
-        .getDataLoader<Any, Try<V>>(key) ?: throw IllegalStateException("No $key found")
+        .getDataLoader<Any, V>(key) ?: throw IllegalStateException("No $key found")
 }
 
 fun <T : MultipleKeysDataLoader<*, V>, V> DataFetchingEnvironment.multipleKeysLoader(type: KClass<T>): DataLoader<Any, V> {

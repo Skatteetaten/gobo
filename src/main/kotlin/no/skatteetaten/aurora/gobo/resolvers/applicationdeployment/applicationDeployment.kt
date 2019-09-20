@@ -29,7 +29,8 @@ data class ApplicationDeployment(
     val dockerImageRepo: String?,
     val time: Instant,
     val applicationId: String,
-    val message: String?
+    val message: String?,
+    val imageRepository: ImageRepository?
 ) {
     companion object {
         fun create(deployment: ApplicationDeploymentResource) =
@@ -58,7 +59,8 @@ data class ApplicationDeployment(
                 time = deployment.time,
                 dockerImageRepo = deployment.dockerImageRepo,
                 applicationId = deployment.applicationId,
-                message = deployment.message
+                message = deployment.message,
+                imageRepository = deployment.dockerImageRepo?.let { ImageRepository.fromRepoString(it) }
             )
 
         private fun toStatusCheck(checkResource: StatusCheckResource) = checkResource.let {

@@ -15,6 +15,41 @@ integrations:
     url: http://localhost:6568
   skap:
     url: http://localhost:6569
+  docker:
+      cluster:
+          url: docker-registry.default.svc:5000
+          https: false
+          auth: Bearer
+          readOnly: true
+          enabled: true
+      old:
+          url: docker-registry.aurora.sits.no:5000
+          guiUrlPattern: http://uil0paas-utv-registry01.skead.no:9090/tag/@group@/@name@/
+          https: true
+          auth: None
+          readOnly: false
+          enabled: true
+      nexus-pull:
+          url: container-registry-internal-private-pull.aurora.skead.no:443
+          guiUrlPattern: https://container-nexus.sits.no/#browse/search/docker=attributes.docker.imageName%3D@group@%2F@name@%20AND%20attributes.docker.imageTag%3D
+          https: true
+          auth: None
+          readOnly: true
+          enabled: true
+      nexus-pull-public:
+          url: container-registry-internal-public-pull.aurora.skead.no:443
+          guiUrlPattern: https://container-nexus.sits.no/#browse/search/docker=attributes.docker.imageName%3D@group@%2F@name@%20AND%20attributes.docker.imageTag%3D
+          https: true
+          auth: None
+          readOnly: true
+          enabled: true
+      nexus-release:
+          url: container-registry-internal-release.aurora.skead.no:443
+          guiUrlPattern: https://container-nexus.sits.no/#browse/search/docker=attributes.docker.imageName%3D@group@%2F@name@%20AND%20attributes.docker.imageTag%3D
+          https: true
+          auth: Basic
+          readOnly: false
+
 
 aurora:
   token:

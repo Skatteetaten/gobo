@@ -4,7 +4,9 @@ import java.time.Instant
 
 fun String.decomposeToImageRepoSegments(): List<String> {
     val segments = this.split("/")
-    if (segments.size != 3) throw IllegalArgumentException("The string [$this] does not appear to be a valid image repository reference")
+    if (segments.size != 3) {
+        throw IllegalArgumentException("The string [$this] does not appear to be a valid image repository reference")
+    }
     return segments
 }
 
