@@ -172,6 +172,7 @@ data class ApplicationDeploymentDetailsBuilder(
 
     fun build() =
         ApplicationDeploymentDetailsResource(
+            updatedBy = "linus",
             buildTime = Instant.now(),
             gitInfo = GitInfoResource("123abc", Instant.now()),
             imageDetails = ImageDetailsResource(

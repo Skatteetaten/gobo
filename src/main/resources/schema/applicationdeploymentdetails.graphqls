@@ -70,6 +70,7 @@ type DeploymentSpecs {
 }
 
 type ApplicationDeploymentDetails {
+  updatedBy: String
   buildTime: String
   gitInfo: GitInfo
   imageDetails: ImageDetails

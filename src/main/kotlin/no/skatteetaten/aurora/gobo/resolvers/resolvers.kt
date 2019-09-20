@@ -63,11 +63,11 @@ fun <T> Mono<T>.handleError(sourceSystem: String?) =
 
 private fun WebClientResponseException.readResponse(): String? {
     this.request?.let {
-        logger.error { "Error request url:${it.uri.toASCIIString()}" }
+        logger.info { "Error request url:${it.uri.toASCIIString()}" }
     }
 
     val body = this.responseBodyAsString
-    logger.error { "Error response body: $body" }
+    logger.debug { "Error response body: $body" }
 
     val json = JsonPath.parse(body, Configuration.defaultConfiguration().addOptions(Option.SUPPRESS_EXCEPTIONS))
     return json.read<String>("$.message") ?: json.read<String>("$.items[0]")
