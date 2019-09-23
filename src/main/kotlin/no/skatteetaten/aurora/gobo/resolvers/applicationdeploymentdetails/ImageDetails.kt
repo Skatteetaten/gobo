@@ -29,7 +29,6 @@ class ImageDetailsResolver : GraphQLResolver<ImageDetails> {
                 .load(ImageTag.fromTagString(tag)).thenApply {
                     it.dockerDigest == imageDetails.digest
                 }
-
         }
 
     fun imageBuildTime(imageDetails: ImageDetails, dfe: DataFetchingEnvironment) =
