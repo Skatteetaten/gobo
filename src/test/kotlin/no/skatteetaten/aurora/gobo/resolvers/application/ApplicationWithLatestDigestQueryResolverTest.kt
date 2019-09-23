@@ -5,6 +5,7 @@ import no.skatteetaten.aurora.gobo.ApplicationResourceBuilder
 import no.skatteetaten.aurora.gobo.GraphQLTest
 import no.skatteetaten.aurora.gobo.OpenShiftUserBuilder
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageRegistryServiceBlocking
+import no.skatteetaten.aurora.gobo.integration.cantus.ImageTagDto
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
 import no.skatteetaten.aurora.gobo.integration.mokey.AuroraNamespacePermissions
 import no.skatteetaten.aurora.gobo.integration.mokey.PermissionService
@@ -25,6 +26,7 @@ import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.core.io.Resource
 import org.springframework.test.web.reactive.server.WebTestClient
 import reactor.core.publisher.toMono
+import java.time.Instant
 
 @GraphQLTest
 class ApplicationWithLatestDigestQueryResolverTest {
@@ -65,13 +67,20 @@ class ApplicationWithLatestDigestQueryResolverTest {
         val tag = ImageTag.fromTagString(details.imageDetails!!.dockerImageTagReference!!)
         val imageRepoDto = tag.imageRepository.toImageRepo()
 
+        val imageTagDto = ImageTagDto(
+            dockerDigest = "sha256:123",
+            imageTag = tag.name,
+            created = Instant.EPOCH,
+            imageRepoDto = imageRepoDto
+        )
+
         given(
             imageRegistryServiceBlocking.resolveTagToSha(
                 imageRepoDto,
                 tag.name,
                 "test-token"
             )
-        ).willReturn("sha256:123")
+        ).willReturn(imageTagDto)
 
         given(applicationServiceBlocking.getApplications(affiliations))
             .willReturn(listOf(ApplicationResourceBuilder().build()))

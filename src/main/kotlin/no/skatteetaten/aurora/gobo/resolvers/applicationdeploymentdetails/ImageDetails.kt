@@ -4,21 +4,18 @@ import com.coxautodev.graphql.tools.GraphQLResolver
 import graphql.schema.DataFetchingEnvironment
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageRegistryServiceBlocking
+import no.skatteetaten.aurora.gobo.integration.cantus.ImageTagDto
 import no.skatteetaten.aurora.gobo.resolvers.KeyDataLoader
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageTag
 import no.skatteetaten.aurora.gobo.resolvers.loader
 import no.skatteetaten.aurora.gobo.resolvers.user.User
 import org.dataloader.Try
 import org.springframework.stereotype.Component
-import java.time.Instant
 
 data class ImageDetails(
-    val imageBuildTime: Instant?,
     val digest: String?,
     val dockerImageTagReference: String?
 )
-
-data class ImageTagDigestDTO(val imageTag: ImageTag, val expecedDigest: String?)
 
 private val logger = KotlinLogging.logger {}
 
@@ -26,25 +23,37 @@ private val logger = KotlinLogging.logger {}
 class ImageDetailsResolver : GraphQLResolver<ImageDetails> {
 
     fun isLatestDigest(imageDetails: ImageDetails, dfe: DataFetchingEnvironment) =
-        imageDetails.dockerImageTagReference?.let {
-            logger.debug("Loading docker image tag reference for tag=$it")
+        imageDetails.dockerImageTagReference?.let { tag ->
+            logger.debug("Loading docker image tag reference for tag=$tag")
             dfe.loader(ImageTagIsLatestDigestDataLoader::class)
-                .load(ImageTagDigestDTO(ImageTag.fromTagString(it), imageDetails.digest))
+                .load(ImageTag.fromTagString(tag)).thenApply {
+                    it.dockerDigest == imageDetails.digest
+                }
+
         }
 
-    @Component
-    class ImageTagIsLatestDigestDataLoader(
-        val imageRegistryServiceBlocking: ImageRegistryServiceBlocking
-    ) : KeyDataLoader<ImageTagDigestDTO, Boolean> {
-        override fun getByKey(user: User, key: ImageTagDigestDTO): Try<Boolean> {
-            return Try.tryCall {
-                val imageRepoDto = key.imageTag.imageRepository.toImageRepo()
-                imageRegistryServiceBlocking.resolveTagToSha(
-                    imageRepoDto,
-                    key.imageTag.name,
-                    user.token
-                ) == key.expecedDigest
-            }
+    fun imageBuildTime(imageDetails: ImageDetails, dfe: DataFetchingEnvironment) =
+        imageDetails.dockerImageTagReference?.let { tag ->
+            logger.debug("Loading docker image tag reference for tag=$tag")
+            dfe.loader(ImageTagIsLatestDigestDataLoader::class)
+                .load(ImageTag.fromTagString(tag)).thenApply {
+                    it.created
+                }
+        }
+}
+
+@Component
+class ImageTagIsLatestDigestDataLoader(
+    val imageRegistryServiceBlocking: ImageRegistryServiceBlocking
+) : KeyDataLoader<ImageTag, ImageTagDto> {
+    override fun getByKey(user: User, key: ImageTag): Try<ImageTagDto> {
+        return Try.tryCall {
+            val imageRepoDto = key.imageRepository.toImageRepo()
+            imageRegistryServiceBlocking.resolveTagToSha(
+                imageRepoDto,
+                key.name,
+                user.token
+            )
         }
     }
 }

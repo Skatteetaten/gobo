@@ -37,7 +37,7 @@ class ImageRegistryServiceBlocking(
     @TargetService(ServiceTypes.CANTUS) val webClient: WebClient
 ) {
 
-    fun resolveTagToSha(imageRepoDto: ImageRepoDto, imageTag: String, token: String): String? {
+    fun resolveTagToSha(imageRepoDto: ImageRepoDto, imageTag: String, token: String): ImageTagDto {
         val requestBody = BodyInserters.fromObject(
             TagUrlsWrapper(listOf("${imageRepoDto.repository}/$imageTag"))
         )
@@ -47,7 +47,7 @@ class ImageRegistryServiceBlocking(
                 logger.debug("Retrieving type=ImageTagResource from  url=${imageRepoDto.registry} image=${imageRepoDto.imageName}/$imageTag")
                 it.post().uri("/manifest").body(requestBody)
             }.block()!!
-        return ImageTagDto.toDto(auroraImageTagResource, imageTag, imageRepoDto).dockerDigest
+        return ImageTagDto.toDto(auroraImageTagResource, imageTag, imageRepoDto)
     }
 
     fun findTagsByName(

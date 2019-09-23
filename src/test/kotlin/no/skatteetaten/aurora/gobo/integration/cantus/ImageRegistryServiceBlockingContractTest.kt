@@ -45,7 +45,7 @@ class ImageRegistryServiceBlockingContractTest {
 
         val dockerContentDigest = imageRegistry.resolveTagToSha(imageRepo, tagName, token)
 
-        assertThat(dockerContentDigest)
+        assertThat(dockerContentDigest.dockerDigest)
             .isNotNull()
             .startsWith("sha256:")
     }
