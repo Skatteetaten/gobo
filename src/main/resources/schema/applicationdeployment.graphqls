@@ -50,7 +50,11 @@ input RefreshByAffiliationsInput {
   affiliations: [String!]!
 }
 
-input DeleteApplicationDeploymentInput {
+input ApplicationRef {
     namespace: String!
     name: String!
+}
+
+input DeleteApplicationDeploymentsInput {
+    applicationRefs: [ApplicationRef!]
 }

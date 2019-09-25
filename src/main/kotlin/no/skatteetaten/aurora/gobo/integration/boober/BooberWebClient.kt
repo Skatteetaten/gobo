@@ -47,6 +47,16 @@ class BooberWebClient(
             it.put().uri(getBooberUrl(url), params).body(BodyInserters.fromObject(body))
         }
 
+    final inline fun <reified T : Any> post(
+        token: String,
+        url: String,
+        params: List<String> = emptyList(),
+        body: Any
+    ): Flux<T> =
+        execute(token) {
+            it.post().uri(getBooberUrl(url), params).body(BodyInserters.fromObject(body))
+        }
+
     fun getBooberUrl(link: String): String {
         if (booberUrl.isNullOrEmpty()) {
             return link
