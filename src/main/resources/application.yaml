@@ -91,7 +91,7 @@ integrations:
     mokey:
         url: http://mokey-aurora.utv.paas.skead.no
     cantus:
-        url: http://aos-3464-cantus.aurora.utv.paas.skead.no
+        url: http://cantus.aurora.utv.paas.skead.no
     docker:
         cluster:
             url: docker-registry.default.svc:5000
