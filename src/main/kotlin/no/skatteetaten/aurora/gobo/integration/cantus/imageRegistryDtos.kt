@@ -14,7 +14,7 @@ data class ImageRepoDto(
     val registry: String,
     val namespace: String,
     val name: String,
-    val filter: String?
+    val filter: String? = null
 ) {
     val repository: String
         get() = listOf(registry, namespace, name).joinToString("/")
@@ -35,8 +35,7 @@ data class ImageRepoDto(
             return ImageRepoDto(
                 registry = registry,
                 namespace = namespace,
-                name = name,
-                filter = filter
+                name = name
             )
         }
     }
