@@ -150,14 +150,13 @@ class ImageRepositoryQueryResolverTest {
             .expectStatus().isOk
             .expectBody()
             .graphqlErrorsFirst("message")
-            .isEqualTo("Validation error of type MissingFieldArgument: Missing field argument types @ 'imageRepositories/tags'")
+            .isEqualTo("Validation error of type MissingFieldArgument: Missing field argument first @ 'imageRepositories/tags'")
     }
 
     @Test
     fun `Query for tags with only first filter present`() {
 
-        val pageSize = 3
-        given(imageRegistryServiceBlocking.findTagsByName(any(), any())).willReturn(createAuroraResponse(pageSize))
+        given(imageRegistryServiceBlocking.findTagsByName(any(), any())).willReturn(createAuroraResponse(3))
 
         webTestClient.queryGraphQL(
             queryResource = reposWithOnlyFirstFilter,
@@ -165,8 +164,13 @@ class ImageRepositoryQueryResolverTest {
             token = "test-token"
         ).expectStatus().isOk
             .expectBody()
-            .graphqlErrorsFirst("message")
-            .isEqualTo("Validation error of type MissingFieldArgument: Missing field argument first @ 'imageRepositories/tags'")
+            .graphqlDataWithPrefix("imageRepositories[0].tags") {
+                graphqlData("totalCount").isEqualTo(imageReposAndTags.first().imageTags.size)
+                graphqlData("edges.length()").isEqualTo(6)
+                graphqlData("edges[0].node.name").isEqualTo("1")
+                graphqlData("edges[1].node.name").isEqualTo("1.0")
+                graphqlData("edges[2].node.name").isEqualTo("1.0.0")
+            }
     }
 
     @Test
