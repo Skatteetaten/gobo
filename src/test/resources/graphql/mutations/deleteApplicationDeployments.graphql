@@ -1,3 +1,0 @@
-mutation deleteApplicationDeployments($input: DeleteApplicationDeploymentsInput!){
-    deleteApplicationDeployments(input: $input)
-}

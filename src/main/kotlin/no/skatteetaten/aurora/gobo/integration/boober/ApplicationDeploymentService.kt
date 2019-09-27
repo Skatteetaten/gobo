@@ -9,12 +9,17 @@ import java.time.Duration
 @Service
 class ApplicationDeploymentService(private val booberWebClient: BooberWebClient) {
 
-    fun deleteApplicationDeployments(token: String, input: DeleteApplicationDeploymentsInput) =
+    fun deleteApplicationDeployment(
+        token: String,
+        input: DeleteApplicationDeploymentInput
+    ): Boolean {
         booberWebClient.post<DeleteApplicationDeploymentResponse>(
             url = "/v1/applicationdeployment/delete",
             token = token,
             body = input
         ).toMono().blockNonNullWithTimeout()
+        return true
+    }
 
     private fun <T> Mono<T>.blockNonNullWithTimeout() =
         this.blockNonNullAndHandleError(Duration.ofSeconds(30), "boober")
@@ -22,10 +27,10 @@ class ApplicationDeploymentService(private val booberWebClient: BooberWebClient)
 
 data class ApplicationRef(val namespace: String, val name: String)
 
-data class DeleteApplicationDeploymentsInput(val applicationRefs: List<ApplicationRef>)
+data class DeleteApplicationDeploymentInput(val namespace: String, val name: String)
 
 data class DeleteApplicationDeploymentResponse(
     val applicationRef: ApplicationRef,
-    val success: Boolean,
-    val message: String
+    val success: Boolean = true,
+    val message: String = ""
 )

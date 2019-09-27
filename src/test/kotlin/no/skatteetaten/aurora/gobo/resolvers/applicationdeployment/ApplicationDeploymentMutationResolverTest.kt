@@ -1,10 +1,8 @@
 package no.skatteetaten.aurora.gobo.resolvers.applicationdeployment
 
-import com.fasterxml.jackson.module.kotlin.convertValue
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.nhaarman.mockito_kotlin.any
 import no.skatteetaten.aurora.gobo.GraphQLTest
-import no.skatteetaten.aurora.gobo.integration.boober.ApplicationRef
-import no.skatteetaten.aurora.gobo.integration.boober.DeleteApplicationDeploymentsInput
+import no.skatteetaten.aurora.gobo.integration.boober.ApplicationDeploymentService
 import no.skatteetaten.aurora.gobo.resolvers.graphqlData
 import no.skatteetaten.aurora.gobo.resolvers.isTrue
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
@@ -35,14 +33,17 @@ class ApplicationDeploymentMutationResolverTest {
     @Value("classpath:graphql/mutations/refreshApplicationDeployments.graphql")
     private lateinit var refreshApplicationDeploymentsByAffiliationsMutation: Resource
 
-    @Value("classpath:graphql/mutations/deleteApplicationDeployments.graphql")
-    private lateinit var deleteApplicationDeploymentsMutation: Resource
+    @Value("classpath:graphql/mutations/deleteApplicationDeployment.graphql")
+    private lateinit var deleteApplicationDeploymentMutation: Resource
 
     @Autowired
     private lateinit var webTestClient: WebTestClient
 
     @MockBean
     private lateinit var applicationUpgradeService: ApplicationUpgradeService
+
+    @MockBean
+    private lateinit var applicationDeploymentService: ApplicationDeploymentService
 
     @AfterEach
     fun tearDown() = reset(applicationUpgradeService)
@@ -103,12 +104,18 @@ class ApplicationDeploymentMutationResolverTest {
 
     @Test
     fun `Delete application deployment`() {
-        val input = DeleteApplicationDeploymentsInput(listOf(ApplicationRef("aurora-dev", "konsoll")))
-        val variables = jacksonObjectMapper().convertValue<Map<String, Any>>(input)
+        given(applicationDeploymentService.deleteApplicationDeployment(anyString(), any())).willReturn(true)
 
-        webTestClient.queryGraphQL(deleteApplicationDeploymentsMutation, mapOf("input" to variables))
+        val variables = mapOf(
+            "input" to mapOf(
+                "namespace" to "aurora-dev",
+                "name" to "konsoll"
+            )
+        )
+
+        webTestClient.queryGraphQL(deleteApplicationDeploymentMutation, variables)
             .expectStatus().isOk
             .expectBody()
-            .graphqlData("deleteApplicationDeployments").isTrue()
+            .graphqlData("deleteApplicationDeployment").isTrue()
     }
 }
