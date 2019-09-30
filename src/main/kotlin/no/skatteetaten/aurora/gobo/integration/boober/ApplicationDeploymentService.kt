@@ -16,7 +16,7 @@ class ApplicationDeploymentService(private val booberWebClient: BooberWebClient)
         token: String,
         input: DeleteApplicationDeploymentInput
     ): Boolean {
-        val response = booberWebClient.post<Any>(
+        val response = booberWebClient.post<String>(
             url = "/v1/applicationdeployment/delete",
             token = token,
             body = mapOf("applicationRefs" to listOf(input))
