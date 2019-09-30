@@ -1,10 +1,13 @@
 package no.skatteetaten.aurora.gobo.integration.boober
 
+import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.resolvers.blockNonNullAndHandleError
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
 import reactor.core.publisher.toMono
 import java.time.Duration
+
+private val logger = KotlinLogging.logger { }
 
 @Service
 class ApplicationDeploymentService(private val booberWebClient: BooberWebClient) {
@@ -13,11 +16,13 @@ class ApplicationDeploymentService(private val booberWebClient: BooberWebClient)
         token: String,
         input: DeleteApplicationDeploymentInput
     ): Boolean {
-        booberWebClient.post<DeleteApplicationDeploymentResponse>(
+        val response = booberWebClient.post<DeleteApplicationDeploymentResponse>(
             url = "/v1/applicationdeployment/delete",
             token = token,
-            body = input
+            body = mapOf("applicationRefs" to listOf(input))
         ).toMono().blockNonNullWithTimeout()
+        logger.debug { "Response from boober delete application deployment: $response" }
+
         return true
     }
 
