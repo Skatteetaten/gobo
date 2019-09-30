@@ -16,7 +16,7 @@ class ApplicationDeploymentService(private val booberWebClient: BooberWebClient)
         token: String,
         input: DeleteApplicationDeploymentInput
     ): Boolean {
-        val response = booberWebClient.post<DeleteApplicationDeploymentResponse>(
+        val response = booberWebClient.post<Any>(
             url = "/v1/applicationdeployment/delete",
             token = token,
             body = mapOf("applicationRefs" to listOf(input))
@@ -30,12 +30,4 @@ class ApplicationDeploymentService(private val booberWebClient: BooberWebClient)
         this.blockNonNullAndHandleError(Duration.ofSeconds(30), "boober")
 }
 
-data class ApplicationRef(val namespace: String, val name: String)
-
 data class DeleteApplicationDeploymentInput(val namespace: String, val name: String)
-
-data class DeleteApplicationDeploymentResponse(
-    val applicationRef: ApplicationRef,
-    val success: Boolean = true,
-    val message: String = ""
-)
