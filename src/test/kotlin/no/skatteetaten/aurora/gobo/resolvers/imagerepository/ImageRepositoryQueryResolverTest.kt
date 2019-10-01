@@ -33,7 +33,6 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.core.io.Resource
 import org.springframework.test.web.reactive.server.WebTestClient
-import java.time.Instant
 import java.time.Instant.EPOCH
 
 private fun ImageRepoAndTags.toImageTagResource() =
@@ -122,9 +121,9 @@ class ImageRepositoryQueryResolverTest {
                 graphqlData("tags.totalCount").isEqualTo(imageRepoAndTags.imageTags.size)
                 graphqlData("tags.edges.length()").isEqualTo(imageRepoAndTags.imageTags.size)
                 graphqlData("tags.edges[0].node.name").isEqualTo(imageRepoAndTags.imageTags[0])
-                graphqlData("tags.edges[0].node.image.buildTime").isEqualTo(Instant.EPOCH.toString())
+                graphqlData("tags.edges[0].node.image.buildTime").isEqualTo(EPOCH.toString())
                 graphqlData("tags.edges[1].node.name").isEqualTo(imageRepoAndTags.imageTags[1])
-                graphqlData("tags.edges[1].node.image.buildTime").isEqualTo(Instant.EPOCH.toString())
+                graphqlData("tags.edges[1].node.image.buildTime").isEqualTo(EPOCH.toString())
             }
     }
 

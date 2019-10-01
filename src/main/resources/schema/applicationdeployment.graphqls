@@ -49,3 +49,8 @@ input ApplicationDeploymentIdInput {
 input RefreshByAffiliationsInput {
   affiliations: [String!]!
 }
+
+input DeleteApplicationDeploymentInput {
+    namespace: String!
+    name: String!
+}

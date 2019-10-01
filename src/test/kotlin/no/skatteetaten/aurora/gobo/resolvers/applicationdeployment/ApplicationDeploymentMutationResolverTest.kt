@@ -1,7 +1,10 @@
 package no.skatteetaten.aurora.gobo.resolvers.applicationdeployment
 
+import com.nhaarman.mockito_kotlin.any
 import no.skatteetaten.aurora.gobo.GraphQLTest
+import no.skatteetaten.aurora.gobo.integration.boober.ApplicationDeploymentService
 import no.skatteetaten.aurora.gobo.resolvers.graphqlData
+import no.skatteetaten.aurora.gobo.resolvers.isTrue
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import no.skatteetaten.aurora.gobo.service.ApplicationUpgradeService
 import org.junit.jupiter.api.AfterEach
@@ -30,11 +33,17 @@ class ApplicationDeploymentMutationResolverTest {
     @Value("classpath:graphql/mutations/refreshApplicationDeployments.graphql")
     private lateinit var refreshApplicationDeploymentsByAffiliationsMutation: Resource
 
+    @Value("classpath:graphql/mutations/deleteApplicationDeployment.graphql")
+    private lateinit var deleteApplicationDeploymentMutation: Resource
+
     @Autowired
     private lateinit var webTestClient: WebTestClient
 
     @MockBean
     private lateinit var applicationUpgradeService: ApplicationUpgradeService
+
+    @MockBean
+    private lateinit var applicationDeploymentService: ApplicationDeploymentService
 
     @AfterEach
     fun tearDown() = reset(applicationUpgradeService)
@@ -91,5 +100,22 @@ class ApplicationDeploymentMutationResolverTest {
             .expectStatus().isOk
             .expectBody()
             .graphqlData("refreshApplicationDeployments").isNotEmpty
+    }
+
+    @Test
+    fun `Delete application deployment`() {
+        given(applicationDeploymentService.deleteApplicationDeployment(anyString(), any())).willReturn(true)
+
+        val variables = mapOf(
+            "input" to mapOf(
+                "namespace" to "aurora-dev",
+                "name" to "konsoll"
+            )
+        )
+
+        webTestClient.queryGraphQL(deleteApplicationDeploymentMutation, variables)
+            .expectStatus().isOk
+            .expectBody()
+            .graphqlData("deleteApplicationDeployment").isTrue()
     }
 }
