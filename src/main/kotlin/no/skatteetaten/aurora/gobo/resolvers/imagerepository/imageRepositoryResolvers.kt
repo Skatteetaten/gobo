@@ -53,11 +53,12 @@ class ImageRepositoryResolver(
     fun tags(
         imageRepository: ImageRepository,
         types: List<ImageTagType>?,
+        filter: String?,
         first: Int? = null,
         after: String? = null,
         dfe: DataFetchingEnvironment
     ) =
-        dfe.loader(ImageTagListDataLoader::class).load(imageRepository.toImageRepo())
+        dfe.loader(ImageTagListDataLoader::class).load(imageRepository.toImageRepo(filter))
             .thenApply { dto ->
                 val imageTags = dto.tags.toImageTags(imageRepository, types)
                 val allEdges = imageTags.map { ImageTagEdge(it) }

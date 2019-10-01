@@ -21,10 +21,11 @@ data class ImageRepository(
     val repository: String
         get() = listOf(registryUrl, namespace, name).joinToString("/")
 
-    fun toImageRepo() = ImageRepoDto(
+    fun toImageRepo(filter: String? = null) = ImageRepoDto(
         registry = this.registryUrl,
         namespace = this.namespace,
-        name = this.name
+        name = this.name,
+        filter = filter
     )
 
     companion object {

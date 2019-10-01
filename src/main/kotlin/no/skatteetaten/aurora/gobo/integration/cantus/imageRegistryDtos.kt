@@ -13,7 +13,8 @@ fun String.decomposeToImageRepoSegments(): List<String> {
 data class ImageRepoDto(
     val registry: String,
     val namespace: String,
-    val name: String
+    val name: String,
+    val filter: String? = null
 ) {
     val repository: String
         get() = listOf(registry, namespace, name).joinToString("/")
