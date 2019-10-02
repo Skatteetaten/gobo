@@ -1,5 +1,6 @@
 package no.skatteetaten.aurora.gobo.integration.boober
 
+import com.fasterxml.jackson.databind.JsonNode
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.resolvers.blockNonNullAndHandleError
 import org.springframework.stereotype.Service
@@ -16,7 +17,7 @@ class ApplicationDeploymentService(private val booberWebClient: BooberWebClient)
         token: String,
         input: DeleteApplicationDeploymentInput
     ): Boolean {
-        val response = booberWebClient.post<String>(
+        val response = booberWebClient.post<JsonNode>(
             url = "/v1/applicationdeployment/delete",
             token = token,
             body = mapOf("applicationRefs" to listOf(input))
