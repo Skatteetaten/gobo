@@ -13,6 +13,10 @@ data class DatabaseUserResource(val username: String, val password: String, val 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class DatabaseMetadataResource(val sizeInMb: Double)
 
+interface ResourceValidator {
+    val valid: Boolean
+}
+
 /**
  * labels:
  * createdBy == userId
@@ -30,7 +34,7 @@ data class DatabaseSchemaResource(
     val users: List<DatabaseUserResource>,
     val metadata: DatabaseMetadataResource,
     val labels: Map<String, String>
-) {
+) : ResourceValidator {
     val environment: String by labels
     val application: String by labels
     val affiliation: String by labels
@@ -51,12 +55,22 @@ data class DatabaseSchemaResource(
             return Instant.ofEpochMilli(it)
         }
 
-    fun containsRequiredLabels() =
-        labels.containsKey("affiliation") &&
+    override val valid: Boolean
+        get() = labels.containsKey("affiliation") &&
             labels.containsKey("userId") &&
             labels.containsKey("name") &&
             labels.containsKey("environment") &&
             labels.containsKey("application")
+}
+
+data class RestorableDatabaseSchemaResource(
+    val databaseSchema: DatabaseSchemaResource,
+    val setToCooldownAt: Long,
+    val deleteAfter: Long
+) : ResourceValidator {
+    val setToCooldownAtInstant: Instant get() = Instant.ofEpochMilli(setToCooldownAt)
+    val deleteAfterInstant: Instant get() = Instant.ofEpochMilli(deleteAfter)
+    override val valid: Boolean get() = databaseSchema.valid
 }
 
 data class SchemaCreationRequest(

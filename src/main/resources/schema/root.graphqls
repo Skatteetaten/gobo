@@ -12,6 +12,7 @@ type Query {
   userSettings: UserSettings
   databaseSchemas(affiliations: [String!]!): [DatabaseSchema!]
   databaseSchema(id: String!): DatabaseSchema
+  restorableDatabaseSchemas(affiliations: [String!]!): [RestorableDatabaseSchema!]
   gobo: Gobo
   certificates: CertificatesConnection
 }

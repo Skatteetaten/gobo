@@ -79,11 +79,8 @@ class ApplicationConfig(
     @Bean
     @TargetService(ServiceTypes.CANTUS)
     fun webClientCantus(@Value("\${integrations.cantus.url}") cantusUrl: String): WebClient {
-        logger.info("Configuring Cantus WebClient with base Url={}", cantusUrl)
-
-        return webClientBuilder()
-            .baseUrl(cantusUrl)
-            .build()
+        logger.info("Configuring Cantus WebClient with baseUrl={}", cantusUrl)
+        return webClientBuilder().baseUrl(cantusUrl).build()
     }
 
     @Bean
@@ -93,13 +90,14 @@ class ApplicationConfig(
     @ConditionalOnBean(RequiresSkap::class)
     @Bean
     @TargetService(ServiceTypes.SKAP)
-    fun webClientSkap(@Value("\${integrations.skap.url}") skapUrl: String) =
-        webClientBuilder().baseUrl(skapUrl).build()
+    fun webClientSkap(@Value("\${integrations.skap.url}") skapUrl: String) = webClientBuilder().baseUrl(skapUrl).build()
+        .also { logger.info("Configuring Skap WebClient with baseUrl={}", skapUrl) }
 
     @ConditionalOnBean(RequiresDbh::class)
     @Bean
     @TargetService(ServiceTypes.DBH)
     fun webClientDbh(@Value("\${integrations.dbh.url}") dbhUrl: String) = webClientBuilder().baseUrl(dbhUrl).build()
+        .also { logger.info("Configuring DBH WebClient with baseUrl={}", dbhUrl) }
 
     fun webClientBuilder(ssl: Boolean = false) =
         WebClient

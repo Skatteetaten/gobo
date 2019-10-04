@@ -28,6 +28,23 @@ class DatabaseSchemaQueryResolver(private val databaseSchemaService: DatabaseSch
         }
     }
 
+    fun restorableDatabaseSchemas(
+        affiliations: List<String>,
+        dfe: DataFetchingEnvironment
+    ): List<RestorableDatabaseSchema> {
+        if (dfe.isAnonymousUser()) throw AccessDeniedException("Anonymous user cannot get database schemas")
+
+        return affiliations.flatMap { affiliation ->
+            databaseSchemaService.getRestorableDatabaseSchemas(affiliation).map {
+                RestorableDatabaseSchema(
+                    it.setToCooldownAtInstant,
+                    it.deleteAfterInstant,
+                    DatabaseSchema.create(it.databaseSchema, Affiliation(affiliation))
+                )
+            }
+        }
+    }
+
     fun databaseSchema(id: String, dfe: DataFetchingEnvironment): DatabaseSchema? {
         if (dfe.isAnonymousUser()) throw AccessDeniedException("Anonymous user cannot get database schema")
 

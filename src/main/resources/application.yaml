@@ -6,6 +6,7 @@ info:
         unclematt: ${integrations.unclematt.url}
         cantus: ${integrations.cantus.url}
         skap: ${integrations.skap.url}
+        dbh: ${integrations.dbh.url}
 
 spring:
     application:
@@ -29,12 +30,16 @@ integrations:
         url: http://cantus
     skap:
         url: http://skap
+    dbh:
+        url: http://dbh
 
 gobo:
     graphql:
         tracing-enabled: false
 
 aurora:
+    token:
+        value: token
     starter:
         headerfilter:
             enabled: false
@@ -58,6 +63,8 @@ integrations:
         url: http://mokey-aurora.utv.paas.skead.no
     cantus:
         url: http://cantus.aurora.utv.paas.skead.no
+    dbh:
+        url: http://dbh.aurora.utv.paas.skead.no
     docker-registry:
         url: https://test-docker-registry-internal-group.aurora.skead.no
 

@@ -56,6 +56,12 @@ data class DatabaseSchema(
     }
 }
 
+data class RestorableDatabaseSchema(
+    val setToCooldownAt: Instant,
+    val deleteAfter: Instant,
+    val databaseSchema: DatabaseSchema
+)
+
 data class UpdateDatabaseSchemaInput(
     val discriminator: String,
     val createdBy: String,

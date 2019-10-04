@@ -23,6 +23,12 @@ type DatabaseSchema {
   users: [DatabaseUser]!
 }
 
+type RestorableDatabaseSchema {
+    databaseSchema: DatabaseSchema!
+    setToCooldownAt: DateTime!
+    deleteAfter: DateTime!
+}
+
 input UpdateDatabaseSchemaInput {
   discriminator: String!
   createdBy: String!
