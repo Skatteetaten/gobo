@@ -66,24 +66,22 @@ class ApplicationConfig(
     @Bean
     @Primary
     @TargetService(ServiceTypes.MOKEY)
-    fun webClientMokey(@Value("\${integrations.mokey.url}") mokeyUrl: String): WebClient {
-        logger.info("Configuring Mokey WebClient with baseUrl={}", mokeyUrl)
-        return webClientBuilder().baseUrl(mokeyUrl).build()
-    }
+    fun webClientMokey(@Value("\${integrations.mokey.url}") mokeyUrl: String) = webClientBuilder()
+        .also { logger.info("Configuring Mokey WebClient with baseUrl={}", mokeyUrl) }
+        .baseUrl(mokeyUrl).build()
 
     @Bean
     @TargetService(ServiceTypes.UNCLEMATT)
-    fun webClientUncleMatt(@Value("\${integrations.unclematt.url}") uncleMattUrl: String): WebClient {
-        logger.info("Configuring UncleMatt WebClient with baseUrl={}", uncleMattUrl)
-        return webClientBuilder().baseUrl(uncleMattUrl).build()
-    }
+    fun webClientUncleMatt(@Value("\${integrations.unclematt.url}") uncleMattUrl: String) = webClientBuilder()
+        .also { logger.info("Configuring UncleMatt WebClient with baseUrl={}", uncleMattUrl) }
+        .baseUrl(uncleMattUrl).build()
 
     @Bean
     @TargetService(ServiceTypes.CANTUS)
-    fun webClientCantus(@Value("\${integrations.cantus.url}") cantusUrl: String): WebClient {
-        logger.info("Configuring Cantus WebClient with baseUrl={}", cantusUrl)
-        return webClientBuilder().baseUrl(cantusUrl).build()
-    }
+    fun webClientCantus(@Value("\${integrations.cantus.url}") cantusUrl: String) = webClientBuilder()
+        .also { logger.info("Configuring Cantus WebClient with baseUrl={}", cantusUrl) }
+        .baseUrl(cantusUrl).build()
+
 
     @Bean
     @TargetService(ServiceTypes.BOOBER)
@@ -92,8 +90,9 @@ class ApplicationConfig(
     @ConditionalOnBean(RequiresSkap::class)
     @Bean
     @TargetService(ServiceTypes.SKAP)
-    fun webClientSkap(@Value("\${integrations.skap.url}") skapUrl: String) = webClientBuilder().baseUrl(skapUrl).build()
+    fun webClientSkap(@Value("\${integrations.skap.url}") skapUrl: String) = webClientBuilder()
         .also { logger.info("Configuring Skap WebClient with baseUrl={}", skapUrl) }
+        .baseUrl(skapUrl).build()
 
     @ConditionalOnBean(RequiresDbh::class)
     @Bean
