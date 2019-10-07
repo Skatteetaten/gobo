@@ -97,8 +97,9 @@ class ApplicationConfig(
     @ConditionalOnBean(RequiresDbh::class)
     @Bean
     @TargetService(ServiceTypes.DBH)
-    fun webClientDbh(@Value("\${integrations.dbh.url}") dbhUrl: String) = webClientBuilder().baseUrl(dbhUrl).build()
+    fun webClientDbh(@Value("\${integrations.dbh.url}") dbhUrl: String) = webClientBuilder()
         .also { logger.info("Configuring DBH WebClient with baseUrl={}", dbhUrl) }
+        .baseUrl(dbhUrl).build()
 
     fun webClientBuilder(ssl: Boolean = false) =
         WebClient
