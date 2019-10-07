@@ -38,50 +38,37 @@ class DatabaseSchemaServiceReactive(
         .uri {
             it.path("/api/v1/schema/").queryParam("labels", "affiliation=$affiliation").build()
         }
-        .header(HttpHeaders.AUTHORIZATION, "$HEADER_AURORA_TOKEN ${sharedSecretReader.secret}")
-        .retrieve()
-        .bodyToMono<DbhResponse<*>>()
-        .items()
+        .retrieveAuthenticatedItems()
 
     fun getDatabaseSchema(id: String): Mono<DatabaseSchemaResource> = webClient
         .get()
         .uri("/api/v1/schema/$id")
-        .header(HttpHeaders.AUTHORIZATION, "$HEADER_AURORA_TOKEN ${sharedSecretReader.secret}")
-        .retrieve()
-        .bodyToMono<DbhResponse<*>>()
-        .item()
+        .retrieveAuthenticatedItem()
 
     fun getRestorableDatabaseSchemas(affiliation: String): Mono<List<RestorableDatabaseSchemaResource>> = webClient
         .get()
         .uri {
             it.path("/api/v1/restorableSchema/").queryParam("labels", "affiliation=$affiliation").build()
         }
-        .header(HttpHeaders.AUTHORIZATION, "$HEADER_AURORA_TOKEN ${sharedSecretReader.secret}")
-        .retrieve()
-        .bodyToMono<DbhResponse<*>>()
-        .items()
+        .retrieveAuthenticatedItems()
 
     fun updateDatabaseSchema(input: SchemaUpdateRequest): Mono<DatabaseSchemaResource> = webClient
         .put()
         .uri("/api/v1/schema/${input.id}")
         .body(BodyInserters.fromObject(input))
-        .header(HttpHeaders.AUTHORIZATION, "aurora-token ${sharedSecretReader.secret}")
-        .retrieve()
-        .bodyToMono<DbhResponse<*>>()
-        .item()
+        .retrieveAuthenticatedItem()
 
     fun deleteDatabaseSchemas(input: List<SchemaDeletionRequest>): Flux<SchemaDeletionResponse> {
         val responses = input.map { request ->
             val requestSpec = webClient
                 .delete()
                 .uri("/api/v1/schema/${request.id}")
-                .header(HttpHeaders.AUTHORIZATION, "$HEADER_AURORA_TOKEN ${sharedSecretReader.secret}")
 
             request.cooldownDurationHours?.let {
                 requestSpec.header(HEADER_COOLDOWN_DURATION_HOURS, it.toString())
             }
 
-            requestSpec.retrieve().bodyToMono<DbhResponse<*>>().map {
+            requestSpec.retrieveAuthenticated().bodyToDbhResponse().map {
                 request.id to it
             }
         }
@@ -101,8 +88,7 @@ class DatabaseSchemaServiceReactive(
                     )
                 )
             )
-            .header(HttpHeaders.AUTHORIZATION, "$HEADER_AURORA_TOKEN ${sharedSecretReader.secret}")
-            .retrieve()
+            .retrieveAuthenticated()
             .bodyToMono()
         return response.flatMap {
             it.items.first().toMono()
@@ -119,14 +105,21 @@ class DatabaseSchemaServiceReactive(
             .post()
             .uri("/api/v1/schema/")
             .body(BodyInserters.fromObject(input))
-            .header(HttpHeaders.AUTHORIZATION, "$HEADER_AURORA_TOKEN ${sharedSecretReader.secret}")
-            .retrieve()
-            .bodyToMono<DbhResponse<*>>()
-            .item()
+            .retrieveAuthenticatedItem()
     }
+
+    private inline fun <reified T : ResourceValidator> WebClient.RequestHeadersSpec<*>.retrieveAuthenticatedItem() =
+        retrieveAuthenticatedItems<T>().map { it.first() }
+
+    private inline fun <reified T : ResourceValidator> WebClient.RequestHeadersSpec<*>.retrieveAuthenticatedItems() =
+        this.retrieveAuthenticated().bodyToDbhResponse().items<T>()
+
+    private fun WebClient.RequestHeadersSpec<*>.retrieveAuthenticated() = this
+        .header(HttpHeaders.AUTHORIZATION, "$HEADER_AURORA_TOKEN ${sharedSecretReader.secret}")
+        .retrieve()
 }
 
-private inline fun <reified T : ResourceValidator> Mono<DbhResponse<*>>.item() = this.items<T>().map { it.first() }
+private fun WebClient.ResponseSpec.bodyToDbhResponse() = this.bodyToMono<DbhResponse<*>>()
 
 private inline fun <reified T : ResourceValidator> Mono<DbhResponse<*>>.items(): Mono<List<T>> =
     this.flatMap {
