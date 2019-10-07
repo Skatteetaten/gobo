@@ -4,6 +4,7 @@ import io.netty.channel.ChannelOption
 import io.netty.handler.ssl.SslContextBuilder
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory
 import io.netty.handler.timeout.ReadTimeoutHandler
+import io.netty.handler.timeout.WriteTimeoutHandler
 import mu.KotlinLogging
 import no.skatteetaten.aurora.filter.logging.AuroraHeaderFilter
 import no.skatteetaten.aurora.filter.logging.RequestKorrelasjon
@@ -56,7 +57,8 @@ private val logger = KotlinLogging.logger {}
 
 @Configuration
 class ApplicationConfig(
-    @Value("\${gobo.webclient.read-timeout:30000}") val readTimeout: Int,
+    @Value("\${gobo.webclient.read-timeout:30000}") val readTimeout: Long,
+    @Value("\${gobo.webclient.write-timeout:30000}") val writeTimeout: Long,
     @Value("\${gobo.webclient.connection-timeout:30000}") val connectionTimeout: Int,
     @Value("\${spring.application.name}") val applicationName: String
 ) {
@@ -132,7 +134,8 @@ class ApplicationConfig(
             .tcpConfiguration {
                 it.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectionTimeout)
                     .doOnConnected { connection ->
-                        connection.addHandlerLast(ReadTimeoutHandler(readTimeout.toLong(), TimeUnit.MILLISECONDS))
+                        connection.addHandlerLast(ReadTimeoutHandler(readTimeout, TimeUnit.MILLISECONDS))
+                        connection.addHandlerLast(WriteTimeoutHandler(writeTimeout, TimeUnit.MILLISECONDS))
                     }
             }
 

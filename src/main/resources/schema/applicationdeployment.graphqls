@@ -10,6 +10,7 @@ type ApplicationDeployment {
   details: ApplicationDeploymentDetails
   time: DateTime
   message: String
+  imageRepository: ImageRepository
 }
 
 type StatusCheck {
@@ -47,4 +48,9 @@ input ApplicationDeploymentIdInput {
 
 input RefreshByAffiliationsInput {
   affiliations: [String!]!
+}
+
+input DeleteApplicationDeploymentInput {
+    namespace: String!
+    name: String!
 }

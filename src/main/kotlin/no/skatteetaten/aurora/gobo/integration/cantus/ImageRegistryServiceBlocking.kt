@@ -64,10 +64,14 @@ class ImageRegistryServiceBlocking(
 
     fun findTagNamesInRepoOrderedByCreatedDateDesc(imageRepoDto: ImageRepoDto, token: String) =
         TagsDto.toDto(
-            execute<AuroraResponse<TagResource>>(token) {
+            execute<AuroraResponse<TagResource>>(token) { client ->
                 logger.debug("Retrieving type=TagResource from  url=${imageRepoDto.registry} image=${imageRepoDto.imageName}")
-                it.get().uri(
-                    "/tags?repoUrl=${imageRepoDto.registry}/{namespace}/{imageTag}",
+
+                val filterQueryParam = imageRepoDto.filter?.let {
+                    "&filter=$it"
+                } ?: ""
+                client.get().uri(
+                    "/tags?repoUrl=${imageRepoDto.registry}/{namespace}/{imageTag}$filterQueryParam",
                     imageRepoDto.mappedTemplateVars
                 )
             }.blockAndHandleCantusFailure()
@@ -89,11 +93,11 @@ class ImageRegistryServiceBlocking(
             .switchIfEmpty(SourceSystemException("Empty response", sourceSystem = "cantus").toMono())
 
     private fun <T> Mono<T>.blockAndHandleCantusFailure(): T =
-        this.map {
+        this.flatMap {
             if (it is AuroraResponse<*> && it.failureCount > 0) {
-                throw SourceSystemException(message = it.message, sourceSystem = "cantus")
+                Mono.error(SourceSystemException(message = it.message, sourceSystem = "cantus"))
+            } else {
+                Mono.just(it)
             }
-
-            it
         }.block()!!
 }

@@ -20,13 +20,19 @@ type Query {
 type Mutation {
   redeployWithVersion(input: ApplicationDeploymentVersionInput!): Boolean
   redeployWithCurrentVersion(input: ApplicationDeploymentIdInput!): Boolean
+
   refreshApplicationDeployment(input: RefreshByApplicationDeploymentIdInput!): Boolean
   refreshApplicationDeployments(input: RefreshByAffiliationsInput!): Boolean
+  deleteApplicationDeployment(input: DeleteApplicationDeploymentInput!): Boolean
+
   updateUserSettings(input: UserSettingsInput!): Boolean
+
   updateDatabaseSchema(input: UpdateDatabaseSchemaInput!): DatabaseSchema
   deleteDatabaseSchemas(input: DeleteDatabaseSchemasInput!): DeleteDatabaseSchemasResponse
+
   testJdbcConnectionForJdbcUser(input: JdbcUserInput!): Boolean
   testJdbcConnectionForId(id: String!): Boolean
+
   createDatabaseSchema(input: CreateDatabaseSchemaInput): DatabaseSchema
 }
 

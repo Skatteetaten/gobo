@@ -161,7 +161,8 @@ data class ApplicationDeploymentBuilder(
             dockerImageRepo = "dockerImageRepo",
             time = defaultInstant,
             applicationId = "appId",
-            message = message
+            message = message,
+            imageRepository = ImageRepository.fromRepoString("docker.registry/group/name")
         )
 }
 
@@ -172,6 +173,7 @@ data class ApplicationDeploymentDetailsBuilder(
 
     fun build() =
         ApplicationDeploymentDetailsResource(
+            updatedBy = "linus",
             buildTime = Instant.now(),
             gitInfo = GitInfoResource("123abc", Instant.now()),
             imageDetails = ImageDetailsResource(

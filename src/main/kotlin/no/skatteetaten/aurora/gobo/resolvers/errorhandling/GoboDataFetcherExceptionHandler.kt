@@ -36,8 +36,15 @@ private fun DataFetcherExceptionHandlerParameters.logErrorInfo() {
 
     val msg =
         "Exception in data fetcher, exception=\"$exception\" cause=\"$cause\" message=\"$exceptionName\" source=\"$source\""
-    this.dataFetchingEnvironment?.getSource<Any>()
-        ?.let { logger.error("$msg\nData source=\"$it\"") } ?: logger.error { msg }
+
+    val log = fun(message: String) {
+        if (source.isNullOrEmpty()) logger.error(message)
+        else logger.warn(message)
+    }
+
+    this.dataFetchingEnvironment?.getSource<Any>()?.let {
+        log("$msg\ndataSource=${it.javaClass.simpleName} dataSourceValue=$it")
+    } ?: log(msg)
 }
 
 private fun exceptionWhileDataFetching(handlerParameters: DataFetcherExceptionHandlerParameters) =

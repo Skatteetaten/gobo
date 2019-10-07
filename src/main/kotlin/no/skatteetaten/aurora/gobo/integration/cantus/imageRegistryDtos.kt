@@ -4,14 +4,17 @@ import java.time.Instant
 
 fun String.decomposeToImageRepoSegments(): List<String> {
     val segments = this.split("/")
-    if (segments.size != 3) throw IllegalArgumentException("The string [$this] does not appear to be a valid image repository reference")
+    if (segments.size != 3) {
+        throw IllegalArgumentException("The string [$this] does not appear to be a valid image repository reference")
+    }
     return segments
 }
 
 data class ImageRepoDto(
     val registry: String,
     val namespace: String,
-    val name: String
+    val name: String,
+    val filter: String? = null
 ) {
     val repository: String
         get() = listOf(registry, namespace, name).joinToString("/")

@@ -4,6 +4,8 @@ import com.coxautodev.graphql.tools.GraphQLMutationResolver
 import com.coxautodev.graphql.tools.GraphQLQueryResolver
 import com.coxautodev.graphql.tools.GraphQLResolver
 import graphql.schema.DataFetchingEnvironment
+import no.skatteetaten.aurora.gobo.integration.boober.ApplicationDeploymentService
+import no.skatteetaten.aurora.gobo.integration.boober.DeleteApplicationDeploymentInput
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
 import no.skatteetaten.aurora.gobo.resolvers.affiliation.Affiliation
 import no.skatteetaten.aurora.gobo.resolvers.application.Application
@@ -27,7 +29,8 @@ class ApplicationDeploymentQueryResolver(private val applicationService: Applica
 
 @Component
 class ApplicationDeploymentMutationResolver(
-    private val applicationUpgradeService: ApplicationUpgradeService
+    private val applicationUpgradeService: ApplicationUpgradeService,
+    private val applicationDeploymentService: ApplicationDeploymentService
 ) : GraphQLMutationResolver {
 
     fun redeployWithVersion(input: ApplicationDeploymentVersionInput, dfe: DataFetchingEnvironment): Boolean {
@@ -45,6 +48,9 @@ class ApplicationDeploymentMutationResolver(
 
     fun refreshApplicationDeployments(input: RefreshByAffiliationsInput, dfe: DataFetchingEnvironment) =
         applicationUpgradeService.refreshApplicationDeployments(dfe.currentUser().token, input.affiliations)
+
+    fun deleteApplicationDeployment(input: DeleteApplicationDeploymentInput, dfe: DataFetchingEnvironment) =
+        applicationDeploymentService.deleteApplicationDeployment(dfe.currentUser().token, input)
 }
 
 @Component

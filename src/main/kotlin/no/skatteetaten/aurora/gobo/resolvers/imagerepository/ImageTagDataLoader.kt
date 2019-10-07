@@ -32,9 +32,15 @@ class ImageTagDataLoader(
             val failures = auroraResponse.failure.associate {
                 val imageTag = ImageTag.fromTagString(it.url, "/")
 
-                imageTag to Try.failed<Image?>(
-                    SourceSystemException(message = it.errorMessage, sourceSystem = "cantus")
-                )
+                val result: Try<Image?> =
+                    if (it.errorMessage.contains("application/vnd.docker.distribution.manifest.v1")) {
+                        Try.succeeded(null)
+                    } else {
+                        Try.failed(
+                            SourceSystemException(message = it.errorMessage, sourceSystem = "cantus")
+                        )
+                    }
+                imageTag to result
             }
 
             successes + failures
