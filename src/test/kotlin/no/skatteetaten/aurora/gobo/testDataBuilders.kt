@@ -12,6 +12,7 @@ import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseMetadataResource
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseSchemaResource
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseUserResource
 import no.skatteetaten.aurora.gobo.integration.dbh.JdbcUser
+import no.skatteetaten.aurora.gobo.integration.dbh.RestorableDatabaseSchemaResource
 import no.skatteetaten.aurora.gobo.integration.dbh.SchemaCreationRequest
 import no.skatteetaten.aurora.gobo.integration.dbh.SchemaDeletionRequest
 import no.skatteetaten.aurora.gobo.integration.dbh.SchemaUpdateRequest
@@ -354,6 +355,14 @@ data class DatabaseSchemaResourceBuilder(
             metadata = DatabaseMetadataResource(sizeInMb = 0.25),
             labels = labels
         )
+}
+
+data class RestorableDatabaseSchemaBuilder(
+    val setToCooldownAt: Long = Instant.now().toEpochMilli(),
+    val deleteAfter: Long = Instant.now().toEpochMilli(),
+    val databaseSchema: DatabaseSchemaResource = DatabaseSchemaResourceBuilder().build()
+) {
+    fun build() = RestorableDatabaseSchemaResource(databaseSchema, setToCooldownAt, deleteAfter)
 }
 
 data class SchemaUpdateRequestBuilder(val id: String = "123", val jdbcUser: JdbcUser? = null) {

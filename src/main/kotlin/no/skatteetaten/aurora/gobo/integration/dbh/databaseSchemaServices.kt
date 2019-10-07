@@ -40,7 +40,7 @@ class DatabaseSchemaServiceReactive(
         }
         .header(HttpHeaders.AUTHORIZATION, "$HEADER_AURORA_TOKEN ${sharedSecretReader.secret}")
         .retrieve()
-        .bodyToMono<DbhResponse<DatabaseSchemaResource>>()
+        .bodyToMono<DbhResponse<*>>()
         .items()
 
     fun getDatabaseSchema(id: String): Mono<DatabaseSchemaResource> = webClient
@@ -48,7 +48,7 @@ class DatabaseSchemaServiceReactive(
         .uri("/api/v1/schema/$id")
         .header(HttpHeaders.AUTHORIZATION, "$HEADER_AURORA_TOKEN ${sharedSecretReader.secret}")
         .retrieve()
-        .bodyToMono<DbhResponse<DatabaseSchemaResource>>()
+        .bodyToMono<DbhResponse<*>>()
         .item()
 
     fun getRestorableDatabaseSchemas(affiliation: String): Mono<List<RestorableDatabaseSchemaResource>> = webClient
@@ -58,16 +58,16 @@ class DatabaseSchemaServiceReactive(
         }
         .header(HttpHeaders.AUTHORIZATION, "$HEADER_AURORA_TOKEN ${sharedSecretReader.secret}")
         .retrieve()
-        .bodyToMono<DbhResponse<RestorableDatabaseSchemaResource>>()
+        .bodyToMono<DbhResponse<*>>()
         .items()
 
-    fun updateDatabaseSchema(input: SchemaUpdateRequest) = webClient
+    fun updateDatabaseSchema(input: SchemaUpdateRequest): Mono<DatabaseSchemaResource> = webClient
         .put()
         .uri("/api/v1/schema/${input.id}")
         .body(BodyInserters.fromObject(input))
         .header(HttpHeaders.AUTHORIZATION, "aurora-token ${sharedSecretReader.secret}")
         .retrieve()
-        .bodyToMono<DbhResponse<DatabaseSchemaResource>>()
+        .bodyToMono<DbhResponse<*>>()
         .item()
 
     fun deleteDatabaseSchemas(input: List<SchemaDeletionRequest>): Flux<SchemaDeletionResponse> {
@@ -121,30 +121,30 @@ class DatabaseSchemaServiceReactive(
             .body(BodyInserters.fromObject(input))
             .header(HttpHeaders.AUTHORIZATION, "$HEADER_AURORA_TOKEN ${sharedSecretReader.secret}")
             .retrieve()
-            .bodyToMono<DbhResponse<DatabaseSchemaResource>>()
+            .bodyToMono<DbhResponse<*>>()
             .item()
     }
 }
 
-private inline fun <reified T : ResourceValidator> Mono<DbhResponse<T>>.item() = this.items().map { it.first() }
+private inline fun <reified T : ResourceValidator> Mono<DbhResponse<*>>.item() = this.items<T>().map { it.first() }
 
-private inline fun <reified T : ResourceValidator> Mono<DbhResponse<T>>.items(): Mono<List<T>> =
+private inline fun <reified T : ResourceValidator> Mono<DbhResponse<*>>.items(): Mono<List<T>> =
     this.flatMap {
         when {
             it.isFailure() -> onFailure(it)
-            it.isEmpty() -> Mono.empty()
+            it.isEmpty() -> Mono.empty<List<T>>()
             else -> onSuccess(it)
         }
     }
 
-private inline fun <reified T : ResourceValidator> onFailure(r: DbhResponse<T>): Mono<List<T>> {
+private inline fun <reified T : ResourceValidator> onFailure(r: DbhResponse<*>): Mono<List<T>> {
     return SourceSystemException(
         message = "status=${r.status} error=${(r.items.firstOrNull() ?: "") as String}",
         sourceSystem = "dbh"
     ).toMono()
 }
 
-private inline fun <reified T : ResourceValidator> onSuccess(r: DbhResponse<T>): Mono<List<T>> =
+private inline fun <reified T : ResourceValidator> onSuccess(r: DbhResponse<*>): Mono<List<T>> =
     r.items
         .map { createObjectMapper().convertValue(it, T::class.java) }
         .filter { it.valid }

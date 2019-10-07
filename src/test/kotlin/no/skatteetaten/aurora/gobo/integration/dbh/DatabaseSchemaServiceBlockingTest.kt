@@ -22,6 +22,7 @@ import io.mockk.every
 import io.mockk.mockk
 import no.skatteetaten.aurora.gobo.DatabaseSchemaResourceBuilder
 import no.skatteetaten.aurora.gobo.JdbcUserBuilder
+import no.skatteetaten.aurora.gobo.RestorableDatabaseSchemaBuilder
 import no.skatteetaten.aurora.gobo.SchemaCreationRequestBuilder
 import no.skatteetaten.aurora.gobo.SchemaDeletionRequestBuilder
 import no.skatteetaten.aurora.gobo.SchemaUpdateRequestBuilder
@@ -59,6 +60,18 @@ class DatabaseSchemaServiceBlockingTest {
         val response = DbhResponse.ok(DatabaseSchemaResourceBuilder().build())
         val request = server.execute(response) {
             val databaseSchemas = databaseSchemaService.getDatabaseSchemas("paas")
+            assertThat(databaseSchemas).hasSize(1)
+        }.first()
+        assertThat(request).containsAuroraToken()
+        assertThat(request?.path).isNotNull().contains("affiliation")
+        assertThat(request?.path).isNotNull().contains("paas")
+    }
+
+    @Test
+    fun `Get restorable database schemas given affiliation`() {
+        val response = DbhResponse.ok(RestorableDatabaseSchemaBuilder().build())
+        val request = server.execute(response) {
+            val databaseSchemas = databaseSchemaService.getRestorableDatabaseSchemas("paas")
             assertThat(databaseSchemas).hasSize(1)
         }.first()
         assertThat(request).containsAuroraToken()
