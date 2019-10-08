@@ -83,7 +83,6 @@ class ApplicationConfig(
         .also { logger.info("Configuring Cantus WebClient with baseUrl={}", cantusUrl) }
         .baseUrl(cantusUrl).build()
 
-
     @Bean
     @TargetService(ServiceTypes.BOOBER)
     fun webClientBoober() = webClientBuilder().build()

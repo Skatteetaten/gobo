@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
+import org.springframework.web.reactive.function.client.WebClient
 
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
 @MockWebServerTestTag
@@ -26,8 +27,13 @@ class ApplicationDeploymentDetailsDataLoaderTest {
 
     private val server = MockWebServer()
     private val url = server.url("/")
-    private val webClient = ApplicationConfig(50, 50, 50, "")
-        .webClientBuilder(false).baseUrl(url.toString()).build()
+    private val webClient = ApplicationConfig(
+        webClientBuilder = WebClient.builder(),
+        readTimeout = 50,
+        writeTimeout = 50,
+        connectionTimeout = 50,
+        applicationName = ""
+    ).webClientBuilder(false).baseUrl(url.toString()).build()
     private val applicationService = ApplicationServiceBlocking(ApplicationService(webClient))
     private val dataLoader = ApplicationDeploymentDetailsDataLoader(applicationService)
 
@@ -43,7 +49,8 @@ class ApplicationDeploymentDetailsDataLoaderTest {
             assertThat(result).isNotNull()
         }.first()
 
-        assertThat(request?.path).isNotNull().isEqualTo("/api/auth/applicationdeploymentdetails/applicationDeploymentId")
+        assertThat(request?.path).isNotNull()
+            .isEqualTo("/api/auth/applicationdeploymentdetails/applicationDeploymentId")
     }
 
     @Test

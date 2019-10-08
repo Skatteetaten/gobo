@@ -16,6 +16,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
+import org.springframework.web.reactive.function.client.WebClient
 
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
 @MockWebServerTestTag
@@ -24,6 +25,7 @@ class DatabaseSchemaDataLoaderTest {
     private val server = MockWebServer()
     private val dbhUrl = server.url("/").toString()
     private val applicationConfig = ApplicationConfig(
+        webClientBuilder = WebClient.builder(),
         connectionTimeout = 100,
         readTimeout = 100,
         writeTimeout = 100,
