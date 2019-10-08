@@ -57,6 +57,7 @@ private val logger = KotlinLogging.logger {}
 
 @Configuration
 class ApplicationConfig(
+    val webClientBuilder: WebClient.Builder,
     @Value("\${gobo.webclient.read-timeout:30000}") val readTimeout: Long,
     @Value("\${gobo.webclient.write-timeout:30000}") val writeTimeout: Long,
     @Value("\${gobo.webclient.connection-timeout:30000}") val connectionTimeout: Int,
@@ -101,9 +102,8 @@ class ApplicationConfig(
         .also { logger.info("Configuring DBH WebClient with baseUrl={}", dbhUrl) }
         .baseUrl(dbhUrl).build()
 
-    fun webClientBuilder(ssl: Boolean = false) =
-        WebClient
-            .builder()
+    fun webClientBuilder(ssl: Boolean = false): WebClient.Builder {
+        return webClientBuilder
             .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .defaultHeader(HEADER_KLIENTID, applicationName)
             .defaultHeader(AuroraHeaderFilter.KORRELASJONS_ID, RequestKorrelasjon.getId())
@@ -117,6 +117,7 @@ class ApplicationConfig(
                 it.toMono()
             })
             .clientConnector(clientConnector(ssl))
+    }
 
     private fun exchangeStrategies(): ExchangeStrategies {
         val objectMapper = createObjectMapper()
