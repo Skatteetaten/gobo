@@ -4,6 +4,7 @@ import no.skatteetaten.aurora.gobo.ApplicationDeploymentWithDbResourceBuilder
 import no.skatteetaten.aurora.gobo.DatabaseSchemaResourceBuilder
 import no.skatteetaten.aurora.gobo.GraphQLTest
 import no.skatteetaten.aurora.gobo.OpenShiftUserBuilder
+import no.skatteetaten.aurora.gobo.RestorableDatabaseSchemaBuilder
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseSchemaServiceBlocking
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
 import no.skatteetaten.aurora.gobo.resolvers.graphqlData
@@ -33,6 +34,9 @@ class DatabaseSchemaQueryResolverTest {
     @Value("classpath:graphql/queries/getDatabaseSchemaWithId.graphql")
     private lateinit var getDatabaseSchemaWithIdQuery: Resource
 
+    @Value("classpath:graphql/queries/getRestorableDatabaseSchemas.graphql")
+    private lateinit var getRestorableDatabaseSchemasQuery: Resource
+
     @Autowired
     private lateinit var webTestClient: WebTestClient
 
@@ -61,6 +65,9 @@ class DatabaseSchemaQueryResolverTest {
 
         given(openShiftUserLoader.findOpenShiftUserByToken(anyString()))
             .willReturn(OpenShiftUserBuilder().build())
+
+        given(databaseSchemaService.getRestorableDatabaseSchemas("aurora"))
+            .willReturn(listOf(RestorableDatabaseSchemaBuilder().build()))
     }
 
     @AfterEach
@@ -118,5 +125,22 @@ class DatabaseSchemaQueryResolverTest {
             .expectBody()
             .graphqlData("databaseSchema.databaseEngine").isEqualTo("ORACLE")
             .graphqlData("databaseSchema.applicationDeployments.length()").isEqualTo(1)
+    }
+
+    @Test
+    fun `Query for restorable database schemas given affiliation`() {
+        val variables = mapOf("affiliations" to listOf("aurora"))
+        webTestClient.queryGraphQL(
+            queryResource = getRestorableDatabaseSchemasQuery,
+            variables = variables,
+            token = "test-token"
+        )
+            .expectStatus().isOk
+            .expectBody()
+            .graphqlDataWithPrefix("restorableDatabaseSchemas") {
+                graphqlDataFirst("databaseSchema.application").isEqualTo("referanse")
+                graphqlDataFirst("deleteAfter").isNotEmpty
+                graphqlDataFirst("setToCooldownAt").isNotEmpty
+            }
     }
 }
