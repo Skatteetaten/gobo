@@ -43,7 +43,7 @@ class ApplicationDeploymentServiceTest {
         val response = Response(
             success = false,
             message = "failure",
-            items = listOf("abc", "bcd")
+            items = listOf(mapOf("abc" to "bcd"))
         )
         val requests = server.execute(response) {
             assertThat {

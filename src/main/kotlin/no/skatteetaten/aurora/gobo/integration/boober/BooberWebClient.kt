@@ -84,7 +84,7 @@ class BooberWebClient(
             .retrieve()
             .bodyToMono()
         return response.flatMapMany { r ->
-            if (!r.success) SourceSystemException(message = "${r.message}. ${r.items.joinToString()}", sourceSystem = "boober").toFlux()
+            if (!r.success) SourceSystemException(message = "${r.message}. ${r.items}", sourceSystem = "boober").toFlux()
             else if (r.count == 0) Flux.empty()
             else r.items.map { item -> createObjectMapper().convertValue(item, T::class.java) }.toFlux()
         }
