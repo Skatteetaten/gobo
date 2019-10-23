@@ -1,13 +1,15 @@
 package no.skatteetaten.aurora.gobo.integration.boober
 
+import assertk.all
 import assertk.assertThat
 import assertk.assertions.contains
-import assertk.assertions.hasMessage
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFailure
 import assertk.assertions.isInstanceOf
 import assertk.assertions.isNotNull
 import assertk.assertions.isTrue
+import assertk.assertions.messageContains
+import assertk.assertions.prop
 import no.skatteetaten.aurora.gobo.integration.MockWebServerTestTag
 import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
@@ -42,12 +44,18 @@ class ApplicationDeploymentServiceTest {
         val response = Response(
             success = false,
             message = "failure",
-            items = listOf("abc")
+            items = listOf(mapOf("abc" to "bcd"))
         )
         val requests = server.execute(response) {
             assertThat {
                 applicationDeploymentService.deleteApplicationDeployment("token", input)
-            }.isFailure().isInstanceOf(SourceSystemException::class).hasMessage("failure")
+            }.isFailure().isInstanceOf(SourceSystemException::class).all {
+                messageContains("failure")
+                prop("errorMessage", SourceSystemException::errorMessage).all {
+                    contains("abc")
+                    contains("bcd")
+                }
+            }
         }
         assertThat(requests.first()?.path).isEqualTo("/v1/applicationdeployment/delete")
     }
