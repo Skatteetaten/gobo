@@ -87,16 +87,17 @@ class BooberWebClient(
             .bodyToMono()
 
         return response.onErrorMap {
-            val message = if (it is WebClientResponseException) {
+            val (message, code) = if (it is WebClientResponseException) {
                 val responseObj = createObjectMapper().readValue<Response<Any>>(it.responseBodyAsString)
-                "message=${responseObj.message} items=${responseObj.items}"
+                Pair("message=${responseObj.message} items=${responseObj.items}", it.statusCode.value().toString())
             } else {
-                it.message ?: ""
+                Pair(it.message ?: "", "")
             }
 
             throw SourceSystemException(
                 message = "Exception occurred in Boober integration.",
                 errorMessage = "Response $message",
+                code = code,
                 sourceSystem = "boober"
             )
         }.flatMapMany { r ->
