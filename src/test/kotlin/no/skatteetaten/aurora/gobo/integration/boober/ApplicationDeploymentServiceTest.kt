@@ -9,6 +9,7 @@ import assertk.assertions.isInstanceOf
 import assertk.assertions.isNotNull
 import assertk.assertions.isTrue
 import assertk.assertions.messageContains
+import assertk.assertions.prop
 import no.skatteetaten.aurora.gobo.integration.MockWebServerTestTag
 import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
@@ -50,8 +51,10 @@ class ApplicationDeploymentServiceTest {
                 applicationDeploymentService.deleteApplicationDeployment("token", input)
             }.isFailure().isInstanceOf(SourceSystemException::class).all {
                 messageContains("failure")
-                messageContains("abc")
-                messageContains("bcd")
+                prop("errorMessage", SourceSystemException::errorMessage).all {
+                    contains("abc")
+                    contains("bcd")
+                }
             }
         }
         assertThat(requests.first()?.path).isEqualTo("/v1/applicationdeployment/delete")

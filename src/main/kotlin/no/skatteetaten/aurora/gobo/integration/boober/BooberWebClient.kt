@@ -1,5 +1,6 @@
 package no.skatteetaten.aurora.gobo.integration.boober
 
+import com.fasterxml.jackson.module.kotlin.readValue
 import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
 import no.skatteetaten.aurora.gobo.createObjectMapper
@@ -10,6 +11,7 @@ import org.springframework.http.HttpHeaders
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.reactive.function.client.WebClientResponseException
 import org.springframework.web.reactive.function.client.bodyToMono
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
@@ -83,8 +85,26 @@ class BooberWebClient(
             .header(HttpHeaders.AUTHORIZATION, "Bearer $token")
             .retrieve()
             .bodyToMono()
-        return response.flatMapMany { r ->
-            if (!r.success) SourceSystemException(message = "${r.message}. ${r.items}", sourceSystem = "boober").toFlux()
+
+        return response.onErrorMap {
+            val message = if (it is WebClientResponseException) {
+                val responseObj = createObjectMapper().readValue<Response<Any>>(it.responseBodyAsString)
+                "message=${responseObj.message} items=${responseObj.items}"
+            } else {
+                it.message ?: ""
+            }
+
+            throw SourceSystemException(
+                message = "Exception occurred in Boober integration.",
+                errorMessage = "Response $message",
+                sourceSystem = "boober"
+            )
+        }.flatMapMany { r ->
+            if (!r.success) SourceSystemException(
+                message = r.message,
+                errorMessage = r.items.toString(),
+                sourceSystem = "boober"
+            ).toFlux()
             else if (r.count == 0) Flux.empty()
             else r.items.map { item -> createObjectMapper().convertValue(item, T::class.java) }.toFlux()
         }
