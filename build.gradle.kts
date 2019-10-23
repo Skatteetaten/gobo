@@ -16,6 +16,8 @@ plugins {
 val springCloudContractVersion: String = project.property("aurora.springCloudContractVersion") as String
 
 dependencies {
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.10.0")
+    implementation("io.netty:netty-codec-http:4.1.42.Final")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.1")
 
     implementation("org.apache.commons:commons-text:1.7")
