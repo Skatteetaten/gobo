@@ -3,7 +3,7 @@ package no.skatteetaten.aurora.gobo.integration.mokey
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import org.springframework.hateoas.Link
-import org.springframework.hateoas.ResourceSupport
+import org.springframework.hateoas.RepresentationModel
 import org.springframework.web.util.UriUtils
 import java.nio.charset.Charset
 import java.time.Instant
@@ -44,7 +44,7 @@ class PodResourceResource(
     val deployTag: String?,
     val latestDeployTag: Boolean
 
-) : ResourceSupport()
+) : RepresentationModel<PodResourceResource>()
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class DeployDetailsResource(
@@ -98,7 +98,7 @@ data class ApplicationDeploymentDetailsResource(
     val applicationDeploymentCommand: ApplicationDeploymentCommandResource,
     val deployDetails: DeployDetailsResource?,
     val serviceLinks: Map<String, Link> = emptyMap()
-) : ResourceSupport() {
+) : RepresentationModel<ApplicationDeploymentDetailsResource>() {
 
     fun link(rel: String) = this.findLink(rel)
 }
@@ -137,7 +137,7 @@ data class ApplicationDeploymentResource(
     val dockerImageRepo: String?,
     val time: Instant,
     val message: String?
-) : ResourceSupport() {
+) : RepresentationModel<ApplicationDeploymentResource>() {
 
     private val APPLICATION_REL = "Application"
 
@@ -152,12 +152,12 @@ data class ApplicationResource(
     val identifier: String,
     val name: String,
     val applicationDeployments: List<ApplicationDeploymentResource>
-) : ResourceSupport()
+) : RepresentationModel<ApplicationResource>()
 
 data class RefreshParams(val applicationDeploymentId: String? = null, val affiliations: List<String>? = null)
 
-private fun ResourceSupport.findLink(rel: String): String {
-    return links.firstOrNull { it.rel == rel }?.href?.let {
+private fun RepresentationModel<*>.findLink(rel: String): String {
+    return getLinks().firstOrNull { it.rel.value() == rel }?.href?.let {
         UriUtils.decode(it, Charset.defaultCharset())
     } ?: throw SourceSystemException("Link with rel $rel was not found")
 }

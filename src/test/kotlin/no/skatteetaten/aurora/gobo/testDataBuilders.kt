@@ -44,6 +44,7 @@ import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageTag
 import org.intellij.lang.annotations.Language
 import org.springframework.hateoas.Link
+import org.springframework.hateoas.LinkRelation
 import org.springframework.http.HttpStatus
 import uk.q3c.rest.hal.HalResource
 import java.time.Instant
@@ -252,7 +253,7 @@ data class ApplicationDeploymentDetailsBuilder(
                 AuroraConfigRefResource("name", "refName")
             )
         ).apply {
-            add(Link("http://ApplicationDeploymentDetails/1", "self"))
+            add(Link("http://ApplicationDeploymentDetails/1"))
             add(resourceLinks)
         }
 }

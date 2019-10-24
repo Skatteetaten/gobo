@@ -109,7 +109,7 @@ class Link private constructor(val name: String, val url: URL) {
             } else {
                 "http://${link.href}"
             }
-            return Link(link.rel, URL(href))
+            return Link(link.rel.value(), URL(href))
         }
     }
 }
@@ -141,8 +141,8 @@ data class ApplicationDeploymentDetails(
                 gitInfo = resource.gitInfo?.let { GitInfo(it.commitId, it.commitTime) },
                 podResources = resource.podResources.map { PodResource.create(it) },
                 deploymentSpecs = DeploymentSpecs(
-                    deploymentSpecCurrent = resource.getLink("DeploymentSpecCurrent")?.let { URL(it.href) },
-                    deploymentSpecDeployed = resource.getLink("DeploymentSpecDeployed")?.let { URL(it.href) }
+                    deploymentSpecCurrent = resource.getLink("DeploymentSpecCurrent")?.let { URL(it.get().href) },
+                    deploymentSpecDeployed = resource.getLink("DeploymentSpecDeployed")?.let { URL(it.get().href) }
                 ),
                 deployDetails = resource.deployDetails?.let {
                     DeployDetails(

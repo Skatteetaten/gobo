@@ -3,6 +3,8 @@ package no.skatteetaten.aurora.gobo.anonymous
 import no.skatteetaten.aurora.gobo.ApplicationResourceBuilder
 import no.skatteetaten.aurora.gobo.integration.SpringTestTag
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
+import no.skatteetaten.aurora.gobo.security.BearerAuthenticationManager
+import no.skatteetaten.aurora.gobo.security.OpenShiftAuthenticationUserDetailsService
 import org.junit.jupiter.api.Test
 import org.mockito.BDDMockito.given
 import org.springframework.beans.factory.annotation.Autowired
@@ -14,11 +16,17 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPat
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 @SpringTestTag
-@WebMvcTest(value = [AuroraPublicHealthController::class], secure = false)
+@WebMvcTest(value = [AuroraPublicHealthController::class], properties = ["management.server.port=0"])
 class AuroraPublicHealthControllerTest {
 
     @MockBean
     private lateinit var applicationService: ApplicationServiceBlocking
+
+    @MockBean
+    private lateinit var bearerAuthenticationManager: BearerAuthenticationManager
+
+    @MockBean
+    private lateinit var openShiftAuthenticationUserDetailsService: OpenShiftAuthenticationUserDetailsService
 
     @Autowired
     private lateinit var mockMvc: MockMvc

@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import org.springframework.hateoas.hal.Jackson2HalModule
+import org.springframework.hateoas.mediatype.hal.Jackson2HalModule
 
 fun createObjectMapper() =
     ObjectMapper().apply {
