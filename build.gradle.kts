@@ -44,6 +44,7 @@ dependencies {
     testImplementation("io.projectreactor:reactor-test")
     testImplementation("com.nhaarman:mockito-kotlin:1.6.0")
     testImplementation("no.skatteetaten.aurora:mockmvc-extensions-kotlin:1.0.2")
+    testImplementation("com.ninja-squad:springmockk:1.1.3")
 }
 
 tasks {

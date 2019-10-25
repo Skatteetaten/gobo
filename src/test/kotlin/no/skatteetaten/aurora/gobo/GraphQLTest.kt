@@ -11,7 +11,5 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
     Tag("graphql"),
     Tag("spring")
 )
-@ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = ["management.server.port=-1"])
-@DirtiesContext
 annotation class GraphQLTest

@@ -1,7 +1,7 @@
 package no.skatteetaten.aurora.gobo.resolvers
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import org.apache.commons.lang3.StringUtils
+import org.apache.commons.text.StringEscapeUtils
 import org.springframework.core.io.Resource
 import org.springframework.http.HttpHeaders
 import org.springframework.test.web.reactive.server.JsonPathAssertions
@@ -23,7 +23,7 @@ fun createQuery(queryResource: Resource, variables: Map<String, *> = emptyMap<St
 }
 
 fun createQuery(query: String, variables: Map<String, *> = emptyMap<String, String>()): String {
-    val json = StringUtils.normalizeSpace(query)
+    val json = StringEscapeUtils.escapeJson(query)
     val variablesJson = jacksonObjectMapper().writeValueAsString(variables)
     return query(json, variablesJson)
 }
