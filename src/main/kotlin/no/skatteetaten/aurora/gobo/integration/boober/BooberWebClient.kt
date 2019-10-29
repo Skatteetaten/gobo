@@ -16,7 +16,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import org.springframework.web.reactive.function.client.bodyToMono
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
-import reactor.core.publisher.toFlux
+import reactor.kotlin.core.publisher.toFlux
 
 @Service
 class BooberWebClient(
@@ -36,7 +36,7 @@ class BooberWebClient(
         body: Any
     ): Flux<T> =
         execute(token) {
-            it.patch().uri(getBooberUrl(url), params).body(BodyInserters.fromObject(body))
+            it.patch().uri(getBooberUrl(url), params).body(BodyInserters.fromValue(body))
         }
 
     final inline fun <reified T : Any> put(
@@ -46,7 +46,7 @@ class BooberWebClient(
         body: Any
     ): Flux<T> =
         execute(token) {
-            it.put().uri(getBooberUrl(url), params).body(BodyInserters.fromObject(body))
+            it.put().uri(getBooberUrl(url), params).body(BodyInserters.fromValue(body))
         }
 
     final inline fun <reified T : Any> post(
@@ -56,7 +56,7 @@ class BooberWebClient(
         body: Any
     ): Flux<T> =
         execute(token) {
-            it.post().uri(getBooberUrl(url), params).body(BodyInserters.fromObject(body))
+            it.post().uri(getBooberUrl(url), params).body(BodyInserters.fromValue(body))
         }
 
     fun getBooberUrl(link: String): String {

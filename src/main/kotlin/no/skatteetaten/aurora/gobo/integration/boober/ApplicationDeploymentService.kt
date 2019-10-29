@@ -6,7 +6,7 @@ import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.resolvers.blockNonNullAndHandleError
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
-import reactor.core.publisher.toMono
+import reactor.kotlin.core.publisher.toMono
 
 private val logger = KotlinLogging.logger { }
 
