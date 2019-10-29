@@ -7,8 +7,11 @@ import no.skatteetaten.aurora.gobo.ApplicationDeploymentDetailsBuilder
 import no.skatteetaten.aurora.gobo.ApplicationResourceBuilder
 import no.skatteetaten.aurora.gobo.GraphQLTest
 import no.skatteetaten.aurora.gobo.OpenShiftUserBuilder
+import no.skatteetaten.aurora.gobo.healthResponseJson
+import no.skatteetaten.aurora.gobo.infoResponseJson
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
-import no.skatteetaten.aurora.gobo.resolvers.printResult
+import no.skatteetaten.aurora.gobo.resolvers.graphqlDataWithPrefix
+import no.skatteetaten.aurora.gobo.resolvers.isFalse
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import no.skatteetaten.aurora.gobo.security.OpenShiftUserLoader
 import org.junit.jupiter.api.AfterEach
@@ -56,20 +59,18 @@ class ApplicationDeploymentDetailsResolverTest {
         webTestClient.queryGraphQL(queryResource = getRepositoriesAndTagsQuery, token = "test-token")
             .expectStatus().isOk
             .expectBody()
-            .printResult()
+            .graphqlDataWithPrefix("applications.edges[0].node.applicationDeployments[0].details.podResources[0]") {
+                graphqlData("deployTag").isEqualTo("tag")
+                graphqlData("phase").isEqualTo("status")
+                graphqlData("ready").isFalse()
+                graphqlData("startTime").hasJsonPath()
+                graphqlData("restartCount").isEqualTo(3)
+                graphqlData("containers.length()").isEqualTo(2)
+                graphqlData("containers[0].restartCount").isEqualTo(1)
+                graphqlData("containers[1].restartCount").isEqualTo(2)
 
-//            .graphqlDataWithPrefix("applications.edges[0].node.applicationDeployments[0].details.podResources[0]") {
-//                graphqlData("deployTag").isEqualTo("tag")
-//                graphqlData("phase").isEqualTo("status")
-//                graphqlData("ready").isFalse()
-//                graphqlData("startTime").hasJsonPath()
-//                graphqlData("restartCount").isEqualTo(3)
-//                graphqlData("containers.length()").isEqualTo(2)
-//                graphqlData("containers[0].restartCount").isEqualTo(1)
-//                graphqlData("containers[1].restartCount").isEqualTo(2)
-//
-//                graphqlData("managementResponses.health.textResponse").isEqualTo(healthResponseJson)
-//                graphqlData("managementResponses.info.textResponse").isEqualTo(infoResponseJson)
-//            }
+                graphqlData("managementResponses.health.textResponse").isEqualTo(healthResponseJson)
+                graphqlData("managementResponses.info.textResponse").isEqualTo(infoResponseJson)
+            }
     }
 }

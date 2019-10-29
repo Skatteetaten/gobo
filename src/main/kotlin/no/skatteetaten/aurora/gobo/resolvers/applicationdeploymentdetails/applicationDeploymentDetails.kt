@@ -5,6 +5,7 @@ import java.time.Instant
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentDetailsResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ManagementEndpointResponseResource
 import no.skatteetaten.aurora.gobo.integration.mokey.PodResourceResource
+import no.skatteetaten.aurora.gobo.integration.mokey.optionalLink
 import no.skatteetaten.aurora.gobo.integration.mokey.toGoboLinks
 
 data class GitInfo(
@@ -131,8 +132,8 @@ data class ApplicationDeploymentDetails(
                 gitInfo = resource.gitInfo?.let { GitInfo(it.commitId, it.commitTime) },
                 podResources = resource.podResources.map { PodResource.create(it) },
                 deploymentSpecs = DeploymentSpecs(
-                    deploymentSpecCurrent = resource.link("DeploymentSpecCurrent")?.let { URL(it.href) },
-                    deploymentSpecDeployed = resource.link("DeploymentSpecDeployed")?.let { URL(it.href) }
+                    deploymentSpecCurrent = resource.optionalLink("DeploymentSpecCurrent")?.let { URL(it.href) },
+                    deploymentSpecDeployed = resource.optionalLink("DeploymentSpecDeployed")?.let { URL(it.href) }
                 ),
                 deployDetails = resource.deployDetails?.let {
                     DeployDetails(
@@ -144,15 +145,7 @@ data class ApplicationDeploymentDetails(
                         paused = it.paused
                     )
                 },
-                serviceLinks = emptyList()
-//                resource.serviceLinks.entries.map {
-//                    Link.create(
-//                        org.springframework.hateoas.Link(
-//                            it.value.href,
-//                            it.key
-//                        )
-//                    )
-//                }
+                serviceLinks = resource._links.toGoboLinks()
             )
         }
     }

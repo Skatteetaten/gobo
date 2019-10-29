@@ -27,6 +27,13 @@ fun HalResource.linkHref(propertyName: String) =
 fun HalResource.linkHrefs(vararg propertyNames: String) =
     propertyNames.map { linkHref(it) }
 
+fun HalResource.optionalLink(propertyName: String): HalLink? =
+    if (hasLink(propertyName)) {
+        link(propertyName)
+    } else {
+        null
+    }
+
 fun Links.toGoboLinks(): List<Link> {
     val values = jacksonObjectMapper().valueToTree<JsonNode>(this)
     val links = mutableListOf<Link>()
