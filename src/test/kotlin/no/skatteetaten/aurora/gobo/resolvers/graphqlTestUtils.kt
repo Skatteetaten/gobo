@@ -1,6 +1,7 @@
 package no.skatteetaten.aurora.gobo.resolvers
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import java.nio.charset.StandardCharsets
 import org.apache.commons.text.StringEscapeUtils
 import org.springframework.core.io.Resource
 import org.springframework.http.HttpHeaders
@@ -8,7 +9,6 @@ import org.springframework.test.web.reactive.server.JsonPathAssertions
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.util.StreamUtils
 import org.springframework.web.reactive.function.BodyInserters
-import java.nio.charset.StandardCharsets
 
 private fun query(payload: String, variables: String) = """
 {

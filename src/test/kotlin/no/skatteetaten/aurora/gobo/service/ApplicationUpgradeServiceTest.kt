@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.node.TextNode
 import no.skatteetaten.aurora.gobo.ApplicationConfig
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentDetailsBuilder
 import no.skatteetaten.aurora.gobo.AuroraConfigFileBuilder
-import no.skatteetaten.aurora.gobo.createHalTestObjectMapper
+import no.skatteetaten.aurora.gobo.createObjectMapper
 import no.skatteetaten.aurora.gobo.integration.MockWebServerTestTag
 import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
@@ -30,7 +30,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
-import org.springframework.hateoas.Link
+import uk.q3c.rest.hal.Links
 
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
 @MockWebServerTestTag
@@ -47,7 +47,7 @@ class ApplicationUpgradeServiceTest {
 
     @BeforeEach
     fun setUp() {
-        TestObjectMapperConfigurer.objectMapper = createHalTestObjectMapper()
+        TestObjectMapperConfigurer.objectMapper = createObjectMapper()
     }
 
     @AfterEach
@@ -105,11 +105,11 @@ class ApplicationUpgradeServiceTest {
 
     private fun applicationDeploymentDetailsResponse() =
         ApplicationDeploymentDetailsBuilder(
-            resourceLinks = listOf(
-                Link("${url}boober/FilesCurrent", "FilesCurrent"),
-                Link("${url}boober/AuroraConfigFileCurrent", "AuroraConfigFileCurrent"),
-                Link("${url}boober/Apply", "Apply")
-            )
+            resourceLinks = Links().apply {
+                add("FilesCurrent", "${url}boober/FilesCurrent")
+                add("AuroraConfigFileCurrent", "${url}boober/AuroraConfigFileCurrent")
+                add("Apply", "${url}boober/Apply")
+            }
         ).build()
 
     private fun applicationFileResponse() = Response(items = listOf(AuroraConfigFileBuilder().build()))

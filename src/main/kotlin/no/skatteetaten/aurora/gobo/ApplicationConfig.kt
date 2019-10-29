@@ -5,6 +5,8 @@ import io.netty.handler.ssl.SslContextBuilder
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory
 import io.netty.handler.timeout.ReadTimeoutHandler
 import io.netty.handler.timeout.WriteTimeoutHandler
+import java.util.concurrent.TimeUnit
+import kotlin.math.min
 import mu.KotlinLogging
 import no.skatteetaten.aurora.filter.logging.AuroraHeaderFilter
 import no.skatteetaten.aurora.filter.logging.RequestKorrelasjon
@@ -29,8 +31,6 @@ import org.springframework.web.reactive.function.client.WebClient
 import reactor.core.publisher.toMono
 import reactor.netty.http.client.HttpClient
 import reactor.netty.tcp.SslProvider
-import java.util.concurrent.TimeUnit
-import kotlin.math.min
 
 val HEADER_KLIENTID = "KlientID"
 

@@ -4,6 +4,7 @@ import com.coxautodev.graphql.tools.GraphQLResolver
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import graphql.schema.DataFetchingEnvironment
+import java.net.URL
 import no.skatteetaten.aurora.gobo.integration.boober.BooberWebClient
 import no.skatteetaten.aurora.gobo.resolvers.KeyDataLoader
 import no.skatteetaten.aurora.gobo.resolvers.blockNonNullAndHandleError
@@ -12,7 +13,6 @@ import no.skatteetaten.aurora.gobo.resolvers.user.User
 import org.dataloader.Try
 import org.springframework.stereotype.Component
 import reactor.core.publisher.toMono
-import java.net.URL
 
 class DeploymentSpecs(
     val deploymentSpecCurrent: URL?,

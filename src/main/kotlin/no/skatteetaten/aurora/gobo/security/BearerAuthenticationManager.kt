@@ -1,11 +1,11 @@
 package no.skatteetaten.aurora.gobo.security
 
+import java.util.regex.Pattern
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.core.Authentication
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken
 import org.springframework.stereotype.Component
-import java.util.regex.Pattern
 
 @Component
 class BearerAuthenticationManager(

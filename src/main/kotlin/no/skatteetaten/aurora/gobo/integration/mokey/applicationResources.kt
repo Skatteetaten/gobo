@@ -1,12 +1,9 @@
 package no.skatteetaten.aurora.gobo.integration.mokey
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import no.skatteetaten.aurora.gobo.integration.SourceSystemException
-import org.springframework.hateoas.Link
-import org.springframework.hateoas.RepresentationModel
-import org.springframework.web.util.UriUtils
-import java.nio.charset.Charset
 import java.time.Instant
+import uk.q3c.rest.hal.HalResource
+import uk.q3c.rest.hal.Links
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class StatusCheckResource(val name: String, val description: String, val failLevel: String, val hasFailed: Boolean)
@@ -44,7 +41,7 @@ class PodResourceResource(
     val deployTag: String?,
     val latestDeployTag: Boolean
 
-) : RepresentationModel<PodResourceResource>()
+) : HalResource()
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class DeployDetailsResource(
@@ -97,11 +94,8 @@ data class ApplicationDeploymentDetailsResource(
     val dependencies: Map<String, String> = emptyMap(),
     val applicationDeploymentCommand: ApplicationDeploymentCommandResource,
     val deployDetails: DeployDetailsResource?,
-    val serviceLinks: Map<String, Link> = emptyMap()
-) : RepresentationModel<ApplicationDeploymentDetailsResource>() {
-
-    fun link(rel: String) = this.findLink(rel)
-}
+    val serviceLinks: Links = Links()
+) : HalResource()
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class ApplicationDeploymentCommandResource(
@@ -137,7 +131,7 @@ data class ApplicationDeploymentResource(
     val dockerImageRepo: String?,
     val time: Instant,
     val message: String?
-) : RepresentationModel<ApplicationDeploymentResource>() {
+) : HalResource() {
 
     private val APPLICATION_REL = "Application"
 
@@ -152,12 +146,6 @@ data class ApplicationResource(
     val identifier: String,
     val name: String,
     val applicationDeployments: List<ApplicationDeploymentResource>
-) : RepresentationModel<ApplicationResource>()
+) : HalResource()
 
 data class RefreshParams(val applicationDeploymentId: String? = null, val affiliations: List<String>? = null)
-
-private fun RepresentationModel<*>.findLink(rel: String): String {
-    return getLinks().firstOrNull { it.rel.value() == rel }?.href?.let {
-        UriUtils.decode(it, Charset.defaultCharset())
-    } ?: throw SourceSystemException("Link with rel $rel was not found")
-}

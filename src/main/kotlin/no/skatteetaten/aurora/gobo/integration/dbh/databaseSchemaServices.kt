@@ -1,5 +1,6 @@
 package no.skatteetaten.aurora.gobo.integration.dbh
 
+import java.time.Duration
 import no.skatteetaten.aurora.gobo.RequiresDbh
 import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
@@ -21,7 +22,6 @@ import org.springframework.web.reactive.function.client.bodyToMono
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.core.publisher.toMono
-import java.time.Duration
 
 @Service
 @ConditionalOnBean(RequiresDbh::class)

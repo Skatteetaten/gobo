@@ -1,6 +1,7 @@
 package no.skatteetaten.aurora.gobo.resolvers.imagerepository
 
 import com.nhaarman.mockito_kotlin.any
+import java.time.Instant.EPOCH
 import no.skatteetaten.aurora.gobo.GraphQLTest
 import no.skatteetaten.aurora.gobo.OpenShiftUserBuilder
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
@@ -33,7 +34,6 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.core.io.Resource
 import org.springframework.test.web.reactive.server.WebTestClient
-import java.time.Instant.EPOCH
 
 private fun ImageRepoAndTags.toImageTagResource() =
     this.imageTags.map {

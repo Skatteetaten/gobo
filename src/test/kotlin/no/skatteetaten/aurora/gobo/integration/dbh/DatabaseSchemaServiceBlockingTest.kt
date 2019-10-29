@@ -20,6 +20,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.jayway.jsonpath.JsonPath
 import io.mockk.every
 import io.mockk.mockk
+import java.net.UnknownHostException
 import no.skatteetaten.aurora.gobo.DatabaseSchemaResourceBuilder
 import no.skatteetaten.aurora.gobo.JdbcUserBuilder
 import no.skatteetaten.aurora.gobo.SchemaCreationRequestBuilder
@@ -38,7 +39,6 @@ import okhttp3.mockwebserver.RecordedRequest
 import org.junit.jupiter.api.Test
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClient.create
-import java.net.UnknownHostException
 
 @MockWebServerTestTag
 class DatabaseSchemaServiceBlockingTest {

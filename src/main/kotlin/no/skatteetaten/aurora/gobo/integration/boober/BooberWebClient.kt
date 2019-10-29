@@ -1,6 +1,7 @@
 package no.skatteetaten.aurora.gobo.integration.boober
 
 import com.fasterxml.jackson.module.kotlin.readValue
+import java.net.URI
 import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
 import no.skatteetaten.aurora.gobo.createObjectMapper
@@ -16,7 +17,6 @@ import org.springframework.web.reactive.function.client.bodyToMono
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.core.publisher.toFlux
-import java.net.URI
 
 @Service
 class BooberWebClient(

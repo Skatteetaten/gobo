@@ -1,9 +1,9 @@
 package no.skatteetaten.aurora.gobo.resolvers.gobo
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver
+import java.time.Instant
 import no.skatteetaten.aurora.gobo.resolvers.GoboInstrumentation
 import org.springframework.stereotype.Component
-import java.time.Instant
 
 @Component
 class GoboQueryResolver(private val goboInstrumentation: GoboInstrumentation) : GraphQLQueryResolver {

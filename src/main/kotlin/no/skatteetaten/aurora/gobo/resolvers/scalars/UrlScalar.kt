@@ -5,9 +5,9 @@ import graphql.schema.Coercing
 import graphql.schema.CoercingParseValueException
 import graphql.schema.CoercingSerializeException
 import graphql.schema.GraphQLScalarType
-import org.springframework.stereotype.Component
 import java.net.MalformedURLException
 import java.net.URL
+import org.springframework.stereotype.Component
 
 @Component
 class UrlScalar : GraphQLScalarType(

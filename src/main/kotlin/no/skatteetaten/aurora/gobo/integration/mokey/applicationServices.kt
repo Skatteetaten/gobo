@@ -1,5 +1,6 @@
 package no.skatteetaten.aurora.gobo.integration.mokey
 
+import java.time.Duration
 import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
 import no.skatteetaten.aurora.gobo.resolvers.blockAndHandleError
@@ -11,7 +12,6 @@ import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.bodyToMono
 import reactor.core.publisher.Mono
-import java.time.Duration
 
 @Service
 class ApplicationServiceBlocking(private val applicationService: ApplicationService) {

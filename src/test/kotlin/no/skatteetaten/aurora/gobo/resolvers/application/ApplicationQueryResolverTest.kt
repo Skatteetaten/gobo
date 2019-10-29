@@ -7,8 +7,6 @@ import no.skatteetaten.aurora.gobo.OpenShiftUserBuilder
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
 import no.skatteetaten.aurora.gobo.integration.mokey.AuroraNamespacePermissions
 import no.skatteetaten.aurora.gobo.integration.mokey.PermissionService
-import no.skatteetaten.aurora.gobo.resolvers.graphqlData
-import no.skatteetaten.aurora.gobo.resolvers.graphqlDataWithPrefix
 import no.skatteetaten.aurora.gobo.resolvers.printResult
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import no.skatteetaten.aurora.gobo.security.OpenShiftUserLoader
@@ -73,7 +71,6 @@ class ApplicationQueryResolverTest {
             .expectStatus().isOk
             .expectBody()
             .printResult()
-
 
 //            .graphqlData("applications.totalCount").isNumber
 //            .graphqlDataWithPrefix("applications.edges[0].node") {

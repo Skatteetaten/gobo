@@ -1,12 +1,12 @@
 package no.skatteetaten.aurora.gobo.integration.boober
 
 import com.fasterxml.jackson.databind.JsonNode
+import java.time.Duration
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.resolvers.blockNonNullAndHandleError
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
 import reactor.core.publisher.toMono
-import java.time.Duration
 
 private val logger = KotlinLogging.logger { }
 

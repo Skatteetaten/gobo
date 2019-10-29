@@ -5,8 +5,8 @@ import graphql.language.StringValue
 import graphql.schema.Coercing
 import graphql.schema.CoercingSerializeException
 import graphql.schema.GraphQLScalarType
-import org.springframework.stereotype.Component
 import java.time.Instant
+import org.springframework.stereotype.Component
 
 @Component
 class DateTimeScalar : GraphQLScalarType(

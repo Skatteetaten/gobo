@@ -1,5 +1,6 @@
 package no.skatteetaten.aurora.gobo.integration.unclematt
 
+import java.time.Duration
 import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
 import no.skatteetaten.aurora.gobo.resolvers.blockAndHandleError
@@ -7,7 +8,6 @@ import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.bodyToMono
 import reactor.core.publisher.Mono
-import java.time.Duration
 
 @Service
 class ProbeServiceBlocking(private val probeService: ProbeService) {
