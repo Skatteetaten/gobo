@@ -1,15 +1,15 @@
 package no.skatteetaten.aurora.gobo.anonymous
 
+import com.ninjasquad.springmockk.MockkBean
+import io.mockk.every
 import no.skatteetaten.aurora.gobo.ApplicationResourceBuilder
 import no.skatteetaten.aurora.gobo.integration.SpringTestTag
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
 import no.skatteetaten.aurora.gobo.security.BearerAuthenticationManager
 import no.skatteetaten.aurora.gobo.security.OpenShiftAuthenticationUserDetailsService
 import org.junit.jupiter.api.Test
-import org.mockito.BDDMockito.given
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
-import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
@@ -19,13 +19,13 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 @WebMvcTest(value = [AuroraPublicHealthController::class], properties = ["management.server.port=0"])
 class AuroraPublicHealthControllerTest {
 
-    @MockBean
+    @MockkBean
     private lateinit var applicationService: ApplicationServiceBlocking
 
-    @MockBean
+    @MockkBean
     private lateinit var bearerAuthenticationManager: BearerAuthenticationManager
 
-    @MockBean
+    @MockkBean
     private lateinit var openShiftAuthenticationUserDetailsService: OpenShiftAuthenticationUserDetailsService
 
     @Autowired
@@ -33,7 +33,7 @@ class AuroraPublicHealthControllerTest {
 
     @Test
     fun `Get truesight data`() {
-        given(applicationService.getApplications(emptyList())).willReturn(listOf(ApplicationResourceBuilder().build()))
+        every { applicationService.getApplications(emptyList()) } returns listOf(ApplicationResourceBuilder().build())
 
         mockMvc.perform(get("/public/truesight"))
             .andExpect(status().isOk)

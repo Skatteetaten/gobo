@@ -1,5 +1,8 @@
 package no.skatteetaten.aurora.gobo.resolvers.affiliation
 
+import com.ninjasquad.springmockk.MockkBean
+import io.mockk.clearAllMocks
+import io.mockk.every
 import no.skatteetaten.aurora.gobo.ApplicationResourceBuilder
 import no.skatteetaten.aurora.gobo.GraphQLTest
 import no.skatteetaten.aurora.gobo.integration.mokey.AffiliationServiceBlocking
@@ -8,11 +11,8 @@ import no.skatteetaten.aurora.gobo.resolvers.graphqlDataWithPrefix
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
-import org.mockito.BDDMockito.given
-import org.mockito.BDDMockito.reset
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.core.io.Resource
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.util.Base64Utils
@@ -26,20 +26,20 @@ class AffiliationQueryResolverTest {
     @Autowired
     private lateinit var webTestClient: WebTestClient
 
-    @MockBean
+    @MockkBean
     private lateinit var affiliationService: AffiliationServiceBlocking
 
-    @MockBean
+    @MockkBean
     private lateinit var applicationService: ApplicationServiceBlocking
 
     @AfterEach
-    fun tearDown() = reset(affiliationService, applicationService)
+    fun tearDown() = clearAllMocks()
 
     @Test
     fun `Query for all affiliations`() {
         val affiliations = listOf("paas", "demo")
-        given(affiliationService.getAllAffiliations()).willReturn(affiliations)
-        given(applicationService.getApplications(affiliations)).willReturn(listOf(ApplicationResourceBuilder().build()))
+        every { affiliationService.getAllAffiliations() } returns affiliations
+        every { applicationService.getApplications(affiliations) } returns listOf(ApplicationResourceBuilder().build())
 
         webTestClient.queryGraphQL(getAffiliationsQuery)
             .expectStatus().isOk

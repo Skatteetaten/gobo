@@ -1,5 +1,8 @@
 package no.skatteetaten.aurora.gobo.resolvers.databaseschema
 
+import com.ninjasquad.springmockk.MockkBean
+import io.mockk.clearAllMocks
+import io.mockk.every
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentWithDbResourceBuilder
 import no.skatteetaten.aurora.gobo.DatabaseSchemaResourceBuilder
 import no.skatteetaten.aurora.gobo.GraphQLTest
@@ -15,12 +18,8 @@ import no.skatteetaten.aurora.gobo.security.OpenShiftUserLoader
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.mockito.BDDMockito.anyString
-import org.mockito.BDDMockito.given
-import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.core.io.Resource
 import org.springframework.test.web.reactive.server.WebTestClient
 
@@ -36,35 +35,26 @@ class DatabaseSchemaQueryResolverTest {
     @Autowired
     private lateinit var webTestClient: WebTestClient
 
-    @MockBean
+    @MockkBean
     private lateinit var databaseSchemaService: DatabaseSchemaServiceBlocking
 
-    @MockBean
+    @MockkBean
     private lateinit var applicationService: ApplicationServiceBlocking
 
-    @MockBean
+    @MockkBean
     private lateinit var openShiftUserLoader: OpenShiftUserLoader
 
     @BeforeEach
     fun setUp() {
-        given(databaseSchemaService.getDatabaseSchemas("paas"))
-            .willReturn(listOf(DatabaseSchemaResourceBuilder().build()))
-
-        given(databaseSchemaService.getDatabaseSchema("myDbId"))
-            .willReturn(DatabaseSchemaResourceBuilder().build())
-
-        given(applicationService.getApplicationDeploymentsForDatabases("test-token", listOf("123"))).willReturn(
-            listOf(
-                ApplicationDeploymentWithDbResourceBuilder("123").build()
-            )
-        )
-
-        given(openShiftUserLoader.findOpenShiftUserByToken(anyString()))
-            .willReturn(OpenShiftUserBuilder().build())
+        every { databaseSchemaService.getDatabaseSchemas("paas") } returns listOf(DatabaseSchemaResourceBuilder().build())
+        every { databaseSchemaService.getDatabaseSchema("myDbId") } returns DatabaseSchemaResourceBuilder().build()
+        every { applicationService.getApplicationDeploymentsForDatabases("test-token", listOf("123")) } returns
+            listOf(ApplicationDeploymentWithDbResourceBuilder(databaseId = "123").build())
+        every { openShiftUserLoader.findOpenShiftUserByToken(any()) } returns OpenShiftUserBuilder().build()
     }
 
     @AfterEach
-    fun tearDown() = Mockito.reset(databaseSchemaService, openShiftUserLoader)
+    fun tearDown() = clearAllMocks()
 
     @Test
     fun `Query for database schemas with no bearer token`() {

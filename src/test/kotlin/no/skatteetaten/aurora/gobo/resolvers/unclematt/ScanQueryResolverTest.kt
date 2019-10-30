@@ -1,5 +1,7 @@
 package no.skatteetaten.aurora.gobo.resolvers.unclematt
 
+import com.ninjasquad.springmockk.MockkBean
+import io.mockk.every
 import no.skatteetaten.aurora.gobo.GraphQLTest
 import no.skatteetaten.aurora.gobo.ProbeResultListBuilder
 import no.skatteetaten.aurora.gobo.integration.unclematt.ProbeServiceBlocking
@@ -7,10 +9,8 @@ import no.skatteetaten.aurora.gobo.resolvers.graphqlDataWithPrefix
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import no.skatteetaten.aurora.gobo.resolvers.scan.ScanStatus
 import org.junit.jupiter.api.Test
-import org.mockito.BDDMockito.given
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.core.io.Resource
 import org.springframework.test.web.reactive.server.WebTestClient
 
@@ -23,17 +23,12 @@ class ScanQueryResolverTest {
     @Autowired
     private lateinit var webTestClient: WebTestClient
 
-    @MockBean
+    @MockkBean
     private lateinit var probeService: ProbeServiceBlocking
 
     @Test
     fun `resolve scan response`() {
-        given(
-            probeService.probeFirewall(
-                host = "test.server.no",
-                port = 80
-            )
-        ).willReturn(ProbeResultListBuilder().build())
+        every { probeService.probeFirewall("test.server.no", 80) } returns ProbeResultListBuilder().build()
 
         val variables = mapOf("host" to "test.server.no", "port" to 80)
         webTestClient.queryGraphQL(scanQuery, variables)

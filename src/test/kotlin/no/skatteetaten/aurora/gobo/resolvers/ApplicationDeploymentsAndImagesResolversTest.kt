@@ -1,6 +1,7 @@
 package no.skatteetaten.aurora.gobo.resolvers
 
-import com.nhaarman.mockito_kotlin.any
+import com.ninjasquad.springmockk.MockkBean
+import io.mockk.every
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentResourceBuilder
 import no.skatteetaten.aurora.gobo.GraphQLTest
 import no.skatteetaten.aurora.gobo.OpenShiftUserBuilder
@@ -9,10 +10,8 @@ import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
 import no.skatteetaten.aurora.gobo.security.OpenShiftUserLoader
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.mockito.BDDMockito.given
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.core.io.Resource
 import org.springframework.test.web.reactive.server.WebTestClient
 
@@ -24,28 +23,26 @@ class ApplicationDeploymentsAndImagesResolversTest {
     @Autowired
     private lateinit var webTestClient: WebTestClient
 
-    @MockBean
+    @MockkBean
     private lateinit var openShiftUserLoader: OpenShiftUserLoader
 
-    @MockBean
+    @MockkBean
     private lateinit var applicationService: ApplicationServiceBlocking
 
-    @MockBean
+    @MockkBean
     private lateinit var imageRegistryService: ImageRegistryServiceBlocking
 
     @BeforeEach
     fun setUp() {
-        given(openShiftUserLoader.findOpenShiftUserByToken(any()))
-            .willReturn(OpenShiftUserBuilder().build())
-
-        given(applicationService.getApplicationDeployment(any()))
-            .willReturn(ApplicationDeploymentResourceBuilder().build())
+        every { openShiftUserLoader.findOpenShiftUserByToken(any()) } returns OpenShiftUserBuilder().build()
+        every { applicationService.getApplicationDeployment(any()) } returns ApplicationDeploymentResourceBuilder().build()
     }
 
     @Test
     fun `Query for application deployments and images, throw exception for images`() {
-        given(imageRegistryService.findTagNamesInRepoOrderedByCreatedDateDesc(any(), any()))
-            .willThrow(RuntimeException("test exception"))
+        every { imageRegistryService.findTagNamesInRepoOrderedByCreatedDateDesc(any(), any()) } throws RuntimeException(
+            "test exception"
+        )
 
         webTestClient.queryGraphQL(
             queryResource = applicationDeploymentsAndImages,

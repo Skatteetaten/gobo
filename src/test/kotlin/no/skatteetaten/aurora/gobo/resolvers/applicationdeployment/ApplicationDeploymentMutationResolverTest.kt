@@ -1,6 +1,8 @@
 package no.skatteetaten.aurora.gobo.resolvers.applicationdeployment
 
-import com.nhaarman.mockito_kotlin.any
+import com.ninjasquad.springmockk.MockkBean
+import io.mockk.clearAllMocks
+import io.mockk.every
 import no.skatteetaten.aurora.gobo.GraphQLTest
 import no.skatteetaten.aurora.gobo.integration.boober.ApplicationDeploymentService
 import no.skatteetaten.aurora.gobo.resolvers.graphqlData
@@ -8,14 +10,10 @@ import no.skatteetaten.aurora.gobo.resolvers.isTrue
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import no.skatteetaten.aurora.gobo.service.ApplicationUpgradeService
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.mockito.BDDMockito.anyList
-import org.mockito.BDDMockito.anyString
-import org.mockito.BDDMockito.given
-import org.mockito.BDDMockito.reset
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.core.io.Resource
 import org.springframework.test.web.reactive.server.WebTestClient
 
@@ -39,14 +37,20 @@ class ApplicationDeploymentMutationResolverTest {
     @Autowired
     private lateinit var webTestClient: WebTestClient
 
-    @MockBean
+    @MockkBean(relaxed = true)
     private lateinit var applicationUpgradeService: ApplicationUpgradeService
 
-    @MockBean
+    @MockkBean
     private lateinit var applicationDeploymentService: ApplicationDeploymentService
 
+    @BeforeEach
+    fun setUp() {
+        every { applicationUpgradeService.refreshApplicationDeployment(any(), any()) } returns true
+        every { applicationDeploymentService.deleteApplicationDeployment(any(), any()) } returns true
+    }
+
     @AfterEach
-    fun tearDown() = reset(applicationUpgradeService)
+    fun tearDown() = clearAllMocks()
 
     @Test
     fun `Mutate application deployment version`() {
@@ -74,8 +78,6 @@ class ApplicationDeploymentMutationResolverTest {
 
     @Test
     fun `Mutate refresh application deployment by applicationDeploymentId`() {
-        given(applicationUpgradeService.refreshApplicationDeployment(anyString(), anyString())).willReturn(true)
-
         val variables = mapOf(
             "input" to mapOf(
                 "applicationDeploymentId" to "123"
@@ -89,8 +91,6 @@ class ApplicationDeploymentMutationResolverTest {
 
     @Test
     fun `Mutate refresh application deployment by affiliations`() {
-        given(applicationUpgradeService.refreshApplicationDeployments(anyString(), anyList())).willReturn(true)
-
         val variables = mapOf(
             "input" to mapOf(
                 "affiliations" to listOf("aurora")
@@ -104,7 +104,6 @@ class ApplicationDeploymentMutationResolverTest {
 
     @Test
     fun `Delete application deployment`() {
-        given(applicationDeploymentService.deleteApplicationDeployment(anyString(), any())).willReturn(true)
 
         val variables = mapOf(
             "input" to mapOf(

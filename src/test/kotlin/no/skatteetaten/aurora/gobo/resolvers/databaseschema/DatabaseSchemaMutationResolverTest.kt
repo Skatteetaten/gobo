@@ -2,8 +2,9 @@ package no.skatteetaten.aurora.gobo.resolvers.databaseschema
 
 import com.fasterxml.jackson.module.kotlin.convertValue
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.nhaarman.mockito_kotlin.any
-import com.nhaarman.mockito_kotlin.reset
+import com.ninjasquad.springmockk.MockkBean
+import io.mockk.clearAllMocks
+import io.mockk.every
 import no.skatteetaten.aurora.gobo.DatabaseSchemaResourceBuilder
 import no.skatteetaten.aurora.gobo.GraphQLTest
 import no.skatteetaten.aurora.gobo.JdbcUserBuilder
@@ -19,11 +20,8 @@ import no.skatteetaten.aurora.gobo.security.OpenShiftUserLoader
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.mockito.BDDMockito
-import org.mockito.BDDMockito.given
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.core.io.Resource
 import org.springframework.test.web.reactive.server.WebTestClient
 
@@ -47,10 +45,10 @@ class DatabaseSchemaMutationResolverTest {
     @Autowired
     private lateinit var webTestClient: WebTestClient
 
-    @MockBean
+    @MockkBean
     private lateinit var databaseSchemaService: DatabaseSchemaServiceBlocking
 
-    @MockBean
+    @MockkBean
     private lateinit var openShiftUserLoader: OpenShiftUserLoader
 
     private val updateVariables = mapOf(
@@ -96,16 +94,15 @@ class DatabaseSchemaMutationResolverTest {
 
     @BeforeEach
     fun setUp() {
-        given(openShiftUserLoader.findOpenShiftUserByToken(BDDMockito.anyString()))
-            .willReturn(OpenShiftUserBuilder().build())
+        every { openShiftUserLoader.findOpenShiftUserByToken(any()) } returns OpenShiftUserBuilder().build()
     }
 
     @AfterEach
-    fun tearDown() = reset(databaseSchemaService)
+    fun tearDown() = clearAllMocks()
 
     @Test
     fun `Mutate database schema return true given response success`() {
-        given(databaseSchemaService.updateDatabaseSchema(any())).willReturn(DatabaseSchemaResourceBuilder().build())
+        every { databaseSchemaService.updateDatabaseSchema(any()) } returns DatabaseSchemaResourceBuilder().build()
         webTestClient.queryGraphQL(
             queryResource = updateDatabaseSchemaMutation,
             variables = updateVariables,
@@ -117,12 +114,11 @@ class DatabaseSchemaMutationResolverTest {
 
     @Test
     fun `Delete database schema given ids`() {
-        given(databaseSchemaService.deleteDatabaseSchemas(any())).willReturn(
+        every { databaseSchemaService.deleteDatabaseSchemas(any()) } returns
             listOf(
                 SchemaDeletionResponse(id = "abc123", success = true),
                 SchemaDeletionResponse(id = "bcd234", success = false)
             )
-        )
 
         val request = DeleteDatabaseSchemasInput(listOf("abc123", "bcd234"))
         val deleteVariables = mapOf("input" to jacksonObjectMapper().convertValue<Map<String, Any>>(request))
@@ -141,7 +137,7 @@ class DatabaseSchemaMutationResolverTest {
 
     @Test
     fun `Test JDBC connection for jdbcUser`() {
-        given(databaseSchemaService.testJdbcConnection(any<JdbcUser>())).willReturn(true)
+        every { databaseSchemaService.testJdbcConnection(any<JdbcUser>()) } returns true
         val variables =
             mapOf("input" to jacksonObjectMapper().convertValue<Map<String, Any>>(JdbcUserBuilder().build()))
         webTestClient.queryGraphQL(
@@ -155,7 +151,7 @@ class DatabaseSchemaMutationResolverTest {
 
     @Test
     fun `Test JDBC connection for id`() {
-        given(databaseSchemaService.testJdbcConnection(any<String>())).willReturn(true)
+        every { databaseSchemaService.testJdbcConnection(any<String>()) } returns true
         webTestClient.queryGraphQL(
             queryResource = testJdbcConnectionForIdMutation,
             variables = mapOf("id" to "123"),
@@ -178,7 +174,7 @@ class DatabaseSchemaMutationResolverTest {
 
     @Test
     fun `Create database schema`() {
-        given(databaseSchemaService.createDatabaseSchema(any())).willReturn(DatabaseSchemaResourceBuilder().build())
+        every { databaseSchemaService.createDatabaseSchema(any()) } returns DatabaseSchemaResourceBuilder().build()
         webTestClient.queryGraphQL(
             queryResource = createDatabaseSchemaMutation,
             variables = creationVariables,
@@ -190,7 +186,7 @@ class DatabaseSchemaMutationResolverTest {
 
     @Test
     fun `Create connection between existing database schema and dbh`() {
-        given(databaseSchemaService.createDatabaseSchema(any())).willReturn(DatabaseSchemaResourceBuilder().build())
+        every { databaseSchemaService.createDatabaseSchema(any()) } returns DatabaseSchemaResourceBuilder().build()
         webTestClient.queryGraphQL(
             queryResource = createDatabaseSchemaMutation,
             variables = connectionVariables,

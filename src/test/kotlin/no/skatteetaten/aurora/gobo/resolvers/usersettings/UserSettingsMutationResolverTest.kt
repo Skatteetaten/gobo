@@ -2,6 +2,10 @@ package no.skatteetaten.aurora.gobo.resolvers.usersettings
 
 import com.fasterxml.jackson.module.kotlin.convertValue
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.ninjasquad.springmockk.MockkBean
+import io.mockk.clearAllMocks
+import io.mockk.every
+import io.mockk.verify
 import no.skatteetaten.aurora.gobo.GraphQLTest
 import no.skatteetaten.aurora.gobo.OpenShiftUserBuilder
 import no.skatteetaten.aurora.gobo.integration.boober.UserSettingsService
@@ -11,13 +15,8 @@ import no.skatteetaten.aurora.gobo.security.OpenShiftUserLoader
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.mockito.BDDMockito.anyString
-import org.mockito.BDDMockito.given
-import org.mockito.BDDMockito.reset
-import org.mockito.BDDMockito.verify
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.core.io.Resource
 import org.springframework.test.web.reactive.server.WebTestClient
 
@@ -30,20 +29,19 @@ class UserSettingsMutationResolverTest {
     @Autowired
     private lateinit var webTestClient: WebTestClient
 
-    @MockBean
+    @MockkBean
     private lateinit var openShiftUserLoader: OpenShiftUserLoader
 
-    @MockBean
+    @MockkBean(relaxed = true)
     private lateinit var userSettingsService: UserSettingsService
 
     @BeforeEach
     fun setUp() {
-        given(openShiftUserLoader.findOpenShiftUserByToken(anyString()))
-            .willReturn(OpenShiftUserBuilder().build())
+        every { openShiftUserLoader.findOpenShiftUserByToken(any()) } returns OpenShiftUserBuilder().build()
     }
 
     @AfterEach
-    fun tearDown() = reset(openShiftUserLoader, userSettingsService)
+    fun tearDown() = clearAllMocks()
 
     @Test
     fun `Update user settings`() {
@@ -66,6 +64,6 @@ class UserSettingsMutationResolverTest {
             .expectBody()
             .graphqlData("updateUserSettings").isEqualTo(true)
 
-        verify(userSettingsService).updateUserSettings("test-token", userSettings)
+        verify { userSettingsService.updateUserSettings("test-token", userSettings) }
     }
 }
