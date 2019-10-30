@@ -1,38 +1,27 @@
 package no.skatteetaten.aurora.gobo.resolvers.application
 
 import com.ninjasquad.springmockk.MockkBean
-import io.mockk.clearAllMocks
 import io.mockk.every
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentDetailsBuilder
 import no.skatteetaten.aurora.gobo.ApplicationResourceBuilder
-import no.skatteetaten.aurora.gobo.GraphQLTest
-import no.skatteetaten.aurora.gobo.OpenShiftUserBuilder
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageRegistryServiceBlocking
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
 import no.skatteetaten.aurora.gobo.integration.mokey.AuroraNamespacePermissions
 import no.skatteetaten.aurora.gobo.integration.mokey.PermissionService
+import no.skatteetaten.aurora.gobo.resolvers.AbstractGraphQLTest
 import no.skatteetaten.aurora.gobo.resolvers.graphqlData
 import no.skatteetaten.aurora.gobo.resolvers.graphqlDataWithPrefix
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageTag
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
-import no.skatteetaten.aurora.gobo.security.OpenShiftUserLoader
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
-import org.springframework.test.web.reactive.server.WebTestClient
 import reactor.kotlin.core.publisher.toMono
 
-@GraphQLTest
-class ApplicationWithLatestDigestQueryResolverTest {
+class ApplicationWithLatestDigestQueryResolverTest : AbstractGraphQLTest() {
 
     @Value("classpath:graphql/queries/getApplicationsWithLatestDigest.graphql")
     private lateinit var getApplicationsQuery: Resource
-
-    @Autowired
-    private lateinit var webTestClient: WebTestClient
 
     @MockkBean
     private lateinit var applicationServiceBlocking: ApplicationServiceBlocking
@@ -42,17 +31,6 @@ class ApplicationWithLatestDigestQueryResolverTest {
 
     @MockkBean
     private lateinit var permissionService: PermissionService
-
-    @MockkBean
-    private lateinit var openShiftUserLoader: OpenShiftUserLoader
-
-    @BeforeEach
-    fun setUp() {
-        every { openShiftUserLoader.findOpenShiftUserByToken(any()) } returns OpenShiftUserBuilder().build()
-    }
-
-    @AfterEach
-    fun tearDown() = clearAllMocks()
 
     @Test
     fun `Query for latest image from repo`() {

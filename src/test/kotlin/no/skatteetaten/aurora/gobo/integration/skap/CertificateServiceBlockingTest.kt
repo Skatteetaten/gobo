@@ -6,7 +6,6 @@ import io.mockk.every
 import io.mockk.mockk
 import no.skatteetaten.aurora.gobo.CertificateResourceBuilder
 import no.skatteetaten.aurora.gobo.createObjectMapper
-import no.skatteetaten.aurora.gobo.integration.MockWebServerTestTag
 import no.skatteetaten.aurora.gobo.integration.containsAuroraToken
 import no.skatteetaten.aurora.gobo.security.SharedSecretReader
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.execute
@@ -14,7 +13,6 @@ import okhttp3.mockwebserver.MockWebServer
 import org.junit.jupiter.api.Test
 import org.springframework.web.reactive.function.client.WebClient
 
-@MockWebServerTestTag
 class CertificateServiceBlockingTest {
 
     private val server = MockWebServer()

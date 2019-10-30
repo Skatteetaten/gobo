@@ -1,24 +1,19 @@
 package no.skatteetaten.aurora.gobo.resolvers.applicationdeployment
 
 import com.ninjasquad.springmockk.MockkBean
-import io.mockk.clearAllMocks
 import io.mockk.every
-import no.skatteetaten.aurora.gobo.GraphQLTest
 import no.skatteetaten.aurora.gobo.integration.boober.ApplicationDeploymentService
+import no.skatteetaten.aurora.gobo.resolvers.AbstractGraphQLTest
 import no.skatteetaten.aurora.gobo.resolvers.graphqlData
 import no.skatteetaten.aurora.gobo.resolvers.isTrue
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import no.skatteetaten.aurora.gobo.service.ApplicationUpgradeService
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
-import org.springframework.test.web.reactive.server.WebTestClient
 
-@GraphQLTest
-class ApplicationDeploymentMutationResolverTest {
+class ApplicationDeploymentMutationResolverTest : AbstractGraphQLTest() {
     @Value("classpath:graphql/mutations/redeployWithVersion.graphql")
     private lateinit var redeployWithVersionMutation: Resource
 
@@ -34,9 +29,6 @@ class ApplicationDeploymentMutationResolverTest {
     @Value("classpath:graphql/mutations/deleteApplicationDeployment.graphql")
     private lateinit var deleteApplicationDeploymentMutation: Resource
 
-    @Autowired
-    private lateinit var webTestClient: WebTestClient
-
     @MockkBean(relaxed = true)
     private lateinit var applicationUpgradeService: ApplicationUpgradeService
 
@@ -48,9 +40,6 @@ class ApplicationDeploymentMutationResolverTest {
         every { applicationUpgradeService.refreshApplicationDeployment(any(), any()) } returns true
         every { applicationDeploymentService.deleteApplicationDeployment(any(), any()) } returns true
     }
-
-    @AfterEach
-    fun tearDown() = clearAllMocks()
 
     @Test
     fun `Mutate application deployment version`() {

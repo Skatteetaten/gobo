@@ -12,7 +12,6 @@ import no.skatteetaten.aurora.gobo.ApplicationConfig
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentDetailsBuilder
 import no.skatteetaten.aurora.gobo.AuroraConfigFileBuilder
 import no.skatteetaten.aurora.gobo.createObjectMapper
-import no.skatteetaten.aurora.gobo.integration.MockWebServerTestTag
 import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigService
@@ -33,7 +32,6 @@ import org.junit.jupiter.params.provider.EnumSource
 import uk.q3c.rest.hal.Links
 
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
-@MockWebServerTestTag
 class ApplicationUpgradeServiceTest {
 
     private val server = MockWebServer()

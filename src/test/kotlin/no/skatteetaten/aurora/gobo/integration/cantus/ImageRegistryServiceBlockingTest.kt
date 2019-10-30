@@ -10,7 +10,6 @@ import assertk.assertions.isNotNull
 import assertk.assertions.messageContains
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import no.skatteetaten.aurora.gobo.AuroraResponseBuilder
-import no.skatteetaten.aurora.gobo.integration.MockWebServerTestTag
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.execute
@@ -22,7 +21,6 @@ import org.junit.jupiter.params.provider.ValueSource
 import org.springframework.http.HttpStatus
 import org.springframework.web.reactive.function.client.WebClient
 
-@MockWebServerTestTag
 class ImageRegistryServiceBlockingTest {
 
     private val imageRepoName = "no_skatteetaten_aurora_demo/whoami"

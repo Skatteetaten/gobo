@@ -44,23 +44,3 @@ dependencies {
     testImplementation("no.skatteetaten.aurora:mockmvc-extensions-kotlin:1.0.2")
     testImplementation("com.ninja-squad:springmockk:1.1.3")
 }
-
-tasks {
-    fun createTagsArray(tags: Any?) = (tags as String).split(",").toTypedArray()
-
-    register<Test>("testExclude") {
-        if (project.hasProperty("tags")) {
-            useJUnitPlatform {
-                excludeTags(*createTagsArray(project.property("tags")))
-            }
-        }
-    }
-
-    register<Test>("testOnly") {
-        if (project.hasProperty("tags")) {
-            useJUnitPlatform {
-                includeTags(*createTagsArray(project.property("tags")))
-            }
-        }
-    }
-}
