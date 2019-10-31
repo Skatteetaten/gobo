@@ -1,11 +1,7 @@
 package no.skatteetaten.aurora.gobo.resolvers.imagerepository
 
 import com.ninjasquad.springmockk.MockkBean
-import io.mockk.clearAllMocks
 import io.mockk.every
-import java.time.Instant.EPOCH
-import no.skatteetaten.aurora.gobo.GraphQLTest
-import no.skatteetaten.aurora.gobo.OpenShiftUserBuilder
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.integration.cantus.AuroraResponse
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageBuildTimeline
@@ -16,20 +12,18 @@ import no.skatteetaten.aurora.gobo.integration.cantus.ImageTagResource
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageTagType
 import no.skatteetaten.aurora.gobo.integration.cantus.Tag
 import no.skatteetaten.aurora.gobo.integration.cantus.TagsDto
+import no.skatteetaten.aurora.gobo.resolvers.AbstractGraphQLTest
 import no.skatteetaten.aurora.gobo.resolvers.graphqlDataWithPrefix
 import no.skatteetaten.aurora.gobo.resolvers.graphqlDataWithPrefixAndIndex
 import no.skatteetaten.aurora.gobo.resolvers.graphqlErrors
 import no.skatteetaten.aurora.gobo.resolvers.graphqlErrorsFirst
 import no.skatteetaten.aurora.gobo.resolvers.isTrue
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
-import no.skatteetaten.aurora.gobo.security.OpenShiftUserLoader
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
-import org.springframework.test.web.reactive.server.WebTestClient
+import java.time.Instant.EPOCH
 
 private fun ImageRepoAndTags.toImageTagResource() =
     this.imageTags.map {
@@ -47,8 +41,7 @@ private fun List<ImageRepoAndTags>.getTagCount() =
 private fun ImageRepoAndTags.copyImageTagSublist(toIndex: Int) =
     this.copy(imageTags = this.imageTags.subList(0, toIndex))
 
-@GraphQLTest
-class ImageRepositoryQueryResolverTest {
+class ImageRepositoryQueryResolverTest : AbstractGraphQLTest() {
     @Value("classpath:graphql/queries/getImageRepositories.graphql")
     private lateinit var reposWithTagsQuery: Resource
 
@@ -61,14 +54,8 @@ class ImageRepositoryQueryResolverTest {
     @Value("classpath:graphql/queries/getImageRepositoriesWithOnlyFirstFilter.graphql")
     private lateinit var reposWithOnlyFirstFilter: Resource
 
-    @Autowired
-    private lateinit var webTestClient: WebTestClient
-
     @MockkBean
     private lateinit var imageRegistryServiceBlocking: ImageRegistryServiceBlocking
-
-    @MockkBean
-    private lateinit var openShiftUserLoader: OpenShiftUserLoader
 
     private val imageReposAndTags = listOf(
         ImageRepoAndTags(
@@ -86,17 +73,14 @@ class ImageRepositoryQueryResolverTest {
     @BeforeEach
     fun setUp() {
         imageReposAndTags.forEach { imageRepoAndTags ->
-            every { imageRegistryServiceBlocking.findTagNamesInRepoOrderedByCreatedDateDesc(
-                ImageRepoDto.fromRepoString(imageRepoAndTags.imageRepository),
-                "test-token"
-            ) } returns TagsDto(imageRepoAndTags.imageTags.map { Tag(name = it, type = ImageTagType.typeOf(it)) })
+            every {
+                imageRegistryServiceBlocking.findTagNamesInRepoOrderedByCreatedDateDesc(
+                    ImageRepoDto.fromRepoString(imageRepoAndTags.imageRepository),
+                    "test-token"
+                )
+            } returns TagsDto(imageRepoAndTags.imageTags.map { Tag(name = it, type = ImageTagType.typeOf(it)) })
         }
-
-        every { openShiftUserLoader.findOpenShiftUserByToken(any()) } returns OpenShiftUserBuilder().build()
     }
-
-    @AfterEach
-    fun tearDown() = clearAllMocks()
 
     @Test
     fun `Query for repositories and tags`() {

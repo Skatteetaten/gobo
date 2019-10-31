@@ -3,30 +3,22 @@ package no.skatteetaten.aurora.gobo.resolvers.databaseschema
 import com.fasterxml.jackson.module.kotlin.convertValue
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.ninjasquad.springmockk.MockkBean
-import io.mockk.clearAllMocks
 import io.mockk.every
 import no.skatteetaten.aurora.gobo.DatabaseSchemaResourceBuilder
-import no.skatteetaten.aurora.gobo.GraphQLTest
 import no.skatteetaten.aurora.gobo.JdbcUserBuilder
-import no.skatteetaten.aurora.gobo.OpenShiftUserBuilder
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseSchemaServiceBlocking
 import no.skatteetaten.aurora.gobo.integration.dbh.JdbcUser
 import no.skatteetaten.aurora.gobo.integration.dbh.SchemaDeletionResponse
+import no.skatteetaten.aurora.gobo.resolvers.AbstractGraphQLTest
 import no.skatteetaten.aurora.gobo.resolvers.graphqlData
 import no.skatteetaten.aurora.gobo.resolvers.graphqlErrorsFirst
 import no.skatteetaten.aurora.gobo.resolvers.isTrue
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
-import no.skatteetaten.aurora.gobo.security.OpenShiftUserLoader
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
-import org.springframework.test.web.reactive.server.WebTestClient
 
-@GraphQLTest
-class DatabaseSchemaMutationResolverTest {
+class DatabaseSchemaMutationResolverTest : AbstractGraphQLTest() {
     @Value("classpath:graphql/mutations/updateDatabaseSchema.graphql")
     private lateinit var updateDatabaseSchemaMutation: Resource
 
@@ -42,14 +34,8 @@ class DatabaseSchemaMutationResolverTest {
     @Value("classpath:graphql/mutations/createDatabaseSchema.graphql")
     private lateinit var createDatabaseSchemaMutation: Resource
 
-    @Autowired
-    private lateinit var webTestClient: WebTestClient
-
     @MockkBean
     private lateinit var databaseSchemaService: DatabaseSchemaServiceBlocking
-
-    @MockkBean
-    private lateinit var openShiftUserLoader: OpenShiftUserLoader
 
     private val updateVariables = mapOf(
         "input" to jacksonObjectMapper().convertValue<Map<String, Any>>(
@@ -91,14 +77,6 @@ class DatabaseSchemaMutationResolverTest {
             )
         )
     )
-
-    @BeforeEach
-    fun setUp() {
-        every { openShiftUserLoader.findOpenShiftUserByToken(any()) } returns OpenShiftUserBuilder().build()
-    }
-
-    @AfterEach
-    fun tearDown() = clearAllMocks()
 
     @Test
     fun `Mutate database schema return true given response success`() {

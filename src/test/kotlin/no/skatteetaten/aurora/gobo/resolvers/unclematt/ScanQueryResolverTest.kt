@@ -2,26 +2,20 @@ package no.skatteetaten.aurora.gobo.resolvers.unclematt
 
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
-import no.skatteetaten.aurora.gobo.GraphQLTest
 import no.skatteetaten.aurora.gobo.ProbeResultListBuilder
 import no.skatteetaten.aurora.gobo.integration.unclematt.ProbeServiceBlocking
+import no.skatteetaten.aurora.gobo.resolvers.AbstractGraphQLTest
 import no.skatteetaten.aurora.gobo.resolvers.graphqlDataWithPrefix
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import no.skatteetaten.aurora.gobo.resolvers.scan.ScanStatus
 import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
-import org.springframework.test.web.reactive.server.WebTestClient
 
-@GraphQLTest
-class ScanQueryResolverTest {
+class ScanQueryResolverTest : AbstractGraphQLTest() {
 
     @Value("classpath:graphql/queries/scan.graphql")
     private lateinit var scanQuery: Resource
-
-    @Autowired
-    private lateinit var webTestClient: WebTestClient
 
     @MockkBean
     private lateinit var probeService: ProbeServiceBlocking

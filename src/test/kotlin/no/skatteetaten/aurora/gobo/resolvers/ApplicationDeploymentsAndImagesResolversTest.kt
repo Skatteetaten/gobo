@@ -3,28 +3,16 @@ package no.skatteetaten.aurora.gobo.resolvers
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentResourceBuilder
-import no.skatteetaten.aurora.gobo.GraphQLTest
-import no.skatteetaten.aurora.gobo.OpenShiftUserBuilder
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageRegistryServiceBlocking
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
-import no.skatteetaten.aurora.gobo.security.OpenShiftUserLoader
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
-import org.springframework.test.web.reactive.server.WebTestClient
 
-@GraphQLTest
-class ApplicationDeploymentsAndImagesResolversTest {
+class ApplicationDeploymentsAndImagesResolversTest : AbstractGraphQLTest() {
     @Value("classpath:graphql/queries/getApplicationDeploymentsAndImages.graphql")
     private lateinit var applicationDeploymentsAndImages: Resource
-
-    @Autowired
-    private lateinit var webTestClient: WebTestClient
-
-    @MockkBean
-    private lateinit var openShiftUserLoader: OpenShiftUserLoader
 
     @MockkBean
     private lateinit var applicationService: ApplicationServiceBlocking
@@ -34,7 +22,6 @@ class ApplicationDeploymentsAndImagesResolversTest {
 
     @BeforeEach
     fun setUp() {
-        every { openShiftUserLoader.findOpenShiftUserByToken(any()) } returns OpenShiftUserBuilder().build()
         every { applicationService.getApplicationDeployment(any()) } returns ApplicationDeploymentResourceBuilder().build()
     }
 
