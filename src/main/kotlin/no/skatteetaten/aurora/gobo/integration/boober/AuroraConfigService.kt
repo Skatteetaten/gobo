@@ -12,7 +12,7 @@ import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentRefRes
 import no.skatteetaten.aurora.gobo.resolvers.blockNonNullAndHandleError
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
-import reactor.core.publisher.toMono
+import reactor.kotlin.core.publisher.toMono
 
 @Service
 class AuroraConfigService(private val booberWebClient: BooberWebClient) {

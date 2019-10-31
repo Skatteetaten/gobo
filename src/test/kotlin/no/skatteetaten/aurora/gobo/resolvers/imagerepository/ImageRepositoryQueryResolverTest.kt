@@ -38,9 +38,6 @@ private fun ImageRepoAndTags.toImageTagResource() =
 private fun List<ImageRepoAndTags>.getTagCount() =
     this.flatMap { it.imageTags }.size
 
-private fun ImageRepoAndTags.copyImageTagSublist(toIndex: Int) =
-    this.copy(imageTags = this.imageTags.subList(0, toIndex))
-
 class ImageRepositoryQueryResolverTest : AbstractGraphQLTest() {
     @Value("classpath:graphql/queries/getImageRepositories.graphql")
     private lateinit var reposWithTagsQuery: Resource
