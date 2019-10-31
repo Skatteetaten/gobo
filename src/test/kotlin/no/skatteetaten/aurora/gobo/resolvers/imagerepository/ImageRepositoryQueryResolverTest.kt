@@ -2,6 +2,7 @@ package no.skatteetaten.aurora.gobo.resolvers.imagerepository
 
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
+import java.time.Instant.EPOCH
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.integration.cantus.AuroraResponse
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageBuildTimeline
@@ -23,7 +24,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
-import java.time.Instant.EPOCH
 
 private fun ImageRepoAndTags.toImageTagResource() =
     this.imageTags.map {
