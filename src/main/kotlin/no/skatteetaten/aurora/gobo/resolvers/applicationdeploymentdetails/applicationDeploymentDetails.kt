@@ -145,7 +145,7 @@ data class ApplicationDeploymentDetails(
                         paused = it.paused
                     )
                 },
-                serviceLinks = resource._links.toGoboLinks()
+                serviceLinks = resource.serviceLinks.toGoboLinks()
             )
         }
     }

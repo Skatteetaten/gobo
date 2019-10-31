@@ -40,9 +40,8 @@ class ApplicationDeploymentsAndImagesResolversTest {
 
     @Test
     fun `Query for application deployments and images, throw exception for images`() {
-        every { imageRegistryService.findTagNamesInRepoOrderedByCreatedDateDesc(any(), any()) } throws RuntimeException(
-            "test exception"
-        )
+        every { imageRegistryService.findTagNamesInRepoOrderedByCreatedDateDesc(any(), any()) } throws
+            RuntimeException("test exception")
 
         webTestClient.queryGraphQL(
             queryResource = applicationDeploymentsAndImages,

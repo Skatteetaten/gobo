@@ -59,18 +59,19 @@ class ApplicationDeploymentDetailsResolverTest {
         webTestClient.queryGraphQL(queryResource = getRepositoriesAndTagsQuery, token = "test-token")
             .expectStatus().isOk
             .expectBody()
-            .graphqlDataWithPrefix("applications.edges[0].node.applicationDeployments[0].details.podResources[0]") {
-                graphqlData("deployTag").isEqualTo("tag")
-                graphqlData("phase").isEqualTo("status")
-                graphqlData("ready").isFalse()
-                graphqlData("startTime").hasJsonPath()
-                graphqlData("restartCount").isEqualTo(3)
-                graphqlData("containers.length()").isEqualTo(2)
-                graphqlData("containers[0].restartCount").isEqualTo(1)
-                graphqlData("containers[1].restartCount").isEqualTo(2)
+            .graphqlDataWithPrefix("applications.edges[0].node.applicationDeployments[0].details") {
+                graphqlData("serviceLinks[0].name").isEqualTo("metrics")
+                graphqlData("podResources[0].deployTag").isEqualTo("tag")
+                graphqlData("podResources[0].phase").isEqualTo("status")
+                graphqlData("podResources[0].ready").isFalse()
+                graphqlData("podResources[0].startTime").hasJsonPath()
+                graphqlData("podResources[0].restartCount").isEqualTo(3)
+                graphqlData("podResources[0].containers.length()").isEqualTo(2)
+                graphqlData("podResources[0].containers[0].restartCount").isEqualTo(1)
+                graphqlData("podResources[0].containers[1].restartCount").isEqualTo(2)
 
-                graphqlData("managementResponses.health.textResponse").isEqualTo(healthResponseJson)
-                graphqlData("managementResponses.info.textResponse").isEqualTo(infoResponseJson)
+                graphqlData("podResources[0].managementResponses.health.textResponse").isEqualTo(healthResponseJson)
+                graphqlData("podResources[0].managementResponses.info.textResponse").isEqualTo(infoResponseJson)
             }
     }
 }

@@ -253,7 +253,8 @@ data class ApplicationDeploymentDetailsBuilder(
                 emptyMap(),
                 ApplicationDeploymentRefResource("environment", "application"),
                 AuroraConfigRefResource("name", "refName")
-            )
+            ),
+            serviceLinks = Links().apply { add("metrics", "http://metrics") }
         ).apply {
             self("http://ApplicationDeploymentDetails/1")
             addAll(resourceLinks)
