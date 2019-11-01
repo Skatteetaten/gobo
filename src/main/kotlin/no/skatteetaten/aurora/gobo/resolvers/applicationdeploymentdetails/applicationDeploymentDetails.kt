@@ -103,7 +103,18 @@ data class ManagementEndpointError(
     val message: String? = null
 )
 
-class Link constructor(val name: String, val url: URL)
+class Link(val name: String, val url: URL) {
+    companion object {
+        fun Create(name: String, url: String): Link {
+            val href = if (url.matches("https?://.*".toRegex())) {
+                url
+            } else {
+                "http://$url"
+            }
+            return Link(name, URL(href))
+        }
+    }
+}
 
 data class ApplicationDeploymentDetails(
     val updatedBy: String?,

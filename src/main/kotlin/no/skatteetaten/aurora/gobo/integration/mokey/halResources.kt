@@ -2,7 +2,6 @@ package no.skatteetaten.aurora.gobo.integration.mokey
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import java.net.URL
 import java.nio.charset.Charset
 import no.skatteetaten.aurora.gobo.resolvers.applicationdeploymentdetails.Link
 import org.springframework.web.util.UriUtils
@@ -41,7 +40,7 @@ fun Links.toGoboLinks(): List<Link> {
         val name = it.key
         val url = it.value.at("/href").asText()
         if (!url.isNullOrEmpty()) {
-            links.add(Link(name, URL(url)))
+            links.add(Link.Create(name, url))
         }
     }
     return links
