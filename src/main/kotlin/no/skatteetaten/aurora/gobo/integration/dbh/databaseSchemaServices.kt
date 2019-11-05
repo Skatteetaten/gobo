@@ -1,9 +1,10 @@
 package no.skatteetaten.aurora.gobo.integration.dbh
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import java.time.Duration
 import no.skatteetaten.aurora.gobo.RequiresDbh
 import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
-import no.skatteetaten.aurora.gobo.createObjectMapper
 import no.skatteetaten.aurora.gobo.integration.HEADER_AURORA_TOKEN
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.resolvers.IntegrationDisabledException
@@ -21,13 +22,13 @@ import org.springframework.web.reactive.function.client.bodyToMono
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.core.publisher.toMono
-import java.time.Duration
 
 @Service
 @ConditionalOnBean(RequiresDbh::class)
 class DatabaseSchemaServiceReactive(
     private val sharedSecretReader: SharedSecretReader,
-    @TargetService(ServiceTypes.DBH) private val webClient: WebClient
+    @TargetService(ServiceTypes.DBH) private val webClient: WebClient,
+    val objectMapper: ObjectMapper
 ) {
     companion object {
         const val HEADER_COOLDOWN_DURATION_HOURS = "cooldown-duration-hours"
@@ -137,7 +138,7 @@ class DatabaseSchemaServiceReactive(
 
     private fun onSuccess(r: DbhResponse<*>) =
         r.items.map {
-            createObjectMapper().convertValue(it, DatabaseSchemaResource::class.java)
+            objectMapper.convertValue(it, DatabaseSchemaResource::class.java)
         }.filter {
             it.containsRequiredLabels()
         }.toMono()

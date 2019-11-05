@@ -9,7 +9,6 @@ import assertk.assertions.isInstanceOf
 import assertk.assertions.isNotNull
 import assertk.assertions.message
 import assertk.assertions.prop
-import no.skatteetaten.aurora.gobo.integration.MockWebServerTestTag
 import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.execute
@@ -17,7 +16,6 @@ import okhttp3.mockwebserver.MockWebServer
 import org.junit.jupiter.api.Test
 import org.springframework.web.reactive.function.client.WebClient
 
-@MockWebServerTestTag
 class ProbeFireWallTest {
 
     private val server = MockWebServer()

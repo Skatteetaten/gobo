@@ -2,6 +2,10 @@ package no.skatteetaten.aurora.gobo
 
 import graphql.servlet.context.DefaultGraphQLServletContext
 import graphql.servlet.context.GraphQLContextBuilder
+import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.HttpServletResponse
+import javax.websocket.Session
+import javax.websocket.server.HandshakeRequest
 import no.skatteetaten.aurora.gobo.resolvers.KeyDataLoader
 import no.skatteetaten.aurora.gobo.resolvers.MultipleKeysDataLoader
 import no.skatteetaten.aurora.gobo.resolvers.batchDataLoaderMappedMultiple
@@ -10,10 +14,6 @@ import no.skatteetaten.aurora.gobo.security.ANONYMOUS_USER
 import no.skatteetaten.aurora.gobo.security.currentUser
 import org.dataloader.DataLoaderRegistry
 import org.springframework.stereotype.Component
-import javax.servlet.http.HttpServletRequest
-import javax.servlet.http.HttpServletResponse
-import javax.websocket.Session
-import javax.websocket.server.HandshakeRequest
 
 @Component
 class GoboGraphQLContextBuilder(

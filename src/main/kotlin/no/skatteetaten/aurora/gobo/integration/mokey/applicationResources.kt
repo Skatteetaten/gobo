@@ -1,12 +1,9 @@
 package no.skatteetaten.aurora.gobo.integration.mokey
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import no.skatteetaten.aurora.gobo.integration.SourceSystemException
-import org.springframework.hateoas.Link
-import org.springframework.hateoas.ResourceSupport
-import org.springframework.web.util.UriUtils
-import java.nio.charset.Charset
 import java.time.Instant
+import uk.q3c.rest.hal.HalResource
+import uk.q3c.rest.hal.Links
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class StatusCheckResource(val name: String, val description: String, val failLevel: String, val hasFailed: Boolean)
@@ -44,7 +41,7 @@ class PodResourceResource(
     val deployTag: String?,
     val latestDeployTag: Boolean
 
-) : ResourceSupport()
+) : HalResource()
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class DeployDetailsResource(
@@ -97,11 +94,8 @@ data class ApplicationDeploymentDetailsResource(
     val dependencies: Map<String, String> = emptyMap(),
     val applicationDeploymentCommand: ApplicationDeploymentCommandResource,
     val deployDetails: DeployDetailsResource?,
-    val serviceLinks: Map<String, Link> = emptyMap()
-) : ResourceSupport() {
-
-    fun link(rel: String) = this.findLink(rel)
-}
+    val serviceLinks: Links = Links()
+) : HalResource()
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class ApplicationDeploymentCommandResource(
@@ -137,7 +131,7 @@ data class ApplicationDeploymentResource(
     val dockerImageRepo: String?,
     val time: Instant,
     val message: String?
-) : ResourceSupport() {
+) : HalResource() {
 
     private val APPLICATION_REL = "Application"
 
@@ -152,12 +146,6 @@ data class ApplicationResource(
     val identifier: String,
     val name: String,
     val applicationDeployments: List<ApplicationDeploymentResource>
-) : ResourceSupport()
+) : HalResource()
 
 data class RefreshParams(val applicationDeploymentId: String? = null, val affiliations: List<String>? = null)
-
-private fun ResourceSupport.findLink(rel: String): String {
-    return links.firstOrNull { it.rel == rel }?.href?.let {
-        UriUtils.decode(it, Charset.defaultCharset())
-    } ?: throw SourceSystemException("Link with rel $rel was not found")
-}

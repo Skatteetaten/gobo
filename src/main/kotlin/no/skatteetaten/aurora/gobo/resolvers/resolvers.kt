@@ -5,14 +5,14 @@ import com.jayway.jsonpath.JsonPath
 import com.jayway.jsonpath.Option
 import graphql.schema.DataFetchingEnvironment
 import graphql.servlet.context.GraphQLServletContext
+import java.time.Duration
+import kotlin.reflect.KClass
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import org.dataloader.DataLoader
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import reactor.core.publisher.Mono
 import reactor.core.publisher.toMono
-import java.time.Duration
-import kotlin.reflect.KClass
 
 val DataFetchingEnvironment.token: String?
     get() {

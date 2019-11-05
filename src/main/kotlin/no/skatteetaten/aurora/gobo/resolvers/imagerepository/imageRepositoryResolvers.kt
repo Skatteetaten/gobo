@@ -1,10 +1,10 @@
 package no.skatteetaten.aurora.gobo.resolvers.imagerepository
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver
-import mu.KotlinLogging
-
 import com.coxautodev.graphql.tools.GraphQLResolver
 import graphql.schema.DataFetchingEnvironment
+import java.util.concurrent.CompletableFuture
+import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.AuroraIntegration
 import no.skatteetaten.aurora.gobo.GoboException
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageRegistryServiceBlocking
@@ -17,7 +17,6 @@ import no.skatteetaten.aurora.gobo.resolvers.pageEdges
 import no.skatteetaten.aurora.gobo.security.isAnonymousUser
 import org.apache.commons.text.StringSubstitutor
 import org.springframework.stereotype.Component
-import java.util.concurrent.CompletableFuture
 
 private val logger = KotlinLogging.logger {}
 

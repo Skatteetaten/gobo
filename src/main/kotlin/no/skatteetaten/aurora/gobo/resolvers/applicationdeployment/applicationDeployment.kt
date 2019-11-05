@@ -1,11 +1,11 @@
 package no.skatteetaten.aurora.gobo.resolvers.applicationdeployment
 
+import java.time.Instant
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationResource
 import no.skatteetaten.aurora.gobo.integration.mokey.StatusCheckResource
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageTag
-import java.time.Instant
 
 data class StatusCheck(val name: String, val description: String, val failLevel: String, val hasFailed: Boolean)
 
