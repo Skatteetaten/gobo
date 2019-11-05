@@ -8,10 +8,10 @@ import assertk.assertions.isInstanceOf
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import assertk.assertions.messageContains
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import no.skatteetaten.aurora.gobo.AuroraResponseBuilder
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository
+import no.skatteetaten.aurora.gobo.testObjectMapper
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.execute
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -39,7 +39,7 @@ class ImageRegistryServiceBlockingTest {
     fun `get tags given error from Cantus throw exception`(statusCode: Int) {
         val response = AuroraResponseBuilder(status = statusCode, url = "").build()
         val mockResponse = MockResponse()
-            .setBody(jacksonObjectMapper().writeValueAsString(response))
+            .setBody(testObjectMapper().writeValueAsString(response))
             .setResponseCode(200)
             .setHeader("Content-Type", "application/json")
 

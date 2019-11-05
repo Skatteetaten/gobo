@@ -16,7 +16,6 @@ import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import assertk.assertions.message
 import assertk.assertions.support.expected
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.jayway.jsonpath.JsonPath
 import io.mockk.every
 import io.mockk.mockk
@@ -76,7 +75,7 @@ class DatabaseSchemaServiceBlockingTest {
         )
         val databaseSchema = DatabaseSchemaResourceBuilder().build()
         val response = DbhResponse.ok(databaseSchema, databaseSchema)
-        val json = JsonPath.parse(jacksonObjectMapper().writeValueAsString(response))
+        val json = JsonPath.parse(testObjectMapper().writeValueAsString(response))
             .set("$.items[0].labels", labelsMissingEnv).jsonString()
 
         val request = server.execute(json) {
@@ -239,7 +238,11 @@ class DatabaseSchemaServiceBlockingTest {
     fun `Get database schema given unknown hostname throw SourceSystemException`() {
         val serviceWithUnknownHost =
             DatabaseSchemaServiceBlocking(
-                DatabaseSchemaServiceReactive(sharedSecretReader, WebClient.create("http://unknown-hostname"), testObjectMapper())
+                DatabaseSchemaServiceReactive(
+                    sharedSecretReader,
+                    WebClient.create("http://unknown-hostname"),
+                    testObjectMapper()
+                )
             )
 
         assertThat { serviceWithUnknownHost.getDatabaseSchema("abc123") }
