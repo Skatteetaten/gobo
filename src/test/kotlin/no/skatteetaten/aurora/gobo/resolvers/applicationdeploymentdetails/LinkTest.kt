@@ -8,13 +8,13 @@ class LinkTest {
 
     @Test
     fun `Create http link with protocol set`() {
-        val link = Link.Create("self", "http://localhost")
+        val link = Link.create("self", "http://localhost")
         assertThat(link.url.toString()).isEqualTo("http://localhost")
     }
 
     @Test
     fun `Create http link without protocol set`() {
-        val link = Link.Create("self", "localhost")
+        val link = Link.create("self", "localhost")
         assertThat(link.url.toString()).isEqualTo("http://localhost")
     }
 }

@@ -38,6 +38,6 @@ fun Links.toGoboLinks(): List<Link> {
     return values.fields().iterator().asSequence().toList().mapNotNull { field ->
         field.value.at("/href").asText()
             ?.takeIf { it.isNotEmpty() }
-            ?.let { Link.Create(field.key, it) }
+            ?.let { Link.create(field.key, it) }
     }
 }

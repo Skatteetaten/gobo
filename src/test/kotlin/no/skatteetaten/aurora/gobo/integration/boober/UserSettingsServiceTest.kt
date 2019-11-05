@@ -6,6 +6,7 @@ import assertk.assertions.isEqualTo
 import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.resolvers.usersettings.ApplicationDeploymentFilter
 import no.skatteetaten.aurora.gobo.resolvers.usersettings.UserSettings
+import no.skatteetaten.aurora.gobo.testObjectMapper
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.execute
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.jupiter.api.Test
@@ -18,7 +19,7 @@ class UserSettingsServiceTest {
     private val url = server.url("/")
 
     private val applicationDeploymentFilterService =
-        UserSettingsService(BooberWebClient(url.toString(), WebClient.create()))
+        UserSettingsService(BooberWebClient(url.toString(), WebClient.create(), testObjectMapper()))
     private val filter = ApplicationDeploymentFilterResource(
         name = "my filter",
         affiliation = "aurora",

@@ -1,5 +1,6 @@
 package no.skatteetaten.aurora.gobo
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import io.netty.channel.ChannelOption
 import io.netty.handler.ssl.SslContextBuilder
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory
@@ -60,7 +61,8 @@ class ApplicationConfig(
     @Value("\${gobo.webclient.read-timeout:30000}") val readTimeout: Long,
     @Value("\${gobo.webclient.write-timeout:30000}") val writeTimeout: Long,
     @Value("\${gobo.webclient.connection-timeout:30000}") val connectionTimeout: Int,
-    @Value("\${spring.application.name}") val applicationName: String
+    @Value("\${spring.application.name}") val applicationName: String,
+    val objectMapper: ObjectMapper
 ) {
 
     @Bean
@@ -121,7 +123,6 @@ class ApplicationConfig(
             .clientConnector(clientConnector(ssl))
 
     private fun exchangeStrategies(): ExchangeStrategies {
-        val objectMapper = createObjectMapper()
         return ExchangeStrategies
             .builder()
             .codecs {

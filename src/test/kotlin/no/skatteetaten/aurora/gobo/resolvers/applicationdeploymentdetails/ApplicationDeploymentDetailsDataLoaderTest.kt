@@ -4,6 +4,7 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isSameAs
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import no.skatteetaten.aurora.gobo.ApplicationConfig
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentDetailsBuilder
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
@@ -24,7 +25,7 @@ class ApplicationDeploymentDetailsDataLoaderTest {
 
     private val server = MockWebServer()
     private val url = server.url("/")
-    private val webClient = ApplicationConfig(50, 50, 50, "")
+    private val webClient = ApplicationConfig(50, 50, 50, "", jacksonObjectMapper())
         .webClientBuilder(false).baseUrl(url.toString()).build()
     private val applicationService = ApplicationServiceBlocking(ApplicationService(webClient))
     private val dataLoader = ApplicationDeploymentDetailsDataLoader(applicationService)

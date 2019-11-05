@@ -1,10 +1,10 @@
 package no.skatteetaten.aurora.gobo.integration.boober
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import java.net.URI
 import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
-import no.skatteetaten.aurora.gobo.createObjectMapper
 import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import org.springframework.beans.factory.annotation.Value
@@ -21,7 +21,8 @@ import reactor.kotlin.core.publisher.toFlux
 @Service
 class BooberWebClient(
     @Value("\${integrations.boober.url:}") val booberUrl: String?,
-    @TargetService(ServiceTypes.BOOBER) val webClient: WebClient
+    @TargetService(ServiceTypes.BOOBER) val webClient: WebClient,
+    val objectMapper: ObjectMapper
 ) {
 
     final inline fun <reified T : Any> get(token: String, url: String, params: List<String> = emptyList()): Flux<T> =
@@ -88,7 +89,7 @@ class BooberWebClient(
 
         return response.onErrorMap {
             val (message, code) = if (it is WebClientResponseException) {
-                val responseObj = createObjectMapper().readValue<Response<Any>>(it.responseBodyAsString)
+                val responseObj = objectMapper.readValue<Response<Any>>(it.responseBodyAsString)
                 Pair("message=${responseObj.message} items=${responseObj.items}", it.statusCode.value().toString())
             } else {
                 Pair(it.message ?: "", "")
@@ -107,7 +108,7 @@ class BooberWebClient(
                 sourceSystem = "boober"
             ).toFlux()
             else if (r.count == 0) Flux.empty()
-            else r.items.map { item -> createObjectMapper().convertValue(item, T::class.java) }.toFlux()
+            else r.items.map { item -> objectMapper.convertValue(item, T::class.java) }.toFlux()
         }
     }
 }

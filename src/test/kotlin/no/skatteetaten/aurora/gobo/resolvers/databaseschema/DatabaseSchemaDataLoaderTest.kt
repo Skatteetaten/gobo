@@ -4,10 +4,10 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import no.skatteetaten.aurora.gobo.ApplicationConfig
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentWithDbResourceBuilder
-import no.skatteetaten.aurora.gobo.createObjectMapper
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
 import no.skatteetaten.aurora.gobo.resolvers.user.User
+import no.skatteetaten.aurora.gobo.testObjectMapper
 import no.skatteetaten.aurora.mockmvc.extensions.TestObjectMapperConfigurer
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.execute
 import okhttp3.mockwebserver.MockWebServer
@@ -22,10 +22,11 @@ class DatabaseSchemaDataLoaderTest {
     private val server = MockWebServer()
     private val dbhUrl = server.url("/").toString()
     private val applicationConfig = ApplicationConfig(
-        connectionTimeout = 100,
-        readTimeout = 100,
-        writeTimeout = 100,
-        applicationName = ""
+        connectionTimeout = 500,
+        readTimeout = 500,
+        writeTimeout = 500,
+        applicationName = "",
+        objectMapper = testObjectMapper()
     )
     private val dbhClient = applicationConfig.webClientDbh(dbhUrl)
     private val applicationService = ApplicationServiceBlocking(ApplicationService(dbhClient))
@@ -33,7 +34,7 @@ class DatabaseSchemaDataLoaderTest {
 
     @BeforeEach
     fun setUp() {
-        TestObjectMapperConfigurer.objectMapper = createObjectMapper()
+        TestObjectMapperConfigurer.objectMapper = testObjectMapper()
     }
 
     @AfterEach

@@ -31,6 +31,7 @@ import no.skatteetaten.aurora.gobo.integration.containsAuroraToken
 import no.skatteetaten.aurora.gobo.integration.containsAuroraTokens
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseSchemaServiceReactive.Companion.HEADER_COOLDOWN_DURATION_HOURS
 import no.skatteetaten.aurora.gobo.security.SharedSecretReader
+import no.skatteetaten.aurora.gobo.testObjectMapper
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.bodyAsObject
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.execute
 import okhttp3.mockwebserver.MockWebServer
@@ -48,7 +49,8 @@ class DatabaseSchemaServiceBlockingTest {
         DatabaseSchemaServiceBlocking(
             DatabaseSchemaServiceReactive(
                 sharedSecretReader,
-                create(server.url("/").toString())
+                create(server.url("/").toString()),
+                testObjectMapper()
             )
         )
 
@@ -237,7 +239,7 @@ class DatabaseSchemaServiceBlockingTest {
     fun `Get database schema given unknown hostname throw SourceSystemException`() {
         val serviceWithUnknownHost =
             DatabaseSchemaServiceBlocking(
-                DatabaseSchemaServiceReactive(sharedSecretReader, WebClient.create("http://unknown-hostname"))
+                DatabaseSchemaServiceReactive(sharedSecretReader, WebClient.create("http://unknown-hostname"), testObjectMapper())
             )
 
         assertThat { serviceWithUnknownHost.getDatabaseSchema("abc123") }

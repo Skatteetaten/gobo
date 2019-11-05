@@ -105,7 +105,7 @@ data class ManagementEndpointError(
 
 class Link(val name: String, val url: URL) {
     companion object {
-        fun Create(name: String, url: String): Link {
+        fun create(name: String, url: String): Link {
             val href = if (url.matches("https?://.*".toRegex())) {
                 url
             } else {

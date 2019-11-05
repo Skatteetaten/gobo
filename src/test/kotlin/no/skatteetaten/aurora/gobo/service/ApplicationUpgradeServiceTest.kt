@@ -11,13 +11,13 @@ import com.fasterxml.jackson.databind.node.TextNode
 import no.skatteetaten.aurora.gobo.ApplicationConfig
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentDetailsBuilder
 import no.skatteetaten.aurora.gobo.AuroraConfigFileBuilder
-import no.skatteetaten.aurora.gobo.createObjectMapper
 import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigService
 import no.skatteetaten.aurora.gobo.integration.boober.BooberWebClient
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
+import no.skatteetaten.aurora.gobo.testObjectMapper
 import no.skatteetaten.aurora.mockmvc.extensions.TestObjectMapperConfigurer
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.execute
 import okhttp3.mockwebserver.MockResponse
@@ -37,15 +37,16 @@ class ApplicationUpgradeServiceTest {
     private val server = MockWebServer()
     private val url = server.url("/")
 
-    private val config = ApplicationConfig(500, 500, 500, "")
-    private val auroraConfigService = AuroraConfigService(BooberWebClient("${url}boober", config.webClientBoober()))
+    private val config = ApplicationConfig(500, 500, 500, "", testObjectMapper())
+    private val auroraConfigService =
+        AuroraConfigService(BooberWebClient("${url}boober", config.webClientBoober(), testObjectMapper()))
     private val applicationService =
         ApplicationServiceBlocking(ApplicationService(config.webClientMokey("${url}mokey")))
     private val upgradeService = ApplicationUpgradeService(applicationService, auroraConfigService)
 
     @BeforeEach
     fun setUp() {
-        TestObjectMapperConfigurer.objectMapper = createObjectMapper()
+        TestObjectMapperConfigurer.objectMapper = testObjectMapper()
     }
 
     @AfterEach

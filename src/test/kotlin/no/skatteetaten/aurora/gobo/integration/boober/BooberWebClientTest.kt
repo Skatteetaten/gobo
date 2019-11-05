@@ -5,6 +5,7 @@ import assertk.assertions.hasMessage
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFailure
 import assertk.assertions.isInstanceOf
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.execute
@@ -15,7 +16,7 @@ import org.springframework.web.reactive.function.client.WebClient
 class BooberWebClientTest {
     private val server = MockWebServer()
     private val url = server.url("/").toString()
-    private val client = BooberWebClient(url, WebClient.create())
+    private val client = BooberWebClient(url, WebClient.create(), jacksonObjectMapper())
 
     @Test
     fun `Get boober response`() {
