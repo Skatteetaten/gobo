@@ -37,10 +37,12 @@ class HalResourcesKtTest {
         val links = Links().apply {
             add("test1", "http://localhost/1")
             add("test2", "http://localhost/2")
+            add("test3", "http://localhost/%7B3%7D")
         }
-        val (link1, link2) = HalResource(links).linkHrefs("test1", "test2")
+        val (link1, link2, link3) = HalResource(links).linkHrefs("test1", "test2", "test3")
         assertThat(link1).isEqualTo("http://localhost/1")
         assertThat(link2).isEqualTo("http://localhost/2")
+        assertThat(link3).isEqualTo("http://localhost/{3}")
     }
 
     @Test
