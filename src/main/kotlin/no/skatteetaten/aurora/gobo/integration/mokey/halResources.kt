@@ -2,13 +2,13 @@ package no.skatteetaten.aurora.gobo.integration.mokey
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import java.net.URLDecoder
 import java.nio.charset.Charset
 import no.skatteetaten.aurora.gobo.resolvers.applicationdeploymentdetails.Link
 import org.springframework.web.util.UriUtils
 import uk.q3c.rest.hal.HalLink
 import uk.q3c.rest.hal.HalResource
 import uk.q3c.rest.hal.Links
-import java.net.URLDecoder
 
 fun HalResource.findLink(rel: String): String {
     return _links.link(rel).let {
