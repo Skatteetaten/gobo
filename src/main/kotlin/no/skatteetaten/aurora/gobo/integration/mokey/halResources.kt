@@ -2,6 +2,7 @@ package no.skatteetaten.aurora.gobo.integration.mokey
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import java.net.URLDecoder
 import java.nio.charset.Charset
 import no.skatteetaten.aurora.gobo.resolvers.applicationdeploymentdetails.Link
 import org.springframework.web.util.UriUtils
@@ -21,7 +22,9 @@ fun HalResource.addAll(links: Links) =
     }
 
 fun HalResource.linkHref(propertyName: String) =
-    link(propertyName)?.href ?: throw IllegalArgumentException("Link with name $propertyName not found")
+    link(propertyName)?.href?.let {
+        URLDecoder.decode(it, Charset.defaultCharset())
+    } ?: throw IllegalArgumentException("Link with name $propertyName not found")
 
 fun HalResource.linkHrefs(vararg propertyNames: String) =
     propertyNames.map { linkHref(it) }
