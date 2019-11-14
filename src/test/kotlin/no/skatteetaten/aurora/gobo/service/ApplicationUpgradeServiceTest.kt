@@ -37,7 +37,7 @@ class ApplicationUpgradeServiceTest {
     private val server = MockWebServer()
     private val url = server.url("/")
 
-    private val config = ApplicationConfig(500, 500, 500, "", testObjectMapper())
+    private val config = ApplicationConfig(500, 500, 500, "", testObjectMapper(), "")
     private val auroraConfigService =
         AuroraConfigService(BooberWebClient("${url}boober", config.webClientBoober(), testObjectMapper()))
     private val applicationService =

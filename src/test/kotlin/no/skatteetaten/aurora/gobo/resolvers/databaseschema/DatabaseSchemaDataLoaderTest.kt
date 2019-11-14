@@ -26,7 +26,8 @@ class DatabaseSchemaDataLoaderTest {
         readTimeout = 500,
         writeTimeout = 500,
         applicationName = "",
-        objectMapper = testObjectMapper()
+        objectMapper = testObjectMapper(),
+        env = ""
     )
     private val dbhClient = applicationConfig.webClientDbh(dbhUrl)
     private val applicationService = ApplicationServiceBlocking(ApplicationService(dbhClient))
