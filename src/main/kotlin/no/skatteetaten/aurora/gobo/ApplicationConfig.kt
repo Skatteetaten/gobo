@@ -7,7 +7,6 @@ import io.netty.handler.ssl.util.InsecureTrustManagerFactory
 import io.netty.handler.timeout.ReadTimeoutHandler
 import io.netty.handler.timeout.WriteTimeoutHandler
 import java.util.concurrent.TimeUnit
-import javax.annotation.PostConstruct
 import kotlin.math.min
 import mu.KotlinLogging
 import no.skatteetaten.aurora.filter.logging.AuroraHeaderFilter
@@ -63,14 +62,8 @@ class ApplicationConfig(
     @Value("\${gobo.webclient.write-timeout:30000}") val writeTimeout: Long,
     @Value("\${gobo.webclient.connection-timeout:30000}") val connectionTimeout: Int,
     @Value("\${spring.application.name}") val applicationName: String,
-    val objectMapper: ObjectMapper,
-    @Value("\${management.endpoints.web.exposure.include:}") val env: String?
+    val objectMapper: ObjectMapper
 ) {
-
-    @PostConstruct
-    fun init() {
-        logger.info("env: $env")
-    }
 
     @Bean
     @Primary
