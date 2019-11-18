@@ -126,8 +126,11 @@ class ApplicationConfig(
         return ExchangeStrategies
             .builder()
             .codecs {
-                it.defaultCodecs().jackson2JsonDecoder(Jackson2JsonDecoder(objectMapper, MediaType.APPLICATION_JSON))
-                it.defaultCodecs().jackson2JsonEncoder(Jackson2JsonEncoder(objectMapper, MediaType.APPLICATION_JSON))
+                it.defaultCodecs().apply {
+                    maxInMemorySize(-1) // unlimited
+                    jackson2JsonDecoder(Jackson2JsonDecoder(objectMapper, MediaType.APPLICATION_JSON))
+                    jackson2JsonEncoder(Jackson2JsonEncoder(objectMapper, MediaType.APPLICATION_JSON))
+                }
             }
             .build()
     }
