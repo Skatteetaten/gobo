@@ -124,7 +124,6 @@ data class ApplicationDeploymentResourceBuilder(
             time = Instant.EPOCH,
             message = msg
         ).apply {
-
             link("ApplicationDeploymentDetails", HalLink("http://ApplicationDeploymentDetails/1"))
             link("Application", HalLink("http://Application/1"))
         }

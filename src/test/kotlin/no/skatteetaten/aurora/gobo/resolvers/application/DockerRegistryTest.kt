@@ -23,8 +23,8 @@ class DockerRegistryTest {
     }
 
     @Test
-    fun `verify internal IP is recognized as internal registry`() {
-        val isInternal = dockerRegistry.isInternal("127.0.0.1:5000")
+    fun `verify internal IP with path is recognized as internal registry`() {
+        val isInternal = dockerRegistry.isInternal("127.0.0.1:5000/test123")
 
         assertThat(isInternal).isTrue()
     }
