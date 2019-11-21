@@ -26,7 +26,7 @@ class ApplicationResolver(val dockerRegistry: DockerRegistry) :
 class DockerRegistry(@Value("\${integrations.internal-registry.url:docker-registry.default.svc:5000}") val internalRegistryAddress: String) {
 
     private val ipV4WithPortRegex =
-        "^((25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\.){3}(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]):[0-9]{1,4}\$".toRegex()
+        "^((25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\.){3}(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]):([0-9]{1,4})(.*)\$".toRegex()
 
     fun isInternal(registry: String) =
         registry == internalRegistryAddress || registry.matches(ipV4WithPortRegex)

@@ -9,8 +9,10 @@ import no.skatteetaten.aurora.gobo.integration.boober.DeleteApplicationDeploymen
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
 import no.skatteetaten.aurora.gobo.resolvers.affiliation.Affiliation
 import no.skatteetaten.aurora.gobo.resolvers.application.Application
+import no.skatteetaten.aurora.gobo.resolvers.application.DockerRegistry
 import no.skatteetaten.aurora.gobo.resolvers.application.createApplicationEdge
 import no.skatteetaten.aurora.gobo.resolvers.applicationdeploymentdetails.ApplicationDeploymentDetailsDataLoader
+import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository
 import no.skatteetaten.aurora.gobo.resolvers.loader
 import no.skatteetaten.aurora.gobo.resolvers.namespace.Namespace
 import no.skatteetaten.aurora.gobo.security.currentUser
@@ -18,12 +20,17 @@ import no.skatteetaten.aurora.gobo.service.ApplicationUpgradeService
 import org.springframework.stereotype.Component
 
 @Component
-class ApplicationDeploymentQueryResolver(private val applicationService: ApplicationServiceBlocking) :
-    GraphQLQueryResolver {
+class ApplicationDeploymentQueryResolver(
+    private val applicationService: ApplicationServiceBlocking,
+    private val dockerRegistry: DockerRegistry
+) : GraphQLQueryResolver {
 
     fun getApplicationDeployment(id: String): ApplicationDeployment? =
-        applicationService.getApplicationDeployment(id).let {
-            ApplicationDeployment.create(it)
+        applicationService.getApplicationDeployment(id).let { resource ->
+            val imageRepo = resource.dockerImageRepo
+                .takeIf { it != null && !dockerRegistry.isInternal(it) }
+                ?.let { ImageRepository.fromRepoString(it) }
+            ApplicationDeployment.create(resource, imageRepo)
         }
 }
 

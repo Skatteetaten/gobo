@@ -34,6 +34,9 @@ data class ApplicationDeployment(
 ) {
     companion object {
         fun create(deployment: ApplicationDeploymentResource) =
+            create(deployment, deployment.dockerImageRepo?.let { ImageRepository.fromRepoString(it) })
+
+        fun create(deployment: ApplicationDeploymentResource, imageRepo: ImageRepository?) =
             ApplicationDeployment(
                 id = deployment.identifier,
                 name = deployment.name,
@@ -60,7 +63,7 @@ data class ApplicationDeployment(
                 dockerImageRepo = deployment.dockerImageRepo,
                 applicationId = deployment.applicationId,
                 message = deployment.message,
-                imageRepository = deployment.dockerImageRepo?.let { ImageRepository.fromRepoString(it) }
+                imageRepository = imageRepo
             )
 
         private fun toStatusCheck(checkResource: StatusCheckResource) = checkResource.let {
