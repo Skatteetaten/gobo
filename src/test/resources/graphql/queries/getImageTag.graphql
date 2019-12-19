@@ -1,0 +1,12 @@
+query getImageRepositories($repositories: [String!]!, $tagName: String!) {
+    imageRepositories(repositories: $repositories) {
+        repository
+        tag(name: $tagName){
+            type
+            image {
+                buildTime
+                imageReference
+            }
+        }
+    }
+}

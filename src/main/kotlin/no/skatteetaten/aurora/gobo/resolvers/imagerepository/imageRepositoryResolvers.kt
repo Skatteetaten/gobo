@@ -49,6 +49,20 @@ class ImageRepositoryResolver(
         }
     }
 
+    fun tag(
+        imageRepository: ImageRepository,
+        name: String,
+        dfe: DataFetchingEnvironment
+    ): CompletableFuture<ImageWithType?> {
+        return dfe.multipleKeysLoader(ImageTagDataLoader::class)
+            .load(ImageTag(imageRepository, name))
+            .thenApply {
+                it?.let {
+                    ImageWithType(ImageTagType.typeOf(name), it)
+                }
+            }
+    }
+
     fun tags(
         imageRepository: ImageRepository,
         types: List<ImageTagType>?,
@@ -56,7 +70,7 @@ class ImageRepositoryResolver(
         first: Int? = null,
         after: String? = null,
         dfe: DataFetchingEnvironment
-    ) =
+    ): CompletableFuture<ImageTagsConnection> =
         dfe.loader(ImageTagListDataLoader::class).load(imageRepository.toImageRepo(filter))
             .thenApply { dto ->
                 val imageTags = dto.tags.toImageTags(imageRepository, types)

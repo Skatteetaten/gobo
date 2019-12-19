@@ -51,6 +51,9 @@ class ImageRepositoryQueryResolverTest : AbstractGraphQLTest() {
     @Value("classpath:graphql/queries/getImageRepositoriesWithOnlyFirstFilter.graphql")
     private lateinit var reposWithOnlyFirstFilter: Resource
 
+    @Value("classpath:graphql/queries/getImageTag.graphql")
+    private lateinit var imageTagQuery: Resource
+
     @MockkBean
     private lateinit var imageRegistryServiceBlocking: ImageRegistryServiceBlocking
 
@@ -77,6 +80,28 @@ class ImageRepositoryQueryResolverTest : AbstractGraphQLTest() {
                 )
             } returns TagsDto(imageRepoAndTags.imageTags.map { Tag(name = it, type = ImageTagType.typeOf(it)) })
         }
+    }
+
+    @Test
+    fun `Query for tag`() {
+        val query = listOf(
+            ImageRepoAndTags(
+                imageRepository = "docker-registry.aurora.sits.no:5000/aurora/openshift-jenkins-master",
+                imageTags = listOf("latest")
+            ))
+
+        every { imageRegistryServiceBlocking.findTagsByName(query, "test-token") } returns auroraResponse
+
+        val variables = mapOf("repositories" to query.map { it.imageRepository }, "tagName" to query.flatMap { it.imageTags }.first())
+        webTestClient.queryGraphQL(imageTagQuery, variables, "test-token")
+            .expectStatus().isOk
+            .expectBody()
+            .graphqlDataWithPrefix("imageRepositories[0]") {
+
+                graphqlData("repository").isEqualTo(query.first().imageRepository)
+                graphqlData("tag.type").isEqualTo("LATEST")
+                graphqlData("tag.image.buildTime").isEqualTo(EPOCH.toString())
+            }
     }
 
     @Test

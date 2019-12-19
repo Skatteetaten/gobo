@@ -1,7 +1,8 @@
 type ImageRepository {
   repository: String!
   guiUrl: String
-    tags(types: [ImageTagType!], filter: String, first: Int!, after: String): ImageTagsConnection!
+  tags(types: [ImageTagType!], filter: String, first: Int!, after: String): ImageTagsConnection!
+  tag(names:String) : ImageWithType
 }
 
 type ImageTagsConnection {
@@ -17,6 +18,11 @@ type ImageTagEdge {
 
 type ImageTag {
   name: String!
+  type: ImageTagType!
+  image: Image
+}
+
+type ImageWithType {
   type: ImageTagType!
   image: Image
 }

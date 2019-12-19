@@ -39,6 +39,11 @@ data class ImageRepository(
     }
 }
 
+data class ImageWithType(
+    val type: ImageTagType,
+    val image: Image
+)
+
 data class ImageTag(
     val imageRepository: ImageRepository,
     val name: String
