@@ -84,23 +84,30 @@ class ImageRepositoryQueryResolverTest : AbstractGraphQLTest() {
 
     @Test
     fun `Query for tag`() {
+        val repo = "docker-registry.aurora.sits.no:5000/aurora/openshift-jenkins-master"
+        val imageTags = listOf("latest", "1")
         val query = listOf(
             ImageRepoAndTags(
-                imageRepository = "docker-registry.aurora.sits.no:5000/aurora/openshift-jenkins-master",
-                imageTags = listOf("latest")
-            ))
+                imageRepository = repo,
+                imageTags = imageTags
+            )
+        )
 
         every { imageRegistryServiceBlocking.findTagsByName(query, "test-token") } returns auroraResponse
 
-        val variables = mapOf("repositories" to query.map { it.imageRepository }, "tagName" to query.flatMap { it.imageTags }.first())
+        val variables =
+            mapOf("repositories" to query.map { it.imageRepository }, "tagNames" to query.flatMap { it.imageTags })
         webTestClient.queryGraphQL(imageTagQuery, variables, "test-token")
             .expectStatus().isOk
             .expectBody()
             .graphqlDataWithPrefix("imageRepositories[0]") {
-
-                graphqlData("repository").isEqualTo(query.first().imageRepository)
-                graphqlData("tag.type").isEqualTo("LATEST")
-                graphqlData("tag.image.buildTime").isEqualTo(EPOCH.toString())
+                graphqlData("repository").isEqualTo(repo)
+                graphqlData("tag[0].name").isEqualTo("latest")
+                graphqlData("tag[0].type").isEqualTo("LATEST")
+                graphqlData("tag[0].image.buildTime").isEqualTo(EPOCH.toString())
+                graphqlData("tag[1].name").isEqualTo("1")
+                graphqlData("tag[1].type").isEqualTo("MAJOR")
+                graphqlData("tag[1].image.buildTime").isEqualTo(EPOCH.toString())
             }
     }
 

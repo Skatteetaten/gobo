@@ -40,9 +40,11 @@ data class ImageRepository(
 }
 
 data class ImageWithType(
-    val type: ImageTagType,
+    val name: String,
     val image: Image
-)
+) {
+    val type: ImageTagType get() = typeOf(name)
+}
 
 data class ImageTag(
     val imageRepository: ImageRepository,

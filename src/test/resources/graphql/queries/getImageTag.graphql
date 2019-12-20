@@ -1,7 +1,8 @@
-query getImageRepositories($repositories: [String!]!, $tagName: String!) {
+query getImageRepositories($repositories: [String!]!, $tagNames: [String!]!) {
     imageRepositories(repositories: $repositories) {
         repository
-        tag(name: $tagName){
+        tag(names: $tagNames){
+            name
             type
             image {
                 buildTime
