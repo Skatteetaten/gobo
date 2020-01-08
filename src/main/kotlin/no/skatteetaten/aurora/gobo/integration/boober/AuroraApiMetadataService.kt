@@ -10,7 +10,7 @@ class AuroraApiMetadataService(private val booberWebClient: BooberWebClient) {
 
     fun getClientConfig(): ClientConfig {
         return booberWebClient
-            .anonymousGet<ClientConfig>("/v1/auroraconfignames")
+            .anonymousGet<ClientConfig>("/v1/clientconfig")
             .toMono()
             .blockNonNullAndHandleError()
     }
