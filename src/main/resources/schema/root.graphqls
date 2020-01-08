@@ -14,6 +14,7 @@ type Query {
   databaseSchema(id: String!): DatabaseSchema
   gobo: Gobo
   certificates: CertificatesConnection
+  auroraApiMetadata: AuroraApiMetadata
 }
 
 type Mutation {
