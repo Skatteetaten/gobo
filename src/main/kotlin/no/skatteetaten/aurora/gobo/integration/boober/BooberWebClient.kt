@@ -87,8 +87,8 @@ class BooberWebClient(
         fn: (WebClient) -> WebClient.RequestHeadersSpec<*>
     ): Flux<T> {
         return execute(null, fn)
-
     }
+
     final inline fun <reified T : Any> execute(
         token: String? = null,
         fn: (WebClient) -> WebClient.RequestHeadersSpec<*>

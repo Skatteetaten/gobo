@@ -14,4 +14,12 @@ class AuroraApiMetadataService(private val booberWebClient: BooberWebClient) {
             .toMono()
             .blockNonNullAndHandleError()
     }
+
+    fun getConfigNames(): List<String> {
+        return booberWebClient
+            .anonymousGet<String>("/v1/auroraconfignames")
+            .collectList()
+            .toMono()
+            .blockNonNullAndHandleError()
+    }
 }

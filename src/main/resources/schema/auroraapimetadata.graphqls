@@ -1,5 +1,5 @@
 type AuroraApiMetadata {
-    #configNames: [String!]!
+    configNames: [String!]
     clientConfig: ClientConfig!
 }
 
