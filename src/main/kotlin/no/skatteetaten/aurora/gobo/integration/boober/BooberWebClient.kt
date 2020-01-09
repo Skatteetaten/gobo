@@ -94,15 +94,12 @@ class BooberWebClient(
         fn: (WebClient) -> WebClient.RequestHeadersSpec<*>
     ): Flux<T> {
         val response: Mono<Response<T>> = fn(webClient).let {
-            if(token != null) {
+            if (token != null) {
                 it.header(HttpHeaders.AUTHORIZATION, "Bearer $token")
-
             } else {
                 it
             }
         }.retrieve().bodyToMono()
-
-
 
         return response.onErrorMap {
             val (message, code) = if (it is WebClientResponseException) {

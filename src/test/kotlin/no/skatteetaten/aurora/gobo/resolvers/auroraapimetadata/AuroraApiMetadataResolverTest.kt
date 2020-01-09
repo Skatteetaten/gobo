@@ -2,9 +2,7 @@ package no.skatteetaten.aurora.gobo.resolvers.auroraapimetadata
 
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
-import no.skatteetaten.aurora.gobo.ApplicationDeploymentResourceBuilder
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraApiMetadataService
-import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
 import no.skatteetaten.aurora.gobo.resolvers.AbstractGraphQLTest
 import no.skatteetaten.aurora.gobo.resolvers.graphqlDataWithPrefix
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
@@ -15,27 +13,33 @@ import org.springframework.core.io.Resource
 
 class AuroraApiMetadataResolverTest : AbstractGraphQLTest() {
 
-    @Value("classpath:graphql/queries/getConfigNames.graphql")
-    private lateinit var getApplicationsQuery: Resource
+    @Value("classpath:graphql/queries/getMetadata.graphql")
+    private lateinit var query: Resource
 
     @MockkBean
     private lateinit var applicationService: AuroraApiMetadataService
 
+    val configNames: List<String> = listOf("A", "B", "C")
+
     @BeforeEach
     fun setUp() {
-        val configNames: List<String> = listOf("A", "B", "C")
         every { applicationService.getConfigNames() } returns configNames
-        every { applicationService.getClientConfig()} returns ClientConfig("", " ", " ", "")
+        every { applicationService.getClientConfig() } returns ClientConfig(
+            "foo.bar/%s/",
+            "utv",
+            "http://utv.cluster:8443",
+            "2"
+        )
     }
 
     @Test
     fun `Query for config names`() {
-        val variables: Map<String, *> = emptyMap<String, String>()
-        webTestClient.queryGraphQL(getApplicationsQuery, variables, null)
+        webTestClient.queryGraphQL(query)
             .expectStatus().isOk
-            // .expectBody()
-            // .graphqlDataWithPrefix("auroraApiMetadata") {
-            //     graphqlData("configNames").isArray()
-          //  }
+            .expectBody()
+            .graphqlDataWithPrefix("auroraApiMetadata") {
+                graphqlData("configNames[0]").isEqualTo(configNames[0])
+                graphqlData("clientConfig.openshiftCluster").isEqualTo("utv")
+            }
     }
 }

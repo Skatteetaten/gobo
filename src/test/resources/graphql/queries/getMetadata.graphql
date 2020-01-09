@@ -1,0 +1,11 @@
+{
+    auroraApiMetadata {
+        configNames
+        clientConfig {
+          gitUrlPattern
+          openshiftCluster
+          openshiftUrl
+          apiVersion
+        }
+  }
+}
