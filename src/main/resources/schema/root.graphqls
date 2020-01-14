@@ -15,6 +15,7 @@ type Query {
   gobo: Gobo
   certificates: CertificatesConnection
   auroraApiMetadata: AuroraApiMetadata
+    auroraConfig(name:String!, ref:String): AuroraConfig
 }
 
 type Mutation {

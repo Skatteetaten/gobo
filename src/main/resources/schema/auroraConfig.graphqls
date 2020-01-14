@@ -1,0 +1,11 @@
+type AuroraConfig{
+    name: String!
+    ref: String!
+    resolvedRef: String!
+    files: [AuroraConfigFile!]
+}
+type AuroraConfigFile {
+    name: String!
+    type: String!
+    contents: String!
+}
