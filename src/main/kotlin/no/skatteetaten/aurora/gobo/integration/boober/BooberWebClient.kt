@@ -25,6 +25,11 @@ class BooberWebClient(
     val objectMapper: ObjectMapper
 ) {
 
+    final inline fun <reified T : Any> anonymousGet(url: String, params: List<String> = emptyList()): Flux<T> =
+        execute {
+            it.get().uri(getBooberUrl(url), params)
+        }
+
     final inline fun <reified T : Any> get(token: String, url: String, params: List<String> = emptyList()): Flux<T> =
         execute(token) {
             it.get().uri(getBooberUrl(url), params)
@@ -79,13 +84,22 @@ class BooberWebClient(
     }
 
     final inline fun <reified T : Any> execute(
-        token: String,
         fn: (WebClient) -> WebClient.RequestHeadersSpec<*>
     ): Flux<T> {
-        val response: Mono<Response<T>> = fn(webClient)
-            .header(HttpHeaders.AUTHORIZATION, "Bearer $token")
-            .retrieve()
-            .bodyToMono()
+        return execute(null, fn)
+    }
+
+    final inline fun <reified T : Any> execute(
+        token: String? = null,
+        fn: (WebClient) -> WebClient.RequestHeadersSpec<*>
+    ): Flux<T> {
+        val response: Mono<Response<T>> = fn(webClient).let {
+            if (token != null) {
+                it.header(HttpHeaders.AUTHORIZATION, "Bearer $token")
+            } else {
+                it
+            }
+        }.retrieve().bodyToMono()
 
         return response.onErrorMap {
             val (message, code) = if (it is WebClientResponseException) {
