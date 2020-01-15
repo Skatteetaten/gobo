@@ -1,0 +1,55 @@
+package no.skatteetaten.aurora.gobo.resolvers.auroraconfig
+
+import com.ninjasquad.springmockk.MockkBean
+import io.mockk.every
+import no.skatteetaten.aurora.gobo.ApplicationDeploymentResourceBuilder
+import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileResource
+import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileType
+import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileType.APP
+import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileType.GLOBAL
+import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigResource
+import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigService
+import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
+import no.skatteetaten.aurora.gobo.resolvers.AbstractGraphQLTest
+import no.skatteetaten.aurora.gobo.resolvers.graphqlData
+import no.skatteetaten.aurora.gobo.resolvers.graphqlDataWithPrefix
+import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.core.io.Resource
+
+class AuroraConfigQueryResolverTest : AbstractGraphQLTest() {
+
+    val token = "test-token"
+
+    @Value("classpath:graphql/queries/getFile.graphql")
+    private lateinit var query: Resource
+
+    @MockkBean
+    private lateinit var auroraConfigService: AuroraConfigService
+
+    @BeforeEach
+    fun setUp() {
+        every { auroraConfigService.getAuroraConfigFiles(any(), any(), any()) } returns AuroraConfigResource(
+            "demo",
+            listOf(
+                AuroraConfigFileResource("about.json", """{ "foo" : "bar" }""", GLOBAL),
+                AuroraConfigFileResource("utv/foo.json", """{ "foo" : "bar" }""", APP)
+            )
+        )
+    }
+
+    @Test
+    fun `Query for application deployment`() {
+        val variables = mapOf("auroraConfig" to "demo", "fileName" to "about.json")
+        webTestClient.queryGraphQL(query, variables, token)
+            .expectStatus().isOk
+            .expectBody()
+            .graphqlDataWithPrefix("auroraConfig") {
+                graphqlData("resolvedRef").isEqualTo("master")
+                graphqlData("files.length()").isEqualTo(1)
+                graphqlData("files[0].name").isEqualTo("about.json")
+            }
+    }
+}

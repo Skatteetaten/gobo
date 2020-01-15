@@ -1,0 +1,9 @@
+query getFile($auroraConfig: String!, $fileName: String!) {
+    auroraConfig(name:$auroraConfig) {
+        resolvedRef
+        files(fileName: [$fileName]){
+            name
+            contents
+        }
+    }
+}

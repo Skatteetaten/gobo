@@ -9,13 +9,28 @@ import com.github.fge.jsonpatch.JsonPatch
 import java.time.Duration
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentDetailsResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentRefResource
+import no.skatteetaten.aurora.gobo.resolvers.auroraapimetadata.AuroraConfig
 import no.skatteetaten.aurora.gobo.resolvers.blockNonNullAndHandleError
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
 
+data class AuroraConfigResource(
+    val name: String,
+    val files: List<AuroraConfigFileResource>
+)
+
 @Service
-class AuroraConfigService(private val booberWebClient: BooberWebClient) {
+class AuroraConfigService(
+    private val booberWebClient: BooberWebClient
+) {
+
+    fun getAuroraConfigFiles(token: String, auroraConfig: String, reference: String): AuroraConfigResource {
+        return booberWebClient
+            .get<AuroraConfigResource>(token, "/v1/auroraconfig/${auroraConfig}?reference=${reference}")
+            .toMono()
+            .blockNonNullWithTimeout()
+    }
 
     fun getApplicationFile(token: String, it: String): String {
         return booberWebClient

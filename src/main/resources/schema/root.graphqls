@@ -2,44 +2,44 @@ scalar DateTime
 scalar URL
 
 type Query {
-  affiliations(name: String, checkForVisibility: Boolean): AffiliationsConnection
-  applications(affiliations: [String!]!, applications: [String!]): ApplicationsConnection
-  applicationDeployment(id: String!): ApplicationDeployment
-  applicationDeploymentDetails(id: String!): ApplicationDeploymentDetails
-  imageRepositories(repositories: [String!]!): [ImageRepository!]
-  currentUser: User
-  scan(host: String!, port: Int = 80): Scan
-  userSettings: UserSettings
-  databaseSchemas(affiliations: [String!]!): [DatabaseSchema!]
-  databaseSchema(id: String!): DatabaseSchema
-  gobo: Gobo
-  certificates: CertificatesConnection
-  auroraApiMetadata: AuroraApiMetadata
+    affiliations(name: String, checkForVisibility: Boolean): AffiliationsConnection
+    applications(affiliations: [String!]!, applications: [String!]): ApplicationsConnection
+    applicationDeployment(id: String!): ApplicationDeployment
+    applicationDeploymentDetails(id: String!): ApplicationDeploymentDetails
+    imageRepositories(repositories: [String!]!): [ImageRepository!]
+    currentUser: User
+    scan(host: String!, port: Int = 80): Scan
+    userSettings: UserSettings
+    databaseSchemas(affiliations: [String!]!): [DatabaseSchema!]
+    databaseSchema(id: String!): DatabaseSchema
+    gobo: Gobo
+    certificates: CertificatesConnection
+    auroraApiMetadata: AuroraApiMetadata
     auroraConfig(name:String!, ref:String): AuroraConfig
 }
 
 type Mutation {
-  redeployWithVersion(input: ApplicationDeploymentVersionInput!): Boolean
-  redeployWithCurrentVersion(input: ApplicationDeploymentIdInput!): Boolean
+    redeployWithVersion(input: ApplicationDeploymentVersionInput!): Boolean
+    redeployWithCurrentVersion(input: ApplicationDeploymentIdInput!): Boolean
 
-  refreshApplicationDeployment(input: RefreshByApplicationDeploymentIdInput!): Boolean
-  refreshApplicationDeployments(input: RefreshByAffiliationsInput!): Boolean
-  deleteApplicationDeployment(input: DeleteApplicationDeploymentInput!): Boolean
+    refreshApplicationDeployment(input: RefreshByApplicationDeploymentIdInput!): Boolean
+    refreshApplicationDeployments(input: RefreshByAffiliationsInput!): Boolean
+    deleteApplicationDeployment(input: DeleteApplicationDeploymentInput!): Boolean
 
-  updateUserSettings(input: UserSettingsInput!): Boolean
+    updateUserSettings(input: UserSettingsInput!): Boolean
 
-  updateDatabaseSchema(input: UpdateDatabaseSchemaInput!): DatabaseSchema
-  deleteDatabaseSchemas(input: DeleteDatabaseSchemasInput!): DeleteDatabaseSchemasResponse
+    updateDatabaseSchema(input: UpdateDatabaseSchemaInput!): DatabaseSchema
+    deleteDatabaseSchemas(input: DeleteDatabaseSchemasInput!): DeleteDatabaseSchemasResponse
 
-  testJdbcConnectionForJdbcUser(input: JdbcUserInput!): Boolean
-  testJdbcConnectionForId(id: String!): Boolean
+    testJdbcConnectionForJdbcUser(input: JdbcUserInput!): Boolean
+    testJdbcConnectionForId(id: String!): Boolean
 
-  createDatabaseSchema(input: CreateDatabaseSchemaInput): DatabaseSchema
+    createDatabaseSchema(input: CreateDatabaseSchemaInput): DatabaseSchema
 }
 
 type PageInfo {
-  startCursor: String
-  endCursor: String
-  hasPreviousPage: Boolean
-  hasNextPage: Boolean
+    startCursor: String
+    endCursor: String
+    hasPreviousPage: Boolean
+    hasNextPage: Boolean
 }

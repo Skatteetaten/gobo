@@ -2,10 +2,18 @@ type AuroraConfig{
     name: String!
     ref: String!
     resolvedRef: String!
-    files: [AuroraConfigFile!]
+    files(types:[AuroraConfigFileType!], fileName:[String!]): [AuroraConfigFile!]
 }
+
 type AuroraConfigFile {
     name: String!
-    type: String!
+    type: AuroraConfigFileType!
     contents: String!
+}
+
+enum AuroraConfigFileType  {
+    GLOBAL,
+    BASE,
+    ENV,
+    APP
 }
