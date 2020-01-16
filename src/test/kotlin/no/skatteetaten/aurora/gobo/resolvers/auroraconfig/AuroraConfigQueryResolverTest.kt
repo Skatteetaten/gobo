@@ -2,14 +2,11 @@ package no.skatteetaten.aurora.gobo.resolvers.auroraconfig
 
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
-import no.skatteetaten.aurora.gobo.ApplicationDeploymentResourceBuilder
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileResource
-import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileType
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileType.APP
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileType.GLOBAL
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigResource
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigService
-import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
 import no.skatteetaten.aurora.gobo.resolvers.AbstractGraphQLTest
 import no.skatteetaten.aurora.gobo.resolvers.graphqlData
 import no.skatteetaten.aurora.gobo.resolvers.graphqlDataWithPrefix

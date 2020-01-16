@@ -9,7 +9,6 @@ import com.github.fge.jsonpatch.JsonPatch
 import java.time.Duration
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentDetailsResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentRefResource
-import no.skatteetaten.aurora.gobo.resolvers.auroraapimetadata.AuroraConfig
 import no.skatteetaten.aurora.gobo.resolvers.blockNonNullAndHandleError
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
@@ -27,7 +26,7 @@ class AuroraConfigService(
 
     fun getAuroraConfigFiles(token: String, auroraConfig: String, reference: String): AuroraConfigResource {
         return booberWebClient
-            .get<AuroraConfigResource>(token, "/v1/auroraconfig/${auroraConfig}?reference=${reference}")
+            .get<AuroraConfigResource>(token, "/v1/auroraconfig/$auroraConfig?reference=$reference")
             .toMono()
             .blockNonNullWithTimeout()
     }
