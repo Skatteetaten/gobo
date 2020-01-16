@@ -5,10 +5,9 @@ import io.mockk.every
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileResource
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileType.APP
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileType.GLOBAL
-import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigResource
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigService
 import no.skatteetaten.aurora.gobo.resolvers.AbstractGraphQLTest
-import no.skatteetaten.aurora.gobo.resolvers.graphqlData
+import no.skatteetaten.aurora.gobo.resolvers.auroraapimetadata.AuroraConfig
 import no.skatteetaten.aurora.gobo.resolvers.graphqlDataWithPrefix
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import org.junit.jupiter.api.BeforeEach
@@ -28,9 +27,11 @@ class AuroraConfigQueryResolverTest : AbstractGraphQLTest() {
 
     @BeforeEach
     fun setUp() {
-        every { auroraConfigService.getAuroraConfigFiles(any(), any(), any()) } returns AuroraConfigResource(
-            "demo",
-            listOf(
+        every { auroraConfigService.getAuroraConfig(any(), any(), any()) } returns AuroraConfig(
+            name = "demo",
+            ref = "master",
+            resolvedRef = "abcde",
+            files = listOf(
                 AuroraConfigFileResource("about.json", """{ "foo" : "bar" }""", GLOBAL),
                 AuroraConfigFileResource("utv/foo.json", """{ "foo" : "bar" }""", APP)
             )

@@ -17,9 +17,7 @@ class AuroraConfigQueryResolver(
     fun auroraConfig(name: String, refInput: String?, dfe: DataFetchingEnvironment): AuroraConfig {
         val ref = refInput ?: "master"
         val token = dfe.currentUser().token
-        // TODO: Må ha med resolvedRef i boober
-        val acResource = service.getAuroraConfigFiles(token, name, ref)
-        return AuroraConfig(name, ref, ref, acResource.files)
+        return service.getAuroraConfig(token, name, ref)
     }
 }
 
