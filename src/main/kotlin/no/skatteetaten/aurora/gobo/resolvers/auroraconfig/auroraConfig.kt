@@ -24,6 +24,7 @@ class AuroraConfigQueryResolver(
 data class AuroraConfig(
     val name: String,
     val ref: String,
+    val version: String,
     val resolvedRef: String,
     val files: List<AuroraConfigFileResource>
 )

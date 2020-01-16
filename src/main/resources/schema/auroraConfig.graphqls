@@ -2,6 +2,7 @@ type AuroraConfig{
     name: String!
     ref: String!
     resolvedRef: String!
+    version: String!
     files(types:[AuroraConfigFileType!], fileName:[String!]): [AuroraConfigFile!]
 }
 
