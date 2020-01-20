@@ -11,14 +11,13 @@ import com.fasterxml.jackson.databind.node.TextNode
 import no.skatteetaten.aurora.gobo.ApplicationConfig
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentDetailsBuilder
 import no.skatteetaten.aurora.gobo.AuroraConfigFileBuilder
-import no.skatteetaten.aurora.gobo.createHalTestObjectMapper
-import no.skatteetaten.aurora.gobo.integration.MockWebServerTestTag
 import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigService
 import no.skatteetaten.aurora.gobo.integration.boober.BooberWebClient
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
+import no.skatteetaten.aurora.gobo.testObjectMapper
 import no.skatteetaten.aurora.mockmvc.extensions.TestObjectMapperConfigurer
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.execute
 import okhttp3.mockwebserver.MockResponse
@@ -30,31 +29,24 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
-import org.springframework.hateoas.Link
-import org.springframework.web.reactive.function.client.WebClient
+import uk.q3c.rest.hal.Links
 
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
-@MockWebServerTestTag
 class ApplicationUpgradeServiceTest {
 
     private val server = MockWebServer()
     private val url = server.url("/")
 
-    private val config = ApplicationConfig(
-        webClientBuilder = WebClient.builder(),
-        readTimeout = 50,
-        writeTimeout = 50,
-        connectionTimeout = 50,
-        applicationName = ""
-    )
-    private val auroraConfigService = AuroraConfigService(BooberWebClient("${url}boober", config.webClientBoober()))
+    private val config = ApplicationConfig(500, 500, 500, "", testObjectMapper())
+    private val auroraConfigService =
+        AuroraConfigService(BooberWebClient("${url}boober", config.webClientBoober(), testObjectMapper()))
     private val applicationService =
         ApplicationServiceBlocking(ApplicationService(config.webClientMokey("${url}mokey")))
     private val upgradeService = ApplicationUpgradeService(applicationService, auroraConfigService)
 
     @BeforeEach
     fun setUp() {
-        TestObjectMapperConfigurer.objectMapper = createHalTestObjectMapper()
+        TestObjectMapperConfigurer.objectMapper = testObjectMapper()
     }
 
     @AfterEach
@@ -112,11 +104,11 @@ class ApplicationUpgradeServiceTest {
 
     private fun applicationDeploymentDetailsResponse() =
         ApplicationDeploymentDetailsBuilder(
-            resourceLinks = listOf(
-                Link("${url}boober/FilesCurrent", "FilesCurrent"),
-                Link("${url}boober/AuroraConfigFileCurrent", "AuroraConfigFileCurrent"),
-                Link("${url}boober/Apply", "Apply")
-            )
+            resourceLinks = Links().apply {
+                add("FilesCurrent", "${url}boober/FilesCurrent")
+                add("AuroraConfigFileCurrent", "${url}boober/AuroraConfigFileCurrent")
+                add("Apply", "${url}boober/Apply")
+            }
         ).build()
 
     private fun applicationFileResponse() = Response(items = listOf(AuroraConfigFileBuilder().build()))

@@ -14,6 +14,12 @@ spring:
     profiles:
         active: local
 
+management:
+    endpoints:
+        web:
+            exposure:
+                include: info,health,prometheus,env,loggers
+
 # https://github.com/graphql-java-kickstart/graphql-spring-boot/issues/248
 altair:
     static:

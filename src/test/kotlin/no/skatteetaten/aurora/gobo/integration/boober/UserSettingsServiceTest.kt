@@ -3,24 +3,23 @@ package no.skatteetaten.aurora.gobo.integration.boober
 import assertk.assertThat
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
-import no.skatteetaten.aurora.gobo.integration.MockWebServerTestTag
 import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.resolvers.usersettings.ApplicationDeploymentFilter
 import no.skatteetaten.aurora.gobo.resolvers.usersettings.UserSettings
+import no.skatteetaten.aurora.gobo.testObjectMapper
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.execute
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.jupiter.api.Test
 import org.springframework.http.HttpMethod
 import org.springframework.web.reactive.function.client.WebClient
 
-@MockWebServerTestTag
 class UserSettingsServiceTest {
 
     private val server = MockWebServer()
     private val url = server.url("/")
 
     private val applicationDeploymentFilterService =
-        UserSettingsService(BooberWebClient(url.toString(), WebClient.create()))
+        UserSettingsService(BooberWebClient(url.toString(), WebClient.create(), testObjectMapper()))
     private val filter = ApplicationDeploymentFilterResource(
         name = "my filter",
         affiliation = "aurora",

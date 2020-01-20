@@ -1,10 +1,12 @@
 package no.skatteetaten.aurora.gobo.resolvers.applicationdeploymentdetails
 
+import java.net.URL
+import java.time.Instant
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentDetailsResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ManagementEndpointResponseResource
 import no.skatteetaten.aurora.gobo.integration.mokey.PodResourceResource
-import java.net.URL
-import java.time.Instant
+import no.skatteetaten.aurora.gobo.integration.mokey.optionalLink
+import no.skatteetaten.aurora.gobo.integration.mokey.toGoboLinks
 
 data class GitInfo(
     val commitId: String?,
@@ -41,7 +43,7 @@ data class PodResource(
                 name = resource.name,
                 phase = resource.phase,
                 startTime = resource.startTime,
-                links = resource.links.map { Link.create(it) },
+                links = resource._links.toGoboLinks(),
                 managementResponses = resource.managementResponses?.let { managementResponses ->
                     val links = ManagementEndpointResponse.create(managementResponses.links)
                     val health = managementResponses.health?.let { ManagementEndpointResponse.create(it) }
@@ -101,15 +103,15 @@ data class ManagementEndpointError(
     val message: String? = null
 )
 
-class Link private constructor(val name: String, val url: URL) {
+class Link(val name: String, val url: URL) {
     companion object {
-        fun create(link: org.springframework.hateoas.Link): Link {
-            val href = if (link.href.matches("https?://.*".toRegex())) {
-                link.href
+        fun create(name: String, url: String): Link {
+            val href = if (url.matches("https?://.*".toRegex())) {
+                url
             } else {
-                "http://${link.href}"
+                "http://$url"
             }
-            return Link(link.rel, URL(href))
+            return Link(name, URL(href))
         }
     }
 }
@@ -141,8 +143,8 @@ data class ApplicationDeploymentDetails(
                 gitInfo = resource.gitInfo?.let { GitInfo(it.commitId, it.commitTime) },
                 podResources = resource.podResources.map { PodResource.create(it) },
                 deploymentSpecs = DeploymentSpecs(
-                    deploymentSpecCurrent = resource.getLink("DeploymentSpecCurrent")?.let { URL(it.href) },
-                    deploymentSpecDeployed = resource.getLink("DeploymentSpecDeployed")?.let { URL(it.href) }
+                    deploymentSpecCurrent = resource.optionalLink("DeploymentSpecCurrent")?.let { URL(it.href) },
+                    deploymentSpecDeployed = resource.optionalLink("DeploymentSpecDeployed")?.let { URL(it.href) }
                 ),
                 deployDetails = resource.deployDetails?.let {
                     DeployDetails(
@@ -154,14 +156,7 @@ data class ApplicationDeploymentDetails(
                         paused = it.paused
                     )
                 },
-                serviceLinks = resource.serviceLinks.entries.map {
-                    Link.create(
-                        org.springframework.hateoas.Link(
-                            it.value.href,
-                            it.key
-                        )
-                    )
-                }
+                serviceLinks = resource.serviceLinks.toGoboLinks()
             )
         }
     }

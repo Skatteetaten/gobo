@@ -1,11 +1,11 @@
 package no.skatteetaten.aurora.gobo.resolvers.applicationdeployment
 
+import java.time.Instant
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationResource
 import no.skatteetaten.aurora.gobo.integration.mokey.StatusCheckResource
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageTag
-import java.time.Instant
 
 data class StatusCheck(val name: String, val description: String, val failLevel: String, val hasFailed: Boolean)
 
@@ -34,6 +34,9 @@ data class ApplicationDeployment(
 ) {
     companion object {
         fun create(deployment: ApplicationDeploymentResource) =
+            create(deployment, deployment.dockerImageRepo?.let { ImageRepository.fromRepoString(it) })
+
+        fun create(deployment: ApplicationDeploymentResource, imageRepo: ImageRepository?) =
             ApplicationDeployment(
                 id = deployment.identifier,
                 name = deployment.name,
@@ -60,7 +63,7 @@ data class ApplicationDeployment(
                 dockerImageRepo = deployment.dockerImageRepo,
                 applicationId = deployment.applicationId,
                 message = deployment.message,
-                imageRepository = deployment.dockerImageRepo?.let { ImageRepository.fromRepoString(it) }
+                imageRepository = imageRepo
             )
 
         private fun toStatusCheck(checkResource: StatusCheckResource) = checkResource.let {

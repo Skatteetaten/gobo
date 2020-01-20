@@ -15,6 +15,7 @@ type Query {
   restorableDatabaseSchemas(affiliations: [String!]!): [RestorableDatabaseSchema!]
   gobo: Gobo
   certificates: CertificatesConnection
+  auroraApiMetadata: AuroraApiMetadata
 }
 
 type Mutation {

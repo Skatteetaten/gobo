@@ -1,16 +1,18 @@
 package no.skatteetaten.aurora.gobo
 
-import org.springframework.hateoas.core.AnnotationRelProvider
-import org.springframework.hateoas.hal.HalConfiguration
-import org.springframework.hateoas.hal.Jackson2HalModule
+import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import org.springframework.boot.test.context.TestConfiguration
+import org.springframework.context.annotation.Bean
 
-fun createHalTestObjectMapper() = createObjectMapper().apply {
-    setHandlerInstantiator(
-        Jackson2HalModule.HalHandlerInstantiator(
-            AnnotationRelProvider(),
-            null,
-            null,
-            HalConfiguration()
-        )
-    )
+fun testObjectMapper() = jacksonObjectMapper().apply {
+    registerModule(JavaTimeModule())
+    disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+}
+
+@TestConfiguration
+class ObjectMapperConfig {
+    @Bean
+    fun objectMapper() = testObjectMapper()
 }

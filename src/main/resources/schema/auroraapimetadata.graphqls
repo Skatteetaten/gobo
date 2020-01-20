@@ -1,0 +1,11 @@
+type AuroraApiMetadata {
+    configNames: [String!]
+    clientConfig: ClientConfig!
+}
+
+type ClientConfig {
+    gitUrlPattern: String!
+    openshiftCluster: String!
+    openshiftUrl: String!
+    apiVersion: String!
+}

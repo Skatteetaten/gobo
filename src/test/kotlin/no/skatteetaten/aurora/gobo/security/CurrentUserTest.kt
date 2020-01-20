@@ -5,10 +5,10 @@ import assertk.assertions.isEqualTo
 import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
+import javax.servlet.http.HttpServletRequest
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken
-import javax.servlet.http.HttpServletRequest
 
 class CurrentUserTest {
 

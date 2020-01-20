@@ -1,5 +1,6 @@
 package no.skatteetaten.aurora.gobo.resolvers.imagerepository
 
+import java.time.Instant
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageRepoDto
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageTagType
@@ -9,7 +10,6 @@ import no.skatteetaten.aurora.gobo.resolvers.GoboConnection
 import no.skatteetaten.aurora.gobo.resolvers.GoboEdge
 import no.skatteetaten.aurora.gobo.resolvers.GoboPageInfo
 import no.skatteetaten.aurora.gobo.resolvers.GoboPagedEdges
-import java.time.Instant
 
 private val logger = KotlinLogging.logger {}
 
@@ -37,6 +37,13 @@ data class ImageRepository(
             return ImageRepository(registryUrl, namespace, name)
         }
     }
+}
+
+data class ImageWithType(
+    val name: String,
+    val image: Image
+) {
+    val type: ImageTagType get() = typeOf(name)
 }
 
 data class ImageTag(

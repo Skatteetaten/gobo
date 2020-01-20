@@ -6,10 +6,10 @@ import assertk.assertions.isNotNull
 import assertk.assertions.isSameAs
 import no.skatteetaten.aurora.gobo.ApplicationConfig
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentDetailsBuilder
-import no.skatteetaten.aurora.gobo.integration.MockWebServerTestTag
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
 import no.skatteetaten.aurora.gobo.resolvers.user.User
+import no.skatteetaten.aurora.gobo.testObjectMapper
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.execute
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -22,18 +22,12 @@ import org.junit.jupiter.params.provider.EnumSource
 import org.springframework.web.reactive.function.client.WebClient
 
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
-@MockWebServerTestTag
 class ApplicationDeploymentDetailsDataLoaderTest {
 
     private val server = MockWebServer()
     private val url = server.url("/")
-    private val webClient = ApplicationConfig(
-        webClientBuilder = WebClient.builder(),
-        readTimeout = 50,
-        writeTimeout = 50,
-        connectionTimeout = 50,
-        applicationName = ""
-    ).webClientBuilder(false).baseUrl(url.toString()).build()
+    private val webClient = ApplicationConfig(500, 500, 500, "", testObjectMapper())
+        .webClientBuilder(false).baseUrl(url.toString()).build()
     private val applicationService = ApplicationServiceBlocking(ApplicationService(webClient))
     private val dataLoader = ApplicationDeploymentDetailsDataLoader(applicationService)
 

@@ -4,6 +4,7 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import no.skatteetaten.aurora.gobo.ApplicationConfig
 import no.skatteetaten.aurora.gobo.HEADER_KLIENTID
+import no.skatteetaten.aurora.gobo.ObjectMapperConfig
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.execute
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -12,8 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.web.reactive.function.client.bodyToMono
 
-@SpringTestTag
-@SpringBootTest(classes = [TestConfig::class, ApplicationConfig::class])
+@SpringBootTest(classes = [TestConfig::class, ApplicationConfig::class, ObjectMapperConfig::class])
 class DefaultHeadersTest {
 
     private val server = MockWebServer()

@@ -1,8 +1,10 @@
 package no.skatteetaten.aurora.gobo.integration.boober
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
+import java.net.URI
 import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
-import no.skatteetaten.aurora.gobo.createObjectMapper
 import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import org.springframework.beans.factory.annotation.Value
@@ -10,17 +12,23 @@ import org.springframework.http.HttpHeaders
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.reactive.function.client.WebClientResponseException
 import org.springframework.web.reactive.function.client.bodyToMono
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
-import reactor.core.publisher.toFlux
-import java.net.URI
+import reactor.kotlin.core.publisher.toFlux
 
 @Service
 class BooberWebClient(
     @Value("\${integrations.boober.url:}") val booberUrl: String?,
-    @TargetService(ServiceTypes.BOOBER) val webClient: WebClient
+    @TargetService(ServiceTypes.BOOBER) val webClient: WebClient,
+    val objectMapper: ObjectMapper
 ) {
+
+    final inline fun <reified T : Any> anonymousGet(url: String, params: List<String> = emptyList()): Flux<T> =
+        execute {
+            it.get().uri(getBooberUrl(url), params)
+        }
 
     final inline fun <reified T : Any> get(token: String, url: String, params: List<String> = emptyList()): Flux<T> =
         execute(token) {
@@ -34,7 +42,7 @@ class BooberWebClient(
         body: Any
     ): Flux<T> =
         execute(token) {
-            it.patch().uri(getBooberUrl(url), params).body(BodyInserters.fromObject(body))
+            it.patch().uri(getBooberUrl(url), params).body(BodyInserters.fromValue(body))
         }
 
     final inline fun <reified T : Any> put(
@@ -44,7 +52,7 @@ class BooberWebClient(
         body: Any
     ): Flux<T> =
         execute(token) {
-            it.put().uri(getBooberUrl(url), params).body(BodyInserters.fromObject(body))
+            it.put().uri(getBooberUrl(url), params).body(BodyInserters.fromValue(body))
         }
 
     final inline fun <reified T : Any> post(
@@ -54,7 +62,7 @@ class BooberWebClient(
         body: Any
     ): Flux<T> =
         execute(token) {
-            it.post().uri(getBooberUrl(url), params).body(BodyInserters.fromObject(body))
+            it.post().uri(getBooberUrl(url), params).body(BodyInserters.fromValue(body))
         }
 
     fun getBooberUrl(link: String): String {
@@ -76,17 +84,45 @@ class BooberWebClient(
     }
 
     final inline fun <reified T : Any> execute(
-        token: String,
         fn: (WebClient) -> WebClient.RequestHeadersSpec<*>
     ): Flux<T> {
-        val response: Mono<Response<T>> = fn(webClient)
-            .header(HttpHeaders.AUTHORIZATION, "Bearer $token")
-            .retrieve()
-            .bodyToMono()
-        return response.flatMapMany { r ->
-            if (!r.success) SourceSystemException(message = r.message, sourceSystem = "boober").toFlux()
+        return execute(null, fn)
+    }
+
+    final inline fun <reified T : Any> execute(
+        token: String? = null,
+        fn: (WebClient) -> WebClient.RequestHeadersSpec<*>
+    ): Flux<T> {
+        val response: Mono<Response<T>> = fn(webClient).let {
+            if (token != null) {
+                it.header(HttpHeaders.AUTHORIZATION, "Bearer $token")
+            } else {
+                it
+            }
+        }.retrieve().bodyToMono()
+
+        return response.onErrorMap {
+            val (message, code) = if (it is WebClientResponseException) {
+                val responseObj = objectMapper.readValue<Response<Any>>(it.responseBodyAsString)
+                Pair("message=${responseObj.message} items=${responseObj.items}", it.statusCode.value().toString())
+            } else {
+                Pair(it.message ?: "", "")
+            }
+
+            throw SourceSystemException(
+                message = "Exception occurred in Boober integration.",
+                errorMessage = "Response $message",
+                code = code,
+                sourceSystem = "boober"
+            )
+        }.flatMapMany { r ->
+            if (!r.success) SourceSystemException(
+                message = r.message,
+                errorMessage = r.items.toString(),
+                sourceSystem = "boober"
+            ).toFlux()
             else if (r.count == 0) Flux.empty()
-            else r.items.map { item -> createObjectMapper().convertValue(item, T::class.java) }.toFlux()
+            else r.items.map { item -> objectMapper.convertValue(item, T::class.java) }.toFlux()
         }
     }
 }

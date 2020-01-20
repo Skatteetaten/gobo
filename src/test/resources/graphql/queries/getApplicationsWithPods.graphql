@@ -4,6 +4,10 @@
             node {
                 applicationDeployments {
                     details {
+                        serviceLinks {
+                            name
+                            url
+                        }
                         podResources {
                             phase
                             deployTag

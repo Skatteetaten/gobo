@@ -6,13 +6,13 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.fge.jackson.jsonpointer.JsonPointer
 import com.github.fge.jsonpatch.AddOperation
 import com.github.fge.jsonpatch.JsonPatch
+import java.time.Duration
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentDetailsResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentRefResource
 import no.skatteetaten.aurora.gobo.resolvers.blockNonNullAndHandleError
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
-import reactor.core.publisher.toMono
-import java.time.Duration
+import reactor.kotlin.core.publisher.toMono
 
 @Service
 class AuroraConfigService(private val booberWebClient: BooberWebClient) {
@@ -70,6 +70,7 @@ enum class AuroraConfigFileType {
     GLOBAL_OVERRIDE,
     BASE,
     BASE_OVERRIDE,
+    INCLUDE_ENV,
     ENV,
     ENV_OVERRIDE,
     APP,

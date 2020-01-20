@@ -1,5 +1,6 @@
 package no.skatteetaten.aurora.gobo.integration.skap
 
+import java.time.Duration
 import no.skatteetaten.aurora.gobo.RequiresSkap
 import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
@@ -14,7 +15,6 @@ import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.bodyToMono
 import reactor.core.publisher.Mono
-import java.time.Duration
 
 @Service
 @ConditionalOnBean(RequiresSkap::class)

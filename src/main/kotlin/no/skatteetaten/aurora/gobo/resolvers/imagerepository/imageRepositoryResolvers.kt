@@ -1,10 +1,10 @@
 package no.skatteetaten.aurora.gobo.resolvers.imagerepository
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver
-import mu.KotlinLogging
-
 import com.coxautodev.graphql.tools.GraphQLResolver
 import graphql.schema.DataFetchingEnvironment
+import java.util.concurrent.CompletableFuture
+import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.AuroraIntegration
 import no.skatteetaten.aurora.gobo.GoboException
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageRegistryServiceBlocking
@@ -17,7 +17,6 @@ import no.skatteetaten.aurora.gobo.resolvers.pageEdges
 import no.skatteetaten.aurora.gobo.security.isAnonymousUser
 import org.apache.commons.text.StringSubstitutor
 import org.springframework.stereotype.Component
-import java.util.concurrent.CompletableFuture
 
 private val logger = KotlinLogging.logger {}
 
@@ -50,6 +49,31 @@ class ImageRepositoryResolver(
         }
     }
 
+    fun tag(
+        imageRepository: ImageRepository,
+        names: List<String>,
+        dfe: DataFetchingEnvironment
+    ): CompletableFuture<List<ImageWithType?>> {
+
+        val dataloader = dfe.multipleKeysLoader(ImageTagDataLoader::class)
+
+        val tags = names.map { name ->
+            dataloader.load(ImageTag(imageRepository, name)).thenApply {
+                it?.let {
+                    ImageWithType(name, it)
+                }
+            }
+        }
+
+        return tags.join()
+    }
+
+    fun <A> List<CompletableFuture<A>>.join(): CompletableFuture<List<A>> {
+        return CompletableFuture.allOf(*this.toTypedArray()).thenApply {
+            this.map { it.join() }
+        }
+    }
+
     fun tags(
         imageRepository: ImageRepository,
         types: List<ImageTagType>?,
@@ -57,7 +81,7 @@ class ImageRepositoryResolver(
         first: Int? = null,
         after: String? = null,
         dfe: DataFetchingEnvironment
-    ) =
+    ): CompletableFuture<ImageTagsConnection> =
         dfe.loader(ImageTagListDataLoader::class).load(imageRepository.toImageRepo(filter))
             .thenApply { dto ->
                 val imageTags = dto.tags.toImageTags(imageRepository, types)

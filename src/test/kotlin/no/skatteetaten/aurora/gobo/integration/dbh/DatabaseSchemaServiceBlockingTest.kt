@@ -16,22 +16,22 @@ import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import assertk.assertions.message
 import assertk.assertions.support.expected
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.jayway.jsonpath.JsonPath
 import io.mockk.every
 import io.mockk.mockk
+import java.net.UnknownHostException
 import no.skatteetaten.aurora.gobo.DatabaseSchemaResourceBuilder
 import no.skatteetaten.aurora.gobo.JdbcUserBuilder
 import no.skatteetaten.aurora.gobo.RestorableDatabaseSchemaBuilder
 import no.skatteetaten.aurora.gobo.SchemaCreationRequestBuilder
 import no.skatteetaten.aurora.gobo.SchemaDeletionRequestBuilder
 import no.skatteetaten.aurora.gobo.SchemaUpdateRequestBuilder
-import no.skatteetaten.aurora.gobo.integration.MockWebServerTestTag
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.integration.containsAuroraToken
 import no.skatteetaten.aurora.gobo.integration.containsAuroraTokens
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseSchemaServiceReactive.Companion.HEADER_COOLDOWN_DURATION_HOURS
 import no.skatteetaten.aurora.gobo.security.SharedSecretReader
+import no.skatteetaten.aurora.gobo.testObjectMapper
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.bodyAsObject
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.execute
 import okhttp3.mockwebserver.MockWebServer
@@ -39,9 +39,7 @@ import okhttp3.mockwebserver.RecordedRequest
 import org.junit.jupiter.api.Test
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClient.create
-import java.net.UnknownHostException
 
-@MockWebServerTestTag
 class DatabaseSchemaServiceBlockingTest {
     private val server = MockWebServer()
     private val sharedSecretReader = mockk<SharedSecretReader> {
@@ -51,7 +49,8 @@ class DatabaseSchemaServiceBlockingTest {
         DatabaseSchemaServiceBlocking(
             DatabaseSchemaServiceReactive(
                 sharedSecretReader,
-                create(server.url("/").toString())
+                create(server.url("/").toString()),
+                testObjectMapper()
             )
         )
 
@@ -89,7 +88,7 @@ class DatabaseSchemaServiceBlockingTest {
         )
         val databaseSchema = DatabaseSchemaResourceBuilder().build()
         val response = DbhResponse.ok(databaseSchema, databaseSchema)
-        val json = JsonPath.parse(jacksonObjectMapper().writeValueAsString(response))
+        val json = JsonPath.parse(testObjectMapper().writeValueAsString(response))
             .set("$.items[0].labels", labelsMissingEnv).jsonString()
 
         val request = server.execute(json) {
@@ -252,7 +251,11 @@ class DatabaseSchemaServiceBlockingTest {
     fun `Get database schema given unknown hostname throw SourceSystemException`() {
         val serviceWithUnknownHost =
             DatabaseSchemaServiceBlocking(
-                DatabaseSchemaServiceReactive(sharedSecretReader, WebClient.create("http://unknown-hostname"))
+                DatabaseSchemaServiceReactive(
+                    sharedSecretReader,
+                    WebClient.create("http://unknown-hostname"),
+                    testObjectMapper()
+                )
             )
 
         assertThat { serviceWithUnknownHost.getDatabaseSchema("abc123") }

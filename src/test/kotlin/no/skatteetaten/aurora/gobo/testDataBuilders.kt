@@ -2,6 +2,7 @@ package no.skatteetaten.aurora.gobo
 
 import io.fabric8.kubernetes.api.model.ObjectMeta
 import io.fabric8.openshift.api.model.User
+import java.time.Instant
 import no.skatteetaten.aurora.gobo.integration.boober.ApplicationDeploymentFilterResource
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileResource
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileType
@@ -32,6 +33,7 @@ import no.skatteetaten.aurora.gobo.integration.mokey.ManagementResponsesResource
 import no.skatteetaten.aurora.gobo.integration.mokey.PodResourceResource
 import no.skatteetaten.aurora.gobo.integration.mokey.StatusResource
 import no.skatteetaten.aurora.gobo.integration.mokey.VersionResource
+import no.skatteetaten.aurora.gobo.integration.mokey.addAll
 import no.skatteetaten.aurora.gobo.integration.skap.Acl
 import no.skatteetaten.aurora.gobo.integration.skap.Certificate
 import no.skatteetaten.aurora.gobo.integration.skap.WebsealStateResource
@@ -44,10 +46,10 @@ import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.Version
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageTag
 import org.intellij.lang.annotations.Language
-import org.springframework.hateoas.Link
 import org.springframework.http.HttpStatus
+import uk.q3c.rest.hal.HalLink
 import uk.q3c.rest.hal.HalResource
-import java.time.Instant
+import uk.q3c.rest.hal.Links
 
 val defaultInstant = Instant.parse("2018-01-01T00:00:01Z")
 
@@ -123,8 +125,8 @@ data class ApplicationDeploymentResourceBuilder(
             time = Instant.EPOCH,
             message = msg
         ).apply {
-            add(Link("http://ApplicationDeploymentDetails/1", "ApplicationDeploymentDetails"))
-            add(Link("http://Application/1", "Application"))
+            link("ApplicationDeploymentDetails", HalLink("http://ApplicationDeploymentDetails/1"))
+            link("Application", HalLink("http://Application/1"))
         }
 }
 
@@ -167,7 +169,7 @@ data class ApplicationDeploymentBuilder(
 }
 
 data class ApplicationDeploymentDetailsBuilder(
-    val resourceLinks: List<Link> = emptyList(),
+    val resourceLinks: Links = Links(),
     val pause: Boolean = false
 ) {
 
@@ -251,10 +253,11 @@ data class ApplicationDeploymentDetailsBuilder(
                 emptyMap(),
                 ApplicationDeploymentRefResource("environment", "application"),
                 AuroraConfigRefResource("name", "refName")
-            )
+            ),
+            serviceLinks = Links().apply { add("metrics", "http://metrics") }
         ).apply {
-            add(Link("http://ApplicationDeploymentDetails/1", "self"))
-            add(resourceLinks)
+            self("http://ApplicationDeploymentDetails/1")
+            addAll(resourceLinks)
         }
 }
 

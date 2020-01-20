@@ -1,5 +1,6 @@
 package no.skatteetaten.aurora.gobo.resolvers.databaseschema
 
+import java.time.Instant
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseSchemaResource
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseUserResource
 import no.skatteetaten.aurora.gobo.integration.dbh.JdbcUser
@@ -8,7 +9,6 @@ import no.skatteetaten.aurora.gobo.integration.dbh.SchemaDeletionRequest
 import no.skatteetaten.aurora.gobo.integration.dbh.SchemaDeletionResponse
 import no.skatteetaten.aurora.gobo.integration.dbh.SchemaUpdateRequest
 import no.skatteetaten.aurora.gobo.resolvers.affiliation.Affiliation
-import java.time.Instant
 
 data class DatabaseUser(val username: String, val password: String, val type: String) {
     companion object {

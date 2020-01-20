@@ -7,11 +7,11 @@ import graphql.execution.instrumentation.parameters.InstrumentationExecutionPara
 import graphql.language.Field
 import graphql.language.SelectionSet
 import graphql.servlet.context.GraphQLServletContext
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.LongAdder
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.security.currentUser
 import org.springframework.stereotype.Component
-import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.atomic.LongAdder
 
 private val logger = KotlinLogging.logger {}
 

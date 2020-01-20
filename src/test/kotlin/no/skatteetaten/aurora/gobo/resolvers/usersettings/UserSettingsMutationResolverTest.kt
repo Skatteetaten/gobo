@@ -2,48 +2,23 @@ package no.skatteetaten.aurora.gobo.resolvers.usersettings
 
 import com.fasterxml.jackson.module.kotlin.convertValue
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import no.skatteetaten.aurora.gobo.GraphQLTest
-import no.skatteetaten.aurora.gobo.OpenShiftUserBuilder
+import com.ninjasquad.springmockk.MockkBean
+import io.mockk.verify
 import no.skatteetaten.aurora.gobo.integration.boober.UserSettingsService
+import no.skatteetaten.aurora.gobo.resolvers.AbstractGraphQLTest
 import no.skatteetaten.aurora.gobo.resolvers.graphqlData
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
-import no.skatteetaten.aurora.gobo.security.OpenShiftUserLoader
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.mockito.BDDMockito.anyString
-import org.mockito.BDDMockito.given
-import org.mockito.BDDMockito.reset
-import org.mockito.BDDMockito.verify
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.core.io.Resource
-import org.springframework.test.web.reactive.server.WebTestClient
 
-@GraphQLTest
-class UserSettingsMutationResolverTest {
+class UserSettingsMutationResolverTest : AbstractGraphQLTest() {
 
     @Value("classpath:graphql/mutations/updateUserSettings.graphql")
     private lateinit var updateUserSettingsMutation: Resource
 
-    @Autowired
-    private lateinit var webTestClient: WebTestClient
-
-    @MockBean
-    private lateinit var openShiftUserLoader: OpenShiftUserLoader
-
-    @MockBean
+    @MockkBean(relaxed = true)
     private lateinit var userSettingsService: UserSettingsService
-
-    @BeforeEach
-    fun setUp() {
-        given(openShiftUserLoader.findOpenShiftUserByToken(anyString()))
-            .willReturn(OpenShiftUserBuilder().build())
-    }
-
-    @AfterEach
-    fun tearDown() = reset(openShiftUserLoader, userSettingsService)
 
     @Test
     fun `Update user settings`() {
@@ -66,6 +41,6 @@ class UserSettingsMutationResolverTest {
             .expectBody()
             .graphqlData("updateUserSettings").isEqualTo(true)
 
-        verify(userSettingsService).updateUserSettings("test-token", userSettings)
+        verify { userSettingsService.updateUserSettings("test-token", userSettings) }
     }
 }
