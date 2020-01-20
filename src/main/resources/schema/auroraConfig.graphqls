@@ -5,6 +5,14 @@ type AuroraConfig{
     files(types:[AuroraConfigFileType!], fileName:[String!]): [AuroraConfigFile!]
 }
 
+input NewAuroraConfigFileInput {
+    auroraConfigName: String!,
+    auroraConfigReference:String,
+    fileName:String!,
+    contents:String!
+}
+
+
 type AuroraConfigFile {
     name: String!
     type: AuroraConfigFileType!
@@ -16,4 +24,37 @@ enum AuroraConfigFileType  {
     BASE,
     ENV,
     APP
+}
+
+type AuroraConfigFileValidationResponse {
+    message: String!
+    success: Boolean!
+    errors: [ApplicationError!]
+}
+
+type ApplicationError {
+    application: String!
+    environment: String!
+    details: [ErrorDetail!]
+    type: String
+}
+
+type ErrorDetail {
+    type: ErrorType!
+    message: String!
+    field: AuroraConfigFieldError
+}
+
+type AuroraConfigFieldError {
+    path: String!
+    fileName: String
+    value: String
+}
+
+enum  ErrorType {
+ILLEGAL,
+MISSING,
+INVALID,
+GENERIC,
+WARNING
 }

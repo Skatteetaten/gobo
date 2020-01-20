@@ -7,11 +7,14 @@ import com.github.fge.jackson.jsonpointer.JsonPointer
 import com.github.fge.jsonpatch.AddOperation
 import com.github.fge.jsonpatch.JsonPatch
 import java.time.Duration
+import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentDetailsResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentRefResource
-import no.skatteetaten.aurora.gobo.resolvers.auroraapimetadata.AuroraConfig
+import no.skatteetaten.aurora.gobo.resolvers.auroraconfig.ApplicationError
+import no.skatteetaten.aurora.gobo.resolvers.auroraconfig.AuroraConfig
 import no.skatteetaten.aurora.gobo.resolvers.blockNonNullAndHandleError
 import org.springframework.stereotype.Service
+import org.springframework.web.reactive.function.BodyInserters
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
 
@@ -22,9 +25,24 @@ class AuroraConfigService(
 
     fun getAuroraConfig(token: String, auroraConfig: String, reference: String): AuroraConfig {
         return booberWebClient
-            .get<AuroraConfig>(token, "/v1/auroraconfig/$auroraConfig?reference=$reference")
+            .get<AuroraConfig>(token, "/v2/auroraconfig/$auroraConfig?reference=$reference")
             .toMono()
             .blockNonNullWithTimeout()
+    }
+
+    fun addAuroraConfigFile(
+        token: String,
+        auroraConfig: String,
+        reference: String,
+        fileName: String,
+        content: String
+    ): Response<ApplicationError> {
+        val url = "/v2/auroraconfig/$auroraConfig?reference=$reference"
+        val body = mapOf("content" to content, "fileName" to fileName)
+
+        return booberWebClient.executeMono<Response<ApplicationError>>(token) {
+            it.put().uri(booberWebClient.getBooberUrl(url), emptyMap<String, Any>()).body(BodyInserters.fromValue(body))
+        }.blockNonNullWithTimeout()
     }
 
     fun getApplicationFile(token: String, it: String): String {

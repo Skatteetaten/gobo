@@ -7,6 +7,7 @@ import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
 import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
+import no.skatteetaten.aurora.gobo.resolvers.auroraconfig.ApplicationError
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
 import org.springframework.stereotype.Service
@@ -25,12 +26,16 @@ class BooberWebClient(
     val objectMapper: ObjectMapper
 ) {
 
-    final inline fun <reified T : Any> anonymousGet(url: String, params: List<String> = emptyList()): Flux<T> =
+    final inline fun <reified T : Any> anonymousGet(url: String, params: Map<String, String> = emptyMap()): Flux<T> =
         execute {
             it.get().uri(getBooberUrl(url), params)
         }
 
-    final inline fun <reified T : Any> get(token: String, url: String, params: List<String> = emptyList()): Flux<T> =
+    final inline fun <reified T : Any> get(
+        token: String,
+        url: String,
+        params: Map<String, String> = emptyMap()
+    ): Flux<T> =
         execute(token) {
             it.get().uri(getBooberUrl(url), params)
         }
@@ -48,7 +53,7 @@ class BooberWebClient(
     final inline fun <reified T : Any> put(
         token: String,
         url: String,
-        params: List<String> = emptyList(),
+        params: Map<String, String> = emptyMap(),
         body: Any
     ): Flux<T> =
         execute(token) {
@@ -89,33 +94,56 @@ class BooberWebClient(
         return execute(null, fn)
     }
 
-    final inline fun <reified T : Any> execute(
+    fun executeMono2(
         token: String? = null,
         fn: (WebClient) -> WebClient.RequestHeadersSpec<*>
-    ): Flux<T> {
-        val response: Mono<Response<T>> = fn(webClient).let {
+    ): Mono<Response<ApplicationError>> {
+        return fn(webClient).let {
             if (token != null) {
                 it.header(HttpHeaders.AUTHORIZATION, "Bearer $token")
             } else {
                 it
             }
-        }.retrieve().bodyToMono()
+        }.retrieve()
+            .bodyToMono()
+    }
 
-        return response.onErrorMap {
-            val (message, code) = if (it is WebClientResponseException) {
-                val responseObj = objectMapper.readValue<Response<Any>>(it.responseBodyAsString)
-                Pair("message=${responseObj.message} items=${responseObj.items}", it.statusCode.value().toString())
+    final inline fun <reified T : Any> executeMono(
+        token: String? = null,
+        fn: (WebClient) -> WebClient.RequestHeadersSpec<*>
+    ): Mono<T> {
+        return fn(webClient).let {
+            if (token != null) {
+                it.header(HttpHeaders.AUTHORIZATION, "Bearer $token")
             } else {
-                Pair(it.message ?: "", "")
+                it
             }
+        }.retrieve()
+            .bodyToMono<T>()
+            .onErrorMap { handleBooberHttpError(it) }
+    }
 
-            throw SourceSystemException(
-                message = "Exception occurred in Boober integration.",
-                errorMessage = "Response $message",
-                code = code,
-                sourceSystem = "boober"
-            )
-        }.flatMapMany { r ->
+    fun handleBooberHttpError(it: Throwable): SourceSystemException {
+        val (message, code) = if (it is WebClientResponseException) {
+            val responseObj = objectMapper.readValue<Response<Any>>(it.responseBodyAsString)
+            Pair("message=${responseObj.message} items=${responseObj.items}", it.statusCode.value().toString())
+        } else {
+            Pair(it.message ?: "", "")
+        }
+
+        return SourceSystemException(
+            message = "Exception occurred in Boober integration.",
+            errorMessage = "Response $message",
+            code = code,
+            sourceSystem = "boober"
+        )
+    }
+
+    final inline fun <reified T : Any> execute(
+        token: String? = null,
+        fn: (WebClient) -> WebClient.RequestHeadersSpec<*>
+    ): Flux<T> {
+        return executeMono<Response<Any>>(token, fn).flatMapMany { r ->
             if (!r.success) SourceSystemException(
                 message = r.message,
                 errorMessage = r.items.toString(),

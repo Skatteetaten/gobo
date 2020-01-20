@@ -93,7 +93,7 @@ spring:
 
 integrations:
     boober:
-        url: http://aos-4008-boober.aurora.utv.paas.skead.no
+        url: http://localhost:9090
     mokey:
         url: http://mokey-aurora.utv.paas.skead.no
     cantus:

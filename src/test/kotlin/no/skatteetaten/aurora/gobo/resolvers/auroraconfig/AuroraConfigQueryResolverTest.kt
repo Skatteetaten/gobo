@@ -2,12 +2,12 @@ package no.skatteetaten.aurora.gobo.resolvers.auroraconfig
 
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
+import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileResource
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileType.APP
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileType.GLOBAL
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigService
 import no.skatteetaten.aurora.gobo.resolvers.AbstractGraphQLTest
-import no.skatteetaten.aurora.gobo.resolvers.auroraapimetadata.AuroraConfig
 import no.skatteetaten.aurora.gobo.resolvers.graphqlDataWithPrefix
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import org.junit.jupiter.api.BeforeEach
@@ -36,6 +36,14 @@ class AuroraConfigQueryResolverTest : AbstractGraphQLTest() {
                 AuroraConfigFileResource("utv/foo.json", """{ "foo" : "bar" }""", APP)
             )
         )
+
+        every {
+            auroraConfigService.addAuroraConfigFile(any(), any(), any(), any(), any()) } returns Response(
+            success = true,
+            count = 1,
+            message = "Ok",
+            items = emptyList()
+        )
     }
 
     @Test
@@ -45,7 +53,7 @@ class AuroraConfigQueryResolverTest : AbstractGraphQLTest() {
             .expectStatus().isOk
             .expectBody()
             .graphqlDataWithPrefix("auroraConfig") {
-                graphqlData("resolvedRef").isEqualTo("master")
+                graphqlData("resolvedRef").isEqualTo("abcde")
                 graphqlData("files.length()").isEqualTo(1)
                 graphqlData("files[0].name").isEqualTo("about.json")
             }

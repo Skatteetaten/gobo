@@ -35,6 +35,8 @@ type Mutation {
     testJdbcConnectionForId(id: String!): Boolean
 
     createDatabaseSchema(input: CreateDatabaseSchemaInput): DatabaseSchema
+
+    createAuroraConfigFile(input: NewAuroraConfigFileInput) : AuroraConfigFileValidationResponse
 }
 
 type PageInfo {
