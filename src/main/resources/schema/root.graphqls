@@ -37,6 +37,8 @@ type Mutation {
     createDatabaseSchema(input: CreateDatabaseSchemaInput): DatabaseSchema
 
     createAuroraConfigFile(input: NewAuroraConfigFileInput) : AuroraConfigFileValidationResponse
+    updateAuroraConfigFile(input: UpdateAuroraConfigFileInput) : AuroraConfigFileValidationResponse
+
 }
 
 type PageInfo {

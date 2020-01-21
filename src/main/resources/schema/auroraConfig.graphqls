@@ -12,11 +12,21 @@ input NewAuroraConfigFileInput {
     contents:String!
 }
 
+input UpdateAuroraConfigFileInput {
+    auroraConfigName: String!,
+    auroraConfigReference:String,
+    fileName:String!,
+    contents:String!,
+    existingHash:String!
+}
+
+
 
 type AuroraConfigFile {
     name: String!
     type: AuroraConfigFileType!
     contents: String!
+    contentHash: String!
 }
 
 enum AuroraConfigFileType  {
@@ -30,6 +40,7 @@ type AuroraConfigFileValidationResponse {
     message: String!
     success: Boolean!
     errors: [ApplicationError!]
+    file: AuroraConfigFile
 }
 
 type ApplicationError {

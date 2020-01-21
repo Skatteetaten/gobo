@@ -7,7 +7,6 @@ import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
 import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
-import no.skatteetaten.aurora.gobo.resolvers.auroraconfig.ApplicationError
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
 import org.springframework.stereotype.Service
@@ -94,27 +93,21 @@ class BooberWebClient(
         return execute(null, fn)
     }
 
-    fun executeMono2(
+    // TODO: Is this the correct way to abstract this?
+    final inline fun <reified T : Any> executeMono(
         token: String? = null,
+        etag: String? = null,
         fn: (WebClient) -> WebClient.RequestHeadersSpec<*>
-    ): Mono<Response<ApplicationError>> {
+    ): Mono<T> {
         return fn(webClient).let {
             if (token != null) {
                 it.header(HttpHeaders.AUTHORIZATION, "Bearer $token")
             } else {
                 it
             }
-        }.retrieve()
-            .bodyToMono()
-    }
-
-    final inline fun <reified T : Any> executeMono(
-        token: String? = null,
-        fn: (WebClient) -> WebClient.RequestHeadersSpec<*>
-    ): Mono<T> {
-        return fn(webClient).let {
-            if (token != null) {
-                it.header(HttpHeaders.AUTHORIZATION, "Bearer $token")
+        }.let {
+            if (etag != null) {
+                it.header(HttpHeaders.IF_MATCH, etag)
             } else {
                 it
             }
@@ -143,7 +136,7 @@ class BooberWebClient(
         token: String? = null,
         fn: (WebClient) -> WebClient.RequestHeadersSpec<*>
     ): Flux<T> {
-        return executeMono<Response<Any>>(token, fn).flatMapMany { r ->
+        return executeMono<Response<Any>>(token, null, fn).flatMapMany { r ->
             if (!r.success) SourceSystemException(
                 message = r.message,
                 errorMessage = r.items.toString(),

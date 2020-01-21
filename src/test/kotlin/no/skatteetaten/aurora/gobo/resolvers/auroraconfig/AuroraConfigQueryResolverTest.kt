@@ -32,8 +32,8 @@ class AuroraConfigQueryResolverTest : AbstractGraphQLTest() {
             ref = "master",
             resolvedRef = "abcde",
             files = listOf(
-                AuroraConfigFileResource("about.json", """{ "foo" : "bar" }""", GLOBAL),
-                AuroraConfigFileResource("utv/foo.json", """{ "foo" : "bar" }""", APP)
+                AuroraConfigFileResource("about.json", """{ "foo" : "bar" }""", GLOBAL, "123"),
+                AuroraConfigFileResource("utv/foo.json", """{ "foo" : "bar" }""", APP, "321")
             )
         )
 
