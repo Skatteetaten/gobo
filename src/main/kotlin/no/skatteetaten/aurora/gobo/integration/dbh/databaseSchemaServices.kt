@@ -118,38 +118,31 @@ class DatabaseSchemaServiceReactive(
     private fun WebClient.RequestHeadersSpec<*>.retrieveAuthenticated() = this
         .header(HttpHeaders.AUTHORIZATION, "$HEADER_AURORA_TOKEN ${sharedSecretReader.secret}")
         .retrieve()
-}
 
-private fun WebClient.ResponseSpec.bodyToDbhResponse() = this.bodyToMono<DbhResponse<*>>()
-
-private inline fun <reified T : ResourceValidator> Mono<DbhResponse<*>>.items(): Mono<List<T>> =
-    this.flatMap {
-        when {
-            it.isFailure() -> onFailure(it)
-            it.isEmpty() -> Mono.empty<List<T>>()
-            else -> onSuccess(it)
+    private inline fun <reified T : ResourceValidator> Mono<DbhResponse<*>>.items(): Mono<List<T>> =
+        this.flatMap {
+            when {
+                it.isFailure() -> onFailure(it)
+                it.isEmpty() -> Mono.empty<List<T>>()
+                else -> onSuccess(it)
+            }
         }
-    }
 
-    private fun <reified T : ResourceValidator> onFailure(r: DbhResponse<*>): Mono<List<T>> =
+    private inline fun <reified T : ResourceValidator> onFailure(r: DbhResponse<*>): Mono<List<T>> =
         SourceSystemException(
             message = "status=${r.status} error=${(r.items.firstOrNull() ?: "") as String}",
             sourceSystem = "dbh"
         ).toMono()
 
-    private fun onSuccess(r: DbhResponse<*>) =
-        r.items.map {
-            objectMapper.convertValue(it, DatabaseSchemaResource::class.java)
-        }.filter {
-            it.containsRequiredLabels()
-        }.toMono()
+    private inline fun <reified T : ResourceValidator> onSuccess(r: DbhResponse<*>): Mono<List<T>> =
+        r.items
+            .map { objectMapper.convertValue(it, T::class.java) }
+            .filter { it.valid }
+            .toMono()
 }
 
-private inline fun <reified T : ResourceValidator> onSuccess(r: DbhResponse<*>): Mono<List<T>> =
-    r.items
-        .map { createObjectMapper().convertValue(it, T::class.java) }
-        .filter { it.valid }
-        .toMono()
+private fun WebClient.ResponseSpec.bodyToDbhResponse() = this.bodyToMono<DbhResponse<*>>()
+
 
 interface DatabaseSchemaService {
     fun getDatabaseSchemas(affiliation: String): List<DatabaseSchemaResource> = integrationDisabled()
