@@ -7,5 +7,5 @@ type ClientConfig {
     gitUrlPattern: String!
     openshiftCluster: String!
     openshiftUrl: String!
-    apiVersion: String!
+    apiVersion: Int!
 }
