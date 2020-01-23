@@ -1,0 +1,23 @@
+mutation createAuroraConfigFile($input: NewAuroraConfigFileInput!){
+    createAuroraConfigFile(input: $input){
+        message
+        success
+        file {
+            contentHash
+            contents
+        }
+        errors {
+            application
+            environment
+            details{
+                type
+                message
+                field{
+                    path
+                    fileName
+                    value
+                }
+            }
+        }
+    }
+}
