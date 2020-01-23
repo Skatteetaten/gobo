@@ -17,8 +17,6 @@ import org.springframework.core.io.Resource
 
 class AuroraConfigQueryResolverTest : AbstractGraphQLTest() {
 
-    val token = "test-token"
-
     @Value("classpath:graphql/queries/getFile.graphql")
     private lateinit var query: Resource
 
@@ -49,7 +47,7 @@ class AuroraConfigQueryResolverTest : AbstractGraphQLTest() {
     @Test
     fun `Query for application deployment`() {
         val variables = mapOf("auroraConfig" to "demo", "fileName" to "about.json")
-        webTestClient.queryGraphQL(query, variables, token)
+        webTestClient.queryGraphQL(query, variables, "test-token")
             .expectStatus().isOk
             .expectBody()
             .graphqlDataWithPrefix("auroraConfig") {

@@ -16,8 +16,6 @@ import org.springframework.core.io.Resource
 
 class UpdateAuroraConfigFileTest : AbstractGraphQLTest() {
 
-    val token = "test-token"
-
     @Value("classpath:graphql/mutations/updateAuroraConfigFile.graphql")
     private lateinit var query: Resource
 
@@ -56,7 +54,7 @@ class UpdateAuroraConfigFileTest : AbstractGraphQLTest() {
             )
         )
 
-        webTestClient.queryGraphQL(query, variables, token)
+        webTestClient.queryGraphQL(query, variables, "test-token")
             .expectStatus().isOk
             .expectBody()
             .graphqlDataWithPrefix("updateAuroraConfigFile") {
