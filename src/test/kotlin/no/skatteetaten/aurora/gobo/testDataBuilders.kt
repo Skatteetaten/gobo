@@ -304,7 +304,8 @@ class AuroraConfigFileBuilder {
         AuroraConfigFileResource(
             name = "name",
             contents = "contents",
-            type = AuroraConfigFileType.APP
+            type = AuroraConfigFileType.APP,
+            contentHash = "12345"
         )
 }
 

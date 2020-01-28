@@ -1,0 +1,71 @@
+type AuroraConfig{
+    name: String!
+    ref: String!
+    resolvedRef: String!
+    files(types:[AuroraConfigFileType!], fileName:[String!]): [AuroraConfigFile!]
+}
+
+input NewAuroraConfigFileInput {
+    auroraConfigName: String!,
+    auroraConfigReference:String,
+    fileName:String!,
+    contents:String!
+}
+
+input UpdateAuroraConfigFileInput {
+    auroraConfigName: String!,
+    auroraConfigReference:String,
+    fileName:String!,
+    contents:String!,
+    existingHash:String!
+}
+
+
+
+type AuroraConfigFile {
+    name: String!
+    type: AuroraConfigFileType!
+    contents: String!
+    contentHash: String!
+}
+
+enum AuroraConfigFileType  {
+    GLOBAL,
+    BASE,
+    ENV,
+    APP
+}
+
+type AuroraConfigFileValidationResponse {
+    message: String!
+    success: Boolean!
+    errors: [ApplicationError!]
+    file: AuroraConfigFile
+}
+
+type ApplicationError {
+    application: String!
+    environment: String!
+    details: [ErrorDetail!]
+    type: String
+}
+
+type ErrorDetail {
+    type: ErrorType!
+    message: String!
+    field: AuroraConfigFieldError
+}
+
+type AuroraConfigFieldError {
+    path: String!
+    fileName: String
+    value: String
+}
+
+enum  ErrorType {
+ILLEGAL,
+MISSING,
+INVALID,
+GENERIC,
+WARNING
+}

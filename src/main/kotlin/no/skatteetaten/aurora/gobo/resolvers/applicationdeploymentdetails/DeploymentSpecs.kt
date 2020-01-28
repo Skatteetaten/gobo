@@ -12,7 +12,7 @@ import no.skatteetaten.aurora.gobo.resolvers.loader
 import no.skatteetaten.aurora.gobo.resolvers.user.User
 import org.dataloader.Try
 import org.springframework.stereotype.Component
-import reactor.core.publisher.toMono
+import reactor.kotlin.core.publisher.toMono
 
 class DeploymentSpecs(
     val deploymentSpecCurrent: URL?,
