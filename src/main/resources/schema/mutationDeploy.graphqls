@@ -33,7 +33,6 @@ input OverrideInput {
     content: String!
 }
 
-
 input ApplicationDeploymentInput {
     auroraConfigName: String!,
     auroraConfigReference:String,

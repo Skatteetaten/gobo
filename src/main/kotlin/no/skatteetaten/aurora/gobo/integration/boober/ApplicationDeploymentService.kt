@@ -36,7 +36,7 @@ class ApplicationDeploymentService(private val booberWebClient: BooberWebClient)
         payload: ApplyPayload
     ): Response<DeployResource> {
 
-        //TODO: Se på response format mtp validation errors og deployErrors
+        // TODO: Se på response format mtp validation errors og deployErrors
         val url = "/v1/apply/$auroraConfig?reference=$reference"
         return booberWebClient.executeMono<Response<DeployResource>>(token) {
             it.put().uri(booberWebClient.getBooberUrl(url), emptyMap<String, Any>())

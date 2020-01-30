@@ -1,6 +1,7 @@
 package no.skatteetaten.aurora.gobo.resolvers.applicationdeployment
 
-import com.fasterxml.jackson.databind.node.TextNode
+import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import no.skatteetaten.aurora.gobo.integration.Response
@@ -11,7 +12,6 @@ import no.skatteetaten.aurora.gobo.resolvers.AbstractGraphQLTest
 import no.skatteetaten.aurora.gobo.resolvers.graphqlData
 import no.skatteetaten.aurora.gobo.resolvers.isTrue
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
-import no.skatteetaten.aurora.gobo.service.ApplicationUpgradeService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
@@ -24,6 +24,14 @@ class DeployMutationResolverTest : AbstractGraphQLTest() {
     @MockkBean
     private lateinit var applicationDeploymentService: ApplicationDeploymentService
 
+    var deploymentSpecAsJson = "{" +
+        " \"cluster\" : {\"value\" : \"hei\"}, " +
+        " \"envName\" : {\"value\" : \"env\"}, " +
+        " \"name\" : {\"value\" : \"myName\"}, " +
+        " \"version\" : {\"value\" : \"1.0\"} " +
+        "}"
+    val deploymentSpec: JsonNode = jacksonObjectMapper().readTree(deploymentSpecAsJson)
+
     val result = Response<DeployResource>(
         success = true,
         message = "YIHA",
@@ -34,11 +42,12 @@ class DeployMutationResolverTest : AbstractGraphQLTest() {
                     refName = "master",
                     resolvedRef = "123abcd"
                 ),
-                deploymentSpec = TextNode("adf")
-
+                deploymentSpec = deploymentSpec,
+                deployId = "myID",
+                openShiftResponses = emptyList(),
+                success = true
             )
         )
-
     )
 
     @BeforeEach
@@ -46,19 +55,22 @@ class DeployMutationResolverTest : AbstractGraphQLTest() {
         every { applicationDeploymentService.deploy(any(), any(), any(), any()) } returns result
     }
 
-    /*
     @Test
     fun `Mutate application deployment version`() {
         val variables = mapOf(
             "input" to mapOf(
-                "applicationDeploymentId" to "123",
-                "version" to "1"
-
+                "auroraConfigName" to "a/b/c",
+                "auroraConfigReference" to "feature/abc",
+                "applicationDeployment" to emptyList<ApplicationDeploymentRef>()
             )
         )
-        webTestClient.queryGraphQL(redeployWithVersionMutation, variables).expectBody()
-            .graphqlData("redeployWithVersion").isNotEmpty
+        webTestClient.queryGraphQL(deployMutation, variables)
+            .expectStatus().isOk
+            .expectBody()
+            .graphqlData("deploy.success").isTrue()
+            .graphqlData("deploy.auroraConfigRef.gitReference").isEqualTo("master")
+            .graphqlData("deploy.auroraConfigRef.commitId").isEqualTo("123abcd")
+            .graphqlData("deploy.applicationDeployments[0].version").isEqualTo("1.0")
+            .graphqlData("deploy.applicationDeployments[0].cluster").isEqualTo("hei")
     }
-
-    */
 }
