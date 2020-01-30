@@ -19,6 +19,8 @@ type Query {
 }
 
 type Mutation {
+
+    deploy(input: ApplicationDeploymentInput!): ApplicationDeploymentResult
     redeployWithVersion(input: ApplicationDeploymentVersionInput!): Boolean
     redeployWithCurrentVersion(input: ApplicationDeploymentIdInput!): Boolean
 
