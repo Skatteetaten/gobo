@@ -39,18 +39,18 @@ enum AuroraConfigFileType  {
 type AuroraConfigFileValidationResponse {
     message: String!
     success: Boolean!
-    errors: [ApplicationError!]
+    errors: [AuroraConfigValidationError!]
     file: AuroraConfigFile
 }
 
-type ApplicationError {
+type AuroraConfigValidationError {
     application: String!
     environment: String!
-    details: [ErrorDetail!]
+    details: [AuroraConfigValidationErrorDetail!]
     type: String
 }
 
-type ErrorDetail {
+type AuroraConfigValidationErrorDetail {
     type: ErrorType!
     message: String!
     field: AuroraConfigFieldError
