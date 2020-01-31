@@ -35,7 +35,6 @@ class DeployMutationResolverTest : AbstractGraphQLTest() {
                 "version" : {"value" : "1.0"}
             }"""
 
-
         val deploymentSpec: JsonNode = jacksonObjectMapper().readTree(deploymentSpecAsJson)
 
         val result = Response<DeployResource>(
@@ -56,7 +55,7 @@ class DeployMutationResolverTest : AbstractGraphQLTest() {
             )
         )
 
-        every { applicationDeploymentService.deploy(any(), any(), any(), any()) } returns result
+        every { applicationDeploymentService.deploy("myToken2", any(), any(), any()) } returns result
 
         val resultFail = Response<DeployResource>(
             success = false,
@@ -88,7 +87,7 @@ class DeployMutationResolverTest : AbstractGraphQLTest() {
             )
         )
 
-        webTestClient.queryGraphQL(deployMutation, variables)
+        webTestClient.queryGraphQL(deployMutation, variables, "myToken2")
             .expectStatus().isOk
             .expectBody()
             .graphqlData("deploy.success").isTrue()

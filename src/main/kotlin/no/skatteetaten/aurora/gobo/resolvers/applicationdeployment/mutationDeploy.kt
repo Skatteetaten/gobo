@@ -6,7 +6,9 @@ import graphql.schema.DataFetchingEnvironment
 import no.skatteetaten.aurora.gobo.integration.boober.ApplicationDeploymentService
 import no.skatteetaten.aurora.gobo.integration.boober.ApplyPayload
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentRefResource
+import no.skatteetaten.aurora.gobo.resolvers.AccessDeniedException
 import no.skatteetaten.aurora.gobo.security.currentUser
+import no.skatteetaten.aurora.gobo.security.isAnonymousUser
 import org.springframework.stereotype.Component
 
 @Component
@@ -15,6 +17,8 @@ class DeployMutationResolver(
 ) : GraphQLMutationResolver {
 
     fun deploy(input: ApplicationDeploymentInput, dfe: DataFetchingEnvironment): ApplicationDeploymentResult {
+
+        if (dfe.isAnonymousUser()) throw AccessDeniedException("Anonymous user cannotdeploy application")
 
         val payload = ApplyPayload(
             applicationDeploymentRefs = input.applicationDeployment.map {
