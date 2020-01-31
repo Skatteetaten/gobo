@@ -117,19 +117,24 @@ class BooberWebClient(
     }
 
     fun handleBooberHttpError(it: Throwable): SourceSystemException {
-        val (message, code) = if (it is WebClientResponseException) {
+        return if (it is WebClientResponseException) {
             val responseObj = objectMapper.readValue<Response<Any>>(it.responseBodyAsString)
-            Pair("message=${responseObj.message} items=${responseObj.items}", it.statusCode.value().toString())
+            val message = "message=${responseObj.message} items=${responseObj.items}"
+            SourceSystemException(
+                message = "Exception occurred in Boober integration.",
+                errorMessage = "Response $message",
+                code = it.statusCode.value().toString(),
+                sourceSystem = "boober",
+                extensions = mapOf("message" to responseObj.message, "errors" to responseObj.items)
+            )
         } else {
-            Pair(it.message ?: "", "")
+            SourceSystemException(
+                message = "Exception occurred in Boober integration.",
+                errorMessage = "Response ${it.message}",
+                code = "",
+                sourceSystem = "boober"
+            )
         }
-
-        return SourceSystemException(
-            message = "Exception occurred in Boober integration.",
-            errorMessage = "Response $message",
-            code = code,
-            sourceSystem = "boober"
-        )
     }
 
     final inline fun <reified T : Any> execute(
@@ -140,7 +145,8 @@ class BooberWebClient(
             if (!r.success) SourceSystemException(
                 message = r.message,
                 errorMessage = r.items.toString(),
-                sourceSystem = "boober"
+                sourceSystem = "boober",
+                extensions = mapOf("message" to r.message, "errors" to r.items)
             ).toFlux()
             else if (r.count == 0) Flux.empty()
             else r.items.map { item -> objectMapper.convertValue(item, T::class.java) }.toFlux()
