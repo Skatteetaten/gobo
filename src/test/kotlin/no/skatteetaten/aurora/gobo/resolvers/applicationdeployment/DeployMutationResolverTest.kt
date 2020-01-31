@@ -28,13 +28,13 @@ class DeployMutationResolverTest : AbstractGraphQLTest() {
 
     @BeforeEach
     fun setUp() {
-        val deploymentSpecAsJson =
-            "{" +
-                " \"cluster\" : {\"value\" : \"myCluster\"}, " +
-                " \"envName\" : {\"value\" : \"env\"}, " +
-                " \"name\"    : {\"value\" : \"myName\"}, " +
-                " \"version\" : {\"value\" : \"1.0\"} " +
-                "}"
+        val deploymentSpecAsJson = """{
+                "cluster" : {"value" : "myCluster"},  
+                "envName" : {"value" : "env"},  
+                "name"    : {"value" : "myName"},  
+                "version" : {"value" : "1.0"}
+            }"""
+
 
         val deploymentSpec: JsonNode = jacksonObjectMapper().readTree(deploymentSpecAsJson)
 
