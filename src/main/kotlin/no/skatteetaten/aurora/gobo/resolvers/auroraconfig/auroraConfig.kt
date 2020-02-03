@@ -125,35 +125,3 @@ data class AuroraConfigFileValidationResponse(
     val success: Boolean,
     val file: AuroraConfigFileResource?
 )
-
-data class ChangedAuroraConfigFileResponse(
-    val errors: List<AuroraConfigValidationError> = emptyList(),
-    val file: AuroraConfigFileResource? = null
-)
-
-data class AuroraConfigValidationError(
-    val application: String,
-    val environment: String,
-    val details: List<AuroraConfigValidationErrorDetail>?,
-    val type: String = "APPLICATION"
-)
-
-data class AuroraConfigValidationErrorDetail(
-    val type: ErrorType,
-    val message: String,
-    val field: AuroraConfigFieldError? = null
-)
-
-enum class ErrorType {
-    ILLEGAL,
-    MISSING,
-    INVALID,
-    GENERIC,
-    WARNING
-}
-
-data class AuroraConfigFieldError(
-    val path: String,
-    val fileName: String? = null,
-    val value: String? = null
-)

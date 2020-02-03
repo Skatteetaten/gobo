@@ -20,8 +20,6 @@ input UpdateAuroraConfigFileInput {
     existingHash:String!
 }
 
-
-
 type AuroraConfigFile {
     name: String!
     type: AuroraConfigFileType!
@@ -39,33 +37,7 @@ enum AuroraConfigFileType  {
 type AuroraConfigFileValidationResponse {
     message: String!
     success: Boolean!
-    errors: [AuroraConfigValidationError!]
     file: AuroraConfigFile
 }
 
-type AuroraConfigValidationError {
-    application: String!
-    environment: String!
-    details: [AuroraConfigValidationErrorDetail!]
-    type: String
-}
 
-type AuroraConfigValidationErrorDetail {
-    type: ErrorType!
-    message: String!
-    field: AuroraConfigFieldError
-}
-
-type AuroraConfigFieldError {
-    path: String!
-    fileName: String
-    value: String
-}
-
-enum  ErrorType {
-ILLEGAL,
-MISSING,
-INVALID,
-GENERIC,
-WARNING
-}

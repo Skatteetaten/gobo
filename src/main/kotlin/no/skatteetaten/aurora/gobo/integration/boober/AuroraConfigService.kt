@@ -11,7 +11,6 @@ import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentDetailsResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentRefResource
 import no.skatteetaten.aurora.gobo.resolvers.auroraconfig.AuroraConfig
-import no.skatteetaten.aurora.gobo.resolvers.auroraconfig.ChangedAuroraConfigFileResponse
 import no.skatteetaten.aurora.gobo.resolvers.blockNonNullAndHandleError
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.BodyInserters
