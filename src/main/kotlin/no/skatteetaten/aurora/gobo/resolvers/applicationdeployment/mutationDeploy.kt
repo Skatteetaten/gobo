@@ -18,7 +18,7 @@ class DeployMutationResolver(
 
     fun deploy(input: ApplicationDeploymentInput, dfe: DataFetchingEnvironment): ApplicationDeploymentResult {
 
-        if (dfe.isAnonymousUser()) throw AccessDeniedException("Anonymous user cannotdeploy application")
+        if (dfe.isAnonymousUser()) throw AccessDeniedException("Anonymous user cannot deploy application")
 
         val payload = ApplyPayload(
             applicationDeploymentRefs = input.applicationDeployment.map {
