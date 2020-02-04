@@ -11,7 +11,6 @@ import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentDetailsResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentRefResource
 import no.skatteetaten.aurora.gobo.resolvers.auroraconfig.AuroraConfig
-import no.skatteetaten.aurora.gobo.resolvers.auroraconfig.ChangedAuroraConfigFileResponse
 import no.skatteetaten.aurora.gobo.resolvers.blockNonNullAndHandleError
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.BodyInserters
@@ -37,11 +36,11 @@ class AuroraConfigService(
         fileName: String,
         content: String,
         oldHash: String
-    ): Response<ChangedAuroraConfigFileResponse> {
+    ): Response<AuroraConfigFileResource> {
         val url = "/v2/auroraconfig/$auroraConfig?reference=$reference"
         val body = mapOf("content" to content, "fileName" to fileName)
 
-        return booberWebClient.executeMono<Response<ChangedAuroraConfigFileResponse>>(token, etag = oldHash) {
+        return booberWebClient.executeMono<Response<AuroraConfigFileResource>>(token, etag = oldHash) {
             it.put().uri(booberWebClient.getBooberUrl(url), emptyMap<String, Any>()).body(BodyInserters.fromValue(body))
         }.blockNonNullWithTimeout()
     }
@@ -52,11 +51,11 @@ class AuroraConfigService(
         reference: String,
         fileName: String,
         content: String
-    ): Response<ChangedAuroraConfigFileResponse> {
+    ): Response<AuroraConfigFileResource> {
         val url = "/v2/auroraconfig/$auroraConfig?reference=$reference"
         val body = mapOf("content" to content, "fileName" to fileName)
 
-        return booberWebClient.executeMono<Response<ChangedAuroraConfigFileResponse>>(token) {
+        return booberWebClient.executeMono<Response<AuroraConfigFileResource>>(token) {
             it.put().uri(booberWebClient.getBooberUrl(url), emptyMap<String, Any>()).body(BodyInserters.fromValue(body))
         }.blockNonNullWithTimeout()
     }

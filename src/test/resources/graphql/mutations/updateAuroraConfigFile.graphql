@@ -6,18 +6,5 @@ mutation updateAuroraConfigFile($input: UpdateAuroraConfigFileInput!){
             contentHash
             contents
         }
-        errors {
-            application
-            environment
-            details{
-                type
-                message
-                field{
-                    path
-                    fileName
-                    value
-                }
-            }
-        }
     }
 }

@@ -1,0 +1,41 @@
+type AuroraConfigRef {
+    name:String
+    gitReference:String
+    commitId:String
+}
+
+type ApplicationDeploymentResultItem {
+    warnings: [String!]!
+    tagResult: String
+    openshiftResponses:[String!]
+    status:String!
+    cluster:String!
+    environment:String!
+    application:String!
+    version:String!
+    releaseTo:String
+    deployId:String!
+    message:String
+}
+type ApplicationDeploymentResult {
+    success: Boolean!
+    auroraConfigRef: AuroraConfigRef!
+    applicationDeployments: [ApplicationDeploymentResultItem!]!
+}
+
+input ApplicationDeploymentRef {
+    environment: String!
+    application: String!
+}
+
+input OverrideInput {
+    fileName: String!
+    content: String!
+}
+
+input ApplicationDeploymentInput {
+    auroraConfigName: String!,
+    auroraConfigReference:String,
+    applicationDeployment: [ApplicationDeploymentRef!]!
+    overrides:[OverrideInput!]
+}

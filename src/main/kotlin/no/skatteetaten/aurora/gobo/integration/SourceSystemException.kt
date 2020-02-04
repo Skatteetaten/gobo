@@ -7,5 +7,6 @@ class SourceSystemException(
     cause: Throwable? = null,
     code: String = "",
     errorMessage: String = message,
-    val sourceSystem: String? = null
-) : GoboException(message, cause, code, errorMessage)
+    val sourceSystem: String? = null,
+    extensions: Map<String, Any> = emptyMap()
+) : GoboException(message, cause, code, errorMessage, extensions)

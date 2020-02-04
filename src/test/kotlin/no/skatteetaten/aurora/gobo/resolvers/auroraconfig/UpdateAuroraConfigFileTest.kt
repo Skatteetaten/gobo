@@ -24,21 +24,19 @@ class UpdateAuroraConfigFileTest : AbstractGraphQLTest() {
 
     @BeforeEach
     fun setUp() {
+        val auroraConfigFileResource = AuroraConfigFileResource(
+            name = "my name",
+            contents = "my content",
+            type = DEFAULT,
+            contentHash = "my hash"
+        )
+
         every {
             auroraConfigService.updateAuroraConfigFile(any(), any(), any(), any(), any(), any())
         } returns Response(
             success = true,
             message = "Ok",
-            items = listOf(
-                ChangedAuroraConfigFileResponse(
-                    errors = emptyList(), file = AuroraConfigFileResource(
-                        name = "my name",
-                        contents = "my content",
-                        type = DEFAULT,
-                        contentHash = "my hash"
-                    )
-                )
-            ),
+            items = listOf(auroraConfigFileResource),
             count = 1
         )
     }

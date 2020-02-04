@@ -61,19 +61,23 @@ class AuroraConfigMutationResolver(
         dfe: DataFetchingEnvironment
     ): AuroraConfigFileValidationResponse {
         if (dfe.isAnonymousUser()) throw AccessDeniedException("Anonymous user cannot create aurora config file")
-
-        val ref = input.auroraConfigReference ?: "master"
         val token = dfe.currentUser().token
-        val addResult: Response<ChangedAuroraConfigFileResponse> =
-            service.updateAuroraConfigFile(token, input.auroraConfigName, ref, input.fileName, input.contents, input.existingHash)
+        val addResult: Response<AuroraConfigFileResource> =
+            service.updateAuroraConfigFile(
+                token,
+                input.auroraConfigName,
+                input.auroraConfigReference,
+                input.fileName,
+                input.contents,
+                input.existingHash
+            )
 
-        val result: ChangedAuroraConfigFileResponse = addResult.items.first()
+        val result: AuroraConfigFileResource = addResult.items.first()
 
         return AuroraConfigFileValidationResponse(
             message = addResult.message,
             success = addResult.success,
-            errors = result.errors,
-            file = result.file
+            file = result
         )
     }
     fun createAuroraConfigFile(
@@ -81,32 +85,36 @@ class AuroraConfigMutationResolver(
         dfe: DataFetchingEnvironment
     ): AuroraConfigFileValidationResponse {
         if (dfe.isAnonymousUser()) throw AccessDeniedException("Anonymous user cannot create aurora config file")
-
-        val ref = input.auroraConfigReference ?: "master"
         val token = dfe.currentUser().token
-        val addResult: Response<ChangedAuroraConfigFileResponse> =
-            service.addAuroraConfigFile(token, input.auroraConfigName, ref, input.fileName, input.contents)
+        val addResult: Response<AuroraConfigFileResource> =
+            service.addAuroraConfigFile(
+                token,
+                input.auroraConfigName,
+                input.auroraConfigReference,
+                input.fileName,
+                input.contents
+            )
 
-        val result: ChangedAuroraConfigFileResponse = addResult.items.first()
+        val result: AuroraConfigFileResource = addResult.items.first()
 
         return AuroraConfigFileValidationResponse(
             message = addResult.message,
             success = addResult.success,
-            errors = result.errors,
-            file = result.file)
+            file = result
+        )
     }
 }
 
 data class NewAuroraConfigFileInput(
     val auroraConfigName: String,
-    val auroraConfigReference: String?,
+    val auroraConfigReference: String = "master",
     val fileName: String,
     val contents: String
 )
 
 data class UpdateAuroraConfigFileInput(
     val auroraConfigName: String,
-    val auroraConfigReference: String?,
+    val auroraConfigReference: String = "master",
     val fileName: String,
     val contents: String,
     val existingHash: String
@@ -115,38 +123,5 @@ data class UpdateAuroraConfigFileInput(
 data class AuroraConfigFileValidationResponse(
     val message: String,
     val success: Boolean,
-    val errors: List<ApplicationError>?,
     val file: AuroraConfigFileResource?
-)
-
-data class ChangedAuroraConfigFileResponse(
-    val errors: List<ApplicationError> = emptyList(),
-    val file: AuroraConfigFileResource? = null
-)
-
-data class ApplicationError(
-    val application: String,
-    val environment: String,
-    val details: List<ErrorDetail>?,
-    val type: String = "APPLICATION"
-)
-
-data class ErrorDetail(
-    val type: ErrorType,
-    val message: String,
-    val field: AuroraConfigFieldError? = null
-)
-
-enum class ErrorType {
-    ILLEGAL,
-    MISSING,
-    INVALID,
-    GENERIC,
-    WARNING
-}
-
-data class AuroraConfigFieldError(
-    val path: String,
-    val fileName: String? = null,
-    val value: String? = null
 )
