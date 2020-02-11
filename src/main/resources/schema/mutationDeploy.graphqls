@@ -17,6 +17,7 @@ type ApplicationDeploymentResultItem {
     deployId:String!
     message:String
 }
+
 type ApplicationDeploymentResult {
     success: Boolean!
     auroraConfigRef: AuroraConfigRef!

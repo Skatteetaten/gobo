@@ -16,6 +16,7 @@ type Query {
     certificates: CertificatesConnection
     auroraApiMetadata: AuroraApiMetadata
     auroraConfig(name:String!, ref:String): AuroraConfig
+    deployInformation(input: DeployInformationInput!): DeployInformation
 }
 
 type Mutation {

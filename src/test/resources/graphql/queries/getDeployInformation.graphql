@@ -1,0 +1,19 @@
+#query getDeployinformation($input: DeployInformationInput!){
+#    deployInformation(input: $input){
+#        deployDetails{
+#            cluster,
+#            enviroment,
+#            application
+#        }
+#    }
+#}
+
+query getDeployinformation {
+    deployInformation{
+        deployDetails{
+            cluster,
+            enviroment,
+            application
+        }
+    }
+}

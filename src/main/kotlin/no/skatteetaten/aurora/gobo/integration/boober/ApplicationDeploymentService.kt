@@ -1,6 +1,8 @@
 package no.skatteetaten.aurora.gobo.integration.boober
 
 import com.fasterxml.jackson.databind.JsonNode
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 import java.time.Duration
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.integration.Response
@@ -40,6 +42,25 @@ class ApplicationDeploymentService(private val booberWebClient: BooberWebClient)
         return booberWebClient.executeMono<Response<DeployResource>>(token) {
             it.put().uri(booberWebClient.getBooberUrl(url), emptyMap<String, Any>())
                 .body(BodyInserters.fromValue(payload))
+        }.blockNonNullWithTimeout()
+    }
+
+    fun getSpec(
+        token: String,
+        auroraConfigName: String,
+        auroraConfigReference: String,
+        applicationDeploymentReferenceList: List<String>
+    ): Response<JsonNode> {
+
+        val requestParam = applicationDeploymentReferenceList.joinToString(
+            transform = { "adr=" + URLEncoder.encode(it, StandardCharsets.UTF_8) },
+            separator = "&"
+        ) + "&reference=$auroraConfigReference"
+
+        val url = "/v1/auroradeployspec/$auroraConfigName?$requestParam"
+
+        return booberWebClient.executeMono<Response<JsonNode>>(token) {
+            it.get().uri(booberWebClient.getBooberUrl(url))
         }.blockNonNullWithTimeout()
     }
 
