@@ -3,7 +3,21 @@ type AuroraConfig{
     ref: String!
     resolvedRef: String!
     files(types:[AuroraConfigFileType!], fileName:[String!]): [AuroraConfigFile!]
+    applicationDeploymentSpec(adr:[ApplicationDeploymentRef!]!) : [ApplicationDeploymentSpec]
 }
+
+type ApplicationDeploymentSpec {
+    rawJsonValueWithDefaults: String!
+    cluster: String!
+    environment: String!
+    application: String!
+    version: String!
+    replicas:String!
+    type: String!
+    deployStrategy:String!
+    releaseTo: String
+}
+
 
 input NewAuroraConfigFileInput {
     auroraConfigName: String!,

@@ -6,6 +6,8 @@ import java.nio.charset.StandardCharsets
 import java.time.Duration
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.integration.Response
+import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.ApplicationDeploymentRef
+import no.skatteetaten.aurora.gobo.resolvers.auroraconfig.ApplicationDeploymentSpec
 import no.skatteetaten.aurora.gobo.resolvers.blockNonNullAndHandleError
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.BodyInserters
@@ -45,23 +47,27 @@ class ApplicationDeploymentService(private val booberWebClient: BooberWebClient)
         }.blockNonNullWithTimeout()
     }
 
+    // TODO this should support  a list of applicationSpecCommands that also takes in responseType and Defaults.
+    // TODO Should we move the default/formating code here instead of in boober?
     fun getSpec(
         token: String,
         auroraConfigName: String,
         auroraConfigReference: String,
-        applicationDeploymentReferenceList: List<String>
-    ): Response<JsonNode> {
+        applicationDeploymentReferenceList: List<ApplicationDeploymentRef>
+    ): List<ApplicationDeploymentSpec> {
 
         val requestParam = applicationDeploymentReferenceList.joinToString(
-            transform = { "adr=" + URLEncoder.encode(it, StandardCharsets.UTF_8) },
+            transform = { "adr=" + URLEncoder.encode("${it.environment}/${it.application}", StandardCharsets.UTF_8) },
             separator = "&"
         ) + "&reference=$auroraConfigReference"
 
         val url = "/v1/auroradeployspec/$auroraConfigName?$requestParam"
 
-        return booberWebClient.executeMono<Response<JsonNode>>(token) {
+        val response = booberWebClient.executeMono<Response<JsonNode>>(token) {
             it.get().uri(booberWebClient.getBooberUrl(url))
         }.blockNonNullWithTimeout()
+
+        return response.items.map { ApplicationDeploymentSpec(it) }
     }
 
     private fun <T> Mono<T>.blockNonNullWithTimeout() =
@@ -81,11 +87,6 @@ data class DeployResource(
     val projectExist: Boolean = false,
     val warnings: List<String> = emptyList()
 ) {
-    val cluster = deploymentSpec.at("/cluster/value").textValue()
-    val environment = deploymentSpec.at("/envName/value").textValue()
-    val name = deploymentSpec.at("/name/value").textValue()
-    val version = deploymentSpec.at("/version/value").textValue()
-    val releaseTo: String? = deploymentSpec.at("/releaseTo/value").textValue()
     val successString = if (success) "DEPLOYED" else "FAILED"
 }
 

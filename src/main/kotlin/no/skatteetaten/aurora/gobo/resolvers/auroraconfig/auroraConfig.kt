@@ -3,12 +3,15 @@ package no.skatteetaten.aurora.gobo.resolvers.auroraconfig
 import com.coxautodev.graphql.tools.GraphQLMutationResolver
 import com.coxautodev.graphql.tools.GraphQLQueryResolver
 import com.coxautodev.graphql.tools.GraphQLResolver
+import com.fasterxml.jackson.databind.JsonNode
 import graphql.schema.DataFetchingEnvironment
 import no.skatteetaten.aurora.gobo.integration.Response
+import no.skatteetaten.aurora.gobo.integration.boober.ApplicationDeploymentService
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileResource
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileType
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigService
 import no.skatteetaten.aurora.gobo.resolvers.AccessDeniedException
+import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.ApplicationDeploymentRef
 import no.skatteetaten.aurora.gobo.security.currentUser
 import no.skatteetaten.aurora.gobo.security.isAnonymousUser
 import org.springframework.stereotype.Component
@@ -32,8 +35,33 @@ data class AuroraConfig(
     val files: List<AuroraConfigFileResource>
 )
 
+data class ApplicationDeploymentSpec(
+    val rawJsonValueWithDefaults: JsonNode
+) {
+    val cluster = rawJsonValueWithDefaults.at("/cluster/value").textValue()
+    val environment = rawJsonValueWithDefaults.at("/envName/value").textValue()
+    val name = rawJsonValueWithDefaults.at("/name/value").textValue()
+    val version = rawJsonValueWithDefaults.at("/version/value").textValue()
+    val releaseTo: String? = rawJsonValueWithDefaults.at("/releaseTo/value").textValue()
+    val application = rawJsonValueWithDefaults.at("/name/value").textValue()
+    val type = rawJsonValueWithDefaults.at("/type/value").textValue()
+    val deployStrategy = rawJsonValueWithDefaults.at("/deployStrategy/type/value").textValue()
+    val replicas = rawJsonValueWithDefaults.at("/replicas/value").intValue().toString()
+}
+
 @Component
-class AuroraConfigResolve : GraphQLResolver<AuroraConfig> {
+class AuroraConfigResolver(val applicationDeploymentService: ApplicationDeploymentService) :
+    GraphQLResolver<AuroraConfig> {
+
+    fun applicationDeploymentSpec(
+        auroraConfig: AuroraConfig,
+        adr: List<ApplicationDeploymentRef>,
+        dfe: DataFetchingEnvironment
+    ): List<ApplicationDeploymentSpec> {
+        if (dfe.isAnonymousUser()) throw AccessDeniedException("Anonymous user cannot get aurora config")
+        val token = dfe.currentUser().token
+        return applicationDeploymentService.getSpec(token, auroraConfig.name, auroraConfig.ref, adr)
+    }
 
     fun files(
         auroraConfig: AuroraConfig,
@@ -80,6 +108,7 @@ class AuroraConfigMutationResolver(
             file = result
         )
     }
+
     fun createAuroraConfigFile(
         input: NewAuroraConfigFileInput,
         dfe: DataFetchingEnvironment

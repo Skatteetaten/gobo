@@ -93,8 +93,8 @@ class DeployMutationResolverTest : AbstractGraphQLTest() {
             .graphqlData("deploy.success").isTrue()
             .graphqlData("deploy.auroraConfigRef.gitReference").isEqualTo("master")
             .graphqlData("deploy.auroraConfigRef.commitId").isEqualTo("123abcd")
-            .graphqlData("deploy.applicationDeployments[0].version").isEqualTo("1.0")
-            .graphqlData("deploy.applicationDeployments[0].cluster").isEqualTo("myCluster")
+            .graphqlData("deploy.applicationDeployments[0].spec.version").isEqualTo("1.0")
+            .graphqlData("deploy.applicationDeployments[0].spec.cluster").isEqualTo("myCluster")
     }
 
     @Test
@@ -113,7 +113,7 @@ class DeployMutationResolverTest : AbstractGraphQLTest() {
             .graphqlData("deploy.success").isFalse()
             .graphqlData("deploy.auroraConfigRef.gitReference").isEqualTo("myRef")
             .graphqlData("deploy.auroraConfigRef.commitId").isEqualTo("123abcd")
-            .graphqlData("deploy.applicationDeployments[0].version").isEqualTo("1.0")
-            .graphqlData("deploy.applicationDeployments[0].cluster").isEqualTo("myCluster")
+            .graphqlData("deploy.applicationDeployments[0].spec.version").isEqualTo("1.0")
+            .graphqlData("deploy.applicationDeployments[0].spec.cluster").isEqualTo("myCluster")
     }
 }
