@@ -1,8 +1,9 @@
 package no.skatteetaten.aurora.gobo.resolvers.auroraconfig
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
-import no.skatteetaten.aurora.gobo.integration.Response
+import no.skatteetaten.aurora.gobo.integration.boober.ApplicationDeploymentService
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileResource
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileType.APP
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileType.GLOBAL
@@ -23,6 +24,9 @@ class AuroraConfigQueryResolverTest : AbstractGraphQLTest() {
     @MockkBean
     private lateinit var auroraConfigService: AuroraConfigService
 
+    @MockkBean
+    private lateinit var applicationDeploymentService: ApplicationDeploymentService
+
     @BeforeEach
     fun setUp() {
         every { auroraConfigService.getAuroraConfig(any(), any(), any()) } returns AuroraConfig(
@@ -35,18 +39,49 @@ class AuroraConfigQueryResolverTest : AbstractGraphQLTest() {
             )
         )
 
-        every {
-            auroraConfigService.addAuroraConfigFile(any(), any(), any(), any(), any()) } returns Response(
-            success = true,
-            count = 1,
-            message = "Ok",
-            items = emptyList()
+        val jsonNode = """
+          {
+            "cluster": {
+              "value": "myCluster"
+            },
+            "envName": {
+              "value": "myEnvName"
+            },
+            "name": {
+              "value": "myName"
+            },
+            "version": {
+              "value": "myVersion"
+            },
+            "releaseTo": {
+              "value": "myReleaseTo"
+            },
+            "type": {
+              "value": "myType"
+            },
+            "deployStrategy": {
+                "type" : {
+                  "value": "myDeploy"
+             }           
+            },
+            "replicas": {
+              "value": 2
+            }
+          }
+      """.trimIndent()
+
+        every { applicationDeploymentService.getSpec(any(), any(), any(), any()) } returns listOf(
+            ApplicationDeploymentSpec(jacksonObjectMapper().readTree(jsonNode))
         )
     }
 
     @Test
     fun `Query for application deployment`() {
-        val variables = mapOf("auroraConfig" to "demo", "fileName" to "about.json")
+        val variables = mapOf(
+            "auroraConfig" to "demo",
+            "fileName" to "about.json",
+            "applicationDeplymentRef" to mapOf("environment" to "my-env", "application" to "my-application")
+        )
         webTestClient.queryGraphQL(query, variables, "test-token")
             .expectStatus().isOk
             .expectBody()
@@ -54,6 +89,9 @@ class AuroraConfigQueryResolverTest : AbstractGraphQLTest() {
                 graphqlData("resolvedRef").isEqualTo("abcde")
                 graphqlData("files.length()").isEqualTo(1)
                 graphqlData("files[0].name").isEqualTo("about.json")
+                graphqlData("applicationDeploymentSpec[0].cluster").isEqualTo("myCluster")
+                graphqlData("applicationDeploymentSpec[0].replicas").isEqualTo("2")
+                graphqlData("applicationDeploymentSpec[0].releaseTo").doesNotExist()
             }
     }
 }

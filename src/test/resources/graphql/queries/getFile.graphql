@@ -1,9 +1,16 @@
-query getFile($auroraConfig: String!, $fileName: String!) {
+query getFile($auroraConfig: String!, $fileName: String!, $applicationDeplymentRef: ApplicationDeploymentRef!) {
     auroraConfig(name:$auroraConfig) {
         resolvedRef
         files(fileName: [$fileName]){
             name
             contents
+        }
+        applicationDeploymentSpec(adr: [$applicationDeplymentRef]) {
+            cluster
+            environment
+            version
+            replicas
+            deployStrategy
         }
     }
 }
