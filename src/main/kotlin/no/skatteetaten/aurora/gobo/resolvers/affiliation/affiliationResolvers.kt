@@ -7,6 +7,7 @@ import java.util.concurrent.CompletableFuture
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseService
 import no.skatteetaten.aurora.gobo.integration.mokey.AffiliationServiceBlocking
 import no.skatteetaten.aurora.gobo.resolvers.AccessDeniedException
+import no.skatteetaten.aurora.gobo.resolvers.database.DatabaseInstance
 import no.skatteetaten.aurora.gobo.resolvers.database.DatabaseSchema
 import no.skatteetaten.aurora.gobo.resolvers.multipleKeysLoader
 import no.skatteetaten.aurora.gobo.security.currentUser
@@ -46,6 +47,15 @@ class AffiliationResolver(
     private val databaseService: DatabaseService,
     private val websealAffiliationService: WebsealAffiliationService
 ) : GraphQLResolver<Affiliation> {
+
+    fun databaseInstances(affiliation: Affiliation, dfe: DataFetchingEnvironment): List<DatabaseInstance> {
+        if (dfe.isAnonymousUser()) throw AccessDeniedException("Anonymous user cannot get database instances")
+        return databaseService.getDatabaseInstances().filter {
+            it.labels["affiliation"] == affiliation.name
+        }.map {
+            DatabaseInstance.create(it)
+        }
+    }
 
     fun databaseSchemas(affiliation: Affiliation, dfe: DataFetchingEnvironment): List<DatabaseSchema> {
         if (dfe.isAnonymousUser()) throw AccessDeniedException("Anonymous user cannot get database schemas")
