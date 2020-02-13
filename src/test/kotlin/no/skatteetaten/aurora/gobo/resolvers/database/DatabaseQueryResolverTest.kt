@@ -20,6 +20,9 @@ import org.springframework.core.io.Resource
 
 class DatabaseQueryResolverTest : AbstractGraphQLTest() {
 
+    @Value("classpath:graphql/queries/getDatabaseInstances.graphql")
+    private lateinit var getDatabaseInstancesQuery: Resource
+
     @Value("classpath:graphql/queries/getDatabaseInstancesWithAffiliation.graphql")
     private lateinit var getDatabaseInstancesWithAffiliationQuery: Resource
 
@@ -37,7 +40,10 @@ class DatabaseQueryResolverTest : AbstractGraphQLTest() {
 
     @BeforeEach
     fun setUp() {
-        every { databaseService.getDatabaseInstances() } returns listOf(DatabaseInstanceResourceBuilder().build())
+        val paasInstance = DatabaseInstanceResourceBuilder().build()
+        val auroraInstance = DatabaseInstanceResourceBuilder(affiliation = "aurora").build()
+
+        every { databaseService.getDatabaseInstances() } returns listOf(paasInstance, auroraInstance)
         every { databaseService.getDatabaseSchemas("paas") } returns listOf(DatabaseSchemaResourceBuilder().build())
         every { databaseService.getDatabaseSchema("myDbId") } returns DatabaseSchemaResourceBuilder().build()
         every { applicationService.getApplicationDeploymentsForDatabases("test-token", listOf("123")) } returns
@@ -57,6 +63,21 @@ class DatabaseQueryResolverTest : AbstractGraphQLTest() {
     }
 
     @Test
+    fun `Query for database instances`() {
+        webTestClient.queryGraphQL(
+            queryResource = getDatabaseInstancesQuery,
+            token = "test-token"
+        )
+            .expectStatus().isOk
+            .expectBody()
+            .graphqlData("databaseInstances.length()").isEqualTo(2)
+            .graphqlDataWithPrefix("databaseInstances[0]") {
+                graphqlData("engine").isEqualTo("POSTGRES")
+                graphqlData("instanceName").isEqualTo("name")
+            }
+    }
+
+    @Test
     fun `Query for database instances given affiliation`() {
         webTestClient.queryGraphQL(
             queryResource = getDatabaseInstancesWithAffiliationQuery,
@@ -65,9 +86,11 @@ class DatabaseQueryResolverTest : AbstractGraphQLTest() {
         )
             .expectStatus().isOk
             .expectBody()
+            .graphqlData("databaseInstances.length()").isEqualTo(1)
             .graphqlDataWithPrefix("databaseInstances[0]") {
-                graphqlData("engine").isEqualTo("ORACLE")
+                graphqlData("engine").isEqualTo("POSTGRES")
                 graphqlData("instanceName").isEqualTo("name")
+                graphqlData("affiliation").isEqualTo("paas")
             }
     }
 
@@ -83,7 +106,7 @@ class DatabaseQueryResolverTest : AbstractGraphQLTest() {
             .expectBody()
             .graphqlData("databaseSchemas.length()").isEqualTo(1)
             .graphqlDataWithPrefix("databaseSchemas[0]") {
-                graphqlData("databaseEngine").isEqualTo("ORACLE")
+                graphqlData("databaseEngine").isEqualTo("POSTGRES")
                 graphqlData("affiliation.name").isEqualTo("paas")
                 graphqlData("createdBy").isEqualTo("abc123")
                 graphqlData("applicationDeployments.length()").isEqualTo(1)
@@ -109,7 +132,7 @@ class DatabaseQueryResolverTest : AbstractGraphQLTest() {
         )
             .expectStatus().isOk
             .expectBody()
-            .graphqlData("databaseSchema.databaseEngine").isEqualTo("ORACLE")
+            .graphqlData("databaseSchema.databaseEngine").isEqualTo("POSTGRES")
             .graphqlData("databaseSchema.applicationDeployments.length()").isEqualTo(1)
     }
 }

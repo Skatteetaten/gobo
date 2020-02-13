@@ -12,7 +12,7 @@ type Query {
     userSettings: UserSettings
     databaseSchemas(affiliations: [String!]!): [DatabaseSchema!]
     databaseSchema(id: String!): DatabaseSchema
-    databaseInstances(affiliation: String!): [DatabaseInstance]
+    databaseInstances(affiliation: String): [DatabaseInstance]
     gobo: Gobo
     certificates: CertificatesConnection
     auroraApiMetadata: AuroraApiMetadata

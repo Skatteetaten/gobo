@@ -5,7 +5,6 @@ import com.coxautodev.graphql.tools.GraphQLQueryResolver
 import com.coxautodev.graphql.tools.GraphQLResolver
 import graphql.schema.DataFetchingEnvironment
 import java.util.concurrent.CompletableFuture
-import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseInstanceResource
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseService
 import no.skatteetaten.aurora.gobo.integration.dbh.JdbcUser
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
@@ -36,9 +35,14 @@ class DatabaseSchemaQueryResolver(private val databaseService: DatabaseService) 
         return DatabaseSchema.create(databaseSchema, Affiliation(databaseSchema.affiliation))
     }
 
-    fun databaseInstances(affiliation: String, dfe: DataFetchingEnvironment): List<DatabaseInstanceResource> {
-        if (dfe.isAnonymousUser()) throw AccessDeniedException("Anonymous user cannot get database schema")
-        return databaseService.getDatabaseInstances()
+    fun databaseInstances(affiliation: String?, dfe: DataFetchingEnvironment): List<DatabaseInstance> {
+        if (dfe.isAnonymousUser()) throw AccessDeniedException("Anonymous user cannot get database instances")
+        return databaseService
+            .getDatabaseInstances()
+            .map { DatabaseInstance.create(it) }
+            .filter { databaseInstance ->
+                affiliation?.let { it == databaseInstance.affiliation } ?: true
+            }
     }
 }
 

@@ -334,14 +334,15 @@ data class ApplicationDeploymentFilterResourceBuilder(val affiliation: String = 
         )
 }
 
-class DatabaseInstanceResourceBuilder {
+data class DatabaseInstanceResourceBuilder(val affiliation: String = "paas") {
     fun build() =
         DatabaseInstanceResource(
-            engine = "ORACLE",
+            engine = "POSTGRES",
             instanceName = "name",
             host = "host",
             port = 8080,
-            createSchemaAllowed = true
+            createSchemaAllowed = true,
+            labels = mapOf("affiliation" to affiliation)
         )
 }
 

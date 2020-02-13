@@ -10,7 +10,8 @@ data class DatabaseInstanceResource(
     val instanceName: String,
     val host: String,
     val port: Int,
-    val createSchemaAllowed: Boolean
+    val createSchemaAllowed: Boolean,
+    val labels: Map<String, String>
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)

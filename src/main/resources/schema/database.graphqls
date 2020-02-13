@@ -4,6 +4,7 @@ type DatabaseInstance {
     host: String!
     port: Int!
     createSchemaAllowed: Boolean!
+    affiliation: String
 }
 
 type DatabaseUser {
