@@ -1,10 +1,11 @@
-package no.skatteetaten.aurora.gobo.resolvers.databaseschema
+package no.skatteetaten.aurora.gobo.resolvers.database
 
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentWithDbResourceBuilder
+import no.skatteetaten.aurora.gobo.DatabaseInstanceResourceBuilder
 import no.skatteetaten.aurora.gobo.DatabaseSchemaResourceBuilder
-import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseSchemaServiceBlocking
+import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseServiceBlocking
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
 import no.skatteetaten.aurora.gobo.resolvers.AbstractGraphQLTest
 import no.skatteetaten.aurora.gobo.resolvers.graphqlData
@@ -17,7 +18,10 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 
-class DatabaseSchemaQueryResolverTest : AbstractGraphQLTest() {
+class DatabaseQueryResolverTest : AbstractGraphQLTest() {
+
+    @Value("classpath:graphql/queries/getDatabaseInstancesWithAffiliation.graphql")
+    private lateinit var getDatabaseInstancesWithAffiliationQuery: Resource
 
     @Value("classpath:graphql/queries/getDatabaseSchemasWithAffiliation.graphql")
     private lateinit var getDatabaseSchemasWithAffiliationQuery: Resource
@@ -26,15 +30,16 @@ class DatabaseSchemaQueryResolverTest : AbstractGraphQLTest() {
     private lateinit var getDatabaseSchemaWithIdQuery: Resource
 
     @MockkBean
-    private lateinit var databaseSchemaService: DatabaseSchemaServiceBlocking
+    private lateinit var databaseService: DatabaseServiceBlocking
 
     @MockkBean
     private lateinit var applicationService: ApplicationServiceBlocking
 
     @BeforeEach
     fun setUp() {
-        every { databaseSchemaService.getDatabaseSchemas("paas") } returns listOf(DatabaseSchemaResourceBuilder().build())
-        every { databaseSchemaService.getDatabaseSchema("myDbId") } returns DatabaseSchemaResourceBuilder().build()
+        every { databaseService.getDatabaseInstances() } returns listOf(DatabaseInstanceResourceBuilder().build())
+        every { databaseService.getDatabaseSchemas("paas") } returns listOf(DatabaseSchemaResourceBuilder().build())
+        every { databaseService.getDatabaseSchema("myDbId") } returns DatabaseSchemaResourceBuilder().build()
         every { applicationService.getApplicationDeploymentsForDatabases("test-token", listOf("123")) } returns
             listOf(ApplicationDeploymentWithDbResourceBuilder(databaseId = "123").build())
     }
@@ -49,6 +54,21 @@ class DatabaseSchemaQueryResolverTest : AbstractGraphQLTest() {
             .expectStatus().isOk
             .expectBody()
             .graphqlErrorsFirst("message").isNotEmpty
+    }
+
+    @Test
+    fun `Query for database instances given affiliation`() {
+        webTestClient.queryGraphQL(
+            queryResource = getDatabaseInstancesWithAffiliationQuery,
+            variables = mapOf("affiliation" to "paas"),
+            token = "test-token"
+        )
+            .expectStatus().isOk
+            .expectBody()
+            .graphqlDataWithPrefix("databaseInstances[0]") {
+                graphqlData("engine").isEqualTo("ORACLE")
+                graphqlData("instanceName").isEqualTo("name")
+            }
     }
 
     @Test

@@ -1,0 +1,9 @@
+query getDatabaseInstances($affiliation: String!) {
+    databaseInstances(affiliation: $affiliation) {
+        engine
+        instanceName
+        host
+        port
+        createSchemaAllowed
+    }
+}

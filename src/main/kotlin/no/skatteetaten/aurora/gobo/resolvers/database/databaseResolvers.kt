@@ -1,11 +1,12 @@
-package no.skatteetaten.aurora.gobo.resolvers.databaseschema
+package no.skatteetaten.aurora.gobo.resolvers.database
 
 import com.coxautodev.graphql.tools.GraphQLMutationResolver
 import com.coxautodev.graphql.tools.GraphQLQueryResolver
 import com.coxautodev.graphql.tools.GraphQLResolver
 import graphql.schema.DataFetchingEnvironment
 import java.util.concurrent.CompletableFuture
-import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseSchemaService
+import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseInstanceResource
+import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseService
 import no.skatteetaten.aurora.gobo.integration.dbh.JdbcUser
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
 import no.skatteetaten.aurora.gobo.resolvers.AccessDeniedException
@@ -16,14 +17,14 @@ import no.skatteetaten.aurora.gobo.security.isAnonymousUser
 import org.springframework.stereotype.Component
 
 @Component
-class DatabaseSchemaQueryResolver(private val databaseSchemaService: DatabaseSchemaService) :
+class DatabaseSchemaQueryResolver(private val databaseService: DatabaseService) :
     GraphQLQueryResolver {
 
     fun databaseSchemas(affiliations: List<String>, dfe: DataFetchingEnvironment): List<DatabaseSchema> {
         if (dfe.isAnonymousUser()) throw AccessDeniedException("Anonymous user cannot get database schemas")
 
         return affiliations.flatMap { affiliation ->
-            databaseSchemaService.getDatabaseSchemas(affiliation)
+            databaseService.getDatabaseSchemas(affiliation)
                 .map { DatabaseSchema.create(it, Affiliation(affiliation)) }
         }
     }
@@ -31,17 +32,22 @@ class DatabaseSchemaQueryResolver(private val databaseSchemaService: DatabaseSch
     fun databaseSchema(id: String, dfe: DataFetchingEnvironment): DatabaseSchema? {
         if (dfe.isAnonymousUser()) throw AccessDeniedException("Anonymous user cannot get database schema")
 
-        val databaseSchema = databaseSchemaService.getDatabaseSchema(id) ?: return null
+        val databaseSchema = databaseService.getDatabaseSchema(id) ?: return null
         return DatabaseSchema.create(databaseSchema, Affiliation(databaseSchema.affiliation))
+    }
+
+    fun databaseInstances(affiliation: String, dfe: DataFetchingEnvironment): List<DatabaseInstanceResource> {
+        if (dfe.isAnonymousUser()) throw AccessDeniedException("Anonymous user cannot get database schema")
+        return databaseService.getDatabaseInstances()
     }
 }
 
 @Component
-class DatabaseSchemaMutationResolver(private val databaseSchemaService: DatabaseSchemaService) :
+class DatabaseSchemaMutationResolver(private val databaseService: DatabaseService) :
     GraphQLMutationResolver {
     fun updateDatabaseSchema(input: UpdateDatabaseSchemaInput, dfe: DataFetchingEnvironment): DatabaseSchema {
         if (dfe.isAnonymousUser()) throw AccessDeniedException("Anonymous user cannot update database schema")
-        return databaseSchemaService.updateDatabaseSchema(input.toSchemaUpdateRequest())
+        return databaseService.updateDatabaseSchema(input.toSchemaUpdateRequest())
             .let { DatabaseSchema.create(it, Affiliation(it.affiliation)) }
     }
 
@@ -50,23 +56,23 @@ class DatabaseSchemaMutationResolver(private val databaseSchemaService: Database
         dfe: DataFetchingEnvironment
     ): DeleteDatabaseSchemasResponse {
         if (dfe.isAnonymousUser()) throw AccessDeniedException("Anonymous user cannot delete database schemas")
-        val responses = databaseSchemaService.deleteDatabaseSchemas(input.toSchemaDeletionRequests())
+        val responses = databaseService.deleteDatabaseSchemas(input.toSchemaDeletionRequests())
         return DeleteDatabaseSchemasResponse.create(responses)
     }
 
     fun testJdbcConnectionForJdbcUser(input: JdbcUser, dfe: DataFetchingEnvironment): Boolean {
         if (dfe.isAnonymousUser()) throw AccessDeniedException("Anonymous user cannot test jdbc connection")
-        return databaseSchemaService.testJdbcConnection(input)
+        return databaseService.testJdbcConnection(input)
     }
 
     fun testJdbcConnectionForId(id: String, dfe: DataFetchingEnvironment): Boolean {
         if (dfe.isAnonymousUser()) throw AccessDeniedException("Anonymous user cannot test jdbc connection")
-        return databaseSchemaService.testJdbcConnection(id)
+        return databaseService.testJdbcConnection(id)
     }
 
     fun createDatabaseSchema(input: CreateDatabaseSchemaInput, dfe: DataFetchingEnvironment): DatabaseSchema {
         if (dfe.isAnonymousUser()) throw AccessDeniedException("Anonymous user cannot create database schema")
-        return databaseSchemaService.createDatabaseSchema(input.toSchemaCreationRequest())
+        return databaseService.createDatabaseSchema(input.toSchemaCreationRequest())
             .let { DatabaseSchema.create(it, Affiliation(it.affiliation)) }
     }
 }
@@ -78,5 +84,5 @@ class DatabaseSchemaResolver(val applicationService: ApplicationServiceBlocking)
         schema: DatabaseSchema,
         dfe: DataFetchingEnvironment
     ): CompletableFuture<List<ApplicationDeployment>> =
-        dfe.multipleKeysLoader(DatabaseSchemaDataLoader::class).load(schema.id)
+        dfe.multipleKeysLoader(DatabaseDataLoader::class).load(schema.id)
 }

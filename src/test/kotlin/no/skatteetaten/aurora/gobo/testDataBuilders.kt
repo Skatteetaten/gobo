@@ -334,6 +334,17 @@ data class ApplicationDeploymentFilterResourceBuilder(val affiliation: String = 
         )
 }
 
+class DatabaseInstanceResourceBuilder {
+    fun build() =
+        DatabaseInstanceResource(
+            engine = "ORACLE",
+            instanceName = "name",
+            host = "host",
+            port = 8080,
+            createSchemaAllowed = true
+        )
+}
+
 data class DatabaseSchemaResourceBuilder(
     val createdDate: Long = Instant.now().toEpochMilli(),
     val lastUsedDate: Long? = Instant.now().toEpochMilli(),
@@ -355,7 +366,7 @@ data class DatabaseSchemaResourceBuilder(
             name = "name",
             createdDate = createdDate,
             lastUsedDate = lastUsedDate,
-            databaseInstance = DatabaseInstanceResource(engine = "ORACLE"),
+            databaseInstance = DatabaseInstanceResourceBuilder().build(),
             users = listOf(DatabaseUserResource("username", "password", "SCHEMA")),
             metadata = DatabaseMetadataResource(sizeInMb = 0.25),
             labels = labels
