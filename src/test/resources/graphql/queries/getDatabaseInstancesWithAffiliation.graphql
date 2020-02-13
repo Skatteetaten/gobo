@@ -5,6 +5,8 @@ query getDatabaseInstances($affiliation: String!) {
         host
         port
         createSchemaAllowed
-        affiliation
+        affiliation {
+            name
+        }
     }
 }

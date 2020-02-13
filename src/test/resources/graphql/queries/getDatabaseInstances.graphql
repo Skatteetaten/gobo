@@ -5,6 +5,8 @@ query getDatabaseInstances {
         host
         port
         createSchemaAllowed
-        affiliation
+        affiliation {
+            name
+        }
     }
 }

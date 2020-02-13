@@ -41,7 +41,7 @@ class DatabaseSchemaQueryResolver(private val databaseService: DatabaseService) 
             .getDatabaseInstances()
             .map { DatabaseInstance.create(it) }
             .filter { databaseInstance ->
-                affiliation?.let { it == databaseInstance.affiliation } ?: true
+                affiliation?.let { it == databaseInstance.affiliation?.name } ?: true
             }
     }
 }

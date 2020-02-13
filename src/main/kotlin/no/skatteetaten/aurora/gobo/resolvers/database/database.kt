@@ -17,7 +17,7 @@ data class DatabaseInstance(
     val host: String,
     val port: Int,
     val createSchemaAllowed: Boolean,
-    val affiliation: String?
+    val affiliation: Affiliation?
 ) {
     companion object {
         fun create(databaseInstanceResource: DatabaseInstanceResource) =
@@ -27,7 +27,7 @@ data class DatabaseInstance(
                 host = databaseInstanceResource.host,
                 port = databaseInstanceResource.port,
                 createSchemaAllowed = databaseInstanceResource.createSchemaAllowed,
-                affiliation = databaseInstanceResource.labels["affiliation"]
+                affiliation = databaseInstanceResource.labels["affiliation"]?.let { Affiliation(it) }
             )
     }
 }

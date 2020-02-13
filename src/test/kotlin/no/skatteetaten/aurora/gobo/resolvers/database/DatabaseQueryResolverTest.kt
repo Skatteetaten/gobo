@@ -90,7 +90,7 @@ class DatabaseQueryResolverTest : AbstractGraphQLTest() {
             .graphqlDataWithPrefix("databaseInstances[0]") {
                 graphqlData("engine").isEqualTo("POSTGRES")
                 graphqlData("instanceName").isEqualTo("name")
-                graphqlData("affiliation").isEqualTo("paas")
+                graphqlData("affiliation.name").isEqualTo("paas")
             }
     }
 
