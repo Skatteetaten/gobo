@@ -5,7 +5,6 @@ import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageRepoDto
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageTagType
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageTagType.Companion.typeOf
-import no.skatteetaten.aurora.gobo.integration.cantus.decomposeToImageRepoSegments
 import no.skatteetaten.aurora.gobo.resolvers.GoboConnection
 import no.skatteetaten.aurora.gobo.resolvers.GoboEdge
 import no.skatteetaten.aurora.gobo.resolvers.GoboPageInfo
@@ -14,10 +13,13 @@ import no.skatteetaten.aurora.gobo.resolvers.GoboPagedEdges
 private val logger = KotlinLogging.logger {}
 
 data class ImageRepository(
-    val registryUrl: String,
+    val registryUrl: String?,
     val namespace: String,
     val name: String
 ) {
+
+    val isFullyQualified: Boolean get() = registryUrl != null
+
     val repository: String
         get() = listOf(registryUrl, namespace, name).joinToString("/")
 
@@ -33,7 +35,13 @@ data class ImageRepository(
          * @param absoluteImageRepoPath Example docker-registry.aurora.sits.no:5000/no_skatteetaten_aurora/dbh
          */
         fun fromRepoString(absoluteImageRepoPath: String): ImageRepository {
-            val (registryUrl, namespace, name) = absoluteImageRepoPath.decomposeToImageRepoSegments()
+            // asd
+            val segments = absoluteImageRepoPath.split("/")
+            if (segments.size != 3) {
+                val (namespace, name) = segments
+                return ImageRepository(null, namespace, name)
+            }
+            val (registryUrl, namespace, name) = segments
             return ImageRepository(registryUrl, namespace, name)
         }
     }
