@@ -5,11 +5,12 @@ query getFile($auroraConfig: String!, $fileName: String!, $applicationDeplymentR
             name
             contents
         }
-        applicationDeploymentSpec(adr: [$applicationDeplymentRef]) {
+        applicationDeploymentSpec(applicationDeploymentRefs: [$applicationDeplymentRef]) {
             cluster
             environment
             version
             replicas
+            paused
             deployStrategy
         }
     }

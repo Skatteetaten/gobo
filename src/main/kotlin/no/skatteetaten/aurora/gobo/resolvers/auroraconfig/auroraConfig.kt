@@ -47,6 +47,7 @@ data class ApplicationDeploymentSpec(
     val type = rawJsonValueWithDefaults.at("/type/value").textValue()
     val deployStrategy = rawJsonValueWithDefaults.at("/deployStrategy/type/value").textValue()
     val replicas = rawJsonValueWithDefaults.at("/replicas/value").intValue().toString()
+    val paused = rawJsonValueWithDefaults.at("/pause/value").booleanValue() ?: false
 }
 
 @Component
@@ -55,12 +56,17 @@ class AuroraConfigResolver(val applicationDeploymentService: ApplicationDeployme
 
     fun applicationDeploymentSpec(
         auroraConfig: AuroraConfig,
-        adr: List<ApplicationDeploymentRef>,
+        appliationDeploymentRefs: List<ApplicationDeploymentRef>,
         dfe: DataFetchingEnvironment
     ): List<ApplicationDeploymentSpec> {
         if (dfe.isAnonymousUser()) throw AccessDeniedException("Anonymous user cannot get aurora config")
         val token = dfe.currentUser().token
-        return applicationDeploymentService.getSpec(token, auroraConfig.name, auroraConfig.ref, adr)
+        return applicationDeploymentService.getSpec(
+            token,
+            auroraConfig.name,
+            auroraConfig.ref,
+            appliationDeploymentRefs
+        )
     }
 
     fun files(

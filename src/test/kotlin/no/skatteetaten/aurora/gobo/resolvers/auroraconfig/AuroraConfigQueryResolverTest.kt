@@ -59,6 +59,9 @@ class AuroraConfigQueryResolverTest : AbstractGraphQLTest() {
             "type": {
               "value": "myType"
             },
+            "pause": {
+               "value": false
+            },
             "deployStrategy": {
                 "type" : {
                   "value": "myDeploy"
@@ -91,6 +94,7 @@ class AuroraConfigQueryResolverTest : AbstractGraphQLTest() {
                 graphqlData("files[0].name").isEqualTo("about.json")
                 graphqlData("applicationDeploymentSpec[0].cluster").isEqualTo("myCluster")
                 graphqlData("applicationDeploymentSpec[0].replicas").isEqualTo("2")
+                graphqlData("applicationDeploymentSpec[0].paused").isEqualTo(false)
                 graphqlData("applicationDeploymentSpec[0].releaseTo").doesNotExist()
             }
     }
