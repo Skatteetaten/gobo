@@ -35,7 +35,7 @@ data class ImageRepository(
          * @param absoluteImageRepoPath Example docker-registry.aurora.sits.no:5000/no_skatteetaten_aurora/dbh
          */
         fun fromRepoString(absoluteImageRepoPath: String): ImageRepository {
-            // asd
+            
             val segments = absoluteImageRepoPath.split("/")
             if (segments.size != 3) {
                 val (namespace, name) = segments
