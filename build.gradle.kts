@@ -16,7 +16,7 @@ plugins {
 val springCloudContractVersion: String = project.property("aurora.springCloudContractVersion") as String
 
 dependencies {
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.3-1.3.70-eap-42")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.3")
 
     implementation("io.projectreactor.kotlin:reactor-kotlin-extensions:1.0.2.RELEASE")
     implementation("org.apache.commons:commons-text:1.8")
