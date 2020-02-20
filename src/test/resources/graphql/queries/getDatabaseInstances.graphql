@@ -1,0 +1,12 @@
+query getDatabaseInstances {
+    databaseInstances {
+        engine
+        instanceName
+        host
+        port
+        createSchemaAllowed
+        affiliation {
+            name
+        }
+    }
+}

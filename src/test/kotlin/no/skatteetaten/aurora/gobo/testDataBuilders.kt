@@ -334,6 +334,18 @@ data class ApplicationDeploymentFilterResourceBuilder(val affiliation: String = 
         )
 }
 
+data class DatabaseInstanceResourceBuilder(val affiliation: String = "paas") {
+    fun build() =
+        DatabaseInstanceResource(
+            engine = "POSTGRES",
+            instanceName = "name",
+            host = "host",
+            port = 8080,
+            createSchemaAllowed = true,
+            labels = mapOf("affiliation" to affiliation)
+        )
+}
+
 data class DatabaseSchemaResourceBuilder(
     val createdDate: Long = Instant.now().toEpochMilli(),
     val lastUsedDate: Long? = Instant.now().toEpochMilli(),
@@ -355,7 +367,7 @@ data class DatabaseSchemaResourceBuilder(
             name = "name",
             createdDate = createdDate,
             lastUsedDate = lastUsedDate,
-            databaseInstance = DatabaseInstanceResource(engine = "ORACLE"),
+            databaseInstance = DatabaseInstanceResourceBuilder().build(),
             users = listOf(DatabaseUserResource("username", "password", "SCHEMA")),
             metadata = DatabaseMetadataResource(sizeInMb = 0.25),
             labels = labels

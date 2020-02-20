@@ -1,6 +1,7 @@
-package no.skatteetaten.aurora.gobo.resolvers.databaseschema
+package no.skatteetaten.aurora.gobo.resolvers.database
 
 import java.time.Instant
+import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseInstanceResource
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseSchemaResource
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseUserResource
 import no.skatteetaten.aurora.gobo.integration.dbh.JdbcUser
@@ -9,6 +10,27 @@ import no.skatteetaten.aurora.gobo.integration.dbh.SchemaDeletionRequest
 import no.skatteetaten.aurora.gobo.integration.dbh.SchemaDeletionResponse
 import no.skatteetaten.aurora.gobo.integration.dbh.SchemaUpdateRequest
 import no.skatteetaten.aurora.gobo.resolvers.affiliation.Affiliation
+
+data class DatabaseInstance(
+    val engine: String,
+    val instanceName: String,
+    val host: String,
+    val port: Int,
+    val createSchemaAllowed: Boolean,
+    val affiliation: Affiliation?
+) {
+    companion object {
+        fun create(databaseInstanceResource: DatabaseInstanceResource) =
+            DatabaseInstance(
+                engine = databaseInstanceResource.engine,
+                instanceName = databaseInstanceResource.instanceName,
+                host = databaseInstanceResource.host,
+                port = databaseInstanceResource.port,
+                createSchemaAllowed = databaseInstanceResource.createSchemaAllowed,
+                affiliation = databaseInstanceResource.labels["affiliation"]?.let { Affiliation(it) }
+            )
+    }
+}
 
 data class DatabaseUser(val username: String, val password: String, val type: String) {
     companion object {

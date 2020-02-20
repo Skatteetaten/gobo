@@ -1,3 +1,12 @@
+type DatabaseInstance {
+    engine: String!
+    instanceName: String!
+    host: String!
+    port: Int!
+    createSchemaAllowed: Boolean!
+    affiliation: Affiliation
+}
+
 type DatabaseUser {
   username: String!
   password: String!

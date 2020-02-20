@@ -1,4 +1,4 @@
-package no.skatteetaten.aurora.gobo.resolvers.databaseschema
+package no.skatteetaten.aurora.gobo.resolvers.database
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
-class DatabaseSchemaDataLoaderTest {
+class DatabaseDataLoaderTest {
 
     private val server = MockWebServer()
     private val dbhUrl = server.url("/").toString()
@@ -30,7 +30,7 @@ class DatabaseSchemaDataLoaderTest {
     )
     private val dbhClient = applicationConfig.webClientDbh(dbhUrl)
     private val applicationService = ApplicationServiceBlocking(ApplicationService(dbhClient))
-    private val dataLoader = DatabaseSchemaDataLoader(applicationService)
+    private val dataLoader = DatabaseDataLoader(applicationService)
 
     @BeforeEach
     fun setUp() {

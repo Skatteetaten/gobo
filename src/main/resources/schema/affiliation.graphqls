@@ -11,6 +11,7 @@ type AffiliationEdge {
 
 type Affiliation {
   name: String!
+  databaseInstances: [DatabaseInstance]
   databaseSchemas: [DatabaseSchema]
   websealStates: [WebsealState!]
 }
