@@ -9,7 +9,7 @@ query getDatabaseSchema($id: String!) {
         environment
         discriminator
         description
-        databaseEngine
+        engine
         applicationDeployments {
             id
         }

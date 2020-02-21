@@ -23,7 +23,7 @@ type DatabaseSchema {
   environment: String!
   discriminator: String!
   description: String
-  databaseEngine: String!
+  engine: String!
   applicationDeployments: [ApplicationDeployment!]!
   createdBy: String!
   createdDate: DateTime!
