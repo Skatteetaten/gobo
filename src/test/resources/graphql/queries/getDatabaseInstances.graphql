@@ -8,5 +8,9 @@ query getDatabaseInstances {
         affiliation {
             name
         }
+        labels {
+            key
+            value
+        }
     }
 }

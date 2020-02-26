@@ -74,6 +74,7 @@ class DatabaseQueryResolverTest : AbstractGraphQLTest() {
             .graphqlDataWithPrefix("databaseInstances[0]") {
                 graphqlData("engine").isEqualTo("POSTGRES")
                 graphqlData("instanceName").isEqualTo("name")
+                graphqlData("labels[0].key").isEqualTo("affiliation")
             }
     }
 

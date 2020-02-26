@@ -59,7 +59,8 @@ class DatabaseMutationResolverTest : AbstractGraphQLTest() {
                 description = "my db schema",
                 affiliation = "paas",
                 application = "application",
-                environment = "test"
+                environment = "test",
+                engine = "ORACLE"
             )
         )
     )
@@ -73,7 +74,8 @@ class DatabaseMutationResolverTest : AbstractGraphQLTest() {
                 description = "my db schema",
                 affiliation = "paas",
                 application = "application",
-                environment = "test"
+                environment = "test",
+                engine = "ORACLE"
             )
         )
     )
