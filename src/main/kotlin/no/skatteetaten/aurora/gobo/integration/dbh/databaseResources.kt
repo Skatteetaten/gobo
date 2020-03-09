@@ -69,7 +69,9 @@ data class DatabaseSchemaResource(
 data class SchemaCreationRequest(
     val labels: Map<String, String>,
     @JsonProperty("schema")
-    val jdbcUser: JdbcUser? = null
+    val jdbcUser: JdbcUser? = null,
+    val engine: String,
+    val instanceName: String? = null
 ) {
     private val requiredLabels = listOf(
         "affiliation", "name", "environment", "application"

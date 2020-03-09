@@ -34,6 +34,7 @@ dependencies {
     implementation("com.fkorotkov:kubernetes-dsl:3.0")
     implementation("com.github.fge:json-patch:1.9")
     implementation("com.jayway.jsonpath:json-path:2.4.0")
+    implementation("io.projectreactor.addons:reactor-extra:3.3.2.RELEASE")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")

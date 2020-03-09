@@ -74,6 +74,7 @@ class DatabaseQueryResolverTest : AbstractGraphQLTest() {
             .graphqlDataWithPrefix("databaseInstances[0]") {
                 graphqlData("engine").isEqualTo("POSTGRES")
                 graphqlData("instanceName").isEqualTo("name")
+                graphqlData("labels[0].key").isEqualTo("affiliation")
             }
     }
 
@@ -106,7 +107,7 @@ class DatabaseQueryResolverTest : AbstractGraphQLTest() {
             .expectBody()
             .graphqlData("databaseSchemas.length()").isEqualTo(1)
             .graphqlDataWithPrefix("databaseSchemas[0]") {
-                graphqlData("databaseEngine").isEqualTo("POSTGRES")
+                graphqlData("engine").isEqualTo("POSTGRES")
                 graphqlData("affiliation.name").isEqualTo("paas")
                 graphqlData("createdBy").isEqualTo("abc123")
                 graphqlData("applicationDeployments.length()").isEqualTo(1)
@@ -118,7 +119,7 @@ class DatabaseQueryResolverTest : AbstractGraphQLTest() {
         webTestClient.queryGraphQL(queryResource = getDatabaseSchemaWithIdQuery, token = "test-token")
             .expectStatus().isOk
             .expectBody()
-            .graphqlData("databaseSchema.databaseEngine").doesNotExist()
+            .graphqlData("databaseSchema.engine").doesNotExist()
             .graphqlErrors("length()").isEqualTo(1)
     }
 
@@ -132,7 +133,7 @@ class DatabaseQueryResolverTest : AbstractGraphQLTest() {
         )
             .expectStatus().isOk
             .expectBody()
-            .graphqlData("databaseSchema.databaseEngine").isEqualTo("POSTGRES")
+            .graphqlData("databaseSchema.engine").isEqualTo("POSTGRES")
             .graphqlData("databaseSchema.applicationDeployments.length()").isEqualTo(1)
     }
 }

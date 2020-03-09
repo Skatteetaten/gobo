@@ -392,7 +392,7 @@ data class SchemaCreationRequestBuilder(
 
     fun build() =
         SchemaCreationRequest(
-            labels, JdbcUser(username = "username", password = "pass", jdbcUrl = "url")
+            labels, JdbcUser(username = "username", password = "pass", jdbcUrl = "url"), "ORACLE", null
         )
 }
 
