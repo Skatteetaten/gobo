@@ -1,4 +1,4 @@
-package no.skatteetaten.aurora.gobo.resolvers.databaseschema
+package no.skatteetaten.aurora.gobo.resolvers.database
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo

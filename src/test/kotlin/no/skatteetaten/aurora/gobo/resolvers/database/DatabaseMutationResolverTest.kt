@@ -1,4 +1,4 @@
-package no.skatteetaten.aurora.gobo.resolvers.databaseschema
+package no.skatteetaten.aurora.gobo.resolvers.database
 
 import com.fasterxml.jackson.module.kotlin.convertValue
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
@@ -6,7 +6,7 @@ import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import no.skatteetaten.aurora.gobo.DatabaseSchemaResourceBuilder
 import no.skatteetaten.aurora.gobo.JdbcUserBuilder
-import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseSchemaServiceBlocking
+import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseServiceBlocking
 import no.skatteetaten.aurora.gobo.integration.dbh.JdbcUser
 import no.skatteetaten.aurora.gobo.integration.dbh.SchemaDeletionResponse
 import no.skatteetaten.aurora.gobo.resolvers.AbstractGraphQLTest
@@ -18,7 +18,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 
-class DatabaseSchemaMutationResolverTest : AbstractGraphQLTest() {
+class DatabaseMutationResolverTest : AbstractGraphQLTest() {
     @Value("classpath:graphql/mutations/updateDatabaseSchema.graphql")
     private lateinit var updateDatabaseSchemaMutation: Resource
 
@@ -35,7 +35,7 @@ class DatabaseSchemaMutationResolverTest : AbstractGraphQLTest() {
     private lateinit var createDatabaseSchemaMutation: Resource
 
     @MockkBean
-    private lateinit var databaseSchemaService: DatabaseSchemaServiceBlocking
+    private lateinit var databaseSchemaService: DatabaseServiceBlocking
 
     private val updateVariables = mapOf(
         "input" to jacksonObjectMapper().convertValue<Map<String, Any>>(
@@ -59,7 +59,8 @@ class DatabaseSchemaMutationResolverTest : AbstractGraphQLTest() {
                 description = "my db schema",
                 affiliation = "paas",
                 application = "application",
-                environment = "test"
+                environment = "test",
+                engine = "ORACLE"
             )
         )
     )
@@ -73,7 +74,8 @@ class DatabaseSchemaMutationResolverTest : AbstractGraphQLTest() {
                 description = "my db schema",
                 affiliation = "paas",
                 application = "application",
-                environment = "test"
+                environment = "test",
+                engine = "ORACLE"
             )
         )
     )

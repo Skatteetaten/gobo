@@ -5,7 +5,14 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import java.time.Instant
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class DatabaseInstanceResource(val engine: String)
+data class DatabaseInstanceResource(
+    val engine: String,
+    val instanceName: String,
+    val host: String,
+    val port: Int,
+    val createSchemaAllowed: Boolean,
+    val labels: Map<String, String>
+)
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class DatabaseUserResource(val username: String, val password: String, val type: String)
@@ -62,7 +69,9 @@ data class DatabaseSchemaResource(
 data class SchemaCreationRequest(
     val labels: Map<String, String>,
     @JsonProperty("schema")
-    val jdbcUser: JdbcUser? = null
+    val jdbcUser: JdbcUser? = null,
+    val engine: String,
+    val instanceName: String? = null
 ) {
     private val requiredLabels = listOf(
         "affiliation", "name", "environment", "application"

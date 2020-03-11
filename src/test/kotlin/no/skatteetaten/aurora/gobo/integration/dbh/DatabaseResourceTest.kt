@@ -7,7 +7,7 @@ import java.time.Instant
 import no.skatteetaten.aurora.gobo.DatabaseSchemaResourceBuilder
 import org.junit.jupiter.api.Test
 
-class DatabaseSchemaResourceTest {
+class DatabaseResourceTest {
 
     private val now = Instant.now()
     private val databaseSchemaResource =
