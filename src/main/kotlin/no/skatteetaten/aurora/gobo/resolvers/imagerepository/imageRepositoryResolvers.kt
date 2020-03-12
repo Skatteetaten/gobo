@@ -10,6 +10,7 @@ import no.skatteetaten.aurora.gobo.GoboException
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageRegistryServiceBlocking
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageTagType
 import no.skatteetaten.aurora.gobo.integration.cantus.Tag
+import no.skatteetaten.aurora.gobo.integration.cantus.TagsDto
 import no.skatteetaten.aurora.gobo.resolvers.AccessDeniedException
 import no.skatteetaten.aurora.gobo.resolvers.loader
 import no.skatteetaten.aurora.gobo.resolvers.multipleKeysLoader
@@ -55,6 +56,12 @@ class ImageRepositoryResolver(
         dfe: DataFetchingEnvironment
     ): CompletableFuture<List<ImageWithType?>> {
 
+        if (!imageRepository.isFullyQualified) {
+            return CompletableFuture.supplyAsync {
+                emptyList<ImageWithType?>()
+            }
+        }
+
         val dataloader = dfe.multipleKeysLoader(ImageTagDataLoader::class)
 
         val tags = names.map { name ->
@@ -81,13 +88,21 @@ class ImageRepositoryResolver(
         first: Int? = null,
         after: String? = null,
         dfe: DataFetchingEnvironment
-    ): CompletableFuture<ImageTagsConnection> =
-        dfe.loader(ImageTagListDataLoader::class).load(imageRepository.toImageRepo(filter))
-            .thenApply { dto ->
-                val imageTags = dto.tags.toImageTags(imageRepository, types)
-                val allEdges = imageTags.map { ImageTagEdge(it) }
-                ImageTagsConnection(pageEdges(allEdges, first, after))
+    ): CompletableFuture<ImageTagsConnection> {
+
+        val tagsDto: CompletableFuture<TagsDto> = if (!imageRepository.isFullyQualified) {
+            CompletableFuture.supplyAsync {
+                TagsDto(emptyList())
             }
+        } else {
+            dfe.loader(ImageTagListDataLoader::class).load(imageRepository.toImageRepo(filter))
+        }
+        return tagsDto.thenApply { dto ->
+            val imageTags = dto.tags.toImageTags(imageRepository, types)
+            val allEdges = imageTags.map { ImageTagEdge(it) }
+            ImageTagsConnection(pageEdges(allEdges, first, after))
+        }
+    }
 
     fun List<Tag>.toImageTags(imageRepository: ImageRepository, types: List<ImageTagType>?) = this
         .map { ImageTag(imageRepository = imageRepository, name = it.name) }
@@ -97,6 +112,12 @@ class ImageRepositoryResolver(
 @Component
 class ImageRepositoryTagResolver : GraphQLResolver<ImageTag> {
 
-    fun image(imageTag: ImageTag, dfe: DataFetchingEnvironment): CompletableFuture<Image?> =
-        dfe.multipleKeysLoader(ImageTagDataLoader::class).load(imageTag)
+    fun image(imageTag: ImageTag, dfe: DataFetchingEnvironment): CompletableFuture<Image?> {
+        if (!imageTag.imageRepository.isFullyQualified) {
+            return CompletableFuture.supplyAsync {
+                null
+            }
+        }
+        return dfe.multipleKeysLoader(ImageTagDataLoader::class).load(imageTag)
+    }
 }

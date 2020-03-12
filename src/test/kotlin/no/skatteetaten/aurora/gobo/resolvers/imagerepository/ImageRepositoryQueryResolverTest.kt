@@ -8,7 +8,6 @@ import no.skatteetaten.aurora.gobo.integration.cantus.AuroraResponse
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageBuildTimeline
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageRegistryServiceBlocking
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageRepoAndTags
-import no.skatteetaten.aurora.gobo.integration.cantus.ImageRepoDto
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageTagResource
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageTagType
 import no.skatteetaten.aurora.gobo.integration.cantus.Tag
@@ -75,7 +74,7 @@ class ImageRepositoryQueryResolverTest : AbstractGraphQLTest() {
         imageReposAndTags.forEach { imageRepoAndTags ->
             every {
                 imageRegistryServiceBlocking.findTagNamesInRepoOrderedByCreatedDateDesc(
-                    ImageRepoDto.fromRepoString(imageRepoAndTags.imageRepository),
+                    ImageRepository.fromRepoString(imageRepoAndTags.imageRepository).toImageRepo(),
                     "test-token"
                 )
             } returns TagsDto(imageRepoAndTags.imageTags.map { Tag(name = it, type = ImageTagType.typeOf(it)) })
