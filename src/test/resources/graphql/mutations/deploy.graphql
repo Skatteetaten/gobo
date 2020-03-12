@@ -7,11 +7,13 @@ mutation deploy($input: ApplicationDeploymentInput!){
             name
         }
         applicationDeployments {
-            version
-            releaseTo
-            application
-            environment
-            cluster
+            spec {
+                version
+                releaseTo
+                application
+                environment
+                cluster
+            }
             message
             warnings
         }

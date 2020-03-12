@@ -9,14 +9,11 @@ type ApplicationDeploymentResultItem {
     tagResult: String
     openshiftResponses:[String!]
     status:String!
-    cluster:String!
-    environment:String!
-    application:String!
-    version:String!
-    releaseTo:String
+    spec: ApplicationDeploymentSpec!
     deployId:String!
     message:String
 }
+
 type ApplicationDeploymentResult {
     success: Boolean!
     auroraConfigRef: AuroraConfigRef!

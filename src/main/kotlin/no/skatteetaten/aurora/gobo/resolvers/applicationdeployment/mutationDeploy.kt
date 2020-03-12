@@ -7,6 +7,7 @@ import no.skatteetaten.aurora.gobo.integration.boober.ApplicationDeploymentServi
 import no.skatteetaten.aurora.gobo.integration.boober.ApplyPayload
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentRefResource
 import no.skatteetaten.aurora.gobo.resolvers.AccessDeniedException
+import no.skatteetaten.aurora.gobo.resolvers.auroraconfig.ApplicationDeploymentSpec
 import no.skatteetaten.aurora.gobo.security.currentUser
 import no.skatteetaten.aurora.gobo.security.isAnonymousUser
 import org.springframework.stereotype.Component
@@ -49,11 +50,7 @@ class DeployMutationResolver(
                     tagResult = it.tagResponse,
                     openshiftResponses = it.openShiftResponses,
                     status = it.successString,
-                    cluster = it.cluster,
-                    environment = it.environment,
-                    application = it.name,
-                    version = it.version,
-                    releaseTo = it.releaseTo,
+                    spec = ApplicationDeploymentSpec(it.deploymentSpec),
                     deployId = it.deployId,
                     message = it.reason
                 )
@@ -96,11 +93,7 @@ data class ApplicationDeploymentResultItem(
     val tagResult: JsonNode?,
     val openshiftResponses: List<JsonNode>,
     val status: String,
-    val cluster: String,
-    val environment: String,
-    val application: String,
-    val version: String,
-    val releaseTo: String?,
+    val spec: ApplicationDeploymentSpec,
     val deployId: String,
     val message: String?
 )
