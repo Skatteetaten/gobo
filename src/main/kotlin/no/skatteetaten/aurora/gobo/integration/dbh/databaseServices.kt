@@ -21,11 +21,11 @@ import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.bodyToMono
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
-import reactor.core.publisher.toMono
+import reactor.kotlin.core.publisher.toMono
 
 @Service
 @ConditionalOnBean(RequiresDbh::class)
-class DatabaseSchemaServiceReactive(
+class DatabaseServiceReactive(
     private val sharedSecretReader: SharedSecretReader,
     @TargetService(ServiceTypes.DBH) private val webClient: WebClient,
     val objectMapper: ObjectMapper
@@ -34,32 +34,37 @@ class DatabaseSchemaServiceReactive(
         const val HEADER_COOLDOWN_DURATION_HOURS = "cooldown-duration-hours"
     }
 
-    fun getDatabaseSchemas(affiliation: String): Mono<List<DatabaseSchemaResource>> {
-        val response: Mono<DbhResponse<*>> = webClient
-            .get()
-            .uri {
-                it.path("/api/v1/schema/").queryParam("labels", "affiliation=$affiliation").build()
-            }
-            .header(HttpHeaders.AUTHORIZATION, "$HEADER_AURORA_TOKEN ${sharedSecretReader.secret}")
-            .retrieve()
-            .bodyToMono()
+    fun getDatabaseInstances(): Mono<List<DatabaseInstanceResource>> = webClient
+        .get()
+        .uri("/api/v1/admin/databaseInstance/")
+        .authHeader()
+        .retrieve()
+        .bodyToMono<DbhResponse<*>>()
+        .items()
 
-        return response.items()
-    }
+    fun getDatabaseSchemas(affiliation: String): Mono<List<DatabaseSchemaResource>> = webClient
+        .get()
+        .uri {
+            it.path("/api/v1/schema/").queryParam("labels", "affiliation=$affiliation").build()
+        }
+        .authHeader()
+        .retrieve()
+        .bodyToMono<DbhResponse<*>>()
+        .items()
 
-    fun getDatabaseSchema(id: String) = webClient
+    fun getDatabaseSchema(id: String): Mono<DatabaseSchemaResource> = webClient
         .get()
         .uri("/api/v1/schema/$id")
-        .header(HttpHeaders.AUTHORIZATION, "$HEADER_AURORA_TOKEN ${sharedSecretReader.secret}")
+        .authHeader()
         .retrieve()
         .bodyToMono<DbhResponse<*>>()
         .item()
 
-    fun updateDatabaseSchema(input: SchemaUpdateRequest) = webClient
+    fun updateDatabaseSchema(input: SchemaUpdateRequest): Mono<DatabaseSchemaResource> = webClient
         .put()
         .uri("/api/v1/schema/${input.id}")
-        .body(BodyInserters.fromObject(input))
-        .header(HttpHeaders.AUTHORIZATION, "aurora-token ${sharedSecretReader.secret}")
+        .body(BodyInserters.fromValue(input))
+        .authHeader()
         .retrieve()
         .bodyToMono<DbhResponse<*>>()
         .item()
@@ -69,7 +74,7 @@ class DatabaseSchemaServiceReactive(
             val requestSpec = webClient
                 .delete()
                 .uri("/api/v1/schema/${request.id}")
-                .header(HttpHeaders.AUTHORIZATION, "$HEADER_AURORA_TOKEN ${sharedSecretReader.secret}")
+                .authHeader()
 
             request.cooldownDurationHours?.let {
                 requestSpec.header(HEADER_COOLDOWN_DURATION_HOURS, it.toString())
@@ -88,14 +93,14 @@ class DatabaseSchemaServiceReactive(
             .put()
             .uri("/api/v1/schema/validate")
             .body(
-                BodyInserters.fromObject(
+                BodyInserters.fromValue(
                     mapOf(
                         "id" to id,
                         "jdbcUser" to user
                     )
                 )
             )
-            .header(HttpHeaders.AUTHORIZATION, "$HEADER_AURORA_TOKEN ${sharedSecretReader.secret}")
+            .authHeader()
             .retrieve()
             .bodyToMono()
         return response.flatMap {
@@ -112,39 +117,46 @@ class DatabaseSchemaServiceReactive(
         return webClient
             .post()
             .uri("/api/v1/schema/")
-            .body(BodyInserters.fromObject(input))
-            .header(HttpHeaders.AUTHORIZATION, "$HEADER_AURORA_TOKEN ${sharedSecretReader.secret}")
+            .body(BodyInserters.fromValue(input))
+            .authHeader()
             .retrieve()
             .bodyToMono<DbhResponse<*>>()
             .item()
     }
 
-    private fun Mono<DbhResponse<*>>.item() = this.items().map { it.first() }
+    private fun WebClient.RequestHeadersSpec<*>.authHeader() =
+        this.header(HttpHeaders.AUTHORIZATION, "$HEADER_AURORA_TOKEN ${sharedSecretReader.secret}")
 
-    private fun Mono<DbhResponse<*>>.items() =
+    private inline fun <reified T : Any> Mono<DbhResponse<*>>.item(): Mono<T> = this.items<T>().map { it.first() }
+
+    private inline fun <reified T : Any> Mono<DbhResponse<*>>.items(): Mono<List<T>> =
         this.flatMap {
             when {
                 it.isFailure() -> onFailure(it)
                 it.isEmpty() -> Mono.empty()
-                else -> onSuccess(it)
+                else -> onSuccess<T>(it)
             }
         }
 
-    private fun onFailure(r: DbhResponse<*>): Mono<List<DatabaseSchemaResource>> =
+    private inline fun <reified T> onFailure(r: DbhResponse<*>): Mono<List<T>> =
         SourceSystemException(
             message = "status=${r.status} error=${(r.items.firstOrNull() ?: "") as String}",
             sourceSystem = "dbh"
         ).toMono()
 
-    private fun onSuccess(r: DbhResponse<*>) =
-        r.items.map {
-            objectMapper.convertValue(it, DatabaseSchemaResource::class.java)
-        }.filter {
-            it.containsRequiredLabels()
-        }.toMono()
+    private inline fun <reified T : Any> onSuccess(r: DbhResponse<*>): Mono<List<T>> =
+        r.items.map { objectMapper.convertValue(it, T::class.java) }
+            .filter {
+                if (it is DatabaseSchemaResource) {
+                    it.containsRequiredLabels()
+                } else {
+                    true
+                }
+            }.toMono()
 }
 
-interface DatabaseSchemaService {
+interface DatabaseService {
+    fun getDatabaseInstances(): List<DatabaseInstanceResource> = integrationDisabled()
     fun getDatabaseSchemas(affiliation: String): List<DatabaseSchemaResource> = integrationDisabled()
     fun getDatabaseSchema(id: String): DatabaseSchemaResource? = integrationDisabled()
     fun updateDatabaseSchema(input: SchemaUpdateRequest): DatabaseSchemaResource = integrationDisabled()
@@ -159,29 +171,32 @@ interface DatabaseSchemaService {
 
 @Service
 @ConditionalOnBean(RequiresDbh::class)
-class DatabaseSchemaServiceBlocking(private val databaseSchemaService: DatabaseSchemaServiceReactive) :
-    DatabaseSchemaService {
+class DatabaseServiceBlocking(private val databaseService: DatabaseServiceReactive) :
+    DatabaseService {
+
+    override fun getDatabaseInstances() =
+        databaseService.getDatabaseInstances().blockWithTimeout() ?: emptyList()
 
     override fun getDatabaseSchemas(affiliation: String) =
-        databaseSchemaService.getDatabaseSchemas(affiliation).blockWithTimeout() ?: emptyList()
+        databaseService.getDatabaseSchemas(affiliation).blockWithTimeout() ?: emptyList()
 
     override fun getDatabaseSchema(id: String) =
-        databaseSchemaService.getDatabaseSchema(id).blockWithTimeout()
+        databaseService.getDatabaseSchema(id).blockWithTimeout()
 
     override fun updateDatabaseSchema(input: SchemaUpdateRequest): DatabaseSchemaResource =
-        databaseSchemaService.updateDatabaseSchema(input).blockNonNullWithTimeout()
+        databaseService.updateDatabaseSchema(input).blockNonNullWithTimeout()
 
     override fun deleteDatabaseSchemas(input: List<SchemaDeletionRequest>): List<SchemaDeletionResponse> =
-        databaseSchemaService.deleteDatabaseSchemas(input).collectList().blockNonNullWithTimeout()
+        databaseService.deleteDatabaseSchemas(input).collectList().blockNonNullWithTimeout()
 
     override fun testJdbcConnection(user: JdbcUser) =
-        databaseSchemaService.testJdbcConnection(user = user).blockNonNullWithTimeout()
+        databaseService.testJdbcConnection(user = user).blockNonNullWithTimeout()
 
     override fun testJdbcConnection(id: String) =
-        databaseSchemaService.testJdbcConnection(id = id).blockNonNullWithTimeout()
+        databaseService.testJdbcConnection(id = id).blockNonNullWithTimeout()
 
     override fun createDatabaseSchema(input: SchemaCreationRequest) =
-        databaseSchemaService.createDatabaseSchema(input).blockNonNullWithTimeout()
+        databaseService.createDatabaseSchema(input).blockNonNullWithTimeout()
 
     private fun <T> Mono<T>.blockWithTimeout(): T? =
         this.blockAndHandleError(Duration.ofSeconds(30), "dbh")
@@ -192,4 +207,4 @@ class DatabaseSchemaServiceBlocking(private val databaseSchemaService: DatabaseS
 
 @Service
 @ConditionalOnMissingBean(RequiresDbh::class)
-class DatabaseSchemaServiceDisabled : DatabaseSchemaService
+class DatabaseServiceDisabled : DatabaseService

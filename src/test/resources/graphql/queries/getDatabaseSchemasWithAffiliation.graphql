@@ -9,7 +9,7 @@ query getDatabaseSchemas($affiliations: [String!]!) {
         environment
         discriminator
         description
-        databaseEngine
+        engine
         applicationDeployments {
             id
         }
