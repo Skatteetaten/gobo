@@ -2,16 +2,8 @@ package no.skatteetaten.aurora.gobo.integration.cantus
 
 import java.time.Instant
 
-fun String.decomposeToImageRepoSegments(): List<String> {
-    val segments = this.split("/")
-    if (segments.size != 3) {
-        throw IllegalArgumentException("The string [$this] does not appear to be a valid image repository reference")
-    }
-    return segments
-}
-
 data class ImageRepoDto(
-    val registry: String,
+    val registry: String?,
     val namespace: String,
     val name: String,
     val filter: String? = null
@@ -26,19 +18,6 @@ data class ImageRepoDto(
         "namespace" to namespace,
         "imageTag" to name
     )
-
-    companion object {
-
-        fun fromRepoString(imageRepo: String): ImageRepoDto {
-            val (registry, namespace, name) = imageRepo.decomposeToImageRepoSegments()
-
-            return ImageRepoDto(
-                registry = registry,
-                namespace = namespace,
-                name = name
-            )
-        }
-    }
 }
 
 enum class ImageTagType {

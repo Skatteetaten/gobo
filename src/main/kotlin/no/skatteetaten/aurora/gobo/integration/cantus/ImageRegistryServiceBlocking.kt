@@ -38,10 +38,9 @@ class ImageRegistryServiceBlocking(
 ) {
 
     fun resolveTagToSha(imageRepoDto: ImageRepoDto, imageTag: String, token: String): String? {
-        val requestBody = BodyInserters.fromObject(
+        val requestBody = BodyInserters.fromValue(
             TagUrlsWrapper(listOf("${imageRepoDto.repository}/$imageTag"))
         )
-
         val auroraImageTagResource: AuroraResponse<ImageTagResource> =
             execute<AuroraResponse<ImageTagResource>>(token) {
                 logger.debug("Retrieving type=ImageTagResource from  url=${imageRepoDto.registry} image=${imageRepoDto.imageName}/$imageTag")

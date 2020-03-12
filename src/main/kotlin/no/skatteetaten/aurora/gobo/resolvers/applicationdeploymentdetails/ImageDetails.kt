@@ -25,6 +25,11 @@ private val logger = KotlinLogging.logger {}
 @Component
 class ImageDetailsResolver : GraphQLResolver<ImageDetails> {
 
+    fun isFullyQualified(imageDetails: ImageDetails, dfe: DataFetchingEnvironment) =
+        imageDetails.dockerImageTagReference?.let {
+            ImageTag.fromTagString(it).imageRepository.registryUrl != null
+        } ?: false
+
     fun isLatestDigest(imageDetails: ImageDetails, dfe: DataFetchingEnvironment) =
         imageDetails.dockerImageTagReference?.let {
             logger.debug("Loading docker image tag reference for tag=$it")
@@ -37,6 +42,10 @@ class ImageDetailsResolver : GraphQLResolver<ImageDetails> {
         val imageRegistryServiceBlocking: ImageRegistryServiceBlocking
     ) : KeyDataLoader<ImageTagDigestDTO, Boolean> {
         override fun getByKey(user: User, key: ImageTagDigestDTO): Try<Boolean> {
+
+            if (key.imageTag.imageRepository.registryUrl == null) {
+                return Try.succeeded(false)
+            }
             return Try.tryCall {
                 val imageRepoDto = key.imageTag.imageRepository.toImageRepo()
                 imageRegistryServiceBlocking.resolveTagToSha(
