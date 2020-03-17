@@ -3,6 +3,7 @@ type ImageRepository {
   guiUrl: String
   tags(types: [ImageTagType!], filter: String, first: Int!, after: String): ImageTagsConnection!
   tag(names:[String!]!) : [ImageWithType]
+  isFullyQualified: Boolean
 }
 
 type ImageTagsConnection {

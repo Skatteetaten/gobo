@@ -28,7 +28,7 @@ class AuroraApiMetadataResolverTest : AbstractGraphQLTest() {
             "foo.bar/%s/",
             "utv",
             "http://utv.cluster:8443",
-            "2"
+            2
         )
     }
 

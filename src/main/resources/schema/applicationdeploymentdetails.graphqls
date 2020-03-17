@@ -8,6 +8,7 @@ type ImageDetails {
   digest: String
   dockerImageTagReference: String
   isLatestDigest:Boolean
+  isFullyQualified: Boolean
 }
 
 type PodResource {

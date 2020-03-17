@@ -1,3 +1,18 @@
+type Label {
+    key: String
+    value: String
+}
+
+type DatabaseInstance {
+    engine: String!
+    instanceName: String!
+    host: String!
+    port: Int!
+    createSchemaAllowed: Boolean!
+    affiliation: Affiliation
+    labels: [Label]
+}
+
 type DatabaseUser {
   username: String!
   password: String!
@@ -14,7 +29,7 @@ type DatabaseSchema {
   environment: String!
   discriminator: String!
   description: String
-  databaseEngine: String!
+  engine: String!
   applicationDeployments: [ApplicationDeployment!]!
   createdBy: String!
   createdDate: DateTime!
@@ -47,6 +62,8 @@ input CreateDatabaseSchemaInput {
   environment: String!
   application: String!
   jdbcUser: JdbcUserInput
+  engine: String
+  instanceName: String
 }
 
 input DeleteDatabaseSchemasInput {

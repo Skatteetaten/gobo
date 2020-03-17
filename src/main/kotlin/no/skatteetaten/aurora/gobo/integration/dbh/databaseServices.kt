@@ -21,11 +21,11 @@ import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.bodyToMono
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
-import reactor.core.publisher.toMono
+import reactor.kotlin.core.publisher.toMono
 
 @Service
 @ConditionalOnBean(RequiresDbh::class)
-class DatabaseSchemaServiceReactive(
+class DatabaseServiceReactive(
     private val sharedSecretReader: SharedSecretReader,
     @TargetService(ServiceTypes.DBH) private val webClient: WebClient,
     val objectMapper: ObjectMapper
@@ -34,12 +34,17 @@ class DatabaseSchemaServiceReactive(
         const val HEADER_COOLDOWN_DURATION_HOURS = "cooldown-duration-hours"
     }
 
+    fun getDatabaseInstances(): Mono<List<DatabaseInstanceResource>> = webClient
+        .get()
+        .uri("/api/v1/admin/databaseInstance/")
+        .retrieveAuthenticatedItems()
+
     fun getDatabaseSchemas(affiliation: String): Mono<List<DatabaseSchemaResource>> = webClient
         .get()
         .uri {
             it.path("/api/v1/schema/").queryParam("labels", "affiliation=$affiliation").build()
         }
-        .retrieveAuthenticatedItems()
+        .retrieveAuthenticatedItem()
 
     fun getDatabaseSchema(id: String): Mono<DatabaseSchemaResource> = webClient
         .get()
@@ -56,7 +61,7 @@ class DatabaseSchemaServiceReactive(
     fun updateDatabaseSchema(input: SchemaUpdateRequest): Mono<DatabaseSchemaResource> = webClient
         .put()
         .uri("/api/v1/schema/${input.id}")
-        .body(BodyInserters.fromObject(input))
+        .body(BodyInserters.fromValue(input))
         .retrieveAuthenticatedItem()
 
     fun deleteDatabaseSchemas(input: List<SchemaDeletionRequest>): Flux<SchemaDeletionResponse> {
@@ -64,6 +69,7 @@ class DatabaseSchemaServiceReactive(
             val requestSpec = webClient
                 .delete()
                 .uri("/api/v1/schema/${request.id}")
+                .authHeader()
 
             request.cooldownDurationHours?.let {
                 requestSpec.header(HEADER_COOLDOWN_DURATION_HOURS, it.toString())
@@ -82,7 +88,7 @@ class DatabaseSchemaServiceReactive(
             .put()
             .uri("/api/v1/schema/validate")
             .body(
-                BodyInserters.fromObject(
+                BodyInserters.fromValue(
                     mapOf(
                         "id" to id,
                         "jdbcUser" to user
@@ -105,7 +111,7 @@ class DatabaseSchemaServiceReactive(
         return webClient
             .post()
             .uri("/api/v1/schema/")
-            .body(BodyInserters.fromObject(input))
+            .body(BodyInserters.fromValue(input))
             .retrieveAuthenticatedItem()
     }
 
@@ -124,7 +130,7 @@ class DatabaseSchemaServiceReactive(
             when {
                 it.isFailure() -> onFailure(it)
                 it.isEmpty() -> Mono.empty<List<T>>()
-                else -> onSuccess(it)
+                else -> onSuccess<T>(it)
             }
         }
 
@@ -144,7 +150,8 @@ class DatabaseSchemaServiceReactive(
 private fun WebClient.ResponseSpec.bodyToDbhResponse() = this.bodyToMono<DbhResponse<*>>()
 
 
-interface DatabaseSchemaService {
+interface DatabaseService {
+    fun getDatabaseInstances(): List<DatabaseInstanceResource> = integrationDisabled()
     fun getDatabaseSchemas(affiliation: String): List<DatabaseSchemaResource> = integrationDisabled()
     fun getDatabaseSchema(id: String): DatabaseSchemaResource? = integrationDisabled()
     fun getRestorableDatabaseSchemas(affiliation: String): List<RestorableDatabaseSchemaResource> =
@@ -162,32 +169,35 @@ interface DatabaseSchemaService {
 
 @Service
 @ConditionalOnBean(RequiresDbh::class)
-class DatabaseSchemaServiceBlocking(private val databaseSchemaService: DatabaseSchemaServiceReactive) :
-    DatabaseSchemaService {
+class DatabaseServiceBlocking(private val databaseService: DatabaseServiceReactive) :
+    DatabaseService {
+
+    override fun getDatabaseInstances() =
+        databaseService.getDatabaseInstances().blockWithTimeout() ?: emptyList()
 
     override fun getDatabaseSchemas(affiliation: String) =
-        databaseSchemaService.getDatabaseSchemas(affiliation).blockWithTimeout() ?: emptyList()
+        databaseService.getDatabaseSchemas(affiliation).blockWithTimeout() ?: emptyList()
 
     override fun getDatabaseSchema(id: String) =
-        databaseSchemaService.getDatabaseSchema(id).blockWithTimeout()
+        databaseService.getDatabaseSchema(id).blockWithTimeout()
 
     override fun getRestorableDatabaseSchemas(affiliation: String) =
         databaseSchemaService.getRestorableDatabaseSchemas(affiliation).blockWithTimeout() ?: emptyList()
 
     override fun updateDatabaseSchema(input: SchemaUpdateRequest): DatabaseSchemaResource =
-        databaseSchemaService.updateDatabaseSchema(input).blockNonNullWithTimeout()
+        databaseService.updateDatabaseSchema(input).blockNonNullWithTimeout()
 
     override fun deleteDatabaseSchemas(input: List<SchemaDeletionRequest>): List<SchemaDeletionResponse> =
-        databaseSchemaService.deleteDatabaseSchemas(input).collectList().blockNonNullWithTimeout()
+        databaseService.deleteDatabaseSchemas(input).collectList().blockNonNullWithTimeout()
 
     override fun testJdbcConnection(user: JdbcUser) =
-        databaseSchemaService.testJdbcConnection(user = user).blockNonNullWithTimeout()
+        databaseService.testJdbcConnection(user = user).blockNonNullWithTimeout()
 
     override fun testJdbcConnection(id: String) =
-        databaseSchemaService.testJdbcConnection(id = id).blockNonNullWithTimeout()
+        databaseService.testJdbcConnection(id = id).blockNonNullWithTimeout()
 
     override fun createDatabaseSchema(input: SchemaCreationRequest) =
-        databaseSchemaService.createDatabaseSchema(input).blockNonNullWithTimeout()
+        databaseService.createDatabaseSchema(input).blockNonNullWithTimeout()
 
     private fun <T> Mono<T>.blockWithTimeout(): T? =
         this.blockAndHandleError(Duration.ofSeconds(30), "dbh")
@@ -198,4 +208,4 @@ class DatabaseSchemaServiceBlocking(private val databaseSchemaService: DatabaseS
 
 @Service
 @ConditionalOnMissingBean(RequiresDbh::class)
-class DatabaseSchemaServiceDisabled : DatabaseSchemaService
+class DatabaseServiceDisabled : DatabaseService

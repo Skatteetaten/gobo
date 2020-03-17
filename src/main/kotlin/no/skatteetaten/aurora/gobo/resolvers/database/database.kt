@@ -1,6 +1,7 @@
-package no.skatteetaten.aurora.gobo.resolvers.databaseschema
+package no.skatteetaten.aurora.gobo.resolvers.database
 
 import java.time.Instant
+import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseInstanceResource
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseSchemaResource
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseUserResource
 import no.skatteetaten.aurora.gobo.integration.dbh.JdbcUser
@@ -9,6 +10,31 @@ import no.skatteetaten.aurora.gobo.integration.dbh.SchemaDeletionRequest
 import no.skatteetaten.aurora.gobo.integration.dbh.SchemaDeletionResponse
 import no.skatteetaten.aurora.gobo.integration.dbh.SchemaUpdateRequest
 import no.skatteetaten.aurora.gobo.resolvers.affiliation.Affiliation
+
+data class Label(val key: String, val value: String)
+
+data class DatabaseInstance(
+    val engine: String,
+    val instanceName: String,
+    val host: String,
+    val port: Int,
+    val createSchemaAllowed: Boolean,
+    val affiliation: Affiliation?,
+    val labels: List<Label>
+) {
+    companion object {
+        fun create(databaseInstanceResource: DatabaseInstanceResource) =
+            DatabaseInstance(
+                engine = databaseInstanceResource.engine,
+                instanceName = databaseInstanceResource.instanceName,
+                host = databaseInstanceResource.host,
+                port = databaseInstanceResource.port,
+                createSchemaAllowed = databaseInstanceResource.createSchemaAllowed,
+                affiliation = databaseInstanceResource.labels["affiliation"]?.let { Affiliation(it) },
+                labels = databaseInstanceResource.labels.map { Label(it.key, it.value) }
+            )
+    }
+}
 
 data class DatabaseUser(val username: String, val password: String, val type: String) {
     companion object {
@@ -27,7 +53,7 @@ data class DatabaseSchema(
     val discriminator: String,
     val description: String?,
     val affiliation: Affiliation,
-    val databaseEngine: String,
+    val engine: String,
     val createdBy: String?,
     val createdDate: Instant,
     val lastUsedDate: Instant?,
@@ -46,7 +72,7 @@ data class DatabaseSchema(
                 discriminator = databaseSchema.discriminator,
                 description = databaseSchema.description,
                 affiliation = affiliation,
-                databaseEngine = databaseSchema.databaseInstance.engine,
+                engine = databaseSchema.databaseInstance.engine,
                 createdBy = databaseSchema.createdBy,
                 createdDate = databaseSchema.createdDateAsInstant(),
                 lastUsedDate = databaseSchema.lastUsedDateAsInstant(),
@@ -92,11 +118,15 @@ data class CreateDatabaseSchemaInput(
     val affiliation: String,
     val application: String,
     val environment: String,
-    val jdbcUser: JdbcUser? = null
+    val jdbcUser: JdbcUser? = null,
+    val engine: String,
+    val instanceName: String? = null
 ) {
     fun toSchemaCreationRequest() =
         SchemaCreationRequest(
             jdbcUser = jdbcUser,
+            engine = engine,
+            instanceName = instanceName,
             labels = mapOf(
                 "description" to description,
                 "name" to discriminator,

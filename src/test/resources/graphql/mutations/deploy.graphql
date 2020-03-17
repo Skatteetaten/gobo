@@ -1,0 +1,21 @@
+mutation deploy($input: ApplicationDeploymentInput!){
+    deploy(input: $input){
+        success
+        auroraConfigRef {
+            gitReference
+            commitId
+            name
+        }
+        applicationDeployments {
+            spec {
+                version
+                releaseTo
+                application
+                environment
+                cluster
+            }
+            message
+            warnings
+        }
+    }
+}

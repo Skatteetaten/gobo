@@ -19,7 +19,7 @@ class ApplicationResolver(val dockerRegistry: DockerRegistry) :
         get(): ImageRepository? = this.applicationDeployments.asSequence()
             .mapNotNull { it.dockerImageRepo }
             .map { ImageRepository.fromRepoString(it) }
-            .firstOrNull { !dockerRegistry.isInternal(it.registryUrl) }
+            .firstOrNull { it.registryUrl != null && !dockerRegistry.isInternal(it.registryUrl) }
 }
 
 @Component

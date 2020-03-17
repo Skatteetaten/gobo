@@ -1,0 +1,10 @@
+mutation updateAuroraConfigFile($input: UpdateAuroraConfigFileInput!){
+    updateAuroraConfigFile(input: $input){
+        message
+        success
+        file {
+            contentHash
+            contents
+        }
+    }
+}

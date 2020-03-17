@@ -34,7 +34,7 @@ class GraphQLExceptionWrapper private constructor(
             "cause" to cause?.javaClass?.simpleName,
             "errorMessage" to goboException.errorMessage,
             "sourceSystem" to if (exception is SourceSystemException) exception.sourceSystem else null
-        ).filter { it.value != null }
+        ).filter { it.value != null } + goboException.extensions
     }
 
     override fun getMessage(): String = message ?: ""
