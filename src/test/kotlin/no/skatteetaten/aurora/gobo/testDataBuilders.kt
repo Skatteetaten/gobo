@@ -35,6 +35,7 @@ import no.skatteetaten.aurora.gobo.integration.mokey.VersionResource
 import no.skatteetaten.aurora.gobo.integration.mokey.addAll
 import no.skatteetaten.aurora.gobo.integration.skap.Acl
 import no.skatteetaten.aurora.gobo.integration.skap.Certificate
+import no.skatteetaten.aurora.gobo.integration.skap.WebsealStateJob
 import no.skatteetaten.aurora.gobo.integration.skap.WebsealStateResource
 import no.skatteetaten.aurora.gobo.integration.unclematt.ProbeResult
 import no.skatteetaten.aurora.gobo.integration.unclematt.ProbeStatus
@@ -473,5 +474,20 @@ data class WebsealStateResourceBuilder(val namespace: String = "test") {
                 "Active Worker Threads" to "activeWorkerThreads2"
             )
         )
+    )
+}
+
+data class WebsealJobResourceBuilder(val namespace: String = "test") {
+    // TODO: sjekk format på dato
+    fun build() = WebsealStateJob(
+        id = 54523,
+        payload = "{'cluster': 'utv'}",
+        objectname = "test-weseal",
+        namespace = "dev",
+        type = "websealv2",
+        operation = "CREATEORUPDATE",
+        status = "DONE",
+        updated = Instant.now(),
+        errorMessage = null
     )
 }

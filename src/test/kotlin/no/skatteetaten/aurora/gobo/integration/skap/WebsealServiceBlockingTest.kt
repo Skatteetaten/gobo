@@ -31,4 +31,15 @@ class WebsealServiceBlockingTest {
 
         assertThat(request).containsAuroraToken()
     }
+
+    @Test
+    fun `Get WebSEAL jobs`() {
+        val websealState = WebsealStateResourceBuilder().build()
+        val request = server.execute(listOf(websealState, websealState)) {
+            val states = websealService.getStates()
+            assertThat(states.size).isEqualTo(2)
+        }.first()
+
+        assertThat(request).containsAuroraToken()
+    }
 }
