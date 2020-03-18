@@ -44,7 +44,7 @@ class DatabaseServiceReactive(
         .uri {
             it.path("/api/v1/schema/").queryParam("labels", "affiliation=$affiliation").build()
         }
-        .retrieveAuthenticatedItem()
+        .retrieveAuthenticatedItems()
 
     fun getDatabaseSchema(id: String): Mono<DatabaseSchemaResource> = webClient
         .get()
@@ -69,7 +69,7 @@ class DatabaseServiceReactive(
             val requestSpec = webClient
                 .delete()
                 .uri("/api/v1/schema/${request.id}")
-                .authHeader()
+                .header(HttpHeaders.AUTHORIZATION, "$HEADER_AURORA_TOKEN ${sharedSecretReader.secret}")
 
             request.cooldownDurationHours?.let {
                 requestSpec.header(HEADER_COOLDOWN_DURATION_HOURS, it.toString())
@@ -115,17 +115,17 @@ class DatabaseServiceReactive(
             .retrieveAuthenticatedItem()
     }
 
-    private inline fun <reified T : ResourceValidator> WebClient.RequestHeadersSpec<*>.retrieveAuthenticatedItem() =
+    private inline fun <reified T> WebClient.RequestHeadersSpec<*>.retrieveAuthenticatedItem() =
         retrieveAuthenticatedItems<T>().map { it.first() }
 
-    private inline fun <reified T : ResourceValidator> WebClient.RequestHeadersSpec<*>.retrieveAuthenticatedItems() =
+    private inline fun <reified T> WebClient.RequestHeadersSpec<*>.retrieveAuthenticatedItems() =
         this.retrieveAuthenticated().bodyToDbhResponse().items<T>()
 
     private fun WebClient.RequestHeadersSpec<*>.retrieveAuthenticated() = this
         .header(HttpHeaders.AUTHORIZATION, "$HEADER_AURORA_TOKEN ${sharedSecretReader.secret}")
         .retrieve()
 
-    private inline fun <reified T : ResourceValidator> Mono<DbhResponse<*>>.items(): Mono<List<T>> =
+    private inline fun <reified T> Mono<DbhResponse<*>>.items(): Mono<List<T>> =
         this.flatMap {
             when {
                 it.isFailure() -> onFailure(it)
@@ -134,21 +134,25 @@ class DatabaseServiceReactive(
             }
         }
 
-    private inline fun <reified T : ResourceValidator> onFailure(r: DbhResponse<*>): Mono<List<T>> =
+    private inline fun <reified T> onFailure(r: DbhResponse<*>): Mono<List<T>> =
         SourceSystemException(
             message = "status=${r.status} error=${(r.items.firstOrNull() ?: "") as String}",
             sourceSystem = "dbh"
         ).toMono()
 
-    private inline fun <reified T : ResourceValidator> onSuccess(r: DbhResponse<*>): Mono<List<T>> =
+    private inline fun <reified T> onSuccess(r: DbhResponse<*>): Mono<List<T>> =
         r.items
             .map { objectMapper.convertValue(it, T::class.java) }
-            .filter { it.valid }
+            .filter {
+                when (it) {
+                    is ResourceValidator -> it.valid
+                    else -> true
+                }
+            }
             .toMono()
 }
 
 private fun WebClient.ResponseSpec.bodyToDbhResponse() = this.bodyToMono<DbhResponse<*>>()
-
 
 interface DatabaseService {
     fun getDatabaseInstances(): List<DatabaseInstanceResource> = integrationDisabled()
@@ -182,7 +186,7 @@ class DatabaseServiceBlocking(private val databaseService: DatabaseServiceReacti
         databaseService.getDatabaseSchema(id).blockWithTimeout()
 
     override fun getRestorableDatabaseSchemas(affiliation: String) =
-        databaseSchemaService.getRestorableDatabaseSchemas(affiliation).blockWithTimeout() ?: emptyList()
+        databaseService.getRestorableDatabaseSchemas(affiliation).blockWithTimeout() ?: emptyList()
 
     override fun updateDatabaseSchema(input: SchemaUpdateRequest): DatabaseSchemaResource =
         databaseService.updateDatabaseSchema(input).blockNonNullWithTimeout()

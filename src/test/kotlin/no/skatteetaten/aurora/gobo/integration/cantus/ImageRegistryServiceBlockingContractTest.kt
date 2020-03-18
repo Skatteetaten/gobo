@@ -9,7 +9,6 @@ import assertk.assertions.startsWith
 import no.skatteetaten.aurora.gobo.ApplicationConfig
 import no.skatteetaten.aurora.gobo.ObjectMapperConfig
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
-import no.skatteetaten.aurora.gobo.integration.SpringTestTag
 import no.skatteetaten.aurora.gobo.integration.TestConfig
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository
 import org.junit.jupiter.api.Test

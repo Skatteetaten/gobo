@@ -82,7 +82,7 @@ class DatabaseServiceBlockingTest {
     fun `Get restorable database schemas given affiliation`() {
         val response = DbhResponse.ok(RestorableDatabaseSchemaBuilder().build())
         val request = server.execute(response) {
-            val databaseSchemas = databaseSchemaService.getRestorableDatabaseSchemas("paas")
+            val databaseSchemas = databaseService.getRestorableDatabaseSchemas("paas")
             assertThat(databaseSchemas).hasSize(1)
         }.first()
         assertThat(request).containsAuroraToken()

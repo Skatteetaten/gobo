@@ -35,7 +35,7 @@ class DatabaseSchemaQueryResolver(private val databaseService: DatabaseService) 
         if (dfe.isAnonymousUser()) throw AccessDeniedException("Anonymous user cannot get database schemas")
 
         return affiliations.flatMap { affiliation ->
-            databaseSchemaService.getRestorableDatabaseSchemas(affiliation).map {
+            databaseService.getRestorableDatabaseSchemas(affiliation).map {
                 RestorableDatabaseSchema(
                     it.setToCooldownAtInstant,
                     it.deleteAfterInstant,
