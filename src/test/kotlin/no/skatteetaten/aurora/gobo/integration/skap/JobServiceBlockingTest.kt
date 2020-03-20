@@ -13,7 +13,7 @@ import okhttp3.mockwebserver.MockWebServer
 import org.junit.jupiter.api.Test
 import org.springframework.web.reactive.function.client.WebClient
 
-class JobServiceReactiveTest {
+class JobServiceBlockingTest {
     private val server = MockWebServer()
     private val sharedSecretReader = mockk<SharedSecretReader> {
         every { secret } returns "test-token"
@@ -23,7 +23,7 @@ class JobServiceReactiveTest {
     )
 
     @Test
-    fun `get job`() {
+    fun `get jobs`() {
         val job = WebsealJobResourceBuilder().build()
         val request = server.execute(listOf(job, job), objectMapper = testObjectMapper()) {
             val jobs = jobService.getJobs("dev", "app")

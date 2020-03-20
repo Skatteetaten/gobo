@@ -1,0 +1,13 @@
+query getJobs($namespace: String!, $name: String!) {
+    jobs(namespace: $namespace, name: $name) {
+       id
+       payload
+       objectname
+       namespace
+       type
+       operation
+       status
+       updated
+       errorMessage
+    }
+}

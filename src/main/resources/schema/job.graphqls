@@ -1,0 +1,11 @@
+type Job {
+  id: String!,
+  payload: String!,
+  objectname: String!,
+  namespace: String!,
+  type: String!,
+  operation: String!,
+  status: String!,
+  updated: String!,
+  errorMessage: String
+}

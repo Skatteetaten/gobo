@@ -18,7 +18,7 @@ data class WebsealStateResource(
     val routeName: String
 )
 
-data class WebsealStateJob(
+data class Job(
     val id: Int,
     val payload: String,
     val objectname: String,

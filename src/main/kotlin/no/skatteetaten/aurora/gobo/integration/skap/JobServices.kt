@@ -22,7 +22,7 @@ class JobServiceReactive(
     private val sharedSecretReader: SharedSecretReader,
     @TargetService(ServiceTypes.SKAP) private val webClient: WebClient
 ) {
-    fun getJobs(namespace: String, name: String): Mono<List<WebsealStateJob>> =
+    fun getJobs(namespace: String, name: String): Mono<List<Job>> =
         webClient
             .get()
             .uri {
@@ -34,7 +34,7 @@ class JobServiceReactive(
 }
 
 interface JobService {
-    fun getJobs(namespace: String, name: String): List<WebsealStateJob> = integrationDisabled()
+    fun getJobs(namespace: String, name: String): List<Job> = integrationDisabled()
 
     private fun integrationDisabled(): Nothing =
         throw IntegrationDisabledException("Skap integration is disabled for this environment")

@@ -35,7 +35,7 @@ import no.skatteetaten.aurora.gobo.integration.mokey.VersionResource
 import no.skatteetaten.aurora.gobo.integration.mokey.addAll
 import no.skatteetaten.aurora.gobo.integration.skap.Acl
 import no.skatteetaten.aurora.gobo.integration.skap.Certificate
-import no.skatteetaten.aurora.gobo.integration.skap.WebsealStateJob
+import no.skatteetaten.aurora.gobo.integration.skap.Job
 import no.skatteetaten.aurora.gobo.integration.skap.WebsealStateResource
 import no.skatteetaten.aurora.gobo.integration.unclematt.ProbeResult
 import no.skatteetaten.aurora.gobo.integration.unclematt.ProbeStatus
@@ -477,13 +477,13 @@ data class WebsealStateResourceBuilder(val namespace: String = "test") {
     )
 }
 
-data class WebsealJobResourceBuilder(val namespace: String = "test") {
-    // TODO: sjekk format på dato
-    fun build() = WebsealStateJob(
+data class WebsealJobResourceBuilder(val namespace: String = "namespace", val name: String = "name") {
+
+    fun build() = Job(
         id = 54523,
         payload = "{'cluster': 'utv'}",
-        objectname = "test-weseal",
-        namespace = "dev",
+        objectname = "$name-weseal",
+        namespace = namespace,
         type = "websealv2",
         operation = "CREATEORUPDATE",
         status = "DONE",
