@@ -26,7 +26,7 @@ data class Job(
     val type: String,
     val operation: String,
     val status: String,
-    val updated: Instant?,
+    val updated: String,
     val errorMessage: String?
 )
 

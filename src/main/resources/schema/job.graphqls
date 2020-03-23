@@ -6,6 +6,6 @@ type Job {
   type: String!,
   operation: String!,
   status: String!,
-  updated: DateTime!,
+  updated: String!,
   errorMessage: String
 }

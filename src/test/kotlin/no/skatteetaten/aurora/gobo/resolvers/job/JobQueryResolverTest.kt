@@ -2,7 +2,7 @@ package no.skatteetaten.aurora.gobo.resolvers.job
 
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
-import no.skatteetaten.aurora.gobo.WebsealJobResourceBuilder
+import no.skatteetaten.aurora.gobo.JobResourceBuilder
 import no.skatteetaten.aurora.gobo.integration.skap.JobService
 import no.skatteetaten.aurora.gobo.resolvers.AbstractGraphQLTest
 import no.skatteetaten.aurora.gobo.resolvers.graphqlData
@@ -20,9 +20,9 @@ class JobQueryResolverTest : AbstractGraphQLTest() {
     private lateinit var jobService: JobService
 
     @Test
-    fun `blabla`() {
+    fun `get jobs for app`() {
 
-        val job = WebsealJobResourceBuilder().build()
+        val job = JobResourceBuilder().build()
         every { jobService.getJobs("namespace", "name") } returns listOf(job)
 
         webTestClient.queryGraphQL(

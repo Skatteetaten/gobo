@@ -477,7 +477,7 @@ data class WebsealStateResourceBuilder(val namespace: String = "test") {
     )
 }
 
-data class WebsealJobResourceBuilder(val namespace: String = "namespace", val name: String = "name") {
+data class JobResourceBuilder(val namespace: String = "namespace", val name: String = "name") {
 
     fun build() = Job(
         id = 54523,
@@ -487,7 +487,7 @@ data class WebsealJobResourceBuilder(val namespace: String = "namespace", val na
         type = "websealv2",
         operation = "CREATEORUPDATE",
         status = "DONE",
-        updated = Instant.now(),
+        updated = "2019-10-17T09:17:15.547788+02:00",
         errorMessage = null
     )
 }

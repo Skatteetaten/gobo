@@ -4,7 +4,7 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import io.mockk.every
 import io.mockk.mockk
-import no.skatteetaten.aurora.gobo.WebsealJobResourceBuilder
+import no.skatteetaten.aurora.gobo.JobResourceBuilder
 import no.skatteetaten.aurora.gobo.integration.containsAuroraToken
 import no.skatteetaten.aurora.gobo.security.SharedSecretReader
 import no.skatteetaten.aurora.gobo.testObjectMapper
@@ -24,7 +24,7 @@ class JobServiceBlockingTest {
 
     @Test
     fun `get jobs`() {
-        val job = WebsealJobResourceBuilder().build()
+        val job = JobResourceBuilder().build()
         val request = server.execute(listOf(job, job), objectMapper = testObjectMapper()) {
             val jobs = jobService.getJobs("dev", "app")
             assertThat(jobs.size).isEqualTo((2))
