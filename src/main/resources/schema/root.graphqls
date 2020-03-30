@@ -17,7 +17,7 @@ type Query {
     certificates: CertificatesConnection
     auroraApiMetadata: AuroraApiMetadata
     auroraConfig(name:String!, ref:String): AuroraConfig
-    jobs(namespace: String!, name: String!): [Job]
+    routes(namespace: String!, name: String!): Routes
 }
 
 type Mutation {

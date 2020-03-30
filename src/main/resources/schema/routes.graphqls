@@ -1,4 +1,4 @@
-type Job {
+type Progression {
   id: String!,
   payload: String!,
   objectname: String!,
@@ -8,4 +8,8 @@ type Job {
   status: String!,
   updated: String!,
   errorMessage: String
+}
+
+type Routes {
+ progressions: [Progression]!
 }

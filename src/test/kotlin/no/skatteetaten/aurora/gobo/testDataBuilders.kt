@@ -35,7 +35,7 @@ import no.skatteetaten.aurora.gobo.integration.mokey.VersionResource
 import no.skatteetaten.aurora.gobo.integration.mokey.addAll
 import no.skatteetaten.aurora.gobo.integration.skap.Acl
 import no.skatteetaten.aurora.gobo.integration.skap.Certificate
-import no.skatteetaten.aurora.gobo.integration.skap.Job
+import no.skatteetaten.aurora.gobo.integration.skap.Progression
 import no.skatteetaten.aurora.gobo.integration.skap.WebsealStateResource
 import no.skatteetaten.aurora.gobo.integration.unclematt.ProbeResult
 import no.skatteetaten.aurora.gobo.integration.unclematt.ProbeStatus
@@ -477,17 +477,18 @@ data class WebsealStateResourceBuilder(val namespace: String = "test") {
     )
 }
 
-data class JobResourceBuilder(val namespace: String = "namespace", val name: String = "name") {
+data class ProgressionResourceBuilder(val namespace: String = "namespace", val name: String = "name") {
 
-    fun build() = Job(
-        id = 54523,
-        payload = "{'cluster': 'utv'}",
-        objectname = "$name-weseal",
-        namespace = namespace,
-        type = "websealv2",
-        operation = "CREATEORUPDATE",
-        status = "DONE",
-        updated = "2019-10-17T09:17:15.547788+02:00",
-        errorMessage = null
-    )
+    fun build() =
+        Progression(
+            id = 54523,
+            payload = "{'cluster': 'utv'}",
+            objectname = "$name-weseal",
+            namespace = namespace,
+            type = "websealv2",
+            operation = "CREATEORUPDATE",
+            status = "DONE",
+            updated = "2019-10-17T09:17:15.547788+02:00",
+            errorMessage = null
+        )
 }

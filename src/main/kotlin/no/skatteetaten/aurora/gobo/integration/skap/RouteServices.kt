@@ -18,11 +18,11 @@ import reactor.core.publisher.Mono
 
 @Service
 @ConditionalOnBean(RequiresSkap::class)
-class JobServiceReactive(
+class RouteServiceReactive(
     private val sharedSecretReader: SharedSecretReader,
     @TargetService(ServiceTypes.SKAP) private val webClient: WebClient
 ) {
-    fun getJobs(namespace: String, name: String): Mono<List<Job>> =
+    fun getProgressions(namespace: String, name: String): Mono<Routes> =
         webClient
             .get()
             .uri {
@@ -33,8 +33,8 @@ class JobServiceReactive(
             .bodyToMono()
 }
 
-interface JobService {
-    fun getJobs(namespace: String, name: String): List<Job> = integrationDisabled()
+interface RouteService {
+    fun getProgressions(namespace: String, name: String): Routes = integrationDisabled()
 
     private fun integrationDisabled(): Nothing =
         throw IntegrationDisabledException("Skap integration is disabled for this environment")
@@ -42,13 +42,13 @@ interface JobService {
 
 @Service
 @ConditionalOnBean(RequiresSkap::class)
-class JobServiceBlocking(private val jobService: JobServiceReactive) : JobService {
-    override fun getJobs(namespace: String, name: String) =
-        jobService.getJobs(namespace, name).blockNonNullWithTimeout()
+class RouteServiceBlocking(private val routeService: RouteServiceReactive) : RouteService {
+    override fun getProgressions(namespace: String, name: String) =
+        routeService.getProgressions(namespace, name).blockNonNullWithTimeout()
 
     fun <T> Mono<T>.blockNonNullWithTimeout() = this.blockNonNullAndHandleError(Duration.ofSeconds(30), "skap")
 }
 
 @Service
 @ConditionalOnMissingBean(RequiresSkap::class)
-class JobServiceDisabled : JobService
+class RouteServiceDisabled : RouteService

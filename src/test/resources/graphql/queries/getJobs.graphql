@@ -1,13 +1,15 @@
-query getJobs($namespace: String!, $name: String!) {
-    jobs(namespace: $namespace, name: $name) {
-       id
-       payload
-       objectname
-       namespace
-       type
-       operation
-       status
-       updated
-       errorMessage
+query getRoutes($namespace: String!, $name: String!) {
+    routes(namespace: $namespace, name: $name) {
+       progressions {
+         id
+         payload
+         objectname
+         namespace
+         type
+         operation
+         status
+         updated
+         errorMessage
+       }
     }
 }
