@@ -4,7 +4,6 @@ import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import no.skatteetaten.aurora.gobo.ProgressionResourceBuilder
 import no.skatteetaten.aurora.gobo.integration.skap.RouteService
-import no.skatteetaten.aurora.gobo.integration.skap.Routes
 import no.skatteetaten.aurora.gobo.resolvers.AbstractGraphQLTest
 import no.skatteetaten.aurora.gobo.resolvers.graphqlData
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
@@ -24,7 +23,7 @@ class RoutesQueryResolverTest : AbstractGraphQLTest() {
     fun `get progressions for app`() {
 
         val job = ProgressionResourceBuilder().build()
-        every { routeService.getProgressions("namespace", "name") } returns Routes(listOf(job))
+        every { routeService.getProgressions("namespace", "name") } returns listOf(job)
 
         webTestClient.queryGraphQL(
             queryResource = getRoutes,

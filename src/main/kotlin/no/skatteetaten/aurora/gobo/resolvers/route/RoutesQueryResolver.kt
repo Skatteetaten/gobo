@@ -19,6 +19,6 @@ class RoutesQueryResolver(
         dfe: DataFetchingEnvironment
     ): Routes {
         if (dfe.isAnonymousUser()) throw AccessDeniedException("Anonymous user cannot get WebSEAL/BipIp progressions")
-        return routeService.getProgressions(namespace, name)
+        return Routes(progressions = routeService.getProgressions(namespace, name))
     }
 }

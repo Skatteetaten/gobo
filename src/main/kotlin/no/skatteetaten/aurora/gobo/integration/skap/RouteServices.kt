@@ -22,7 +22,7 @@ class RouteServiceReactive(
     private val sharedSecretReader: SharedSecretReader,
     @TargetService(ServiceTypes.SKAP) private val webClient: WebClient
 ) {
-    fun getProgressions(namespace: String, name: String): Mono<Routes> =
+    fun getProgressions(namespace: String, name: String): Mono<List<Progression>> =
         webClient
             .get()
             .uri {
@@ -34,7 +34,7 @@ class RouteServiceReactive(
 }
 
 interface RouteService {
-    fun getProgressions(namespace: String, name: String): Routes = integrationDisabled()
+    fun getProgressions(namespace: String, name: String): List<Progression> = integrationDisabled()
 
     private fun integrationDisabled(): Nothing =
         throw IntegrationDisabledException("Skap integration is disabled for this environment")
