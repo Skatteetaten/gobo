@@ -148,3 +148,8 @@ data class DeleteDatabaseSchemasResponse(
             )
     }
 }
+
+data class ConnectionVerificationResponse(
+        val isSuccessful: Boolean = false,
+        val message: String = ""
+)
