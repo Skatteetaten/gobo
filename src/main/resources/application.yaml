@@ -6,6 +6,7 @@ info:
         unclematt: ${integrations.unclematt.url}
         cantus: ${integrations.cantus.url}
         skap: ${integrations.skap.url}
+        dbh: ${integrations.dbh.url}
 
 spring:
     application:
@@ -25,6 +26,8 @@ altair:
         basePath:
 
 integrations:
+    dbh:
+        url: localhost:9080
     mokey:
         url: http://mokey
     boober:

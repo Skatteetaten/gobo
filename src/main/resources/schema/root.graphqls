@@ -36,6 +36,9 @@ type Mutation {
     testJdbcConnectionForJdbcUser(input: JdbcUserInput!): Boolean
     testJdbcConnectionForId(id: String!): Boolean
 
+    testJdbcConnectionForJdbcUserV2(input: JdbcUserInput!): ConnectionVerificationResponse
+    testJdbcConnectionForIdV2(id: String!): ConnectionVerificationResponse
+
     createDatabaseSchema(input: CreateDatabaseSchemaInput): DatabaseSchema
 
     createAuroraConfigFile(input: NewAuroraConfigFileInput) : AuroraConfigFileValidationResponse
