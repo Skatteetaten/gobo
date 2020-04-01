@@ -14,11 +14,9 @@ import no.skatteetaten.aurora.gobo.resolvers.graphqlDataWithPrefix
 import no.skatteetaten.aurora.gobo.resolvers.graphqlErrors
 import no.skatteetaten.aurora.gobo.resolvers.graphqlErrorsFirst
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
-import no.skatteetaten.aurora.gobo.security.OpenShiftUserLoader
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.core.io.Resource
 
 class DatabaseQueryResolverTest : AbstractGraphQLTest() {
@@ -38,17 +36,11 @@ class DatabaseQueryResolverTest : AbstractGraphQLTest() {
     @Value("classpath:graphql/queries/getRestorableDatabaseSchemas.graphql")
     private lateinit var getRestorableDatabaseSchemasQuery: Resource
 
-    @Autowired
-    private lateinit var webTestClient: WebTestClient
-
     @MockkBean
     private lateinit var databaseService: DatabaseServiceBlocking
 
     @MockkBean
     private lateinit var applicationService: ApplicationServiceBlocking
-
-    @MockBean
-    private lateinit var openShiftUserLoader: OpenShiftUserLoader
 
     @BeforeEach
     fun setUp() {
@@ -58,11 +50,9 @@ class DatabaseQueryResolverTest : AbstractGraphQLTest() {
         every { databaseService.getDatabaseInstances() } returns listOf(paasInstance, auroraInstance)
         every { databaseService.getDatabaseSchemas("paas") } returns listOf(DatabaseSchemaResourceBuilder().build())
         every { databaseService.getDatabaseSchema("myDbId") } returns DatabaseSchemaResourceBuilder().build()
+        every { databaseService.getRestorableDatabaseSchemas("aurora") } returns listOf(RestorableDatabaseSchemaBuilder().build())
         every { applicationService.getApplicationDeploymentsForDatabases("test-token", listOf("123")) } returns
             listOf(ApplicationDeploymentWithDbResourceBuilder(databaseId = "123").build())
-
-        given(databaseSchemaService.getRestorableDatabaseSchemas("aurora"))
-            .willReturn(listOf(RestorableDatabaseSchemaBuilder().build()))
     }
 
     @Test
@@ -80,9 +70,9 @@ class DatabaseQueryResolverTest : AbstractGraphQLTest() {
     @Test
     fun `Query for database instances`() {
         webTestClient.queryGraphQL(
-            queryResource = getDatabaseInstancesQuery,
-            token = "test-token"
-        )
+                queryResource = getDatabaseInstancesQuery,
+                token = "test-token"
+            )
             .expectStatus().isOk
             .expectBody()
             .graphqlData("databaseInstances.length()").isEqualTo(2)
@@ -96,10 +86,10 @@ class DatabaseQueryResolverTest : AbstractGraphQLTest() {
     @Test
     fun `Query for database instances given affiliation`() {
         webTestClient.queryGraphQL(
-            queryResource = getDatabaseInstancesWithAffiliationQuery,
-            variables = mapOf("affiliation" to "paas"),
-            token = "test-token"
-        )
+                queryResource = getDatabaseInstancesWithAffiliationQuery,
+                variables = mapOf("affiliation" to "paas"),
+                token = "test-token"
+            )
             .expectStatus().isOk
             .expectBody()
             .graphqlData("databaseInstances.length()").isEqualTo(1)
@@ -114,10 +104,10 @@ class DatabaseQueryResolverTest : AbstractGraphQLTest() {
     fun `Query for database schemas given affiliation`() {
         val variables = mapOf("affiliations" to listOf("paas"))
         webTestClient.queryGraphQL(
-            queryResource = getDatabaseSchemasWithAffiliationQuery,
-            variables = variables,
-            token = "test-token"
-        )
+                queryResource = getDatabaseSchemasWithAffiliationQuery,
+                variables = variables,
+                token = "test-token"
+            )
             .expectStatus().isOk
             .expectBody()
             .graphqlData("databaseSchemas.length()").isEqualTo(1)
@@ -142,10 +132,10 @@ class DatabaseQueryResolverTest : AbstractGraphQLTest() {
     fun `Query for database schema given id`() {
         val variables = mapOf("id" to "myDbId")
         webTestClient.queryGraphQL(
-            queryResource = getDatabaseSchemaWithIdQuery,
-            variables = variables,
-            token = "test-token"
-        )
+                queryResource = getDatabaseSchemaWithIdQuery,
+                variables = variables,
+                token = "test-token"
+            )
             .expectStatus().isOk
             .expectBody()
             .graphqlData("databaseSchema.engine").isEqualTo("POSTGRES")
@@ -156,10 +146,10 @@ class DatabaseQueryResolverTest : AbstractGraphQLTest() {
     fun `Query for restorable database schemas given affiliation`() {
         val variables = mapOf("affiliations" to listOf("aurora"))
         webTestClient.queryGraphQL(
-            queryResource = getRestorableDatabaseSchemasQuery,
-            variables = variables,
-            token = "test-token"
-        )
+                queryResource = getRestorableDatabaseSchemasQuery,
+                variables = variables,
+                token = "test-token"
+            )
             .expectStatus().isOk
             .expectBody()
             .graphqlDataWithPrefix("restorableDatabaseSchemas") {
