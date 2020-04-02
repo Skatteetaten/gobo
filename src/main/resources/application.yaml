@@ -98,8 +98,6 @@ integrations:
         url: http://mokey-aurora.utv.paas.skead.no
     cantus:
         url: http://cantus.aurora.utv.paas.skead.no
-    dbh:
-        url: localhost:9080
     docker:
         cluster:
             url: docker-registry.default.svc:5000

@@ -76,6 +76,6 @@ input JdbcUserInput {
 }
 
 type ConnectionVerificationResponse {
-  isSuccessful: Boolean!
-  message: String
+  hasSucceeded: Boolean!
+  message: String!
 }
