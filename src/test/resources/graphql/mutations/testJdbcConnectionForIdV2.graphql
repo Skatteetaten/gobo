@@ -1,0 +1,6 @@
+mutation testJdbcConnectionForIdV2($id: String!){
+    testJdbcConnectionForIdV2(id: $id){
+        hasSucceeded
+        message
+    }
+}
