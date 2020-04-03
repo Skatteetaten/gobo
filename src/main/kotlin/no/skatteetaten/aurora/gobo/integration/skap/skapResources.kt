@@ -19,7 +19,7 @@ data class WebsealStateResource(
 )
 
 data class Routes(
-    val progressions: List<Progression>
+    val progressions: List<Progression> = emptyList()
 )
 
 data class Progression(
