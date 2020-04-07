@@ -10,6 +10,6 @@ type Progression {
   errorMessage: String
 }
 
-type Routes {
+type Route {
  progressions: [Progression]!
 }
