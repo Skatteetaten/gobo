@@ -27,7 +27,7 @@ class RouteServiceBlockingTest {
         val progression = ProgressionResourceBuilder().build()
         val request = server.execute(listOf(progression, progression), objectMapper = testObjectMapper()) {
             val jobs = jobService.getProgressions("dev", "app")
-            assertThat(Routes(jobs).progressions.size).isEqualTo((2))
+            assertThat(Route(jobs).progressions.size).isEqualTo((2))
         }.first()
 
         assertThat(request).containsAuroraToken()

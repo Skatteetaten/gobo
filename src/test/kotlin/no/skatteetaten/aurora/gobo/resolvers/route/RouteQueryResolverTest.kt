@@ -11,10 +11,10 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 
-class RoutesQueryResolverTest : AbstractGraphQLTest() {
+class RouteQueryResolverTest : AbstractGraphQLTest() {
 
-    @Value("classpath:graphql/queries/getJobs.graphql")
-    private lateinit var getRoutes: Resource
+    @Value("classpath:graphql/queries/getRoute.graphql")
+    private lateinit var getRoute: Resource
 
     @MockkBean
     private lateinit var routeService: RouteService
@@ -26,12 +26,12 @@ class RoutesQueryResolverTest : AbstractGraphQLTest() {
         every { routeService.getProgressions("namespace", "name") } returns listOf(job)
 
         webTestClient.queryGraphQL(
-            queryResource = getRoutes,
+            queryResource = getRoute,
             variables = mapOf("namespace" to "namespace", "name" to "name"),
             token = "test-token"
         )
             .expectStatus().isOk
             .expectBody()
-            .graphqlData("routes.progressions[0].namespace").isEqualTo("namespace")
+            .graphqlData("route.progressions[0].namespace").isEqualTo("namespace")
     }
 }

@@ -11,7 +11,7 @@ type ApplicationDeployment {
   time: DateTime
   message: String
   imageRepository: ImageRepository
-  routes: Routes
+  route: Route
 }
 
 type StatusCheck {

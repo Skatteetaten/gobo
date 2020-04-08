@@ -7,8 +7,8 @@ import graphql.schema.DataFetchingEnvironment
 import no.skatteetaten.aurora.gobo.integration.boober.ApplicationDeploymentService
 import no.skatteetaten.aurora.gobo.integration.boober.DeleteApplicationDeploymentInput
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
+import no.skatteetaten.aurora.gobo.integration.skap.Route
 import no.skatteetaten.aurora.gobo.integration.skap.RouteService
-import no.skatteetaten.aurora.gobo.integration.skap.Routes
 import no.skatteetaten.aurora.gobo.resolvers.AccessDeniedException
 import no.skatteetaten.aurora.gobo.resolvers.affiliation.Affiliation
 import no.skatteetaten.aurora.gobo.resolvers.application.Application
@@ -81,12 +81,12 @@ class ApplicationDeploymentResolver(
             applicationDeployment.id
         )
 
-    fun routes(
+    fun route(
         applicationDeployment: ApplicationDeployment,
         dfe: DataFetchingEnvironment
-    ): Routes {
-        if (dfe.isAnonymousUser()) throw AccessDeniedException("Anonymous user cannot get WebSEAL/BipIp progressions")
-        return Routes(
+    ): Route {
+        if (dfe.isAnonymousUser()) throw AccessDeniedException("Anonymous user cannot get WebSEAL/BigIp progressions")
+        return Route(
             progressions = routeService.getProgressions(
                 namespace(applicationDeployment).name,
                 "${applicationDeployment.name}-webseal"

@@ -1,5 +1,5 @@
-query getRoutes($namespace: String!, $name: String!) {
-    routes(namespace: $namespace, name: $name) {
+query getRoute($namespace: String!, $name: String!) {
+    route(namespace: $namespace, name: $name) {
        progressions {
          id
          payload

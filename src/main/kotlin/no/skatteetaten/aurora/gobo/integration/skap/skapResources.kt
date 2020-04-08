@@ -18,12 +18,12 @@ data class WebsealStateResource(
     val routeName: String
 )
 
-data class Routes(
+data class Route(
     val progressions: List<Progression> = emptyList()
 )
 
 data class Progression(
-    val id: Int,
+    val id: String,
     val payload: String,
     val objectname: String,
     val namespace: String,

@@ -481,7 +481,7 @@ data class ProgressionResourceBuilder(val namespace: String = "namespace", val n
 
     fun build() =
         Progression(
-            id = 54523,
+            id = "54523",
             payload = "{'cluster': 'utv'}",
             objectname = "$name-weseal",
             namespace = namespace,
