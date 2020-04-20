@@ -21,6 +21,7 @@ import no.skatteetaten.aurora.gobo.resolvers.namespace.Namespace
 import no.skatteetaten.aurora.gobo.security.currentUser
 import no.skatteetaten.aurora.gobo.security.isAnonymousUser
 import no.skatteetaten.aurora.gobo.service.ApplicationUpgradeService
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 
 @Component
@@ -67,7 +68,8 @@ class ApplicationDeploymentMutationResolver(
 @Component
 class ApplicationDeploymentResolver(
     private val applicationService: ApplicationServiceBlocking,
-    private val routeService: RouteService
+    private val routeService: RouteService,
+    @Value("\${integrations.skap.url}") val skapUrl: String
 ) : GraphQLResolver<ApplicationDeployment> {
 
     fun affiliation(applicationDeployment: ApplicationDeployment): Affiliation =
@@ -84,8 +86,9 @@ class ApplicationDeploymentResolver(
     fun route(
         applicationDeployment: ApplicationDeployment,
         dfe: DataFetchingEnvironment
-    ): Route {
+    ): Route? {
         if (dfe.isAnonymousUser()) throw AccessDeniedException("Anonymous user cannot get WebSEAL/BigIp progressions")
+        else if (skapUrl.isNullOrEmpty()) return null
         return Route(
             progressions = routeService.getProgressions(
                 namespace(applicationDeployment).name,
