@@ -3,15 +3,16 @@ package no.skatteetaten.aurora.gobo.resolvers.webseal
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import no.skatteetaten.aurora.gobo.WebsealStateResourceBuilder
-import no.skatteetaten.aurora.gobo.resolvers.AbstractGraphQLTest
+import no.skatteetaten.aurora.gobo.resolvers.GraphQLTestWithDbhAndSkap
 import no.skatteetaten.aurora.gobo.resolvers.graphqlDataWithPrefix
+import no.skatteetaten.aurora.gobo.resolvers.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import no.skatteetaten.aurora.gobo.service.WebsealAffiliationService
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 
-class WebsealStateResolverTest : AbstractGraphQLTest() {
+class WebsealStateResolverTest : GraphQLTestWithDbhAndSkap() {
     @Value("classpath:graphql/queries/getWebsealStates.graphql")
     private lateinit var getWebsealStates: Resource
 
@@ -40,6 +41,7 @@ class WebsealStateResolverTest : AbstractGraphQLTest() {
                 graphqlData("acl.aclName").isEqualTo("acl-name")
                 graphqlData("junctions.length()").isEqualTo(2)
             }
+            .graphqlDoesNotContainErrors()
     }
 
     @Test
@@ -59,5 +61,6 @@ class WebsealStateResolverTest : AbstractGraphQLTest() {
             .graphqlDataWithPrefix("affiliations.edges[0].node.websealStates[0]") {
                 graphqlData("junctions.length()").isEqualTo(2)
             }
+            .graphqlDoesNotContainErrors()
     }
 }

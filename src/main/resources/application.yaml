@@ -5,7 +5,7 @@ info:
         docker: ${integrations.docker-registry.url}
         unclematt: ${integrations.unclematt.url}
         cantus: ${integrations.cantus.url}
-        skap: ${integrations.skap.url}
+        skap: ${integrations.skap.url:}
 
 spring:
     application:

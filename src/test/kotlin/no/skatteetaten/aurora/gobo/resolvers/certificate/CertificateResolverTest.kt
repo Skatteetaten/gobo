@@ -4,14 +4,15 @@ import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import no.skatteetaten.aurora.gobo.CertificateResourceBuilder
 import no.skatteetaten.aurora.gobo.integration.skap.CertificateService
-import no.skatteetaten.aurora.gobo.resolvers.AbstractGraphQLTest
+import no.skatteetaten.aurora.gobo.resolvers.GraphQLTestWithDbhAndSkap
 import no.skatteetaten.aurora.gobo.resolvers.graphqlData
+import no.skatteetaten.aurora.gobo.resolvers.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 
-class CertificateResolverTest : AbstractGraphQLTest() {
+class CertificateResolverTest : GraphQLTestWithDbhAndSkap() {
 
     @Value("classpath:graphql/queries/getCertificates.graphql")
     private lateinit var getCertificates: Resource
@@ -29,5 +30,6 @@ class CertificateResolverTest : AbstractGraphQLTest() {
             .expectStatus().isOk
             .expectBody()
             .graphqlData("certificates.totalCount").isEqualTo(2)
+            .graphqlDoesNotContainErrors()
     }
 }

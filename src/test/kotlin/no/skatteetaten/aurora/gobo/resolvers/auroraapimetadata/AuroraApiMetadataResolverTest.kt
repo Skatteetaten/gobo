@@ -3,15 +3,16 @@ package no.skatteetaten.aurora.gobo.resolvers.auroraapimetadata
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraApiMetadataService
-import no.skatteetaten.aurora.gobo.resolvers.AbstractGraphQLTest
+import no.skatteetaten.aurora.gobo.resolvers.GraphQLTestWithDbhAndSkap
 import no.skatteetaten.aurora.gobo.resolvers.graphqlDataWithPrefix
+import no.skatteetaten.aurora.gobo.resolvers.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 
-class AuroraApiMetadataResolverTest : AbstractGraphQLTest() {
+class AuroraApiMetadataResolverTest : GraphQLTestWithDbhAndSkap() {
 
     @Value("classpath:graphql/queries/getMetadata.graphql")
     private lateinit var query: Resource
@@ -41,5 +42,6 @@ class AuroraApiMetadataResolverTest : AbstractGraphQLTest() {
                 graphqlData("configNames[0]").isEqualTo(configNames[0])
                 graphqlData("clientConfig.openshiftCluster").isEqualTo("utv")
             }
+            .graphqlDoesNotContainErrors()
     }
 }

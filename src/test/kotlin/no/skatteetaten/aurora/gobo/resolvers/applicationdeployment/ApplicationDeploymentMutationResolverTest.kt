@@ -3,8 +3,9 @@ package no.skatteetaten.aurora.gobo.resolvers.applicationdeployment
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import no.skatteetaten.aurora.gobo.integration.boober.ApplicationDeploymentService
-import no.skatteetaten.aurora.gobo.resolvers.AbstractGraphQLTest
+import no.skatteetaten.aurora.gobo.resolvers.GraphQLTestWithDbhAndSkap
 import no.skatteetaten.aurora.gobo.resolvers.graphqlData
+import no.skatteetaten.aurora.gobo.resolvers.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.resolvers.isTrue
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import no.skatteetaten.aurora.gobo.service.ApplicationUpgradeService
@@ -13,7 +14,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 
-class ApplicationDeploymentMutationResolverTest : AbstractGraphQLTest() {
+class ApplicationDeploymentMutationResolverTest : GraphQLTestWithDbhAndSkap() {
     @Value("classpath:graphql/mutations/redeployWithVersion.graphql")
     private lateinit var redeployWithVersionMutation: Resource
 
@@ -52,6 +53,7 @@ class ApplicationDeploymentMutationResolverTest : AbstractGraphQLTest() {
         )
         webTestClient.queryGraphQL(redeployWithVersionMutation, variables).expectBody()
             .graphqlData("redeployWithVersion").isNotEmpty
+            .graphqlDoesNotContainErrors()
     }
 
     @Test
@@ -63,6 +65,7 @@ class ApplicationDeploymentMutationResolverTest : AbstractGraphQLTest() {
         )
         webTestClient.queryGraphQL(redeployWithCurrentVersionMutation, variables).expectBody()
             .graphqlData("redeployWithCurrentVersion").isNotEmpty
+            .graphqlDoesNotContainErrors()
     }
 
     @Test
@@ -76,6 +79,7 @@ class ApplicationDeploymentMutationResolverTest : AbstractGraphQLTest() {
             .expectStatus().isOk
             .expectBody()
             .graphqlData("refreshApplicationDeployment").isNotEmpty
+            .graphqlDoesNotContainErrors()
     }
 
     @Test
@@ -89,6 +93,7 @@ class ApplicationDeploymentMutationResolverTest : AbstractGraphQLTest() {
             .expectStatus().isOk
             .expectBody()
             .graphqlData("refreshApplicationDeployments").isNotEmpty
+            .graphqlDoesNotContainErrors()
     }
 
     @Test
@@ -105,5 +110,6 @@ class ApplicationDeploymentMutationResolverTest : AbstractGraphQLTest() {
             .expectStatus().isOk
             .expectBody()
             .graphqlData("deleteApplicationDeployment").isTrue()
+            .graphqlDoesNotContainErrors()
     }
 }
