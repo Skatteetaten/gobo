@@ -8,6 +8,9 @@ import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileResource
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileType
 import no.skatteetaten.aurora.gobo.integration.cantus.AuroraResponse
 import no.skatteetaten.aurora.gobo.integration.cantus.CantusFailure
+import no.skatteetaten.aurora.gobo.integration.cantus.ImageBuildTimeline
+import no.skatteetaten.aurora.gobo.integration.cantus.ImageTagResource
+import no.skatteetaten.aurora.gobo.integration.cantus.JavaImage
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseInstanceResource
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseMetadataResource
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseSchemaResource
@@ -477,7 +480,7 @@ data class WebsealStateResourceBuilder(val namespace: String = "test") {
     )
 }
 
-data class ProgressionResourceBuilder(val namespace: String = "namespace", val name: String = "name") {
+data class ProgressionBuilder(val namespace: String = "namespace", val name: String = "name") {
 
     fun build() =
         Progression(
@@ -491,4 +494,16 @@ data class ProgressionResourceBuilder(val namespace: String = "namespace", val n
             updated = "2019-10-17T09:17:15.547788+02:00",
             errorMessage = null
         )
+}
+
+class ImageTagResourceBuilder {
+    fun build() = ImageTagResource(
+        auroraVersion = "1",
+        appVersion = "1",
+        timeline = ImageBuildTimeline(Instant.now(), Instant.now()),
+        dockerVersion = "1",
+        dockerDigest = "abc123",
+        java = JavaImage("1", "1", "1", ""),
+        requestUrl = "http://localhost"
+    )
 }

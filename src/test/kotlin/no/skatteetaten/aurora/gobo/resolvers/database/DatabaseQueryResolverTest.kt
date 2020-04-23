@@ -7,9 +7,10 @@ import no.skatteetaten.aurora.gobo.DatabaseInstanceResourceBuilder
 import no.skatteetaten.aurora.gobo.DatabaseSchemaResourceBuilder
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseServiceBlocking
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
-import no.skatteetaten.aurora.gobo.resolvers.AbstractGraphQLTest
+import no.skatteetaten.aurora.gobo.resolvers.GraphQLTestWithDbhAndSkap
 import no.skatteetaten.aurora.gobo.resolvers.graphqlData
 import no.skatteetaten.aurora.gobo.resolvers.graphqlDataWithPrefix
+import no.skatteetaten.aurora.gobo.resolvers.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.resolvers.graphqlErrors
 import no.skatteetaten.aurora.gobo.resolvers.graphqlErrorsFirst
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
@@ -18,7 +19,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 
-class DatabaseQueryResolverTest : AbstractGraphQLTest() {
+class DatabaseQueryResolverTest : GraphQLTestWithDbhAndSkap() {
 
     @Value("classpath:graphql/queries/getDatabaseInstances.graphql")
     private lateinit var getDatabaseInstancesQuery: Resource
@@ -76,6 +77,7 @@ class DatabaseQueryResolverTest : AbstractGraphQLTest() {
                 graphqlData("instanceName").isEqualTo("name")
                 graphqlData("labels[0].key").isEqualTo("affiliation")
             }
+            .graphqlDoesNotContainErrors()
     }
 
     @Test
@@ -93,6 +95,7 @@ class DatabaseQueryResolverTest : AbstractGraphQLTest() {
                 graphqlData("instanceName").isEqualTo("name")
                 graphqlData("affiliation.name").isEqualTo("paas")
             }
+            .graphqlDoesNotContainErrors()
     }
 
     @Test
@@ -112,6 +115,7 @@ class DatabaseQueryResolverTest : AbstractGraphQLTest() {
                 graphqlData("createdBy").isEqualTo("abc123")
                 graphqlData("applicationDeployments.length()").isEqualTo(1)
             }
+            .graphqlDoesNotContainErrors()
     }
 
     @Test
@@ -135,5 +139,6 @@ class DatabaseQueryResolverTest : AbstractGraphQLTest() {
             .expectBody()
             .graphqlData("databaseSchema.engine").isEqualTo("POSTGRES")
             .graphqlData("databaseSchema.applicationDeployments.length()").isEqualTo(1)
+            .graphqlDoesNotContainErrors()
     }
 }

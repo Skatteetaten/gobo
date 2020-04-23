@@ -18,5 +18,18 @@ query getApplicationDeployment($id: String!) {
         }
       }
     }
+    route {
+       progressions {
+         id
+         payload
+         objectname
+         namespace
+         type
+         operation
+         status
+         updated
+         errorMessage
+       }
+    }
   }
 }

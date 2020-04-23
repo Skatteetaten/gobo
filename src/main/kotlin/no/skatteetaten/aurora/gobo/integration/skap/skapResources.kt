@@ -31,7 +31,7 @@ data class Progression(
     val operation: String,
     val status: String,
     val updated: String,
-    val errorMessage: String?
+    val errorMessage: String? = null
 )
 
 data class Acl(

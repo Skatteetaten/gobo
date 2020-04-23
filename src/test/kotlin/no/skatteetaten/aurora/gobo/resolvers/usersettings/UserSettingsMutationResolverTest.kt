@@ -5,14 +5,15 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.verify
 import no.skatteetaten.aurora.gobo.integration.boober.UserSettingsService
-import no.skatteetaten.aurora.gobo.resolvers.AbstractGraphQLTest
+import no.skatteetaten.aurora.gobo.resolvers.GraphQLTestWithDbhAndSkap
 import no.skatteetaten.aurora.gobo.resolvers.graphqlData
+import no.skatteetaten.aurora.gobo.resolvers.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 
-class UserSettingsMutationResolverTest : AbstractGraphQLTest() {
+class UserSettingsMutationResolverTest : GraphQLTestWithDbhAndSkap() {
 
     @Value("classpath:graphql/mutations/updateUserSettings.graphql")
     private lateinit var updateUserSettingsMutation: Resource
@@ -40,6 +41,7 @@ class UserSettingsMutationResolverTest : AbstractGraphQLTest() {
         ).expectStatus().isOk
             .expectBody()
             .graphqlData("updateUserSettings").isEqualTo(true)
+            .graphqlDoesNotContainErrors()
 
         verify { userSettingsService.updateUserSettings("test-token", userSettings) }
     }
