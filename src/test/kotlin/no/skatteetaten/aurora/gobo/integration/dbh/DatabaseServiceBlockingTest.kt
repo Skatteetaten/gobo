@@ -194,25 +194,9 @@ class DatabaseServiceBlockingTest {
     @Test
     fun `Test jdbc connection for jdbcUser`() {
         val jdbcUser = JdbcUserBuilder().build()
-        val response = DbhResponse.ok(true)
-        val request = server.execute(response) {
-            val success = databaseService.testJdbcConnection(jdbcUser)
-            assertThat(success).isTrue()
-        }.first()
-
-        val requestJdbcUser = request?.bodyAsObject<JdbcUser>("$.jdbcUser")
-
-        assertThat(request).containsAuroraToken()
-        assertThat(request?.path).isNotNull().endsWith("/validate")
-        assertThat(requestJdbcUser).isEqualTo(jdbcUser)
-    }
-
-    @Test
-    fun `Test jdbc connection for jdbcUser V2`() {
-        val jdbcUser = JdbcUserBuilder().build()
         val response = DbhResponse.ok(ConnectionVerificationResponse(hasSucceeded = true))
         val request = server.execute(response) {
-            val success = databaseService.testJdbcConnectionV2(jdbcUser)
+            val success = databaseService.testJdbcConnection(jdbcUser)
             assertThat(success.hasSucceeded).isTrue()
         }.first()
 
@@ -225,24 +209,9 @@ class DatabaseServiceBlockingTest {
 
     @Test
     fun `Test jdbc connection for id`() {
-        val response = DbhResponse.ok(true)
-        val request = server.execute(response) {
-            val success = databaseService.testJdbcConnection("123")
-            assertThat(success).isTrue()
-        }.first()
-
-        val requestId = request?.bodyAsObject<String>("$.id")
-
-        assertThat(request).containsAuroraToken()
-        assertThat(request?.path).isNotNull().endsWith("/validate")
-        assertThat(requestId).isEqualTo("123")
-    }
-
-    @Test
-    fun `Test jdbc connection for id V2`() {
         val response = DbhResponse.ok(ConnectionVerificationResponse(hasSucceeded = true))
         val request = server.execute(response) {
-            val success = databaseService.testJdbcConnectionV2("123")
+            val success = databaseService.testJdbcConnection("123")
             assertThat(success.hasSucceeded).isTrue()
         }.first()
 
@@ -255,10 +224,10 @@ class DatabaseServiceBlockingTest {
 
     @Test
     fun `Test jdbc connection for id given failing connection`() {
-        val response = DbhResponse.ok(false)
+        val response = DbhResponse.ok(ConnectionVerificationResponse(hasSucceeded = false))
         server.execute(response) {
             val success = databaseService.testJdbcConnection("123")
-            assertThat(success).isFalse()
+            assertThat(success.hasSucceeded).isFalse()
         }
     }
 

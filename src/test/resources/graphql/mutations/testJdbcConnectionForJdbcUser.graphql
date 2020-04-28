@@ -1,3 +1,6 @@
 mutation testJdbcConnectionForJdbcUser($input: JdbcUserInput!){
-    testJdbcConnectionForJdbcUser(input: $input)
+    testJdbcConnectionForJdbcUser(input: $input){
+        hasSucceeded
+        message
+    }
 }

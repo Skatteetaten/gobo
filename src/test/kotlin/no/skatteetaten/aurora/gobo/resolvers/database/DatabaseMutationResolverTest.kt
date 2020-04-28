@@ -28,14 +28,8 @@ class DatabaseMutationResolverTest : AbstractGraphQLTest() {
     @Value("classpath:graphql/mutations/testJdbcConnectionForJdbcUser.graphql")
     private lateinit var testJdbcConnectionForJdbcUserMutation: Resource
 
-    @Value("classpath:graphql/mutations/testJdbcConnectionForJdbcUserV2.graphql")
-    private lateinit var testJdbcConnectionForJdbcUserV2Mutation: Resource
-
     @Value("classpath:graphql/mutations/testJdbcConnectionForId.graphql")
     private lateinit var testJdbcConnectionForIdMutation: Resource
-
-    @Value("classpath:graphql/mutations/testJdbcConnectionForIdV2.graphql")
-    private lateinit var testJdbcConnectionForIdV2Mutation: Resource
 
     @Value("classpath:graphql/mutations/createDatabaseSchema.graphql")
     private lateinit var createDatabaseSchemaMutation: Resource
@@ -123,65 +117,39 @@ class DatabaseMutationResolverTest : AbstractGraphQLTest() {
 
     @Test
     fun `Test JDBC connection for jdbcUser`() {
-        every { databaseSchemaService.testJdbcConnection(any<JdbcUser>()) } returns true
-        val variables =
-            mapOf("input" to jacksonObjectMapper().convertValue<Map<String, Any>>(JdbcUserBuilder().build()))
-        webTestClient.queryGraphQL(
-            queryResource = testJdbcConnectionForJdbcUserMutation,
-            variables = variables,
-            token = "test-token"
-        )
-            .expectBody()
-            .graphqlData("testJdbcConnectionForJdbcUser").isTrue()
-    }
-
-    @Test
-    fun `Test JDBC connection for jdbcUser V2`() {
-        every { databaseSchemaService.testJdbcConnectionV2(any<JdbcUser>()) } returns ConnectionVerificationResponse(hasSucceeded = true)
+        every { databaseSchemaService.testJdbcConnection(any<JdbcUser>()) } returns ConnectionVerificationResponse(hasSucceeded = true)
         val variables =
                 mapOf("input" to jacksonObjectMapper().convertValue<Map<String, Any>>(JdbcUserBuilder().build()))
         webTestClient.queryGraphQL(
-                queryResource = testJdbcConnectionForJdbcUserV2Mutation,
+                queryResource = testJdbcConnectionForJdbcUserMutation,
                 variables = variables,
                 token = "test-token"
         )
                 .expectBody()
-                .graphqlData("testJdbcConnectionForJdbcUserV2.hasSucceeded").isTrue()
+                .graphqlData("testJdbcConnectionForJdbcUser.hasSucceeded").isTrue()
     }
 
     @Test
     fun `Test JDBC connection for id`() {
-        every { databaseSchemaService.testJdbcConnection(any<String>()) } returns true
+        every { databaseSchemaService.testJdbcConnection(any<String>()) } returns ConnectionVerificationResponse(hasSucceeded = true)
         webTestClient.queryGraphQL(
-            queryResource = testJdbcConnectionForIdMutation,
-            variables = mapOf("id" to "123"),
-            token = "test-token"
-        )
-            .expectBody()
-            .graphqlData("testJdbcConnectionForId").isTrue()
-    }
-
-    @Test
-    fun `Test JDBC connection for id V2`() {
-        every { databaseSchemaService.testJdbcConnectionV2(any<String>()) } returns ConnectionVerificationResponse(hasSucceeded = true)
-        webTestClient.queryGraphQL(
-                queryResource = testJdbcConnectionForIdV2Mutation,
+                queryResource = testJdbcConnectionForIdMutation,
                 variables = mapOf("id" to "123"),
                 token = "test-token"
         )
                 .expectBody()
-                .graphqlData("testJdbcConnectionForIdV2.hasSucceeded").isTrue()
+                .graphqlData("testJdbcConnectionForId.hasSucceeded").isTrue()
     }
 
     @Test
     fun `Test JDBC connection for id without token`() {
         webTestClient.queryGraphQL(
-            queryResource = testJdbcConnectionForIdMutation,
-            variables = mapOf("id" to "123")
+                queryResource = testJdbcConnectionForIdMutation,
+                variables = mapOf("id" to "123")
         )
-            .expectBody()
-            .graphqlErrorsFirst("[?(@.message =~ /.*Anonymous user cannot test jdbc connection/)]")
-            .isNotEmpty
+                .expectBody()
+                .graphqlErrorsFirst("[?(@.message =~ /.*Anonymous user cannot test jdbc connection/)]")
+                .isNotEmpty
     }
 
     @Test

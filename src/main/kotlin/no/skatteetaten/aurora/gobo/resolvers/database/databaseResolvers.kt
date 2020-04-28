@@ -64,24 +64,14 @@ class DatabaseSchemaMutationResolver(private val databaseService: DatabaseServic
         return DeleteDatabaseSchemasResponse.create(responses)
     }
 
-    fun testJdbcConnectionForJdbcUser(input: JdbcUser, dfe: DataFetchingEnvironment): Boolean {
+    fun testJdbcConnectionForJdbcUser(input: JdbcUser, dfe: DataFetchingEnvironment): ConnectionVerificationResponse {
         if (dfe.isAnonymousUser()) throw AccessDeniedException("Anonymous user cannot test jdbc connection")
         return databaseService.testJdbcConnection(input)
     }
 
-    fun testJdbcConnectionForJdbcUserV2(input: JdbcUser, dfe: DataFetchingEnvironment): ConnectionVerificationResponse {
-        if (dfe.isAnonymousUser()) throw AccessDeniedException("Anonymous user cannot test jdbc connection")
-        return databaseService.testJdbcConnectionV2(input)
-    }
-
-    fun testJdbcConnectionForId(id: String, dfe: DataFetchingEnvironment): Boolean {
+    fun testJdbcConnectionForId(id: String, dfe: DataFetchingEnvironment): ConnectionVerificationResponse {
         if (dfe.isAnonymousUser()) throw AccessDeniedException("Anonymous user cannot test jdbc connection")
         return databaseService.testJdbcConnection(id)
-    }
-
-    fun testJdbcConnectionForIdV2(id: String, dfe: DataFetchingEnvironment): ConnectionVerificationResponse {
-        if (dfe.isAnonymousUser()) throw AccessDeniedException("Anonymous user cannot test jdbc connection")
-        return databaseService.testJdbcConnectionV2(id)
     }
 
     fun createDatabaseSchema(input: CreateDatabaseSchemaInput, dfe: DataFetchingEnvironment): DatabaseSchema {

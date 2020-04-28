@@ -1,6 +1,0 @@
-mutation testJdbcConnectionForJdbcUserV2($input: JdbcUserInput!){
-    testJdbcConnectionForJdbcUserV2(input: $input){
-        hasSucceeded
-        message
-    }
-}
