@@ -11,6 +11,7 @@ import no.skatteetaten.aurora.gobo.resolvers.IntegrationDisabledException
 import no.skatteetaten.aurora.gobo.resolvers.MissingLabelException
 import no.skatteetaten.aurora.gobo.resolvers.blockAndHandleError
 import no.skatteetaten.aurora.gobo.resolvers.blockNonNullAndHandleError
+import no.skatteetaten.aurora.gobo.resolvers.database.ConnectionVerificationResponse
 import no.skatteetaten.aurora.gobo.security.SharedSecretReader
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
@@ -88,21 +89,21 @@ class DatabaseServiceReactive(
         return Flux.merge(responses).map { SchemaDeletionResponse(id = it.first, success = it.second.isOk()) }
     }
 
-    fun testJdbcConnection(id: String? = null, user: JdbcUser? = null): Mono<Boolean> {
-        val response: Mono<DbhResponse<Boolean>> = webClient
-            .put()
-            .uri("/api/v1/schema/validate")
-            .body(
-                BodyInserters.fromValue(
-                    mapOf(
-                        "id" to id,
-                        "jdbcUser" to user
-                    )
+    fun testJdbcConnection(id: String? = null, user: JdbcUser? = null): Mono<ConnectionVerificationResponse> {
+        val response: Mono<DbhResponse<ConnectionVerificationResponse>> = webClient
+                .put()
+                .uri("/api/v1/schema/validate")
+                .body(
+                        BodyInserters.fromValue(
+                                mapOf(
+                                        "id" to id,
+                                        "jdbcUser" to user
+                                )
+                        )
                 )
-            )
-            .authHeader()
-            .retrieve()
-            .bodyToMono()
+                .authHeader()
+                .retrieve()
+                .bodyToMono()
         return response.flatMap {
             it.items.first().toMono()
         }
@@ -161,8 +162,8 @@ interface DatabaseService {
     fun getDatabaseSchema(id: String): DatabaseSchemaResource? = integrationDisabled()
     fun updateDatabaseSchema(input: SchemaUpdateRequest): DatabaseSchemaResource = integrationDisabled()
     fun deleteDatabaseSchemas(input: List<SchemaDeletionRequest>): List<SchemaDeletionResponse> = integrationDisabled()
-    fun testJdbcConnection(user: JdbcUser): Boolean = integrationDisabled()
-    fun testJdbcConnection(id: String): Boolean = integrationDisabled()
+    fun testJdbcConnection(user: JdbcUser): ConnectionVerificationResponse = integrationDisabled()
+    fun testJdbcConnection(id: String): ConnectionVerificationResponse = integrationDisabled()
     fun createDatabaseSchema(input: SchemaCreationRequest): DatabaseSchemaResource = integrationDisabled()
 
     private fun integrationDisabled(): Nothing =
@@ -190,10 +191,10 @@ class DatabaseServiceBlocking(private val databaseService: DatabaseServiceReacti
         databaseService.deleteDatabaseSchemas(input).collectList().blockNonNullWithTimeout()
 
     override fun testJdbcConnection(user: JdbcUser) =
-        databaseService.testJdbcConnection(user = user).blockNonNullWithTimeout()
+            databaseService.testJdbcConnection(user = user).blockNonNullWithTimeout()
 
     override fun testJdbcConnection(id: String) =
-        databaseService.testJdbcConnection(id = id).blockNonNullWithTimeout()
+            databaseService.testJdbcConnection(id = id).blockNonNullWithTimeout()
 
     override fun createDatabaseSchema(input: SchemaCreationRequest) =
         databaseService.createDatabaseSchema(input).blockNonNullWithTimeout()
