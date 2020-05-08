@@ -1,15 +1,21 @@
 query getRoute($namespace: String!, $name: String!) {
     route(namespace: $namespace, name: $name) {
-       progressions {
+       websealJobs {
          id
          payload
-         objectname
-         namespace
          type
          operation
          status
          updated
          errorMessage
        }
-    }
+       bigipJobs {
+         id
+         payload
+         type
+         operation
+         status
+         updated
+         errorMessage
+       }
 }

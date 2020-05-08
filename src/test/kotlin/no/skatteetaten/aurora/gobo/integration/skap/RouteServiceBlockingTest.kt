@@ -4,7 +4,7 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import io.mockk.every
 import io.mockk.mockk
-import no.skatteetaten.aurora.gobo.ProgressionBuilder
+import no.skatteetaten.aurora.gobo.SkapJobBuilder
 import no.skatteetaten.aurora.gobo.integration.containsAuroraToken
 import no.skatteetaten.aurora.gobo.security.SharedSecretReader
 import no.skatteetaten.aurora.gobo.testObjectMapper
@@ -24,10 +24,10 @@ class RouteServiceBlockingTest {
 
     @Test
     fun `get progressions`() {
-        val progression = ProgressionBuilder().build()
+        val progression = SkapJobBuilder().build()
         val request = server.execute(listOf(progression, progression), objectMapper = testObjectMapper()) {
             val jobs = jobService.getProgressions("dev", "app")
-            assertThat(Route(jobs).progressions.size).isEqualTo((2))
+            assertThat(jobs.size).isEqualTo((2))
         }.first()
 
         assertThat(request).containsAuroraToken()

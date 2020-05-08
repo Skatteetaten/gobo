@@ -19,11 +19,18 @@ query getApplicationDeployment($id: String!) {
       }
     }
     route {
-       progressions {
+       websealJobs {
          id
          payload
-         objectname
-         namespace
+         type
+         operation
+         status
+         updated
+         errorMessage
+       }
+       bigipJobs {
+         id
+         payload
          type
          operation
          status

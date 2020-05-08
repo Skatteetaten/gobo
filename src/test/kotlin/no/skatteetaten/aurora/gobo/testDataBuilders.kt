@@ -38,7 +38,7 @@ import no.skatteetaten.aurora.gobo.integration.mokey.VersionResource
 import no.skatteetaten.aurora.gobo.integration.mokey.addAll
 import no.skatteetaten.aurora.gobo.integration.skap.Acl
 import no.skatteetaten.aurora.gobo.integration.skap.Certificate
-import no.skatteetaten.aurora.gobo.integration.skap.Progression
+import no.skatteetaten.aurora.gobo.integration.skap.SkapJob
 import no.skatteetaten.aurora.gobo.integration.skap.WebsealStateResource
 import no.skatteetaten.aurora.gobo.integration.unclematt.ProbeResult
 import no.skatteetaten.aurora.gobo.integration.unclematt.ProbeStatus
@@ -480,14 +480,12 @@ data class WebsealStateResourceBuilder(val namespace: String = "test") {
     )
 }
 
-data class ProgressionBuilder(val namespace: String = "namespace", val name: String = "name") {
+data class SkapJobBuilder(val namespace: String = "namespace", val name: String = "name") {
 
     fun build() =
-        Progression(
+        SkapJob(
             id = "54523",
-            payload = "{'cluster': 'utv'}",
-            objectname = "$name-weseal",
-            namespace = namespace,
+            payload = "{\"cluster\":\"target.utv.paas.skead.no\",\"roles\":[],\"host\":\"testing.amutv.skead.no\",\"namespace\":\"testing-utv\",\"routeName\":\"test-webseal\"}",
             type = "websealv2",
             operation = "CREATEORUPDATE",
             status = "DONE",
