@@ -7,7 +7,6 @@ import graphql.schema.DataFetchingEnvironment
 import no.skatteetaten.aurora.gobo.integration.boober.ApplicationDeploymentService
 import no.skatteetaten.aurora.gobo.integration.boober.DeleteApplicationDeploymentInput
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
-import no.skatteetaten.aurora.gobo.integration.skap.Route
 import no.skatteetaten.aurora.gobo.integration.skap.RouteService
 import no.skatteetaten.aurora.gobo.resolvers.AccessDeniedException
 import no.skatteetaten.aurora.gobo.resolvers.affiliation.Affiliation
@@ -87,10 +86,15 @@ class ApplicationDeploymentResolver(
     ): Route? {
         if (dfe.isAnonymousUser()) throw AccessDeniedException("Anonymous user cannot get WebSEAL/BigIp progressions")
         return Route(
-            progressions = routeService.getProgressions(
+            websealJobs =
+            routeService.getProgressions(
                 namespace(applicationDeployment).name,
                 "${applicationDeployment.name}-webseal"
-            )
+            ).map { WebsealJob.create(it) },
+            bigipJobs = routeService.getProgressions(
+                namespace(applicationDeployment).name,
+                applicationDeployment.name
+            ).map { BigipJob.create(it) }
         )
     }
 

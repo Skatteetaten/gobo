@@ -1,9 +1,12 @@
 package no.skatteetaten.aurora.gobo.resolvers.applicationdeployment
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import java.time.Instant
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationResource
 import no.skatteetaten.aurora.gobo.integration.mokey.StatusCheckResource
+import no.skatteetaten.aurora.gobo.integration.skap.SkapJob
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageTag
 
@@ -17,6 +20,105 @@ data class Status(
 )
 
 data class Version(val deployTag: ImageTag, val auroraVersion: String?, val releaseTo: String?)
+
+data class Route(
+    val websealJobs: List<WebsealJob> = emptyList(),
+    val bigipJobs: List<BigipJob> = emptyList()
+)
+
+data class WebsealJob(
+    val id: String,
+    val payload: String,
+    val type: String,
+    val operation: String,
+    val status: String,
+    val updated: String,
+    val errorMessage: String? = null,
+    val roles: String? = null,
+    val host: String? = null
+) {
+
+    companion object {
+
+        fun create(skapJob: SkapJob): WebsealJob {
+            val mapper = ObjectMapper()
+/*
+            val payload: JsonNode = mapper.readTree(skapJob.payload)
+            val json: JsonObject = Parser().parse(jsonData) as JsonObject
+*/
+
+            val payload = mapper.readValue<Map<String, String>>(skapJob.payload)
+            val roles: String by payload.withDefault { null }
+            val host: String by payload.withDefault { null }
+
+            return WebsealJob(
+                id = skapJob.id,
+                payload = skapJob.payload,
+                type = skapJob.type,
+                operation = skapJob.operation,
+                status = skapJob.status,
+                updated = skapJob.updated,
+                errorMessage = skapJob.errorMessage,
+                roles = roles,
+                host = host
+            )
+        }
+    }
+}
+
+data class BigipJob(
+    val id: String,
+    val payload: String,
+    val type: String,
+    val operation: String,
+    val status: String,
+    val updated: String,
+    val errorMessage: String? = null,
+    val roles: String? = null,
+    val host: String? = null,
+    val asmPolicy: String? = null,
+    val externalHost: String? = null,
+    val apiPaths: String? = null,
+    val oauthScopes: String? = null,
+    val hostname: String? = null,
+    val serviceName: String? = null
+) {
+
+    companion object {
+
+        fun create(skapJob: SkapJob): BigipJob {
+            val mapper = ObjectMapper()
+/*
+            val payload: JsonNode = mapper.readTree(skapJob.payload)
+            val json: JsonObject = Parser().parse(jsonData) as JsonObject
+*/
+
+            val payload = mapper.readValue<Map<String, String>>(skapJob.payload)
+            val asmPolicy: String by payload.withDefault { null }
+            val externalHost: String by payload.withDefault { null }
+            val apiPaths: String by payload.withDefault { null }
+            val oauthScopes: String by payload.withDefault { null }
+            val hostname: String by payload.withDefault { null }
+            val serviceName: String by payload.withDefault { null }
+
+            return BigipJob(
+                id = skapJob.id,
+                payload = skapJob.payload,
+                type = skapJob.type,
+                operation = skapJob.operation,
+                status = skapJob.status,
+                updated = skapJob.updated,
+                errorMessage = skapJob.errorMessage,
+                asmPolicy = asmPolicy,
+                externalHost = externalHost,
+                apiPaths = apiPaths,
+                oauthScopes = oauthScopes,
+                hostname = hostname,
+                serviceName = serviceName
+            )
+        }
+    }
+}
 
 data class ApplicationDeployment(
     val id: String,

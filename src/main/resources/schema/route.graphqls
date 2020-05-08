@@ -1,15 +1,35 @@
-type Progression {
+type WebsealJob{
   id: String!,
   payload: String!,
-  objectname: String!,
-  namespace: String!,
   type: String!,
   operation: String!,
   status: String!,
   updated: String!,
-  errorMessage: String
+  errorMessage: String,
+  roles: String,
+  host: String
+}
+
+
+type BigipJob{
+  id: String!,
+  payload: String!,
+  type: String!,
+  operation: String!,
+  status: String!,
+  updated: String!,
+  errorMessage: String,
+  roles: String,
+  host: String,
+  asmPolicy: String,
+  externalHost: String,
+  apiPaths: String,
+  oauthScopes: String,
+  hostname: String,
+  serviceName: String
 }
 
 type Route {
- progressions: [Progression]!
+ websealJobs: [WebsealJob]!
+ bigipJobs: [BigipJob]!
 }

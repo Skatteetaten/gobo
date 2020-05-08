@@ -18,15 +18,9 @@ data class WebsealStateResource(
     val routeName: String
 )
 
-data class Route(
-    val progressions: List<Progression> = emptyList()
-)
-
-data class Progression(
+data class SkapJob(
     val id: String,
     val payload: String,
-    val objectname: String,
-    val namespace: String,
     val type: String,
     val operation: String,
     val status: String,
