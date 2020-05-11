@@ -5,7 +5,6 @@ import io.mockk.every
 import no.skatteetaten.aurora.gobo.SkapJobBuilder
 import no.skatteetaten.aurora.gobo.integration.skap.RouteService
 import no.skatteetaten.aurora.gobo.resolvers.GraphQLTestWithDbhAndSkap
-import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.Route
 import no.skatteetaten.aurora.gobo.resolvers.graphqlData
 import no.skatteetaten.aurora.gobo.resolvers.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
@@ -22,13 +21,14 @@ class RouteQueryResolverTest : GraphQLTestWithDbhAndSkap() {
     private lateinit var routeService: RouteService
 
     @MockkBean
-    private  lateinit var routeQueryResolver: RouteQueryResolver
+    private lateinit var routeQueryResolver: RouteQueryResolver
 
     @Test
-    fun `get progressions for app`() {
+    fun `get jobs for app`() {
 
         val job = SkapJobBuilder().build()
-        every { routeService.getProgressions("namespace", "name") } returns listOf(job)
+        every { routeService.getSkapJobs("namespace", "name") } returns listOf(job)
+        every { routeService.getSkapJobs("namespace", "name-webseal") } returns listOf(job)
 
         webTestClient.queryGraphQL(
             queryResource = getRoute,

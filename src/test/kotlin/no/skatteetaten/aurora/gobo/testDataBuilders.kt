@@ -44,8 +44,10 @@ import no.skatteetaten.aurora.gobo.integration.unclematt.ProbeResult
 import no.skatteetaten.aurora.gobo.integration.unclematt.ProbeStatus
 import no.skatteetaten.aurora.gobo.integration.unclematt.Result
 import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.ApplicationDeployment
+import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.BigipJob
 import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.Status
 import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.Version
+import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.WebsealJob
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageTag
 import org.intellij.lang.annotations.Language
@@ -478,6 +480,34 @@ data class WebsealStateResourceBuilder(val namespace: String = "test") {
             )
         )
     )
+}
+
+data class WebsealJobBuilder(val namespace: String = "namespace", val name: String = "name") {
+
+    fun build() =
+        WebsealJob(
+            id = "54523",
+            payload = "{\"cluster\":\"target.utv.paas.skead.no\",\"roles\":[],\"host\":\"testing.amutv.skead.no\",\"namespace\":\"testing-utv\",\"routeName\":\"test-webseal\"}",
+            type = "websealv2",
+            operation = "CREATEORUPDATE",
+            status = "DONE",
+            updated = "2019-10-17T09:17:15.547788+02:00",
+            errorMessage = null
+        )
+}
+
+data class BigipBuilder(val namespace: String = "namespace", val name: String = "name") {
+
+    fun build() =
+        BigipJob(
+            id = "54523",
+            payload = "{\"cluster\":\"target.utv.paas.skead.no\",\"roles\":[],\"host\":\"testing.amutv.skead.no\",\"namespace\":\"testing-utv\",\"routeName\":\"test-webseal\"}",
+            type = "websealv2",
+            operation = "CREATEORUPDATE",
+            status = "DONE",
+            updated = "2019-10-17T09:17:15.547788+02:00",
+            errorMessage = null
+        )
 }
 
 data class SkapJobBuilder(val namespace: String = "namespace", val name: String = "name") {

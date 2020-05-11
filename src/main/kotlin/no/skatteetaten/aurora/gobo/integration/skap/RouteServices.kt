@@ -22,7 +22,7 @@ class RouteServiceReactive(
     private val sharedSecretReader: SharedSecretReader,
     @TargetService(ServiceTypes.SKAP) private val webClient: WebClient
 ) {
-    fun getProgressions(namespace: String, name: String): Mono<List<SkapJob>> =
+    fun getSkapJobs(namespace: String, name: String): Mono<List<SkapJob>> =
         webClient
             .get()
             .uri {
@@ -34,7 +34,7 @@ class RouteServiceReactive(
 }
 
 interface RouteService {
-    fun getProgressions(namespace: String, name: String): List<SkapJob> = integrationDisabled()
+    fun getSkapJobs(namespace: String, name: String): List<SkapJob> = integrationDisabled()
 
     private fun integrationDisabled(): Nothing =
         throw IntegrationDisabledException("Skap integration is disabled for this environment")
@@ -43,8 +43,8 @@ interface RouteService {
 @Service
 @ConditionalOnBean(RequiresSkap::class)
 class RouteServiceBlocking(private val routeService: RouteServiceReactive) : RouteService {
-    override fun getProgressions(namespace: String, name: String) =
-        routeService.getProgressions(namespace, name).blockNonNullWithTimeout()
+    override fun getSkapJobs(namespace: String, name: String) =
+        routeService.getSkapJobs(namespace, name).blockNonNullWithTimeout()
 
     fun <T> Mono<T>.blockNonNullWithTimeout() = this.blockNonNullAndHandleError(Duration.ofSeconds(30), "skap")
 }

@@ -39,7 +39,8 @@ class ApplicationDeploymentQueryResolverTest : GraphQLTestWithDbhAndSkap() {
             msg = "Hei"
         ).build()
 
-        every { routeService.getProgressions(any(), any()) } returns listOf(SkapJobBuilder().build())
+        every { routeService.getSkapJobs(any(), any()) } returns listOf(SkapJobBuilder().build())
+        every { routeService.getSkapJobs("namespace", "name-webseal") } returns listOf(SkapJobBuilder().build())
         every { imageRegistryService.findTagsByName(any(), any()) } returns AuroraResponse(
             listOf(
                 ImageTagResourceBuilder().build()

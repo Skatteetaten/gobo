@@ -22,8 +22,8 @@ class RouteQueryResolver(
     ): Route {
         if (dfe.isAnonymousUser()) throw AccessDeniedException("Anonymous user cannot get WebSEAL/BigIp progressions")
         return Route(
-            websealJobs = routeService.getProgressions(namespace, "$name-webseal").map { WebsealJob.create(it) },
-            bigipJobs = routeService.getProgressions(namespace, name).map { BigipJob.create(it) }
+            websealJobs = routeService.getSkapJobs(namespace, "$name-webseal").map { WebsealJob.create(it) },
+            bigipJobs = routeService.getSkapJobs(namespace, name).map { BigipJob.create(it) }
         )
     }
 }

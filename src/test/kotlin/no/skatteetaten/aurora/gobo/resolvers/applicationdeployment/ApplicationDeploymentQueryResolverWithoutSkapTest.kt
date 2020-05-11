@@ -40,7 +40,7 @@ class ApplicationDeploymentQueryResolverWithoutSkapTest : GraphQLTestWithoutDbhA
         ).build()
 
         every {
-            routeService.getProgressions(
+            routeService.getSkapJobs(
                 any(),
                 any()
             )

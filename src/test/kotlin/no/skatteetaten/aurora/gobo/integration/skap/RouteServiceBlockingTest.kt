@@ -23,10 +23,10 @@ class RouteServiceBlockingTest {
     )
 
     @Test
-    fun `get progressions`() {
-        val progression = SkapJobBuilder().build()
-        val request = server.execute(listOf(progression, progression), objectMapper = testObjectMapper()) {
-            val jobs = jobService.getProgressions("dev", "app")
+    fun `get jobs`() {
+        val job = SkapJobBuilder().build()
+        val request = server.execute(listOf(job, job), objectMapper = testObjectMapper()) {
+            val jobs = jobService.getSkapJobs("dev", "app")
             assertThat(jobs.size).isEqualTo((2))
         }.first()
 
