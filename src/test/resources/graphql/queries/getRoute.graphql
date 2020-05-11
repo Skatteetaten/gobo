@@ -18,4 +18,5 @@ query getRoute($namespace: String!, $name: String!) {
          updated
          errorMessage
        }
+    }
 }
