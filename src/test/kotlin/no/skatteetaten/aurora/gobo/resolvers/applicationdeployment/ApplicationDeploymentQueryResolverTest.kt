@@ -4,7 +4,8 @@ import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentResourceBuilder
 import no.skatteetaten.aurora.gobo.ImageTagResourceBuilder
-import no.skatteetaten.aurora.gobo.SkapJobBuilder
+import no.skatteetaten.aurora.gobo.SkapJobForBigipBuilder
+import no.skatteetaten.aurora.gobo.SkapJobForWebsealBuilder
 import no.skatteetaten.aurora.gobo.integration.cantus.AuroraResponse
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageRegistryServiceBlocking
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
@@ -39,8 +40,10 @@ class ApplicationDeploymentQueryResolverTest : GraphQLTestWithDbhAndSkap() {
             msg = "Hei"
         ).build()
 
-        every { routeService.getSkapJobs(any(), any()) } returns listOf(SkapJobBuilder().build())
-        every { routeService.getSkapJobs("namespace", "name-webseal") } returns listOf(SkapJobBuilder().build())
+        val websealjob = SkapJobForWebsealBuilder().build()
+        val bigipJob = SkapJobForBigipBuilder().build()
+        every { routeService.getSkapJobs("namespace", "name-webseal") } returns listOf(websealjob)
+        every { routeService.getSkapJobs("namespace", "name") } returns listOf(bigipJob)
         every { imageRegistryService.findTagsByName(any(), any()) } returns AuroraResponse(
             listOf(
                 ImageTagResourceBuilder().build()
@@ -59,7 +62,6 @@ class ApplicationDeploymentQueryResolverTest : GraphQLTestWithDbhAndSkap() {
                 graphqlData("status.reports").exists()
                 graphqlData("status.reasons").exists()
                 graphqlData("message").exists()
-                graphqlData("route.progressions[0].id").isEqualTo("54523")
             }
             .graphqlDoesNotContainErrors()
     }

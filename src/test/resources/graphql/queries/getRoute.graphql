@@ -8,6 +8,7 @@ query getRoute($namespace: String!, $name: String!) {
          status
          updated
          errorMessage
+         host
        }
        bigipJobs {
          id

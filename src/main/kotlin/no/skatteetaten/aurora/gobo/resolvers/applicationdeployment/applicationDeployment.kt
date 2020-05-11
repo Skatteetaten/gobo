@@ -34,7 +34,7 @@ data class WebsealJob(
     val status: String,
     val updated: String,
     val errorMessage: String? = null,
-    val roles: String? = null,
+    val roles: List<String>? = null,
     val host: String? = null
 ) {
 
@@ -47,8 +47,8 @@ data class WebsealJob(
             val json: JsonObject = Parser().parse(jsonData) as JsonObject
 */
 
-            val payload = mapper.readValue<Map<String, String>>(skapJob.payload)
-            val roles: String by payload.withDefault { null }
+            val payload = mapper.readValue<Map<String, Any>>(skapJob.payload)
+            val roles: List<String> by payload.withDefault { emptyList<String>() }
             val host: String by payload.withDefault { null }
 
             return WebsealJob(
@@ -74,12 +74,10 @@ data class BigipJob(
     val status: String,
     val updated: String,
     val errorMessage: String? = null,
-    val roles: String? = null,
-    val host: String? = null,
     val asmPolicy: String? = null,
     val externalHost: String? = null,
-    val apiPaths: String? = null,
-    val oauthScopes: String? = null,
+    val apiPaths: List<String>? = null,
+    val oauthScopes: List<String>? = null,
     val hostname: String? = null,
     val serviceName: String? = null
 ) {
@@ -93,11 +91,11 @@ data class BigipJob(
             val json: JsonObject = Parser().parse(jsonData) as JsonObject
 */
 
-            val payload = mapper.readValue<Map<String, String>>(skapJob.payload)
+            val payload = mapper.readValue<Map<String, Any>>(skapJob.payload)
             val asmPolicy: String by payload.withDefault { null }
             val externalHost: String by payload.withDefault { null }
-            val apiPaths: String by payload.withDefault { null }
-            val oauthScopes: String by payload.withDefault { null }
+            val apiPaths: List<String> by payload.withDefault { emptyList<String>() }
+            val oauthScopes: List<String> by payload.withDefault { emptyList<String>() }
             val hostname: String by payload.withDefault { null }
             val serviceName: String by payload.withDefault { null }
 

@@ -19,8 +19,6 @@ type BigipJob{
   status: String!,
   updated: String!,
   errorMessage: String,
-  roles: String,
-  host: String,
   asmPolicy: String,
   externalHost: String,
   apiPaths: String,

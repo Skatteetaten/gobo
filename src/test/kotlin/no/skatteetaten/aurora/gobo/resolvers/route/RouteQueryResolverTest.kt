@@ -2,10 +2,12 @@ package no.skatteetaten.aurora.gobo.resolvers.route
 
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
-import no.skatteetaten.aurora.gobo.SkapJobBuilder
+import no.skatteetaten.aurora.gobo.SkapJobForBigipBuilder
+import no.skatteetaten.aurora.gobo.SkapJobForWebsealBuilder
 import no.skatteetaten.aurora.gobo.integration.skap.RouteService
 import no.skatteetaten.aurora.gobo.resolvers.GraphQLTestWithDbhAndSkap
-import no.skatteetaten.aurora.gobo.resolvers.printResult
+import no.skatteetaten.aurora.gobo.resolvers.graphqlData
+import no.skatteetaten.aurora.gobo.resolvers.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
@@ -22,9 +24,10 @@ class RouteQueryResolverTest : GraphQLTestWithDbhAndSkap() {
     @Test
     fun `get jobs for app`() {
 
-        val job = SkapJobBuilder().build()
-        every { routeService.getSkapJobs("namespace", "name") } returns listOf(job)
-        every { routeService.getSkapJobs("namespace", "name-webseal") } returns listOf(job)
+        val websealjob = SkapJobForWebsealBuilder().build()
+        val bigipJob = SkapJobForBigipBuilder().build()
+        every { routeService.getSkapJobs("namespace", "name-webseal") } returns listOf(websealjob)
+        every { routeService.getSkapJobs("namespace", "name") } returns listOf(bigipJob)
 
         webTestClient.queryGraphQL(
             queryResource = getRoute,
@@ -33,8 +36,9 @@ class RouteQueryResolverTest : GraphQLTestWithDbhAndSkap() {
         )
             .expectStatus().isOk
             .expectBody()
-            //.graphqlData("route.websealJobs[0].id").isNotEmpty()
-            //.graphqlDoesNotContainErrors()
-            .printResult()
+            .graphqlData("route.websealJobs[0].id").isNotEmpty()
+            .graphqlData("route.websealJobs[0].host").isNotEmpty()
+            .graphqlData("route.bigipJobs[0].id").isNotEmpty()
+            .graphqlDoesNotContainErrors()
     }
 }
