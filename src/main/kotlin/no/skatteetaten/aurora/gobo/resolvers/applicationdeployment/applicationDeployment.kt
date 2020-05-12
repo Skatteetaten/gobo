@@ -35,21 +35,19 @@ data class WebsealJob(
     val updated: String,
     val errorMessage: String? = null,
     val roles: List<String>? = null,
-    val host: String? = null
+    val host: String? = null,
+    val routeName: String? = null
 ) {
 
     companion object {
 
         fun create(skapJob: SkapJob): WebsealJob {
             val mapper = ObjectMapper()
-/*
-            val payload: JsonNode = mapper.readTree(skapJob.payload)
-            val json: JsonObject = Parser().parse(jsonData) as JsonObject
-*/
 
             val payload = mapper.readValue<Map<String, Any>>(skapJob.payload)
             val roles: List<String> by payload.withDefault { emptyList<String>() }
             val host: String by payload.withDefault { null }
+            val routeName: String by payload.withDefault { null }
 
             return WebsealJob(
                 id = skapJob.id,
@@ -60,7 +58,8 @@ data class WebsealJob(
                 updated = skapJob.updated,
                 errorMessage = skapJob.errorMessage,
                 roles = roles,
-                host = host
+                host = host,
+                routeName = routeName
             )
         }
     }
@@ -86,10 +85,6 @@ data class BigipJob(
 
         fun create(skapJob: SkapJob): BigipJob {
             val mapper = ObjectMapper()
-/*
-            val payload: JsonNode = mapper.readTree(skapJob.payload)
-            val json: JsonObject = Parser().parse(jsonData) as JsonObject
-*/
 
             val payload = mapper.readValue<Map<String, Any>>(skapJob.payload)
             val asmPolicy: String by payload.withDefault { null }

@@ -529,8 +529,8 @@ data class SkapJobForBigipBuilder(val namespace: String = "namespace", val name:
     fun build() =
         SkapJob(
             id = "54523",
-            payload = "{\"asmPolicy\":\"folkeregisteret-get\",\"externalHost\":\"mp-test.sits.no\",\"apiPaths\":[\"/folkeregisteret/offentlig-med-hjemmel/api/\"],\"oauthScopes\":[\"skatteetaten:medhjemmel\",\"folkeregister:deling/offentligmedhjemmel.konsument\",\"skatteetaten:deling/offentligmedhjemmel.konsument\"],\"hostname\":\"rp-off-med-hjemmel-folk-konsument-playground.utv.paas.skead.no\",\"namespace\":\"folk-konsument-playground\",\"name\":\"rp-off-med-hjemmel\",\"clusterEnvironment\":\"utv\",\"clusterType\":\"MAIN\",\"affiliation\":\"folk\",\"serviceName\":\"folkeregisteret-offentlig-med-hjemmel\"}",
-            type = "websealv2",
+            payload = "{\"asmPolicy\":\"testing-get\",\"externalHost\":\"testingtesting.no\",\"apiPaths\":[\"/testing/api/\"],\"oauthScopes\":[\"test1\",\"test2\",\"test3\"],\"hostname\":\"testing.no\",\"namespace\":\"paas-dev\",\"name\":\"testing\",\"clusterEnvironment\":\"utvikling\",\"clusterType\":\"MAIN\",\"affiliation\":\"folk\",\"serviceName\":\"testing\"}",
+            type = "bigipexternal",
             operation = "CREATEORUPDATE",
             status = "DONE",
             updated = "2019-10-17T09:17:15.547788+02:00",
