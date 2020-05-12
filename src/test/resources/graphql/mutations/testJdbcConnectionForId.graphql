@@ -1,3 +1,6 @@
 mutation testJdbcConnectionForId($id: String!){
-    testJdbcConnectionForId(id: $id)
+    testJdbcConnectionForId(id: $id){
+        hasSucceeded
+        message
+    }
 }

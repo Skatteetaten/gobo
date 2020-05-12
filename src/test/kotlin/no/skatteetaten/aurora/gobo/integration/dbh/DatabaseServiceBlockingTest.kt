@@ -30,6 +30,7 @@ import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.integration.containsAuroraToken
 import no.skatteetaten.aurora.gobo.integration.containsAuroraTokens
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseServiceReactive.Companion.HEADER_COOLDOWN_DURATION_HOURS
+import no.skatteetaten.aurora.gobo.resolvers.database.ConnectionVerificationResponse
 import no.skatteetaten.aurora.gobo.security.SharedSecretReader
 import no.skatteetaten.aurora.gobo.testObjectMapper
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.bodyAsObject
@@ -193,10 +194,10 @@ class DatabaseServiceBlockingTest {
     @Test
     fun `Test jdbc connection for jdbcUser`() {
         val jdbcUser = JdbcUserBuilder().build()
-        val response = DbhResponse.ok(true)
+        val response = DbhResponse.ok(ConnectionVerificationResponse(hasSucceeded = true))
         val request = server.execute(response) {
             val success = databaseService.testJdbcConnection(jdbcUser)
-            assertThat(success).isTrue()
+            assertThat(success.hasSucceeded).isTrue()
         }.first()
 
         val requestJdbcUser = request?.bodyAsObject<JdbcUser>("$.jdbcUser")
@@ -208,10 +209,10 @@ class DatabaseServiceBlockingTest {
 
     @Test
     fun `Test jdbc connection for id`() {
-        val response = DbhResponse.ok(true)
+        val response = DbhResponse.ok(ConnectionVerificationResponse(hasSucceeded = true))
         val request = server.execute(response) {
             val success = databaseService.testJdbcConnection("123")
-            assertThat(success).isTrue()
+            assertThat(success.hasSucceeded).isTrue()
         }.first()
 
         val requestId = request?.bodyAsObject<String>("$.id")
@@ -223,10 +224,10 @@ class DatabaseServiceBlockingTest {
 
     @Test
     fun `Test jdbc connection for id given failing connection`() {
-        val response = DbhResponse.ok(false)
+        val response = DbhResponse.ok(ConnectionVerificationResponse(hasSucceeded = false))
         server.execute(response) {
             val success = databaseService.testJdbcConnection("123")
-            assertThat(success).isFalse()
+            assertThat(success.hasSucceeded).isFalse()
         }
     }
 
