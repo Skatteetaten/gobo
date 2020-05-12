@@ -4,9 +4,6 @@ import com.coxautodev.graphql.tools.GraphQLQueryResolver
 import graphql.schema.DataFetchingEnvironment
 import no.skatteetaten.aurora.gobo.integration.skap.RouteService
 import no.skatteetaten.aurora.gobo.resolvers.AccessDeniedException
-import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.BigipJob
-import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.Route
-import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.WebsealJob
 import no.skatteetaten.aurora.gobo.security.isAnonymousUser
 import org.springframework.stereotype.Component
 

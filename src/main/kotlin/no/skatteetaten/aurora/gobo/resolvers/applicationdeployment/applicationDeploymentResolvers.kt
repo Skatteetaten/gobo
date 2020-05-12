@@ -17,6 +17,9 @@ import no.skatteetaten.aurora.gobo.resolvers.applicationdeploymentdetails.Applic
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository
 import no.skatteetaten.aurora.gobo.resolvers.loader
 import no.skatteetaten.aurora.gobo.resolvers.namespace.Namespace
+import no.skatteetaten.aurora.gobo.resolvers.route.BigipJob
+import no.skatteetaten.aurora.gobo.resolvers.route.Route
+import no.skatteetaten.aurora.gobo.resolvers.route.WebsealJob
 import no.skatteetaten.aurora.gobo.security.currentUser
 import no.skatteetaten.aurora.gobo.security.isAnonymousUser
 import no.skatteetaten.aurora.gobo.service.ApplicationUpgradeService
