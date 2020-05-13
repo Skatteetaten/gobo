@@ -87,7 +87,7 @@ class ApplicationDeploymentResolver(
         applicationDeployment: ApplicationDeployment,
         dfe: DataFetchingEnvironment
     ): Route? {
-        if (dfe.isAnonymousUser()) throw AccessDeniedException("Anonymous user cannot get WebSEAL/BigIp progressions")
+        if (dfe.isAnonymousUser()) throw AccessDeniedException("Anonymous user cannot get WebSEAL/BigIp jobs")
         return Route(
             websealJobs =
             routeService.getSkapJobs(
@@ -96,7 +96,7 @@ class ApplicationDeploymentResolver(
             ).map { WebsealJob.create(it) },
             bigipJobs = routeService.getSkapJobs(
                 namespace(applicationDeployment).name,
-                applicationDeployment.name
+                "${applicationDeployment.name}-bigip"
             ).map { BigipJob.create(it) }
         )
     }

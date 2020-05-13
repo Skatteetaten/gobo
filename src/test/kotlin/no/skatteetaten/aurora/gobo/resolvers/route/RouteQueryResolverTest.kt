@@ -27,7 +27,7 @@ class RouteQueryResolverTest : GraphQLTestWithDbhAndSkap() {
         val websealjob = SkapJobForWebsealBuilder().build()
         val bigipJob = SkapJobForBigipBuilder().build()
         every { routeService.getSkapJobs("namespace", "name-webseal") } returns listOf(websealjob)
-        every { routeService.getSkapJobs("namespace", "name") } returns listOf(bigipJob)
+        every { routeService.getSkapJobs("namespace", "name-bigip") } returns listOf(bigipJob)
 
         webTestClient.queryGraphQL(
             queryResource = getRoute,
