@@ -484,8 +484,8 @@ data class SkapJobForWebsealBuilder(val namespace: String = "namespace", val nam
 
     fun build() =
         SkapJob(
-            id = "54523",
-            payload = "{\"cluster\":\"target.utv.paas.skead.no\",\"roles\":[],\"host\":\"testing.amutv.skead.no\",\"namespace\":\"testing-utv\",\"routeName\":\"test-webseal\"}",
+            id = "75745",
+            payload = "{\"cluster\":\"target.utv.paas.skead.no\",\"roles\":[],\"host\":\"testing.test.no\",\"namespace\":\"testing-utv\",\"routeName\":\"test-webseal\"}",
             type = "websealv2",
             operation = "CREATEORUPDATE",
             status = "DONE",
@@ -498,7 +498,7 @@ data class SkapJobForBigipBuilder(val namespace: String = "namespace", val name:
 
     fun build() =
         SkapJob(
-            id = "54523",
+            id = "465774",
             payload = "{\"asmPolicy\":\"testing-get\",\"externalHost\":\"testingtesting.no\",\"apiPaths\":[\"/testing/api/\"],\"oauthScopes\":[\"test1\",\"test2\",\"test3\"],\"hostname\":\"testing.no\",\"namespace\":\"paas-dev\",\"name\":\"testing\",\"clusterEnvironment\":\"utvikling\",\"clusterType\":\"MAIN\",\"affiliation\":\"folk\",\"serviceName\":\"testing\"}",
             type = "bigipexternal",
             operation = "CREATEORUPDATE",

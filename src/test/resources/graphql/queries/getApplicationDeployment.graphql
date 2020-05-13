@@ -27,6 +27,7 @@ query getApplicationDeployment($id: String!) {
          status
          updated
          errorMessage
+         host
        }
        bigipJobs {
          id
@@ -36,6 +37,7 @@ query getApplicationDeployment($id: String!) {
          status
          updated
          errorMessage
+         asmPolicy
        }
     }
   }

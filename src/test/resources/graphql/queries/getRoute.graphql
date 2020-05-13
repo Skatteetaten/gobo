@@ -18,6 +18,7 @@ query getRoute($namespace: String!, $name: String!) {
          status
          updated
          errorMessage
+         asmPolicy
        }
     }
 }

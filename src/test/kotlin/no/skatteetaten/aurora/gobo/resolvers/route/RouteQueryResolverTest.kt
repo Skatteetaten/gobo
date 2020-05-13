@@ -36,9 +36,10 @@ class RouteQueryResolverTest : GraphQLTestWithDbhAndSkap() {
         )
             .expectStatus().isOk
             .expectBody()
-            .graphqlData("route.websealJobs[0].id").isNotEmpty()
-            .graphqlData("route.websealJobs[0].host").isNotEmpty()
-            .graphqlData("route.bigipJobs[0].id").isNotEmpty()
+            .graphqlData("route.websealJobs[0].id").isEqualTo("75745")
+            .graphqlData("route.websealJobs[0].host").isEqualTo("testing.test.no")
+            .graphqlData("route.bigipJobs[0].id").isEqualTo("465774")
+            .graphqlData("route.bigipJobs[0].asmPolicy").isEqualTo("testing-get")
             .graphqlDoesNotContainErrors()
     }
 }

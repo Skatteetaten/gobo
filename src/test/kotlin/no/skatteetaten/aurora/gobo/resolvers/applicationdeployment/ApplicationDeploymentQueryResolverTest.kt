@@ -62,6 +62,10 @@ class ApplicationDeploymentQueryResolverTest : GraphQLTestWithDbhAndSkap() {
                 graphqlData("status.reports").exists()
                 graphqlData("status.reasons").exists()
                 graphqlData("message").exists()
+                graphqlData("route.websealJobs[0].id").isEqualTo("75745")
+                graphqlData("route.websealJobs[0].host").isEqualTo("testing.test.no")
+                graphqlData("route.bigipJobs[0].id").isEqualTo("465774")
+                graphqlData("route.bigipJobs[0].asmPolicy").isEqualTo("testing-get")
             }
             .graphqlDoesNotContainErrors()
     }
