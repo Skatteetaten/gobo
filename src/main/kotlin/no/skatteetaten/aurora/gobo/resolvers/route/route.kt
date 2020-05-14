@@ -16,10 +16,10 @@ data class WebsealJob(
     val operation: String,
     val status: String,
     val updated: String,
-    val errorMessage: String? = null,
-    val roles: List<String>? = null,
-    val host: String? = null,
-    val routeName: String? = null
+    val errorMessage: String?,
+    val roles: List<String>?,
+    val host: String?,
+    val routeName: String?
 ) {
 
     companion object {
@@ -55,13 +55,13 @@ data class BigipJob(
     val operation: String,
     val status: String,
     val updated: String,
-    val errorMessage: String? = null,
-    val asmPolicy: String? = null,
-    val externalHost: String? = null,
-    val apiPaths: List<String>? = null,
-    val oauthScopes: List<String>? = null,
-    val hostname: String? = null,
-    val serviceName: String? = null
+    val errorMessage: String?,
+    val asmPolicy: String?,
+    val externalHost: String?,
+    val apiPaths: List<String>?,
+    val oauthScopes: List<String>?,
+    val hostname: String?,
+    val serviceName: String?
 ) {
 
     companion object {
