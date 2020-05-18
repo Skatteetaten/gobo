@@ -6,7 +6,7 @@ type WebsealJob{
   status: String!,
   updated: String!,
   errorMessage: String,
-  roles: [String]!,
+  roles: String,
   host: String,
   routeName: String
 }
