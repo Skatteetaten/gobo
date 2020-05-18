@@ -61,7 +61,8 @@ data class BigipJob(
     val apiPaths: List<String>?,
     val oauthScopes: List<String>?,
     val hostname: String?,
-    val serviceName: String?
+    val serviceName: String?,
+    val name: String?
 ) {
 
     companion object {
@@ -76,6 +77,7 @@ data class BigipJob(
             val oauthScopes: List<String> by payload.withDefault { emptyList<String>() }
             val hostname: String by payload.withDefault { null }
             val serviceName: String by payload.withDefault { null }
+            val name: String by payload.withDefault { null }
 
             return BigipJob(
                 id = skapJob.id,
@@ -90,7 +92,8 @@ data class BigipJob(
                 apiPaths = apiPaths,
                 oauthScopes = oauthScopes,
                 hostname = hostname,
-                serviceName = serviceName
+                serviceName = serviceName,
+                name = name
             )
         }
     }

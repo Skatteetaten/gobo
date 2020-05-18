@@ -6,7 +6,7 @@ type WebsealJob{
   status: String!,
   updated: String!,
   errorMessage: String,
-  roles: String,
+  roles: [String]!,
   host: String,
   routeName: String
 }
@@ -22,10 +22,11 @@ type BigipJob{
   errorMessage: String,
   asmPolicy: String,
   externalHost: String,
-  apiPaths: String,
-  oauthScopes: String,
+  apiPaths: [String]!,
+  oauthScopes: [String]!,
   hostname: String,
-  serviceName: String
+  serviceName: String,
+  name: String
 }
 
 type Route {
