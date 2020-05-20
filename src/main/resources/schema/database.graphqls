@@ -80,3 +80,8 @@ input JdbcUserInput {
   password: String!
   jdbcUrl: String!
 }
+
+type ConnectionVerificationResponse {
+  hasSucceeded: Boolean!
+  message: String!
+}
