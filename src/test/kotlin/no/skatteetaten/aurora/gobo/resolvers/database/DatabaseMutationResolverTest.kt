@@ -9,8 +9,10 @@ import no.skatteetaten.aurora.gobo.JdbcUserBuilder
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseServiceBlocking
 import no.skatteetaten.aurora.gobo.integration.dbh.JdbcUser
 import no.skatteetaten.aurora.gobo.integration.dbh.SchemaDeletionResponse
-import no.skatteetaten.aurora.gobo.resolvers.AbstractGraphQLTest
+import no.skatteetaten.aurora.gobo.resolvers.GraphQLTestWithDbhAndSkap
 import no.skatteetaten.aurora.gobo.resolvers.graphqlData
+import no.skatteetaten.aurora.gobo.resolvers.graphqlDataWithPrefix
+import no.skatteetaten.aurora.gobo.resolvers.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.resolvers.graphqlErrorsFirst
 import no.skatteetaten.aurora.gobo.resolvers.isTrue
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
@@ -18,7 +20,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 
-class DatabaseMutationResolverTest : AbstractGraphQLTest() {
+class DatabaseMutationResolverTest : GraphQLTestWithDbhAndSkap() {
     @Value("classpath:graphql/mutations/updateDatabaseSchema.graphql")
     private lateinit var updateDatabaseSchemaMutation: Resource
 
@@ -90,6 +92,7 @@ class DatabaseMutationResolverTest : AbstractGraphQLTest() {
         )
             .expectBody()
             .graphqlData("updateDatabaseSchema.id").isEqualTo("123")
+            .graphqlDoesNotContainErrors()
     }
 
     @Test
@@ -109,10 +112,13 @@ class DatabaseMutationResolverTest : AbstractGraphQLTest() {
             token = "test-token"
         )
             .expectBody()
-            .graphqlData("deleteDatabaseSchemas.succeeded.length()").isEqualTo(1)
-            .graphqlData("deleteDatabaseSchemas.succeeded[0]").isEqualTo("abc123")
-            .graphqlData("deleteDatabaseSchemas.failed.length()").isEqualTo(1)
-            .graphqlData("deleteDatabaseSchemas.failed[0]").isEqualTo("bcd234")
+            .graphqlDataWithPrefix("deleteDatabaseSchemas") {
+                graphqlData("succeeded.length()").isEqualTo(1)
+                graphqlData("succeeded[0]").isEqualTo("abc123")
+                graphqlData("failed.length()").isEqualTo(1)
+                graphqlData("failed[0]").isEqualTo("bcd234")
+            }
+            .graphqlDoesNotContainErrors()
     }
 
     @Test
@@ -125,8 +131,9 @@ class DatabaseMutationResolverTest : AbstractGraphQLTest() {
                 variables = variables,
                 token = "test-token"
         )
-                .expectBody()
-                .graphqlData("testJdbcConnectionForJdbcUser.hasSucceeded").isTrue()
+            .expectBody()
+            .graphqlData("testJdbcConnectionForJdbcUser.hasSucceeded").isTrue()
+            .graphqlDoesNotContainErrors()
     }
 
     @Test
@@ -137,8 +144,9 @@ class DatabaseMutationResolverTest : AbstractGraphQLTest() {
                 variables = mapOf("id" to "123"),
                 token = "test-token"
         )
-                .expectBody()
-                .graphqlData("testJdbcConnectionForId.hasSucceeded").isTrue()
+            .expectBody()
+            .graphqlData("testJdbcConnectionForId.hasSucceeded").isTrue()
+            .graphqlDoesNotContainErrors()
     }
 
     @Test
@@ -162,6 +170,7 @@ class DatabaseMutationResolverTest : AbstractGraphQLTest() {
         )
             .expectBody()
             .graphqlData("createDatabaseSchema.id").isEqualTo("123")
+            .graphqlDoesNotContainErrors()
     }
 
     @Test
@@ -174,5 +183,6 @@ class DatabaseMutationResolverTest : AbstractGraphQLTest() {
         )
             .expectBody()
             .graphqlData("createDatabaseSchema.id").isEqualTo("123")
+            .graphqlDoesNotContainErrors()
     }
 }

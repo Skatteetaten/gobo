@@ -18,6 +18,16 @@ data class WebsealStateResource(
     val routeName: String
 )
 
+data class SkapJob(
+    val id: String,
+    val payload: String,
+    val type: String,
+    val operation: String,
+    val status: String,
+    val updated: String,
+    val errorMessage: String? = null
+)
+
 data class Acl(
     val aclName: String,
     val anyOther: Boolean,

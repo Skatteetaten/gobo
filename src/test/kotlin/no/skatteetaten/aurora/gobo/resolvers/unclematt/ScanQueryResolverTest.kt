@@ -4,15 +4,16 @@ import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import no.skatteetaten.aurora.gobo.ProbeResultListBuilder
 import no.skatteetaten.aurora.gobo.integration.unclematt.ProbeServiceBlocking
-import no.skatteetaten.aurora.gobo.resolvers.AbstractGraphQLTest
+import no.skatteetaten.aurora.gobo.resolvers.GraphQLTestWithDbhAndSkap
 import no.skatteetaten.aurora.gobo.resolvers.graphqlDataWithPrefix
+import no.skatteetaten.aurora.gobo.resolvers.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import no.skatteetaten.aurora.gobo.resolvers.scan.ScanStatus
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 
-class ScanQueryResolverTest : AbstractGraphQLTest() {
+class ScanQueryResolverTest : GraphQLTestWithDbhAndSkap() {
 
     @Value("classpath:graphql/queries/scan.graphql")
     private lateinit var scanQuery: Resource
@@ -46,5 +47,6 @@ class ScanQueryResolverTest : AbstractGraphQLTest() {
                 graphqlData("edges[0].node.status").isEqualTo(ScanStatus.OPEN.name)
                 graphqlData("edges[0].node.resolvedIp").isNotEmpty
             }
+            .graphqlDoesNotContainErrors()
     }
 }

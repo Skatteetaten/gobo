@@ -54,7 +54,7 @@ class ImageRegistryServiceBlocking(
         token: String
     ): AuroraResponse<ImageTagResource> {
         val tagUrls = imageReposAndTags.getAllTagUrls()
-        val requestBody = BodyInserters.fromObject(tagUrls)
+        val requestBody = BodyInserters.fromValue(tagUrls)
 
         return execute<AuroraResponse<ImageTagResource>>(token) {
             it.post().uri("/manifest").body(requestBody)

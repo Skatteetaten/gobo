@@ -6,15 +6,16 @@ import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileResource
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileType.DEFAULT
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigService
-import no.skatteetaten.aurora.gobo.resolvers.AbstractGraphQLTest
+import no.skatteetaten.aurora.gobo.resolvers.GraphQLTestWithDbhAndSkap
 import no.skatteetaten.aurora.gobo.resolvers.graphqlDataWithPrefix
+import no.skatteetaten.aurora.gobo.resolvers.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 
-class CreateAuroraConfigFileTest : AbstractGraphQLTest() {
+class CreateAuroraConfigFileTest : GraphQLTestWithDbhAndSkap() {
 
     @Value("classpath:graphql/mutations/createAuroraConfigFile.graphql")
     private lateinit var query: Resource
@@ -60,5 +61,6 @@ class CreateAuroraConfigFileTest : AbstractGraphQLTest() {
                 graphqlData("success").isEqualTo("true")
                 graphqlData("file.contents").isEqualTo("myContent")
             }
+            .graphqlDoesNotContainErrors()
     }
 }

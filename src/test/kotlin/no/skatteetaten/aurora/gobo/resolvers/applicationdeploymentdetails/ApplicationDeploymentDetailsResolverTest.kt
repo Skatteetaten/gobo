@@ -7,8 +7,9 @@ import no.skatteetaten.aurora.gobo.ApplicationResourceBuilder
 import no.skatteetaten.aurora.gobo.healthResponseJson
 import no.skatteetaten.aurora.gobo.infoResponseJson
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
-import no.skatteetaten.aurora.gobo.resolvers.AbstractGraphQLTest
+import no.skatteetaten.aurora.gobo.resolvers.GraphQLTestWithDbhAndSkap
 import no.skatteetaten.aurora.gobo.resolvers.graphqlDataWithPrefix
+import no.skatteetaten.aurora.gobo.resolvers.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.resolvers.isFalse
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import org.junit.jupiter.api.BeforeEach
@@ -16,7 +17,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 
-class ApplicationDeploymentDetailsResolverTest : AbstractGraphQLTest() {
+class ApplicationDeploymentDetailsResolverTest : GraphQLTestWithDbhAndSkap() {
 
     @Value("classpath:graphql/queries/getApplicationsWithPods.graphql")
     private lateinit var getRepositoriesAndTagsQuery: Resource
@@ -55,5 +56,6 @@ class ApplicationDeploymentDetailsResolverTest : AbstractGraphQLTest() {
                 graphqlData("podResources[0].managementResponses.health.textResponse").isEqualTo(healthResponseJson)
                 graphqlData("podResources[0].managementResponses.info.textResponse").isEqualTo(infoResponseJson)
             }
+            .graphqlDoesNotContainErrors()
     }
 }

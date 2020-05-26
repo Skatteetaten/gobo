@@ -8,8 +8,9 @@ import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.integration.boober.ApplicationDeploymentService
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigRefResource
 import no.skatteetaten.aurora.gobo.integration.boober.DeployResource
-import no.skatteetaten.aurora.gobo.resolvers.AbstractGraphQLTest
+import no.skatteetaten.aurora.gobo.resolvers.GraphQLTestWithDbhAndSkap
 import no.skatteetaten.aurora.gobo.resolvers.graphqlData
+import no.skatteetaten.aurora.gobo.resolvers.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.resolvers.isFalse
 import no.skatteetaten.aurora.gobo.resolvers.isTrue
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
@@ -18,7 +19,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 
-class DeployMutationResolverTest : AbstractGraphQLTest() {
+class DeployMutationResolverTest : GraphQLTestWithDbhAndSkap() {
 
     @Value("classpath:graphql/mutations/deploy.graphql")
     private lateinit var deployMutation: Resource
@@ -37,7 +38,7 @@ class DeployMutationResolverTest : AbstractGraphQLTest() {
 
         val deploymentSpec: JsonNode = jacksonObjectMapper().readTree(deploymentSpecAsJson)
 
-        val result = Response<DeployResource>(
+        val result = Response(
             success = true,
             message = "YIHA",
             items = listOf(
@@ -57,7 +58,7 @@ class DeployMutationResolverTest : AbstractGraphQLTest() {
 
         every { applicationDeploymentService.deploy("myToken2", any(), any(), any()) } returns result
 
-        val resultFail = Response<DeployResource>(
+        val resultFail = Response(
             success = false,
             message = "error",
             items = listOf(
@@ -95,6 +96,7 @@ class DeployMutationResolverTest : AbstractGraphQLTest() {
             .graphqlData("deploy.auroraConfigRef.commitId").isEqualTo("123abcd")
             .graphqlData("deploy.applicationDeployments[0].spec.version").isEqualTo("1.0")
             .graphqlData("deploy.applicationDeployments[0].spec.cluster").isEqualTo("myCluster")
+            .graphqlDoesNotContainErrors()
     }
 
     @Test
@@ -115,5 +117,6 @@ class DeployMutationResolverTest : AbstractGraphQLTest() {
             .graphqlData("deploy.auroraConfigRef.commitId").isEqualTo("123abcd")
             .graphqlData("deploy.applicationDeployments[0].spec.version").isEqualTo("1.0")
             .graphqlData("deploy.applicationDeployments[0].spec.cluster").isEqualTo("myCluster")
+            .graphqlDoesNotContainErrors()
     }
 }

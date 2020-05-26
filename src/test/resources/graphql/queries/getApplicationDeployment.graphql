@@ -18,5 +18,27 @@ query getApplicationDeployment($id: String!) {
         }
       }
     }
+    route {
+       websealJobs {
+         id
+         payload
+         type
+         operation
+         status
+         updated
+         errorMessage
+         host
+       }
+       bigipJobs {
+         id
+         payload
+         type
+         operation
+         status
+         updated
+         errorMessage
+         asmPolicy
+       }
+    }
   }
 }

@@ -8,6 +8,9 @@ import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileResource
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileType
 import no.skatteetaten.aurora.gobo.integration.cantus.AuroraResponse
 import no.skatteetaten.aurora.gobo.integration.cantus.CantusFailure
+import no.skatteetaten.aurora.gobo.integration.cantus.ImageBuildTimeline
+import no.skatteetaten.aurora.gobo.integration.cantus.ImageTagResource
+import no.skatteetaten.aurora.gobo.integration.cantus.JavaImage
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseInstanceResource
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseMetadataResource
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseSchemaResource
@@ -35,6 +38,7 @@ import no.skatteetaten.aurora.gobo.integration.mokey.VersionResource
 import no.skatteetaten.aurora.gobo.integration.mokey.addAll
 import no.skatteetaten.aurora.gobo.integration.skap.Acl
 import no.skatteetaten.aurora.gobo.integration.skap.Certificate
+import no.skatteetaten.aurora.gobo.integration.skap.SkapJob
 import no.skatteetaten.aurora.gobo.integration.skap.WebsealStateResource
 import no.skatteetaten.aurora.gobo.integration.unclematt.ProbeResult
 import no.skatteetaten.aurora.gobo.integration.unclematt.ProbeStatus
@@ -473,5 +477,45 @@ data class WebsealStateResourceBuilder(val namespace: String = "test") {
                 "Active Worker Threads" to "activeWorkerThreads2"
             )
         )
+    )
+}
+
+data class SkapJobForWebsealBuilder(val namespace: String = "namespace", val name: String = "name") {
+
+    fun build() =
+        SkapJob(
+            id = "75745",
+            payload = "{\"cluster\":\"target.utv.paas.skead.no\",\"roles\":[],\"host\":\"testing.test.no\",\"namespace\":\"testing-utv\",\"routeName\":\"test-webseal\"}",
+            type = "websealv2",
+            operation = "CREATEORUPDATE",
+            status = "DONE",
+            updated = "2019-10-17T09:17:15.547788+02:00",
+            errorMessage = null
+        )
+}
+
+data class SkapJobForBigipBuilder(val namespace: String = "namespace", val name: String = "name") {
+
+    fun build() =
+        SkapJob(
+            id = "465774",
+            payload = "{\"asmPolicy\":\"testing-get\",\"externalHost\":\"testingtesting.no\",\"apiPaths\":[\"/testing/api/\"],\"oauthScopes\":[\"test1\",\"test2\",\"test3\"],\"hostname\":\"testing.no\",\"namespace\":\"paas-dev\",\"name\":\"testing\",\"clusterEnvironment\":\"utvikling\",\"clusterType\":\"MAIN\",\"affiliation\":\"folk\",\"serviceName\":\"testing\"}",
+            type = "bigipexternal",
+            operation = "CREATEORUPDATE",
+            status = "DONE",
+            updated = "2019-10-17T09:17:15.547788+02:00",
+            errorMessage = null
+        )
+}
+
+class ImageTagResourceBuilder {
+    fun build() = ImageTagResource(
+        auroraVersion = "1",
+        appVersion = "1",
+        timeline = ImageBuildTimeline(Instant.now(), Instant.now()),
+        dockerVersion = "1",
+        dockerDigest = "abc123",
+        java = JavaImage("1", "1", "1", ""),
+        requestUrl = "http://localhost"
     )
 }

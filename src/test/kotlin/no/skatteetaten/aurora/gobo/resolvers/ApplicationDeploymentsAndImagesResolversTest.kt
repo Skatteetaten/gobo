@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 
-class ApplicationDeploymentsAndImagesResolversTest : AbstractGraphQLTest() {
+class ApplicationDeploymentsAndImagesResolversTest : GraphQLTestWithDbhAndSkap() {
     @Value("classpath:graphql/queries/getApplicationDeploymentsAndImages.graphql")
     private lateinit var applicationDeploymentsAndImages: Resource
 

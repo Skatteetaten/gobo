@@ -7,16 +7,17 @@ import no.skatteetaten.aurora.gobo.ApplicationResourceBuilder
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
 import no.skatteetaten.aurora.gobo.integration.mokey.AuroraNamespacePermissions
 import no.skatteetaten.aurora.gobo.integration.mokey.PermissionService
-import no.skatteetaten.aurora.gobo.resolvers.AbstractGraphQLTest
+import no.skatteetaten.aurora.gobo.resolvers.GraphQLTestWithDbhAndSkap
 import no.skatteetaten.aurora.gobo.resolvers.graphqlData
 import no.skatteetaten.aurora.gobo.resolvers.graphqlDataWithPrefix
+import no.skatteetaten.aurora.gobo.resolvers.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 import reactor.kotlin.core.publisher.toMono
 
-class ApplicationQueryResolverTest : AbstractGraphQLTest() {
+class ApplicationQueryResolverTest : GraphQLTestWithDbhAndSkap() {
 
     @Value("classpath:graphql/queries/getApplications.graphql")
     private lateinit var getApplicationsQuery: Resource
@@ -57,5 +58,6 @@ class ApplicationQueryResolverTest : AbstractGraphQLTest() {
                 graphqlData("applicationDeployments[0].details.deployDetails.paused").isEqualTo(false)
                 graphqlData("imageRepository.repository").doesNotExist()
             }
+            .graphqlDoesNotContainErrors()
     }
 }

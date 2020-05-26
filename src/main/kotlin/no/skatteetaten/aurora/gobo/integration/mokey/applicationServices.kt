@@ -94,7 +94,7 @@ class ApplicationService(@TargetService(ServiceTypes.MOKEY) val webClient: WebCl
             .post()
             .uri("/api/auth/applicationdeploymentbyresource/databases")
             .header(HttpHeaders.AUTHORIZATION, "Bearer $token")
-            .body(BodyInserters.fromObject(databaseIds))
+            .body(BodyInserters.fromValue(databaseIds))
             .retrieve()
             .bodyToMono()
 
@@ -105,7 +105,7 @@ class ApplicationService(@TargetService(ServiceTypes.MOKEY) val webClient: WebCl
         webClient
             .post()
             .uri("/api/auth/refresh")
-            .body(BodyInserters.fromObject(refreshParams))
+            .body(BodyInserters.fromValue(refreshParams))
             .header(HttpHeaders.AUTHORIZATION, "Bearer $token")
             .retrieve()
             .bodyToMono<Void>()
