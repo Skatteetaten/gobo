@@ -4,7 +4,7 @@ plugins {
     id("org.jlleitschuh.gradle.ktlint") version "9.2.1"
     id("org.sonarqube") version "2.8"
 
-    id("org.springframework.boot") version "2.2.4.RELEASE"
+    id("org.springframework.boot") version "2.3.1.RELEASE"
     id("org.asciidoctor.convert") version "2.4.0"
 
     id("com.gorylenko.gradle-git-properties") version "2.2.1"
@@ -44,4 +44,5 @@ dependencies {
     testImplementation("io.projectreactor:reactor-test")
     testImplementation("no.skatteetaten.aurora:mockmvc-extensions-kotlin:1.0.4")
     testImplementation("com.ninja-squad:springmockk:2.0.0")
+    testImplementation("org.junit-pioneer:junit-pioneer:0.6.0")
 }

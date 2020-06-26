@@ -8,6 +8,7 @@ import assertk.assertions.isNotNull
 import assertk.assertions.startsWith
 import no.skatteetaten.aurora.gobo.ApplicationConfig
 import no.skatteetaten.aurora.gobo.ObjectMapperConfig
+import no.skatteetaten.aurora.gobo.StrubrunnerRepoPropertiesEnabler
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository
 import org.junit.jupiter.api.Test
@@ -20,7 +21,7 @@ import org.springframework.cloud.contract.stubrunner.spring.AutoConfigureStubRun
     classes = [ApplicationConfig::class, ObjectMapperConfig::class, ImageRegistryServiceBlocking::class]
 )
 @AutoConfigureStubRunner(ids = ["no.skatteetaten.aurora:cantus:+:stubs:6568"])
-class ImageRegistryServiceBlockingContractTest {
+class ImageRegistryServiceBlockingContractTest : StrubrunnerRepoPropertiesEnabler() {
 
     @Autowired
     private lateinit var imageRegistry: ImageRegistryServiceBlocking
