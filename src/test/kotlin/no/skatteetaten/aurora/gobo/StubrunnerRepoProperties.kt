@@ -4,6 +4,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import java.io.File
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.xpath.XPathFactory
+import mu.KotlinLogging
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
 import org.w3c.dom.Document
@@ -22,6 +23,8 @@ abstract class StrubrunnerRepoPropertiesEnabler {
     }
 }
 
+private val logger = KotlinLogging.logger {}
+
 class StubrunnerRepoProperties(private val registry: DynamicPropertyRegistry) {
 
     fun populate(
@@ -29,6 +32,7 @@ class StubrunnerRepoProperties(private val registry: DynamicPropertyRegistry) {
         localMavenSettings: String = "${System.getProperty("user.home")}/.m2/settings.xml"
     ) {
         if (isJenkins()) {
+            logger.info("Reading stubrunner properties from nexus config in jenkins")
             val document = jacksonObjectMapper().readTree(File(jenkinsNexusJson))
             registry.add(stubrunnerUsername) { document.get("username").textValue() }
             registry.add(stubrunnerPassword) { document.get("password").textValue() }
@@ -37,6 +41,7 @@ class StubrunnerRepoProperties(private val registry: DynamicPropertyRegistry) {
                 "$url/repository/maven-intern"
             }
         } else {
+            logger.info("Reading stubrunner properties from maven settings.xml")
             val document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(File(localMavenSettings))
             registry.add(stubrunnerUsername) { document.xpath("/settings/servers/server/username") }
             registry.add(stubrunnerPassword) { document.xpath("/settings/servers/server/password") }
