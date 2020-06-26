@@ -42,8 +42,7 @@ class StubrunnerRepoProperties(private val registry: DynamicPropertyRegistry) {
             registry.add(stubrunnerPassword) { document.xpath("/settings/servers/server/password") }
             registry.add(stubrunnerRepoUrl) { document.xpath("/settings/mirrors/mirror/url") }
         }
-    }AOS-4380
-
+    }
 
     private fun isJenkins() =
         !System.getenv("CI").isNullOrEmpty() || !System.getenv("JENKINS_HOME").isNullOrEmpty()
