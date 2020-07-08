@@ -29,7 +29,7 @@ import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction
 import org.springframework.web.reactive.function.client.ExchangeStrategies
 import org.springframework.web.reactive.function.client.WebClient
-import reactor.core.publisher.toMono
+import reactor.kotlin.core.publisher.toMono
 import reactor.netty.http.client.HttpClient
 import reactor.netty.tcp.SslProvider
 
@@ -68,47 +68,50 @@ class ApplicationConfig(
     @Bean
     @Primary
     @TargetService(ServiceTypes.MOKEY)
-    fun webClientMokey(@Value("\${integrations.mokey.url}") mokeyUrl: String): WebClient {
+    fun webClientMokey(@Value("\${integrations.mokey.url}") mokeyUrl: String, builder: WebClient.Builder): WebClient {
         logger.info("Configuring Mokey WebClient with baseUrl={}", mokeyUrl)
-        return webClientBuilder().baseUrl(mokeyUrl).build()
+        return builder.init().baseUrl(mokeyUrl).build()
     }
 
     @Bean
     @TargetService(ServiceTypes.UNCLEMATT)
-    fun webClientUncleMatt(@Value("\${integrations.unclematt.url}") uncleMattUrl: String): WebClient {
+    fun webClientUncleMatt(
+        @Value("\${integrations.unclematt.url}") uncleMattUrl: String,
+        builder: WebClient.Builder
+    ): WebClient {
         logger.info("Configuring UncleMatt WebClient with baseUrl={}", uncleMattUrl)
-        return webClientBuilder().baseUrl(uncleMattUrl).build()
+        return builder.init().baseUrl(uncleMattUrl).build()
     }
 
     @Bean
     @TargetService(ServiceTypes.CANTUS)
-    fun webClientCantus(@Value("\${integrations.cantus.url}") cantusUrl: String): WebClient {
+    fun webClientCantus(
+        @Value("\${integrations.cantus.url}") cantusUrl: String,
+        builder: WebClient.Builder
+    ): WebClient {
         logger.info("Configuring Cantus WebClient with base Url={}", cantusUrl)
 
-        return webClientBuilder()
-            .baseUrl(cantusUrl)
-            .build()
+        return builder.init().baseUrl(cantusUrl).build()
     }
 
     @Bean
     @TargetService(ServiceTypes.BOOBER)
-    fun webClientBoober() = webClientBuilder().build()
+    fun webClientBoober(builder: WebClient.Builder) = builder.init().build()
 
     @ConditionalOnBean(RequiresSkap::class)
     @Bean
     @TargetService(ServiceTypes.SKAP)
-    fun webClientSkap(@Value("\${integrations.skap.url}") skapUrl: String) =
-        webClientBuilder().baseUrl(skapUrl).build()
+    fun webClientSkap(@Value("\${integrations.skap.url}") skapUrl: String, builder: WebClient.Builder) =
+        builder.init().baseUrl(skapUrl).build()
 
     @ConditionalOnBean(RequiresDbh::class)
     @Bean
     @TargetService(ServiceTypes.DBH)
-    fun webClientDbh(@Value("\${integrations.dbh.url}") dbhUrl: String) = webClientBuilder().baseUrl(dbhUrl).build()
+    fun webClientDbh(@Value("\${integrations.dbh.url}") dbhUrl: String, builder: WebClient.Builder) =
+        builder.init().baseUrl(dbhUrl).build()
 
-    fun webClientBuilder(ssl: Boolean = false) =
-        WebClient
-            .builder()
-            .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+    fun WebClient.Builder.init() =
+        this.defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .defaultHeader(HEADER_KLIENTID, applicationName)
             .defaultHeader(AuroraHeaderFilter.KORRELASJONS_ID, RequestKorrelasjon.getId())
             .exchangeStrategies(exchangeStrategies())
@@ -120,7 +123,7 @@ class ApplicationConfig(
                 logger.debug("HttpRequest method=${it.method()} url=${it.url()} $bearer")
                 it.toMono()
             })
-            .clientConnector(clientConnector(ssl))
+            .clientConnector(clientConnector(false))
 
     private fun exchangeStrategies(): ExchangeStrategies {
         return ExchangeStrategies

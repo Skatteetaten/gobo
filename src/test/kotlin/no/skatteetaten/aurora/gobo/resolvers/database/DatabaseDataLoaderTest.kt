@@ -15,6 +15,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
+import org.springframework.web.reactive.function.client.WebClient
 
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
 class DatabaseDataLoaderTest {
@@ -28,7 +29,7 @@ class DatabaseDataLoaderTest {
         applicationName = "",
         objectMapper = testObjectMapper()
     )
-    private val dbhClient = applicationConfig.webClientDbh(dbhUrl)
+    private val dbhClient = applicationConfig.webClientDbh(dbhUrl, WebClient.builder())
     private val applicationService = ApplicationServiceBlocking(ApplicationService(dbhClient))
     private val dataLoader = DatabaseDataLoader(applicationService)
 

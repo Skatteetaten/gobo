@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
+import org.springframework.web.reactive.function.client.WebClient
 
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
 class ApplicationDeploymentDetailsDataLoaderTest {
@@ -26,7 +27,7 @@ class ApplicationDeploymentDetailsDataLoaderTest {
     private val server = MockWebServer()
     private val url = server.url("/")
     private val webClient = ApplicationConfig(500, 500, 500, "", testObjectMapper())
-        .webClientBuilder(false).baseUrl(url.toString()).build()
+        .webClientMokey(url.toString(), WebClient.builder())
     private val applicationService = ApplicationServiceBlocking(ApplicationService(webClient))
     private val dataLoader = ApplicationDeploymentDetailsDataLoader(applicationService)
 
