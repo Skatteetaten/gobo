@@ -70,9 +70,19 @@ input DeleteDatabaseSchemasInput {
   ids: [String!]!
 }
 
+input RestoreDatabaseSchemasInput {
+    ids: [String!]!
+    active: [Boolean!]!
+}
+
 type DeleteDatabaseSchemasResponse {
   succeeded: [String]!
   failed: [String]!
+}
+
+type RestoreDatabaseSchemasResponse {
+    succeeded: [String]!
+    failed: [String]!
 }
 
 input JdbcUserInput {

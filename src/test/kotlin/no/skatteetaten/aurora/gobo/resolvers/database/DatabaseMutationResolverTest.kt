@@ -8,7 +8,7 @@ import no.skatteetaten.aurora.gobo.DatabaseSchemaResourceBuilder
 import no.skatteetaten.aurora.gobo.JdbcUserBuilder
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseServiceBlocking
 import no.skatteetaten.aurora.gobo.integration.dbh.JdbcUser
-import no.skatteetaten.aurora.gobo.integration.dbh.SchemaDeletionResponse
+import no.skatteetaten.aurora.gobo.integration.dbh.SchemaCooldownChangeResponse
 import no.skatteetaten.aurora.gobo.resolvers.AbstractGraphQLTest
 import no.skatteetaten.aurora.gobo.resolvers.graphqlData
 import no.skatteetaten.aurora.gobo.resolvers.graphqlErrorsFirst
@@ -96,8 +96,8 @@ class DatabaseMutationResolverTest : AbstractGraphQLTest() {
     fun `Delete database schema given ids`() {
         every { databaseSchemaService.deleteDatabaseSchemas(any()) } returns
             listOf(
-                SchemaDeletionResponse(id = "abc123", success = true),
-                SchemaDeletionResponse(id = "bcd234", success = false)
+                SchemaCooldownChangeResponse(id = "abc123", success = true),
+                SchemaCooldownChangeResponse(id = "bcd234", success = false)
             )
 
         val request = DeleteDatabaseSchemasInput(listOf("abc123", "bcd234"))

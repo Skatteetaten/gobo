@@ -5,9 +5,10 @@ import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseInstanceResource
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseSchemaResource
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseUserResource
 import no.skatteetaten.aurora.gobo.integration.dbh.JdbcUser
+import no.skatteetaten.aurora.gobo.integration.dbh.SchemaCooldownChangeResponse
 import no.skatteetaten.aurora.gobo.integration.dbh.SchemaCreationRequest
 import no.skatteetaten.aurora.gobo.integration.dbh.SchemaDeletionRequest
-import no.skatteetaten.aurora.gobo.integration.dbh.SchemaDeletionResponse
+import no.skatteetaten.aurora.gobo.integration.dbh.SchemaRestorationRequest
 import no.skatteetaten.aurora.gobo.integration.dbh.SchemaUpdateRequest
 import no.skatteetaten.aurora.gobo.resolvers.affiliation.Affiliation
 
@@ -142,17 +143,21 @@ data class DeleteDatabaseSchemasInput(val ids: List<String>) {
     fun toSchemaDeletionRequests() = ids.map { SchemaDeletionRequest(it) }
 }
 
-data class DeleteDatabaseSchemasResponse(
+data class CooldownChangeDatabaseSchemasResponse(
     val succeeded: List<String> = emptyList(),
     val failed: List<String> = emptyList()
 ) {
     companion object {
-        fun create(responses: List<SchemaDeletionResponse>) =
-            DeleteDatabaseSchemasResponse(
+        fun create(responses: List<SchemaCooldownChangeResponse>) =
+            CooldownChangeDatabaseSchemasResponse(
                 succeeded = responses.filter { it.success }.map { it.id },
                 failed = responses.filter { !it.success }.map { it.id }
             )
     }
+}
+
+data class RestoreDatabaseSchemasInput(val ids: List<String>, val active: Boolean) {
+    fun toSchemaRestorationRequests() = ids.map { SchemaRestorationRequest(it, active) }
 }
 
 data class ConnectionVerificationResponse(

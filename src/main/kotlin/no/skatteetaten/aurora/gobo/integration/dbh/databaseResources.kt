@@ -107,8 +107,8 @@ data class SchemaDeletionRequest(
 )
 
 data class SchemaRestorationRequest(
-        val id: String,
-        val active: Boolean
+    val id: String,
+    val active: Boolean
 )
 
 data class JdbcUser(
@@ -131,6 +131,4 @@ data class DbhResponse<T>(val status: String, val items: List<T>, val totalCount
     fun isEmpty() = totalCount == 0
 }
 
-data class SchemaDeletionResponse(val id: String, val success: Boolean)
-
-data class SchemaRestorationResponse(val id: String, val success: Boolean)
+data class SchemaCooldownChangeResponse(val id: String, val success: Boolean)

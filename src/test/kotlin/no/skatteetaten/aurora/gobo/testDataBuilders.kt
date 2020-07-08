@@ -16,6 +16,7 @@ import no.skatteetaten.aurora.gobo.integration.dbh.JdbcUser
 import no.skatteetaten.aurora.gobo.integration.dbh.RestorableDatabaseSchemaResource
 import no.skatteetaten.aurora.gobo.integration.dbh.SchemaCreationRequest
 import no.skatteetaten.aurora.gobo.integration.dbh.SchemaDeletionRequest
+import no.skatteetaten.aurora.gobo.integration.dbh.SchemaRestorationRequest
 import no.skatteetaten.aurora.gobo.integration.dbh.SchemaUpdateRequest
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentCommandResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentDetailsResource
@@ -409,6 +410,12 @@ data class SchemaDeletionRequestBuilder(val id: String = "123", val cooldownDura
 
     fun build() =
         SchemaDeletionRequest(id, cooldownDurationHours)
+}
+
+data class SchemaRestorationRequestBuilder(val id: String = "123", val active: Boolean = true) {
+
+    fun build() =
+            SchemaRestorationRequest(id, active)
 }
 
 class JdbcUserBuilder {

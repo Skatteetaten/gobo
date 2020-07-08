@@ -26,10 +26,12 @@ import no.skatteetaten.aurora.gobo.JdbcUserBuilder
 import no.skatteetaten.aurora.gobo.RestorableDatabaseSchemaBuilder
 import no.skatteetaten.aurora.gobo.SchemaCreationRequestBuilder
 import no.skatteetaten.aurora.gobo.SchemaDeletionRequestBuilder
+import no.skatteetaten.aurora.gobo.SchemaRestorationRequestBuilder
 import no.skatteetaten.aurora.gobo.SchemaUpdateRequestBuilder
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.integration.containsAuroraToken
 import no.skatteetaten.aurora.gobo.integration.containsAuroraTokens
+import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseServiceReactive.Companion.ACTIVE
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseServiceReactive.Companion.HEADER_COOLDOWN_DURATION_HOURS
 import no.skatteetaten.aurora.gobo.resolvers.database.ConnectionVerificationResponse
 import no.skatteetaten.aurora.gobo.security.SharedSecretReader
@@ -205,6 +207,35 @@ class DatabaseServiceBlockingTest {
     }
 
     @Test
+    fun `Restore database schema fails with active set to false`() {
+        val ok = DbhResponse.ok<DatabaseSchemaResource>()
+        val failed = DbhResponse.failed()
+        val requests = server.execute(failed) {
+            val restorationRequests = listOf(
+                    SchemaRestorationRequestBuilder(id = "failed", active = false).build()
+            )
+            val restored = databaseService.restoreDatabaseSchemas(restorationRequests)
+            assertThat(restored.size).isEqualTo(1)
+            assertThat(restored).failed(1)
+        }
+        assertThat(requests).containsAuroraTokens()
+        assertThat(requests).containsPath("/failed")
+        assertThat(requests.first()?.headers?.get(ACTIVE)).isEqualTo("false")
+    }
+
+    @Test
+    fun `Restore database schema succeeds with active set to true`() {
+        val response = DbhResponse.ok<DatabaseSchemaResource>()
+        val request = server.execute(response) {
+            val restored = databaseService.restoreDatabaseSchemas(
+                    listOf(SchemaRestorationRequestBuilder(id = "123", active = true).build())
+            )
+            assertThat(restored.size).isEqualTo(1)
+        }.first()
+        assertThat(request).containsAuroraToken()
+        assertThat(request?.path).isNotNull().endsWith("/123")
+        assertThat(request?.headers?.get(ACTIVE)).isEqualTo("true")
+    }
 
     @Test
     fun `Test jdbc connection for jdbcUser`() {
@@ -284,12 +315,12 @@ class DatabaseServiceBlockingTest {
         expected("Requests to end with path $endingWith")
     }
 
-    private fun Assert<List<SchemaDeletionResponse>>.succeeded(count: Int) = given { responses ->
+    private fun Assert<List<SchemaCooldownChangeResponse>>.succeeded(count: Int) = given { responses ->
         if (responses.filter { it.success }.size == count) return
         expected("Succeeded responses size to equal $count")
     }
 
-    private fun Assert<List<SchemaDeletionResponse>>.failed(count: Int) = given { responses ->
+    private fun Assert<List<SchemaCooldownChangeResponse>>.failed(count: Int) = given { responses ->
         if (responses.filter { !it.success }.size == count) return
         expected("Failed responses size to equal $count")
     }

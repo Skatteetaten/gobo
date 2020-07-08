@@ -33,6 +33,7 @@ type Mutation {
 
     updateDatabaseSchema(input: UpdateDatabaseSchemaInput!): DatabaseSchema
     deleteDatabaseSchemas(input: DeleteDatabaseSchemasInput!): DeleteDatabaseSchemasResponse
+    restoreDatabaseSchemas(input: RestoreDatabaseSchemasInput!): RestoreDatabaseSchemasResponse
 
     testJdbcConnectionForJdbcUser(input: JdbcUserInput!): ConnectionVerificationResponse
     testJdbcConnectionForId(id: String!): ConnectionVerificationResponse
