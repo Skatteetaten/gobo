@@ -106,6 +106,11 @@ data class SchemaDeletionRequest(
     val cooldownDurationHours: Long? = null
 )
 
+data class SchemaRestorationRequest(
+        val id: String,
+        val active: Boolean
+)
+
 data class JdbcUser(
     val username: String,
     val password: String,
@@ -127,3 +132,5 @@ data class DbhResponse<T>(val status: String, val items: List<T>, val totalCount
 }
 
 data class SchemaDeletionResponse(val id: String, val success: Boolean)
+
+data class SchemaRestorationResponse(val id: String, val success: Boolean)

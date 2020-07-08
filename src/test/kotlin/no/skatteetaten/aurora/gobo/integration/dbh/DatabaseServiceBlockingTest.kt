@@ -205,6 +205,8 @@ class DatabaseServiceBlockingTest {
     }
 
     @Test
+
+    @Test
     fun `Test jdbc connection for jdbcUser`() {
         val jdbcUser = JdbcUserBuilder().build()
         val response = DbhResponse.ok(ConnectionVerificationResponse(hasSucceeded = true))

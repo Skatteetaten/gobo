@@ -33,6 +33,7 @@ class DatabaseServiceReactive(
 ) {
     companion object {
         const val HEADER_COOLDOWN_DURATION_HOURS = "cooldown-duration-hours"
+        const val ACTIVE = "active"
     }
 
     fun getDatabaseInstances(): Mono<List<DatabaseInstanceResource>> = webClient
@@ -82,6 +83,25 @@ class DatabaseServiceReactive(
         }
 
         return Flux.merge(responses).map { SchemaDeletionResponse(id = it.first, success = it.second.isOk()) }
+    }
+
+    fun restoreDatabaseSchemas(input: List<SchemaRestorationRequest>): Flux<SchemaRestorationResponse> {
+        val responses = input.map { request ->
+            val requestSpec = webClient
+                    .patch()
+                    .uri("/api/v1/restorableSchema/${request.id}")
+                    .header(HttpHeaders.AUTHORIZATION, "$HEADER_AURORA_TOKEN ${sharedSecretReader.secret}")
+
+            request.active.let {
+                requestSpec.header(ACTIVE, "true")
+            }
+
+            requestSpec.retrieveAuthenticated().bodyToDbhResponse().map {
+                request.id to it
+            }
+        }
+
+        return Flux.merge(responses).map { SchemaRestorationResponse(id = it.first, success = it.second.isOk())}
     }
 
     fun testJdbcConnection(id: String? = null, user: JdbcUser? = null): Mono<ConnectionVerificationResponse> {
@@ -164,6 +184,7 @@ interface DatabaseService {
 
     fun updateDatabaseSchema(input: SchemaUpdateRequest): DatabaseSchemaResource = integrationDisabled()
     fun deleteDatabaseSchemas(input: List<SchemaDeletionRequest>): List<SchemaDeletionResponse> = integrationDisabled()
+    fun restoreDatabaseSchemas(input: List<SchemaRestorationRequest>): List<SchemaRestorationResponse> = integrationDisabled()
     fun testJdbcConnection(user: JdbcUser): ConnectionVerificationResponse = integrationDisabled()
     fun testJdbcConnection(id: String): ConnectionVerificationResponse = integrationDisabled()
     fun createDatabaseSchema(input: SchemaCreationRequest): DatabaseSchemaResource = integrationDisabled()
@@ -194,6 +215,9 @@ class DatabaseServiceBlocking(private val databaseService: DatabaseServiceReacti
 
     override fun deleteDatabaseSchemas(input: List<SchemaDeletionRequest>): List<SchemaDeletionResponse> =
         databaseService.deleteDatabaseSchemas(input).collectList().blockNonNullWithTimeout()
+
+    override fun restoreDatabaseSchemas(input: List<SchemaRestorationRequest>): List<SchemaRestorationResponse> =
+            databaseService.restoreDatabaseSchemas(input).collectList().blockNonNullWithTimeout()
 
     override fun testJdbcConnection(user: JdbcUser) =
             databaseService.testJdbcConnection(user = user).blockNonNullWithTimeout()
