@@ -123,7 +123,7 @@ class ApplicationConfig(
                 logger.debug("HttpRequest method=${it.method()} url=${it.url()} $bearer")
                 it.toMono()
             })
-            .clientConnector(clientConnector(false))
+            .clientConnector(clientConnector())
 
     private fun exchangeStrategies(): ExchangeStrategies {
         return ExchangeStrategies
