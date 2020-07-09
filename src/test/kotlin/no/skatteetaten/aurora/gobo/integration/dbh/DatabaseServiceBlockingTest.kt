@@ -31,7 +31,6 @@ import no.skatteetaten.aurora.gobo.SchemaUpdateRequestBuilder
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.integration.containsAuroraToken
 import no.skatteetaten.aurora.gobo.integration.containsAuroraTokens
-import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseServiceReactive.Companion.ACTIVE
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseServiceReactive.Companion.HEADER_COOLDOWN_DURATION_HOURS
 import no.skatteetaten.aurora.gobo.resolvers.database.ConnectionVerificationResponse
 import no.skatteetaten.aurora.gobo.security.SharedSecretReader
