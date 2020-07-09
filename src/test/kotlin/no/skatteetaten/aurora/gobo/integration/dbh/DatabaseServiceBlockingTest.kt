@@ -37,6 +37,7 @@ import no.skatteetaten.aurora.gobo.resolvers.database.ConnectionVerificationResp
 import no.skatteetaten.aurora.gobo.security.SharedSecretReader
 import no.skatteetaten.aurora.gobo.testObjectMapper
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.bodyAsObject
+import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.bodyAsString
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.execute
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.RecordedRequest
@@ -208,7 +209,6 @@ class DatabaseServiceBlockingTest {
 
     @Test
     fun `Restore database schema fails with active set to false`() {
-        val ok = DbhResponse.ok<DatabaseSchemaResource>()
         val failed = DbhResponse.failed()
         val requests = server.execute(failed) {
             val restorationRequests = listOf(
@@ -220,7 +220,7 @@ class DatabaseServiceBlockingTest {
         }
         assertThat(requests).containsAuroraTokens()
         assertThat(requests).containsPath("/failed")
-        assertThat(requests.first()?.headers?.get(ACTIVE)).isEqualTo("false")
+        assertThat(requests.first()?.bodyAsString()).isNotNull().contains("\"active\":false")
     }
 
     @Test
@@ -234,7 +234,7 @@ class DatabaseServiceBlockingTest {
         }.first()
         assertThat(request).containsAuroraToken()
         assertThat(request?.path).isNotNull().endsWith("/123")
-        assertThat(request?.headers?.get(ACTIVE)).isEqualTo("true")
+        assertThat(request?.bodyAsString()).isNotNull().contains("\"active\":true")
     }
 
     @Test
