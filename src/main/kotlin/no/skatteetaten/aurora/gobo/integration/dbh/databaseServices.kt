@@ -88,13 +88,16 @@ class DatabaseServiceReactive(
     fun restoreDatabaseSchemas(input: List<SchemaRestorationRequest>): Flux<SchemaCooldownChangeResponse> {
         val responses = input.map { request ->
             val requestSpec = webClient
-                    .patch()
-                    .uri("/api/v1/restorableSchema/${request.id}")
-                    .header(HttpHeaders.AUTHORIZATION, "$HEADER_AURORA_TOKEN ${sharedSecretReader.secret}")
-
-            request.active.let {
-                requestSpec.header(ACTIVE, it.toString())
-            }
+                .patch()
+                .uri("/api/v1/restorableSchema/${request.id}")
+                .body(
+                    BodyInserters.fromValue(
+                        mapOf(
+                            ACTIVE to request.active
+                        )
+                    )
+                )
+                .header(HttpHeaders.AUTHORIZATION, "$HEADER_AURORA_TOKEN ${sharedSecretReader.secret}")
 
             requestSpec.retrieveAuthenticated().bodyToDbhResponse().map {
                 request.id to it
@@ -106,18 +109,18 @@ class DatabaseServiceReactive(
 
     fun testJdbcConnection(id: String? = null, user: JdbcUser? = null): Mono<ConnectionVerificationResponse> {
         val response: Mono<DbhResponse<ConnectionVerificationResponse>> = webClient
-                .put()
-                .uri("/api/v1/schema/validate")
-                .body(
-                        BodyInserters.fromValue(
-                                mapOf(
-                                        "id" to id,
-                                        "jdbcUser" to user
-                                )
-                        )
+            .put()
+            .uri("/api/v1/schema/validate")
+            .body(
+                BodyInserters.fromValue(
+                    mapOf(
+                        "id" to id,
+                        "jdbcUser" to user
+                    )
                 )
-                .retrieveAuthenticated()
-                .bodyToMono()
+            )
+            .retrieveAuthenticated()
+            .bodyToMono()
         return response.flatMap {
             it.items.first().toMono()
         }
@@ -183,8 +186,12 @@ interface DatabaseService {
         integrationDisabled()
 
     fun updateDatabaseSchema(input: SchemaUpdateRequest): DatabaseSchemaResource = integrationDisabled()
-    fun deleteDatabaseSchemas(input: List<SchemaDeletionRequest>): List<SchemaCooldownChangeResponse> = integrationDisabled()
-    fun restoreDatabaseSchemas(input: List<SchemaRestorationRequest>): List<SchemaCooldownChangeResponse> = integrationDisabled()
+    fun deleteDatabaseSchemas(input: List<SchemaDeletionRequest>): List<SchemaCooldownChangeResponse> =
+        integrationDisabled()
+
+    fun restoreDatabaseSchemas(input: List<SchemaRestorationRequest>): List<SchemaCooldownChangeResponse> =
+        integrationDisabled()
+
     fun testJdbcConnection(user: JdbcUser): ConnectionVerificationResponse = integrationDisabled()
     fun testJdbcConnection(id: String): ConnectionVerificationResponse = integrationDisabled()
     fun createDatabaseSchema(input: SchemaCreationRequest): DatabaseSchemaResource = integrationDisabled()
@@ -217,13 +224,13 @@ class DatabaseServiceBlocking(private val databaseService: DatabaseServiceReacti
         databaseService.deleteDatabaseSchemas(input).collectList().blockNonNullWithTimeout()
 
     override fun restoreDatabaseSchemas(input: List<SchemaRestorationRequest>): List<SchemaCooldownChangeResponse> =
-            databaseService.restoreDatabaseSchemas(input).collectList().blockNonNullWithTimeout()
+        databaseService.restoreDatabaseSchemas(input).collectList().blockNonNullWithTimeout()
 
     override fun testJdbcConnection(user: JdbcUser) =
-            databaseService.testJdbcConnection(user = user).blockNonNullWithTimeout()
+        databaseService.testJdbcConnection(user = user).blockNonNullWithTimeout()
 
     override fun testJdbcConnection(id: String) =
-            databaseService.testJdbcConnection(id = id).blockNonNullWithTimeout()
+        databaseService.testJdbcConnection(id = id).blockNonNullWithTimeout()
 
     override fun createDatabaseSchema(input: SchemaCreationRequest) =
         databaseService.createDatabaseSchema(input).blockNonNullWithTimeout()
