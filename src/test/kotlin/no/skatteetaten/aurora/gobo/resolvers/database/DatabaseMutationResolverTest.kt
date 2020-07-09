@@ -25,6 +25,9 @@ class DatabaseMutationResolverTest : AbstractGraphQLTest() {
     @Value("classpath:graphql/mutations/deleteDatabaseSchemas.graphql")
     private lateinit var deleteDatabaseSchemasMutation: Resource
 
+    @Value("classpath:graphql/mutations/restoreDatabaseSchemas.graphql")
+    private lateinit var restoreDatabaseSchemasMutation: Resource
+
     @Value("classpath:graphql/mutations/testJdbcConnectionForJdbcUser.graphql")
     private lateinit var testJdbcConnectionForJdbcUserMutation: Resource
 
@@ -113,6 +116,29 @@ class DatabaseMutationResolverTest : AbstractGraphQLTest() {
             .graphqlData("deleteDatabaseSchemas.succeeded[0]").isEqualTo("abc123")
             .graphqlData("deleteDatabaseSchemas.failed.length()").isEqualTo(1)
             .graphqlData("deleteDatabaseSchemas.failed[0]").isEqualTo("bcd234")
+    }
+
+    @Test
+    fun `Restore database schema given ids`() {
+        every { databaseSchemaService.restoreDatabaseSchemas(any()) } returns
+            listOf(
+                SchemaCooldownChangeResponse(id = "abc123", success = true),
+                SchemaCooldownChangeResponse(id = "bcd234", success = false)
+            )
+
+        val request = RestoreDatabaseSchemasInput(listOf("abc123", "bcd234"), active = true)
+        val restoreVariables = mapOf("input" to jacksonObjectMapper().convertValue<Map<String, Any>>(request))
+
+        webTestClient.queryGraphQL(
+            queryResource = restoreDatabaseSchemasMutation,
+            variables = restoreVariables,
+            token = "test-token"
+        )
+            .expectBody()
+            .graphqlData("restoreDatabaseSchemas.succeeded.length()").isEqualTo(1)
+            .graphqlData("restoreDatabaseSchemas.succeeded[0]").isEqualTo("abc123")
+            .graphqlData("restoreDatabaseSchemas.failed.length()").isEqualTo(1)
+            .graphqlData("restoreDatabaseSchemas.failed[0]").isEqualTo("bcd234")
     }
 
     @Test

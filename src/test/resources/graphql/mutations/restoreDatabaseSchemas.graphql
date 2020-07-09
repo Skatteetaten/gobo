@@ -1,0 +1,6 @@
+mutation restoreDatabaseSchemas($input: RestoreDatabaseSchemasInput!){
+    restoreDatabaseSchemas(input: $input) {
+        succeeded
+        failed
+    }
+}
