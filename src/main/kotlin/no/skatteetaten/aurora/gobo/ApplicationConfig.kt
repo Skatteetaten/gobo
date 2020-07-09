@@ -1,11 +1,11 @@
 package no.skatteetaten.aurora.gobo
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import io.netty.channel.ChannelOption
 import io.netty.handler.ssl.SslContextBuilder
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory
 import io.netty.handler.timeout.ReadTimeoutHandler
 import io.netty.handler.timeout.WriteTimeoutHandler
+import java.util.UUID
 import java.util.concurrent.TimeUnit
 import kotlin.math.min
 import mu.KotlinLogging
@@ -23,11 +23,8 @@ import org.springframework.core.annotation.Order
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.http.client.reactive.ReactorClientHttpConnector
-import org.springframework.http.codec.json.Jackson2JsonDecoder
-import org.springframework.http.codec.json.Jackson2JsonEncoder
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction
-import org.springframework.web.reactive.function.client.ExchangeStrategies
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.kotlin.core.publisher.toMono
 import reactor.netty.http.client.HttpClient
@@ -61,8 +58,7 @@ class ApplicationConfig(
     @Value("\${gobo.webclient.read-timeout:30000}") val readTimeout: Long,
     @Value("\${gobo.webclient.write-timeout:30000}") val writeTimeout: Long,
     @Value("\${gobo.webclient.connection-timeout:30000}") val connectionTimeout: Int,
-    @Value("\${spring.application.name}") val applicationName: String,
-    val objectMapper: ObjectMapper
+    @Value("\${spring.application.name}") val applicationName: String
 ) {
 
     @Bean
@@ -113,8 +109,10 @@ class ApplicationConfig(
     fun WebClient.Builder.init() =
         this.defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .defaultHeader(HEADER_KLIENTID, applicationName)
-            .defaultHeader(AuroraHeaderFilter.KORRELASJONS_ID, RequestKorrelasjon.getId())
-            .exchangeStrategies(exchangeStrategies())
+            .defaultHeader(
+                AuroraHeaderFilter.KORRELASJONS_ID,
+                RequestKorrelasjon.getId() ?: UUID.randomUUID().toString()
+            )
             .filter(ExchangeFilterFunction.ofRequestProcessor {
                 val bearer = it.headers()[HttpHeaders.AUTHORIZATION]?.firstOrNull()?.let { token ->
                     val t = token.substring(0, min(token.length, 11)).replace("Bearer", "")
@@ -124,19 +122,6 @@ class ApplicationConfig(
                 it.toMono()
             })
             .clientConnector(clientConnector())
-
-    private fun exchangeStrategies(): ExchangeStrategies {
-        return ExchangeStrategies
-            .builder()
-            .codecs {
-                it.defaultCodecs().apply {
-                    maxInMemorySize(-1) // unlimited
-                    jackson2JsonDecoder(Jackson2JsonDecoder(objectMapper, MediaType.APPLICATION_JSON))
-                    jackson2JsonEncoder(Jackson2JsonEncoder(objectMapper, MediaType.APPLICATION_JSON))
-                }
-            }
-            .build()
-    }
 
     private fun clientConnector(ssl: Boolean = false): ReactorClientHttpConnector {
         val httpClient = HttpClient.create().compress(true)
