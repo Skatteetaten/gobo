@@ -32,8 +32,8 @@ type Mutation {
     updateUserSettings(input: UserSettingsInput!): Boolean
 
     updateDatabaseSchema(input: UpdateDatabaseSchemaInput!): DatabaseSchema
-    deleteDatabaseSchemas(input: DeleteDatabaseSchemasInput!): DeleteDatabaseSchemasResponse
-    restoreDatabaseSchemas(input: RestoreDatabaseSchemasInput!): RestoreDatabaseSchemasResponse
+    deleteDatabaseSchemas(input: DeleteDatabaseSchemasInput!): ChangeCooldownDatabaseSchemasResponse
+    restoreDatabaseSchemas(input: RestoreDatabaseSchemasInput!): ChangeCooldownDatabaseSchemasResponse
 
     testJdbcConnectionForJdbcUser(input: JdbcUserInput!): ConnectionVerificationResponse
     testJdbcConnectionForId(id: String!): ConnectionVerificationResponse

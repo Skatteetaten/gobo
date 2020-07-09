@@ -72,17 +72,12 @@ input DeleteDatabaseSchemasInput {
 
 input RestoreDatabaseSchemasInput {
     ids: [String!]!
-    active: [Boolean!]!
+    active: Boolean!
 }
 
-type DeleteDatabaseSchemasResponse {
+type ChangeCooldownDatabaseSchemasResponse {
   succeeded: [String]!
   failed: [String]!
-}
-
-type RestoreDatabaseSchemasResponse {
-    succeeded: [String]!
-    failed: [String]!
 }
 
 input JdbcUserInput {
