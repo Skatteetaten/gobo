@@ -18,7 +18,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.bodyToMono
 
-@SpringBootTest(classes = [ApplicationConfig::class, TestConfig::class])
+@SpringBootTest(classes = [TestConfig::class, ApplicationConfig::class])
 class DefaultHeadersTest {
 
     private val server = MockWebServer()

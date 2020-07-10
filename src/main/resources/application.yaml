@@ -71,10 +71,7 @@ gobo:
     graphql:
         tracing-enabled: false
 
-aurora:
-    starter:
-        headerfilter:
-            enabled: false
+aurora.webflux.header.webclient.interceptor.enabled: true
 
 logging:
     level:
@@ -142,6 +139,8 @@ openshift:
 ---
 spring:
     profiles: openshift
+    sleuth:
+        enabled: false
 
 aurora:
     token:
