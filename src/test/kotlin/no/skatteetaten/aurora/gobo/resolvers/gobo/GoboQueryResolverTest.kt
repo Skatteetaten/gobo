@@ -1,14 +1,15 @@
 package no.skatteetaten.aurora.gobo.resolvers.gobo
 
-import no.skatteetaten.aurora.gobo.resolvers.AbstractGraphQLTest
+import no.skatteetaten.aurora.gobo.resolvers.GraphQLTestWithDbhAndSkap
 import no.skatteetaten.aurora.gobo.resolvers.graphqlData
 import no.skatteetaten.aurora.gobo.resolvers.graphqlDataWithPrefix
+import no.skatteetaten.aurora.gobo.resolvers.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 
-class GoboQueryResolverTest : AbstractGraphQLTest() {
+class GoboQueryResolverTest : GraphQLTestWithDbhAndSkap() {
 
     @Value("classpath:graphql/queries/getGoboUsage.graphql")
     private lateinit var getGoboUsageQuery: Resource
@@ -29,6 +30,7 @@ class GoboQueryResolverTest : AbstractGraphQLTest() {
                 graphqlData("name").isNotEmpty
                 graphqlData("count").isNotEmpty
             }
+            .graphqlDoesNotContainErrors()
     }
 
     @Test
@@ -49,5 +51,6 @@ class GoboQueryResolverTest : AbstractGraphQLTest() {
                 graphqlData("name").isEqualTo("anonymous")
                 graphqlData("count").isNumber
             }
+            .graphqlDoesNotContainErrors()
     }
 }

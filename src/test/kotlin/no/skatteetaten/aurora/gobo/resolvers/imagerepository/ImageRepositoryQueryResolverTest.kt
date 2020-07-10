@@ -12,9 +12,10 @@ import no.skatteetaten.aurora.gobo.integration.cantus.ImageTagResource
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageTagType
 import no.skatteetaten.aurora.gobo.integration.cantus.Tag
 import no.skatteetaten.aurora.gobo.integration.cantus.TagsDto
-import no.skatteetaten.aurora.gobo.resolvers.AbstractGraphQLTest
+import no.skatteetaten.aurora.gobo.resolvers.GraphQLTestWithDbhAndSkap
 import no.skatteetaten.aurora.gobo.resolvers.graphqlDataWithPrefix
 import no.skatteetaten.aurora.gobo.resolvers.graphqlDataWithPrefixAndIndex
+import no.skatteetaten.aurora.gobo.resolvers.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.resolvers.graphqlErrors
 import no.skatteetaten.aurora.gobo.resolvers.graphqlErrorsFirst
 import no.skatteetaten.aurora.gobo.resolvers.isTrue
@@ -37,7 +38,7 @@ private fun ImageRepoAndTags.toImageTagResource() =
 private fun List<ImageRepoAndTags>.getTagCount() =
     this.flatMap { it.imageTags }.size
 
-class ImageRepositoryQueryResolverTest : AbstractGraphQLTest() {
+class ImageRepositoryQueryResolverTest : GraphQLTestWithDbhAndSkap() {
     @Value("classpath:graphql/queries/getImageRepositories.graphql")
     private lateinit var reposWithTagsQuery: Resource
 
@@ -108,6 +109,7 @@ class ImageRepositoryQueryResolverTest : AbstractGraphQLTest() {
                 graphqlData("tag[1].type").isEqualTo("MAJOR")
                 graphqlData("tag[1].image.buildTime").isEqualTo(EPOCH.toString())
             }
+            .graphqlDoesNotContainErrors()
     }
 
     @Test
@@ -129,6 +131,7 @@ class ImageRepositoryQueryResolverTest : AbstractGraphQLTest() {
                 graphqlData("tags.edges[1].node.name").isEqualTo(imageRepoAndTags.imageTags[1])
                 graphqlData("tags.edges[1].node.image.buildTime").isEqualTo(EPOCH.toString())
             }
+            .graphqlDoesNotContainErrors()
     }
 
     @Test
@@ -173,6 +176,7 @@ class ImageRepositoryQueryResolverTest : AbstractGraphQLTest() {
                 graphqlData("edges[1].node.name").isEqualTo("1.0")
                 graphqlData("edges[2].node.name").isEqualTo("1.0.0")
             }
+            .graphqlDoesNotContainErrors()
     }
 
     @Test
@@ -194,6 +198,7 @@ class ImageRepositoryQueryResolverTest : AbstractGraphQLTest() {
                 graphqlData("pageInfo.startCursor").isNotEmpty
                 graphqlData("pageInfo.hasNextPage").isTrue()
             }
+            .graphqlDoesNotContainErrors()
     }
 
     @Test

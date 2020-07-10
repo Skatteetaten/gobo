@@ -7,6 +7,8 @@ import graphql.schema.DataFetchingEnvironment
 import no.skatteetaten.aurora.gobo.integration.boober.ApplicationDeploymentService
 import no.skatteetaten.aurora.gobo.integration.boober.DeleteApplicationDeploymentInput
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
+import no.skatteetaten.aurora.gobo.integration.skap.RouteService
+import no.skatteetaten.aurora.gobo.resolvers.AccessDeniedException
 import no.skatteetaten.aurora.gobo.resolvers.affiliation.Affiliation
 import no.skatteetaten.aurora.gobo.resolvers.application.Application
 import no.skatteetaten.aurora.gobo.resolvers.application.DockerRegistry
@@ -15,7 +17,11 @@ import no.skatteetaten.aurora.gobo.resolvers.applicationdeploymentdetails.Applic
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository
 import no.skatteetaten.aurora.gobo.resolvers.loader
 import no.skatteetaten.aurora.gobo.resolvers.namespace.Namespace
+import no.skatteetaten.aurora.gobo.resolvers.route.BigipJob
+import no.skatteetaten.aurora.gobo.resolvers.route.Route
+import no.skatteetaten.aurora.gobo.resolvers.route.WebsealJob
 import no.skatteetaten.aurora.gobo.security.currentUser
+import no.skatteetaten.aurora.gobo.security.isAnonymousUser
 import no.skatteetaten.aurora.gobo.service.ApplicationUpgradeService
 import org.springframework.stereotype.Component
 
@@ -62,7 +68,8 @@ class ApplicationDeploymentMutationResolver(
 
 @Component
 class ApplicationDeploymentResolver(
-    private val applicationService: ApplicationServiceBlocking
+    private val applicationService: ApplicationServiceBlocking,
+    private val routeService: RouteService
 ) : GraphQLResolver<ApplicationDeployment> {
 
     fun affiliation(applicationDeployment: ApplicationDeployment): Affiliation =
@@ -72,7 +79,27 @@ class ApplicationDeploymentResolver(
         Namespace(applicationDeployment.namespaceId, applicationDeployment.affiliationId)
 
     fun details(applicationDeployment: ApplicationDeployment, dfe: DataFetchingEnvironment) =
-        dfe.loader(ApplicationDeploymentDetailsDataLoader::class).load(applicationDeployment.id)
+        dfe.loader(ApplicationDeploymentDetailsDataLoader::class).load(
+            applicationDeployment.id
+        )
+
+    fun route(
+        applicationDeployment: ApplicationDeployment,
+        dfe: DataFetchingEnvironment
+    ): Route? {
+        if (dfe.isAnonymousUser()) throw AccessDeniedException("Anonymous user cannot get WebSEAL/BigIp jobs")
+        return Route(
+            websealJobs =
+            routeService.getSkapJobs(
+                namespace(applicationDeployment).name,
+                "${applicationDeployment.name}-webseal"
+            ).map { WebsealJob.create(it) },
+            bigipJobs = routeService.getSkapJobs(
+                namespace(applicationDeployment).name,
+                "${applicationDeployment.name}-bigip"
+            ).map { BigipJob.create(it) }
+        )
+    }
 
     fun application(applicationDeployment: ApplicationDeployment): Application? {
         val application = applicationService.getApplication(applicationDeployment.applicationId)

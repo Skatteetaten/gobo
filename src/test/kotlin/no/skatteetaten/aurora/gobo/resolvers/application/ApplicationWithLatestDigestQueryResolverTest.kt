@@ -8,9 +8,10 @@ import no.skatteetaten.aurora.gobo.integration.cantus.ImageRegistryServiceBlocki
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
 import no.skatteetaten.aurora.gobo.integration.mokey.AuroraNamespacePermissions
 import no.skatteetaten.aurora.gobo.integration.mokey.PermissionService
-import no.skatteetaten.aurora.gobo.resolvers.AbstractGraphQLTest
+import no.skatteetaten.aurora.gobo.resolvers.GraphQLTestWithDbhAndSkap
 import no.skatteetaten.aurora.gobo.resolvers.graphqlData
 import no.skatteetaten.aurora.gobo.resolvers.graphqlDataWithPrefix
+import no.skatteetaten.aurora.gobo.resolvers.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageTag
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import org.junit.jupiter.api.Test
@@ -18,7 +19,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 import reactor.kotlin.core.publisher.toMono
 
-class ApplicationWithLatestDigestQueryResolverTest : AbstractGraphQLTest() {
+class ApplicationWithLatestDigestQueryResolverTest : GraphQLTestWithDbhAndSkap() {
 
     @Value("classpath:graphql/queries/getApplicationsWithLatestDigest.graphql")
     private lateinit var getApplicationsQuery: Resource
@@ -69,5 +70,6 @@ class ApplicationWithLatestDigestQueryResolverTest : AbstractGraphQLTest() {
                 graphqlData("digest").isEqualTo("sha256:123")
                 graphqlData("isLatestDigest").isEqualTo(true)
             }
+            .graphqlDoesNotContainErrors()
     }
 }

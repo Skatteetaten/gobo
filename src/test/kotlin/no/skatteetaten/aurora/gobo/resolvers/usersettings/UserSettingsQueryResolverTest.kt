@@ -5,15 +5,16 @@ import io.mockk.every
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentFilterResourceBuilder
 import no.skatteetaten.aurora.gobo.integration.boober.UserSettingsResource
 import no.skatteetaten.aurora.gobo.integration.boober.UserSettingsService
-import no.skatteetaten.aurora.gobo.resolvers.AbstractGraphQLTest
+import no.skatteetaten.aurora.gobo.resolvers.GraphQLTestWithDbhAndSkap
 import no.skatteetaten.aurora.gobo.resolvers.graphqlDataWithPrefix
+import no.skatteetaten.aurora.gobo.resolvers.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 
-class UserSettingsQueryResolverTest : AbstractGraphQLTest() {
+class UserSettingsQueryResolverTest : GraphQLTestWithDbhAndSkap() {
 
     @Value("classpath:graphql/queries/getUserSettingsWithAffiliation.graphql")
     private lateinit var getUserSettingsWithAffiliationQuery: Resource
@@ -49,6 +50,7 @@ class UserSettingsQueryResolverTest : AbstractGraphQLTest() {
                 graphqlData("[0].affiliation").isEqualTo("aurora")
                 graphqlData("[1].affiliation").isEqualTo("paas")
             }
+            .graphqlDoesNotContainErrors()
     }
 
     @Test
@@ -69,5 +71,6 @@ class UserSettingsQueryResolverTest : AbstractGraphQLTest() {
                 graphqlDataFirst("applications").isNotEmpty
                 graphqlDataFirst("environments").isNotEmpty
             }
+            .graphqlDoesNotContainErrors()
     }
 }

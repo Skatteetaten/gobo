@@ -9,11 +9,11 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-abstract class AbstractGraphQLTest {
-
+abstract class GraphQLTestWithoutDbhAndSkap {
     @Autowired
     protected lateinit var webTestClient: WebTestClient
 
@@ -28,3 +28,6 @@ abstract class AbstractGraphQLTest {
     @AfterEach
     fun shutdown() = clearAllMocks()
 }
+
+@ActiveProfiles("with-dbh-and-skap")
+abstract class GraphQLTestWithDbhAndSkap : GraphQLTestWithoutDbhAndSkap()

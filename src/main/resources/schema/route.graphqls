@@ -1,0 +1,35 @@
+type WebsealJob{
+  id: String!,
+  payload: String!,
+  type: String!,
+  operation: String!,
+  status: String!,
+  updated: String!,
+  errorMessage: String,
+  roles: String,
+  host: String,
+  routeName: String
+}
+
+
+type BigipJob{
+  id: String!,
+  payload: String!,
+  type: String!,
+  operation: String!,
+  status: String!,
+  updated: String!,
+  errorMessage: String,
+  asmPolicy: String,
+  externalHost: String,
+  apiPaths: [String]!,
+  oauthScopes: [String]!,
+  hostname: String,
+  serviceName: String,
+  name: String
+}
+
+type Route {
+ websealJobs: [WebsealJob]!
+ bigipJobs: [BigipJob]!
+}

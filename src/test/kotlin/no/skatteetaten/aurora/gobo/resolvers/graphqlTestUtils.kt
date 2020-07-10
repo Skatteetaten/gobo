@@ -83,6 +83,9 @@ class GraphqlDataWithPrefixAndIndex(
     fun graphqlData(jsonPath: String) = bodyContentSpec.graphqlJsonPath(jsonPath, "data.$prefix[$index]")
 }
 
+fun WebTestClient.BodyContentSpec.graphqlDoesNotContainErrors() =
+    this.jsonPath("$.errors").doesNotExist()
+
 fun WebTestClient.BodyContentSpec.graphqlData(jsonPath: String) =
     graphqlJsonPath(jsonPath, "data")
 
