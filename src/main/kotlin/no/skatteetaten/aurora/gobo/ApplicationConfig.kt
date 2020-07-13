@@ -21,6 +21,7 @@ import org.springframework.context.annotation.Primary
 import org.springframework.core.Ordered
 import org.springframework.core.annotation.Order
 import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpHeaders.USER_AGENT
 import org.springframework.http.MediaType
 import org.springframework.http.client.reactive.ReactorClientHttpConnector
 import org.springframework.stereotype.Component
@@ -109,6 +110,7 @@ class ApplicationConfig(
     fun WebClient.Builder.init() =
         this.defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .defaultHeader(HEADER_KLIENTID, applicationName)
+            .defaultHeader(USER_AGENT, applicationName)
             .defaultHeader(
                 AuroraHeaderFilter.KORRELASJONS_ID,
                 RequestKorrelasjon.getId() ?: UUID.randomUUID().toString()

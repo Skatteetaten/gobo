@@ -15,6 +15,7 @@ import okhttp3.mockwebserver.MockWebServer
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.http.HttpHeaders.USER_AGENT
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.bodyToMono
 
@@ -34,6 +35,7 @@ class DefaultHeadersTest {
 
         val headers = request.first()?.headers!!
         assertThat(headers.get(HEADER_KLIENTID)).isEqualTo("gobo")
+        assertThat(headers.get(USER_AGENT)).isEqualTo("gobo")
         assertThat(headers.get(KORRELASJONS_ID)).isNotNull().isNotEmpty()
     }
 
