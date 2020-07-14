@@ -4,7 +4,7 @@ plugins {
     id("org.jlleitschuh.gradle.ktlint") version "9.2.1"
     id("org.sonarqube") version "2.8"
 
-    id("org.springframework.boot") version "2.2.4.RELEASE"
+    id("org.springframework.boot") version "2.3.1.RELEASE"
     id("org.asciidoctor.convert") version "2.4.0"
 
     id("com.gorylenko.gradle-git-properties") version "2.2.1"
@@ -21,14 +21,7 @@ dependencies {
     implementation("io.projectreactor.kotlin:reactor-kotlin-extensions:1.0.2.RELEASE")
     implementation("org.apache.commons:commons-text:1.8")
     implementation("org.springframework.retry:spring-retry")
-    implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("org.springframework.boot:spring-boot-starter-security")
-    implementation("no.skatteetaten.aurora.springboot:aurora-spring-boot-webflux-starter:1.0.4")
-
-    implementation("com.graphql-java-kickstart:graphql-spring-boot-starter:5.10.0")
-    implementation("com.graphql-java-kickstart:altair-spring-boot-starter:5.10.0")
-    implementation("com.graphql-java-kickstart:voyager-spring-boot-starter:5.10.0")
-    implementation("com.graphql-java-kickstart:graphql-java-tools:5.6.1")
 
     implementation("uk.q3c.rest:hal-kotlin:0.5.4.0.db32476")
     implementation("io.fabric8:openshift-client:4.8.0")
