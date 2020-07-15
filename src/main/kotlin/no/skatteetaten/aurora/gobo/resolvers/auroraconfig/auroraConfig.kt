@@ -1,8 +1,6 @@
 package no.skatteetaten.aurora.gobo.resolvers.auroraconfig
 
-import com.coxautodev.graphql.tools.GraphQLMutationResolver
-import com.coxautodev.graphql.tools.GraphQLQueryResolver
-import com.coxautodev.graphql.tools.GraphQLResolver
+import com.expediagroup.graphql.spring.operations.Query
 import com.fasterxml.jackson.databind.JsonNode
 import graphql.schema.DataFetchingEnvironment
 import no.skatteetaten.aurora.gobo.integration.Response
@@ -19,7 +17,7 @@ import org.springframework.stereotype.Component
 @Component
 class AuroraConfigQueryResolver(
     private val service: AuroraConfigService
-) : GraphQLQueryResolver {
+) : Query {
 
     fun auroraConfig(name: String, refInput: String?, dfe: DataFetchingEnvironment): AuroraConfig {
         val ref = refInput ?: "master"
@@ -52,7 +50,7 @@ data class ApplicationDeploymentSpec(
 
 @Component
 class AuroraConfigResolver(val applicationDeploymentService: ApplicationDeploymentService) :
-    GraphQLResolver<AuroraConfig> {
+    Query {
 
     fun applicationDeploymentSpec(
         auroraConfig: AuroraConfig,
@@ -88,7 +86,7 @@ class AuroraConfigResolver(val applicationDeploymentService: ApplicationDeployme
 @Component
 class AuroraConfigMutationResolver(
     private val service: AuroraConfigService
-) : GraphQLMutationResolver {
+) : Query {
 
     fun updateAuroraConfigFile(
         input: UpdateAuroraConfigFileInput,

@@ -1,6 +1,6 @@
 package no.skatteetaten.aurora.gobo.resolvers.certificate
 
-import com.coxautodev.graphql.tools.GraphQLQueryResolver
+import com.expediagroup.graphql.spring.operations.Query
 import graphql.schema.DataFetchingEnvironment
 import no.skatteetaten.aurora.gobo.integration.skap.CertificateService
 import no.skatteetaten.aurora.gobo.resolvers.AccessDeniedException
@@ -8,7 +8,7 @@ import no.skatteetaten.aurora.gobo.security.isAnonymousUser
 import org.springframework.stereotype.Component
 
 @Component
-class CertificateResolver(private val certificateService: CertificateService) : GraphQLQueryResolver {
+class CertificateResolver(private val certificateService: CertificateService) : Query {
 
     fun getCertificates(dfe: DataFetchingEnvironment): CertificatesConnection {
         if (dfe.isAnonymousUser()) throw AccessDeniedException("Anonymous user cannot get certificates")

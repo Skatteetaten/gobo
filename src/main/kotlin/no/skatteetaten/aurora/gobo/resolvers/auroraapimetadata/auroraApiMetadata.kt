@@ -1,7 +1,6 @@
 package no.skatteetaten.aurora.gobo.resolvers.auroraapimetadata
 
-import com.coxautodev.graphql.tools.GraphQLQueryResolver
-import com.coxautodev.graphql.tools.GraphQLResolver
+import com.expediagroup.graphql.spring.operations.Query
 import graphql.schema.DataFetchingEnvironment
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraApiMetadataService
 import org.springframework.stereotype.Component
@@ -9,7 +8,7 @@ import org.springframework.stereotype.Component
 @Component
 class AuroraApiMetadataQueryResolver(
     private val service: AuroraApiMetadataService
-) : GraphQLQueryResolver {
+) : Query {
 
     fun auroraApiMetadata(dfe: DataFetchingEnvironment): AuroraApiMetadata {
         val clientConfig = service.getClientConfig()
@@ -20,7 +19,7 @@ class AuroraApiMetadataQueryResolver(
 @Component
 class AuroraApiMetadataResolver(
     private val service: AuroraApiMetadataService
-) : GraphQLResolver<AuroraApiMetadata> {
+) : Query {
 
     fun configNames(auroraApiMetadata: AuroraApiMetadata): List<String> {
         return service.getConfigNames()

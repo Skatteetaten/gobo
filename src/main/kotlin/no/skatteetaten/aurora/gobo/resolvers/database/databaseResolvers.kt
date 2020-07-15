@@ -1,8 +1,7 @@
 package no.skatteetaten.aurora.gobo.resolvers.database
 
-import com.coxautodev.graphql.tools.GraphQLMutationResolver
-import com.coxautodev.graphql.tools.GraphQLQueryResolver
-import com.coxautodev.graphql.tools.GraphQLResolver
+import com.expediagroup.graphql.spring.operations.Mutation
+import com.expediagroup.graphql.spring.operations.Query
 import graphql.schema.DataFetchingEnvironment
 import java.util.concurrent.CompletableFuture
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseService
@@ -11,13 +10,12 @@ import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
 import no.skatteetaten.aurora.gobo.resolvers.AccessDeniedException
 import no.skatteetaten.aurora.gobo.resolvers.affiliation.Affiliation
 import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.ApplicationDeployment
-import no.skatteetaten.aurora.gobo.resolvers.multipleKeysLoader
 import no.skatteetaten.aurora.gobo.security.isAnonymousUser
 import org.springframework.stereotype.Component
 
 @Component
 class DatabaseSchemaQueryResolver(private val databaseService: DatabaseService) :
-    GraphQLQueryResolver {
+    Query {
 
     fun databaseSchemas(affiliations: List<String>, dfe: DataFetchingEnvironment): List<DatabaseSchema> {
         if (dfe.isAnonymousUser()) throw AccessDeniedException("Anonymous user cannot get database schemas")
@@ -48,7 +46,7 @@ class DatabaseSchemaQueryResolver(private val databaseService: DatabaseService) 
 
 @Component
 class DatabaseSchemaMutationResolver(private val databaseService: DatabaseService) :
-    GraphQLMutationResolver {
+    Mutation {
     fun updateDatabaseSchema(input: UpdateDatabaseSchemaInput, dfe: DataFetchingEnvironment): DatabaseSchema {
         if (dfe.isAnonymousUser()) throw AccessDeniedException("Anonymous user cannot update database schema")
         return databaseService.updateDatabaseSchema(input.toSchemaUpdateRequest())
@@ -82,11 +80,11 @@ class DatabaseSchemaMutationResolver(private val databaseService: DatabaseServic
 }
 
 @Component
-class DatabaseSchemaResolver(val applicationService: ApplicationServiceBlocking) : GraphQLResolver<DatabaseSchema> {
+class DatabaseSchemaResolver(val applicationService: ApplicationServiceBlocking) : Query {
 
     fun applicationDeployments(
         schema: DatabaseSchema,
         dfe: DataFetchingEnvironment
     ): CompletableFuture<List<ApplicationDeployment>> =
-        dfe.multipleKeysLoader(DatabaseDataLoader::class).load(schema.id)
+        dfe.multipleKeysLoader<String, ApplicationDeployment>(schema.id)
 }
