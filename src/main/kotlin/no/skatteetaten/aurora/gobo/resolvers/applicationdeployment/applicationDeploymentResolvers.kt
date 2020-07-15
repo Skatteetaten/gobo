@@ -14,9 +14,7 @@ import no.skatteetaten.aurora.gobo.resolvers.application.Application
 import no.skatteetaten.aurora.gobo.resolvers.application.DockerRegistry
 import no.skatteetaten.aurora.gobo.resolvers.application.createApplicationEdge
 import no.skatteetaten.aurora.gobo.resolvers.applicationdeploymentdetails.ApplicationDeploymentDetails
-import no.skatteetaten.aurora.gobo.resolvers.applicationdeploymentdetails.ApplicationDeploymentDetailsDataLoader
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository
-import no.skatteetaten.aurora.gobo.resolvers.loader
 import no.skatteetaten.aurora.gobo.resolvers.namespace.Namespace
 import no.skatteetaten.aurora.gobo.resolvers.route.BigipJob
 import no.skatteetaten.aurora.gobo.resolvers.route.Route

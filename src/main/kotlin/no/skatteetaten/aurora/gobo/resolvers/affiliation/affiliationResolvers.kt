@@ -1,18 +1,13 @@
 package no.skatteetaten.aurora.gobo.resolvers.affiliation
 
 import com.expediagroup.graphql.spring.operations.Query
-import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
-import java.util.concurrent.CompletableFuture
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseService
 import no.skatteetaten.aurora.gobo.integration.mokey.AffiliationServiceBlocking
-import no.skatteetaten.aurora.gobo.load
 import no.skatteetaten.aurora.gobo.loadMany
-import no.skatteetaten.aurora.gobo.loadOptional
 import no.skatteetaten.aurora.gobo.resolvers.AccessDeniedException
 import no.skatteetaten.aurora.gobo.resolvers.database.DatabaseInstance
 import no.skatteetaten.aurora.gobo.resolvers.database.DatabaseSchema
-import no.skatteetaten.aurora.gobo.resolvers.multipleKeysLoader
 import no.skatteetaten.aurora.gobo.security.currentUser
 import no.skatteetaten.aurora.gobo.security.isAnonymousUser
 import no.skatteetaten.aurora.gobo.service.WebsealAffiliationService
