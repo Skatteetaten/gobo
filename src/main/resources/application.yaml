@@ -11,6 +11,8 @@ spring:
         name: gobo
     profiles:
         active: local
+    codec:
+        max-in-memory-size: -1 # unlimited
 
 management:
     endpoints:
