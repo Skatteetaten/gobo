@@ -22,6 +22,7 @@ dependencies {
     implementation("org.apache.commons:commons-text:1.8")
     implementation("org.springframework.retry:spring-retry")
     implementation("org.springframework.boot:spring-boot-starter-security")
+    implementation("com.expediagroup:graphql-kotlin-spring-server:3.4.1")
 
     implementation("uk.q3c.rest:hal-kotlin:0.5.4.0.db32476")
     implementation("io.fabric8:openshift-client:4.8.0")
