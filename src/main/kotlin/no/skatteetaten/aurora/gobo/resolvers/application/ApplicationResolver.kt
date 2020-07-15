@@ -1,13 +1,13 @@
 package no.skatteetaten.aurora.gobo.resolvers.application
 
-import com.coxautodev.graphql.tools.GraphQLResolver
+import com.expediagroup.graphql.spring.operations.Query
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 
 @Component
 class ApplicationResolver(val dockerRegistry: DockerRegistry) :
-    GraphQLResolver<Application> {
+    Query {
 
     fun imageRepository(application: Application): ImageRepository? = application.imageRepository
 

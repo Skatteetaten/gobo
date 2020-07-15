@@ -1,18 +1,19 @@
 package no.skatteetaten.aurora.gobo.resolvers.applicationdeployment
 
-import com.coxautodev.graphql.tools.GraphQLMutationResolver
-import com.coxautodev.graphql.tools.GraphQLQueryResolver
-import com.coxautodev.graphql.tools.GraphQLResolver
+import com.expediagroup.graphql.spring.operations.Mutation
+import com.expediagroup.graphql.spring.operations.Query
 import graphql.schema.DataFetchingEnvironment
 import no.skatteetaten.aurora.gobo.integration.boober.ApplicationDeploymentService
 import no.skatteetaten.aurora.gobo.integration.boober.DeleteApplicationDeploymentInput
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
 import no.skatteetaten.aurora.gobo.integration.skap.RouteService
+import no.skatteetaten.aurora.gobo.load
 import no.skatteetaten.aurora.gobo.resolvers.AccessDeniedException
 import no.skatteetaten.aurora.gobo.resolvers.affiliation.Affiliation
 import no.skatteetaten.aurora.gobo.resolvers.application.Application
 import no.skatteetaten.aurora.gobo.resolvers.application.DockerRegistry
 import no.skatteetaten.aurora.gobo.resolvers.application.createApplicationEdge
+import no.skatteetaten.aurora.gobo.resolvers.applicationdeploymentdetails.ApplicationDeploymentDetails
 import no.skatteetaten.aurora.gobo.resolvers.applicationdeploymentdetails.ApplicationDeploymentDetailsDataLoader
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository
 import no.skatteetaten.aurora.gobo.resolvers.loader
@@ -29,7 +30,7 @@ import org.springframework.stereotype.Component
 class ApplicationDeploymentQueryResolver(
     private val applicationService: ApplicationServiceBlocking,
     private val dockerRegistry: DockerRegistry
-) : GraphQLQueryResolver {
+) : Query {
 
     fun getApplicationDeployment(id: String): ApplicationDeployment? =
         applicationService.getApplicationDeployment(id).let { resource ->
@@ -44,7 +45,7 @@ class ApplicationDeploymentQueryResolver(
 class ApplicationDeploymentMutationResolver(
     private val applicationUpgradeService: ApplicationUpgradeService,
     private val applicationDeploymentService: ApplicationDeploymentService
-) : GraphQLMutationResolver {
+) : Mutation {
 
     fun redeployWithVersion(input: ApplicationDeploymentVersionInput, dfe: DataFetchingEnvironment): Boolean {
         applicationUpgradeService.upgrade(dfe.currentUser().token, input.applicationDeploymentId, input.version)
@@ -70,7 +71,7 @@ class ApplicationDeploymentMutationResolver(
 class ApplicationDeploymentResolver(
     private val applicationService: ApplicationServiceBlocking,
     private val routeService: RouteService
-) : GraphQLResolver<ApplicationDeployment> {
+) : Query {
 
     fun affiliation(applicationDeployment: ApplicationDeployment): Affiliation =
         Affiliation(applicationDeployment.affiliationId)
@@ -78,10 +79,8 @@ class ApplicationDeploymentResolver(
     fun namespace(applicationDeployment: ApplicationDeployment): Namespace =
         Namespace(applicationDeployment.namespaceId, applicationDeployment.affiliationId)
 
-    fun details(applicationDeployment: ApplicationDeployment, dfe: DataFetchingEnvironment) =
-        dfe.loader(ApplicationDeploymentDetailsDataLoader::class).load(
-            applicationDeployment.id
-        )
+    suspend fun details(applicationDeployment: ApplicationDeployment, dfe: DataFetchingEnvironment) =
+        dfe.load<String, ApplicationDeploymentDetails>(applicationDeployment.id)
 
     fun route(
         applicationDeployment: ApplicationDeployment,

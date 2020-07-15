@@ -1,13 +1,13 @@
 package no.skatteetaten.aurora.gobo.resolvers.applicationdeploymentdetails
 
-import com.coxautodev.graphql.tools.GraphQLQueryResolver
+import com.expediagroup.graphql.spring.operations.Query
 import graphql.schema.DataFetchingEnvironment
-import no.skatteetaten.aurora.gobo.resolvers.loader
+import no.skatteetaten.aurora.gobo.load
 import org.springframework.stereotype.Component
 
 @Component
-class ApplicationDeploymentDetailsQueryResolver : GraphQLQueryResolver {
+class ApplicationDeploymentDetailsQueryResolver : Query {
 
-    fun applicationDeploymentDetails(id: String, dfe: DataFetchingEnvironment) =
-        dfe.loader(ApplicationDeploymentDetailsDataLoader::class).load(id)
+    suspend fun applicationDeploymentDetails(id: String, dfe: DataFetchingEnvironment) =
+        dfe.load<String, ApplicationDeploymentDetails>(id)
 }

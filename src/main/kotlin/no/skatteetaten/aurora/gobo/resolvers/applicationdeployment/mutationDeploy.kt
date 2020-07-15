@@ -1,6 +1,6 @@
 package no.skatteetaten.aurora.gobo.resolvers.applicationdeployment
 
-import com.coxautodev.graphql.tools.GraphQLMutationResolver
+import com.expediagroup.graphql.spring.operations.Mutation
 import com.fasterxml.jackson.databind.JsonNode
 import graphql.schema.DataFetchingEnvironment
 import no.skatteetaten.aurora.gobo.integration.boober.ApplicationDeploymentService
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component
 @Component
 class DeployMutationResolver(
     private val applicationDeploymentService: ApplicationDeploymentService
-) : GraphQLMutationResolver {
+) : Mutation {
 
     fun deploy(input: ApplicationDeploymentInput, dfe: DataFetchingEnvironment): ApplicationDeploymentResult {
 

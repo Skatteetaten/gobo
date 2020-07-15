@@ -1,13 +1,18 @@
 package no.skatteetaten.aurora.gobo
 
+import com.expediagroup.graphql.execution.GraphQLContext
 import com.expediagroup.graphql.spring.exception.SimpleKotlinGraphQLError
 import com.expediagroup.graphql.spring.execution.DataLoaderRegistryFactory
 import com.expediagroup.graphql.spring.execution.GraphQLContextFactory
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.future.asCompletableFuture
 import kotlinx.coroutines.future.await
+import no.skatteetaten.aurora.gobo.resolvers.affiliation.WebsealState
 import org.dataloader.BatchLoaderEnvironment
 import org.dataloader.DataLoader
 import org.dataloader.DataLoaderRegistry
@@ -18,15 +23,18 @@ import org.springframework.http.server.reactive.ServerHttpRequest
 import org.springframework.http.server.reactive.ServerHttpResponse
 import org.springframework.stereotype.Component
 
-class MyGraphQLContext(val user: String?, val request: ServerHttpRequest, val response: ServerHttpResponse)
+class MyGraphQLContext(val user: String?, val request: ServerHttpRequest, val response: ServerHttpResponse) :
+    GraphQLContext
 
 @Component
-class MyGraphQLContextFactory: GraphQLContextFactory<MyGraphQLContext> {
+class MyGraphQLContextFactory : GraphQLContextFactory<MyGraphQLContext> {
 
-    override suspend fun generateContext(request: ServerHttpRequest, response: ServerHttpResponse): MyGraphQLContext = MyGraphQLContext(
-        user = request.headers.getFirst("Authorization")?.removePrefix("Bearer "),
-        request = request,
-        response = response)
+    override suspend fun generateContext(request: ServerHttpRequest, response: ServerHttpResponse): MyGraphQLContext =
+        MyGraphQLContext(
+            user = request.headers.getFirst("Authorization")?.removePrefix("Bearer "),
+            request = request,
+            response = response
+        )
 }
 
 @Configuration
@@ -52,7 +60,6 @@ class DataLoaderConfiguration(
     }
 }
 
-
 interface KeyDataLoader<K, V> {
     suspend fun getByKey(key: K, ctx: MyGraphQLContext): V
 }
@@ -65,18 +72,17 @@ interface MultipleKeysDataLoader<K, V> {
   Use this if you have a service that loads multiple ids.
  */
 fun <K, V> batchDataLoaderMappedMultiple(keysDataLoader: MultipleKeysDataLoader<K, V>): DataLoader<K, V> =
-    DataLoader.newMappedDataLoaderWithTry{ keys: Set<K>, env: BatchLoaderEnvironment ->
+    DataLoader.newMappedDataLoaderWithTry { keys: Set<K>, env: BatchLoaderEnvironment ->
         GlobalScope.async {
             keysDataLoader.getByKeys(keys, env.keyContexts.entries.first().value as MyGraphQLContext)
         }.asCompletableFuture()
     }
 
-
 /*
   Use this if you have a service that loads a single id. Will make requests in parallel
  */
 fun <K, V> batchDataLoaderMappedSingle(keyDataLoader: KeyDataLoader<K, V>): DataLoader<K, V> =
-    DataLoader.newMappedDataLoaderWithTry { keys: Set<K>, env:BatchLoaderEnvironment ->
+    DataLoader.newMappedDataLoaderWithTry { keys: Set<K>, env: BatchLoaderEnvironment ->
 
         GlobalScope.async {
             val deferred: List<Deferred<Pair<K, Try<V>>>> = keys.map { key ->
@@ -98,7 +104,10 @@ fun <K, V> batchDataLoaderMappedSingle(keyDataLoader: KeyDataLoader<K, V>): Data
 
   If the loading throws and error the entire query will fail
  */
-suspend inline fun <Key, reified Value> DataFetchingEnvironment.load(key: Key, loaderPrefix: String = Value::class.java.simpleName): Value {
+suspend inline fun <Key, reified Value> DataFetchingEnvironment.load(
+    key: Key,
+    loaderPrefix: String = Value::class.java.simpleName
+): Value {
     val loaderName = "${loaderPrefix}DataLoader"
     return this.getDataLoader<Key, Value>(loaderName).load(key, this.getContext()).await()
 }
@@ -123,7 +132,13 @@ suspend inline fun <Key, reified Value> DataFetchingEnvironment.loadOptional(key
     val dfr = DataFetcherResult.newResult<Value>()
     return try {
         dfr.data(load(key))
-    }catch(e:Exception) {
-        dfr.error(SimpleKotlinGraphQLError(e, listOf(mergedField.singleField.sourceLocation), path = executionStepInfo.path.toList()))
+    } catch (e: Exception) {
+        dfr.error(
+            SimpleKotlinGraphQLError(
+                e,
+                listOf(mergedField.singleField.sourceLocation),
+                path = executionStepInfo.path.toList()
+            )
+        )
     }.build()
 }

@@ -1,11 +1,14 @@
 package no.skatteetaten.aurora.gobo.resolvers.affiliation
 
-import com.coxautodev.graphql.tools.GraphQLQueryResolver
-import com.coxautodev.graphql.tools.GraphQLResolver
+import com.expediagroup.graphql.spring.operations.Query
+import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
 import java.util.concurrent.CompletableFuture
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseService
 import no.skatteetaten.aurora.gobo.integration.mokey.AffiliationServiceBlocking
+import no.skatteetaten.aurora.gobo.load
+import no.skatteetaten.aurora.gobo.loadMany
+import no.skatteetaten.aurora.gobo.loadOptional
 import no.skatteetaten.aurora.gobo.resolvers.AccessDeniedException
 import no.skatteetaten.aurora.gobo.resolvers.database.DatabaseInstance
 import no.skatteetaten.aurora.gobo.resolvers.database.DatabaseSchema
@@ -18,7 +21,7 @@ import org.springframework.stereotype.Component
 @Component
 class AffiliationQueryResolver(
     val affiliationServiceBlocking: AffiliationServiceBlocking
-) : GraphQLQueryResolver {
+) : Query {
 
     fun getAffiliations(
         affiliation: String? = null,
@@ -46,7 +49,7 @@ class AffiliationQueryResolver(
 class AffiliationResolver(
     private val databaseService: DatabaseService,
     private val websealAffiliationService: WebsealAffiliationService
-) : GraphQLResolver<Affiliation> {
+) : Query {
 
     fun databaseInstances(affiliation: Affiliation, dfe: DataFetchingEnvironment): List<DatabaseInstance> {
         if (dfe.isAnonymousUser()) throw AccessDeniedException("Anonymous user cannot get database instances")
@@ -62,8 +65,11 @@ class AffiliationResolver(
         return databaseService.getDatabaseSchemas(affiliation.name).map { DatabaseSchema.create(it, affiliation) }
     }
 
-    fun websealStates(affiliation: Affiliation, dfe: DataFetchingEnvironment): CompletableFuture<List<WebsealState>> {
+    suspend fun websealStates(
+        affiliation: Affiliation,
+        dfe: DataFetchingEnvironment
+    ): List<WebsealState> {
         if (dfe.isAnonymousUser()) throw AccessDeniedException("Anonymous user cannot get WebSEAL states")
-        return dfe.multipleKeysLoader(AffiliationDataLoader::class).load(affiliation.name)
+        return dfe.loadMany(affiliation.name)
     }
 }

@@ -1,12 +1,11 @@
 package no.skatteetaten.aurora.gobo.resolvers.applicationdeploymentdetails
 
-import com.coxautodev.graphql.tools.GraphQLResolver
+import com.expediagroup.graphql.spring.operations.Query
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import graphql.schema.DataFetchingEnvironment
 import java.net.URL
 import no.skatteetaten.aurora.gobo.integration.boober.BooberWebClient
-import no.skatteetaten.aurora.gobo.resolvers.KeyDataLoader
 import no.skatteetaten.aurora.gobo.resolvers.blockNonNullAndHandleError
 import no.skatteetaten.aurora.gobo.resolvers.loader
 import no.skatteetaten.aurora.gobo.resolvers.user.User
@@ -22,10 +21,10 @@ class DeploymentSpecs(
 data class DeploymentSpec(val jsonRepresentation: String)
 
 @Component
-class DeploymentSpecsResolver : GraphQLResolver<DeploymentSpecs> {
+class DeploymentSpecsResolver : Query {
 
     fun current(specs: DeploymentSpecs, dfe: DataFetchingEnvironment) =
-        specs.deploymentSpecCurrent?.let { dfe.loader(DeploymentSpecDataLoader::class).load(it) }
+        specs.deploymentSpecCurrent?.let { dfe.load<String, DeploymentSpec>(DeploymentSpecDataLoader::class).load(it) }
 
     fun deployed(specs: DeploymentSpecs, dfe: DataFetchingEnvironment) =
         specs.deploymentSpecDeployed?.let { dfe.loader(DeploymentSpecDataLoader::class).load(it) }
