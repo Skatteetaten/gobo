@@ -2,13 +2,13 @@ package no.skatteetaten.aurora.gobo.resolvers.errorhandling
 
 import graphql.ExceptionWhileDataFetching
 import graphql.GraphQLError
-import graphql.servlet.core.GraphQLErrorHandler
 import no.skatteetaten.aurora.gobo.GoboException
 import org.springframework.stereotype.Component
 
+// FIXME error handler i graphql-kotlin?
 @Component
-class GoboGraphQLErrorHandler : GraphQLErrorHandler {
-    override fun processErrors(errors: MutableList<GraphQLError>?): MutableList<GraphQLError> {
+class GoboGraphQLErrorHandler {
+    fun processErrors(errors: MutableList<GraphQLError>?): MutableList<GraphQLError> {
         errors ?: return mutableListOf()
         val errorsMap = errors.map {
             if (it is ExceptionWhileDataFetching && it.exception is GoboException) {

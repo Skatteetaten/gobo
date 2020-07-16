@@ -3,10 +3,10 @@ package no.skatteetaten.aurora.gobo.resolvers.database
 import com.expediagroup.graphql.spring.operations.Mutation
 import com.expediagroup.graphql.spring.operations.Query
 import graphql.schema.DataFetchingEnvironment
-import java.util.concurrent.CompletableFuture
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseService
 import no.skatteetaten.aurora.gobo.integration.dbh.JdbcUser
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
+import no.skatteetaten.aurora.gobo.loadMany
 import no.skatteetaten.aurora.gobo.resolvers.AccessDeniedException
 import no.skatteetaten.aurora.gobo.resolvers.affiliation.Affiliation
 import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.ApplicationDeployment
@@ -82,9 +82,9 @@ class DatabaseSchemaMutationResolver(private val databaseService: DatabaseServic
 @Component
 class DatabaseSchemaResolver(val applicationService: ApplicationServiceBlocking) : Query {
 
-    fun applicationDeployments(
+    suspend fun applicationDeployments(
         schema: DatabaseSchema,
         dfe: DataFetchingEnvironment
-    ): CompletableFuture<List<ApplicationDeployment>> =
-        dfe.multipleKeysLoader<String, ApplicationDeployment>(schema.id)
+    ): List<ApplicationDeployment> =
+        dfe.loadMany(schema.id)
 }

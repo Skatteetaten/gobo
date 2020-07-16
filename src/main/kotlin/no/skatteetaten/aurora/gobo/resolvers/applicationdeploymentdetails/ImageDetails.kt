@@ -54,7 +54,7 @@ class ImageDetailsResolver : Query {
             return imageRegistryServiceBlocking.resolveTagToSha(
                 imageRepoDto,
                 key.imageTag.name,
-                "user.token"
+                "user.token" // FIXME user token
             ) == key.expecedDigest
         }
     }

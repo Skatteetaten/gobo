@@ -1,10 +1,10 @@
 package no.skatteetaten.aurora.gobo.resolvers.imagerepository
 
+import no.skatteetaten.aurora.gobo.MultipleKeysDataLoader
+import no.skatteetaten.aurora.gobo.MyGraphQLContext
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageRegistryServiceBlocking
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageRepoAndTags
-import no.skatteetaten.aurora.gobo.resolvers.MultipleKeysDataLoader
-import no.skatteetaten.aurora.gobo.resolvers.user.User
 import org.dataloader.Try
 import org.springframework.stereotype.Component
 
@@ -12,7 +12,8 @@ import org.springframework.stereotype.Component
 class ImageTagDataLoader(
     val imageRegistryServiceBlocking: ImageRegistryServiceBlocking
 ) : MultipleKeysDataLoader<ImageTag, Image?> {
-    override fun getByKeys(user: User, keys: MutableSet<ImageTag>): Map<ImageTag, Try<Image?>> {
+
+    override suspend fun getByKeys(keys: Set<ImageTag>, ctx: MyGraphQLContext): Map<ImageTag, Try<Image?>> {
 
         val imageReposAndTags = ImageRepoAndTags.fromImageTags(keys)
 
@@ -20,7 +21,7 @@ class ImageTagDataLoader(
             val auroraResponse =
                 imageRegistryServiceBlocking.findTagsByName(
                     imageReposAndTags = imageReposAndTags,
-                    token = user.token
+                    token = "user.token" // FIXME user token
                 )
 
             val successes = auroraResponse.items.associate { imageTagResource ->
