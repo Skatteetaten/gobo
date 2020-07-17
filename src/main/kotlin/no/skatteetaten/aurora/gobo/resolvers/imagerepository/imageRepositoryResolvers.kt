@@ -1,8 +1,9 @@
 package no.skatteetaten.aurora.gobo.resolvers.imagerepository
 
-import com.coxautodev.graphql.tools.GraphQLQueryResolver
-import com.coxautodev.graphql.tools.GraphQLResolver
+import com.expediagroup.graphql.spring.operations.Query
+import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
+import kotlinx.coroutines.runBlocking
 import java.util.concurrent.CompletableFuture
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.AuroraIntegration
@@ -11,9 +12,9 @@ import no.skatteetaten.aurora.gobo.integration.cantus.ImageRegistryServiceBlocki
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageTagType
 import no.skatteetaten.aurora.gobo.integration.cantus.Tag
 import no.skatteetaten.aurora.gobo.integration.cantus.TagsDto
+import no.skatteetaten.aurora.gobo.load
+import no.skatteetaten.aurora.gobo.loadOptional
 import no.skatteetaten.aurora.gobo.resolvers.AccessDeniedException
-import no.skatteetaten.aurora.gobo.resolvers.loader
-import no.skatteetaten.aurora.gobo.resolvers.multipleKeysLoader
 import no.skatteetaten.aurora.gobo.resolvers.pageEdges
 import no.skatteetaten.aurora.gobo.security.isAnonymousUser
 import org.apache.commons.text.StringSubstitutor
@@ -22,7 +23,7 @@ import org.springframework.stereotype.Component
 private val logger = KotlinLogging.logger {}
 
 @Component
-class ImageRepositoryQueryResolver : GraphQLQueryResolver {
+class ImageRepositoryQueryResolver : Query {
 
     fun getImageRepositories(repositories: List<String>, dfe: DataFetchingEnvironment): List<ImageRepository> {
         if (dfe.isAnonymousUser()) throw AccessDeniedException("Anonymous user cannot access imagrepositories")
@@ -36,13 +37,16 @@ class ImageRepositoryQueryResolver : GraphQLQueryResolver {
 class ImageRepositoryResolver(
     val imageRegistryServiceBlocking: ImageRegistryServiceBlocking,
     val aurora: AuroraIntegration
-) : GraphQLResolver<ImageRepository> {
+) : Query {
 
     fun guiUrl(
         imageRepository: ImageRepository,
         dfe: DataFetchingEnvironment
     ): String? {
-        logger.debug { "Trying to find guiUrl for $imageRepository with configured repositories ${aurora.docker.values.map { it.url }.joinToString { "," }}" }
+        logger.debug {
+            "Trying to find guiUrl for $imageRepository with configured repositories ${aurora.docker.values.map { it.url }
+                .joinToString { "," }}"
+        }
         val replacer =
             StringSubstitutor(mapOf("group" to imageRepository.namespace, "name" to imageRepository.name), "@", "@")
         return aurora.docker.values.find { it.url == imageRepository.registryUrl }?.let {
@@ -54,25 +58,18 @@ class ImageRepositoryResolver(
         imageRepository: ImageRepository,
         names: List<String>,
         dfe: DataFetchingEnvironment
-    ): CompletableFuture<List<ImageWithType?>> {
+    ): List<ImageWithType> {
 
         if (!imageRepository.isFullyQualified) {
-            return CompletableFuture.supplyAsync {
-                emptyList<ImageWithType?>()
-            }
+            return emptyList()
         }
 
-        val dataloader = dfe.multipleKeysLoader(ImageTagDataLoader::class)
-
-        val tags = names.map { name ->
-            dataloader.load(ImageTag(imageRepository, name)).thenApply {
-                it?.let {
-                    ImageWithType(name, it)
-                }
+        return names.map { name ->
+            runBlocking {
+                val image = dfe.load<ImageTag, Image>(ImageTag(imageRepository, name))
+                ImageWithType(name, image)
             }
         }
-
-        return tags.join()
     }
 
     fun <A> List<CompletableFuture<A>>.join(): CompletableFuture<List<A>> {
@@ -81,27 +78,24 @@ class ImageRepositoryResolver(
         }
     }
 
-    fun tags(
+    suspend fun tags(
         imageRepository: ImageRepository,
         types: List<ImageTagType>?,
         filter: String?,
         first: Int? = null,
         after: String? = null,
         dfe: DataFetchingEnvironment
-    ): CompletableFuture<ImageTagsConnection> {
+    ): ImageTagsConnection {
 
-        val tagsDto: CompletableFuture<TagsDto> = if (!imageRepository.isFullyQualified) {
-            CompletableFuture.supplyAsync {
-                TagsDto(emptyList())
-            }
+        val tagsDto: TagsDto = if (!imageRepository.isFullyQualified) {
+            TagsDto(emptyList())
         } else {
-            dfe.loader(ImageTagListDataLoader::class).load(imageRepository.toImageRepo(filter))
+            dfe.load(imageRepository.toImageRepo(filter))
         }
-        return tagsDto.thenApply { dto ->
-            val imageTags = dto.tags.toImageTags(imageRepository, types)
-            val allEdges = imageTags.map { ImageTagEdge(it) }
-            ImageTagsConnection(pageEdges(allEdges, first, after))
-        }
+
+        val imageTags = tagsDto.tags.toImageTags(imageRepository, types)
+        val allEdges = imageTags.map { ImageTagEdge(it) }
+        return ImageTagsConnection(pageEdges(allEdges, first, after))
     }
 
     fun List<Tag>.toImageTags(imageRepository: ImageRepository, types: List<ImageTagType>?) = this
@@ -110,14 +104,12 @@ class ImageRepositoryResolver(
 }
 
 @Component
-class ImageRepositoryTagResolver : GraphQLResolver<ImageTag> {
+class ImageRepositoryTagResolver : Query {
 
-    fun image(imageTag: ImageTag, dfe: DataFetchingEnvironment): CompletableFuture<Image?> {
+    suspend fun image(imageTag: ImageTag, dfe: DataFetchingEnvironment): DataFetcherResult<Image?> {
         if (!imageTag.imageRepository.isFullyQualified) {
-            return CompletableFuture.supplyAsync {
-                null
-            }
+            return DataFetcherResult.newResult<Image?>().build()
         }
-        return dfe.multipleKeysLoader(ImageTagDataLoader::class).load(imageTag)
+        return dfe.loadOptional(imageTag)
     }
 }

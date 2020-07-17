@@ -6,12 +6,10 @@ import graphql.execution.instrumentation.SimpleInstrumentation
 import graphql.execution.instrumentation.parameters.InstrumentationExecutionParameters
 import graphql.language.Field
 import graphql.language.SelectionSet
-import graphql.servlet.context.GraphQLServletContext
+import mu.KotlinLogging
+import org.springframework.stereotype.Component
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.LongAdder
-import mu.KotlinLogging
-import no.skatteetaten.aurora.gobo.security.currentUser
-import org.springframework.stereotype.Component
 
 private val logger = KotlinLogging.logger {}
 
@@ -72,10 +70,13 @@ class UserUsage {
     val users: ConcurrentHashMap<String, LongAdder> = ConcurrentHashMap()
 
     fun update(executionContext: ExecutionContext?) {
+        // FIXME
+        /*
         val context = executionContext?.context
         if (context is GraphQLServletContext) {
             val user = context.httpServletRequest.currentUser()
             users.computeIfAbsent(user.id) { LongAdder() }.increment()
         }
+         */
     }
 }
