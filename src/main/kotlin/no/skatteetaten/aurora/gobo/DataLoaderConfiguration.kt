@@ -44,7 +44,6 @@ class DataLoaderConfiguration(
     @Bean
     fun dataLoaderRegistryFactory(): DataLoaderRegistryFactory {
         return object : DataLoaderRegistryFactory {
-
             override fun generate(): DataLoaderRegistry {
                 return DataLoaderRegistry().apply {
                     keyLoaders.forEach {
