@@ -40,15 +40,15 @@ class ApplicationDeploymentService(private val booberWebClient: BooberWebClient)
         payload: ApplyPayload
     ): Response<DeployResource> {
 
-        val url = "/v1/apply/$auroraConfig?reference=$reference"
+        val url = "/v1/apply/{auroraConfig}?reference={reference}"
         return booberWebClient.executeMono<Response<DeployResource>>(token) {
-            it.put().uri(booberWebClient.getBooberUrl(url), emptyMap<String, Any>())
+            it.put().uri(booberWebClient.getBooberUrl(url), mapOf("auroraConfig" to auroraConfig, "reference" to reference))
                 .body(BodyInserters.fromValue(payload))
         }.blockNonNullWithTimeout()
     }
 
     // TODO this should support  a list of applicationSpecCommands that also takes in responseType and Defaults.
-    // TODO Should we move the default/formating code here instead of in boober?
+    // TODO Should we move the default/formatting code here instead of in boober?
     fun getSpec(
         token: String,
         auroraConfigName: String,
@@ -61,10 +61,10 @@ class ApplicationDeploymentService(private val booberWebClient: BooberWebClient)
             separator = "&"
         ) + "&reference=$auroraConfigReference"
 
-        val url = "/v1/auroradeployspec/$auroraConfigName?$requestParam"
+        val url = "/v1/auroradeployspec/{auroraConfig}?$requestParam"
 
         val response = booberWebClient.executeMono<Response<JsonNode>>(token) {
-            it.get().uri(booberWebClient.getBooberUrl(url))
+            it.get().uri(booberWebClient.getBooberUrl(url), auroraConfigName)
         }.blockNonNullWithTimeout()
 
         return response.items.map { ApplicationDeploymentSpec(it) }
