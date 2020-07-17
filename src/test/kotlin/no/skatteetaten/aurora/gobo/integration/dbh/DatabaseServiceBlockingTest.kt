@@ -209,7 +209,7 @@ class DatabaseServiceBlockingTest {
     @Test
     fun `Restore database schema fails with active set to false`() {
         val failed = DbhResponse.failed()
-        val requests = server.execute(failed) {
+        val request = server.execute(failed) {
             val restorationRequests = listOf(
                     SchemaRestorationRequestBuilder(id = "failed", active = false).build()
             )
@@ -217,9 +217,9 @@ class DatabaseServiceBlockingTest {
             assertThat(restored.size).isEqualTo(1)
             assertThat(restored).failed(1)
         }
-        assertThat(requests).containsAuroraTokens()
-        assertThat(requests).containsPath("/failed")
-        assertThat(requests.first()?.bodyAsString()).isNotNull().contains("\"active\":false")
+        assertThat(request).containsAuroraTokens()
+        assertThat(request).containsPath("/failed")
+        assertThat(request.first()?.bodyAsString()).isNotNull().contains("\"active\":false")
     }
 
     @Test

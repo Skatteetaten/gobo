@@ -32,7 +32,7 @@ class DatabaseSchemaQueryResolver(private val databaseService: DatabaseService) 
         affiliations: List<String>,
         dfe: DataFetchingEnvironment
     ): List<RestorableDatabaseSchema> {
-        if (dfe.isAnonymousUser()) throw AccessDeniedException("Anonymous user cannot get database schemas")
+        if (dfe.isAnonymousUser()) throw AccessDeniedException("Anonymous user cannot get restorable database schemas")
 
         return affiliations.flatMap { affiliation ->
             databaseService.getRestorableDatabaseSchemas(affiliation).map {

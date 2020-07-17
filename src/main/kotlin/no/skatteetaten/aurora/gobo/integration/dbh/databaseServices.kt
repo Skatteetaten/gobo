@@ -33,7 +33,6 @@ class DatabaseServiceReactive(
 ) {
     companion object {
         const val HEADER_COOLDOWN_DURATION_HOURS = "cooldown-duration-hours"
-        const val ACTIVE = "active"
     }
 
     fun getDatabaseInstances(): Mono<List<DatabaseInstanceResource>> = webClient
@@ -71,7 +70,6 @@ class DatabaseServiceReactive(
             val requestSpec = webClient
                 .delete()
                 .uri("/api/v1/schema/${request.id}")
-                .header(HttpHeaders.AUTHORIZATION, "$HEADER_AURORA_TOKEN ${sharedSecretReader.secret}")
 
             request.cooldownDurationHours?.let {
                 requestSpec.header(HEADER_COOLDOWN_DURATION_HOURS, it.toString())
@@ -93,11 +91,10 @@ class DatabaseServiceReactive(
                 .body(
                     BodyInserters.fromValue(
                         mapOf(
-                            ACTIVE to request.active
+                            "active" to request.active
                         )
                     )
                 )
-                .header(HttpHeaders.AUTHORIZATION, "$HEADER_AURORA_TOKEN ${sharedSecretReader.secret}")
 
             requestSpec.retrieveAuthenticated().bodyToDbhResponse().map {
                 request.id to it
@@ -107,8 +104,8 @@ class DatabaseServiceReactive(
         return Flux.merge(responses).map { SchemaCooldownChangeResponse(id = it.first, success = it.second.isOk()) }
     }
 
-    fun testJdbcConnection(id: String? = null, user: JdbcUser? = null): Mono<ConnectionVerificationResponse> {
-        val response: Mono<DbhResponse<ConnectionVerificationResponse>> = webClient
+    fun testJdbcConnection(id: String? = null, user: JdbcUser? = null): Mono<ConnectionVerificationResponse> =
+        webClient
             .put()
             .uri("/api/v1/schema/validate")
             .body(
@@ -119,12 +116,7 @@ class DatabaseServiceReactive(
                     )
                 )
             )
-            .retrieveAuthenticated()
-            .bodyToMono()
-        return response.flatMap {
-            it.items.first().toMono()
-        }
-    }
+            .retrieveAuthenticatedItem()
 
     fun createDatabaseSchema(input: SchemaCreationRequest): Mono<DatabaseSchemaResource> {
         val missingLabels = input.findMissingOrEmptyLabels()
