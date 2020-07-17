@@ -13,6 +13,8 @@ spring:
         active: local
     codec:
         max-in-memory-size: -1 # unlimited
+    zipkin:
+        enabled: false
 
 management:
     endpoints:
@@ -141,8 +143,6 @@ openshift:
 ---
 spring:
     profiles: openshift
-    sleuth:
-        enabled: false
 
 aurora:
     token:

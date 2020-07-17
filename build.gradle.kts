@@ -23,7 +23,7 @@ dependencies {
     implementation("org.springframework.retry:spring-retry")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("org.springframework.boot:spring-boot-starter-security")
-    implementation("no.skatteetaten.aurora.springboot:aurora-spring-boot-webflux-starter:1.0.6")
+    implementation("no.skatteetaten.aurora.springboot:aurora-spring-boot-webflux-starter:1.0.7")
 
     implementation("com.graphql-java-kickstart:graphql-spring-boot-starter:5.10.0")
     implementation("com.graphql-java-kickstart:altair-spring-boot-starter:5.10.0")
