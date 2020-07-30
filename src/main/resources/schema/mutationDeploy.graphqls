@@ -6,13 +6,13 @@ type AuroraConfigRef {
 
 type ApplicationDeploymentResultItem {
     warnings: [String!]!
-    applicationDeploymentId:String!
     tagResult: String
     openshiftResponses:[String!]
     status:String!
     spec: ApplicationDeploymentSpec!
     deployId:String!
     message:String
+    applicationDeploymentId: String!
 }
 
 type ApplicationDeploymentResult {
