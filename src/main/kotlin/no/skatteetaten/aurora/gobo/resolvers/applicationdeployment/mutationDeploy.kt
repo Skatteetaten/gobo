@@ -37,7 +37,7 @@ class DeployMutationResolver(
             )
 
         val item = response.items.first()
-        return ApplicationDeploymentResult(
+        val res = ApplicationDeploymentResult(
             success = response.success,
             auroraConfigRef = AuroraConfigRef(
                 name = item.auroraConfigRef.name,
@@ -57,6 +57,8 @@ class DeployMutationResolver(
                 )
             }
         )
+
+        return res
     }
 }
 
