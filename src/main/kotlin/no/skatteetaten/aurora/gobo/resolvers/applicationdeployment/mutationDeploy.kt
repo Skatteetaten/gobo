@@ -52,7 +52,8 @@ class DeployMutationResolver(
                     status = it.successString,
                     spec = ApplicationDeploymentSpec(it.deploymentSpec),
                     deployId = it.deployId,
-                    message = it.reason
+                    message = it.reason,
+                    applicationDeploymentId = it.applicationDeploymentId
                 )
             }
         )
@@ -90,6 +91,7 @@ data class AuroraConfigRef(
 
 data class ApplicationDeploymentResultItem(
     val warnings: List<String>,
+    val applicationDeploymentId: String,
     val tagResult: JsonNode?,
     val openshiftResponses: List<JsonNode>,
     val status: String,
