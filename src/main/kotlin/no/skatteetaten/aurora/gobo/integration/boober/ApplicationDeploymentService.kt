@@ -59,12 +59,12 @@ class ApplicationDeploymentService(private val booberWebClient: BooberWebClient)
         val requestParam = applicationDeploymentReferenceList.joinToString(
             transform = { "adr=" + URLEncoder.encode("${it.environment}/${it.application}", StandardCharsets.UTF_8) },
             separator = "&"
-        ) + "&reference=$auroraConfigReference"
+        ) + "&reference={auroraConfigReference}"
 
         val url = "/v1/auroradeployspec/{auroraConfig}?$requestParam"
 
         val response = booberWebClient.executeMono<Response<JsonNode>>(token) {
-            it.get().uri(booberWebClient.getBooberUrl(url), auroraConfigName)
+            it.get().uri(booberWebClient.getBooberUrl(url), auroraConfigName, auroraConfigReference)
         }.blockNonNullWithTimeout()
 
         return response.items.map { ApplicationDeploymentSpec(it) }
