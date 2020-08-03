@@ -3,6 +3,8 @@ spring:
         name: gobo
     main:
         banner-mode: "off"
+    sleuth:
+        enabled: false
 
 integrations:
     mokey:

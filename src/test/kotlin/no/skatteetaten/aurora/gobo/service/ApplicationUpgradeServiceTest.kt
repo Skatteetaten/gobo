@@ -29,6 +29,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
+import org.springframework.web.reactive.function.client.WebClient
 import uk.q3c.rest.hal.Links
 
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
@@ -37,11 +38,11 @@ class ApplicationUpgradeServiceTest {
     private val server = MockWebServer()
     private val url = server.url("/")
 
-    private val config = ApplicationConfig(500, 500, 500, "", testObjectMapper())
+    private val config = ApplicationConfig(500, 500, 500, "")
     private val auroraConfigService =
-        AuroraConfigService(BooberWebClient("${url}boober", config.webClientBoober(), testObjectMapper()))
+        AuroraConfigService(BooberWebClient("${url}boober", config.webClientBoober(WebClient.builder()), testObjectMapper()))
     private val applicationService =
-        ApplicationServiceBlocking(ApplicationService(config.webClientMokey("${url}mokey")))
+        ApplicationServiceBlocking(ApplicationService(config.webClientMokey("${url}mokey", WebClient.builder())))
     private val upgradeService = ApplicationUpgradeService(applicationService, auroraConfigService)
 
     @BeforeEach
