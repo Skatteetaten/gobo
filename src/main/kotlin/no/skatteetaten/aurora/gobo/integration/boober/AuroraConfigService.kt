@@ -24,7 +24,11 @@ class AuroraConfigService(
 
     fun getAuroraConfig(token: String, auroraConfig: String, reference: String): AuroraConfig {
         return booberWebClient
-            .get<AuroraConfig>(token, "/v2/auroraconfig/$auroraConfig?reference=$reference")
+            .get<AuroraConfig>(
+                token,
+                "/v2/auroraconfig/{auroraConfig}?reference={reference}",
+                mapOf("auroraConfig" to auroraConfig, "reference" to reference)
+            )
             .toMono()
             .blockNonNullWithTimeout()
     }
@@ -37,11 +41,13 @@ class AuroraConfigService(
         content: String,
         oldHash: String
     ): Response<AuroraConfigFileResource> {
-        val url = "/v2/auroraconfig/$auroraConfig?reference=$reference"
+        val url = "/v2/auroraconfig/{auroraConfig}?reference={reference}"
         val body = mapOf("content" to content, "fileName" to fileName)
 
         return booberWebClient.executeMono<Response<AuroraConfigFileResource>>(token, etag = oldHash) {
-            it.put().uri(booberWebClient.getBooberUrl(url), emptyMap<String, Any>()).body(BodyInserters.fromValue(body))
+            it.put()
+                .uri(booberWebClient.getBooberUrl(url), mapOf("auroraConfig" to auroraConfig, "reference" to reference))
+                .body(BodyInserters.fromValue(body))
         }.blockNonNullWithTimeout()
     }
 
@@ -52,11 +58,13 @@ class AuroraConfigService(
         fileName: String,
         content: String
     ): Response<AuroraConfigFileResource> {
-        val url = "/v2/auroraconfig/$auroraConfig?reference=$reference"
+        val url = "/v2/auroraconfig/{auroraConfig}?reference={reference}"
         val body = mapOf("content" to content, "fileName" to fileName)
 
         return booberWebClient.executeMono<Response<AuroraConfigFileResource>>(token) {
-            it.put().uri(booberWebClient.getBooberUrl(url), emptyMap<String, Any>()).body(BodyInserters.fromValue(body))
+            it.put()
+                .uri(booberWebClient.getBooberUrl(url), mapOf("auroraConfig" to auroraConfig, "reference" to reference))
+                .body(BodyInserters.fromValue(body))
         }.blockNonNullWithTimeout()
     }
 

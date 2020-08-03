@@ -6,7 +6,7 @@ import no.skatteetaten.aurora.gobo.resolvers.blockNonNullAndHandleError
 import no.skatteetaten.aurora.gobo.resolvers.usersettings.UserSettings
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
-import reactor.core.publisher.toMono
+import reactor.kotlin.core.publisher.toMono
 
 @Service
 class UserSettingsService(private val booberWebClient: BooberWebClient) {

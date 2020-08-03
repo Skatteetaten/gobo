@@ -55,7 +55,7 @@ class DatabaseServiceReactive(
 
     fun getDatabaseSchema(id: String): Mono<DatabaseSchemaResource> = webClient
         .get()
-        .uri("/api/v1/schema/$id")
+        .uri("/api/v1/schema/{id}", id)
         .authHeader()
         .retrieve()
         .bodyToMono<DbhResponse<*>>()
@@ -63,7 +63,7 @@ class DatabaseServiceReactive(
 
     fun updateDatabaseSchema(input: SchemaUpdateRequest): Mono<DatabaseSchemaResource> = webClient
         .put()
-        .uri("/api/v1/schema/${input.id}")
+        .uri("/api/v1/schema/{id}", input.id)
         .body(BodyInserters.fromValue(input))
         .authHeader()
         .retrieve()
@@ -74,7 +74,7 @@ class DatabaseServiceReactive(
         val responses = input.map { request ->
             val requestSpec = webClient
                 .delete()
-                .uri("/api/v1/schema/${request.id}")
+                .uri("/api/v1/schema/{id}", request.id)
                 .authHeader()
 
             request.cooldownDurationHours?.let {
