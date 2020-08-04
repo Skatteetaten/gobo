@@ -10,7 +10,7 @@ plugins {
     id("com.gorylenko.gradle-git-properties") version "2.2.3"
     id("com.github.ben-manes.versions") version "0.29.0"
     id("se.patrikerdes.use-latest-versions") version "0.2.14"
-    id("no.skatteetaten.gradle.aurora") version "3.6.2"
+    id("no.skatteetaten.gradle.aurora") version "3.6.3"
 }
 
 val springCloudContractVersion: String = project.property("aurora.springCloudContractVersion") as String
