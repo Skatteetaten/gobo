@@ -29,7 +29,8 @@ class DeployMutationResolverTest : GraphQLTestWithDbhAndSkap() {
 
     @BeforeEach
     fun setUp() {
-        val deploymentSpecAsJson = """{
+        val deploymentSpecAsJson =
+            """{
                 "cluster" : {"value" : "myCluster"},  
                 "envName" : {"value" : "env"},  
                 "name"    : {"value" : "myName"},  

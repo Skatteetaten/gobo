@@ -44,7 +44,8 @@ class GoboInstrumentationTest {
 
     @Test
     fun `Remove new lines from query`() {
-        val query = """
+        val query =
+            """
         {
             gobo {
                 usage {
@@ -55,7 +56,7 @@ class GoboInstrumentationTest {
                 }
             }
         }
-        """.trimIndent()
+            """.trimIndent()
 
         assertThat(query.removeNewLines()).isEqualTo("{ gobo { usage { usedFields { name count } } } }")
     }

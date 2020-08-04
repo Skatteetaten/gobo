@@ -115,14 +115,16 @@ class ApplicationConfig(
                 AuroraHeaderFilter.KORRELASJONS_ID,
                 RequestKorrelasjon.getId() ?: UUID.randomUUID().toString()
             )
-            .filter(ExchangeFilterFunction.ofRequestProcessor {
-                val bearer = it.headers()[HttpHeaders.AUTHORIZATION]?.firstOrNull()?.let { token ->
-                    val t = token.substring(0, min(token.length, 11)).replace("Bearer", "")
-                    "bearer=$t"
-                } ?: ""
-                logger.debug("HttpRequest method=${it.method()} url=${it.url()} $bearer")
-                it.toMono()
-            })
+            .filter(
+                ExchangeFilterFunction.ofRequestProcessor {
+                    val bearer = it.headers()[HttpHeaders.AUTHORIZATION]?.firstOrNull()?.let { token ->
+                        val t = token.substring(0, min(token.length, 11)).replace("Bearer", "")
+                        "bearer=$t"
+                    } ?: ""
+                    logger.debug("HttpRequest method=${it.method()} url=${it.url()} $bearer")
+                    it.toMono()
+                }
+            )
             .clientConnector(clientConnector())
 
     private fun clientConnector(ssl: Boolean = false): ReactorClientHttpConnector {

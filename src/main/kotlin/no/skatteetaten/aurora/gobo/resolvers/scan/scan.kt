@@ -57,23 +57,25 @@ data class Scan(
             probeResultList: List<ProbeResult>,
             condition: (ProbeStatus) -> Boolean
         ): NodeDetailsConnection {
-            return NodeDetailsConnection(probeResultList.filter {
-                condition(it.result?.status ?: ProbeStatus.UNKNOWN)
-            }.map {
-                val res = it.result ?: Result.unknownResult()
-                val scanStatus = mapStatus(
-                    res.status
-                )
-
-                NodeDetailsEdge(
-                    NodeDetails(
-                        status = scanStatus,
-                        message = res.message,
-                        clusterNode = ClusterNode(it.hostIp),
-                        resolvedIp = res.resolvedIp
+            return NodeDetailsConnection(
+                probeResultList.filter {
+                    condition(it.result?.status ?: ProbeStatus.UNKNOWN)
+                }.map {
+                    val res = it.result ?: Result.unknownResult()
+                    val scanStatus = mapStatus(
+                        res.status
                     )
-                )
-            })
+
+                    NodeDetailsEdge(
+                        NodeDetails(
+                            status = scanStatus,
+                            message = res.message,
+                            clusterNode = ClusterNode(it.hostIp),
+                            resolvedIp = res.resolvedIp
+                        )
+                    )
+                }
+            )
         }
     }
 }
