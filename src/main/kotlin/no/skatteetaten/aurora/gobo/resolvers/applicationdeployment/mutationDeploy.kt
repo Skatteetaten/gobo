@@ -37,7 +37,7 @@ class DeployMutationResolver(
             )
 
         val item = response.items.first()
-        return ApplicationDeploymentResult(
+        val res = ApplicationDeploymentResult(
             success = response.success,
             auroraConfigRef = AuroraConfigRef(
                 name = item.auroraConfigRef.name,
@@ -52,10 +52,13 @@ class DeployMutationResolver(
                     status = it.successString,
                     spec = ApplicationDeploymentSpec(it.deploymentSpec),
                     deployId = it.deployId,
-                    message = it.reason
+                    message = it.reason,
+                    applicationDeploymentId = it.applicationDeploymentId
                 )
             }
         )
+
+        return res
     }
 }
 
@@ -90,6 +93,7 @@ data class AuroraConfigRef(
 
 data class ApplicationDeploymentResultItem(
     val warnings: List<String>,
+    val applicationDeploymentId: String,
     val tagResult: JsonNode?,
     val openshiftResponses: List<JsonNode>,
     val status: String,

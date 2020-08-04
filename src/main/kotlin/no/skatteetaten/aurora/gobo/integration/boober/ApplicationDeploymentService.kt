@@ -78,6 +78,7 @@ data class DeleteApplicationDeploymentInput(val namespace: String, val name: Str
 
 data class DeployResource(
     val auroraConfigRef: AuroraConfigRefResource,
+    val applicationDeploymentId: String,
     val deploymentSpec: JsonNode,
     val deployId: String,
     val openShiftResponses: List<JsonNode>,
