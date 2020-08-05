@@ -40,7 +40,7 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
     testImplementation("org.springframework.cloud:spring-cloud-starter-contract-stub-runner:$springCloudContractVersion")
-    testImplementation("io.mockk:mockk:1.9.3")
+    testImplementation("io.mockk:mockk:1.10.0")
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.21")
     testImplementation("io.projectreactor:reactor-test")
     testImplementation("no.skatteetaten.aurora:mockmvc-extensions-kotlin:1.0.4")
