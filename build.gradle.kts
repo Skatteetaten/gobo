@@ -31,8 +31,8 @@ dependencies {
     implementation("com.graphql-java-kickstart:graphql-java-tools:5.6.1")
 
     implementation("uk.q3c.rest:hal-kotlin:0.5.4.0.db32476")
-    implementation("io.fabric8:openshift-client:4.8.0")
-    implementation("com.fkorotkov:kubernetes-dsl:3.0")
+   // implementation("io.fabric8:kubernetes-client:4.10.3") // TODO bytt til vår klient.
+//    implementation("com.fkorotkov:kubernetes-dsl:3.0")
     implementation("com.github.fge:json-patch:1.9")
     implementation("com.jayway.jsonpath:json-path:2.4.0")
     implementation("io.projectreactor.addons:reactor-extra:3.3.2.RELEASE")
