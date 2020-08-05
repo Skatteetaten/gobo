@@ -1,10 +1,8 @@
 package no.skatteetaten.aurora.gobo.resolvers
 
-
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.clearAllMocks
 import io.mockk.every
-import io.mockk.slot
 import no.skatteetaten.aurora.gobo.security.OpenShiftUserLoader
 import no.skatteetaten.aurora.gobo.security.User
 import org.junit.jupiter.api.AfterEach
@@ -24,7 +22,7 @@ abstract class GraphQLTestWithoutDbhAndSkap {
 
     @BeforeEach
     fun initialize() {
-        every { openShiftUserLoader.findOpenShiftUserByToken(any()) } answers { User("123456",firstArg(), "Test Testtesen") }
+        every { openShiftUserLoader.findOpenShiftUserByToken(any()) } answers { User("123456", firstArg(), "Test Testtesen") }
     }
 
     @AfterEach
