@@ -91,19 +91,19 @@ class DatabaseServiceReactive(
 
     fun testJdbcConnection(id: String? = null, user: JdbcUser? = null): Mono<ConnectionVerificationResponse> {
         val response: Mono<DbhResponse<ConnectionVerificationResponse>> = webClient
-                .put()
-                .uri("/api/v1/schema/validate")
-                .body(
-                        BodyInserters.fromValue(
-                                mapOf(
-                                        "id" to id,
-                                        "jdbcUser" to user
-                                )
-                        )
+            .put()
+            .uri("/api/v1/schema/validate")
+            .body(
+                BodyInserters.fromValue(
+                    mapOf(
+                        "id" to id,
+                        "jdbcUser" to user
+                    )
                 )
-                .authHeader()
-                .retrieve()
-                .bodyToMono()
+            )
+            .authHeader()
+            .retrieve()
+            .bodyToMono()
         return response.flatMap {
             it.items.first().toMono()
         }
@@ -191,10 +191,10 @@ class DatabaseServiceBlocking(private val databaseService: DatabaseServiceReacti
         databaseService.deleteDatabaseSchemas(input).collectList().blockNonNullWithTimeout()
 
     override fun testJdbcConnection(user: JdbcUser) =
-            databaseService.testJdbcConnection(user = user).blockNonNullWithTimeout()
+        databaseService.testJdbcConnection(user = user).blockNonNullWithTimeout()
 
     override fun testJdbcConnection(id: String) =
-            databaseService.testJdbcConnection(id = id).blockNonNullWithTimeout()
+        databaseService.testJdbcConnection(id = id).blockNonNullWithTimeout()
 
     override fun createDatabaseSchema(input: SchemaCreationRequest) =
         databaseService.createDatabaseSchema(input).blockNonNullWithTimeout()

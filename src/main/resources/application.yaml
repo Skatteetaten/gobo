@@ -15,6 +15,8 @@ spring:
         max-in-memory-size: -1 # unlimited
     zipkin:
         enabled: false
+    sleuth:
+        enabled: false
 
 management:
     endpoints:
@@ -76,6 +78,8 @@ gobo:
         tracing-enabled: false
 
 aurora.webflux.header.webclient.interceptor.enabled: true
+aurora.mvc.header.filter.enabled: false
+aurora.webflux.header.filter.enabled: false
 
 logging:
     level:
