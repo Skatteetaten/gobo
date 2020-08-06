@@ -1,30 +1,6 @@
 package no.skatteetaten.aurora.gobo.resolvers.applicationdeployment
 
-import com.coxautodev.graphql.tools.GraphQLMutationResolver
-import com.coxautodev.graphql.tools.GraphQLQueryResolver
-import com.coxautodev.graphql.tools.GraphQLResolver
-import graphql.schema.DataFetchingEnvironment
-import no.skatteetaten.aurora.gobo.integration.boober.ApplicationDeploymentService
-import no.skatteetaten.aurora.gobo.integration.boober.DeleteApplicationDeploymentInput
-import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
-import no.skatteetaten.aurora.gobo.integration.skap.RouteService
-import no.skatteetaten.aurora.gobo.resolvers.AccessDeniedException
-import no.skatteetaten.aurora.gobo.resolvers.affiliation.Affiliation
-import no.skatteetaten.aurora.gobo.resolvers.application.Application
-import no.skatteetaten.aurora.gobo.resolvers.application.DockerRegistry
-import no.skatteetaten.aurora.gobo.resolvers.application.createApplicationEdge
-import no.skatteetaten.aurora.gobo.resolvers.applicationdeploymentdetails.ApplicationDeploymentDetailsDataLoader
-import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository
-import no.skatteetaten.aurora.gobo.resolvers.loader
-import no.skatteetaten.aurora.gobo.resolvers.namespace.Namespace
-import no.skatteetaten.aurora.gobo.resolvers.route.BigipJob
-import no.skatteetaten.aurora.gobo.resolvers.route.Route
-import no.skatteetaten.aurora.gobo.resolvers.route.WebsealJob
-import no.skatteetaten.aurora.gobo.security.currentUser
-import no.skatteetaten.aurora.gobo.security.isAnonymousUser
-import no.skatteetaten.aurora.gobo.service.ApplicationUpgradeService
-import org.springframework.stereotype.Component
-
+/*
 @Component
 class ApplicationDeploymentQueryResolver(
     private val applicationService: ApplicationServiceBlocking,
@@ -106,3 +82,4 @@ class ApplicationDeploymentResolver(
         return createApplicationEdge(application).node
     }
 }
+*/

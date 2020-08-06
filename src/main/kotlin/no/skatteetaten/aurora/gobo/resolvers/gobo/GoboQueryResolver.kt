@@ -1,10 +1,6 @@
 package no.skatteetaten.aurora.gobo.resolvers.gobo
 
-import com.coxautodev.graphql.tools.GraphQLQueryResolver
-import java.time.Instant
-import no.skatteetaten.aurora.gobo.resolvers.GoboInstrumentation
-import org.springframework.stereotype.Component
-
+/*
 @Component
 class GoboQueryResolver(private val goboInstrumentation: GoboInstrumentation) : GraphQLQueryResolver {
 
@@ -16,3 +12,4 @@ class GoboQueryResolver(private val goboInstrumentation: GoboInstrumentation) : 
         return Gobo(startTime, GoboUsage(fields, users))
     }
 }
+*/

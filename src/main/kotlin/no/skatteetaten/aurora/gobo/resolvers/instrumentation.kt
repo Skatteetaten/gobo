@@ -1,18 +1,6 @@
 package no.skatteetaten.aurora.gobo.resolvers
 
-import graphql.ExecutionInput
-import graphql.execution.ExecutionContext
-import graphql.execution.instrumentation.SimpleInstrumentation
-import graphql.execution.instrumentation.parameters.InstrumentationExecutionParameters
-import graphql.language.Field
-import graphql.language.SelectionSet
-import graphql.servlet.context.GraphQLServletContext
-import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.atomic.LongAdder
-import mu.KotlinLogging
-import no.skatteetaten.aurora.gobo.security.currentUser
-import org.springframework.stereotype.Component
-
+/*
 private val logger = KotlinLogging.logger {}
 
 fun String.removeNewLines() =
@@ -79,3 +67,4 @@ class UserUsage {
         }
     }
 }
+*/

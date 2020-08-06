@@ -1,11 +1,6 @@
 package no.skatteetaten.aurora.gobo.resolvers.errorhandling
 
-import graphql.ExceptionWhileDataFetching
-import graphql.GraphQLError
-import graphql.servlet.core.GraphQLErrorHandler
-import no.skatteetaten.aurora.gobo.GoboException
-import org.springframework.stereotype.Component
-
+/*
 @Component
 class GoboGraphQLErrorHandler : GraphQLErrorHandler {
     override fun processErrors(errors: MutableList<GraphQLError>?): MutableList<GraphQLError> {
@@ -20,3 +15,4 @@ class GoboGraphQLErrorHandler : GraphQLErrorHandler {
         return errorsMap.toMutableList()
     }
 }
+ */

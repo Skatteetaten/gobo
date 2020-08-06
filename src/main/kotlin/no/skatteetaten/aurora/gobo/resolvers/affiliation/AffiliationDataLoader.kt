@@ -1,11 +1,6 @@
 package no.skatteetaten.aurora.gobo.resolvers.affiliation
 
-import no.skatteetaten.aurora.gobo.resolvers.MultipleKeysDataLoader
-import no.skatteetaten.aurora.gobo.resolvers.user.User
-import no.skatteetaten.aurora.gobo.service.WebsealAffiliationService
-import org.dataloader.Try
-import org.springframework.stereotype.Component
-
+/*
 @Component
 class AffiliationDataLoader(private val websealAffiliationService: WebsealAffiliationService) :
     MultipleKeysDataLoader<String, List<WebsealState>> {
@@ -18,3 +13,4 @@ class AffiliationDataLoader(private val websealAffiliationService: WebsealAffili
         }
     }
 }
+*/

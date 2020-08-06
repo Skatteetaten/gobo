@@ -16,19 +16,13 @@ plugins {
 val springCloudContractVersion: String = project.property("aurora.springCloudContractVersion") as String
 
 dependencies {
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.8")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.3")
 
     implementation("io.projectreactor.kotlin:reactor-kotlin-extensions:1.0.2.RELEASE")
     implementation("org.apache.commons:commons-text:1.9")
     implementation("org.springframework.retry:spring-retry")
-    implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("org.springframework.boot:spring-boot-starter-security")
-    implementation("no.skatteetaten.aurora.springboot:aurora-spring-boot-webflux-starter:1.0.7")
-
-    implementation("com.graphql-java-kickstart:graphql-spring-boot-starter:5.10.0")
-    implementation("com.graphql-java-kickstart:altair-spring-boot-starter:5.10.0")
-    implementation("com.graphql-java-kickstart:voyager-spring-boot-starter:5.10.0")
-    implementation("com.graphql-java-kickstart:graphql-java-tools:5.6.1")
+    implementation("com.expediagroup:graphql-kotlin-spring-server:3.4.1")
 
     implementation("uk.q3c.rest:hal-kotlin:0.5.4.0.db32476")
     implementation("io.fabric8:openshift-client:4.10.3")

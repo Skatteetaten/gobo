@@ -1,10 +1,6 @@
 package no.skatteetaten.aurora.gobo.resolvers.application
 
-import com.coxautodev.graphql.tools.GraphQLResolver
-import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository
-import org.springframework.beans.factory.annotation.Value
-import org.springframework.stereotype.Component
-
+/*
 @Component
 class ApplicationResolver(val dockerRegistry: DockerRegistry) :
     GraphQLResolver<Application> {
@@ -31,3 +27,4 @@ class DockerRegistry(@Value("\${integrations.internal-registry.url:docker-regist
     fun isInternal(registry: String) =
         registry == internalRegistryAddress || registry.matches(ipV4WithPortRegex)
 }
+*/

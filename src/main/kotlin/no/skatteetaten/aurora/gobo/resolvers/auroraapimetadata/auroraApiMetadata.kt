@@ -1,11 +1,6 @@
 package no.skatteetaten.aurora.gobo.resolvers.auroraapimetadata
 
-import com.coxautodev.graphql.tools.GraphQLQueryResolver
-import com.coxautodev.graphql.tools.GraphQLResolver
-import graphql.schema.DataFetchingEnvironment
-import no.skatteetaten.aurora.gobo.integration.boober.AuroraApiMetadataService
-import org.springframework.stereotype.Component
-
+/*
 @Component
 class AuroraApiMetadataQueryResolver(
     private val service: AuroraApiMetadataService
@@ -26,6 +21,7 @@ class AuroraApiMetadataResolver(
         return service.getConfigNames()
     }
 }
+*/
 
 data class AuroraApiMetadata(
     val clientConfig: ClientConfig

@@ -1,17 +1,9 @@
 package no.skatteetaten.aurora.gobo.resolvers.applicationdeployment
 
-import com.coxautodev.graphql.tools.GraphQLMutationResolver
 import com.fasterxml.jackson.databind.JsonNode
-import graphql.schema.DataFetchingEnvironment
-import no.skatteetaten.aurora.gobo.integration.boober.ApplicationDeploymentService
-import no.skatteetaten.aurora.gobo.integration.boober.ApplyPayload
-import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentRefResource
-import no.skatteetaten.aurora.gobo.resolvers.AccessDeniedException
 import no.skatteetaten.aurora.gobo.resolvers.auroraconfig.ApplicationDeploymentSpec
-import no.skatteetaten.aurora.gobo.security.currentUser
-import no.skatteetaten.aurora.gobo.security.isAnonymousUser
-import org.springframework.stereotype.Component
 
+/*
 @Component
 class DeployMutationResolver(
     private val applicationDeploymentService: ApplicationDeploymentService
@@ -61,6 +53,7 @@ class DeployMutationResolver(
         return res
     }
 }
+*/
 
 data class ApplicationDeploymentInput(
     val applicationDeployment: List<ApplicationDeploymentRef>,

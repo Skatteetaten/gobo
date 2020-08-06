@@ -1,21 +1,9 @@
 package no.skatteetaten.aurora.gobo.resolvers.auroraconfig
 
-import com.coxautodev.graphql.tools.GraphQLMutationResolver
-import com.coxautodev.graphql.tools.GraphQLQueryResolver
-import com.coxautodev.graphql.tools.GraphQLResolver
 import com.fasterxml.jackson.databind.JsonNode
-import graphql.schema.DataFetchingEnvironment
-import no.skatteetaten.aurora.gobo.integration.Response
-import no.skatteetaten.aurora.gobo.integration.boober.ApplicationDeploymentService
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileResource
-import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileType
-import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigService
-import no.skatteetaten.aurora.gobo.resolvers.AccessDeniedException
-import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.ApplicationDeploymentRef
-import no.skatteetaten.aurora.gobo.security.currentUser
-import no.skatteetaten.aurora.gobo.security.isAnonymousUser
-import org.springframework.stereotype.Component
 
+/*
 @Component
 class AuroraConfigQueryResolver(
     private val service: AuroraConfigService
@@ -27,6 +15,7 @@ class AuroraConfigQueryResolver(
         return service.getAuroraConfig(token, name, ref)
     }
 }
+*/
 
 data class AuroraConfig(
     val name: String,
@@ -50,6 +39,7 @@ data class ApplicationDeploymentSpec(
     val paused = rawJsonValueWithDefaults.at("/pause/value").booleanValue() ?: false
 }
 
+/*
 @Component
 class AuroraConfigResolver(val applicationDeploymentService: ApplicationDeploymentService) :
     GraphQLResolver<AuroraConfig> {
@@ -139,6 +129,7 @@ class AuroraConfigMutationResolver(
         )
     }
 }
+*/
 
 data class NewAuroraConfigFileInput(
     val auroraConfigName: String,

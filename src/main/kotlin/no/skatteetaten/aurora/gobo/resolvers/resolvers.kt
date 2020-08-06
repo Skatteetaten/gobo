@@ -3,21 +3,18 @@ package no.skatteetaten.aurora.gobo.resolvers
 import com.jayway.jsonpath.Configuration
 import com.jayway.jsonpath.JsonPath
 import com.jayway.jsonpath.Option
-import graphql.schema.DataFetchingEnvironment
-import graphql.servlet.context.GraphQLServletContext
 import io.netty.handler.timeout.ReadTimeoutException
-import java.time.Duration
-import kotlin.reflect.KClass
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
-import org.dataloader.DataLoader
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
 import reactor.netty.http.client.PrematureCloseException
 import reactor.retry.Retry
 import reactor.retry.RetryContext
+import java.time.Duration
 
+/*
 val DataFetchingEnvironment.token: String?
     get() {
         val authorization = this.getContext<GraphQLServletContext>().httpServletRequest.getHeader("Authorization")
@@ -35,6 +32,7 @@ fun <T : MultipleKeysDataLoader<*, V>, V> DataFetchingEnvironment.multipleKeysLo
     return this.getContext<GraphQLServletContext>().dataLoaderRegistry.get()
         .getDataLoader<Any, V>(key) ?: throw IllegalStateException("No $key found")
 }
+*/
 
 fun <T> Mono<T>.blockNonNullAndHandleError(duration: Duration = Duration.ofSeconds(30), sourceSystem: String? = null) =
     this.switchIfEmpty(SourceSystemException("Empty response", sourceSystem = sourceSystem).toMono())

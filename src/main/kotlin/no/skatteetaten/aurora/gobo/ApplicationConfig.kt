@@ -9,8 +9,7 @@ import java.util.UUID
 import java.util.concurrent.TimeUnit
 import kotlin.math.min
 import mu.KotlinLogging
-import no.skatteetaten.aurora.filter.logging.AuroraHeaderFilter
-import no.skatteetaten.aurora.filter.logging.RequestKorrelasjon
+import no.skatteetaten.aurora.webflux.AuroraRequestParser
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
@@ -112,8 +111,8 @@ class ApplicationConfig(
             .defaultHeader(HEADER_KLIENTID, applicationName)
             .defaultHeader(USER_AGENT, applicationName)
             .defaultHeader(
-                AuroraHeaderFilter.KORRELASJONS_ID,
-                RequestKorrelasjon.getId() ?: UUID.randomUUID().toString()
+                AuroraRequestParser.KORRELASJONSID_FIELD,
+                UUID.randomUUID().toString() // FIXME set korrelasjonsid
             )
             .filter(
                 ExchangeFilterFunction.ofRequestProcessor {

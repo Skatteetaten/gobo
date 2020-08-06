@@ -4,12 +4,12 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
-import no.skatteetaten.aurora.filter.logging.AuroraHeaderFilter.KORRELASJONS_ID
 import no.skatteetaten.aurora.gobo.ApplicationConfig
 import no.skatteetaten.aurora.gobo.HEADER_KLIENTID
 import no.skatteetaten.aurora.gobo.TestConfig
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.execute
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.url
+import no.skatteetaten.aurora.webflux.AuroraRequestParser.KORRELASJONSID_FIELD
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.jupiter.api.Test
@@ -36,7 +36,7 @@ class DefaultHeadersTest {
         val headers = request.first()?.headers!!
         assertThat(headers.get(HEADER_KLIENTID)).isEqualTo("gobo")
         assertThat(headers.get(USER_AGENT)).isEqualTo("gobo")
-        assertThat(headers.get(KORRELASJONS_ID)).isNotNull().isNotEmpty()
+        assertThat(headers.get(KORRELASJONSID_FIELD)).isNotNull().isNotEmpty()
     }
 
     @Test
@@ -45,12 +45,12 @@ class DefaultHeadersTest {
             webClient
                 .get()
                 .uri(server.url)
-                .header(KORRELASJONS_ID, "abc123")
+                .header(KORRELASJONSID_FIELD, "abc123")
                 .retrieve()
                 .bodyToMono<Unit>().block()
         }
 
         val headers = request.first()?.headers!!
-        assertThat(headers.get(KORRELASJONS_ID)).isEqualTo("abc123")
+        assertThat(headers.get(KORRELASJONSID_FIELD)).isEqualTo("abc123")
     }
 }

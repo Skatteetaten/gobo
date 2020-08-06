@@ -1,20 +1,6 @@
 package no.skatteetaten.aurora.gobo.resolvers.database
 
-import com.coxautodev.graphql.tools.GraphQLMutationResolver
-import com.coxautodev.graphql.tools.GraphQLQueryResolver
-import com.coxautodev.graphql.tools.GraphQLResolver
-import graphql.schema.DataFetchingEnvironment
-import java.util.concurrent.CompletableFuture
-import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseService
-import no.skatteetaten.aurora.gobo.integration.dbh.JdbcUser
-import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
-import no.skatteetaten.aurora.gobo.resolvers.AccessDeniedException
-import no.skatteetaten.aurora.gobo.resolvers.affiliation.Affiliation
-import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.ApplicationDeployment
-import no.skatteetaten.aurora.gobo.resolvers.multipleKeysLoader
-import no.skatteetaten.aurora.gobo.security.isAnonymousUser
-import org.springframework.stereotype.Component
-
+/*
 @Component
 class DatabaseSchemaQueryResolver(private val databaseService: DatabaseService) :
     GraphQLQueryResolver {
@@ -90,3 +76,4 @@ class DatabaseSchemaResolver(val applicationService: ApplicationServiceBlocking)
     ): CompletableFuture<List<ApplicationDeployment>> =
         dfe.multipleKeysLoader(DatabaseDataLoader::class).load(schema.id)
 }
+*/

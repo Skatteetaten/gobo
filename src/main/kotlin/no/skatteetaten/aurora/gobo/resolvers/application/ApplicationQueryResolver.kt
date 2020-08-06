@@ -1,9 +1,6 @@
 package no.skatteetaten.aurora.gobo.resolvers.application
 
-import com.coxautodev.graphql.tools.GraphQLQueryResolver
-import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
-import org.springframework.stereotype.Component
-
+/*
 @Component
 class ApplicationQueryResolver(private val applicationService: ApplicationServiceBlocking) : GraphQLQueryResolver {
 
@@ -17,3 +14,4 @@ class ApplicationQueryResolver(private val applicationService: ApplicationServic
         return ApplicationsConnection(applicationEdges)
     }
 }
+*/
