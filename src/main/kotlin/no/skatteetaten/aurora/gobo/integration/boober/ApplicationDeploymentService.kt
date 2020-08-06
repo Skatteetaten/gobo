@@ -59,12 +59,12 @@ class ApplicationDeploymentService(private val booberWebClient: BooberWebClient)
         val requestParam = applicationDeploymentReferenceList.joinToString(
             transform = { "adr=" + URLEncoder.encode("${it.environment}/${it.application}", StandardCharsets.UTF_8) },
             separator = "&"
-        ) + "&reference=$auroraConfigReference"
+        ) + "&reference={auroraConfigReference}"
 
         val url = "/v1/auroradeployspec/{auroraConfig}?$requestParam"
 
         val response = booberWebClient.executeMono<Response<JsonNode>>(token) {
-            it.get().uri(booberWebClient.getBooberUrl(url), auroraConfigName)
+            it.get().uri(booberWebClient.getBooberUrl(url), auroraConfigName, auroraConfigReference)
         }.blockNonNullWithTimeout()
 
         return response.items.map { ApplicationDeploymentSpec(it) }
@@ -78,6 +78,7 @@ data class DeleteApplicationDeploymentInput(val namespace: String, val name: Str
 
 data class DeployResource(
     val auroraConfigRef: AuroraConfigRefResource,
+    val applicationDeploymentId: String,
     val deploymentSpec: JsonNode,
     val deployId: String,
     val openShiftResponses: List<JsonNode>,

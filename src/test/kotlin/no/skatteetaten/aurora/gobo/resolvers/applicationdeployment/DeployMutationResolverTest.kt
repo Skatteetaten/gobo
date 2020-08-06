@@ -29,7 +29,8 @@ class DeployMutationResolverTest : GraphQLTestWithDbhAndSkap() {
 
     @BeforeEach
     fun setUp() {
-        val deploymentSpecAsJson = """{
+        val deploymentSpecAsJson =
+            """{
                 "cluster" : {"value" : "myCluster"},  
                 "envName" : {"value" : "env"},  
                 "name"    : {"value" : "myName"},  
@@ -51,7 +52,8 @@ class DeployMutationResolverTest : GraphQLTestWithDbhAndSkap() {
                     deploymentSpec = deploymentSpec,
                     deployId = "myID",
                     openShiftResponses = emptyList(),
-                    success = true
+                    success = true,
+                    applicationDeploymentId = "abc123"
                 )
             )
         )
@@ -71,7 +73,8 @@ class DeployMutationResolverTest : GraphQLTestWithDbhAndSkap() {
                     deploymentSpec = deploymentSpec,
                     deployId = "oneId",
                     openShiftResponses = emptyList(),
-                    success = false
+                    success = false,
+                    applicationDeploymentId = "abc123"
                 )
             )
         )
@@ -96,6 +99,7 @@ class DeployMutationResolverTest : GraphQLTestWithDbhAndSkap() {
             .graphqlData("deploy.auroraConfigRef.commitId").isEqualTo("123abcd")
             .graphqlData("deploy.applicationDeployments[0].spec.version").isEqualTo("1.0")
             .graphqlData("deploy.applicationDeployments[0].spec.cluster").isEqualTo("myCluster")
+            .graphqlData("deploy.applicationDeployments[0].applicationDeploymentId").isEqualTo("abc123")
             .graphqlDoesNotContainErrors()
     }
 

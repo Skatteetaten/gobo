@@ -25,8 +25,8 @@ class ApplicationServiceNetworkTest {
             socketPolicy = SocketPolicy.DISCONNECT_AFTER_REQUEST
         }
         val okResponse = MockResponse()
-                .setBody(testObjectMapper().writeValueAsString(ApplicationResourceBuilder().build()))
-                .setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .setBody(testObjectMapper().writeValueAsString(ApplicationResourceBuilder().build()))
+            .setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
 
         server.execute(errorResponse, okResponse) {
             val application = applicationServiceBlocking.getApplication("test123")

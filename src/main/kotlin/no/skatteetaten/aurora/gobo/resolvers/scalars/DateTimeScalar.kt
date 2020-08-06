@@ -10,17 +10,20 @@ import org.springframework.stereotype.Component
 
 @Component
 class DateTimeScalar : GraphQLScalarType(
-    "DateTime", "DateTime scalar", (object : Coercing<Instant, String> {
+    "DateTime", "DateTime scalar",
+    (
+        object : Coercing<Instant, String> {
 
-        override fun serialize(input: Any?) = (input as Instant).toString()
+            override fun serialize(input: Any?) = (input as Instant).toString()
 
-        override fun parseValue(input: Any?): Instant = parseLiteral(input)
+            override fun parseValue(input: Any?): Instant = parseLiteral(input)
 
-        override fun parseLiteral(input: Any?) =
-            when (input) {
-                is StringValue -> Instant.parse(input.value)
-                is IntValue -> Instant.ofEpochMilli(input.value.longValueExact())
-                else -> throw CoercingSerializeException("Invalid value '$input' for LocalTime")
-            }
-    })
+            override fun parseLiteral(input: Any?) =
+                when (input) {
+                    is StringValue -> Instant.parse(input.value)
+                    is IntValue -> Instant.ofEpochMilli(input.value.longValueExact())
+                    else -> throw CoercingSerializeException("Invalid value '$input' for LocalTime")
+                }
+        }
+        )
 )

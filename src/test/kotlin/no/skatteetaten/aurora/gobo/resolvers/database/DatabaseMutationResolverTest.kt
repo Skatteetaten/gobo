@@ -125,11 +125,11 @@ class DatabaseMutationResolverTest : GraphQLTestWithDbhAndSkap() {
     fun `Test JDBC connection for jdbcUser`() {
         every { databaseSchemaService.testJdbcConnection(any<JdbcUser>()) } returns ConnectionVerificationResponse(hasSucceeded = true)
         val variables =
-                mapOf("input" to jacksonObjectMapper().convertValue<Map<String, Any>>(JdbcUserBuilder().build()))
+            mapOf("input" to jacksonObjectMapper().convertValue<Map<String, Any>>(JdbcUserBuilder().build()))
         webTestClient.queryGraphQL(
-                queryResource = testJdbcConnectionForJdbcUserMutation,
-                variables = variables,
-                token = "test-token"
+            queryResource = testJdbcConnectionForJdbcUserMutation,
+            variables = variables,
+            token = "test-token"
         )
             .expectBody()
             .graphqlData("testJdbcConnectionForJdbcUser.hasSucceeded").isTrue()
@@ -140,9 +140,9 @@ class DatabaseMutationResolverTest : GraphQLTestWithDbhAndSkap() {
     fun `Test JDBC connection for id`() {
         every { databaseSchemaService.testJdbcConnection(any<String>()) } returns ConnectionVerificationResponse(hasSucceeded = true)
         webTestClient.queryGraphQL(
-                queryResource = testJdbcConnectionForIdMutation,
-                variables = mapOf("id" to "123"),
-                token = "test-token"
+            queryResource = testJdbcConnectionForIdMutation,
+            variables = mapOf("id" to "123"),
+            token = "test-token"
         )
             .expectBody()
             .graphqlData("testJdbcConnectionForId.hasSucceeded").isTrue()
@@ -152,12 +152,12 @@ class DatabaseMutationResolverTest : GraphQLTestWithDbhAndSkap() {
     @Test
     fun `Test JDBC connection for id without token`() {
         webTestClient.queryGraphQL(
-                queryResource = testJdbcConnectionForIdMutation,
-                variables = mapOf("id" to "123")
+            queryResource = testJdbcConnectionForIdMutation,
+            variables = mapOf("id" to "123")
         )
-                .expectBody()
-                .graphqlErrorsFirst("[?(@.message =~ /.*Anonymous user cannot test jdbc connection/)]")
-                .isNotEmpty
+            .expectBody()
+            .graphqlErrorsFirst("[?(@.message =~ /.*Anonymous user cannot test jdbc connection/)]")
+            .isNotEmpty
     }
 
     @Test

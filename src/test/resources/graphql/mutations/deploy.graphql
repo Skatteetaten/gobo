@@ -16,6 +16,7 @@ mutation deploy($input: ApplicationDeploymentInput!){
             }
             message
             warnings
+            applicationDeploymentId
         }
     }
 }
