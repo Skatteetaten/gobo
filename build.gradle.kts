@@ -39,4 +39,5 @@ dependencies {
     testImplementation("io.projectreactor:reactor-test")
     testImplementation("no.skatteetaten.aurora:mockmvc-extensions-kotlin:1.0.4")
     testImplementation("com.ninja-squad:springmockk:2.0.0")
+    testImplementation("org.junit-pioneer:junit-pioneer:0.6.0")
 }
