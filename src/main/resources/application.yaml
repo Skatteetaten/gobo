@@ -6,6 +6,9 @@ info:
         unclematt: ${integrations.unclematt.url}
         cantus: ${integrations.cantus.url}
 
+graphql:
+    packages: no.skatteetaten.aurora.gobo.resolvers
+
 spring:
     application:
         name: gobo

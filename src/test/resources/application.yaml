@@ -6,6 +6,10 @@ spring:
     sleuth:
         enabled: false
 
+graphql:
+    packages: "no.skatteetaten.aurora.gobo.resolvers"
+    sc
+
 integrations:
     mokey:
         url: http://localhost:6565
