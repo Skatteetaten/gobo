@@ -53,4 +53,11 @@ class BooberWebClientTest {
                 .hasMessage("Exception occurred in Boober integration.")
         }
     }
+
+    @Test
+    fun `Get boober url with url template`() {
+        val link = "/v2/auroraconfig/{auroraConfig}?reference={reference}"
+        val booberUrl = client.getBooberUrl(link)
+        assertThat(booberUrl).isEqualTo("$url$link")
+    }
 }
