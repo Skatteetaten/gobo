@@ -10,19 +10,18 @@ plugins {
     id("com.gorylenko.gradle-git-properties") version "2.2.3"
     id("com.github.ben-manes.versions") version "0.29.0"
     id("se.patrikerdes.use-latest-versions") version "0.2.14"
-    id("no.skatteetaten.gradle.aurora") version "3.6.3"
+    id("no.skatteetaten.gradle.aurora") version "3.6.4"
 }
 
 val springCloudContractVersion: String = project.property("aurora.springCloudContractVersion") as String
 
 dependencies {
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.8")
 
     implementation("io.projectreactor.kotlin:reactor-kotlin-extensions:1.0.2.RELEASE")
     implementation("org.apache.commons:commons-text:1.9")
-    implementation("org.springframework.retry:spring-retry")
     implementation("org.springframework.boot:spring-boot-starter-security")
-    implementation("com.expediagroup:graphql-kotlin-spring-server:3.4.1")
+    implementation("com.expediagroup:graphql-kotlin-spring-server:3.6.1")
 
     implementation("uk.q3c.rest:hal-kotlin:0.5.4.0.db32476")
     implementation("io.fabric8:openshift-client:4.10.3")
@@ -38,6 +37,6 @@ dependencies {
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.22")
     testImplementation("io.projectreactor:reactor-test")
     testImplementation("no.skatteetaten.aurora:mockmvc-extensions-kotlin:1.1.0")
-    testImplementation("com.ninja-squad:springmockk:2.0.2")
-    testImplementation("org.junit-pioneer:junit-pioneer:0.6.0")
+    testImplementation("com.ninja-squad:springmockk:2.0.3")
+    testImplementation("org.junit-pioneer:junit-pioneer:0.9.0")
 }

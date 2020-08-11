@@ -1,12 +1,6 @@
 package no.skatteetaten.aurora.gobo.resolvers.database
 
-import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
-import no.skatteetaten.aurora.gobo.resolvers.MultipleKeysDataLoader
-import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.ApplicationDeployment
-import no.skatteetaten.aurora.gobo.resolvers.user.User
-import org.dataloader.Try
-import org.springframework.stereotype.Component
-
+/*
 @Component
 class DatabaseDataLoader(
     private val applicationService: ApplicationServiceBlocking
@@ -26,3 +20,4 @@ class DatabaseDataLoader(
         }
     }
 }
+ */

@@ -1,25 +1,6 @@
 package no.skatteetaten.aurora.gobo.resolvers.database
 
-import assertk.assertThat
-import assertk.assertions.isEqualTo
-import io.mockk.every
-import io.mockk.mockk
-import no.skatteetaten.aurora.gobo.ApplicationConfig
-import no.skatteetaten.aurora.gobo.ApplicationDeploymentWithDbResourceBuilder
-import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
-import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
-import no.skatteetaten.aurora.gobo.resolvers.user.User
-import no.skatteetaten.aurora.gobo.security.SharedSecretReader
-import no.skatteetaten.aurora.gobo.testObjectMapper
-import no.skatteetaten.aurora.mockmvc.extensions.TestObjectMapperConfigurer
-import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.execute
-import okhttp3.mockwebserver.MockWebServer
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
-import org.springframework.web.reactive.function.client.WebClient
-
+/*
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
 class DatabaseDataLoaderTest {
 
@@ -62,3 +43,4 @@ class DatabaseDataLoaderTest {
         assertThat(request?.path).isEqualTo("/api/auth/applicationdeploymentbyresource/databases")
     }
 }
+ */

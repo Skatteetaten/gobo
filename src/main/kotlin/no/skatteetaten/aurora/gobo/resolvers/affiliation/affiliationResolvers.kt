@@ -24,6 +24,7 @@ class AffiliationQuery(val affiliationService: AffiliationService) : Query {
         checkForVisibility: Boolean?,
         dfe: DataFetchingEnvironment
     ): Affiliations {
+
         val affiliationNames = if (affiliation == null) {
             getAffiliations(checkForVisibility ?: false, dfe.token())
         } else {

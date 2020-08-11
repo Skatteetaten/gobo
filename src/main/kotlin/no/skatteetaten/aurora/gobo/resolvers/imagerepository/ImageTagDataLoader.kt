@@ -1,13 +1,6 @@
 package no.skatteetaten.aurora.gobo.resolvers.imagerepository
 
-import no.skatteetaten.aurora.gobo.integration.SourceSystemException
-import no.skatteetaten.aurora.gobo.integration.cantus.ImageRegistryServiceBlocking
-import no.skatteetaten.aurora.gobo.integration.cantus.ImageRepoAndTags
-import no.skatteetaten.aurora.gobo.resolvers.MultipleKeysDataLoader
-import no.skatteetaten.aurora.gobo.resolvers.user.User
-import org.dataloader.Try
-import org.springframework.stereotype.Component
-
+/*
 @Component
 class ImageTagDataLoader(
     val imageRegistryServiceBlocking: ImageRegistryServiceBlocking
@@ -49,3 +42,4 @@ class ImageTagDataLoader(
         }
     }
 }
+*/

@@ -1,19 +1,24 @@
 package no.skatteetaten.aurora.gobo.resolvers
 
-import java.util.concurrent.CompletableFuture
-import java.util.concurrent.Executors
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.asCoroutineDispatcher
-import kotlinx.coroutines.async
-import kotlinx.coroutines.runBlocking
-import no.skatteetaten.aurora.gobo.resolvers.user.User
-import org.dataloader.DataLoader
+import graphql.schema.DataFetchingEnvironment
+import kotlinx.coroutines.future.await
 import org.dataloader.Try
 
 interface KeyDataLoader<K, V> {
-    fun getByKey(user: User, key: K): Try<V>
+    fun getByKey(key: K, context: GoboGraphQLContext): Try<V>
 }
 
+/*
+  Load a single key of type Key into a value of type Value using a dataloader named <Value>DataLoader
+
+  If the loading throws and error the entire query will fail
+ */
+suspend inline fun <Key, reified Value> DataFetchingEnvironment.loadMany(key: Key): List<Value> {
+    val loaderName = "${Value::class.java.simpleName}ListDataLoader"
+    return this.getDataLoader<Key, List<Value>>(loaderName).load(key, this.getContext()).await()
+}
+
+/*
 val context = Executors.newFixedThreadPool(6).asCoroutineDispatcher()
 
 /*
@@ -47,3 +52,4 @@ fun <K, V> batchDataLoaderMappedMultiple(user: User, keysDataLoader: MultipleKey
             keysDataLoader.getByKeys(user, keys)
         }
     }
+*/
