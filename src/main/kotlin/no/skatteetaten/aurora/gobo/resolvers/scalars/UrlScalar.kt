@@ -7,7 +7,7 @@ import graphql.schema.CoercingSerializeException
 import java.net.MalformedURLException
 import java.net.URL
 
-object UrlScalar :  Coercing<URL, String> {
+object UrlScalar : Coercing<URL, String> {
 
     override fun serialize(input: Any?) = (input as URL).toString()
 

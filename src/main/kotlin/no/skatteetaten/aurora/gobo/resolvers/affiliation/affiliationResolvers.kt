@@ -16,7 +16,6 @@ data class Affiliation(val name: String) {
 
 data class Affiliations(val items: List<Affiliation>, val totalCount: Int = items.size)
 
-
 @Component
 class AffiliationQuery(val affiliationService: AffiliationService) : Query {
 

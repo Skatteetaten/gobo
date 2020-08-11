@@ -4,7 +4,6 @@ import graphql.language.IntValue
 import graphql.language.StringValue
 import graphql.schema.Coercing
 import graphql.schema.CoercingSerializeException
-import org.springframework.stereotype.Component
 import java.time.Instant
 
 object InstantScalar : Coercing<Instant, String> {
