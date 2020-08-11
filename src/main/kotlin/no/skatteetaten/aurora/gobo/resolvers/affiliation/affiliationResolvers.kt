@@ -1,5 +1,44 @@
 package no.skatteetaten.aurora.gobo.resolvers.affiliation
 
+import com.expediagroup.graphql.spring.operations.Query
+import graphql.schema.DataFetchingEnvironment
+import kotlinx.coroutines.reactive.awaitFirst
+import no.skatteetaten.aurora.gobo.integration.mokey.AffiliationService
+import no.skatteetaten.aurora.gobo.resolvers.token
+import org.springframework.stereotype.Component
+
+data class Affiliation(val name: String) {
+
+}
+
+data class Affiliations(val items: List<Affiliation>, val totalCount: Int = items.size)
+
+
+@Component
+class AffiliationQuery(val affiliationService: AffiliationService) : Query {
+
+    suspend fun affiliations(
+        affiliation: String?,
+        checkForVisibility: Boolean?,
+        dfe: DataFetchingEnvironment
+    ): Affiliations {
+        val affiliationNames = if (affiliation == null) {
+            getAffiliations(checkForVisibility ?: false, dfe.token())
+        } else {
+            listOf(affiliation)
+        }
+
+        val affiliations = affiliationNames.map { Affiliation(it) }
+        return Affiliations(affiliations)
+    }
+
+    private suspend fun getAffiliations(checkForVisibility: Boolean, token: String) = if (checkForVisibility) {
+        affiliationService.getAllVisibleAffiliations(token).awaitFirst()
+    } else {
+        affiliationService.getAllAffiliations().awaitFirst()
+    }
+}
+
 /*
 @Component
 class AffiliationQueryResolver(

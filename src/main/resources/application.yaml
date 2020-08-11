@@ -17,6 +17,11 @@ spring:
         enabled: false
     sleuth:
         enabled: false
+    security:
+
+
+graphql:
+    packages: "no.skatteetaten.aurora.gobo.resolvers"
 
 management:
     endpoints:

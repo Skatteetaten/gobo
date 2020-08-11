@@ -1,0 +1,8 @@
+query getAffiliation(affiliation: String!) {
+  affiliations(affiliation: affiliation) {
+    totalCount
+    items {
+      name
+    }
+  }
+}
