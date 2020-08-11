@@ -44,7 +44,8 @@ class ProbeFireWallTest {
     }
 }
 
-private const val probeResponse = """[
+private const val probeResponse =
+    """[
     {
         "result": {
         "status": "OPEN",

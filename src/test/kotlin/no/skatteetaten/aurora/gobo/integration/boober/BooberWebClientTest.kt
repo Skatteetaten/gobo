@@ -10,13 +10,23 @@ import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.testObjectMapper
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.execute
 import okhttp3.mockwebserver.MockWebServer
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
 import org.springframework.web.reactive.function.client.WebClient
 
+@TestInstance(TestInstance.Lifecycle.PER_METHOD)
 class BooberWebClientTest {
     private val server = MockWebServer()
     private val url = server.url("/").toString()
     private val client = BooberWebClient(url, WebClient.create(), testObjectMapper())
+
+    @AfterEach
+    fun tearDown() {
+        kotlin.runCatching {
+            server.shutdown()
+        }
+    }
 
     @Test
     fun `Get boober response`() {
@@ -42,5 +52,12 @@ class BooberWebClientTest {
             assertThat { request.collectList().block() }.isFailure()
                 .hasMessage("Exception occurred in Boober integration.")
         }
+    }
+
+    @Test
+    fun `Get boober url with url template`() {
+        val link = "/v2/auroraconfig/{auroraConfig}?reference={reference}"
+        val booberUrl = client.getBooberUrl(link)
+        assertThat(booberUrl).isEqualTo("$url$link")
     }
 }

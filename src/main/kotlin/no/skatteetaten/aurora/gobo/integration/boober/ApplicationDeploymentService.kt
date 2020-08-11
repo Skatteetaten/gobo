@@ -1,9 +1,6 @@
 package no.skatteetaten.aurora.gobo.integration.boober
 
 import com.fasterxml.jackson.databind.JsonNode
-import java.net.URLEncoder
-import java.nio.charset.StandardCharsets
-import java.time.Duration
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.ApplicationDeploymentRef
@@ -13,6 +10,7 @@ import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.BodyInserters
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
+import java.time.Duration
 
 private val logger = KotlinLogging.logger { }
 
@@ -40,15 +38,15 @@ class ApplicationDeploymentService(private val booberWebClient: BooberWebClient)
         payload: ApplyPayload
     ): Response<DeployResource> {
 
-        val url = "/v1/apply/$auroraConfig?reference=$reference"
+        val url = "/v1/apply/{auroraConfig}?reference={reference}"
         return booberWebClient.executeMono<Response<DeployResource>>(token) {
-            it.put().uri(booberWebClient.getBooberUrl(url), emptyMap<String, Any>())
+            it.put().uri(booberWebClient.getBooberUrl(url), mapOf("auroraConfig" to auroraConfig, "reference" to reference))
                 .body(BodyInserters.fromValue(payload))
         }.blockNonNullWithTimeout()
     }
 
     // TODO this should support  a list of applicationSpecCommands that also takes in responseType and Defaults.
-    // TODO Should we move the default/formating code here instead of in boober?
+    // TODO Should we move the default/formatting code here instead of in boober?
     fun getSpec(
         token: String,
         auroraConfigName: String,
@@ -57,14 +55,14 @@ class ApplicationDeploymentService(private val booberWebClient: BooberWebClient)
     ): List<ApplicationDeploymentSpec> {
 
         val requestParam = applicationDeploymentReferenceList.joinToString(
-            transform = { "adr=" + URLEncoder.encode("${it.environment}/${it.application}", StandardCharsets.UTF_8) },
+            transform = { "adr=${it.environment}/${it.application}" },
             separator = "&"
-        ) + "&reference=$auroraConfigReference"
+        ) + "&reference={auroraConfigReference}"
 
-        val url = "/v1/auroradeployspec/$auroraConfigName?$requestParam"
+        val url = "/v1/auroradeployspec/{auroraConfig}?$requestParam"
 
         val response = booberWebClient.executeMono<Response<JsonNode>>(token) {
-            it.get().uri(booberWebClient.getBooberUrl(url))
+            it.get().uri(booberWebClient.getBooberUrl(url), auroraConfigName, auroraConfigReference)
         }.blockNonNullWithTimeout()
 
         return response.items.map { ApplicationDeploymentSpec(it) }
@@ -78,6 +76,7 @@ data class DeleteApplicationDeploymentInput(val namespace: String, val name: Str
 
 data class DeployResource(
     val auroraConfigRef: AuroraConfigRefResource,
+    val applicationDeploymentId: String,
     val deploymentSpec: JsonNode,
     val deployId: String,
     val openShiftResponses: List<JsonNode>,

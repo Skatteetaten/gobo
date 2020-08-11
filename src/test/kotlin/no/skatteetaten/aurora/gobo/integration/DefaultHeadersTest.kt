@@ -2,35 +2,55 @@ package no.skatteetaten.aurora.gobo.integration
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import assertk.assertions.isNotEmpty
+import assertk.assertions.isNotNull
+import no.skatteetaten.aurora.filter.logging.AuroraHeaderFilter.KORRELASJONS_ID
 import no.skatteetaten.aurora.gobo.ApplicationConfig
 import no.skatteetaten.aurora.gobo.HEADER_KLIENTID
-import no.skatteetaten.aurora.gobo.ObjectMapperConfig
+import no.skatteetaten.aurora.gobo.TestConfig
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.execute
+import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.url
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.http.HttpHeaders.USER_AGENT
+import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.bodyToMono
 
-@SpringBootTest(classes = [TestConfig::class, ApplicationConfig::class, ObjectMapperConfig::class])
+@SpringBootTest(classes = [TestConfig::class, ApplicationConfig::class])
 class DefaultHeadersTest {
 
     private val server = MockWebServer()
-    private val url = server.url("/")
 
     @Autowired
-    private lateinit var applicationConfig: ApplicationConfig
+    private lateinit var webClient: WebClient
 
     @Test
-    fun `Verify KlientID header`() {
-        val webClient = applicationConfig.webClientBuilder(false).baseUrl(url.toString()).build()
-
+    fun `Verify KlientID and Korrelasjonsid headers`() {
         val request = server.execute(MockResponse()) {
-            webClient.get().retrieve().bodyToMono<Unit>().block()
+            webClient.get().uri(server.url).retrieve().bodyToMono<Unit>().block()
         }
 
-        val headers = request.first()?.headers
-        assertThat(headers?.get(HEADER_KLIENTID)).isEqualTo("gobo")
+        val headers = request.first()?.headers!!
+        assertThat(headers.get(HEADER_KLIENTID)).isEqualTo("gobo")
+        assertThat(headers.get(USER_AGENT)).isEqualTo("gobo")
+        assertThat(headers.get(KORRELASJONS_ID)).isNotNull().isNotEmpty()
+    }
+
+    @Test
+    fun `Verify that Korrelasjonsid header value is forwarded in next request`() {
+        val request = server.execute(MockResponse()) {
+            webClient
+                .get()
+                .uri(server.url)
+                .header(KORRELASJONS_ID, "abc123")
+                .retrieve()
+                .bodyToMono<Unit>().block()
+        }
+
+        val headers = request.first()?.headers!!
+        assertThat(headers.get(KORRELASJONS_ID)).isEqualTo("abc123")
     }
 }

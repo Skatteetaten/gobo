@@ -27,10 +27,9 @@ class DatabaseDataLoaderTest {
         connectionTimeout = 500,
         readTimeout = 500,
         writeTimeout = 500,
-        applicationName = "",
-        objectMapper = testObjectMapper()
+        applicationName = ""
     )
-    private val dbhClient = applicationConfig.webClientDbh(dbhUrl)
+    private val dbhClient = applicationConfig.webClientDbh(dbhUrl, WebClient.builder())
     private val applicationService = ApplicationServiceBlocking(ApplicationService(dbhClient))
     private val dataLoader = DatabaseDataLoader(applicationService)
 

@@ -9,7 +9,6 @@ import no.skatteetaten.aurora.gobo.ApplicationDeploymentDetailsBuilder
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
 import no.skatteetaten.aurora.gobo.resolvers.user.User
-import no.skatteetaten.aurora.gobo.testObjectMapper
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.execute
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -26,8 +25,8 @@ class ApplicationDeploymentDetailsDataLoaderTest {
 
     private val server = MockWebServer()
     private val url = server.url("/")
-    private val webClient = ApplicationConfig(WebClient.builder(), 500, 500, 500, "", testObjectMapper())
-        .webClientBuilder(false).baseUrl(url.toString()).build()
+    private val webClient = ApplicationConfig(WebClient.builder(), 500, 500, 500, "")
+        .webClientMokey(url.toString(), WebClient.builder())
     private val applicationService = ApplicationServiceBlocking(ApplicationService(webClient))
     private val dataLoader = ApplicationDeploymentDetailsDataLoader(applicationService)
 

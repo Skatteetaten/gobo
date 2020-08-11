@@ -11,6 +11,12 @@ spring:
         name: gobo
     profiles:
         active: local
+    codec:
+        max-in-memory-size: -1 # unlimited
+    zipkin:
+        enabled: false
+    sleuth:
+        enabled: false
 
 management:
     endpoints:
@@ -71,10 +77,9 @@ gobo:
     graphql:
         tracing-enabled: false
 
-aurora:
-    starter:
-        headerfilter:
-            enabled: false
+aurora.webflux.header.webclient.interceptor.enabled: true
+aurora.mvc.header.filter.enabled: false
+aurora.webflux.header.filter.enabled: false
 
 logging:
     level:

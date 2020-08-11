@@ -40,7 +40,8 @@ class AuroraConfigQueryResolverTest : GraphQLTestWithDbhAndSkap() {
             )
         )
 
-        val jsonNode = """
+        val jsonNode =
+            """
           {
             "cluster": {
               "value": "myCluster"
@@ -72,7 +73,7 @@ class AuroraConfigQueryResolverTest : GraphQLTestWithDbhAndSkap() {
               "value": 2
             }
           }
-      """.trimIndent()
+            """.trimIndent()
 
         every { applicationDeploymentService.getSpec(any(), any(), any(), any()) } returns listOf(
             ApplicationDeploymentSpec(jacksonObjectMapper().readTree(jsonNode))

@@ -10,7 +10,8 @@ import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.util.StreamUtils
 import org.springframework.web.reactive.function.BodyInserters
 
-private fun query(payload: String, variables: String) = """
+private fun query(payload: String, variables: String) =
+    """
 {
   "query": "$payload",
   "variables": $variables

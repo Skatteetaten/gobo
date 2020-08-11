@@ -74,6 +74,10 @@ class BooberWebClient(
             return link
         }
 
+        if (link.startsWith("/")) {
+            return "$booberUrl$link"
+        }
+
         val booberUri = URI(booberUrl)
         val linkUri = URI(link)
         return URI(

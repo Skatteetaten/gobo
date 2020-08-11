@@ -59,7 +59,8 @@ import uk.q3c.rest.hal.Links
 val defaultInstant = Instant.parse("2018-01-01T00:00:01Z")
 
 @Language("JSON")
-val linksResponseJson: String = """{
+val linksResponseJson: String =
+    """{
   "_links": {
       "self": {
           "href": "http://localhost:8081/actuator"
@@ -77,7 +78,8 @@ val linksResponseJson: String = """{
 }"""
 
 @Language("JSON")
-val infoResponseJson: String = """{
+val infoResponseJson: String =
+    """{
   "git": {
     "build.time": "$defaultInstant",
     "commit.time": "$defaultInstant",
@@ -89,14 +91,16 @@ val infoResponseJson: String = """{
 }"""
 
 @Language("JSON")
-val envResponseJson = """{
+val envResponseJson =
+    """{
   "activeProfiles": [
     "myprofile"
   ]
 }"""
 
 @Language("JSON")
-val healthResponseJson: String = """{"status": "UP"}"""
+val healthResponseJson: String =
+    """{"status": "UP"}"""
 
 data class ApplicationDeploymentWithDbResourceBuilder(
     val databaseId: String,

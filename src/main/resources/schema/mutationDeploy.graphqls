@@ -12,6 +12,7 @@ type ApplicationDeploymentResultItem {
     spec: ApplicationDeploymentSpec!
     deployId:String!
     message:String
+    applicationDeploymentId: String!
 }
 
 type ApplicationDeploymentResult {

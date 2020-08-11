@@ -1,11 +1,11 @@
 package no.skatteetaten.aurora.gobo
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import io.netty.channel.ChannelOption
 import io.netty.handler.ssl.SslContextBuilder
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory
 import io.netty.handler.timeout.ReadTimeoutHandler
 import io.netty.handler.timeout.WriteTimeoutHandler
+import java.util.UUID
 import java.util.concurrent.TimeUnit
 import kotlin.math.min
 import mu.KotlinLogging
@@ -21,15 +21,13 @@ import org.springframework.context.annotation.Primary
 import org.springframework.core.Ordered
 import org.springframework.core.annotation.Order
 import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpHeaders.USER_AGENT
 import org.springframework.http.MediaType
 import org.springframework.http.client.reactive.ReactorClientHttpConnector
-import org.springframework.http.codec.json.Jackson2JsonDecoder
-import org.springframework.http.codec.json.Jackson2JsonEncoder
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction
-import org.springframework.web.reactive.function.client.ExchangeStrategies
 import org.springframework.web.reactive.function.client.WebClient
-import reactor.core.publisher.toMono
+import reactor.kotlin.core.publisher.toMono
 import reactor.netty.http.client.HttpClient
 import reactor.netty.tcp.SslProvider
 
@@ -58,80 +56,76 @@ private val logger = KotlinLogging.logger {}
 
 @Configuration
 class ApplicationConfig(
-    val webClientBuilder: WebClient.Builder,
     @Value("\${gobo.webclient.read-timeout:30000}") val readTimeout: Long,
     @Value("\${gobo.webclient.write-timeout:30000}") val writeTimeout: Long,
     @Value("\${gobo.webclient.connection-timeout:30000}") val connectionTimeout: Int,
-    @Value("\${spring.application.name}") val applicationName: String,
-    val objectMapper: ObjectMapper
+    @Value("\${spring.application.name}") val applicationName: String
 ) {
 
     @Bean
     @Primary
     @TargetService(ServiceTypes.MOKEY)
-    fun webClientMokey(@Value("\${integrations.mokey.url}") mokeyUrl: String) = webClientBuilder()
-        .also { logger.info("Configuring Mokey WebClient with baseUrl={}", mokeyUrl) }
-        .baseUrl(mokeyUrl).build()
+    fun webClientMokey(@Value("\${integrations.mokey.url}") mokeyUrl: String, builder: WebClient.Builder): WebClient {
+        logger.info("Configuring Mokey WebClient with baseUrl={}", mokeyUrl)
+        return builder.init().baseUrl(mokeyUrl).build()
+    }
 
     @Bean
     @TargetService(ServiceTypes.UNCLEMATT)
-    fun webClientUncleMatt(@Value("\${integrations.unclematt.url}") uncleMattUrl: String) = webClientBuilder()
-        .also { logger.info("Configuring UncleMatt WebClient with baseUrl={}", uncleMattUrl) }
-        .baseUrl(uncleMattUrl).build()
+    fun webClientUncleMatt(
+        @Value("\${integrations.unclematt.url}") uncleMattUrl: String,
+        builder: WebClient.Builder
+    ): WebClient {
+        logger.info("Configuring UncleMatt WebClient with baseUrl={}", uncleMattUrl)
+        return builder.init().baseUrl(uncleMattUrl).build()
+    }
 
     @Bean
     @TargetService(ServiceTypes.CANTUS)
-    fun webClientCantus(@Value("\${integrations.cantus.url}") cantusUrl: String) = webClientBuilder()
-        .also { logger.info("Configuring Cantus WebClient with baseUrl={}", cantusUrl) }
-        .baseUrl(cantusUrl).build()
+    fun webClientCantus(
+        @Value("\${integrations.cantus.url}") cantusUrl: String,
+        builder: WebClient.Builder
+    ): WebClient {
+        logger.info("Configuring Cantus WebClient with base Url={}", cantusUrl)
+
+        return builder.init().baseUrl(cantusUrl).build()
+    }
 
     @Bean
     @TargetService(ServiceTypes.BOOBER)
-    fun webClientBoober() = webClientBuilder().build()
+    fun webClientBoober(builder: WebClient.Builder) = builder.init().build()
 
     @ConditionalOnBean(RequiresSkap::class)
     @Bean
     @TargetService(ServiceTypes.SKAP)
-    fun webClientSkap(@Value("\${integrations.skap.url}") skapUrl: String) = webClientBuilder()
-        .also { logger.info("Configuring Skap WebClient with baseUrl={}", skapUrl) }
-        .baseUrl(skapUrl).build()
+    fun webClientSkap(@Value("\${integrations.skap.url}") skapUrl: String, builder: WebClient.Builder) =
+        builder.init().baseUrl(skapUrl).build()
 
     @ConditionalOnBean(RequiresDbh::class)
     @Bean
     @TargetService(ServiceTypes.DBH)
-    fun webClientDbh(@Value("\${integrations.dbh.url}") dbhUrl: String) = webClientBuilder()
-        .also { logger.info("Configuring DBH WebClient with baseUrl={}", dbhUrl) }
-        .baseUrl(dbhUrl).build()
+    fun webClientDbh(@Value("\${integrations.dbh.url}") dbhUrl: String, builder: WebClient.Builder) =
+        builder.init().baseUrl(dbhUrl).build()
 
-    fun webClientBuilder(ssl: Boolean = false): WebClient.Builder {
-        return webClientBuilder
-            .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+    fun WebClient.Builder.init() =
+        this.defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .defaultHeader(HEADER_KLIENTID, applicationName)
-            .defaultHeader(AuroraHeaderFilter.KORRELASJONS_ID, RequestKorrelasjon.getId())
-            .exchangeStrategies(exchangeStrategies())
-            .filter(ExchangeFilterFunction.ofRequestProcessor {
-                val bearer = it.headers()[HttpHeaders.AUTHORIZATION]?.firstOrNull()?.let { token ->
-                    val t = token.substring(0, min(token.length, 11)).replace("Bearer", "")
-                    "bearer=$t"
-                } ?: ""
-                logger.debug("HttpRequest method=${it.method()} url=${it.url()} $bearer")
-                it.toMono()
-            })
-            .clientConnector(clientConnector(ssl))
-    }
-
-    private fun exchangeStrategies(): ExchangeStrategies {
-        return ExchangeStrategies
-            .builder()
-            .codecs {
-                it.defaultCodecs().apply {
-                    maxInMemorySize(-1) // unlimited
-                    jackson2JsonDecoder(Jackson2JsonDecoder(objectMapper, MediaType.APPLICATION_JSON))
-                    jackson2JsonEncoder(Jackson2JsonEncoder(objectMapper, MediaType.APPLICATION_JSON))
+            .defaultHeader(USER_AGENT, applicationName)
+            .defaultHeader(
+                AuroraHeaderFilter.KORRELASJONS_ID,
+                RequestKorrelasjon.getId() ?: UUID.randomUUID().toString()
+            )
+            .filter(
+                ExchangeFilterFunction.ofRequestProcessor {
+                    val bearer = it.headers()[HttpHeaders.AUTHORIZATION]?.firstOrNull()?.let { token ->
+                        val t = token.substring(0, min(token.length, 11)).replace("Bearer", "")
+                        "bearer=$t"
+                    } ?: ""
+                    logger.debug("HttpRequest method=${it.method()} url=${it.url()} $bearer")
+                    it.toMono()
                 }
-            }
-            .build()
-    }
+            )
+            .clientConnector(clientConnector())
 
     private fun clientConnector(ssl: Boolean = false): ReactorClientHttpConnector {
         val httpClient = HttpClient.create().compress(true)
