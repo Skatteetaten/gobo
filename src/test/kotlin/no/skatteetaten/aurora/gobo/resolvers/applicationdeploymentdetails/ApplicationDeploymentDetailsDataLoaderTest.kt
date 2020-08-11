@@ -4,6 +4,7 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isSameAs
+import io.mockk.mockk
 import no.skatteetaten.aurora.gobo.ApplicationConfig
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentDetailsBuilder
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
@@ -25,7 +26,7 @@ class ApplicationDeploymentDetailsDataLoaderTest {
 
     private val server = MockWebServer()
     private val url = server.url("/")
-    private val webClient = ApplicationConfig(500, 500, 500, "")
+    private val webClient = ApplicationConfig(500, 500, 500, "", mockk())
         .webClientMokey(url.toString(), WebClient.builder())
     private val applicationService = ApplicationServiceBlocking(ApplicationService(webClient))
     private val dataLoader = ApplicationDeploymentDetailsDataLoader(applicationService)

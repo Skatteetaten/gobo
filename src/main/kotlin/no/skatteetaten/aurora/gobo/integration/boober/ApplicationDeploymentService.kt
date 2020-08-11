@@ -1,9 +1,6 @@
 package no.skatteetaten.aurora.gobo.integration.boober
 
 import com.fasterxml.jackson.databind.JsonNode
-import java.net.URLEncoder
-import java.nio.charset.StandardCharsets
-import java.time.Duration
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.ApplicationDeploymentRef
@@ -13,6 +10,7 @@ import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.BodyInserters
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
+import java.time.Duration
 
 private val logger = KotlinLogging.logger { }
 
@@ -57,7 +55,7 @@ class ApplicationDeploymentService(private val booberWebClient: BooberWebClient)
     ): List<ApplicationDeploymentSpec> {
 
         val requestParam = applicationDeploymentReferenceList.joinToString(
-            transform = { "adr=" + URLEncoder.encode("${it.environment}/${it.application}", StandardCharsets.UTF_8) },
+            transform = { "adr=${it.environment}/${it.application}" },
             separator = "&"
         ) + "&reference={auroraConfigReference}"
 

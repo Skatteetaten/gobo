@@ -7,6 +7,7 @@ import assertk.assertions.isNotNull
 import no.skatteetaten.aurora.gobo.ApplicationConfig
 import no.skatteetaten.aurora.gobo.HEADER_KLIENTID
 import no.skatteetaten.aurora.gobo.TestConfig
+import no.skatteetaten.aurora.gobo.security.SharedSecretReader
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.execute
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.url
 import no.skatteetaten.aurora.webflux.AuroraRequestParser.KORRELASJONSID_FIELD
@@ -19,7 +20,7 @@ import org.springframework.http.HttpHeaders.USER_AGENT
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.bodyToMono
 
-@SpringBootTest(classes = [TestConfig::class, ApplicationConfig::class])
+@SpringBootTest(classes = [TestConfig::class, ApplicationConfig::class, SharedSecretReader::class])
 class DefaultHeadersTest {
 
     private val server = MockWebServer()

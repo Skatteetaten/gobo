@@ -12,6 +12,7 @@ import assertk.assertions.messageContains
 import assertk.assertions.prop
 import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
+import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.ApplicationDeploymentRef
 import no.skatteetaten.aurora.gobo.testObjectMapper
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.bodyAsString
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.execute
@@ -57,5 +58,15 @@ class ApplicationDeploymentServiceTest {
             }
         }
         assertThat(requests.first()?.path).isEqualTo("/v1/applicationdeployment/delete")
+    }
+
+    @Test
+    fun `Get application deployment spec`() {
+        val ref = ApplicationDeploymentRef("utv", "gobo")
+        val response = Response(items = emptyList<String>())
+        val request = server.execute(response) {
+            applicationDeploymentService.getSpec("token", "auroraConfigName", "auroraConfigReference", listOf(ref))
+        }.first()!!
+        assertThat(request.path).contains("utv/gobo")
     }
 }

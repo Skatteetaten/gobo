@@ -5,6 +5,7 @@ import io.mockk.every
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentWithDbResourceBuilder
 import no.skatteetaten.aurora.gobo.DatabaseInstanceResourceBuilder
 import no.skatteetaten.aurora.gobo.DatabaseSchemaResourceBuilder
+import no.skatteetaten.aurora.gobo.RestorableDatabaseSchemaBuilder
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseServiceBlocking
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
 import no.skatteetaten.aurora.gobo.resolvers.GraphQLTestWithDbhAndSkap
@@ -33,6 +34,9 @@ class DatabaseQueryResolverTest : GraphQLTestWithDbhAndSkap() {
     @Value("classpath:graphql/queries/getDatabaseSchemaWithId.graphql")
     private lateinit var getDatabaseSchemaWithIdQuery: Resource
 
+    @Value("classpath:graphql/queries/getRestorableDatabaseSchemas.graphql")
+    private lateinit var getRestorableDatabaseSchemasQuery: Resource
+
     @MockkBean
     private lateinit var databaseService: DatabaseServiceBlocking
 
@@ -47,6 +51,7 @@ class DatabaseQueryResolverTest : GraphQLTestWithDbhAndSkap() {
         every { databaseService.getDatabaseInstances() } returns listOf(paasInstance, auroraInstance)
         every { databaseService.getDatabaseSchemas("paas") } returns listOf(DatabaseSchemaResourceBuilder().build())
         every { databaseService.getDatabaseSchema("myDbId") } returns DatabaseSchemaResourceBuilder().build()
+        every { databaseService.getRestorableDatabaseSchemas("aurora") } returns listOf(RestorableDatabaseSchemaBuilder().build())
         every { applicationService.getApplicationDeploymentsForDatabases("test-token", listOf("123")) } returns
             listOf(ApplicationDeploymentWithDbResourceBuilder(databaseId = "123").build())
     }
@@ -140,5 +145,22 @@ class DatabaseQueryResolverTest : GraphQLTestWithDbhAndSkap() {
             .graphqlData("databaseSchema.engine").isEqualTo("POSTGRES")
             .graphqlData("databaseSchema.applicationDeployments.length()").isEqualTo(1)
             .graphqlDoesNotContainErrors()
+    }
+
+    @Test
+    fun `Query for restorable database schemas given affiliation`() {
+        val variables = mapOf("affiliations" to listOf("aurora"))
+        webTestClient.queryGraphQL(
+            queryResource = getRestorableDatabaseSchemasQuery,
+            variables = variables,
+            token = "test-token"
+        )
+            .expectStatus().isOk
+            .expectBody()
+            .graphqlDataWithPrefix("restorableDatabaseSchemas") {
+                graphqlDataFirst("databaseSchema.application").isEqualTo("referanse")
+                graphqlDataFirst("deleteAfter").isNotEmpty
+                graphqlDataFirst("setToCooldownAt").isNotEmpty
+            }
     }
 }

@@ -1,0 +1,11 @@
+query getDatabaseSchemas($affiliations: [String!]!) {
+    restorableDatabaseSchemas(affiliations: $affiliations) {
+        databaseSchema {
+            application
+            description
+            environment
+        }
+        deleteAfter
+        setToCooldownAt
+    }
+}

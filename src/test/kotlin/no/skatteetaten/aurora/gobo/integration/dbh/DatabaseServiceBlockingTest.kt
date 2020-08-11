@@ -19,12 +19,14 @@ import assertk.assertions.support.expected
 import com.jayway.jsonpath.JsonPath
 import io.mockk.every
 import io.mockk.mockk
-import java.net.UnknownHostException
+import no.skatteetaten.aurora.gobo.ApplicationConfig
 import no.skatteetaten.aurora.gobo.DatabaseInstanceResourceBuilder
 import no.skatteetaten.aurora.gobo.DatabaseSchemaResourceBuilder
 import no.skatteetaten.aurora.gobo.JdbcUserBuilder
+import no.skatteetaten.aurora.gobo.RestorableDatabaseSchemaBuilder
 import no.skatteetaten.aurora.gobo.SchemaCreationRequestBuilder
 import no.skatteetaten.aurora.gobo.SchemaDeletionRequestBuilder
+import no.skatteetaten.aurora.gobo.SchemaRestorationRequestBuilder
 import no.skatteetaten.aurora.gobo.SchemaUpdateRequestBuilder
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.integration.containsAuroraToken
@@ -34,26 +36,27 @@ import no.skatteetaten.aurora.gobo.resolvers.database.ConnectionVerificationResp
 import no.skatteetaten.aurora.gobo.security.SharedSecretReader
 import no.skatteetaten.aurora.gobo.testObjectMapper
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.bodyAsObject
+import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.bodyAsString
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.execute
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.RecordedRequest
 import org.junit.jupiter.api.Test
 import org.springframework.web.reactive.function.client.WebClient
-import org.springframework.web.reactive.function.client.WebClient.create
+import java.net.UnknownHostException
 
 class DatabaseServiceBlockingTest {
     private val server = MockWebServer()
     private val sharedSecretReader = mockk<SharedSecretReader> {
-        every { secret } returns "abc123"
+        every { secret } returns "abc"
     }
-    private val databaseService =
-        DatabaseServiceBlocking(
-            DatabaseServiceReactive(
-                sharedSecretReader,
-                create(server.url("/").toString()),
-                testObjectMapper()
-            )
+    private val webClient = ApplicationConfig(500, 500, 500, "", sharedSecretReader)
+        .webClientDbh(server.url("/").toString(), WebClient.builder())
+    private val databaseService = DatabaseServiceBlocking(
+        DatabaseServiceReactive(
+            webClient,
+            testObjectMapper()
         )
+    )
 
     @Test
     fun `Get database instances for affiliation`() {
@@ -71,6 +74,18 @@ class DatabaseServiceBlockingTest {
         val response = DbhResponse.ok(DatabaseSchemaResourceBuilder().build())
         val request = server.execute(response) {
             val databaseSchemas = databaseService.getDatabaseSchemas("paas")
+            assertThat(databaseSchemas).hasSize(1)
+        }.first()
+        assertThat(request).containsAuroraToken()
+        assertThat(request?.path).isNotNull().contains("affiliation")
+        assertThat(request?.path).isNotNull().contains("paas")
+    }
+
+    @Test
+    fun `Get restorable database schemas given affiliation`() {
+        val response = DbhResponse.ok(RestorableDatabaseSchemaBuilder().build())
+        val request = server.execute(response) {
+            val databaseSchemas = databaseService.getRestorableDatabaseSchemas("paas")
             assertThat(databaseSchemas).hasSize(1)
         }.first()
         assertThat(request).containsAuroraToken()
@@ -192,6 +207,36 @@ class DatabaseServiceBlockingTest {
     }
 
     @Test
+    fun `Restore database schema fails with active set to false`() {
+        val failed = DbhResponse.failed()
+        val request = server.execute(failed) {
+            val restorationRequests = listOf(
+                SchemaRestorationRequestBuilder(id = "failed", active = false).build()
+            )
+            val restored = databaseService.restoreDatabaseSchemas(restorationRequests)
+            assertThat(restored.size).isEqualTo(1)
+            assertThat(restored).failed(1)
+        }
+        assertThat(request).containsAuroraTokens()
+        assertThat(request).containsPath("/failed")
+        assertThat(request.first()?.bodyAsString()).isNotNull().contains("\"active\":false")
+    }
+
+    @Test
+    fun `Restore database schema succeeds with active set to true`() {
+        val response = DbhResponse.ok<DatabaseSchemaResource>()
+        val request = server.execute(response) {
+            val restored = databaseService.restoreDatabaseSchemas(
+                listOf(SchemaRestorationRequestBuilder(id = "123", active = true).build())
+            )
+            assertThat(restored.size).isEqualTo(1)
+        }.first()
+        assertThat(request).containsAuroraToken()
+        assertThat(request?.path).isNotNull().endsWith("/123")
+        assertThat(request?.bodyAsString()).isNotNull().contains("\"active\":true")
+    }
+
+    @Test
     fun `Test jdbc connection for jdbcUser`() {
         val jdbcUser = JdbcUserBuilder().build()
         val response = DbhResponse.ok(ConnectionVerificationResponse(hasSucceeded = true))
@@ -252,7 +297,6 @@ class DatabaseServiceBlockingTest {
         val serviceWithUnknownHost =
             DatabaseServiceBlocking(
                 DatabaseServiceReactive(
-                    sharedSecretReader,
                     WebClient.create("http://unknown-hostname"),
                     testObjectMapper()
                 )
@@ -269,12 +313,12 @@ class DatabaseServiceBlockingTest {
         expected("Requests to end with path $endingWith")
     }
 
-    private fun Assert<List<SchemaDeletionResponse>>.succeeded(count: Int) = given { responses ->
+    private fun Assert<List<SchemaCooldownChangeResponse>>.succeeded(count: Int) = given { responses ->
         if (responses.filter { it.success }.size == count) return
         expected("Succeeded responses size to equal $count")
     }
 
-    private fun Assert<List<SchemaDeletionResponse>>.failed(count: Int) = given { responses ->
+    private fun Assert<List<SchemaCooldownChangeResponse>>.failed(count: Int) = given { responses ->
         if (responses.filter { !it.success }.size == count) return
         expected("Failed responses size to equal $count")
     }

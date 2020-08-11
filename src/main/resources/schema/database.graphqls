@@ -38,6 +38,12 @@ type DatabaseSchema {
   users: [DatabaseUser]!
 }
 
+type RestorableDatabaseSchema {
+    databaseSchema: DatabaseSchema!
+    setToCooldownAt: DateTime!
+    deleteAfter: DateTime!
+}
+
 input UpdateDatabaseSchemaInput {
   discriminator: String!
   createdBy: String!
@@ -64,7 +70,12 @@ input DeleteDatabaseSchemasInput {
   ids: [String!]!
 }
 
-type DeleteDatabaseSchemasResponse {
+input RestoreDatabaseSchemasInput {
+    ids: [String!]!
+    active: Boolean!
+}
+
+type ChangeCooldownDatabaseSchemasResponse {
   succeeded: [String]!
   failed: [String]!
 }
