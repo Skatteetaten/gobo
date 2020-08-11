@@ -423,7 +423,7 @@ data class SchemaDeletionRequestBuilder(val id: String = "123", val cooldownDura
 data class SchemaRestorationRequestBuilder(val id: String = "123", val active: Boolean = true) {
 
     fun build() =
-            SchemaRestorationRequest(id, active)
+        SchemaRestorationRequest(id, active)
 }
 
 class JdbcUserBuilder {

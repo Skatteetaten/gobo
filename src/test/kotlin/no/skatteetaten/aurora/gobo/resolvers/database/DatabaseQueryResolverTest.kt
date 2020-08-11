@@ -71,9 +71,9 @@ class DatabaseQueryResolverTest : GraphQLTestWithDbhAndSkap() {
     @Test
     fun `Query for database instances`() {
         webTestClient.queryGraphQL(
-                queryResource = getDatabaseInstancesQuery,
-                token = "test-token"
-            )
+            queryResource = getDatabaseInstancesQuery,
+            token = "test-token"
+        )
             .expectStatus().isOk
             .expectBody()
             .graphqlData("databaseInstances.length()").isEqualTo(2)
@@ -88,10 +88,10 @@ class DatabaseQueryResolverTest : GraphQLTestWithDbhAndSkap() {
     @Test
     fun `Query for database instances given affiliation`() {
         webTestClient.queryGraphQL(
-                queryResource = getDatabaseInstancesWithAffiliationQuery,
-                variables = mapOf("affiliation" to "paas"),
-                token = "test-token"
-            )
+            queryResource = getDatabaseInstancesWithAffiliationQuery,
+            variables = mapOf("affiliation" to "paas"),
+            token = "test-token"
+        )
             .expectStatus().isOk
             .expectBody()
             .graphqlData("databaseInstances.length()").isEqualTo(1)
@@ -107,10 +107,10 @@ class DatabaseQueryResolverTest : GraphQLTestWithDbhAndSkap() {
     fun `Query for database schemas given affiliation`() {
         val variables = mapOf("affiliations" to listOf("paas"))
         webTestClient.queryGraphQL(
-                queryResource = getDatabaseSchemasWithAffiliationQuery,
-                variables = variables,
-                token = "test-token"
-            )
+            queryResource = getDatabaseSchemasWithAffiliationQuery,
+            variables = variables,
+            token = "test-token"
+        )
             .expectStatus().isOk
             .expectBody()
             .graphqlData("databaseSchemas.length()").isEqualTo(1)
@@ -136,10 +136,10 @@ class DatabaseQueryResolverTest : GraphQLTestWithDbhAndSkap() {
     fun `Query for database schema given id`() {
         val variables = mapOf("id" to "myDbId")
         webTestClient.queryGraphQL(
-                queryResource = getDatabaseSchemaWithIdQuery,
-                variables = variables,
-                token = "test-token"
-            )
+            queryResource = getDatabaseSchemaWithIdQuery,
+            variables = variables,
+            token = "test-token"
+        )
             .expectStatus().isOk
             .expectBody()
             .graphqlData("databaseSchema.engine").isEqualTo("POSTGRES")
@@ -151,10 +151,10 @@ class DatabaseQueryResolverTest : GraphQLTestWithDbhAndSkap() {
     fun `Query for restorable database schemas given affiliation`() {
         val variables = mapOf("affiliations" to listOf("aurora"))
         webTestClient.queryGraphQL(
-                queryResource = getRestorableDatabaseSchemasQuery,
-                variables = variables,
-                token = "test-token"
-            )
+            queryResource = getRestorableDatabaseSchemasQuery,
+            variables = variables,
+            token = "test-token"
+        )
             .expectStatus().isOk
             .expectBody()
             .graphqlDataWithPrefix("restorableDatabaseSchemas") {

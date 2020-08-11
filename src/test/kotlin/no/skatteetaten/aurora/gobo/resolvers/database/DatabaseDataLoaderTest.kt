@@ -2,11 +2,14 @@ package no.skatteetaten.aurora.gobo.resolvers.database
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import io.mockk.every
+import io.mockk.mockk
 import no.skatteetaten.aurora.gobo.ApplicationConfig
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentWithDbResourceBuilder
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
 import no.skatteetaten.aurora.gobo.resolvers.user.User
+import no.skatteetaten.aurora.gobo.security.SharedSecretReader
 import no.skatteetaten.aurora.gobo.testObjectMapper
 import no.skatteetaten.aurora.mockmvc.extensions.TestObjectMapperConfigurer
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.execute
@@ -22,12 +25,15 @@ class DatabaseDataLoaderTest {
 
     private val server = MockWebServer()
     private val dbhUrl = server.url("/").toString()
+    private val sharedSecretReader = mockk<SharedSecretReader> {
+        every { secret } returns "abc"
+    }
     private val applicationConfig = ApplicationConfig(
-        webClientBuilder = WebClient.builder(),
         connectionTimeout = 500,
         readTimeout = 500,
         writeTimeout = 500,
-        applicationName = ""
+        applicationName = "",
+        sharedSecretReader = sharedSecretReader
     )
     private val dbhClient = applicationConfig.webClientDbh(dbhUrl, WebClient.builder())
     private val applicationService = ApplicationServiceBlocking(ApplicationService(dbhClient))

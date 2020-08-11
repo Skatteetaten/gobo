@@ -19,7 +19,7 @@ import assertk.assertions.support.expected
 import com.jayway.jsonpath.JsonPath
 import io.mockk.every
 import io.mockk.mockk
-import java.net.UnknownHostException
+import no.skatteetaten.aurora.gobo.ApplicationConfig
 import no.skatteetaten.aurora.gobo.DatabaseInstanceResourceBuilder
 import no.skatteetaten.aurora.gobo.DatabaseSchemaResourceBuilder
 import no.skatteetaten.aurora.gobo.JdbcUserBuilder
@@ -42,21 +42,21 @@ import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.RecordedRequest
 import org.junit.jupiter.api.Test
 import org.springframework.web.reactive.function.client.WebClient
-import org.springframework.web.reactive.function.client.WebClient.create
+import java.net.UnknownHostException
 
 class DatabaseServiceBlockingTest {
     private val server = MockWebServer()
     private val sharedSecretReader = mockk<SharedSecretReader> {
-        every { secret } returns "abc123"
+        every { secret } returns "abc"
     }
-    private val databaseService =
-        DatabaseServiceBlocking(
-            DatabaseServiceReactive(
-                sharedSecretReader,
-                create(server.url("/").toString()),
-                testObjectMapper()
-            )
+    private val webClient = ApplicationConfig(500, 500, 500, "", sharedSecretReader)
+        .webClientDbh(server.url("/").toString(), WebClient.builder())
+    private val databaseService = DatabaseServiceBlocking(
+        DatabaseServiceReactive(
+            webClient,
+            testObjectMapper()
         )
+    )
 
     @Test
     fun `Get database instances for affiliation`() {
@@ -211,7 +211,7 @@ class DatabaseServiceBlockingTest {
         val failed = DbhResponse.failed()
         val request = server.execute(failed) {
             val restorationRequests = listOf(
-                    SchemaRestorationRequestBuilder(id = "failed", active = false).build()
+                SchemaRestorationRequestBuilder(id = "failed", active = false).build()
             )
             val restored = databaseService.restoreDatabaseSchemas(restorationRequests)
             assertThat(restored.size).isEqualTo(1)
@@ -227,7 +227,7 @@ class DatabaseServiceBlockingTest {
         val response = DbhResponse.ok<DatabaseSchemaResource>()
         val request = server.execute(response) {
             val restored = databaseService.restoreDatabaseSchemas(
-                    listOf(SchemaRestorationRequestBuilder(id = "123", active = true).build())
+                listOf(SchemaRestorationRequestBuilder(id = "123", active = true).build())
             )
             assertThat(restored.size).isEqualTo(1)
         }.first()
@@ -297,7 +297,6 @@ class DatabaseServiceBlockingTest {
         val serviceWithUnknownHost =
             DatabaseServiceBlocking(
                 DatabaseServiceReactive(
-                    sharedSecretReader,
                     WebClient.create("http://unknown-hostname"),
                     testObjectMapper()
                 )

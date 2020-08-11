@@ -5,12 +5,11 @@ import io.netty.handler.ssl.SslContextBuilder
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory
 import io.netty.handler.timeout.ReadTimeoutHandler
 import io.netty.handler.timeout.WriteTimeoutHandler
-import java.util.UUID
-import java.util.concurrent.TimeUnit
-import kotlin.math.min
 import mu.KotlinLogging
 import no.skatteetaten.aurora.filter.logging.AuroraHeaderFilter
 import no.skatteetaten.aurora.filter.logging.RequestKorrelasjon
+import no.skatteetaten.aurora.gobo.integration.HEADER_AURORA_TOKEN
+import no.skatteetaten.aurora.gobo.security.SharedSecretReader
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
@@ -30,6 +29,9 @@ import org.springframework.web.reactive.function.client.WebClient
 import reactor.kotlin.core.publisher.toMono
 import reactor.netty.http.client.HttpClient
 import reactor.netty.tcp.SslProvider
+import java.util.UUID
+import java.util.concurrent.TimeUnit
+import kotlin.math.min
 
 val HEADER_KLIENTID = "KlientID"
 
@@ -59,7 +61,8 @@ class ApplicationConfig(
     @Value("\${gobo.webclient.read-timeout:30000}") val readTimeout: Long,
     @Value("\${gobo.webclient.write-timeout:30000}") val writeTimeout: Long,
     @Value("\${gobo.webclient.connection-timeout:30000}") val connectionTimeout: Int,
-    @Value("\${spring.application.name}") val applicationName: String
+    @Value("\${spring.application.name}") val applicationName: String,
+    private val sharedSecretReader: SharedSecretReader
 ) {
 
     @Bean
@@ -105,7 +108,8 @@ class ApplicationConfig(
     @Bean
     @TargetService(ServiceTypes.DBH)
     fun webClientDbh(@Value("\${integrations.dbh.url}") dbhUrl: String, builder: WebClient.Builder) =
-        builder.init().baseUrl(dbhUrl).build()
+        builder.init().baseUrl(dbhUrl)
+            .defaultHeader(HttpHeaders.AUTHORIZATION, "$HEADER_AURORA_TOKEN ${sharedSecretReader.secret}").build()
 
     fun WebClient.Builder.init() =
         this.defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
