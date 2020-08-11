@@ -1,9 +1,45 @@
 package no.skatteetaten.aurora.gobo
 
-/*
+import com.expediagroup.graphql.hooks.SchemaGeneratorHooks
+import graphql.schema.GraphQLScalarType
+import graphql.schema.GraphQLType
+import no.skatteetaten.aurora.gobo.resolvers.scalars.InstantScalar
+import no.skatteetaten.aurora.gobo.resolvers.scalars.UrlScalar
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
+import java.net.URL
+import java.time.Instant
+import kotlin.reflect.KType
+
 @Configuration
 class GraphQLConfig {
 
+    @Bean
+    fun hooks() = GoboSchemaGeneratorHooks()
+}
+
+class GoboSchemaGeneratorHooks : SchemaGeneratorHooks {
+
+    override fun willGenerateGraphQLType(type: KType): GraphQLType? = when (type.classifier) {
+        Instant::class -> instantType
+        URL::class -> urlType
+        else -> null
+    }
+
+    private val instantType = GraphQLScalarType.newScalar()
+        .name("Instant")
+        .description("A type representing java.time.Instant")
+        .coercing(InstantScalar)
+        .build()
+
+    private val urlType = GraphQLScalarType.newScalar()
+        .name("URL")
+        .description("A type representing java.net.URL")
+        .coercing(UrlScalar)
+        .build()
+}
+
+/*
     @Bean
     fun schemaParserOptions(): SchemaParserOptions =
         SchemaParserOptions

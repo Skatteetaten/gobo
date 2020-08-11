@@ -4,11 +4,14 @@ import com.expediagroup.graphql.spring.operations.Query
 import graphql.schema.DataFetchingEnvironment
 import kotlinx.coroutines.reactive.awaitFirst
 import no.skatteetaten.aurora.gobo.integration.mokey.AffiliationService
+import no.skatteetaten.aurora.gobo.resolvers.database.DatabaseSchema
 import no.skatteetaten.aurora.gobo.resolvers.token
 import org.springframework.stereotype.Component
 
 data class Affiliation(val name: String) {
-
+    fun databaseSchemas(dfe: DataFetchingEnvironment): List<DatabaseSchema> {
+        return emptyList()
+    }
 }
 
 data class Affiliations(val items: List<Affiliation>, val totalCount: Int = items.size)

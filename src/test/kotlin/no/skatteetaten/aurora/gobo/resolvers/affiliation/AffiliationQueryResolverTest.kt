@@ -8,6 +8,7 @@ import no.skatteetaten.aurora.gobo.resolvers.GraphQLTestWithDbhAndSkap
 import no.skatteetaten.aurora.gobo.resolvers.graphqlData
 import no.skatteetaten.aurora.gobo.resolvers.graphqlDataWithPrefix
 import no.skatteetaten.aurora.gobo.resolvers.graphqlDoesNotContainErrors
+import no.skatteetaten.aurora.gobo.resolvers.printResult
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
@@ -71,6 +72,5 @@ class AffiliationQueryResolverTest : GraphQLTestWithDbhAndSkap() {
             .graphqlData("affiliations.items[0].name").isEqualTo("aurora")
             .graphqlData("affiliations.totalCount").isEqualTo(1)
             .graphqlDoesNotContainErrors()
-
     }
 }

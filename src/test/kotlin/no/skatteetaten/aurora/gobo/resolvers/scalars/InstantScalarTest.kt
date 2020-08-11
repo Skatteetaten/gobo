@@ -9,26 +9,26 @@ import java.time.LocalDateTime
 import java.time.ZoneOffset
 import org.junit.jupiter.api.Test
 
-class DateTimeScalarTest {
+class InstantScalarTest {
 
-    private val dateTimeScalar = DateTimeScalar()
+    private val dateTimeScalar = InstantScalar
     private val instant = LocalDateTime.of(2018, 7, 2, 14, 56).toInstant(ZoneOffset.UTC)
 
     @Test
     fun `Serialize dateTime`() {
-        val serialized = dateTimeScalar.coercing.serialize(instant)
+        val serialized = dateTimeScalar.serialize(instant)
         assertThat(serialized).isEqualTo(instant.toString())
     }
 
     @Test
     fun `Parse StringValue`() {
-        val value = dateTimeScalar.coercing.parseValue(StringValue(instant.toString()))
+        val value = dateTimeScalar.parseValue(StringValue(instant.toString()))
         assertThat(value).isEqualTo(instant)
     }
 
     @Test
     fun `Parse IntValue`() {
-        val value = dateTimeScalar.coercing.parseValue(IntValue(BigInteger.valueOf(instant.toEpochMilli())))
+        val value = dateTimeScalar.parseValue(IntValue(BigInteger.valueOf(instant.toEpochMilli())))
         assertThat(value).isEqualTo(instant)
     }
 }
