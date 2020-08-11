@@ -1,21 +1,17 @@
 package no.skatteetaten.aurora.gobo.integration.dbh
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import java.time.Duration
 import no.skatteetaten.aurora.gobo.RequiresDbh
 import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
-import no.skatteetaten.aurora.gobo.integration.HEADER_AURORA_TOKEN
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.resolvers.IntegrationDisabledException
 import no.skatteetaten.aurora.gobo.resolvers.MissingLabelException
 import no.skatteetaten.aurora.gobo.resolvers.blockAndHandleError
 import no.skatteetaten.aurora.gobo.resolvers.blockNonNullAndHandleError
 import no.skatteetaten.aurora.gobo.resolvers.database.ConnectionVerificationResponse
-import no.skatteetaten.aurora.gobo.security.SharedSecretReader
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
-import org.springframework.http.HttpHeaders
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.WebClient
@@ -23,11 +19,11 @@ import org.springframework.web.reactive.function.client.bodyToMono
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
+import java.time.Duration
 
 @Service
 @ConditionalOnBean(RequiresDbh::class)
 class DatabaseServiceReactive(
-    private val sharedSecretReader: SharedSecretReader,
     @TargetService(ServiceTypes.DBH) private val webClient: WebClient,
     val objectMapper: ObjectMapper
 ) {
@@ -38,59 +34,75 @@ class DatabaseServiceReactive(
     fun getDatabaseInstances(): Mono<List<DatabaseInstanceResource>> = webClient
         .get()
         .uri("/api/v1/admin/databaseInstance/")
-        .authHeader()
-        .retrieve()
-        .bodyToMono<DbhResponse<*>>()
-        .items()
+        .retrieveItems()
 
     fun getDatabaseSchemas(affiliation: String): Mono<List<DatabaseSchemaResource>> = webClient
         .get()
         .uri {
             it.path("/api/v1/schema/").queryParam("labels", "affiliation=$affiliation").build()
         }
-        .authHeader()
-        .retrieve()
-        .bodyToMono<DbhResponse<*>>()
-        .items()
+        .retrieveItems()
 
     fun getDatabaseSchema(id: String): Mono<DatabaseSchemaResource> = webClient
         .get()
         .uri("/api/v1/schema/{id}", id)
-        .authHeader()
-        .retrieve()
-        .bodyToMono<DbhResponse<*>>()
-        .item()
+        .retrieveItem()
+
+    fun getRestorableDatabaseSchemas(affiliation: String): Mono<List<RestorableDatabaseSchemaResource>> = webClient
+        .get()
+        .uri {
+            it.path("/api/v1/restorableSchema/").queryParam("labels", "affiliation=$affiliation").build()
+        }
+        .retrieveItems()
 
     fun updateDatabaseSchema(input: SchemaUpdateRequest): Mono<DatabaseSchemaResource> = webClient
         .put()
         .uri("/api/v1/schema/{id}", input.id)
         .body(BodyInserters.fromValue(input))
-        .authHeader()
-        .retrieve()
-        .bodyToMono<DbhResponse<*>>()
-        .item()
+        .retrieveItem()
 
-    fun deleteDatabaseSchemas(input: List<SchemaDeletionRequest>): Flux<SchemaDeletionResponse> {
+    fun deleteDatabaseSchemas(input: List<SchemaDeletionRequest>): Flux<SchemaCooldownChangeResponse> {
         val responses = input.map { request ->
             val requestSpec = webClient
                 .delete()
                 .uri("/api/v1/schema/{id}", request.id)
-                .authHeader()
 
             request.cooldownDurationHours?.let {
                 requestSpec.header(HEADER_COOLDOWN_DURATION_HOURS, it.toString())
             }
 
-            requestSpec.retrieve().bodyToMono<DbhResponse<*>>().map {
+            requestSpec.retrieve().bodyToDbhResponse().map {
                 request.id to it
             }
         }
 
-        return Flux.merge(responses).map { SchemaDeletionResponse(id = it.first, success = it.second.isOk()) }
+        return Flux.merge(responses).map { SchemaCooldownChangeResponse(id = it.first, success = it.second.isOk()) }
     }
 
-    fun testJdbcConnection(id: String? = null, user: JdbcUser? = null): Mono<ConnectionVerificationResponse> {
-        val response: Mono<DbhResponse<ConnectionVerificationResponse>> = webClient
+    fun restoreDatabaseSchemas(input: List<SchemaRestorationRequest>): Flux<SchemaCooldownChangeResponse> {
+        val responses = input.map { request ->
+            webClient
+                .patch()
+                .uri("/api/v1/restorableSchema/${request.id}")
+                .body(
+                    BodyInserters.fromValue(
+                        mapOf(
+                            "active" to request.active
+                        )
+                    )
+                )
+                .retrieve()
+                .bodyToDbhResponse()
+                .map {
+                    request.id to it
+                }
+        }
+
+        return Flux.merge(responses).map { SchemaCooldownChangeResponse(id = it.first, success = it.second.isOk()) }
+    }
+
+    fun testJdbcConnection(id: String? = null, user: JdbcUser? = null): Mono<ConnectionVerificationResponse> =
+        webClient
             .put()
             .uri("/api/v1/schema/validate")
             .body(
@@ -101,13 +113,7 @@ class DatabaseServiceReactive(
                     )
                 )
             )
-            .authHeader()
-            .retrieve()
-            .bodyToMono()
-        return response.flatMap {
-            it.items.first().toMono()
-        }
-    }
+            .retrieveItem()
 
     fun createDatabaseSchema(input: SchemaCreationRequest): Mono<DatabaseSchemaResource> {
         val missingLabels = input.findMissingOrEmptyLabels()
@@ -119,22 +125,20 @@ class DatabaseServiceReactive(
             .post()
             .uri("/api/v1/schema/")
             .body(BodyInserters.fromValue(input))
-            .authHeader()
-            .retrieve()
-            .bodyToMono<DbhResponse<*>>()
-            .item()
+            .retrieveItem()
     }
 
-    private fun WebClient.RequestHeadersSpec<*>.authHeader() =
-        this.header(HttpHeaders.AUTHORIZATION, "$HEADER_AURORA_TOKEN ${sharedSecretReader.secret}")
+    private inline fun <reified T> WebClient.RequestHeadersSpec<*>.retrieveItem() =
+        retrieveItems<T>().map { it.first() }
 
-    private inline fun <reified T : Any> Mono<DbhResponse<*>>.item(): Mono<T> = this.items<T>().map { it.first() }
+    private inline fun <reified T> WebClient.RequestHeadersSpec<*>.retrieveItems() =
+        this.retrieve().bodyToDbhResponse().items<T>()
 
-    private inline fun <reified T : Any> Mono<DbhResponse<*>>.items(): Mono<List<T>> =
+    private inline fun <reified T> Mono<DbhResponse<*>>.items(): Mono<List<T>> =
         this.flatMap {
             when {
                 it.isFailure() -> onFailure(it)
-                it.isEmpty() -> Mono.empty()
+                it.isEmpty() -> Mono.empty<List<T>>()
                 else -> onSuccess<T>(it)
             }
         }
@@ -145,23 +149,34 @@ class DatabaseServiceReactive(
             sourceSystem = "dbh"
         ).toMono()
 
-    private inline fun <reified T : Any> onSuccess(r: DbhResponse<*>): Mono<List<T>> =
-        r.items.map { objectMapper.convertValue(it, T::class.java) }
+    private inline fun <reified T> onSuccess(r: DbhResponse<*>): Mono<List<T>> =
+        r.items
+            .map { objectMapper.convertValue(it, T::class.java) }
             .filter {
-                if (it is DatabaseSchemaResource) {
-                    it.containsRequiredLabels()
-                } else {
-                    true
+                when (it) {
+                    is ResourceValidator -> it.valid
+                    else -> true
                 }
-            }.toMono()
+            }
+            .toMono()
 }
+
+private fun WebClient.ResponseSpec.bodyToDbhResponse() = this.bodyToMono<DbhResponse<*>>()
 
 interface DatabaseService {
     fun getDatabaseInstances(): List<DatabaseInstanceResource> = integrationDisabled()
     fun getDatabaseSchemas(affiliation: String): List<DatabaseSchemaResource> = integrationDisabled()
     fun getDatabaseSchema(id: String): DatabaseSchemaResource? = integrationDisabled()
+    fun getRestorableDatabaseSchemas(affiliation: String): List<RestorableDatabaseSchemaResource> =
+        integrationDisabled()
+
     fun updateDatabaseSchema(input: SchemaUpdateRequest): DatabaseSchemaResource = integrationDisabled()
-    fun deleteDatabaseSchemas(input: List<SchemaDeletionRequest>): List<SchemaDeletionResponse> = integrationDisabled()
+    fun deleteDatabaseSchemas(input: List<SchemaDeletionRequest>): List<SchemaCooldownChangeResponse> =
+        integrationDisabled()
+
+    fun restoreDatabaseSchemas(input: List<SchemaRestorationRequest>): List<SchemaCooldownChangeResponse> =
+        integrationDisabled()
+
     fun testJdbcConnection(user: JdbcUser): ConnectionVerificationResponse = integrationDisabled()
     fun testJdbcConnection(id: String): ConnectionVerificationResponse = integrationDisabled()
     fun createDatabaseSchema(input: SchemaCreationRequest): DatabaseSchemaResource = integrationDisabled()
@@ -184,11 +199,17 @@ class DatabaseServiceBlocking(private val databaseService: DatabaseServiceReacti
     override fun getDatabaseSchema(id: String) =
         databaseService.getDatabaseSchema(id).blockWithTimeout()
 
+    override fun getRestorableDatabaseSchemas(affiliation: String) =
+        databaseService.getRestorableDatabaseSchemas(affiliation).blockWithTimeout() ?: emptyList()
+
     override fun updateDatabaseSchema(input: SchemaUpdateRequest): DatabaseSchemaResource =
         databaseService.updateDatabaseSchema(input).blockNonNullWithTimeout()
 
-    override fun deleteDatabaseSchemas(input: List<SchemaDeletionRequest>): List<SchemaDeletionResponse> =
+    override fun deleteDatabaseSchemas(input: List<SchemaDeletionRequest>): List<SchemaCooldownChangeResponse> =
         databaseService.deleteDatabaseSchemas(input).collectList().blockNonNullWithTimeout()
+
+    override fun restoreDatabaseSchemas(input: List<SchemaRestorationRequest>): List<SchemaCooldownChangeResponse> =
+        databaseService.restoreDatabaseSchemas(input).collectList().blockNonNullWithTimeout()
 
     override fun testJdbcConnection(user: JdbcUser) =
         databaseService.testJdbcConnection(user = user).blockNonNullWithTimeout()

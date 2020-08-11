@@ -28,6 +28,23 @@ class DatabaseSchemaQueryResolver(private val databaseService: DatabaseService) 
         }
     }
 
+    fun restorableDatabaseSchemas(
+        affiliations: List<String>,
+        dfe: DataFetchingEnvironment
+    ): List<RestorableDatabaseSchema> {
+        if (dfe.isAnonymousUser()) throw AccessDeniedException("Anonymous user cannot get restorable database schemas")
+
+        return affiliations.flatMap { affiliation ->
+            databaseService.getRestorableDatabaseSchemas(affiliation).map {
+                RestorableDatabaseSchema(
+                    it.setToCooldownAtInstant,
+                    it.deleteAfterInstant,
+                    DatabaseSchema.create(it.databaseSchema, Affiliation(affiliation))
+                )
+            }
+        }
+    }
+
     fun databaseSchema(id: String, dfe: DataFetchingEnvironment): DatabaseSchema? {
         if (dfe.isAnonymousUser()) throw AccessDeniedException("Anonymous user cannot get database schema")
 
@@ -58,10 +75,19 @@ class DatabaseSchemaMutationResolver(private val databaseService: DatabaseServic
     fun deleteDatabaseSchemas(
         input: DeleteDatabaseSchemasInput,
         dfe: DataFetchingEnvironment
-    ): DeleteDatabaseSchemasResponse {
+    ): CooldownChangeDatabaseSchemasResponse {
         if (dfe.isAnonymousUser()) throw AccessDeniedException("Anonymous user cannot delete database schemas")
         val responses = databaseService.deleteDatabaseSchemas(input.toSchemaDeletionRequests())
-        return DeleteDatabaseSchemasResponse.create(responses)
+        return CooldownChangeDatabaseSchemasResponse.create(responses)
+    }
+
+    fun restoreDatabaseSchemas(
+        input: RestoreDatabaseSchemasInput,
+        dfe: DataFetchingEnvironment
+    ): CooldownChangeDatabaseSchemasResponse {
+        if (dfe.isAnonymousUser()) throw AccessDeniedException("Anonymous user cannot restore database schemas")
+        val responses = databaseService.restoreDatabaseSchemas(input.toSchemaRestorationRequests())
+        return CooldownChangeDatabaseSchemasResponse.create(responses)
     }
 
     fun testJdbcConnectionForJdbcUser(input: JdbcUser, dfe: DataFetchingEnvironment): ConnectionVerificationResponse {

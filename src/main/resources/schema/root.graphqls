@@ -12,6 +12,7 @@ type Query {
     userSettings: UserSettings
     databaseSchemas(affiliations: [String!]!): [DatabaseSchema!]
     databaseSchema(id: String!): DatabaseSchema
+    restorableDatabaseSchemas(affiliations: [String!]!): [RestorableDatabaseSchema!]
     databaseInstances(affiliation: String): [DatabaseInstance]
     gobo: Gobo
     certificates: CertificatesConnection
@@ -32,7 +33,8 @@ type Mutation {
     updateUserSettings(input: UserSettingsInput!): Boolean
 
     updateDatabaseSchema(input: UpdateDatabaseSchemaInput!): DatabaseSchema
-    deleteDatabaseSchemas(input: DeleteDatabaseSchemasInput!): DeleteDatabaseSchemasResponse
+    deleteDatabaseSchemas(input: DeleteDatabaseSchemasInput!): ChangeCooldownDatabaseSchemasResponse
+    restoreDatabaseSchemas(input: RestoreDatabaseSchemasInput!): ChangeCooldownDatabaseSchemasResponse
 
     testJdbcConnectionForJdbcUser(input: JdbcUserInput!): ConnectionVerificationResponse
     testJdbcConnectionForId(id: String!): ConnectionVerificationResponse

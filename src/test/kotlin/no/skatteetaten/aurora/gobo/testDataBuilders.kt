@@ -16,8 +16,10 @@ import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseMetadataResource
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseSchemaResource
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseUserResource
 import no.skatteetaten.aurora.gobo.integration.dbh.JdbcUser
+import no.skatteetaten.aurora.gobo.integration.dbh.RestorableDatabaseSchemaResource
 import no.skatteetaten.aurora.gobo.integration.dbh.SchemaCreationRequest
 import no.skatteetaten.aurora.gobo.integration.dbh.SchemaDeletionRequest
+import no.skatteetaten.aurora.gobo.integration.dbh.SchemaRestorationRequest
 import no.skatteetaten.aurora.gobo.integration.dbh.SchemaUpdateRequest
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentCommandResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentDetailsResource
@@ -382,6 +384,14 @@ data class DatabaseSchemaResourceBuilder(
         )
 }
 
+data class RestorableDatabaseSchemaBuilder(
+    val setToCooldownAt: Long = Instant.now().toEpochMilli(),
+    val deleteAfter: Long = Instant.now().toEpochMilli(),
+    val databaseSchema: DatabaseSchemaResource = DatabaseSchemaResourceBuilder().build()
+) {
+    fun build() = RestorableDatabaseSchemaResource(databaseSchema, setToCooldownAt, deleteAfter)
+}
+
 data class SchemaUpdateRequestBuilder(val id: String = "123", val jdbcUser: JdbcUser? = null) {
 
     fun build() =
@@ -408,6 +418,12 @@ data class SchemaDeletionRequestBuilder(val id: String = "123", val cooldownDura
 
     fun build() =
         SchemaDeletionRequest(id, cooldownDurationHours)
+}
+
+data class SchemaRestorationRequestBuilder(val id: String = "123", val active: Boolean = true) {
+
+    fun build() =
+        SchemaRestorationRequest(id, active)
 }
 
 class JdbcUserBuilder {
