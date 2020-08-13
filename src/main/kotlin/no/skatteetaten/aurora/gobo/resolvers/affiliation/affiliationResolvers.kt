@@ -1,16 +1,20 @@
 package no.skatteetaten.aurora.gobo.resolvers.affiliation
 
+import com.expediagroup.graphql.annotations.GraphQLDescription
 import com.expediagroup.graphql.spring.operations.Query
 import graphql.schema.DataFetchingEnvironment
 import kotlinx.coroutines.reactive.awaitFirst
 import no.skatteetaten.aurora.gobo.integration.mokey.AffiliationService
 import no.skatteetaten.aurora.gobo.resolvers.database.DatabaseSchema
+import no.skatteetaten.aurora.gobo.resolvers.loadMany
 import no.skatteetaten.aurora.gobo.resolvers.token
 import org.springframework.stereotype.Component
 
 data class Affiliation(val name: String) {
-    fun databaseSchemas(dfe: DataFetchingEnvironment): List<DatabaseSchema> {
-        return emptyList()
+
+    @GraphQLDescription("Get all database schemas for the given affiliation")
+    suspend fun databaseSchemas(dfe: DataFetchingEnvironment): List<DatabaseSchema> {
+        return dfe.loadMany(name)
     }
 }
 

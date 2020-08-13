@@ -1,55 +1,47 @@
 package no.skatteetaten.aurora.gobo.resolvers
 
+import com.expediagroup.graphql.spring.exception.SimpleKotlinGraphQLError
+import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
 import kotlinx.coroutines.future.await
-import org.dataloader.Try
 
-interface KeyDataLoader<K, V> {
-    fun getByKey(key: K, context: GoboGraphQLContext): Try<V>
+/**
+ * Load a single key of type Key into a value of type Value using a dataloader named <Value>DataLoader
+ *
+ * If the loading throws and error the entire query will fail
+ */
+suspend inline fun <Key, reified Value> DataFetchingEnvironment.load(
+    key: Key,
+    loaderPrefix: String = Value::class.java.simpleName
+): Value {
+    val loaderName = "${loaderPrefix}DataLoader"
+    return this.getDataLoader<Key, Value>(loaderName).load(key, this.getContext()).await()
 }
 
-/*
-  Load a single key of type Key into a value of type Value using a dataloader named <Value>DataLoader
-
-  If the loading throws and error the entire query will fail
+/**
+ * Load a single key of type Key into a value of type Value using a dataloader named <Value>DataLoader
+ * If the loading throws and error the entire query will fail
  */
 suspend inline fun <Key, reified Value> DataFetchingEnvironment.loadMany(key: Key): List<Value> {
     val loaderName = "${Value::class.java.simpleName}ListDataLoader"
     return this.getDataLoader<Key, List<Value>>(loaderName).load(key, this.getContext()).await()
 }
 
-/*
-val context = Executors.newFixedThreadPool(6).asCoroutineDispatcher()
-
-/*
-  Use this if you have a service that loads a single id. Will make requests in parallel
+/**
+ * Load a single key of type Key into a value of type Value using a dataloader named <Value>DataLoader
+ * If the loading fails a partial result will be returned with data for successes and this failure in the error list
  */
-fun <K, V> batchDataLoaderMappedSingle(user: User, keyDataLoader: KeyDataLoader<K, V>): DataLoader<K, V> =
-    DataLoader.newMappedDataLoaderWithTry { keys: Set<K> ->
-
-        CompletableFuture.supplyAsync {
-            runBlocking(context) {
-                val deferred: List<Deferred<Pair<K, Try<V>>>> = keys.map { key ->
-                    async(context) {
-                        key to keyDataLoader.getByKey(user, key)
-                    }
-                }
-                deferred.map { it.await() }.toMap()
-            }
-        }
-    }
-
-interface MultipleKeysDataLoader<K, V> {
-    fun getByKeys(user: User, keys: MutableSet<K>): Map<K, Try<V>>
+suspend inline fun <Key, reified Value> DataFetchingEnvironment.loadOptional(key: Key): DataFetcherResult<Value?> {
+    val dfr = DataFetcherResult.newResult<Value>()
+    return try {
+        dfr.data(load(key))
+    } catch (e: Exception) {
+        dfr.error(
+            SimpleKotlinGraphQLError(
+                e,
+                listOf(mergedField.singleField.sourceLocation),
+                path = executionStepInfo.path.toList()
+            )
+        )
+    }.build()
 }
-
-/*
-  Use this if you have a service that loads multiple ids.
- */
-fun <K, V> batchDataLoaderMappedMultiple(user: User, keysDataLoader: MultipleKeysDataLoader<K, V>): DataLoader<K, V> =
-    DataLoader.newMappedDataLoaderWithTry { keys: MutableSet<K> ->
-        CompletableFuture.supplyAsync {
-            keysDataLoader.getByKeys(user, keys)
-        }
-    }
-*/
