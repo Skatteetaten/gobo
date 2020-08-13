@@ -1,16 +1,20 @@
 package no.skatteetaten.aurora.gobo.resolvers.affiliation
 
+import no.skatteetaten.aurora.gobo.MultipleKeysDataLoader
+import no.skatteetaten.aurora.gobo.resolvers.GoboGraphQLContext
+import no.skatteetaten.aurora.gobo.resolvers.webseal.WebsealState
+import no.skatteetaten.aurora.gobo.service.WebsealAffiliationService
+import org.dataloader.Try
+import org.springframework.stereotype.Component
+
 /*
 @Component
-class AffiliationDataLoader(private val websealAffiliationService: WebsealAffiliationService) :
-    MultipleKeysDataLoader<String, List<WebsealState>> {
+class DatabaseSchemaListDataLoader(val databaseSchemaServiceReactive: DatabaseServiceReactive) :
+    KeyDataLoader<String, List<DatabaseSchemaResource>> {
 
-    override fun getByKeys(user: User, keys: MutableSet<String>): Map<String, Try<List<WebsealState>>> {
-        val websealStates = websealAffiliationService.getWebsealState(keys.toList())
-        return websealStates.mapValues {
-            val state = it.value.map { resource -> WebsealState.create(resource) }
-            Try.succeeded(state)
-        }
-    }
-}
-*/
+    override suspend fun getByKey(key: String, context: GoboGraphQLContext): List<DatabaseSchemaResource> =
+        databaseSchemaServiceReactive.getDatabaseSchemas(key).awaitSingle()
+}*/
+
+
+

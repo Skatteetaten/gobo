@@ -1,11 +1,19 @@
-package no.skatteetaten.aurora.gobo.resolvers.affiliation
+package no.skatteetaten.aurora.gobo.resolvers.webseal
 
+import com.expediagroup.graphql.annotations.GraphQLIgnore
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import no.skatteetaten.aurora.gobo.integration.skap.Acl
 import no.skatteetaten.aurora.gobo.integration.skap.WebsealStateResource
+
+data class Acl(
+    val aclName: String,
+    val anyOther: Boolean,
+    val `open`: Boolean,
+    val roles: List<String>
+)
 
 data class WebsealState(
     val acl: Acl,
+    @GraphQLIgnore
     val junctions: List<Map<String, String>>,
     val name: String,
     val namespace: String,

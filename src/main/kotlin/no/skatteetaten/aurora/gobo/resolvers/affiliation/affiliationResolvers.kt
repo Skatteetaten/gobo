@@ -8,12 +8,17 @@ import no.skatteetaten.aurora.gobo.integration.mokey.AffiliationService
 import no.skatteetaten.aurora.gobo.resolvers.database.DatabaseSchema
 import no.skatteetaten.aurora.gobo.resolvers.loadMany
 import no.skatteetaten.aurora.gobo.resolvers.token
+import no.skatteetaten.aurora.gobo.resolvers.webseal.WebsealState
 import org.springframework.stereotype.Component
 
 data class Affiliation(val name: String) {
 
     @GraphQLDescription("Get all database schemas for the given affiliation")
     suspend fun databaseSchemas(dfe: DataFetchingEnvironment): List<DatabaseSchema> {
+        return dfe.loadMany(name)
+    }
+
+    suspend fun websealStates(dfe: DataFetchingEnvironment): List<WebsealState> {
         return dfe.loadMany(name)
     }
 }

@@ -38,13 +38,13 @@ import no.skatteetaten.aurora.gobo.integration.mokey.PodResourceResource
 import no.skatteetaten.aurora.gobo.integration.mokey.StatusResource
 import no.skatteetaten.aurora.gobo.integration.mokey.VersionResource
 import no.skatteetaten.aurora.gobo.integration.mokey.addAll
-import no.skatteetaten.aurora.gobo.integration.skap.Acl
 import no.skatteetaten.aurora.gobo.integration.skap.Certificate
 import no.skatteetaten.aurora.gobo.integration.skap.SkapJob
 import no.skatteetaten.aurora.gobo.integration.skap.WebsealStateResource
 import no.skatteetaten.aurora.gobo.integration.unclematt.ProbeResult
 import no.skatteetaten.aurora.gobo.integration.unclematt.ProbeStatus
 import no.skatteetaten.aurora.gobo.integration.unclematt.Result
+import no.skatteetaten.aurora.gobo.resolvers.webseal.Acl
 import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.ApplicationDeployment
 import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.Status
 import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.Version

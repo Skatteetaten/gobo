@@ -5,6 +5,7 @@ import assertk.assertions.contains
 import assertk.assertions.doesNotContain
 import assertk.assertions.hasSize
 import no.skatteetaten.aurora.gobo.WebsealStateResourceBuilder
+import no.skatteetaten.aurora.gobo.resolvers.webseal.WebsealState
 import org.junit.jupiter.api.Test
 
 class WebsealStateTest {

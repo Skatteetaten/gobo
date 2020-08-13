@@ -11,8 +11,8 @@ import org.springframework.stereotype.Component
 class DatabaseSchemaListDataLoader(val databaseSchemaServiceReactive: DatabaseServiceReactive) :
     KeyDataLoader<String, List<DatabaseSchemaResource>> {
 
-    override suspend fun getByKey(key: String, context: GoboGraphQLContext): List<DatabaseSchemaResource> =
-        databaseSchemaServiceReactive.getDatabaseSchemas(key).awaitSingle()
+    override suspend fun getByKey(affiliation: String, context: GoboGraphQLContext): List<DatabaseSchemaResource> =
+        databaseSchemaServiceReactive.getDatabaseSchemas(affiliation).awaitSingle()
 }
 
 /*
