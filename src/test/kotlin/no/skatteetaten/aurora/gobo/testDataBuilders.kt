@@ -481,7 +481,7 @@ data class CertificateResourceBuilder(val id: String = "1", val dn: String = ".a
     )
 }
 
-data class WebsealStateResourceBuilder(val namespace: String = "test") {
+data class WebsealStateResourceBuilder(val namespace: String = "namespace") {
 
     fun build() = WebsealStateResource(
         acl = Acl("acl-name", true, true, emptyList()),
