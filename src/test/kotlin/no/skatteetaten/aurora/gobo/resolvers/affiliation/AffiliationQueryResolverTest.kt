@@ -138,13 +138,11 @@ class AffiliationQueryResolverTest : GraphQLTestWithDbhAndSkap() {
         webTestClient.queryGraphQL(getAffiliationsWithWebsealStatesQuery, token = "test-token")
             .expectStatus().isOk
             .expectBody()
-            .printResult()
-            /*
             .graphqlData("affiliations.totalCount").isEqualTo("1")
             .graphqlDataWithPrefix("affiliations.items[0]") {
                 graphqlData("name").isEqualTo("paas")
                 graphqlData("websealStates[0].name").isEqualTo("test.no")
             }
-            .graphqlDoesNotContainErrors()*/
+            .graphqlDoesNotContainErrors()
     }
 }
