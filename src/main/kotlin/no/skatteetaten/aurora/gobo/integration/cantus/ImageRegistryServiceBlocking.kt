@@ -5,6 +5,7 @@ import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.resolvers.handleError
+import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepoDto
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageTag
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.BodyInserters

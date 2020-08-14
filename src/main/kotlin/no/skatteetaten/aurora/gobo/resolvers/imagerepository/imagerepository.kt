@@ -1,8 +1,8 @@
 package no.skatteetaten.aurora.gobo.resolvers.imagerepository
 
+import com.expediagroup.graphql.annotations.GraphQLIgnore
 import java.time.Instant
 import mu.KotlinLogging
-import no.skatteetaten.aurora.gobo.integration.cantus.ImageRepoDto
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageTagType
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageTagType.Companion.typeOf
 import no.skatteetaten.aurora.gobo.resolvers.GoboConnection
@@ -11,6 +11,25 @@ import no.skatteetaten.aurora.gobo.resolvers.GoboPageInfo
 import no.skatteetaten.aurora.gobo.resolvers.GoboPagedEdges
 
 private val logger = KotlinLogging.logger {}
+
+data class ImageRepoDto(
+    val registry: String?,
+    val namespace: String,
+    val name: String,
+    val filter: String? = null
+) {
+    val repository: String
+        get() = listOf(registry, namespace, name).joinToString("/")
+
+    val imageName: String
+        get() = "$namespace/$name"
+
+    @GraphQLIgnore
+    val mappedTemplateVars = mapOf(
+        "namespace" to namespace,
+        "imageTag" to name
+    )
+}
 
 data class ImageRepository(
     val registryUrl: String?,

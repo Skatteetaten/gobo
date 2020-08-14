@@ -6,6 +6,7 @@ import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
 import no.skatteetaten.aurora.gobo.integration.HEADER_AURORA_TOKEN
 import no.skatteetaten.aurora.gobo.resolvers.IntegrationDisabledException
+import no.skatteetaten.aurora.gobo.resolvers.application.Certificate
 import no.skatteetaten.aurora.gobo.resolvers.blockNonNullAndHandleError
 import no.skatteetaten.aurora.gobo.security.SharedSecretReader
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean

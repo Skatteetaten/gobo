@@ -3,13 +3,7 @@ package no.skatteetaten.aurora.gobo.integration.skap
 import no.skatteetaten.aurora.gobo.resolvers.webseal.Acl
 import java.time.Instant
 
-data class Certificate(
-    val id: String,
-    val dn: String,
-    val issuedDate: Instant?,
-    val revokedDate: Instant?,
-    val expiresDate: Instant?
-)
+
 
 data class WebsealStateResource(
     val acl: Acl,

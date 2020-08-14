@@ -7,6 +7,15 @@ import no.skatteetaten.aurora.gobo.resolvers.GoboPageInfo
 import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.ApplicationDeployment
 import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.ApplicationDeploymentBuilder
 import no.skatteetaten.aurora.gobo.resolvers.createPageInfo
+import java.time.Instant
+
+data class Certificate(
+    val id: String,
+    val dn: String,
+    val issuedDate: Instant?,
+    val revokedDate: Instant?,
+    val expiresDate: Instant?
+)
 
 data class Application(
     val id: String,
@@ -28,9 +37,9 @@ data class ApplicationEdge(val node: Application) : GoboEdge(node.name) {
 }
 
 data class ApplicationsConnection(
-    override val edges: List<ApplicationEdge>,
-    override val pageInfo: GoboPageInfo = createPageInfo(edges)
-) : GoboConnection<ApplicationEdge>()
+    val edges: List<ApplicationEdge>,
+    val pageInfo: GoboPageInfo = createPageInfo(edges)
+)
 
 private val deploymentBuilder = ApplicationDeploymentBuilder()
 

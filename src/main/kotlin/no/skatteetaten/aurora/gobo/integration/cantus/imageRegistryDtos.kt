@@ -1,24 +1,7 @@
 package no.skatteetaten.aurora.gobo.integration.cantus
 
+import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepoDto
 import java.time.Instant
-
-data class ImageRepoDto(
-    val registry: String?,
-    val namespace: String,
-    val name: String,
-    val filter: String? = null
-) {
-    val repository: String
-        get() = listOf(registry, namespace, name).joinToString("/")
-
-    val imageName: String
-        get() = "$namespace/$name"
-
-    val mappedTemplateVars = mapOf(
-        "namespace" to namespace,
-        "imageTag" to name
-    )
-}
 
 enum class ImageTagType {
     LATEST,
