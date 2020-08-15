@@ -1,7 +1,6 @@
 package no.skatteetaten.aurora.gobo.resolvers.application
 
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationResource
-import no.skatteetaten.aurora.gobo.resolvers.GoboConnection
 import no.skatteetaten.aurora.gobo.resolvers.GoboEdge
 import no.skatteetaten.aurora.gobo.resolvers.GoboPageInfo
 import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.ApplicationDeployment

@@ -1,5 +1,5 @@
-query getAffiliation($affiliation: String!) {
-  affiliations(affiliation: $affiliation) {
+query getAffiliation($name: String!) {
+  affiliations(name: $name) {
     totalCount
     edges {
       node {

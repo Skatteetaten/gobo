@@ -8,7 +8,10 @@ import java.time.Instant
 
 object InstantScalar : Coercing<Instant, String> {
 
-    override fun serialize(input: Any?) = (input as Instant).toString()
+    override fun serialize(input: Any?): String = when (input) {
+        is Long -> Instant.ofEpochMilli(input).toString()
+        else -> (input as Instant).toString()
+    }
 
     override fun parseValue(input: Any?): Instant = parseLiteral(input)
 

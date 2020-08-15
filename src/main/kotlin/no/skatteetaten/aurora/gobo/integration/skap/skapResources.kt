@@ -1,9 +1,6 @@
 package no.skatteetaten.aurora.gobo.integration.skap
 
 import no.skatteetaten.aurora.gobo.resolvers.webseal.Acl
-import java.time.Instant
-
-
 
 data class WebsealStateResource(
     val acl: Acl,

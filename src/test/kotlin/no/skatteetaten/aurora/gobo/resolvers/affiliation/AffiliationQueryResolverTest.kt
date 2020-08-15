@@ -90,7 +90,7 @@ class AffiliationQueryResolverTest : GraphQLTestWithDbhAndSkap() {
 
     @Test
     fun `Query for affiliation`() {
-        webTestClient.queryGraphQL(getAffiliationQuery, mapOf("affiliation" to "aurora"))
+        webTestClient.queryGraphQL(getAffiliationQuery, mapOf("name" to "aurora"))
             .expectStatus().isOk
             .expectBody()
             .graphqlData("affiliations.edges[0].node.name").isEqualTo("aurora")

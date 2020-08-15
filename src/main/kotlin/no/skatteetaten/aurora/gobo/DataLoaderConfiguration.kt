@@ -53,29 +53,35 @@ class DataLoaderConfiguration(
      * Use this if you have a service that loads multiple ids.
      */
     private fun <K, V> batchDataLoaderMappedMultiple(keysDataLoader: MultipleKeysDataLoader<K, V>): DataLoader<K, V> =
-        DataLoader.newMappedDataLoaderWithTry({ keys: Set<K>, env: BatchLoaderEnvironment ->
-            GlobalScope.async {
-                keysDataLoader.getByKeys(keys, env.keyContexts.entries.first().value as GoboGraphQLContext)
-            }.asCompletableFuture()
-        }, DataLoaderOptions.newOptions().setCachingEnabled(false))
+        DataLoader.newMappedDataLoaderWithTry(
+            { keys: Set<K>, env: BatchLoaderEnvironment ->
+                GlobalScope.async {
+                    keysDataLoader.getByKeys(keys, env.keyContexts.entries.first().value as GoboGraphQLContext)
+                }.asCompletableFuture()
+            },
+            DataLoaderOptions.newOptions().setCachingEnabled(false)
+        )
 
     /**
      * Use this if you have a service that loads a single id. Will make requests in parallel
      */
     private fun <K, V> batchDataLoaderMappedSingle(keyDataLoader: KeyDataLoader<K, V>): DataLoader<K, V> =
-        DataLoader.newMappedDataLoaderWithTry({ keys: Set<K>, env: BatchLoaderEnvironment ->
-            GlobalScope.async {
-                val deferred: List<Deferred<Pair<K, Try<V>>>> = keys.map { key ->
-                    async {
-                        key to try {
-                            val ctx = env.keyContexts[key] as GoboGraphQLContext
-                            Try.succeeded(keyDataLoader.getByKey(key, ctx))
-                        } catch (e: Exception) {
-                            Try.failed<V>(e)
+        DataLoader.newMappedDataLoaderWithTry(
+            { keys: Set<K>, env: BatchLoaderEnvironment ->
+                GlobalScope.async {
+                    val deferred: List<Deferred<Pair<K, Try<V>>>> = keys.map { key ->
+                        async {
+                            key to try {
+                                val ctx = env.keyContexts[key] as GoboGraphQLContext
+                                Try.succeeded(keyDataLoader.getByKey(key, ctx))
+                            } catch (e: Exception) {
+                                Try.failed<V>(e)
+                            }
                         }
                     }
-                }
-                deferred.awaitAll().toMap()
-            }.asCompletableFuture()
-        }, DataLoaderOptions.newOptions().setCachingEnabled(false))
+                    deferred.awaitAll().toMap()
+                }.asCompletableFuture()
+            },
+            DataLoaderOptions.newOptions().setCachingEnabled(false)
+        )
 }
