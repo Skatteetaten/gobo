@@ -1,10 +1,12 @@
 {
   affiliations {
     totalCount
-    items {
-      name
-      websealStates {
+    edges {
+      node {
         name
+        websealStates {
+          name
+        }
       }
     }
   }

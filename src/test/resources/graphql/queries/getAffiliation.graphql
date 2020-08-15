@@ -1,8 +1,10 @@
 query getAffiliation($affiliation: String!) {
   affiliations(affiliation: $affiliation) {
     totalCount
-    items {
-      name
+    edges {
+      node {
+        name
+      }
     }
   }
 }

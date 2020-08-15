@@ -1,8 +1,10 @@
 {
   affiliations {
     totalCount
-    items {
-      name
+    edges {
+      node {
+        name
+      }
     }
   }
 }

@@ -1,8 +1,10 @@
 query getVisibleAffiliations($checkForVisibility: Boolean!) {
   affiliations(checkForVisibility: $checkForVisibility) {
     totalCount
-    items {
-      name
+    edges {
+      node {
+        name
+      }
     }
   }
 }

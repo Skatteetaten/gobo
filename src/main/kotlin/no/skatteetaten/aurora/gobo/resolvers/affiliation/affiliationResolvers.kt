@@ -2,9 +2,13 @@ package no.skatteetaten.aurora.gobo.resolvers.affiliation
 
 import com.expediagroup.graphql.annotations.GraphQLDescription
 import com.expediagroup.graphql.spring.operations.Query
+import graphql.relay.PageInfo
 import graphql.schema.DataFetchingEnvironment
 import kotlinx.coroutines.reactive.awaitFirst
 import no.skatteetaten.aurora.gobo.integration.mokey.AffiliationService
+import no.skatteetaten.aurora.gobo.resolvers.GoboConnection
+import no.skatteetaten.aurora.gobo.resolvers.GoboEdge
+import no.skatteetaten.aurora.gobo.resolvers.GoboPageInfo
 import no.skatteetaten.aurora.gobo.resolvers.database.DatabaseSchema
 import no.skatteetaten.aurora.gobo.resolvers.loadMany
 import no.skatteetaten.aurora.gobo.resolvers.token
@@ -23,6 +27,10 @@ data class Affiliation(val name: String) {
     }
 }
 
+data class AffiliationEdge(val node: Affiliation) : GoboEdge(node.name)
+
+data class AffiliationsConnection(val edges: List<AffiliationEdge>, val totalCount: Int = edges.size)
+
 data class Affiliations(val items: List<Affiliation>, val totalCount: Int = items.size)
 
 @Component
@@ -32,7 +40,7 @@ class AffiliationQuery(val affiliationService: AffiliationService) : Query {
         affiliation: String?,
         checkForVisibility: Boolean?,
         dfe: DataFetchingEnvironment
-    ): Affiliations {
+    ): AffiliationsConnection {
 
         val affiliationNames = if (affiliation == null) {
             getAffiliations(checkForVisibility ?: false, dfe.token())
@@ -40,8 +48,8 @@ class AffiliationQuery(val affiliationService: AffiliationService) : Query {
             listOf(affiliation)
         }
 
-        val affiliations = affiliationNames.map { Affiliation(it) }
-        return Affiliations(affiliations)
+        val affiliations = affiliationNames.map { AffiliationEdge(Affiliation(it)) }
+        return AffiliationsConnection(affiliations)
     }
 
     private suspend fun getAffiliations(checkForVisibility: Boolean, token: String) = if (checkForVisibility) {
