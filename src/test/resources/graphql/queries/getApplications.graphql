@@ -25,6 +25,9 @@ query getApplications($affiliations: [String!]!) {
               }
             }
           }
+          imageRepository {
+            repository
+          }
         }
       }
   }

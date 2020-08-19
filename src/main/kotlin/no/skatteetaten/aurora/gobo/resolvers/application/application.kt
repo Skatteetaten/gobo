@@ -6,6 +6,7 @@ import no.skatteetaten.aurora.gobo.resolvers.GoboPageInfo
 import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.ApplicationDeployment
 import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.ApplicationDeploymentBuilder
 import no.skatteetaten.aurora.gobo.resolvers.createPageInfo
+import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository
 import java.time.Instant
 
 data class Certificate(
@@ -20,7 +21,20 @@ data class Application(
     val id: String,
     val name: String,
     val applicationDeployments: List<ApplicationDeployment>
-)
+) {
+    fun imageRepository() =
+        this.applicationDeployments.asSequence()
+            .mapNotNull { it.dockerImageRepo }
+            .map { ImageRepository.fromRepoString(it) }
+            .firstOrNull { it.registryUrl != null && !isInternal(it.registryUrl) }
+
+    // FIXME move the isInternal code somewhere else?
+    private val ipV4WithPortRegex =
+        "^((25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\.){3}(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]):([0-9]{1,4})(.*)\$".toRegex()
+
+    private fun isInternal(registry: String) =
+        registry == "docker-registry.default.svc:5000" || registry.matches(ipV4WithPortRegex)
+}
 
 data class ApplicationEdge(val node: Application) : GoboEdge(node.name) {
     companion object {

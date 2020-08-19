@@ -35,8 +35,8 @@ data class ApplicationDeployment(
     val dockerImageRepo: String?,
     val time: Instant,
     val applicationId: String,
-    val message: String?
-    // val imageRepository: ImageRepository? // FIXME ImageRepository data loader
+    val message: String?,
+    val imageRepository: ImageRepository?
 ) {
 
     suspend fun details(dfe: DataFetchingEnvironment) =
@@ -74,8 +74,8 @@ data class ApplicationDeployment(
                 time = deployment.time,
                 dockerImageRepo = deployment.dockerImageRepo,
                 applicationId = deployment.applicationId,
-                message = deployment.message
-                // imageRepository = imageRepo // FIXME Image repo
+                message = deployment.message,
+                imageRepository = imageRepo
             )
 
         private fun toStatusCheck(checkResource: StatusCheckResource) = checkResource.let {
