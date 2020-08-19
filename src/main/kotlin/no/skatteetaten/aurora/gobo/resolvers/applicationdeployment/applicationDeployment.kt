@@ -1,11 +1,17 @@
 package no.skatteetaten.aurora.gobo.resolvers.applicationdeployment
 
-import java.time.Instant
+import graphql.schema.DataFetchingEnvironment
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationResource
 import no.skatteetaten.aurora.gobo.integration.mokey.StatusCheckResource
+import no.skatteetaten.aurora.gobo.resolvers.affiliation.Affiliation
+import no.skatteetaten.aurora.gobo.resolvers.applicationdeploymentdetails.ApplicationDeploymentDetails
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageTag
+import no.skatteetaten.aurora.gobo.resolvers.load
+import no.skatteetaten.aurora.gobo.resolvers.namespace.Namespace
+import no.skatteetaten.aurora.gobo.resolvers.permission.Permission
+import java.time.Instant
 
 data class StatusCheck(val name: String, val description: String, val failLevel: String, val hasFailed: Boolean)
 
@@ -21,17 +27,21 @@ data class Version(val deployTag: ImageTag, val auroraVersion: String?, val rele
 data class ApplicationDeployment(
     val id: String,
     val name: String,
-    val affiliationId: String,
+    val affiliation: Affiliation,
     val environment: String,
-    val namespaceId: String,
+    val namespace: Namespace,
     val status: Status,
     val version: Version,
     val dockerImageRepo: String?,
     val time: Instant,
     val applicationId: String,
-    val message: String?,
-    val imageRepository: ImageRepository?
+    val message: String?
+    // val imageRepository: ImageRepository? // FIXME ImageRepository data loader
 ) {
+
+    suspend fun details(dfe: DataFetchingEnvironment) =
+        dfe.load<String, ApplicationDeploymentDetails>(applicationId)
+
     companion object {
         fun create(deployment: ApplicationDeploymentResource) =
             create(deployment, deployment.dockerImageRepo?.let { ImageRepository.fromRepoString(it) })
@@ -40,9 +50,9 @@ data class ApplicationDeployment(
             ApplicationDeployment(
                 id = deployment.identifier,
                 name = deployment.name,
-                affiliationId = deployment.affiliation,
+                affiliation = Affiliation(deployment.affiliation),
                 environment = deployment.environment,
-                namespaceId = deployment.namespace,
+                namespace = Namespace(deployment.namespace, Affiliation(deployment.affiliation), Permission()),
                 status = Status(
                     code = deployment.status.code,
                     comment = "",
@@ -64,8 +74,8 @@ data class ApplicationDeployment(
                 time = deployment.time,
                 dockerImageRepo = deployment.dockerImageRepo,
                 applicationId = deployment.applicationId,
-                message = deployment.message,
-                imageRepository = imageRepo
+                message = deployment.message
+                // imageRepository = imageRepo // FIXME Image repo
             )
 
         private fun toStatusCheck(checkResource: StatusCheckResource) = checkResource.let {

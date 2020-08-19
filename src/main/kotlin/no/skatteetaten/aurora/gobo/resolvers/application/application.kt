@@ -37,6 +37,7 @@ data class ApplicationEdge(val node: Application) : GoboEdge(node.name) {
 
 data class ApplicationsConnection(
     val edges: List<ApplicationEdge>,
+    val totalCount: Int = edges.size,
     val pageInfo: GoboPageInfo = createPageInfo(edges)
 )
 

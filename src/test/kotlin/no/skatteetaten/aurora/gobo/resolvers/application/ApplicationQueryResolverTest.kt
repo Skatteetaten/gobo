@@ -4,6 +4,7 @@ import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentDetailsBuilder
 import no.skatteetaten.aurora.gobo.ApplicationResourceBuilder
+import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
 import no.skatteetaten.aurora.gobo.integration.mokey.AuroraNamespacePermissions
 import no.skatteetaten.aurora.gobo.integration.mokey.PermissionService
@@ -24,7 +25,7 @@ class ApplicationQueryResolverTest : GraphQLTestWithDbhAndSkap() {
     private lateinit var getApplicationsQuery: Resource
 
     @MockkBean
-    private lateinit var applicationServiceBlocking: ApplicationServiceBlocking
+    private lateinit var applicationService: ApplicationService
 
     @MockkBean
     private lateinit var permissionService: PermissionService
@@ -32,25 +33,23 @@ class ApplicationQueryResolverTest : GraphQLTestWithDbhAndSkap() {
     @Test
     fun `Query for applications given affiliations`() {
         val affiliations = listOf("paas")
-        every { applicationServiceBlocking.getApplications(affiliations) } returns listOf(ApplicationResourceBuilder().build())
+        every { applicationService.getApplications(affiliations) } returns listOf(ApplicationResourceBuilder().build()).toMono()
         every { permissionService.getPermission(any(), any()) } returns AuroraNamespacePermissions(
             view = true,
             admin = true,
             namespace = "namespace"
         ).toMono()
         every {
-            applicationServiceBlocking.getApplicationDeploymentDetails(
+            applicationService.getApplicationDeploymentDetails(
                 any(),
                 any()
             )
-        } returns ApplicationDeploymentDetailsBuilder().build()
+        } returns ApplicationDeploymentDetailsBuilder().build().toMono()
 
         val variables = mapOf("affiliations" to affiliations)
         webTestClient.queryGraphQL(getApplicationsQuery, variables, "test-token")
             .expectStatus().isOk
             .expectBody()
-            .printResult()
-            /*
             .graphqlData("applications.totalCount").isNumber
             .graphqlDataWithPrefix("applications.edges[0].node") {
                 graphqlData("applicationDeployments[0].affiliation.name").isNotEmpty
@@ -61,6 +60,6 @@ class ApplicationQueryResolverTest : GraphQLTestWithDbhAndSkap() {
                 graphqlData("applicationDeployments[0].details.deployDetails.paused").isEqualTo(false)
                 graphqlData("imageRepository.repository").doesNotExist()
             }
-            .graphqlDoesNotContainErrors()*/
+            .graphqlDoesNotContainErrors()
     }
 }

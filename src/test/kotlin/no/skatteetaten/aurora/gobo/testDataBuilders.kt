@@ -43,6 +43,7 @@ import no.skatteetaten.aurora.gobo.integration.skap.WebsealStateResource
 import no.skatteetaten.aurora.gobo.integration.unclematt.ProbeResult
 import no.skatteetaten.aurora.gobo.integration.unclematt.ProbeStatus
 import no.skatteetaten.aurora.gobo.integration.unclematt.Result
+import no.skatteetaten.aurora.gobo.resolvers.affiliation.Affiliation
 import no.skatteetaten.aurora.gobo.resolvers.application.Certificate
 import no.skatteetaten.aurora.gobo.resolvers.webseal.Acl
 import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.ApplicationDeployment
@@ -50,6 +51,8 @@ import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.Status
 import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.Version
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageTag
+import no.skatteetaten.aurora.gobo.resolvers.namespace.Namespace
+import no.skatteetaten.aurora.gobo.resolvers.permission.Permission
 import org.intellij.lang.annotations.Language
 import org.springframework.http.HttpStatus
 import uk.q3c.rest.hal.HalLink
@@ -164,16 +167,16 @@ data class ApplicationDeploymentBuilder(
         ApplicationDeployment(
             id = "id",
             name = "name",
-            affiliationId = affiliation,
+            affiliation = Affiliation(affiliation),
             environment = "environment",
-            namespaceId = "namespaceId",
+            namespace = Namespace("namespaceId", Affiliation(affiliation), Permission()),
             status = Status("code", "comment", listOf(), listOf()),
             version = Version(ImageTag(ImageRepository("", "", ""), "deployTag"), "auroraVersion", "releaseTo"),
             dockerImageRepo = "dockerImageRepo",
             time = defaultInstant,
             applicationId = "appId",
-            message = message,
-            imageRepository = ImageRepository.fromRepoString("docker.registry/group/name")
+            message = message
+            // imageRepository = ImageRepository.fromRepoString("docker.registry/group/name")
         )
 }
 
