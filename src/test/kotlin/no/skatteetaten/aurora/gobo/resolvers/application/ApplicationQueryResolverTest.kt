@@ -5,14 +5,12 @@ import io.mockk.every
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentDetailsBuilder
 import no.skatteetaten.aurora.gobo.ApplicationResourceBuilder
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
-import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
 import no.skatteetaten.aurora.gobo.integration.mokey.AuroraNamespacePermissions
 import no.skatteetaten.aurora.gobo.integration.mokey.PermissionService
 import no.skatteetaten.aurora.gobo.resolvers.GraphQLTestWithDbhAndSkap
 import no.skatteetaten.aurora.gobo.resolvers.graphqlData
 import no.skatteetaten.aurora.gobo.resolvers.graphqlDataWithPrefix
 import no.skatteetaten.aurora.gobo.resolvers.graphqlDoesNotContainErrors
-import no.skatteetaten.aurora.gobo.resolvers.printResult
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value

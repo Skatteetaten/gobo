@@ -21,6 +21,7 @@ import no.skatteetaten.aurora.gobo.resolvers.graphqlErrorsFirst
 import no.skatteetaten.aurora.gobo.resolvers.isTrue
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
@@ -38,6 +39,7 @@ private fun ImageRepoAndTags.toImageTagResource() =
 private fun List<ImageRepoAndTags>.getTagCount() =
     this.flatMap { it.imageTags }.size
 
+@Disabled
 class ImageRepositoryQueryResolverTest : GraphQLTestWithDbhAndSkap() {
     @Value("classpath:graphql/queries/getImageRepositories.graphql")
     private lateinit var reposWithTagsQuery: Resource

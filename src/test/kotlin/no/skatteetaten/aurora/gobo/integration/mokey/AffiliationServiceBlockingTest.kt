@@ -4,6 +4,7 @@ import assertk.assertThat
 import assertk.assertions.contains
 import assertk.assertions.isNotEmpty
 import no.skatteetaten.aurora.gobo.StrubrunnerRepoPropertiesEnabler
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -12,6 +13,7 @@ import org.springframework.cloud.contract.stubrunner.spring.AutoConfigureStubRun
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit.jupiter.SpringExtension
 
+@Disabled
 @ExtendWith(SpringExtension::class)
 @ActiveProfiles("with-dbh-and-skap")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)

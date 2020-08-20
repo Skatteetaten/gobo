@@ -32,7 +32,7 @@ data class Application(
     private val ipV4WithPortRegex =
         "^((25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\.){3}(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]):([0-9]{1,4})(.*)\$".toRegex()
 
-    private fun isInternal(registry: String) =
+    fun isInternal(registry: String) =
         registry == "docker-registry.default.svc:5000" || registry.matches(ipV4WithPortRegex)
 }
 

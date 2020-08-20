@@ -9,9 +9,9 @@ import org.springframework.stereotype.Component
 @Suppress("unused")
 @Component
 class ScanQueryResolver(val scanService: ProbeService) : Query {
-    suspend fun scan(host: String, port: Int = 80): Scan = fromProbeResultList(
+    suspend fun scan(host: String, port: Int? = 80): Scan = fromProbeResultList(
         scanService
-            .probeFirewall(host, port)
+            .probeFirewall(host, port!!)
             .awaitSingle()
     )
 }

@@ -91,7 +91,7 @@ data class ClusterNode(
     val ip: String?
 )
 
-data class NodeDetailsEdge(private val node: NodeDetails)
+data class NodeDetailsEdge(val node: NodeDetails)
 
 data class NodeDetailsConnection(
     val edges: List<NodeDetailsEdge>,

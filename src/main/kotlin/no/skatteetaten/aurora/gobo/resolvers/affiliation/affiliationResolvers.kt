@@ -39,11 +39,8 @@ class AffiliationQuery(val affiliationService: AffiliationService) : Query {
         dfe: DataFetchingEnvironment
     ): AffiliationsConnection {
 
-        val affiliationNames = if (name == null) {
-            getAffiliations(checkForVisibility ?: false, dfe.token())
-        } else {
-            listOf(name)
-        }
+        val affiliationNames = name?.let { listOf(name) }
+            ?: getAffiliations(checkForVisibility ?: false, dfe.token())
 
         val affiliations = affiliationNames.map { AffiliationEdge(Affiliation(it)) }
         return AffiliationsConnection(affiliations)

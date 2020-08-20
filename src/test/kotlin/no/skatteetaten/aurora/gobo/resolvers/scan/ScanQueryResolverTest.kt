@@ -21,6 +21,7 @@ class ScanQueryResolverTest : GraphQLTestWithDbhAndSkap() {
     @MockkBean
     private lateinit var probeService: ProbeService
 
+    @Suppress("ReactiveStreamsUnusedPublisher")
     @Test
     fun `resolve scan response`() {
         every {

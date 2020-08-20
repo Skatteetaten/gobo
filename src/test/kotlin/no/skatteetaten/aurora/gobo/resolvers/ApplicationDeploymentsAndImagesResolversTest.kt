@@ -6,10 +6,12 @@ import no.skatteetaten.aurora.gobo.ApplicationDeploymentResourceBuilder
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageRegistryServiceBlocking
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 
+@Disabled
 class ApplicationDeploymentsAndImagesResolversTest : GraphQLTestWithDbhAndSkap() {
     @Value("classpath:graphql/queries/getApplicationDeploymentsAndImages.graphql")
     private lateinit var applicationDeploymentsAndImages: Resource

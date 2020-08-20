@@ -9,9 +9,6 @@ import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
 import no.skatteetaten.aurora.gobo.integration.mokey.AuroraNamespacePermissions
 import no.skatteetaten.aurora.gobo.integration.mokey.PermissionService
 import no.skatteetaten.aurora.gobo.resolvers.GraphQLTestWithDbhAndSkap
-import no.skatteetaten.aurora.gobo.resolvers.graphqlData
-import no.skatteetaten.aurora.gobo.resolvers.graphqlDataWithPrefix
-import no.skatteetaten.aurora.gobo.resolvers.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageTag
 import no.skatteetaten.aurora.gobo.resolvers.printResult
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
