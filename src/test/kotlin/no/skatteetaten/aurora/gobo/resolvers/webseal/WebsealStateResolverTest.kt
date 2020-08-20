@@ -8,10 +8,12 @@ import no.skatteetaten.aurora.gobo.resolvers.graphqlDataWithPrefix
 import no.skatteetaten.aurora.gobo.resolvers.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import no.skatteetaten.aurora.gobo.service.WebsealAffiliationService
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 
+@Disabled
 class WebsealStateResolverTest : GraphQLTestWithDbhAndSkap() {
     @Value("classpath:graphql/queries/getWebsealStates.graphql")
     private lateinit var getWebsealStates: Resource

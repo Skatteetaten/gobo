@@ -10,10 +10,12 @@ import no.skatteetaten.aurora.gobo.resolvers.isTrue
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import no.skatteetaten.aurora.gobo.service.ApplicationUpgradeService
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 
+@Disabled
 class ApplicationDeploymentMutationResolverTest : GraphQLTestWithDbhAndSkap() {
     @Value("classpath:graphql/mutations/redeployWithVersion.graphql")
     private lateinit var redeployWithVersionMutation: Resource

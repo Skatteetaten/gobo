@@ -16,10 +16,12 @@ import no.skatteetaten.aurora.gobo.resolvers.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.resolvers.graphqlErrorsFirst
 import no.skatteetaten.aurora.gobo.resolvers.isTrue
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 
+@Disabled
 class DatabaseMutationResolverTest : GraphQLTestWithDbhAndSkap() {
     @Value("classpath:graphql/mutations/updateDatabaseSchema.graphql")
     private lateinit var updateDatabaseSchemaMutation: Resource
