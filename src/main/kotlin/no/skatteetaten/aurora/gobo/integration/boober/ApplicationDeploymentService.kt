@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.ApplicationDeploymentRef
+import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.DeleteApplicationDeploymentInput
 import no.skatteetaten.aurora.gobo.resolvers.auroraconfig.ApplicationDeploymentSpec
 import no.skatteetaten.aurora.gobo.resolvers.blockNonNullAndHandleError
 import org.springframework.stereotype.Service
@@ -71,8 +72,6 @@ class ApplicationDeploymentService(private val booberWebClient: BooberWebClient)
     private fun <T> Mono<T>.blockNonNullWithTimeout() =
         this.blockNonNullAndHandleError(Duration.ofSeconds(30), "boober")
 }
-
-data class DeleteApplicationDeploymentInput(val namespace: String, val name: String)
 
 data class DeployResource(
     val auroraConfigRef: AuroraConfigRefResource,

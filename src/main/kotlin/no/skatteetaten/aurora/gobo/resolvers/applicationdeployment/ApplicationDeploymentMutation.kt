@@ -1,5 +1,38 @@
 package no.skatteetaten.aurora.gobo.resolvers.applicationdeployment
 
+import com.expediagroup.graphql.spring.operations.Mutation
+import graphql.schema.DataFetchingEnvironment
+import no.skatteetaten.aurora.gobo.integration.boober.ApplicationDeploymentService
+import no.skatteetaten.aurora.gobo.resolvers.token
+import no.skatteetaten.aurora.gobo.service.ApplicationUpgradeService
+import org.springframework.stereotype.Component
+
+@Component
+class ApplicationDeploymentMutation(
+    private val applicationUpgradeService: ApplicationUpgradeService,
+    private val applicationDeploymentService: ApplicationDeploymentService
+) : Mutation {
+
+    fun redeployWithVersion(input: ApplicationDeploymentVersionInput, dfe: DataFetchingEnvironment): Boolean {
+        applicationUpgradeService.upgrade(dfe.token(), input.applicationDeploymentId, input.version)
+        return true
+    }
+
+    fun redeployWithCurrentVersion(input: ApplicationDeploymentIdInput, dfe: DataFetchingEnvironment): Boolean {
+        applicationUpgradeService.deployCurrentVersion(dfe.token(), input.applicationDeploymentId)
+        return true
+    }
+
+    fun refreshApplicationDeployment(input: RefreshByApplicationDeploymentIdInput, dfe: DataFetchingEnvironment) =
+        applicationUpgradeService.refreshApplicationDeployment(dfe.token(), input.applicationDeploymentId)
+
+    fun refreshApplicationDeployments(input: RefreshByAffiliationsInput, dfe: DataFetchingEnvironment) =
+        applicationUpgradeService.refreshApplicationDeployments(dfe.token(), input.affiliations)
+
+    fun deleteApplicationDeployment(input: DeleteApplicationDeploymentInput, dfe: DataFetchingEnvironment) =
+        applicationDeploymentService.deleteApplicationDeployment(dfe.token(), input)
+}
+
 /*
 @Component
 class ApplicationDeploymentQueryResolver(

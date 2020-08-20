@@ -101,3 +101,5 @@ data class RefreshByApplicationDeploymentIdInput(val applicationDeploymentId: St
 
 data class ApplicationDeploymentVersionInput(val applicationDeploymentId: String, val version: String)
 data class ApplicationDeploymentIdInput(val applicationDeploymentId: String)
+
+data class DeleteApplicationDeploymentInput(val namespace: String, val name: String)
