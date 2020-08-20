@@ -1,7 +1,7 @@
 package no.skatteetaten.aurora.gobo.resolvers.scan
 
 import com.ninjasquad.springmockk.MockkBean
-import io.mockk.every
+import io.mockk.coEvery
 import no.skatteetaten.aurora.gobo.ProbeResultListBuilder
 import no.skatteetaten.aurora.gobo.integration.unclematt.ProbeService
 import no.skatteetaten.aurora.gobo.resolvers.GraphQLTestWithDbhAndSkap
@@ -11,7 +11,6 @@ import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
-import reactor.kotlin.core.publisher.toMono
 
 class ScanQueryResolverTest : GraphQLTestWithDbhAndSkap() {
 
@@ -24,9 +23,11 @@ class ScanQueryResolverTest : GraphQLTestWithDbhAndSkap() {
     @Suppress("ReactiveStreamsUnusedPublisher")
     @Test
     fun `resolve scan response`() {
-        every {
+        coEvery {
             probeService.probeFirewall("test.server.no", 80)
-        } returns ProbeResultListBuilder().build().toMono()
+        } coAnswers {
+            ProbeResultListBuilder().build()
+        }
 
         val variables = mapOf("host" to "test.server.no", "port" to 80)
         webTestClient.queryGraphQL(scanQuery, variables)
