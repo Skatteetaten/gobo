@@ -1,11 +1,13 @@
 package no.skatteetaten.aurora.gobo.resolvers.scan
 
-/*
-@Component
-class ScanQueryResolver(val scanService: ProbeServiceBlocking) : GraphQLQueryResolver {
+import com.expediagroup.graphql.spring.operations.Query
+import no.skatteetaten.aurora.gobo.integration.unclematt.ProbeService
+import no.skatteetaten.aurora.gobo.resolvers.scan.Scan.Companion.fromProbeResultList
+import org.springframework.stereotype.Component
 
-    fun scan(host: String, port: Int = 80): Scan {
-        return Scan.fromProbeResultList(scanService.probeFirewall(host, port))
-    }
+@Suppress("unused")
+@Component
+class ScanQueryResolver(val scanService: ProbeService) : Query {
+    suspend fun scan(host: String, port: Int?): Scan =
+        fromProbeResultList(scanService.probeFirewall(host, port ?: 80))
 }
- */

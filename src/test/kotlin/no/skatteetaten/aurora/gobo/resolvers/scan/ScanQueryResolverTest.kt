@@ -1,31 +1,33 @@
-package no.skatteetaten.aurora.gobo.resolvers.unclematt
+package no.skatteetaten.aurora.gobo.resolvers.scan
 
 import com.ninjasquad.springmockk.MockkBean
-import io.mockk.every
+import io.mockk.coEvery
 import no.skatteetaten.aurora.gobo.ProbeResultListBuilder
-import no.skatteetaten.aurora.gobo.integration.unclematt.ProbeServiceBlocking
+import no.skatteetaten.aurora.gobo.integration.unclematt.ProbeService
 import no.skatteetaten.aurora.gobo.resolvers.GraphQLTestWithDbhAndSkap
 import no.skatteetaten.aurora.gobo.resolvers.graphqlDataWithPrefix
 import no.skatteetaten.aurora.gobo.resolvers.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
-import no.skatteetaten.aurora.gobo.resolvers.scan.ScanStatus
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 
-@Disabled
 class ScanQueryResolverTest : GraphQLTestWithDbhAndSkap() {
 
     @Value("classpath:graphql/queries/scan.graphql")
     private lateinit var scanQuery: Resource
 
     @MockkBean
-    private lateinit var probeService: ProbeServiceBlocking
+    private lateinit var probeService: ProbeService
 
+    @Suppress("ReactiveStreamsUnusedPublisher")
     @Test
     fun `resolve scan response`() {
-        every { probeService.probeFirewall("test.server.no", 80) } returns ProbeResultListBuilder().build()
+        coEvery {
+            probeService.probeFirewall("test.server.no", 80)
+        } coAnswers {
+            ProbeResultListBuilder().build()
+        }
 
         val variables = mapOf("host" to "test.server.no", "port" to 80)
         webTestClient.queryGraphQL(scanQuery, variables)
