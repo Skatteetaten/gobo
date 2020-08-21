@@ -7,11 +7,10 @@ import kotlinx.coroutines.reactive.awaitFirst
 import no.skatteetaten.aurora.gobo.integration.boober.ApplicationDeploymentService
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import no.skatteetaten.aurora.gobo.integration.skap.RouteServiceReactive
+import no.skatteetaten.aurora.gobo.resolvers.application.Application
 import no.skatteetaten.aurora.gobo.resolvers.application.DockerRegistryUtil
+import no.skatteetaten.aurora.gobo.resolvers.application.createApplicationEdge
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository
-import no.skatteetaten.aurora.gobo.resolvers.route.BigipJob
-import no.skatteetaten.aurora.gobo.resolvers.route.Route
-import no.skatteetaten.aurora.gobo.resolvers.route.WebsealJob
 import no.skatteetaten.aurora.gobo.resolvers.token
 import no.skatteetaten.aurora.gobo.service.ApplicationUpgradeService
 import org.springframework.stereotype.Component
@@ -57,21 +56,9 @@ class ApplicationDeploymentQuery(
             ApplicationDeployment.create(resource, imageRepo)
         }.awaitFirst()
 
-    fun route(
-        applicationDeployment: ApplicationDeployment,
-        dfe: DataFetchingEnvironment
-    ): Route? {
-        return Route(
-            websealJobs =
-            routeService.getSkapJobs(
-                namespace(applicationDeployment).name,
-                "${applicationDeployment.name}-webseal"
-            ).map { WebsealJob.create(it) },
-            bigipJobs = routeService.getSkapJobs(
-                namespace(applicationDeployment).name,
-                "${applicationDeployment.name}-bigip"
-            ).map { BigipJob.create(it) }
-        )
+    suspend fun application(applicationDeployment: ApplicationDeployment): Application? {
+        val application = applicationService.getApplication(applicationDeployment.applicationId).awaitFirst()
+        return createApplicationEdge(application).node
     }
 
 }

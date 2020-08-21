@@ -27,7 +27,6 @@ data class Application(
             .mapNotNull { it.dockerImageRepo }
             .map { ImageRepository.fromRepoString(it) }
             .firstOrNull { it.registryUrl != null && !DockerRegistryUtil.isInternal(it.registryUrl) }
-
 }
 
 data class ApplicationEdge(val node: Application) : GoboEdge(node.name) {
