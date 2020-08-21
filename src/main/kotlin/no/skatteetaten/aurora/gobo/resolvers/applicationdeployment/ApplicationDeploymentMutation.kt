@@ -1,8 +1,17 @@
 package no.skatteetaten.aurora.gobo.resolvers.applicationdeployment
 
 import com.expediagroup.graphql.spring.operations.Mutation
+import com.expediagroup.graphql.spring.operations.Query
 import graphql.schema.DataFetchingEnvironment
+import kotlinx.coroutines.reactive.awaitFirst
 import no.skatteetaten.aurora.gobo.integration.boober.ApplicationDeploymentService
+import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
+import no.skatteetaten.aurora.gobo.integration.skap.RouteServiceReactive
+import no.skatteetaten.aurora.gobo.resolvers.application.DockerRegistryUtil
+import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository
+import no.skatteetaten.aurora.gobo.resolvers.route.BigipJob
+import no.skatteetaten.aurora.gobo.resolvers.route.Route
+import no.skatteetaten.aurora.gobo.resolvers.route.WebsealJob
 import no.skatteetaten.aurora.gobo.resolvers.token
 import no.skatteetaten.aurora.gobo.service.ApplicationUpgradeService
 import org.springframework.stereotype.Component
@@ -33,21 +42,41 @@ class ApplicationDeploymentMutation(
         applicationDeploymentService.deleteApplicationDeployment(dfe.token(), input)
 }
 
-/*
-@Component
-class ApplicationDeploymentQueryResolver(
-    private val applicationService: ApplicationServiceBlocking,
-    private val dockerRegistry: DockerRegistry
-) : GraphQLQueryResolver {
 
-    fun getApplicationDeployment(id: String): ApplicationDeployment? =
-        applicationService.getApplicationDeployment(id).let { resource ->
+@Component
+class ApplicationDeploymentQuery(
+    private val applicationService: ApplicationService,
+    private val routeService: RouteServiceReactive
+) : Query {
+
+    suspend fun applicationDeployment(id: String): ApplicationDeployment? =
+        applicationService.getApplicationDeployment(id).map { resource ->
             val imageRepo = resource.dockerImageRepo
-                .takeIf { it != null && !dockerRegistry.isInternal(it) }
+                .takeIf { it != null && !DockerRegistryUtil.isInternal(it) }
                 ?.let { ImageRepository.fromRepoString(it) }
             ApplicationDeployment.create(resource, imageRepo)
-        }
+        }.awaitFirst()
+
+    fun route(
+        applicationDeployment: ApplicationDeployment,
+        dfe: DataFetchingEnvironment
+    ): Route? {
+        return Route(
+            websealJobs =
+            routeService.getSkapJobs(
+                namespace(applicationDeployment).name,
+                "${applicationDeployment.name}-webseal"
+            ).map { WebsealJob.create(it) },
+            bigipJobs = routeService.getSkapJobs(
+                namespace(applicationDeployment).name,
+                "${applicationDeployment.name}-bigip"
+            ).map { BigipJob.create(it) }
+        )
+    }
+
 }
+
+/*
 
 @Component
 class ApplicationDeploymentMutationResolver(
