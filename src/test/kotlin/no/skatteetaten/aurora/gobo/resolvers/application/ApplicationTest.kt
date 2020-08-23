@@ -5,7 +5,7 @@ import assertk.assertions.isFalse
 import assertk.assertions.isTrue
 import org.junit.jupiter.api.Test
 
-class ApplicationDTest {
+class ApplicationTest {
 
     @Test
     fun `verify internal registry is recognized as internal`() {

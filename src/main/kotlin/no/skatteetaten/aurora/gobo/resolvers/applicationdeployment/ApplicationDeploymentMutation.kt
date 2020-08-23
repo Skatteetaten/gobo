@@ -41,7 +41,6 @@ class ApplicationDeploymentMutation(
         applicationDeploymentService.deleteApplicationDeployment(dfe.token(), input)
 }
 
-
 @Component
 class ApplicationDeploymentQuery(
     private val applicationService: ApplicationService,
@@ -60,7 +59,6 @@ class ApplicationDeploymentQuery(
         val application = applicationService.getApplication(applicationDeployment.applicationId).awaitFirst()
         return createApplicationEdge(application).node
     }
-
 }
 
 /*

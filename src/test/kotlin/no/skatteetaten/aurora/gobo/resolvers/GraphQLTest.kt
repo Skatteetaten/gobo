@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
+import java.time.Duration
 
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
@@ -25,6 +26,7 @@ abstract class GraphQLTestWithoutDbhAndSkap {
 
     @BeforeEach
     fun initialize() {
+        webTestClient = webTestClient.mutate().responseTimeout(Duration.ofSeconds(10)).build()
         every { openShiftUserLoader.findOpenShiftUserByToken(any()) } returns OpenShiftUserBuilder().build()
     }
 

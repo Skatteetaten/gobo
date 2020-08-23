@@ -17,6 +17,7 @@ class RouteDataLoader(private val routeService: RouteService) : KeyDataLoader<Ap
             bigipJobs = routeService.getSkapJobs(
                 key.namespace.name,
                 "${key.name}-bigip"
-            ).map { BigipJob.create(it) })
+            ).map { BigipJob.create(it) }
+        )
     }
 }

@@ -81,7 +81,7 @@ data class ImageTag(
 ) {
     val type: ImageTagType get() = typeOf(name)
 
-    suspend fun image(dfe: DataFetchingEnvironment) = dfe.load<String, Image>(name)
+    suspend fun image(dfe: DataFetchingEnvironment): Image? = dfe.load<ImageTag, Image>(this)
 
     companion object {
         fun fromTagString(tagString: String, lastDelimiter: String = ":"): ImageTag {
