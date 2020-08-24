@@ -10,12 +10,10 @@ import no.skatteetaten.aurora.gobo.resolvers.isTrue
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import no.skatteetaten.aurora.gobo.service.ApplicationUpgradeService
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 
-@Disabled
 class ApplicationDeploymentMutationResolverTest : GraphQLTestWithDbhAndSkap() {
     @Value("classpath:graphql/mutations/redeployWithVersion.graphql")
     private lateinit var redeployWithVersionMutation: Resource
@@ -50,11 +48,11 @@ class ApplicationDeploymentMutationResolverTest : GraphQLTestWithDbhAndSkap() {
             "input" to mapOf(
                 "applicationDeploymentId" to "123",
                 "version" to "1"
-
             )
         )
-        webTestClient.queryGraphQL(redeployWithVersionMutation, variables).expectBody()
-            .graphqlData("redeployWithVersion").isNotEmpty
+        webTestClient.queryGraphQL(redeployWithVersionMutation, variables, "test-token").expectBody()
+            .graphqlData("redeployWithVersion")
+            .isNotEmpty
             .graphqlDoesNotContainErrors()
     }
 
@@ -65,7 +63,7 @@ class ApplicationDeploymentMutationResolverTest : GraphQLTestWithDbhAndSkap() {
                 "applicationDeploymentId" to "123"
             )
         )
-        webTestClient.queryGraphQL(redeployWithCurrentVersionMutation, variables).expectBody()
+        webTestClient.queryGraphQL(redeployWithCurrentVersionMutation, variables, "test-token").expectBody()
             .graphqlData("redeployWithCurrentVersion").isNotEmpty
             .graphqlDoesNotContainErrors()
     }
@@ -77,7 +75,7 @@ class ApplicationDeploymentMutationResolverTest : GraphQLTestWithDbhAndSkap() {
                 "applicationDeploymentId" to "123"
             )
         )
-        webTestClient.queryGraphQL(refreshApplicationDeploymentByDeploymentIdMutation, variables)
+        webTestClient.queryGraphQL(refreshApplicationDeploymentByDeploymentIdMutation, variables, "test-token")
             .expectStatus().isOk
             .expectBody()
             .graphqlData("refreshApplicationDeployment").isNotEmpty
@@ -91,7 +89,7 @@ class ApplicationDeploymentMutationResolverTest : GraphQLTestWithDbhAndSkap() {
                 "affiliations" to listOf("aurora")
             )
         )
-        webTestClient.queryGraphQL(refreshApplicationDeploymentsByAffiliationsMutation, variables)
+        webTestClient.queryGraphQL(refreshApplicationDeploymentsByAffiliationsMutation, variables, "test-token")
             .expectStatus().isOk
             .expectBody()
             .graphqlData("refreshApplicationDeployments").isNotEmpty
@@ -108,7 +106,7 @@ class ApplicationDeploymentMutationResolverTest : GraphQLTestWithDbhAndSkap() {
             )
         )
 
-        webTestClient.queryGraphQL(deleteApplicationDeploymentMutation, variables)
+        webTestClient.queryGraphQL(deleteApplicationDeploymentMutation, variables, "test-token")
             .expectStatus().isOk
             .expectBody()
             .graphqlData("deleteApplicationDeployment").isTrue()

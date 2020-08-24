@@ -11,6 +11,7 @@ import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageTag
 import no.skatteetaten.aurora.gobo.resolvers.load
 import no.skatteetaten.aurora.gobo.resolvers.namespace.Namespace
 import no.skatteetaten.aurora.gobo.resolvers.permission.Permission
+import no.skatteetaten.aurora.gobo.resolvers.route.Route
 import java.time.Instant
 
 data class StatusCheck(val name: String, val description: String, val failLevel: String, val hasFailed: Boolean)
@@ -41,6 +42,9 @@ data class ApplicationDeployment(
 
     suspend fun details(dfe: DataFetchingEnvironment) =
         dfe.load<String, ApplicationDeploymentDetails>(applicationId)
+
+    suspend fun route(dfe: DataFetchingEnvironment) =
+        dfe.load<ApplicationDeployment, Route>(this)
 
     companion object {
         fun create(deployment: ApplicationDeploymentResource) =
@@ -101,3 +105,5 @@ data class RefreshByApplicationDeploymentIdInput(val applicationDeploymentId: St
 
 data class ApplicationDeploymentVersionInput(val applicationDeploymentId: String, val version: String)
 data class ApplicationDeploymentIdInput(val applicationDeploymentId: String)
+
+data class DeleteApplicationDeploymentInput(val namespace: String, val name: String)

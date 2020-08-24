@@ -1,4 +1,4 @@
-mutation deploy($input: ApplicationDeploymentInput!){
+mutation deploy($input: DeployApplicationDeploymentInput!){
     deploy(input: $input){
         success
         auroraConfigRef {

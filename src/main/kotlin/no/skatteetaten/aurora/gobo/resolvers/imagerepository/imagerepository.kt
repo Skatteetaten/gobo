@@ -1,6 +1,7 @@
 package no.skatteetaten.aurora.gobo.resolvers.imagerepository
 
 import com.expediagroup.graphql.annotations.GraphQLIgnore
+import graphql.schema.DataFetchingEnvironment
 import java.time.Instant
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageTagType
@@ -9,6 +10,7 @@ import no.skatteetaten.aurora.gobo.resolvers.GoboConnection
 import no.skatteetaten.aurora.gobo.resolvers.GoboEdge
 import no.skatteetaten.aurora.gobo.resolvers.GoboPageInfo
 import no.skatteetaten.aurora.gobo.resolvers.GoboPagedEdges
+import no.skatteetaten.aurora.gobo.resolvers.load
 
 private val logger = KotlinLogging.logger {}
 
@@ -78,6 +80,8 @@ data class ImageTag(
     val name: String
 ) {
     val type: ImageTagType get() = typeOf(name)
+
+    suspend fun image(dfe: DataFetchingEnvironment): Image? = dfe.load<ImageTag, Image>(this)
 
     companion object {
         fun fromTagString(tagString: String, lastDelimiter: String = ":"): ImageTag {

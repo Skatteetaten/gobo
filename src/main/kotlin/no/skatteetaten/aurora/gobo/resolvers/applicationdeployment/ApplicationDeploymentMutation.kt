@@ -1,20 +1,65 @@
 package no.skatteetaten.aurora.gobo.resolvers.applicationdeployment
 
-/*
-@Component
-class ApplicationDeploymentQueryResolver(
-    private val applicationService: ApplicationServiceBlocking,
-    private val dockerRegistry: DockerRegistry
-) : GraphQLQueryResolver {
+import com.expediagroup.graphql.spring.operations.Mutation
+import com.expediagroup.graphql.spring.operations.Query
+import graphql.schema.DataFetchingEnvironment
+import kotlinx.coroutines.reactive.awaitFirst
+import no.skatteetaten.aurora.gobo.integration.boober.ApplicationDeploymentService
+import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
+import no.skatteetaten.aurora.gobo.resolvers.application.Application
+import no.skatteetaten.aurora.gobo.resolvers.application.DockerRegistryUtil
+import no.skatteetaten.aurora.gobo.resolvers.application.createApplicationEdge
+import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository
+import no.skatteetaten.aurora.gobo.resolvers.token
+import no.skatteetaten.aurora.gobo.service.ApplicationUpgradeService
+import org.springframework.stereotype.Component
 
-    fun getApplicationDeployment(id: String): ApplicationDeployment? =
-        applicationService.getApplicationDeployment(id).let { resource ->
+@Component
+class ApplicationDeploymentMutation(
+    private val applicationUpgradeService: ApplicationUpgradeService,
+    private val applicationDeploymentService: ApplicationDeploymentService
+) : Mutation {
+
+    fun redeployWithVersion(input: ApplicationDeploymentVersionInput, dfe: DataFetchingEnvironment): Boolean {
+        applicationUpgradeService.upgrade(dfe.token(), input.applicationDeploymentId, input.version)
+        return true
+    }
+
+    fun redeployWithCurrentVersion(input: ApplicationDeploymentIdInput, dfe: DataFetchingEnvironment): Boolean {
+        applicationUpgradeService.deployCurrentVersion(dfe.token(), input.applicationDeploymentId)
+        return true
+    }
+
+    fun refreshApplicationDeployment(input: RefreshByApplicationDeploymentIdInput, dfe: DataFetchingEnvironment) =
+        applicationUpgradeService.refreshApplicationDeployment(dfe.token(), input.applicationDeploymentId)
+
+    fun refreshApplicationDeployments(input: RefreshByAffiliationsInput, dfe: DataFetchingEnvironment) =
+        applicationUpgradeService.refreshApplicationDeployments(dfe.token(), input.affiliations)
+
+    fun deleteApplicationDeployment(input: DeleteApplicationDeploymentInput, dfe: DataFetchingEnvironment) =
+        applicationDeploymentService.deleteApplicationDeployment(dfe.token(), input)
+}
+
+@Component
+class ApplicationDeploymentQuery(
+    private val applicationService: ApplicationService
+) : Query {
+
+    suspend fun applicationDeployment(id: String): ApplicationDeployment? =
+        applicationService.getApplicationDeployment(id).map { resource ->
             val imageRepo = resource.dockerImageRepo
-                .takeIf { it != null && !dockerRegistry.isInternal(it) }
+                .takeIf { it != null && !DockerRegistryUtil.isInternal(it) }
                 ?.let { ImageRepository.fromRepoString(it) }
             ApplicationDeployment.create(resource, imageRepo)
-        }
+        }.awaitFirst()
+
+    suspend fun application(applicationDeployment: ApplicationDeployment): Application? {
+        val application = applicationService.getApplication(applicationDeployment.applicationId).awaitFirst()
+        return createApplicationEdge(application).node
+    }
 }
+
+/*
 
 @Component
 class ApplicationDeploymentMutationResolver(

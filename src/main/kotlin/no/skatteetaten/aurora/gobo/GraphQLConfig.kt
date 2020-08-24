@@ -1,9 +1,11 @@
 package no.skatteetaten.aurora.gobo
 
 import com.expediagroup.graphql.hooks.SchemaGeneratorHooks
+import com.fasterxml.jackson.databind.JsonNode
 import graphql.schema.GraphQLScalarType
 import graphql.schema.GraphQLType
 import no.skatteetaten.aurora.gobo.resolvers.scalars.InstantScalar
+import no.skatteetaten.aurora.gobo.resolvers.scalars.JsonNodeScalar
 import no.skatteetaten.aurora.gobo.resolvers.scalars.UrlScalar
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -23,6 +25,7 @@ class GoboSchemaGeneratorHooks : SchemaGeneratorHooks {
     override fun willGenerateGraphQLType(type: KType): GraphQLType? = when (type.classifier) {
         Instant::class -> instantType
         URL::class -> urlType
+        JsonNode::class -> jsonNodeType
         else -> null
     }
 
@@ -30,6 +33,12 @@ class GoboSchemaGeneratorHooks : SchemaGeneratorHooks {
         .name("Instant")
         .description("A type representing java.time.Instant")
         .coercing(InstantScalar)
+        .build()
+
+    private val jsonNodeType = GraphQLScalarType.newScalar()
+        .name("JsonNode")
+        .description("A type representing com.fasterxml.jackson.databind.JsonNode")
+        .coercing(JsonNodeScalar)
         .build()
 
     private val urlType = GraphQLScalarType.newScalar()

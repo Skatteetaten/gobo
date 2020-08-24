@@ -26,14 +26,7 @@ data class Application(
         this.applicationDeployments.asSequence()
             .mapNotNull { it.dockerImageRepo }
             .map { ImageRepository.fromRepoString(it) }
-            .firstOrNull { it.registryUrl != null && !isInternal(it.registryUrl) }
-
-    // FIXME move the isInternal code somewhere else?
-    private val ipV4WithPortRegex =
-        "^((25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\.){3}(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]):([0-9]{1,4})(.*)\$".toRegex()
-
-    fun isInternal(registry: String) =
-        registry == "docker-registry.default.svc:5000" || registry.matches(ipV4WithPortRegex)
+            .firstOrNull { it.registryUrl != null && !DockerRegistryUtil.isInternal(it.registryUrl) }
 }
 
 data class ApplicationEdge(val node: Application) : GoboEdge(node.name) {
@@ -62,3 +55,12 @@ fun createApplicationEdges(applicationResources: List<ApplicationResource>): Lis
 
 fun createApplicationEdge(it: ApplicationResource) =
     ApplicationEdge.create(it, deploymentBuilder.createApplicationDeployments(it))
+
+// FIXME docker registry, not to happy with this :(
+object DockerRegistryUtil {
+    private val ipV4WithPortRegex =
+        "^((25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\.){3}(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]):([0-9]{1,4})(.*)\$".toRegex()
+
+    fun isInternal(registry: String) =
+        registry == "docker-registry.default.svc:5000" || registry.matches(ipV4WithPortRegex)
+}

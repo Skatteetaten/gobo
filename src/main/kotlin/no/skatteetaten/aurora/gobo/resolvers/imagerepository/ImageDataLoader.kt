@@ -9,7 +9,7 @@ import org.dataloader.Try
 import org.springframework.stereotype.Component
 
 @Component
-class ImageTagDataLoader(val imageRegistryServiceBlocking: ImageRegistryServiceBlocking) : MultipleKeysDataLoader<ImageTag, Image?> {
+class ImageDataLoader(val imageRegistryServiceBlocking: ImageRegistryServiceBlocking) : MultipleKeysDataLoader<ImageTag, Image?> {
     override suspend fun getByKeys(keys: Set<ImageTag>, ctx: GoboGraphQLContext): Map<ImageTag, Try<Image?>> {
         val imageReposAndTags = ImageRepoAndTags.fromImageTags(keys)
 
