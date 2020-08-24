@@ -1,35 +1,39 @@
 package no.skatteetaten.aurora.gobo.resolvers.applicationdeployment
 
+import com.expediagroup.graphql.spring.operations.Mutation
 import com.fasterxml.jackson.databind.JsonNode
+import graphql.schema.DataFetchingEnvironment
+import no.skatteetaten.aurora.gobo.integration.boober.ApplicationDeploymentService
+import no.skatteetaten.aurora.gobo.integration.boober.ApplyPayload
+import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentRefResource
 import no.skatteetaten.aurora.gobo.resolvers.auroraconfig.ApplicationDeploymentSpec
+import no.skatteetaten.aurora.gobo.resolvers.token
+import org.springframework.stereotype.Component
 
-/*
 @Component
 class DeployMutationResolver(
     private val applicationDeploymentService: ApplicationDeploymentService
-) : GraphQLMutationResolver {
+) : Mutation {
 
-    fun deploy(input: ApplicationDeploymentInput, dfe: DataFetchingEnvironment): ApplicationDeploymentResult {
-
-        if (dfe.isAnonymousUser()) throw AccessDeniedException("Anonymous user cannot deploy application")
-
+    // FIXME do not allow anonymous access
+    fun deploy(input: DeployApplicationDeploymentInput, dfe: DataFetchingEnvironment): ApplicationDeploymentResult {
         val payload = ApplyPayload(
             applicationDeploymentRefs = input.applicationDeployment.map {
                 ApplicationDeploymentRefResource(it.environment, it.application)
             },
-            overrides = input.overrides.associate { it.fileName to it.content }
+            overrides = input.overrides?.associate { it.fileName to it.content } ?: emptyMap()
         )
 
         val response =
             applicationDeploymentService.deploy(
-                dfe.currentUser().token,
+                dfe.token(),
                 input.auroraConfigName,
                 input.auroraConfigReference,
                 payload
             )
 
         val item = response.items.first()
-        val res = ApplicationDeploymentResult(
+        return ApplicationDeploymentResult(
             success = response.success,
             auroraConfigRef = AuroraConfigRef(
                 name = item.auroraConfigRef.name,
@@ -49,15 +53,13 @@ class DeployMutationResolver(
                 )
             }
         )
-
-        return res
     }
 }
-*/
 
-data class ApplicationDeploymentInput(
+// FIXME need to rename this due to naming collision with ApplicationDeployment input
+data class DeployApplicationDeploymentInput(
     val applicationDeployment: List<ApplicationDeploymentRef>,
-    val overrides: List<OverrideInput> = emptyList(),
+    val overrides: List<OverrideInput>? = emptyList(),
     val auroraConfigName: String,
     val auroraConfigReference: String = "master"
 )

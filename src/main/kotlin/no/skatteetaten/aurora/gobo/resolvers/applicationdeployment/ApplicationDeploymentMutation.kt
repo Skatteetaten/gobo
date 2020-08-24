@@ -6,7 +6,6 @@ import graphql.schema.DataFetchingEnvironment
 import kotlinx.coroutines.reactive.awaitFirst
 import no.skatteetaten.aurora.gobo.integration.boober.ApplicationDeploymentService
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
-import no.skatteetaten.aurora.gobo.integration.skap.RouteServiceReactive
 import no.skatteetaten.aurora.gobo.resolvers.application.Application
 import no.skatteetaten.aurora.gobo.resolvers.application.DockerRegistryUtil
 import no.skatteetaten.aurora.gobo.resolvers.application.createApplicationEdge
@@ -43,8 +42,7 @@ class ApplicationDeploymentMutation(
 
 @Component
 class ApplicationDeploymentQuery(
-    private val applicationService: ApplicationService,
-    private val routeService: RouteServiceReactive
+    private val applicationService: ApplicationService
 ) : Query {
 
     suspend fun applicationDeployment(id: String): ApplicationDeployment? =

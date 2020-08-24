@@ -6,8 +6,10 @@ import no.skatteetaten.aurora.gobo.ApplicationDeploymentResourceBuilder
 import no.skatteetaten.aurora.gobo.ImageTagResourceBuilder
 import no.skatteetaten.aurora.gobo.integration.cantus.AuroraResponse
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageRegistryServiceBlocking
-import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
+import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseServiceReactive
+import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import no.skatteetaten.aurora.gobo.integration.skap.RouteService
+import no.skatteetaten.aurora.gobo.integration.skap.RouteServiceReactive
 import no.skatteetaten.aurora.gobo.resolvers.GraphQLTestWithoutDbhAndSkap
 import no.skatteetaten.aurora.gobo.resolvers.IntegrationDisabledException
 import no.skatteetaten.aurora.gobo.resolvers.graphqlDataWithPrefix
@@ -18,15 +20,16 @@ import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
+import reactor.kotlin.core.publisher.toMono
 
-@Disabled
+@Disabled("fix error handling")
 class ApplicationDeploymentQueryResolverWithoutSkapTest : GraphQLTestWithoutDbhAndSkap() {
 
     @Value("classpath:graphql/queries/getApplicationDeployment.graphql")
     private lateinit var getApplicationsQuery: Resource
 
     @MockkBean
-    private lateinit var applicationService: ApplicationServiceBlocking
+    private lateinit var applicationService: ApplicationService
 
     @MockkBean
     private lateinit var routeService: RouteService
@@ -34,12 +37,18 @@ class ApplicationDeploymentQueryResolverWithoutSkapTest : GraphQLTestWithoutDbhA
     @MockkBean
     private lateinit var imageRegistryService: ImageRegistryServiceBlocking
 
+    @MockkBean
+    private lateinit var databaseServiceReactive: DatabaseServiceReactive
+
+    @MockkBean
+    private lateinit var routeServiceReactive: RouteServiceReactive
+
     @BeforeEach
     fun setUp() {
         every { applicationService.getApplicationDeployment(any()) } returns ApplicationDeploymentResourceBuilder(
             id = "123",
             msg = "Hei"
-        ).build()
+        ).build().toMono()
 
         every {
             routeService.getSkapJobs(
