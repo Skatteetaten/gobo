@@ -4,21 +4,17 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import no.skatteetaten.aurora.gobo.integration.boober.ApplicationDeploymentService
-import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileResource
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileType.APP
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileType.GLOBAL
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigService
 import no.skatteetaten.aurora.gobo.resolvers.GraphQLTestWithDbhAndSkap
-import no.skatteetaten.aurora.gobo.resolvers.graphqlDataWithPrefix
-import no.skatteetaten.aurora.gobo.resolvers.graphqlDoesNotContainErrors
+import no.skatteetaten.aurora.gobo.resolvers.printResult
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 
-@Disabled
 class AuroraConfigQueryResolverTest : GraphQLTestWithDbhAndSkap() {
 
     @Value("classpath:graphql/queries/getFile.graphql")
@@ -92,6 +88,8 @@ class AuroraConfigQueryResolverTest : GraphQLTestWithDbhAndSkap() {
         webTestClient.queryGraphQL(query, variables, "test-token")
             .expectStatus().isOk
             .expectBody()
+            .printResult()
+            /*
             .graphqlDataWithPrefix("auroraConfig") {
                 graphqlData("resolvedRef").isEqualTo("abcde")
                 graphqlData("files.length()").isEqualTo(1)
@@ -100,7 +98,8 @@ class AuroraConfigQueryResolverTest : GraphQLTestWithDbhAndSkap() {
                 graphqlData("applicationDeploymentSpec[0].replicas").isEqualTo("2")
                 graphqlData("applicationDeploymentSpec[0].paused").isEqualTo(false)
                 graphqlData("applicationDeploymentSpec[0].releaseTo").doesNotExist()
-            }
+            }ApplicationDeploymentRef
             .graphqlDoesNotContainErrors()
+             */
     }
 }

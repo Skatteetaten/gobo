@@ -11,6 +11,7 @@ import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentDetailsResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentRefResource
 import no.skatteetaten.aurora.gobo.resolvers.auroraconfig.AuroraConfig
+import no.skatteetaten.aurora.gobo.resolvers.auroraconfig.AuroraConfigFileResource
 import no.skatteetaten.aurora.gobo.resolvers.blockNonNullAndHandleError
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.BodyInserters
@@ -108,13 +109,6 @@ class AuroraConfigService(
     private fun <T> Mono<T>.blockNonNullWithTimeout() =
         this.blockNonNullAndHandleError(Duration.ofSeconds(30), "boober")
 }
-
-data class AuroraConfigFileResource(
-    val name: String,
-    val contents: String,
-    val type: AuroraConfigFileType,
-    val contentHash: String
-)
 
 enum class AuroraConfigFileType {
     DEFAULT,

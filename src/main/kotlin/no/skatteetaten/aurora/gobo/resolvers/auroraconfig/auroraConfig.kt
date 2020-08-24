@@ -1,21 +1,24 @@
 package no.skatteetaten.aurora.gobo.resolvers.auroraconfig
 
+import com.expediagroup.graphql.spring.operations.Query
 import com.fasterxml.jackson.databind.JsonNode
-import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileResource
+import graphql.schema.DataFetchingEnvironment
+import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileType
+import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigService
+import no.skatteetaten.aurora.gobo.resolvers.token
+import org.springframework.stereotype.Component
 
-/*
 @Component
 class AuroraConfigQueryResolver(
     private val service: AuroraConfigService
-) : GraphQLQueryResolver {
+) : Query {
 
     fun auroraConfig(name: String, refInput: String?, dfe: DataFetchingEnvironment): AuroraConfig {
         val ref = refInput ?: "master"
-        val token = dfe.currentUser().token
+        val token = dfe.token()
         return service.getAuroraConfig(token, name, ref)
     }
 }
-*/
 
 data class AuroraConfig(
     val name: String,
@@ -38,6 +41,13 @@ data class ApplicationDeploymentSpec(
     val replicas = rawJsonValueWithDefaults.at("/replicas/value").intValue().toString()
     val paused = rawJsonValueWithDefaults.at("/pause/value").booleanValue() ?: false
 }
+
+data class AuroraConfigFileResource(
+    val name: String,
+    val contents: String,
+    val type: AuroraConfigFileType,
+    val contentHash: String
+)
 
 /*
 @Component

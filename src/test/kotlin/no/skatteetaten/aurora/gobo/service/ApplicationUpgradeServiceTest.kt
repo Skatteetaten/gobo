@@ -18,6 +18,7 @@ import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigService
 import no.skatteetaten.aurora.gobo.integration.boober.BooberWebClient
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
+import no.skatteetaten.aurora.gobo.resolvers.auroraconfig.AuroraConfigFileResource
 import no.skatteetaten.aurora.gobo.testObjectMapper
 import no.skatteetaten.aurora.mockmvc.extensions.TestObjectMapperConfigurer
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.execute
@@ -119,9 +120,9 @@ class ApplicationUpgradeServiceTest {
             }
         ).build()
 
-    private fun applicationFileResponse() = Response(items = listOf(AuroraConfigFileBuilder().build()))
+    private fun applicationFileResponse() = Response<AuroraConfigFileResource>(items = listOf(AuroraConfigFileBuilder().build()))
 
-    private fun patchResponse() = Response(items = listOf(AuroraConfigFileBuilder().build()))
+    private fun patchResponse() = Response<AuroraConfigFileResource>(items = listOf(AuroraConfigFileBuilder().build()))
 
     private fun redeployResponse() = Response(items = listOf(TextNode("{}")))
 
