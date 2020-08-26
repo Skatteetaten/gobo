@@ -23,7 +23,7 @@ class AuroraConfigService(
     private val booberWebClient: BooberWebClient
 ) {
 
-    fun getAuroraConfig(token: String, auroraConfig: String, reference: String): AuroraConfig {
+    fun getAuroraConfig(token: String, auroraConfig: String, reference: String): Mono<AuroraConfig> {
         return booberWebClient
             .get<AuroraConfig>(
                 token,
@@ -31,7 +31,6 @@ class AuroraConfigService(
                 mapOf("auroraConfig" to auroraConfig, "reference" to reference)
             )
             .toMono()
-            .blockNonNullWithTimeout()
     }
 
     fun updateAuroraConfigFile(
@@ -41,7 +40,7 @@ class AuroraConfigService(
         fileName: String,
         content: String,
         oldHash: String
-    ): Response<AuroraConfigFileResource> {
+    ): Mono<Response<AuroraConfigFileResource>> {
         val url = "/v2/auroraconfig/{auroraConfig}?reference={reference}"
         val body = mapOf("content" to content, "fileName" to fileName)
 
@@ -49,7 +48,7 @@ class AuroraConfigService(
             it.put()
                 .uri(booberWebClient.getBooberUrl(url), mapOf("auroraConfig" to auroraConfig, "reference" to reference))
                 .body(BodyInserters.fromValue(body))
-        }.blockNonNullWithTimeout()
+        }
     }
 
     fun addAuroraConfigFile(
@@ -58,7 +57,7 @@ class AuroraConfigService(
         reference: String,
         fileName: String,
         content: String
-    ): Response<AuroraConfigFileResource> {
+    ): Mono<Response<AuroraConfigFileResource>> {
         val url = "/v2/auroraconfig/{auroraConfig}?reference={reference}"
         val body = mapOf("content" to content, "fileName" to fileName)
 
@@ -66,7 +65,7 @@ class AuroraConfigService(
             it.put()
                 .uri(booberWebClient.getBooberUrl(url), mapOf("auroraConfig" to auroraConfig, "reference" to reference))
                 .body(BodyInserters.fromValue(body))
-        }.blockNonNullWithTimeout()
+        }
     }
 
     fun getApplicationFile(token: String, it: String): String {
@@ -88,8 +87,7 @@ class AuroraConfigService(
             token = token,
             url = auroraConfigFile.replace("{fileName}", applicationFile), // TODO placeholder cannot contain slash
             body = createVersionPatch(version)
-        ).toMono()
-            .blockNonNullWithTimeout()
+        ).toMono().blockNonNullWithTimeout()
     }
 
     private fun createVersionPatch(version: String): Map<String, String> {

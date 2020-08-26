@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
+import reactor.kotlin.core.publisher.toMono
 
 @Disabled
 class CreateAuroraConfigFileTest : GraphQLTestWithDbhAndSkap() {
@@ -41,7 +42,7 @@ class CreateAuroraConfigFileTest : GraphQLTestWithDbhAndSkap() {
             message = "Ok",
             items = listOf(auroraConfigFileResource),
             count = 1
-        )
+        ).toMono()
     }
 
     @Test

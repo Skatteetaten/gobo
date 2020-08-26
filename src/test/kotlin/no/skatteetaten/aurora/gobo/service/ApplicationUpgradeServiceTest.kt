@@ -9,6 +9,8 @@ import assertk.assertions.isNotNull
 import assertk.assertions.message
 import com.fasterxml.jackson.databind.node.TextNode
 import io.mockk.mockk
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runBlockingTest
 import no.skatteetaten.aurora.gobo.ApplicationConfig
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentDetailsBuilder
 import no.skatteetaten.aurora.gobo.AuroraConfigFileBuilder
@@ -73,7 +75,9 @@ class ApplicationUpgradeServiceTest {
             redeployResponse(),
             refreshResponse()
         ) {
-            upgradeService.upgrade("token", "applicationDeploymentId", "version")
+            runBlocking {
+                upgradeService.upgrade("token", "applicationDeploymentId", "version")
+            }
         }
 
         assertThat(requests[0]?.path).isNotNull()
@@ -95,7 +99,7 @@ class ApplicationUpgradeServiceTest {
 
         server.execute(failureResponse) {
             assertThat {
-                upgradeService.upgrade("token", "applicationDeploymentId", "version")
+                runBlockingTest { upgradeService.upgrade("token", "applicationDeploymentId", "version") }
             }.isNotNull().isFailure().isInstanceOf(SourceSystemException::class)
         }
     }
@@ -105,7 +109,7 @@ class ApplicationUpgradeServiceTest {
 
         server.execute(404 to "Not found") {
             assertThat {
-                upgradeService.upgrade("token", "applicationDeploymentId", "version")
+                runBlockingTest { upgradeService.upgrade("token", "applicationDeploymentId", "version") }
             }.isNotNull().isFailure().isInstanceOf(SourceSystemException::class)
                 .message().isNotNull().contains("404")
         }
@@ -120,7 +124,8 @@ class ApplicationUpgradeServiceTest {
             }
         ).build()
 
-    private fun applicationFileResponse() = Response<AuroraConfigFileResource>(items = listOf(AuroraConfigFileBuilder().build()))
+    private fun applicationFileResponse() =
+        Response<AuroraConfigFileResource>(items = listOf(AuroraConfigFileBuilder().build()))
 
     private fun patchResponse() = Response<AuroraConfigFileResource>(items = listOf(AuroraConfigFileBuilder().build()))
 

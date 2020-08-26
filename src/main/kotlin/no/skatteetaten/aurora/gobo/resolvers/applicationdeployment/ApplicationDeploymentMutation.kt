@@ -20,7 +20,7 @@ class ApplicationDeploymentMutation(
     private val applicationDeploymentService: ApplicationDeploymentService
 ) : Mutation {
 
-    fun redeployWithVersion(input: ApplicationDeploymentVersionInput, dfe: DataFetchingEnvironment): Boolean {
+    suspend fun redeployWithVersion(input: ApplicationDeploymentVersionInput, dfe: DataFetchingEnvironment): Boolean {
         applicationUpgradeService.upgrade(dfe.token(), input.applicationDeploymentId, input.version)
         return true
     }
