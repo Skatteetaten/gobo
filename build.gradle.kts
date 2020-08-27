@@ -36,9 +36,8 @@ dependencies {
     testImplementation("io.mockk:mockk:1.10.0")
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.22")
     testImplementation("io.projectreactor:reactor-test")
-    testImplementation("no.skatteetaten.aurora:mockmvc-extensions-kotlin:1.1.2")
+    testImplementation("no.skatteetaten.aurora:mockmvc-extensions-kotlin:1.1.3")
     testImplementation("com.ninja-squad:springmockk:2.0.3")
     testImplementation("org.junit-pioneer:junit-pioneer:0.9.0")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.3.9")
-    testImplementation("org.awaitility:awaitility:4.0.3")
 }

@@ -5,7 +5,7 @@ import io.mockk.every
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentDetailsBuilder
 import no.skatteetaten.aurora.gobo.ApplicationResourceBuilder
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageRegistryServiceBlocking
-import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
+import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import no.skatteetaten.aurora.gobo.integration.mokey.AuroraNamespacePermissions
 import no.skatteetaten.aurora.gobo.integration.mokey.PermissionService
 import no.skatteetaten.aurora.gobo.resolvers.GraphQLTestWithDbhAndSkap
@@ -23,7 +23,7 @@ class ApplicationWithLatestDigestQueryResolverTest : GraphQLTestWithDbhAndSkap()
     private lateinit var getApplicationsQuery: Resource
 
     @MockkBean
-    private lateinit var applicationServiceBlocking: ApplicationServiceBlocking
+    private lateinit var applicationService: ApplicationService
 
     @MockkBean
     private lateinit var imageRegistryServiceBlocking: ImageRegistryServiceBlocking
@@ -48,7 +48,7 @@ class ApplicationWithLatestDigestQueryResolverTest : GraphQLTestWithDbhAndSkap()
             )
         } returns "sha256:123"
 
-        every { applicationServiceBlocking.getApplications(affiliations) } returns listOf(ApplicationResourceBuilder().build())
+        every { applicationService.getApplications(affiliations) } returns listOf(ApplicationResourceBuilder().build()).toMono()
 
         every { permissionService.getPermission(any(), any()) } returns AuroraNamespacePermissions(
             view = true,
@@ -56,7 +56,7 @@ class ApplicationWithLatestDigestQueryResolverTest : GraphQLTestWithDbhAndSkap()
             namespace = "namespace"
         ).toMono()
 
-        every { applicationServiceBlocking.getApplicationDeploymentDetails(any(), any()) } returns details
+        every { applicationService.getApplicationDeploymentDetails(any(), any()) } returns details.toMono()
 
         val variables = mapOf("affiliations" to affiliations)
         webTestClient.queryGraphQL(getApplicationsQuery, variables, "test-token")
