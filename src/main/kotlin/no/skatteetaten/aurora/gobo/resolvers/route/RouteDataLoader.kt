@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component
 @Component
 class RouteDataLoader(private val routeService: RouteService) : KeyDataLoader<ApplicationDeployment, Route> {
     override suspend fun getByKey(key: ApplicationDeployment, context: GoboGraphQLContext): Route {
+        println("HER?????")
         return Route(
             websealJobs = routeService.getSkapJobs(
                 key.namespace.name,
