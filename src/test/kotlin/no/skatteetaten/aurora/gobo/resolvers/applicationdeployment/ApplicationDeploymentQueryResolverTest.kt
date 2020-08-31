@@ -39,32 +39,23 @@ class ApplicationDeploymentQueryResolverTest : GraphQLTestWithDbhAndSkap() {
     @BeforeEach
     fun setUp() {
         println("SETTING UP MOCK")
-        coEvery { applicationService.getApplicationDeployment(any()) } answers {
-            println("MOCK CALLED")
+        coEvery { applicationService.getApplicationDeployment(any()) } returns
             ApplicationDeploymentResourceBuilder(
                 id = "123",
                 msg = "Hei"
             ).build()
-        }
 
         val websealjob = SkapJobForWebsealBuilder().build()
         val bigipJob = SkapJobForBigipBuilder().build()
-        coEvery { routeService.getSkapJobs("namespace", "name-webseal") } answers {
-            println("webseal")
-            listOf(websealjob)
-        }
-        coEvery { routeService.getSkapJobs("namespace", "name-bigip") } answers {
-            println("bigip")
-            listOf(bigipJob)
-        }
-        every { imageRegistryService.findTagsByName(any(), any()) } answers {
-            println("Image tags")
+        coEvery { routeService.getSkapJobs("namespace", "name-webseal") } returns listOf(websealjob)
+        coEvery { routeService.getSkapJobs("namespace", "name-bigip") } returns listOf(bigipJob)
+
+        every { imageRegistryService.findTagsByName(any(), any()) } returns
             AuroraResponse(
                 listOf(
                     ImageTagResourceBuilder().build()
                 )
             )
-        }
     }
 
     @Test
