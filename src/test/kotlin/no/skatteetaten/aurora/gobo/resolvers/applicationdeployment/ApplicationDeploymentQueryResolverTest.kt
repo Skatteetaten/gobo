@@ -1,6 +1,7 @@
 package no.skatteetaten.aurora.gobo.resolvers.applicationdeployment
 
 import com.ninjasquad.springmockk.MockkBean
+import io.mockk.coEvery
 import io.mockk.every
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentResourceBuilder
 import no.skatteetaten.aurora.gobo.ImageTagResourceBuilder
@@ -18,7 +19,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
-import reactor.kotlin.core.publisher.toMono
 
 class ApplicationDeploymentQueryResolverTest : GraphQLTestWithDbhAndSkap() {
 
@@ -36,10 +36,14 @@ class ApplicationDeploymentQueryResolverTest : GraphQLTestWithDbhAndSkap() {
 
     @BeforeEach
     fun setUp() {
-        every { applicationService.getApplicationDeployment(any()) } returns ApplicationDeploymentResourceBuilder(
-            id = "123",
-            msg = "Hei"
-        ).build().toMono()
+        println("SETTING UP MOCK")
+        coEvery { applicationService.getApplicationDeployment(any()) } answers {
+            println("MOCK CALLED")
+            ApplicationDeploymentResourceBuilder(
+                id = "123",
+                msg = "Hei"
+            ).build()
+        }
 
         val websealjob = SkapJobForWebsealBuilder().build()
         val bigipJob = SkapJobForBigipBuilder().build()

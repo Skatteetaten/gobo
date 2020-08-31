@@ -6,6 +6,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.fge.jackson.jsonpointer.JsonPointer
 import com.github.fge.jsonpatch.AddOperation
 import com.github.fge.jsonpatch.JsonPatch
+import kotlinx.coroutines.reactive.awaitFirst
 import java.time.Duration
 import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentDetailsResource
@@ -23,14 +24,13 @@ class AuroraConfigService(
     private val booberWebClient: BooberWebClient
 ) {
 
-    fun getAuroraConfig(token: String, auroraConfig: String, reference: String): Mono<AuroraConfig> {
+    suspend fun getAuroraConfig(token: String, auroraConfig: String, reference: String): AuroraConfig {
         return booberWebClient
             .get<AuroraConfig>(
                 token,
                 "/v2/auroraconfig/{auroraConfig}?reference={reference}",
                 mapOf("auroraConfig" to auroraConfig, "reference" to reference)
-            )
-            .toMono()
+            ).toMono().awaitFirst()
     }
 
     fun updateAuroraConfigFile(

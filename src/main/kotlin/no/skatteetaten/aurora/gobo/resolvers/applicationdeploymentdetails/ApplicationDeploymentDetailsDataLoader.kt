@@ -1,6 +1,5 @@
 package no.skatteetaten.aurora.gobo.resolvers.applicationdeploymentdetails
 
-import kotlinx.coroutines.reactive.awaitFirst
 import no.skatteetaten.aurora.gobo.KeyDataLoader
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import no.skatteetaten.aurora.gobo.resolvers.AccessDeniedException
@@ -38,7 +37,7 @@ class ApplicationDeploymentDetailsDataLoader(
             applicationService.getApplicationDeploymentDetails(
                 context.token,
                 key
-            ).awaitFirst()
+            )
         )
     }
 }

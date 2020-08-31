@@ -1,10 +1,11 @@
 package no.skatteetaten.aurora.gobo.resolvers
 
 import com.ninjasquad.springmockk.MockkBean
+import io.mockk.coEvery
 import io.mockk.every
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentResourceBuilder
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageRegistryServiceBlocking
-import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
+import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
@@ -17,14 +18,14 @@ class ApplicationDeploymentsAndImagesResolversTest : GraphQLTestWithDbhAndSkap()
     private lateinit var applicationDeploymentsAndImages: Resource
 
     @MockkBean
-    private lateinit var applicationService: ApplicationServiceBlocking
+    private lateinit var applicationService: ApplicationService
 
     @MockkBean
     private lateinit var imageRegistryService: ImageRegistryServiceBlocking
 
     @BeforeEach
     fun setUp() {
-        every { applicationService.getApplicationDeployment(any()) } returns ApplicationDeploymentResourceBuilder().build()
+        coEvery { applicationService.getApplicationDeployment(any()) } returns ApplicationDeploymentResourceBuilder().build()
     }
 
     @Test

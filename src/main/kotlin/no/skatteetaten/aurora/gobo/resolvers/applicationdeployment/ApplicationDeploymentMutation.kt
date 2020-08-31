@@ -3,7 +3,6 @@ package no.skatteetaten.aurora.gobo.resolvers.applicationdeployment
 import com.expediagroup.graphql.spring.operations.Mutation
 import com.expediagroup.graphql.spring.operations.Query
 import graphql.schema.DataFetchingEnvironment
-import kotlinx.coroutines.reactive.awaitFirst
 import no.skatteetaten.aurora.gobo.integration.boober.ApplicationDeploymentService
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import no.skatteetaten.aurora.gobo.resolvers.application.Application
@@ -46,15 +45,15 @@ class ApplicationDeploymentQuery(
 ) : Query {
 
     suspend fun applicationDeployment(id: String): ApplicationDeployment? =
-        applicationService.getApplicationDeployment(id).map { resource ->
+        applicationService.getApplicationDeployment(id).let { resource ->
             val imageRepo = resource.dockerImageRepo
                 .takeIf { it != null && !DockerRegistryUtil.isInternal(it) }
                 ?.let { ImageRepository.fromRepoString(it) }
             ApplicationDeployment.create(resource, imageRepo)
-        }.awaitFirst()
+        }
 
     suspend fun application(applicationDeployment: ApplicationDeployment): Application? {
-        val application = applicationService.getApplication(applicationDeployment.applicationId).awaitFirst()
+        val application = applicationService.getApplication(applicationDeployment.applicationId)
         return createApplicationEdge(application).node
     }
 }

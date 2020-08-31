@@ -1,23 +1,18 @@
 package no.skatteetaten.aurora.gobo.integration.cantus
 
 import assertk.assertThat
-import assertk.assertions.isFailure
-import assertk.assertions.isInstanceOf
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import no.skatteetaten.aurora.gobo.ApplicationConfig
 import no.skatteetaten.aurora.gobo.StrubrunnerRepoPropertiesEnabler
 import no.skatteetaten.aurora.gobo.TestConfig
-import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository
 import no.skatteetaten.aurora.gobo.security.SharedSecretReader
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.cloud.contract.stubrunner.spring.AutoConfigureStubRunner
 
-@Disabled("Waiting for new cantus stubs")
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.NONE,
     classes = [TestConfig::class, ApplicationConfig::class, ImageRegistryServiceBlocking::class, SharedSecretReader::class]
@@ -61,14 +56,5 @@ class ImageRegistryServiceBlockingContractTest : StrubrunnerRepoPropertiesEnable
         val auroraResponse = imageRegistry.findTagsByName(imageReposAndTags, token)
         assertThat(auroraResponse.items.forEach { it.timeline.buildEnded != null })
         assertThat(auroraResponse.failure.forEach { it.errorMessage.isNotEmpty() })
-    }
-
-    @Test
-    fun `get tags given non existing image return AuroraResponse with CantusFailure`() {
-        val missingImageRepo = imageRepo.copy(name = "missing")
-
-        assertThat {
-            imageRegistry.findTagNamesInRepoOrderedByCreatedDateDesc(missingImageRepo, token)
-        }.isNotNull().isFailure().isInstanceOf(SourceSystemException::class)
     }
 }

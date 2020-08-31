@@ -21,7 +21,7 @@ class AuroraConfigQuery(
     suspend fun auroraConfig(name: String, refInput: String?, dfe: DataFetchingEnvironment): AuroraConfig {
         val ref = refInput ?: "master"
         val token = dfe.token()
-        return service.getAuroraConfig(token, name, ref).awaitFirst()
+        return service.getAuroraConfig(token, name, ref)
     }
 }
 

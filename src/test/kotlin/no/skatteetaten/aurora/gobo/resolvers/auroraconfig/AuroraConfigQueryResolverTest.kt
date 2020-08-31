@@ -2,6 +2,7 @@ package no.skatteetaten.aurora.gobo.resolvers.auroraconfig
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.ninjasquad.springmockk.MockkBean
+import io.mockk.coEvery
 import io.mockk.every
 import no.skatteetaten.aurora.gobo.integration.boober.ApplicationDeploymentService
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileType.APP
@@ -16,7 +17,6 @@ import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
-import reactor.kotlin.core.publisher.toMono
 
 @Disabled
 class AuroraConfigQueryResolverTest : GraphQLTestWithDbhAndSkap() {
@@ -32,7 +32,7 @@ class AuroraConfigQueryResolverTest : GraphQLTestWithDbhAndSkap() {
 
     @BeforeEach
     fun setUp() {
-        every { auroraConfigService.getAuroraConfig(any(), any(), any()) } returns AuroraConfig(
+        coEvery { auroraConfigService.getAuroraConfig(any(), any(), any()) } returns AuroraConfig(
             name = "demo",
             ref = "master",
             resolvedRef = "abcde",
@@ -40,7 +40,7 @@ class AuroraConfigQueryResolverTest : GraphQLTestWithDbhAndSkap() {
                 AuroraConfigFileResource("about.json", """{ "foo" : "bar" }""", GLOBAL, "123"),
                 AuroraConfigFileResource("utv/foo.json", """{ "foo" : "bar" }""", APP, "321")
             )
-        ).toMono()
+        )
 
         val jsonNode =
             """

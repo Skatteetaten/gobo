@@ -1,42 +1,38 @@
 package no.skatteetaten.aurora.gobo.integration.mokey
 
-import java.time.Duration
+import kotlinx.coroutines.runBlocking
 import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
-import no.skatteetaten.aurora.gobo.resolvers.blockNonNullAndHandleError
 import org.springframework.http.HttpHeaders
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
-import org.springframework.web.reactive.function.client.bodyToMono
-import reactor.core.publisher.Mono
+import org.springframework.web.reactive.function.client.awaitBody
 
 @Service
 class AffiliationService(@TargetService(ServiceTypes.MOKEY) val webClient: WebClient) {
 
-    fun getAllVisibleAffiliations(token: String): Mono<List<String>> =
+    suspend fun getAllVisibleAffiliations(token: String): List<String> =
         webClient
             .get()
             .uri("/api/auth/affiliation")
             .header(HttpHeaders.AUTHORIZATION, "Bearer $token")
             .retrieve()
-            .bodyToMono()
+            .awaitBody()
 
-    fun getAllAffiliations(): Mono<List<String>> =
+    suspend fun getAllAffiliations(): List<String> =
         webClient
             .get()
             .uri("/api/affiliation")
             .retrieve()
-            .bodyToMono()
+            .awaitBody()
 }
 
 @Service
 class AffiliationServiceBlocking(private val affiliationService: AffiliationService) {
 
     fun getAllVisibleAffiliations(token: String): List<String> =
-        affiliationService.getAllVisibleAffiliations(token).blockNonNullWithTimeout()
+        runBlocking { affiliationService.getAllVisibleAffiliations(token) }
 
     fun getAllAffiliations(): List<String> =
-        affiliationService.getAllAffiliations().blockNonNullWithTimeout()
-
-    private fun <T> Mono<T>.blockNonNullWithTimeout() = this.blockNonNullAndHandleError(Duration.ofSeconds(30), "mokey")
+        runBlocking { affiliationService.getAllAffiliations() }
 }

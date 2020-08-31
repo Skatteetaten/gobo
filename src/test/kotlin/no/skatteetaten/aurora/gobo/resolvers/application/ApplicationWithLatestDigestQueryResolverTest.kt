@@ -1,6 +1,7 @@
 package no.skatteetaten.aurora.gobo.resolvers.application
 
 import com.ninjasquad.springmockk.MockkBean
+import io.mockk.coEvery
 import io.mockk.every
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentDetailsBuilder
 import no.skatteetaten.aurora.gobo.ApplicationResourceBuilder
@@ -15,7 +16,6 @@ import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
-import reactor.kotlin.core.publisher.toMono
 
 class ApplicationWithLatestDigestQueryResolverTest : GraphQLTestWithDbhAndSkap() {
 
@@ -48,15 +48,15 @@ class ApplicationWithLatestDigestQueryResolverTest : GraphQLTestWithDbhAndSkap()
             )
         } returns "sha256:123"
 
-        every { applicationService.getApplications(affiliations) } returns listOf(ApplicationResourceBuilder().build()).toMono()
+        coEvery { applicationService.getApplications(affiliations) } returns listOf(ApplicationResourceBuilder().build())
 
-        every { permissionService.getPermission(any(), any()) } returns AuroraNamespacePermissions(
+        coEvery { permissionService.getPermission(any(), any()) } returns AuroraNamespacePermissions(
             view = true,
             admin = true,
             namespace = "namespace"
-        ).toMono()
+        )
 
-        every { applicationService.getApplicationDeploymentDetails(any(), any()) } returns details.toMono()
+        coEvery { applicationService.getApplicationDeploymentDetails(any(), any()) } returns details
 
         val variables = mapOf("affiliations" to affiliations)
         webTestClient.queryGraphQL(getApplicationsQuery, variables, "test-token")
