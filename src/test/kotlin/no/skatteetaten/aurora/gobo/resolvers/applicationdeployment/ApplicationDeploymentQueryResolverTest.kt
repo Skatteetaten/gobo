@@ -38,7 +38,6 @@ class ApplicationDeploymentQueryResolverTest : GraphQLTestWithDbhAndSkap() {
 
     @BeforeEach
     fun setUp() {
-        println("SETTING UP MOCK")
         coEvery { applicationService.getApplicationDeployment(any()) } returns
             ApplicationDeploymentResourceBuilder(
                 id = "123",
