@@ -1,3 +1,4 @@
 package no.skatteetaten.aurora.gobo.resolvers.user
 
-data class User(val id: String, val name: String, val token: String = "")
+// Do we need token? data class User(val id: String, val name: String, val token: String = "")
+data class User(val id: String, val name: String)
