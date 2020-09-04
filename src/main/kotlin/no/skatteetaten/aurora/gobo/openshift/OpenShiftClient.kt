@@ -11,7 +11,7 @@ import reactor.util.retry.Retry.backoff
 import java.time.Duration.ofMillis
 
 @Component
-class OpenshiftClient(private val openshiftWebClient: WebClient) {
+class OpenShiftClient(private val openshiftWebClient: WebClient) {
     fun user(token: String = getUserToken()): Mono<OpenshiftUser> = runCatching {
         openshiftWebClient
                 .get()
@@ -23,6 +23,8 @@ class OpenshiftClient(private val openshiftWebClient: WebClient) {
     }.recoverCatching {
         throw AccessDeniedException("Unable to validate token with OpenShift!", it)
     }.getOrThrow()
+
+    fun getUser() = (SecurityContextHolder.getContext().authentication.principal as User)
 
     private fun getUserToken() = (SecurityContextHolder.getContext().authentication.principal as User).token
 }

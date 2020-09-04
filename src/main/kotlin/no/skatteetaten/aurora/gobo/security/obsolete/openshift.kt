@@ -1,9 +1,10 @@
-package no.skatteetaten.aurora.gobo.security
+package no.skatteetaten.aurora.gobo.security.obsolete
 
 import io.fabric8.kubernetes.client.ConfigBuilder
 import io.fabric8.kubernetes.client.KubernetesClientException
 import io.fabric8.openshift.client.DefaultOpenShiftClient
 import mu.KotlinLogging
+import no.skatteetaten.aurora.gobo.security.User
 import org.slf4j.MDC
 import org.springframework.security.core.userdetails.AuthenticationUserDetailsService
 import org.springframework.security.core.userdetails.UserDetails

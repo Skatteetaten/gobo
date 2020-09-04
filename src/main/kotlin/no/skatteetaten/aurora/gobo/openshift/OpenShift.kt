@@ -2,6 +2,6 @@ package no.skatteetaten.aurora.gobo.openshift
 
 import reactor.core.publisher.Mono
 
-interface Openshift {
+interface OpenShift {
     fun user(token: String): Mono<OpenshiftUser>
 }

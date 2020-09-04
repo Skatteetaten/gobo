@@ -13,7 +13,7 @@ import no.skatteetaten.aurora.gobo.security.currentUser
 
 @Component
 class CurrentUserQuery : Query {
-    fun getCurrentUser(dfe: DataFetchingEnvironment) = dfe.currentUser()
+    suspend fun getCurrentUser(dfe: DataFetchingEnvironment) = dfe.currentUser()
 }
 
 @Component

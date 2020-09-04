@@ -4,7 +4,7 @@ import com.ninjasquad.springmockk.MockkBean
 import io.mockk.clearAllMocks
 import io.mockk.every
 import no.skatteetaten.aurora.gobo.OpenShiftUserBuilder
-import no.skatteetaten.aurora.gobo.security.OpenShiftUserLoader
+import no.skatteetaten.aurora.gobo.security.obsolete.OpenShiftUserLoader
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.springframework.beans.factory.annotation.Autowired

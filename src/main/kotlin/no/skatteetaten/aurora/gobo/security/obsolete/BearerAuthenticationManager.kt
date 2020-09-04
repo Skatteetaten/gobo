@@ -1,4 +1,4 @@
-package no.skatteetaten.aurora.gobo.security
+package no.skatteetaten.aurora.gobo.security.obsolete
 
 import java.util.regex.Pattern
 import org.springframework.security.authentication.AuthenticationManager

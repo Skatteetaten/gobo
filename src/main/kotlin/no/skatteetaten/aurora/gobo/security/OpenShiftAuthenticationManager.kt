@@ -2,7 +2,7 @@ package no.skatteetaten.aurora.gobo.security
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import mu.KotlinLogging
-import no.skatteetaten.aurora.gobo.openshift.Openshift
+import no.skatteetaten.aurora.gobo.openshift.OpenShift
 import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.authority.SimpleGrantedAuthority
@@ -15,9 +15,9 @@ import reactor.core.publisher.Mono.just
 private val logger = KotlinLogging.logger {}
 
 @Component
-class OpenshiftAuthenticationManager(private val openshiftService: Openshift) : ReactiveAuthenticationManager {
+class OpenShiftAuthenticationManager(private val openShiftService: OpenShift) : ReactiveAuthenticationManager {
     override fun authenticate(authentication: Authentication): Mono<Authentication> = runCatching {
-        openshiftService.user(authentication.credentials.toString())
+        openShiftService.user(authentication.credentials.toString())
     }.mapCatching { monoUser ->
         monoUser.flatMap {
             logger.debug { "Received user: ${jacksonObjectMapper().writeValueAsString(it)}" }
