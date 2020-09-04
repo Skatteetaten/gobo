@@ -15,7 +15,7 @@ private const val GUEST_USER_ID = "anonymous"
 private const val GUEST_USER_NAME = "Gjestebruker"
 val ANONYMOUS_USER = User(GUEST_USER_ID, GUEST_USER_NAME)
 
-suspend fun DataFetchingEnvironment.currentUser(): User =  getAuth()?.let {
+suspend fun DataFetchingEnvironment.currentUser(): User = getAuth()?.let {
     if (!it.isAuthenticated) ANONYMOUS_USER
 
     when (it) {

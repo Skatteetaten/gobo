@@ -14,12 +14,12 @@ import java.time.Duration.ofMillis
 class OpenShiftClient(private val openshiftWebClient: WebClient) {
     fun user(token: String = getUserToken()): Mono<OpenshiftUser> = runCatching {
         openshiftWebClient
-                .get()
-                .uri("/apis/user.openshift.io/v1/users/~")
-                .header(AUTHORIZATION, "Bearer $token")
-                .exchange()
-                .retryWhen(backoff(5, ofMillis(5000)))
-                .flatMap { it.bodyToMono(OpenshiftUser::class.java) }
+            .get()
+            .uri("/apis/user.openshift.io/v1/users/~")
+            .header(AUTHORIZATION, "Bearer $token")
+            .exchange()
+            .retryWhen(backoff(5, ofMillis(5000)))
+            .flatMap { it.bodyToMono(OpenshiftUser::class.java) }
     }.recoverCatching {
         throw AccessDeniedException("Unable to validate token with OpenShift!", it)
     }.getOrThrow()

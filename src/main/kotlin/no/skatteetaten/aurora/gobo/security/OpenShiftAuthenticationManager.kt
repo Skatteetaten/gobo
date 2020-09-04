@@ -23,13 +23,13 @@ class OpenShiftAuthenticationManager(private val openShiftService: OpenShift) : 
             logger.debug { "Received user: ${jacksonObjectMapper().writeValueAsString(it)}" }
 
             just(
-                    PreAuthenticatedAuthenticationToken(
-                            it,
-                            authentication.credentials.toString(),
-                            listOf(it.identities, it.groups)
-                                    .flatten()
-                                    .map { authority -> SimpleGrantedAuthority(authority) }
-                    ) as Authentication
+                PreAuthenticatedAuthenticationToken(
+                    it,
+                    authentication.credentials.toString(),
+                    listOf(it.identities, it.groups)
+                        .flatten()
+                        .map { authority -> SimpleGrantedAuthority(authority) }
+                ) as Authentication
             )
         }
     }.onFailure {

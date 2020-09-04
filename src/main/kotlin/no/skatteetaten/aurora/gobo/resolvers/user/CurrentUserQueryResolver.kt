@@ -20,9 +20,9 @@ class CurrentUserQuery : Query {
 class AffiliationQuery(val affiliationService: AffiliationService) : Query {
 
     suspend fun affiliations(
-            name: String?,
-            checkForVisibility: Boolean?,
-            dfe: DataFetchingEnvironment
+        name: String?,
+        checkForVisibility: Boolean?,
+        dfe: DataFetchingEnvironment
     ): AffiliationsConnection {
 
         val affiliationNames = if (name == null) {
