@@ -34,7 +34,7 @@ class ApplicationDeploymentQueryResolverWithoutSkapTest : GraphQLTestWithoutDbhA
 
     @BeforeEach
     fun setUp() {
-        every { applicationService.getApplicationDeployment(any()) } returns ApplicationDeploymentResourceBuilder(
+        every { applicationService.getApplicationDeployment(any<String>()) } returns ApplicationDeploymentResourceBuilder(
             id = "123",
             msg = "Hei"
         ).build()

@@ -1,7 +1,6 @@
 plugins {
     id("org.jetbrains.kotlin.jvm") version "1.3.72"
     id("org.jetbrains.kotlin.plugin.spring") version "1.3.72"
-    id("org.jlleitschuh.gradle.ktlint") version "9.3.0"
     id("org.sonarqube") version "3.0"
 
     id("org.springframework.boot") version "2.3.2.RELEASE"
@@ -10,7 +9,7 @@ plugins {
     id("com.gorylenko.gradle-git-properties") version "2.2.3"
     id("com.github.ben-manes.versions") version "0.29.0"
     id("se.patrikerdes.use-latest-versions") version "0.2.14"
-    id("no.skatteetaten.gradle.aurora") version "3.6.3"
+    id("no.skatteetaten.gradle.aurora") version "3.6.6"
 }
 
 val springCloudContractVersion: String = project.property("aurora.springCloudContractVersion") as String
