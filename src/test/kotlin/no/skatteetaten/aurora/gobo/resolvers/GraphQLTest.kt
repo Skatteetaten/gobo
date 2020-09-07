@@ -1,12 +1,8 @@
 package no.skatteetaten.aurora.gobo.resolvers
 
-import com.ninjasquad.springmockk.MockkBean
 import io.mockk.clearAllMocks
-import io.mockk.every
-import no.skatteetaten.aurora.gobo.OpenShiftUserBuilder
 import no.skatteetaten.aurora.gobo.security.obsolete.OpenShiftUserLoader
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
@@ -21,6 +17,7 @@ abstract class GraphQLTestWithoutDbhAndSkap {
     @Autowired
     protected lateinit var webTestClient: WebTestClient
 
+/*
     @MockkBean
     private lateinit var openShiftUserLoader: OpenShiftUserLoader
 
@@ -29,6 +26,7 @@ abstract class GraphQLTestWithoutDbhAndSkap {
         webTestClient = webTestClient.mutate().responseTimeout(Duration.ofSeconds(10)).build()
         every { openShiftUserLoader.findOpenShiftUserByToken(any()) } returns OpenShiftUserBuilder().build()
     }
+*/
 
     @AfterEach
     fun shutdown() = clearAllMocks()
