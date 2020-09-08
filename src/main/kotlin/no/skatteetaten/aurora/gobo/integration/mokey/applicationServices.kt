@@ -1,8 +1,8 @@
 package no.skatteetaten.aurora.gobo.integration.mokey
 
-import java.time.Duration
 import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
+import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.ApplicationDeploymentRef
 import no.skatteetaten.aurora.gobo.resolvers.blockAndHandleError
 import no.skatteetaten.aurora.gobo.resolvers.blockNonNullAndHandleError
 import org.springframework.http.HttpHeaders
@@ -12,6 +12,7 @@ import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.bodyToMono
 import reactor.core.publisher.Mono
+import java.time.Duration
 
 @Service
 class ApplicationServiceBlocking(private val applicationService: ApplicationService) {
@@ -23,6 +24,9 @@ class ApplicationServiceBlocking(private val applicationService: ApplicationServ
 
     fun getApplicationDeployment(applicationDeploymentId: String) =
         applicationService.getApplicationDeployment(applicationDeploymentId).blockNonNullWithTimeout()
+
+    fun getApplicationDeployment(applicationDeploymentRefs: List<ApplicationDeploymentRef>) =
+        applicationService.getApplicationDeployment(applicationDeploymentRefs).blockNonNullWithTimeout()
 
     fun getApplicationDeploymentDetails(token: String, applicationDeploymentId: String) =
         applicationService.getApplicationDeploymentDetails(token, applicationDeploymentId).blockNonNullWithTimeout()
@@ -74,6 +78,14 @@ class ApplicationService(@TargetService(ServiceTypes.MOKEY) val webClient: WebCl
             .bodyToMono()
     }
 
+    fun getApplicationDeployment(applicationDeploymentRefs: List<ApplicationDeploymentRef>) : Mono<List<ApplicationDeploymentResource>> {
+        return webClient
+            .post()
+            .uri("/api/applicationdeployment")
+            .body(BodyInserters.fromValue(applicationDeploymentRefs))
+            .retrieve()
+            .bodyToMono()
+    }
     fun getApplicationDeploymentDetails(
         token: String,
         applicationDeploymentId: String

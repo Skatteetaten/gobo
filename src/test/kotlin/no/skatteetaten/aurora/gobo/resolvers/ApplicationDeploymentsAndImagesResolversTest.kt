@@ -22,7 +22,7 @@ class ApplicationDeploymentsAndImagesResolversTest : GraphQLTestWithDbhAndSkap()
 
     @BeforeEach
     fun setUp() {
-        every { applicationService.getApplicationDeployment(any()) } returns ApplicationDeploymentResourceBuilder().build()
+        every { applicationService.getApplicationDeployment(any<String>()) } returns ApplicationDeploymentResourceBuilder().build()
     }
 
     @Test

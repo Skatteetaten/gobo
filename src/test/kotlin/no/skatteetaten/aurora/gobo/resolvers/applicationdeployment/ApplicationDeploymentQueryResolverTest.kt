@@ -11,6 +11,7 @@ import no.skatteetaten.aurora.gobo.integration.cantus.ImageRegistryServiceBlocki
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
 import no.skatteetaten.aurora.gobo.integration.skap.RouteService
 import no.skatteetaten.aurora.gobo.resolvers.GraphQLTestWithDbhAndSkap
+import no.skatteetaten.aurora.gobo.resolvers.graphqlData
 import no.skatteetaten.aurora.gobo.resolvers.graphqlDataWithPrefix
 import no.skatteetaten.aurora.gobo.resolvers.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
@@ -24,6 +25,9 @@ class ApplicationDeploymentQueryResolverTest : GraphQLTestWithDbhAndSkap() {
     @Value("classpath:graphql/queries/getApplicationDeployment.graphql")
     private lateinit var getApplicationsQuery: Resource
 
+    @Value("classpath:graphql/queries/getApplicationDeploymentWithRef.graphql")
+    private lateinit var getApplicationsWithRefQuery: Resource
+
     @MockkBean
     private lateinit var applicationService: ApplicationServiceBlocking
 
@@ -35,7 +39,7 @@ class ApplicationDeploymentQueryResolverTest : GraphQLTestWithDbhAndSkap() {
 
     @BeforeEach
     fun setUp() {
-        every { applicationService.getApplicationDeployment(any()) } returns ApplicationDeploymentResourceBuilder(
+        every { applicationService.getApplicationDeployment(any<String>()) } returns ApplicationDeploymentResourceBuilder(
             id = "123",
             msg = "Hei"
         ).build()
@@ -67,6 +71,22 @@ class ApplicationDeploymentQueryResolverTest : GraphQLTestWithDbhAndSkap() {
                 graphqlData("route.bigipJobs[0].id").isEqualTo("465774")
                 graphqlData("route.bigipJobs[0].asmPolicy").isEqualTo("testing-get")
             }
+            .graphqlDoesNotContainErrors()
+    }
+
+    @Test
+    fun `Query for application deployment with ApplicationDeploymentRef`() {
+        every { applicationService.getApplicationDeployment(any<List<ApplicationDeploymentRef>>()) } returns listOf(
+            ApplicationDeploymentResourceBuilder().build()
+        )
+
+        val variables = mapOf(
+            "applicationDeploymentRef" to mapOf("environment" to "environment", "application" to "name")
+        )
+        webTestClient.queryGraphQL(getApplicationsWithRefQuery, variables, "test-token")
+            .expectStatus().isOk
+            .expectBody()
+            .graphqlData("applicationDeployment.id").isEqualTo("id")
             .graphqlDoesNotContainErrors()
     }
 }

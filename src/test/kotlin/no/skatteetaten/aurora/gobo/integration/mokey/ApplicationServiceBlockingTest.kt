@@ -4,6 +4,7 @@ import assertk.assertThat
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import no.skatteetaten.aurora.gobo.StrubrunnerRepoPropertiesEnabler
+import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.ApplicationDeploymentRef
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -36,6 +37,12 @@ class ApplicationServiceBlockingTest : StrubrunnerRepoPropertiesEnabler() {
     @Test
     fun `Get application deployments for database ids`() {
         val applicationDeployments = applicationService.getApplicationDeploymentsForDatabases("", listOf("123", "456"))
+        assertThat(applicationDeployments).isNotNull()
+    }
+
+    @Test
+    fun `Get application deployments for application deployment ref`() {
+        val applicationDeployments = applicationService.getApplicationDeployment(listOf(ApplicationDeploymentRef("utv", "gobo")))
         assertThat(applicationDeployments).isNotNull()
     }
 }

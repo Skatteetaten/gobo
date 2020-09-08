@@ -24,6 +24,7 @@ import no.skatteetaten.aurora.gobo.security.currentUser
 import no.skatteetaten.aurora.gobo.security.isAnonymousUser
 import no.skatteetaten.aurora.gobo.service.ApplicationUpgradeService
 import org.springframework.stereotype.Component
+import java.lang.IllegalArgumentException
 
 @Component
 class ApplicationDeploymentQueryResolver(
@@ -31,12 +32,30 @@ class ApplicationDeploymentQueryResolver(
     private val dockerRegistry: DockerRegistry
 ) : GraphQLQueryResolver {
 
-    fun getApplicationDeployment(id: String): ApplicationDeployment? =
-        applicationService.getApplicationDeployment(id).let { resource ->
-            val imageRepo = resource.dockerImageRepo
-                .takeIf { it != null && !dockerRegistry.isInternal(it) }
-                ?.let { ImageRepository.fromRepoString(it) }
-            ApplicationDeployment.create(resource, imageRepo)
+    fun getApplicationDeployment(
+        id: String?,
+        applicationDeploymentRef: ApplicationDeploymentRef?
+    ): ApplicationDeployment? =
+        when {
+            id != null -> {
+                applicationService.getApplicationDeployment(id).let { resource ->
+                    val imageRepo = resource.dockerImageRepo
+                        .takeIf { it != null && !dockerRegistry.isInternal(it) }
+                        ?.let { ImageRepository.fromRepoString(it) }
+                    ApplicationDeployment.create(resource, imageRepo)
+                }
+            }
+            applicationDeploymentRef != null -> {
+                applicationService.getApplicationDeployment(listOf(applicationDeploymentRef)).map { resource ->
+                    val imageRepo = resource.dockerImageRepo
+                        .takeIf { it != null && !dockerRegistry.isInternal(it) }
+                        ?.let { ImageRepository.fromRepoString(it) }
+                    ApplicationDeployment.create(resource, imageRepo)
+                }.firstOrNull()
+            }
+            else -> {
+                throw IllegalArgumentException("Query for ApplicationDeploymentDetails must contain either id or applicationDeploymentRef")
+            }
         }
 }
 
