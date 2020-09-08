@@ -25,7 +25,7 @@ class ApplicationDeploymentQueryResolverTest : GraphQLTestWithDbhAndSkap() {
     @Value("classpath:graphql/queries/getApplicationDeployment.graphql")
     private lateinit var getApplicationsQuery: Resource
 
-    @Value("classpath:graphql/queries/getApplicationDeploymentWithRef.graphql")
+    @Value("classpath:graphql/queries/getApplicationDeploymentsWithRef.graphql")
     private lateinit var getApplicationsWithRefQuery: Resource
 
     @MockkBean
@@ -81,12 +81,12 @@ class ApplicationDeploymentQueryResolverTest : GraphQLTestWithDbhAndSkap() {
         )
 
         val variables = mapOf(
-            "applicationDeploymentRef" to mapOf("environment" to "environment", "application" to "name")
+            "input" to mapOf("environment" to "environment", "application" to "name")
         )
         webTestClient.queryGraphQL(getApplicationsWithRefQuery, variables, "test-token")
             .expectStatus().isOk
             .expectBody()
-            .graphqlData("applicationDeployment.id").isEqualTo("id")
+            .graphqlData("applicationDeployments[0].id").isEqualTo("id")
             .graphqlDoesNotContainErrors()
     }
 }

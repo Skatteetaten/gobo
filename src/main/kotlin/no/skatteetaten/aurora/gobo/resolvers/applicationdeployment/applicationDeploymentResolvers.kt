@@ -32,10 +32,7 @@ class ApplicationDeploymentQueryResolver(
     private val dockerRegistry: DockerRegistry
 ) : GraphQLQueryResolver {
 
-    fun getApplicationDeployment(
-        id: String?,
-        applicationDeploymentRef: ApplicationDeploymentRef?
-    ): ApplicationDeployment? =
+    fun getApplicationDeployment(id: String?): ApplicationDeployment? =
         when {
             id != null -> {
                 applicationService.getApplicationDeployment(id).let { resource ->
@@ -45,18 +42,19 @@ class ApplicationDeploymentQueryResolver(
                     ApplicationDeployment.create(resource, imageRepo)
                 }
             }
-            applicationDeploymentRef != null -> {
-                applicationService.getApplicationDeployment(listOf(applicationDeploymentRef)).map { resource ->
-                    val imageRepo = resource.dockerImageRepo
-                        .takeIf { it != null && !dockerRegistry.isInternal(it) }
-                        ?.let { ImageRepository.fromRepoString(it) }
-                    ApplicationDeployment.create(resource, imageRepo)
-                }.firstOrNull()
-            }
             else -> {
                 throw IllegalArgumentException("Query for ApplicationDeploymentDetails must contain either id or applicationDeploymentRef")
             }
         }
+
+    fun getApplicationDeployments(applicationDeploymentRefs: List<ApplicationDeploymentRef>): List<ApplicationDeployment> {
+        return applicationService.getApplicationDeployment(applicationDeploymentRefs).map { resource ->
+            val imageRepo = resource.dockerImageRepo
+                .takeIf { it != null && !dockerRegistry.isInternal(it) }
+                ?.let { ImageRepository.fromRepoString(it) }
+            ApplicationDeployment.create(resource, imageRepo)
+        }
+    }
 }
 
 @Component

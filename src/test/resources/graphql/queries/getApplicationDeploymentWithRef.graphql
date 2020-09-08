@@ -1,5 +1,0 @@
-query getApplicationDeployment($applicationDeploymentRef: ApplicationDeploymentRef!) {
-  applicationDeployment(applicationDeploymentRef: $applicationDeploymentRef) {
-    id
-  }
-}
