@@ -45,7 +45,7 @@ class ApplicationDeploymentQueryResolverWithoutSkapTest : GraphQLTestWithoutDbhA
 
     @BeforeEach
     fun setUp() {
-        coEvery { applicationService.getApplicationDeployment(any()) } returns ApplicationDeploymentResourceBuilder(
+        coEvery { applicationService.getApplicationDeployment(any<String>()) } returns ApplicationDeploymentResourceBuilder(
             id = "123",
             msg = "Hei"
         ).build()

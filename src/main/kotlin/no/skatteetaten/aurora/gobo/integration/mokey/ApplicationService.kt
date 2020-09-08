@@ -3,6 +3,7 @@ package no.skatteetaten.aurora.gobo.integration.mokey
 import kotlinx.coroutines.runBlocking
 import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
+import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.ApplicationDeploymentRef
 import org.springframework.http.HttpHeaders
 import org.springframework.stereotype.Service
 import org.springframework.util.LinkedMultiValueMap
@@ -39,6 +40,15 @@ class ApplicationService(@TargetService(ServiceTypes.MOKEY) val webClient: WebCl
         return webClient
             .get()
             .uri("/api/applicationdeployment/{applicationDeploymentId}", applicationDeploymentId)
+            .retrieve()
+            .awaitBody()
+    }
+
+    suspend fun getApplicationDeployment(applicationDeploymentRefs: List<ApplicationDeploymentRef>): List<ApplicationDeploymentResource> {
+        return webClient
+            .post()
+            .uri("/api/applicationdeployment")
+            .body(BodyInserters.fromValue(applicationDeploymentRefs))
             .retrieve()
             .awaitBody()
     }
@@ -90,6 +100,9 @@ class ApplicationServiceBlocking(private val applicationService: ApplicationServ
 
     fun getApplicationDeployment(applicationDeploymentId: String) =
         runBlocking { applicationService.getApplicationDeployment(applicationDeploymentId) }
+
+    fun getApplicationDeployment(applicationDeploymentRefs: List<ApplicationDeploymentRef>) =
+        runBlocking { applicationService.getApplicationDeployment(applicationDeploymentRefs) }
 
     fun getApplicationDeploymentDetails(token: String, applicationDeploymentId: String) =
         runBlocking { applicationService.getApplicationDeploymentDetails(token, applicationDeploymentId) }

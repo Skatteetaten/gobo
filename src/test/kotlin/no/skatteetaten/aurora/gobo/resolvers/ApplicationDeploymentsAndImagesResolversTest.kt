@@ -25,7 +25,7 @@ class ApplicationDeploymentsAndImagesResolversTest : GraphQLTestWithDbhAndSkap()
 
     @BeforeEach
     fun setUp() {
-        coEvery { applicationService.getApplicationDeployment(any()) } returns ApplicationDeploymentResourceBuilder().build()
+        coEvery { applicationService.getApplicationDeployment(any<String>()) } returns ApplicationDeploymentResourceBuilder().build()
     }
 
     @Test

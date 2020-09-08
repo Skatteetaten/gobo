@@ -4,6 +4,7 @@ import com.expediagroup.graphql.spring.operations.Mutation
 import com.expediagroup.graphql.spring.operations.Query
 import graphql.schema.DataFetchingEnvironment
 import no.skatteetaten.aurora.gobo.integration.boober.ApplicationDeploymentService
+import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import no.skatteetaten.aurora.gobo.resolvers.application.Application
 import no.skatteetaten.aurora.gobo.resolvers.application.DockerRegistryUtil
@@ -44,13 +45,32 @@ class ApplicationDeploymentQuery(
     private val applicationService: ApplicationService
 ) : Query {
 
-    suspend fun applicationDeployment(id: String): ApplicationDeployment? =
-        applicationService.getApplicationDeployment(id).let { resource ->
-            val imageRepo = resource.dockerImageRepo
-                .takeIf { it != null && !DockerRegistryUtil.isInternal(it) }
-                ?.let { ImageRepository.fromRepoString(it) }
-            ApplicationDeployment.create(resource, imageRepo)
+    suspend fun applicationDeployment(
+        id: String?,
+        applicationDeploymentRef: ApplicationDeploymentRef?
+    ): ApplicationDeployment? =
+        when {
+            id != null -> {
+                applicationService.getApplicationDeployment(id).let { resource ->
+                    val imageRepo = resource.imageRepository()
+                    ApplicationDeployment.create(resource, imageRepo)
+                }
+            }
+            applicationDeploymentRef != null -> {
+                applicationService.getApplicationDeployment(listOf(applicationDeploymentRef))
+                    .map { resource ->
+                        val imageRepo = resource.imageRepository()
+                        ApplicationDeployment.create(resource, imageRepo)
+                    }.firstOrNull()
+            }
+            else -> {
+                throw IllegalArgumentException("Query for ApplicationDeploymentDetails must contain either id or applicationDeploymentRef")
+            }
         }
+
+    private fun ApplicationDeploymentResource.imageRepository() =
+        this.dockerImageRepo.takeIf { it != null && !DockerRegistryUtil.isInternal(it) }
+            ?.let { ImageRepository.fromRepoString(it) }
 
     suspend fun application(applicationDeployment: ApplicationDeployment): Application? {
         val application = applicationService.getApplication(applicationDeployment.applicationId)
