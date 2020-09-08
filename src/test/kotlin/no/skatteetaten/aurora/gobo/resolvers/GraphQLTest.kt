@@ -1,7 +1,6 @@
 package no.skatteetaten.aurora.gobo.resolvers
 
 import io.mockk.clearAllMocks
-import no.skatteetaten.aurora.gobo.security.obsolete.OpenShiftUserLoader
 import org.junit.jupiter.api.AfterEach
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest

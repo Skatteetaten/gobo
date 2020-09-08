@@ -1,13 +1,10 @@
 package no.skatteetaten.aurora.gobo.security
 
 import org.springframework.context.annotation.Bean
-import org.springframework.http.HttpMethod
-import org.springframework.http.HttpStatus
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
 import org.springframework.security.config.web.server.ServerHttpSecurity
 import org.springframework.security.web.server.SecurityWebFilterChain
-import reactor.core.publisher.Mono
 
 @EnableWebFluxSecurity
 @EnableReactiveMethodSecurity
@@ -17,30 +14,39 @@ class WebSecurityConfig(
 ) {
     @Bean
     fun securityWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain = http
-        .exceptionHandling()
-        .authenticationEntryPoint { exchange, _ -> Mono.fromRunnable { exchange.response.statusCode = HttpStatus.UNAUTHORIZED } }
-        .accessDeniedHandler { exchange, _ -> Mono.fromRunnable { exchange.response.statusCode = HttpStatus.FORBIDDEN } }
-        .and()
-        .csrf().disable()
-        .formLogin().disable()
         .httpBasic().disable()
-        .authenticationManager(authenticationManager)
-        .securityContextRepository(securityContextRepository)
-        .authorizeExchange()
-        .pathMatchers(
-            "/docs/v3/api-docs",
-            "/docs/v3/api-docs.yaml",
-            "/docs/v3/api-docs/swagger-config",
-            "/docs/swagger-ui.html",
-            "/docs/webjars/swagger-ui/**",
-            "/actuator",
-            "/actuator/**"
-        ).permitAll()
-        .pathMatchers(HttpMethod.OPTIONS).permitAll()
+        .formLogin().disable()
+        .csrf().disable()
+        .logout().disable()
+        .authorizeExchange().pathMatchers("/**").permitAll()
         .anyExchange().authenticated()
         .and()
         .build()
 }
+//    fun securityWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain = http
+//        .exceptionHandling()
+//        .authenticationEntryPoint { exchange, _ -> Mono.fromRunnable { exchange.response.statusCode = HttpStatus.UNAUTHORIZED } }
+//        .accessDeniedHandler { exchange, _ -> Mono.fromRunnable { exchange.response.statusCode = HttpStatus.FORBIDDEN } }
+//        .and()
+//        .csrf().disable()
+//        .formLogin().disable()
+//        .httpBasic().disable()
+//        .authenticationManager(authenticationManager)
+//        .securityContextRepository(securityContextRepository)
+//        .authorizeExchange()
+//        .pathMatchers(
+//            "/docs/v3/api-docs",
+//            "/docs/v3/api-docs.yaml",
+//            "/docs/v3/api-docs/swagger-config",
+//            "/docs/swagger-ui.html",
+//            "/docs/webjars/swagger-ui/**",
+//            "/actuator",
+//            "/actuator/**"
+//        ).permitAll()
+//        .pathMatchers(HttpMethod.OPTIONS).permitAll()
+//        .anyExchange().authenticated()
+//        .and()
+//        .build()
 
 // import org.springframework.context.annotation.Bean
 // import org.springframework.context.annotation.Configuration

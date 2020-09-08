@@ -30,7 +30,7 @@ class GoboSecurityContextRepository(
 
                 this.authenticationManager.authenticate(auth).map { SecurityContextImpl(it) }
             }
-            else -> empty() // return just med SecurityContext med anonymous user
+            else -> empty() // TODO return just med SecurityContext med anonymous user
         }
     }
 }
