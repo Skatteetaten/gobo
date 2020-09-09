@@ -18,6 +18,8 @@ class WebSecurityConfig(
         .formLogin().disable()
         .csrf().disable()
         .logout().disable()
+        .authenticationManager(authenticationManager)
+        .securityContextRepository(securityContextRepository)
         .authorizeExchange().pathMatchers("/**").permitAll()
         .anyExchange().authenticated()
         .and()
