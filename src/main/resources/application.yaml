@@ -17,7 +17,6 @@ spring:
         enabled: false
     sleuth:
         enabled: false
-    security:
 
 
 graphql:

@@ -56,7 +56,8 @@ aurora:
 openshift:
     cluster: http://localhost
 
-gobo.stub.repository: releases # snapshots
+graphql:
+    packages: "no.skatteetaten.aurora.gobo.resolvers"
 
 stubrunner:
   stubs-mode: remote

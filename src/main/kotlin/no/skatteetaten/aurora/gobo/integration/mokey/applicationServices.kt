@@ -78,7 +78,7 @@ class ApplicationService(@TargetService(ServiceTypes.MOKEY) val webClient: WebCl
             .bodyToMono()
     }
 
-    fun getApplicationDeployment(applicationDeploymentRefs: List<ApplicationDeploymentRef>) : Mono<List<ApplicationDeploymentResource>> {
+    fun getApplicationDeployment(applicationDeploymentRefs: List<ApplicationDeploymentRef>): Mono<List<ApplicationDeploymentResource>> {
         return webClient
             .post()
             .uri("/api/applicationdeployment")
@@ -86,6 +86,7 @@ class ApplicationService(@TargetService(ServiceTypes.MOKEY) val webClient: WebCl
             .retrieve()
             .bodyToMono()
     }
+
     fun getApplicationDeploymentDetails(
         token: String,
         applicationDeploymentId: String
