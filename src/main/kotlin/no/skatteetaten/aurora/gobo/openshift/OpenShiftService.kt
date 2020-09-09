@@ -7,5 +7,5 @@ import reactor.core.publisher.Mono
 @Service
 @Profile("!mockOpenShift")
 class OpenShiftService(private val openshiftClient: OpenShiftClient) : OpenShift {
-    override fun user(token: String): Mono<OpenshiftUser> = openshiftClient.user(token)
+    override fun user(token: String): Mono<OpenShiftUser> = openshiftClient.user(token)
 }

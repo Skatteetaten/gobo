@@ -15,7 +15,7 @@ private val logger = KotlinLogging.logger {}
 
 @Component
 class OpenShiftClient(private val openshiftWebClient: WebClient) {
-    fun user(token: String = getUserToken()): Mono<OpenshiftUser> = runCatching {
+    fun user(token: String = getUserToken()): Mono<OpenShiftUser> = runCatching {
         // TODO: Remove!
         logger.debug { "Incoming token: $token" }
 
@@ -25,7 +25,7 @@ class OpenShiftClient(private val openshiftWebClient: WebClient) {
             .header(AUTHORIZATION, "Bearer $token")
             .exchange()
             .retryWhen(backoff(5, ofMillis(5000)))
-            .flatMap { it.bodyToMono(OpenshiftUser::class.java) }
+            .flatMap { it.bodyToMono(OpenShiftUser::class.java) }
     }.recoverCatching {
         throw AccessDeniedException("Unable to validate token with OpenShift!", it)
     }.getOrThrow()

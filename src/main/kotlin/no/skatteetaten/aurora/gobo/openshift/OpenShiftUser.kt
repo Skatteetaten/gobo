@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import java.time.OffsetDateTime
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class OpenshiftUser(
+data class OpenShiftUser(
     val kind: String = "MISSING",
     val apiVersion: String = "MISSING",
     val fullName: String = "MISSING",

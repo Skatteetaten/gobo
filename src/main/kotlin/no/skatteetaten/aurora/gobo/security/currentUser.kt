@@ -1,7 +1,7 @@
 package no.skatteetaten.aurora.gobo.security
 
 import graphql.schema.DataFetchingEnvironment
-import kotlinx.coroutines.reactive.awaitSingle
+import kotlinx.coroutines.reactive.awaitFirstOrNull
 import no.skatteetaten.aurora.gobo.resolvers.user.User
 import org.springframework.security.authentication.AnonymousAuthenticationToken
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
@@ -26,7 +26,7 @@ suspend fun DataFetchingEnvironment.currentUser(): User = getAuth()?.let {
     }
 } ?: ANONYMOUS_USER
 
-private suspend fun getAuth(): Authentication? = ReactiveSecurityContextHolder.getContext().awaitSingle().authentication
+private suspend fun getAuth(): Authentication? = ReactiveSecurityContextHolder.getContext().awaitFirstOrNull()?.authentication
 
 private fun Any.getUser() = when {
     this is SecurityUser -> User(username, fullName ?: UNKNOWN_USER_NAME)
