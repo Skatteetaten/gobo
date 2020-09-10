@@ -45,28 +45,18 @@ class ApplicationDeploymentQuery(
     private val applicationService: ApplicationService
 ) : Query {
 
-    suspend fun applicationDeployment(
-        id: String?,
-        applicationDeploymentRef: ApplicationDeploymentRef?
-    ): ApplicationDeployment? =
-        when {
-            id != null -> {
-                applicationService.getApplicationDeployment(id).let { resource ->
-                    val imageRepo = resource.imageRepository()
-                    ApplicationDeployment.create(resource, imageRepo)
-                }
-            }
-            applicationDeploymentRef != null -> {
-                applicationService.getApplicationDeployment(listOf(applicationDeploymentRef))
-                    .map { resource ->
-                        val imageRepo = resource.imageRepository()
-                        ApplicationDeployment.create(resource, imageRepo)
-                    }.firstOrNull()
-            }
-            else -> {
-                throw IllegalArgumentException("Query for ApplicationDeploymentDetails must contain either id or applicationDeploymentRef")
-            }
+    suspend fun applicationDeployment(id: String): ApplicationDeployment? =
+        applicationService.getApplicationDeployment(id).let { resource ->
+            val imageRepo = resource.imageRepository()
+            ApplicationDeployment.create(resource, imageRepo)
         }
+
+    suspend fun applicationDeployments(applicationDeploymentRefs: List<ApplicationDeploymentRef>): List<ApplicationDeployment> {
+        return applicationService.getApplicationDeployment(applicationDeploymentRefs).map { resource ->
+            val imageRepo = resource.imageRepository()
+            ApplicationDeployment.create(resource, imageRepo)
+        }
+    }
 
     private fun ApplicationDeploymentResource.imageRepository() =
         this.dockerImageRepo.takeIf { it != null && !DockerRegistryUtil.isInternal(it) }

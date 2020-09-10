@@ -12,9 +12,9 @@ import no.skatteetaten.aurora.gobo.integration.cantus.ImageRegistryServiceBlocki
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import no.skatteetaten.aurora.gobo.integration.skap.RouteService
 import no.skatteetaten.aurora.gobo.resolvers.GraphQLTestWithDbhAndSkap
+import no.skatteetaten.aurora.gobo.resolvers.graphqlData
 import no.skatteetaten.aurora.gobo.resolvers.graphqlDataWithPrefix
 import no.skatteetaten.aurora.gobo.resolvers.graphqlDoesNotContainErrors
-import no.skatteetaten.aurora.gobo.resolvers.printResult
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -26,7 +26,7 @@ class ApplicationDeploymentQueryResolverTest : GraphQLTestWithDbhAndSkap() {
     @Value("classpath:graphql/queries/getApplicationDeployment.graphql")
     private lateinit var getApplicationsQuery: Resource
 
-    @Value("classpath:graphql/queries/getApplicationDeploymentWithRef.graphql")
+    @Value("classpath:graphql/queries/getApplicationDeploymentsWithRef.graphql")
     private lateinit var getApplicationsWithRefQuery: Resource
 
     @MockkBean
@@ -82,15 +82,12 @@ class ApplicationDeploymentQueryResolverTest : GraphQLTestWithDbhAndSkap() {
         )
 
         val variables = mapOf(
-            "applicationDeploymentRef" to mapOf("environment" to "environment", "application" to "name")
+            "input" to mapOf("environment" to "environment", "application" to "name")
         )
         webTestClient.queryGraphQL(getApplicationsWithRefQuery, variables, "test-token")
             .expectStatus().isOk
             .expectBody()
-            .printResult()
-            /*
-            .graphqlData("applicationDeployment.id").isEqualTo("id")
+            .graphqlData("applicationDeployments[0].id").isEqualTo("id")
             .graphqlDoesNotContainErrors()
-             */
     }
 }
