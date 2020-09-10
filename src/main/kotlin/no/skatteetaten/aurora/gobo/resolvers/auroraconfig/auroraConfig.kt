@@ -53,6 +53,30 @@ class AuroraConfigMuration(
             file = result
         )
     }
+
+    // FIXME no anonymous user access
+    suspend fun createAuroraConfigFile(
+        input: NewAuroraConfigFileInput,
+        dfe: DataFetchingEnvironment
+    ): AuroraConfigFileValidationResponse {
+        val token = dfe.token()
+        val addResult: Response<AuroraConfigFileResource> =
+            service.addAuroraConfigFile(
+                token,
+                input.auroraConfigName,
+                input.auroraConfigReference,
+                input.fileName,
+                input.contents
+            ).awaitFirst()
+
+        val result: AuroraConfigFileResource = addResult.items.first()
+
+        return AuroraConfigFileValidationResponse(
+            message = addResult.message,
+            success = addResult.success,
+            file = result
+        )
+    }
 }
 
 data class AuroraConfig(
