@@ -35,7 +35,7 @@ import kotlin.math.min
 val HEADER_KLIENTID = "KlientID"
 
 enum class ServiceTypes {
-    MOKEY, BOOBER, UNCLEMATT, CANTUS, DBH, SKAP
+    MOKEY, BOOBER, UNCLEMATT, CANTUS, DBH, SKAP, OPENSHIFT
 }
 
 @Target(AnnotationTarget.TYPE, AnnotationTarget.FUNCTION, AnnotationTarget.FIELD, AnnotationTarget.VALUE_PARAMETER)
@@ -63,6 +63,12 @@ class ApplicationConfig(
     @Value("\${spring.application.name}") val applicationName: String,
     private val sharedSecretReader: SharedSecretReader
 ) {
+
+    @Bean
+    @TargetService(ServiceTypes.OPENSHIFT)
+    fun webClientOpenshift(builder: WebClient.Builder): WebClient {
+        return builder.init().baseUrl("https://utv-master.paas.skead.no:8443").build()
+    }
 
     @Bean
     @Primary

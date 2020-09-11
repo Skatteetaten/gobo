@@ -1,6 +1,8 @@
 package no.skatteetaten.aurora.gobo.openshift
 
 import mu.KotlinLogging
+import no.skatteetaten.aurora.gobo.ServiceTypes
+import no.skatteetaten.aurora.gobo.TargetService
 import no.skatteetaten.aurora.gobo.security.User
 import org.springframework.http.HttpHeaders.AUTHORIZATION
 import org.springframework.security.access.AccessDeniedException
@@ -14,7 +16,7 @@ import java.time.Duration.ofMillis
 private val logger = KotlinLogging.logger {}
 
 @Component
-class OpenShiftClient(private val openshiftWebClient: WebClient) {
+class OpenShiftClient(@TargetService(ServiceTypes.OPENSHIFT) private val openshiftWebClient: WebClient) {
     fun user(token: String = getUserToken()): Mono<OpenShiftUser> = runCatching {
         // TODO: Remove!
         logger.debug { "Incoming token: $token" }
