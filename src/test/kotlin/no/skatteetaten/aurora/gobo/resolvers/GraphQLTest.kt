@@ -26,7 +26,7 @@ abstract class GraphQLTestWithoutDbhAndSkap {
 
     @BeforeEach
     fun initialize() {
-        webTestClient = webTestClient.mutate().responseTimeout(Duration.ofSeconds(10)).build()
+        webTestClient = webTestClient.mutate().responseTimeout(Duration.ofSeconds(100)).build()
         every { openShiftUserLoader.findOpenShiftUserByToken(any()) } returns OpenShiftUserBuilder().build()
     }
 

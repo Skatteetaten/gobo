@@ -7,21 +7,16 @@ import no.skatteetaten.aurora.gobo.DatabaseInstanceResourceBuilder
 import no.skatteetaten.aurora.gobo.DatabaseSchemaResourceBuilder
 import no.skatteetaten.aurora.gobo.RestorableDatabaseSchemaBuilder
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseServiceBlocking
+import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseServiceReactive
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
-import no.skatteetaten.aurora.gobo.resolvers.GraphQLTestWithDbhAndSkap
-import no.skatteetaten.aurora.gobo.resolvers.graphqlData
-import no.skatteetaten.aurora.gobo.resolvers.graphqlDataWithPrefix
-import no.skatteetaten.aurora.gobo.resolvers.graphqlDoesNotContainErrors
-import no.skatteetaten.aurora.gobo.resolvers.graphqlErrors
-import no.skatteetaten.aurora.gobo.resolvers.graphqlErrorsFirst
-import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
+import no.skatteetaten.aurora.gobo.resolvers.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
+import reactor.kotlin.core.publisher.toMono
 
-@Disabled
 class DatabaseQueryResolverTest : GraphQLTestWithDbhAndSkap() {
 
     @Value("classpath:graphql/queries/getDatabaseInstances.graphql")
@@ -40,7 +35,7 @@ class DatabaseQueryResolverTest : GraphQLTestWithDbhAndSkap() {
     private lateinit var getRestorableDatabaseSchemasQuery: Resource
 
     @MockkBean
-    private lateinit var databaseService: DatabaseServiceBlocking
+    private lateinit var databaseService: DatabaseServiceReactive
 
     @MockkBean
     private lateinit var applicationService: ApplicationServiceBlocking
@@ -50,14 +45,15 @@ class DatabaseQueryResolverTest : GraphQLTestWithDbhAndSkap() {
         val paasInstance = DatabaseInstanceResourceBuilder().build()
         val auroraInstance = DatabaseInstanceResourceBuilder(affiliation = "aurora").build()
 
-        every { databaseService.getDatabaseInstances() } returns listOf(paasInstance, auroraInstance)
-        every { databaseService.getDatabaseSchemas("paas") } returns listOf(DatabaseSchemaResourceBuilder().build())
-        every { databaseService.getDatabaseSchema("myDbId") } returns DatabaseSchemaResourceBuilder().build()
-        every { databaseService.getRestorableDatabaseSchemas("aurora") } returns listOf(RestorableDatabaseSchemaBuilder().build())
+        every { databaseService.getDatabaseInstances() } returns listOf(paasInstance, auroraInstance).toMono()
+        every { databaseService.getDatabaseSchemas("paas") } returns listOf(DatabaseSchemaResourceBuilder().build()).toMono()
+        every { databaseService.getDatabaseSchema("myDbId") } returns DatabaseSchemaResourceBuilder().build().toMono()
+        every { databaseService.getRestorableDatabaseSchemas("aurora") } returns listOf(RestorableDatabaseSchemaBuilder().build()).toMono()
         every { applicationService.getApplicationDeploymentsForDatabases("test-token", listOf("123")) } returns
             listOf(ApplicationDeploymentWithDbResourceBuilder(databaseId = "123").build())
     }
 
+    @Disabled("Autentication not implemented")
     @Test
     fun `Query for database schemas with no bearer token`() {
         val variables = mapOf("affiliations" to listOf("paas"))
@@ -120,7 +116,8 @@ class DatabaseQueryResolverTest : GraphQLTestWithDbhAndSkap() {
                 graphqlData("engine").isEqualTo("POSTGRES")
                 graphqlData("affiliation.name").isEqualTo("paas")
                 graphqlData("createdBy").isEqualTo("abc123")
-                graphqlData("applicationDeployments.length()").isEqualTo(1)
+//                graphqlData("applicationDeployments.length()").isEqualTo(1) TODO:implement dataloader
+
             }
             .graphqlDoesNotContainErrors()
     }

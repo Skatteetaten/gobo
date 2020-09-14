@@ -1,16 +1,23 @@
 package no.skatteetaten.aurora.gobo.resolvers.database
 
+import graphql.schema.DataFetcherFactoryEnvironment
+import graphql.schema.DataFetchingEnvironment
 import java.time.Instant
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseInstanceResource
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseSchemaResource
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseUserResource
-import no.skatteetaten.aurora.gobo.integration.dbh.JdbcUser
 import no.skatteetaten.aurora.gobo.integration.dbh.SchemaCooldownChangeResponse
 import no.skatteetaten.aurora.gobo.integration.dbh.SchemaCreationRequest
 import no.skatteetaten.aurora.gobo.integration.dbh.SchemaDeletionRequest
 import no.skatteetaten.aurora.gobo.integration.dbh.SchemaRestorationRequest
 import no.skatteetaten.aurora.gobo.integration.dbh.SchemaUpdateRequest
 import no.skatteetaten.aurora.gobo.resolvers.affiliation.Affiliation
+import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.ApplicationDeployment
+import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.Status
+import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.Version
+import no.skatteetaten.aurora.gobo.resolvers.loadMany
+import no.skatteetaten.aurora.gobo.resolvers.namespace.Namespace
+import no.skatteetaten.aurora.gobo.resolvers.permission.Permission
 
 data class Label(val key: String, val value: String)
 
@@ -81,7 +88,17 @@ data class DatabaseSchema(
                 users = databaseSchema.users.map { DatabaseUser.create(it) }
             )
     }
+    suspend fun applicationDeployments(dfe: DataFetchingEnvironment): List<ApplicationDeployment> {
+//        dfe.loadMany<>() TODO; use dataloader
+        return emptyList()
+    }
 }
+
+data class JdbcUser(
+        val username: String,
+        val password: String,
+        val jdbcUrl: String
+)
 
 data class RestorableDatabaseSchema(
     val setToCooldownAt: Instant,
