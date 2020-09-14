@@ -9,6 +9,7 @@ import org.springframework.security.access.AccessDeniedException
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.reactive.function.client.bodyToMono
 import reactor.core.publisher.Mono
 import reactor.util.retry.Retry.backoff
 import java.time.Duration.ofMillis
@@ -27,7 +28,7 @@ class OpenShiftClient(@TargetService(ServiceTypes.OPENSHIFT) private val openshi
             .header(AUTHORIZATION, "Bearer $token")
             .exchange()
             .retryWhen(backoff(5, ofMillis(5000)))
-            .flatMap { it.bodyToMono(OpenShiftUser::class.java) }
+            .flatMap { it.bodyToMono<OpenShiftUser>() }
     }.recoverCatching {
         throw AccessDeniedException("Unable to validate token with OpenShift!", it)
     }.getOrThrow()

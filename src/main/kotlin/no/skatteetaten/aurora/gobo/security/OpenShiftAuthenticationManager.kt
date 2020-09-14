@@ -17,9 +17,6 @@ private val logger = KotlinLogging.logger {}
 @Component
 class OpenShiftAuthenticationManager(private val openShiftService: OpenShift) : ReactiveAuthenticationManager {
     override fun authenticate(authentication: Authentication): Mono<Authentication> = runCatching {
-        // TODO: Remove!
-        logger.debug { "Incoming authentication: ${jacksonObjectMapper().writeValueAsString(authentication)}" }
-
         openShiftService.user(authentication.credentials.toString())
     }.mapCatching { monoUser ->
         monoUser.flatMap {
