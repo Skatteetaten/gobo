@@ -1,15 +1,12 @@
 package no.skatteetaten.aurora.gobo.integration.cantus
 
 import assertk.assertThat
-import assertk.assertions.isFailure
-import assertk.assertions.isInstanceOf
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import assertk.assertions.startsWith
 import no.skatteetaten.aurora.gobo.ApplicationConfig
 import no.skatteetaten.aurora.gobo.StrubrunnerRepoPropertiesEnabler
 import no.skatteetaten.aurora.gobo.TestConfig
-import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository
 import no.skatteetaten.aurora.gobo.security.SharedSecretReader
 import org.junit.jupiter.api.Test
@@ -48,7 +45,7 @@ class ImageRegistryServiceBlockingContractTest : StrubrunnerRepoPropertiesEnable
 
         assertThat(dockerContentDigest)
             .isNotNull()
-            .startsWith("sha256:")
+            .startsWith("sha")
     }
 
     @Test
@@ -62,14 +59,5 @@ class ImageRegistryServiceBlockingContractTest : StrubrunnerRepoPropertiesEnable
         val auroraResponse = imageRegistry.findTagsByName(imageReposAndTags, token)
         assertThat(auroraResponse.items.forEach { it.timeline.buildEnded != null })
         assertThat(auroraResponse.failure.forEach { it.errorMessage.isNotEmpty() })
-    }
-
-    @Test
-    fun `get tags given non existing image return AuroraResponse with CantusFailure`() {
-        val missingImageRepo = imageRepo.copy(name = "missing")
-
-        assertThat {
-            imageRegistry.findTagNamesInRepoOrderedByCreatedDateDesc(missingImageRepo, token)
-        }.isNotNull().isFailure().isInstanceOf(SourceSystemException::class)
     }
 }

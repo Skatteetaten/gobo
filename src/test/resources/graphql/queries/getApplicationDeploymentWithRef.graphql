@@ -1,0 +1,5 @@
+query getApplicationDeployment($applicationDeploymentRef: ApplicationDeploymentRefInput!) {
+  applicationDeployment(applicationDeploymentRef: $applicationDeploymentRef) {
+    id
+  }
+}

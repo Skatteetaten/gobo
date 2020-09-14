@@ -4,19 +4,15 @@ import assertk.assertThat
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import no.skatteetaten.aurora.gobo.StrubrunnerRepoPropertiesEnabler
-import org.junit.jupiter.api.Disabled
+import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.ApplicationDeploymentRef
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.cloud.contract.stubrunner.spring.AutoConfigureStubRunner
 import org.springframework.test.context.ActiveProfiles
-import org.springframework.test.context.junit.jupiter.SpringExtension
 
-@Disabled
 @ActiveProfiles("with-dbh-and-skap")
-@ExtendWith(SpringExtension::class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
+@SpringBootTest
 @AutoConfigureStubRunner(ids = ["no.skatteetaten.aurora:mokey:+:stubs:6565"])
 class ApplicationServiceBlockingTest : StrubrunnerRepoPropertiesEnabler() {
 
@@ -38,6 +34,12 @@ class ApplicationServiceBlockingTest : StrubrunnerRepoPropertiesEnabler() {
     @Test
     fun `Get application deployments for database ids`() {
         val applicationDeployments = applicationService.getApplicationDeploymentsForDatabases("", listOf("123", "456"))
+        assertThat(applicationDeployments).isNotNull()
+    }
+
+    @Test
+    fun `Get application deployments for application deployment ref`() {
+        val applicationDeployments = applicationService.getApplicationDeployment(listOf(ApplicationDeploymentRef("utv", "gobo")))
         assertThat(applicationDeployments).isNotNull()
     }
 }
