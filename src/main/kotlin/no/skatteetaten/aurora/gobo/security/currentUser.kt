@@ -1,12 +1,11 @@
 package no.skatteetaten.aurora.gobo.security
 
 import graphql.schema.DataFetchingEnvironment
-import kotlinx.coroutines.reactive.awaitFirstOrNull
+import no.skatteetaten.aurora.gobo.openshift.OpenShiftUser
+import no.skatteetaten.aurora.gobo.resolvers.GoboGraphQLContext
 import no.skatteetaten.aurora.gobo.resolvers.user.User
 import org.springframework.security.authentication.AnonymousAuthenticationToken
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
-import org.springframework.security.core.Authentication
-import org.springframework.security.core.context.ReactiveSecurityContextHolder
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken
 import no.skatteetaten.aurora.gobo.security.User as SecurityUser
 
@@ -15,20 +14,24 @@ private const val GUEST_USER_ID = "anonymous"
 private const val GUEST_USER_NAME = "Gjestebruker"
 val ANONYMOUS_USER = User(GUEST_USER_ID, GUEST_USER_NAME)
 
-suspend fun DataFetchingEnvironment.currentUser(): User = getAuth()?.let {
-    if (!it.isAuthenticated) ANONYMOUS_USER
+fun DataFetchingEnvironment.currentUser(): User {
 
-    when (it) {
-        is PreAuthenticatedAuthenticationToken -> it.principal.getUser()
-        is UsernamePasswordAuthenticationToken -> it.principal.getUser()
-        is AnonymousAuthenticationToken -> User(it.name, GUEST_USER_NAME)
-        else -> ANONYMOUS_USER
-    }
-} ?: ANONYMOUS_USER
+    val authentication = this.getContext<GoboGraphQLContext>().securityContext?.authentication
 
-private suspend fun getAuth(): Authentication? = ReactiveSecurityContextHolder.getContext().awaitFirstOrNull()?.authentication
+    return authentication?.let {
+        if (!it.isAuthenticated) ANONYMOUS_USER
+
+        when (it) {
+            is PreAuthenticatedAuthenticationToken -> it.principal.getUser()
+            is UsernamePasswordAuthenticationToken -> it.principal.getUser()
+            is AnonymousAuthenticationToken -> User(it.name, GUEST_USER_NAME)
+            else -> ANONYMOUS_USER
+        }
+    } ?: ANONYMOUS_USER
+}
 
 private fun Any.getUser() = when {
+    this is OpenShiftUser -> User(metadata.name, fullName)
     this is SecurityUser -> User(username, fullName ?: UNKNOWN_USER_NAME)
     else -> ANONYMOUS_USER
 }
