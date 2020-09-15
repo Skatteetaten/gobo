@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component
 
 @Component
 class CurrentUserQuery : Query {
-    suspend fun getCurrentUser(dfe: DataFetchingEnvironment) = dfe.currentUser()
+    suspend fun currentUser(dfe: DataFetchingEnvironment) = dfe.currentUser()
 }
 
 // @Component
