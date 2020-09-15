@@ -4,7 +4,7 @@ import assertk.assertThat
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import no.skatteetaten.aurora.gobo.integration.Response
-import no.skatteetaten.aurora.gobo.resolvers.usersettings.ApplicationDeploymentFilter
+import no.skatteetaten.aurora.gobo.resolvers.usersettings.ApplicationDeploymentFilterInput
 import no.skatteetaten.aurora.gobo.resolvers.usersettings.UserSettings
 import no.skatteetaten.aurora.gobo.testObjectMapper
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.execute
@@ -53,7 +53,7 @@ class UserSettingsServiceTest {
 
     @Test
     fun `Update user settings`() {
-        val userSettings = UserSettings(listOf(ApplicationDeploymentFilter(filter)))
+        val userSettings = UserSettings(listOf(ApplicationDeploymentFilterInput(filter)))
         val request = server.execute(response) {
             applicationDeploymentFilterService.updateUserSettings("token", userSettings)
         }.first()

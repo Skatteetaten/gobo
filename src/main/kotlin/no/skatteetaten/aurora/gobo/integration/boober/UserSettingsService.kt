@@ -1,12 +1,12 @@
 package no.skatteetaten.aurora.gobo.integration.boober
 
-import java.time.Duration
 import no.skatteetaten.aurora.gobo.resolvers.blockAndHandleError
 import no.skatteetaten.aurora.gobo.resolvers.blockNonNullAndHandleError
 import no.skatteetaten.aurora.gobo.resolvers.usersettings.UserSettings
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
+import java.time.Duration
 
 @Service
 class UserSettingsService(private val booberWebClient: BooberWebClient) {
@@ -31,11 +31,3 @@ class UserSettingsService(private val booberWebClient: BooberWebClient) {
 }
 
 data class UserSettingsResource(val applicationDeploymentFilters: List<ApplicationDeploymentFilterResource> = emptyList())
-
-data class ApplicationDeploymentFilterResource(
-    val name: String,
-    val affiliation: String,
-    val default: Boolean = false,
-    val applications: List<String> = emptyList(),
-    val environments: List<String> = emptyList()
-)

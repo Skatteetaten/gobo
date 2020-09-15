@@ -27,7 +27,7 @@ class UserSettingsMutationResolverTest : GraphQLTestWithDbhAndSkap() {
     fun `Update user settings`() {
         val userSettings = UserSettings(
             listOf(
-                ApplicationDeploymentFilter(
+                ApplicationDeploymentFilterInput(
                     name = "filter",
                     default = true,
                     affiliation = "paas",
