@@ -16,7 +16,7 @@ class UserSettingsTest {
 
     @Test
     fun `Get all applicationDeploymentFilters`() {
-        val filters = userSettings.getApplicationDeploymentFilters()
+        val filters = userSettings.applicationDeploymentFilters()
         assertThat(filters).hasSize(2)
         assertThat(filters[0].affiliation).isEqualTo("aurora")
         assertThat(filters[1].affiliation).isEqualTo("paas")
@@ -24,7 +24,7 @@ class UserSettingsTest {
 
     @Test
     fun `Get applicationDeploymentFilters for affiliation`() {
-        val filters = userSettings.getApplicationDeploymentFilters(listOf("aurora"))
+        val filters = userSettings.applicationDeploymentFilters(listOf("aurora"))
         assertThat(filters).hasSize(1)
         assertThat(filters[0].affiliation).isEqualTo("aurora")
     }

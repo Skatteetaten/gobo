@@ -4,7 +4,7 @@ import no.skatteetaten.aurora.gobo.integration.boober.ApplicationDeploymentFilte
 import no.skatteetaten.aurora.gobo.integration.boober.UserSettingsResource
 
 data class UserSettingsInput(val applicationDeploymentFilters: List<ApplicationDeploymentFilter> = emptyList()) {
-    fun getApplicationDeploymentFilters(affiliations: List<String>? = null) =
+    fun applicationDeploymentFilters(affiliations: List<String>? = null) =
         if (affiliations == null) {
             applicationDeploymentFilters
         } else {
@@ -16,6 +16,13 @@ data class UserSettings(val applicationDeploymentFilters: List<ApplicationDeploy
     constructor(userSettingsResource: UserSettingsResource) : this(
         userSettingsResource.applicationDeploymentFilters.map { ApplicationDeploymentFilter(it) }
     )
+
+    fun applicationDeploymentFilters(affiliations: List<String>? = null) =
+        if (affiliations == null) {
+            applicationDeploymentFilters
+        } else {
+            applicationDeploymentFilters.filter { affiliations.contains(it.affiliation) }
+        }
 }
 
 data class ApplicationDeploymentFilter(

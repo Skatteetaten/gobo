@@ -1,7 +1,5 @@
 package no.skatteetaten.aurora.gobo.integration.boober
 
-import kotlinx.coroutines.reactive.awaitFirst
-import kotlinx.coroutines.reactive.awaitFirstOrNull
 import no.skatteetaten.aurora.gobo.resolvers.blockAndHandleError
 import no.skatteetaten.aurora.gobo.resolvers.blockNonNullAndHandleError
 import no.skatteetaten.aurora.gobo.resolvers.usersettings.UserSettingsInput
@@ -13,18 +11,18 @@ import java.time.Duration
 @Service
 class UserSettingsService(private val booberWebClient: BooberWebClient) {
 
-    suspend fun getUserSettings(token: String): UserSettingsResource =
+    fun getUserSettings(token: String): UserSettingsResource =
         booberWebClient.get<UserSettingsResource>(
             token,
             "/v1/users/annotations/applicationDeploymentFilters"
-        ).toMono().awaitFirstOrNull() ?: UserSettingsResource()
+        ).toMono().blockWithTimeout() ?: UserSettingsResource()
 
-    suspend fun updateUserSettings(token: String, userSettings: UserSettingsInput) {
+    fun updateUserSettings(token: String, userSettings: UserSettingsInput) {
         booberWebClient.patch<Unit>(
             token,
             "/v1/users/annotations/applicationDeploymentFilters",
             body = userSettings.applicationDeploymentFilters
-        ).toMono().awaitFirst()
+        ).toMono().blockNonNullWithTimeout()
     }
 
     private fun <T> Mono<T>.blockWithTimeout() = this.blockAndHandleError(Duration.ofSeconds(30), "boober")
