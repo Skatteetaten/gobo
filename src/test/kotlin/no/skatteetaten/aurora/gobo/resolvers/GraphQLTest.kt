@@ -9,8 +9,8 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
 
 @SpringBootTest(
-        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-        properties = ["graphql.packages=no.skatteetaten.aurora.gobo.resolvers"]
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+    properties = ["graphql.packages=no.skatteetaten.aurora.gobo.resolvers"]
 )
 abstract class GraphQLTestWithoutDbhAndSkap {
     @Autowired

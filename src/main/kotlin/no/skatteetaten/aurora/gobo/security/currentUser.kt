@@ -36,4 +36,3 @@ private fun Any.getUser(token: String) = when {
     this is SecurityUser -> User(username, fullName ?: UNKNOWN_USER_NAME, token)
     else -> ANONYMOUS_USER
 }
-

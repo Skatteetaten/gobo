@@ -1,15 +1,15 @@
 package no.skatteetaten.aurora.gobo.resolvers.usersettings
 
 import com.ninjasquad.springmockk.MockkBean
-import io.mockk.every
-import no.skatteetaten.aurora.gobo.ApplicationDeploymentFilterResourceBuilder
-import no.skatteetaten.aurora.gobo.integration.boober.UserSettingsResource
+// import io.mockk.every
+// import no.skatteetaten.aurora.gobo.ApplicationDeploymentFilterResourceBuilder
+// import no.skatteetaten.aurora.gobo.integration.boober.UserSettingsResource
 import no.skatteetaten.aurora.gobo.integration.boober.UserSettingsService
 import no.skatteetaten.aurora.gobo.resolvers.GraphQLTestWithDbhAndSkap
 import no.skatteetaten.aurora.gobo.resolvers.graphqlDataWithPrefix
 import no.skatteetaten.aurora.gobo.resolvers.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
-import org.junit.jupiter.api.BeforeEach
+// import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
@@ -27,6 +27,7 @@ class UserSettingsQueryResolverTest : GraphQLTestWithDbhAndSkap() {
     @MockkBean
     private lateinit var userSettingsService: UserSettingsService
 
+/*
     @BeforeEach
     fun setUp() {
         every { userSettingsService.getUserSettings("test-token") } returns
@@ -37,6 +38,7 @@ class UserSettingsQueryResolverTest : GraphQLTestWithDbhAndSkap() {
                 )
             )
     }
+*/
 
     @Test
     fun `Query for application deployment filters`() {

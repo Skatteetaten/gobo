@@ -7,16 +7,16 @@ import org.junit.jupiter.api.Test
 
 class UserSettingsTest {
 
-    private val userSettings = UserSettings(
+    private val userSettings = UserSettingsInput(
         listOf(
-            ApplicationDeploymentFilterInput("filter1", "aurora"),
-            ApplicationDeploymentFilterInput.defaultApplicationDeploymentFilter("filter2", "paas")
+            ApplicationDeploymentFilter("filter1", "aurora"),
+            ApplicationDeploymentFilter.defaultApplicationDeploymentFilter("filter2", "paas")
         )
     )
 
     @Test
     fun `Get all applicationDeploymentFilters`() {
-        val filters = userSettings.applicationDeploymentFilters()
+        val filters = userSettings.getApplicationDeploymentFilters()
         assertThat(filters).hasSize(2)
         assertThat(filters[0].affiliation).isEqualTo("aurora")
         assertThat(filters[1].affiliation).isEqualTo("paas")
@@ -24,7 +24,7 @@ class UserSettingsTest {
 
     @Test
     fun `Get applicationDeploymentFilters for affiliation`() {
-        val filters = userSettings.applicationDeploymentFilters(listOf("aurora"))
+        val filters = userSettings.getApplicationDeploymentFilters(listOf("aurora"))
         assertThat(filters).hasSize(1)
         assertThat(filters[0].affiliation).isEqualTo("aurora")
     }
