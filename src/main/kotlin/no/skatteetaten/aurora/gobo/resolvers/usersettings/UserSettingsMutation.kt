@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component
 @Component
 class UserSettingsMutation(private val userSettingsService: UserSettingsService) : Mutation {
     @GraphQLDescription("Update user settings")
-    fun updateUserSettings(input: UserSettingsInput, dfe: DataFetchingEnvironment): Boolean {
+    suspend fun updateUserSettings(input: UserSettingsInput, dfe: DataFetchingEnvironment): Boolean {
         userSettingsService.updateUserSettings(dfe.token(), input)
         return true
     }
