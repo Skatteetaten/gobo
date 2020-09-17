@@ -16,15 +16,6 @@ abstract class GraphQLTestWithoutDbhAndSkap {
     @Autowired
     protected lateinit var webTestClient: WebTestClient
 
-/*
-    @MockkBean
-    private lateinit var openShiftUserLoader: OpenShiftUserLoader
-    @BeforeEach
-    fun initialize() {
-        every { openShiftUserLoader.findOpenShiftUserByToken(any()) } returns OpenShiftUserBuilder().build()
-    }
-*/
-
     @AfterEach
     fun shutdown() = clearAllMocks()
 }
