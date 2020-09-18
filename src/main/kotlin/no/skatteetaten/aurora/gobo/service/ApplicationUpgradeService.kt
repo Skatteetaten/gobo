@@ -13,8 +13,8 @@ class ApplicationUpgradeService(
     private val auroraConfigService: AuroraConfigService
 ) {
 
-    fun upgrade(token: String, applicationDeploymentId: String, version: String) {
-        val details = runBlocking { applicationService.getApplicationDeploymentDetails(token, applicationDeploymentId) }
+    suspend fun upgrade(token: String, applicationDeploymentId: String, version: String) {
+        val details = applicationService.getApplicationDeploymentDetails(token, applicationDeploymentId)
         val (currentLink, auroraConfigFile, applyLink) = details.linkHrefs(
             "FilesCurrent",
             "AuroraConfigFileCurrent",
@@ -27,8 +27,8 @@ class ApplicationUpgradeService(
         refreshApplicationDeployment(token, applicationDeploymentId)
     }
 
-    fun deployCurrentVersion(token: String, applicationDeploymentId: String) {
-        val details = runBlocking { applicationService.getApplicationDeploymentDetails(token, applicationDeploymentId) }
+    suspend fun deployCurrentVersion(token: String, applicationDeploymentId: String) {
+        val details = applicationService.getApplicationDeploymentDetails(token, applicationDeploymentId)
         val applyLink = details.link("Apply")?.href ?: throw IllegalArgumentException("")
         auroraConfigService.redeploy(token, details, applyLink)
         refreshApplicationDeployment(token, applicationDeploymentId)

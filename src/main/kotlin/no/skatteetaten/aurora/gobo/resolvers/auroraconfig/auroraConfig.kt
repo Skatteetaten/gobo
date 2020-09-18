@@ -4,7 +4,6 @@ import com.expediagroup.graphql.spring.operations.Mutation
 import com.expediagroup.graphql.spring.operations.Query
 import com.fasterxml.jackson.databind.JsonNode
 import graphql.schema.DataFetchingEnvironment
-import kotlinx.coroutines.reactive.awaitFirst
 import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileType
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigService
@@ -35,7 +34,7 @@ class AuroraConfigMuration(
         dfe: DataFetchingEnvironment
     ): AuroraConfigFileValidationResponse {
         val token = dfe.token()
-        val addResult: Response<AuroraConfigFileResource> =
+        val addResult =
             service.updateAuroraConfigFile(
                 token,
                 input.auroraConfigName,
@@ -43,7 +42,7 @@ class AuroraConfigMuration(
                 input.fileName,
                 input.contents,
                 input.existingHash
-            ).awaitFirst()
+            )
 
         val result: AuroraConfigFileResource = addResult.items.first()
 
@@ -67,7 +66,7 @@ class AuroraConfigMuration(
                 input.auroraConfigReference,
                 input.fileName,
                 input.contents
-            ).awaitFirst()
+            )
 
         val result: AuroraConfigFileResource = addResult.items.first()
 

@@ -3,7 +3,6 @@ package no.skatteetaten.aurora.gobo.resolvers.auroraconfig
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.coEvery
-import io.mockk.every
 import no.skatteetaten.aurora.gobo.integration.boober.ApplicationDeploymentService
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileType.APP
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileType.GLOBAL
@@ -76,7 +75,7 @@ class AuroraConfigQueryResolverTest : GraphQLTestWithDbhAndSkap() {
           }
             """.trimIndent()
 
-        every { applicationDeploymentService.getSpec(any(), any(), any(), any()) } returns listOf(
+        coEvery { applicationDeploymentService.getSpec(any(), any(), any(), any()) } returns listOf(
             ApplicationDeploymentSpec(jacksonObjectMapper().readTree(jsonNode))
         )
     }

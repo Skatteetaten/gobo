@@ -1,7 +1,7 @@
 package no.skatteetaten.aurora.gobo.resolvers.auroraapimetadata
 
 import com.ninjasquad.springmockk.MockkBean
-import io.mockk.every
+import io.mockk.coEvery
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraApiMetadataService
 import no.skatteetaten.aurora.gobo.resolvers.GraphQLTestWithDbhAndSkap
 import no.skatteetaten.aurora.gobo.resolvers.graphqlDataWithPrefix
@@ -26,8 +26,8 @@ class AuroraApiMetadataResolverTest : GraphQLTestWithDbhAndSkap() {
 
     @BeforeEach
     fun setUp() {
-        every { applicationService.getConfigNames() } returns configNames
-        every { applicationService.getClientConfig() } returns ClientConfig(
+        coEvery { applicationService.getConfigNames() } returns configNames
+        coEvery { applicationService.getClientConfig() } returns ClientConfig(
             "foo.bar/%s/",
             "utv",
             "http://utv.cluster:8443",

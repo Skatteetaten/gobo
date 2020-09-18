@@ -1,7 +1,7 @@
 package no.skatteetaten.aurora.gobo.resolvers.auroraconfig
 
 import com.ninjasquad.springmockk.MockkBean
-import io.mockk.every
+import io.mockk.coEvery
 import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileType.DEFAULT
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigService
@@ -14,7 +14,6 @@ import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
-import reactor.kotlin.core.publisher.toMono
 
 class UpdateAuroraConfigFileTest : GraphQLTestWithDbhAndSkap() {
 
@@ -33,14 +32,14 @@ class UpdateAuroraConfigFileTest : GraphQLTestWithDbhAndSkap() {
             contentHash = "my hash"
         )
 
-        every {
+        coEvery {
             auroraConfigService.updateAuroraConfigFile(any(), any(), any(), any(), any(), any())
         } returns Response(
             success = true,
             message = "Ok",
             items = listOf(auroraConfigFileResource),
             count = 1
-        ).toMono()
+        )
     }
 
     @Disabled("unstable test")

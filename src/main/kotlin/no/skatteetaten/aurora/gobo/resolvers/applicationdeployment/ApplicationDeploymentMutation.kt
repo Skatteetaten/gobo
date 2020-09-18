@@ -25,7 +25,7 @@ class ApplicationDeploymentMutation(
         return true
     }
 
-    fun redeployWithCurrentVersion(input: ApplicationDeploymentIdInput, dfe: DataFetchingEnvironment): Boolean {
+    suspend fun redeployWithCurrentVersion(input: ApplicationDeploymentIdInput, dfe: DataFetchingEnvironment): Boolean {
         applicationUpgradeService.deployCurrentVersion(dfe.token(), input.applicationDeploymentId)
         return true
     }
@@ -36,7 +36,7 @@ class ApplicationDeploymentMutation(
     fun refreshApplicationDeployments(input: RefreshByAffiliationsInput, dfe: DataFetchingEnvironment) =
         applicationUpgradeService.refreshApplicationDeployments(dfe.token(), input.affiliations)
 
-    fun deleteApplicationDeployment(input: DeleteApplicationDeploymentInput, dfe: DataFetchingEnvironment) =
+    suspend fun deleteApplicationDeployment(input: DeleteApplicationDeploymentInput, dfe: DataFetchingEnvironment) =
         applicationDeploymentService.deleteApplicationDeployment(dfe.token(), input)
 }
 
