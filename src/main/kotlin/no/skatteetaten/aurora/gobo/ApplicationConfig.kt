@@ -15,7 +15,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.context.annotation.Primary
 import org.springframework.core.Ordered
 import org.springframework.core.annotation.Order
 import org.springframework.http.HttpHeaders
@@ -35,7 +34,7 @@ import kotlin.math.min
 val HEADER_KLIENTID = "KlientID"
 
 enum class ServiceTypes {
-    MOKEY, BOOBER, UNCLEMATT, CANTUS, DBH, SKAP, OPENSHIFT
+    MOKEY, BOOBER, UNCLEMATT, CANTUS, DBH, SKAP
 }
 
 @Target(AnnotationTarget.TYPE, AnnotationTarget.FUNCTION, AnnotationTarget.FIELD, AnnotationTarget.VALUE_PARAMETER)
@@ -65,13 +64,6 @@ class ApplicationConfig(
 ) {
 
     @Bean
-    @TargetService(ServiceTypes.OPENSHIFT)
-    fun webClientOpenshift(builder: WebClient.Builder): WebClient {
-        return builder.init().baseUrl("https://utv-master.paas.skead.no:8443").build()
-    }
-
-    @Bean
-    @Primary
     @TargetService(ServiceTypes.MOKEY)
     fun webClientMokey(@Value("\${integrations.mokey.url}") mokeyUrl: String, builder: WebClient.Builder): WebClient {
         logger.info("Configuring Mokey WebClient with baseUrl={}", mokeyUrl)
@@ -95,7 +87,6 @@ class ApplicationConfig(
         builder: WebClient.Builder
     ): WebClient {
         logger.info("Configuring Cantus WebClient with base Url={}", cantusUrl)
-
         return builder.init().baseUrl(cantusUrl).build()
     }
 
