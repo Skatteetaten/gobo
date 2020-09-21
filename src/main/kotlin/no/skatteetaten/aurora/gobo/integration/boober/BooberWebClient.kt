@@ -15,7 +15,6 @@ import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import org.springframework.web.reactive.function.client.awaitBody
-import java.net.URI
 
 inline fun <reified T : Any> Response<T>.responses(): List<T> = when {
     !this.success -> throw SourceSystemException(
