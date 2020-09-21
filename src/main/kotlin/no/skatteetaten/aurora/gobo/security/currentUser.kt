@@ -1,7 +1,6 @@
 package no.skatteetaten.aurora.gobo.security
 
 import graphql.schema.DataFetchingEnvironment
-import no.skatteetaten.aurora.gobo.openshift.OpenShiftUser
 import no.skatteetaten.aurora.gobo.resolvers.GoboGraphQLContext
 import no.skatteetaten.aurora.gobo.resolvers.user.User
 import org.springframework.security.authentication.AnonymousAuthenticationToken
@@ -21,18 +20,15 @@ fun DataFetchingEnvironment.currentUser(): User {
     return authentication?.let {
         if (!it.isAuthenticated) ANONYMOUS_USER
         when (it) {
-            is PreAuthenticatedAuthenticationToken -> it.principal.getUser(it.credentials.toString())
-            is UsernamePasswordAuthenticationToken -> it.principal.getUser(it.credentials.toString())
+            is PreAuthenticatedAuthenticationToken, is UsernamePasswordAuthenticationToken -> it.principal.getUser(it.credentials.toString())
             is AnonymousAuthenticationToken -> User(it.name, GUEST_USER_NAME)
             else -> ANONYMOUS_USER
         }
     } ?: ANONYMOUS_USER
 }
 
-private fun Any.getUser() = this.getUser("")
-
 private fun Any.getUser(token: String) = when {
-    this is OpenShiftUser -> User(metadata.name, fullName, token)
+    this is io.fabric8.openshift.api.model.User -> User(metadata.name, fullName, token)
     this is SecurityUser -> User(username, fullName ?: UNKNOWN_USER_NAME, token)
     else -> ANONYMOUS_USER
 }
