@@ -131,6 +131,7 @@ class DatabaseQueryResolverTest : GraphQLTestWithDbhAndSkap() {
             .graphqlErrors("length()").isEqualTo(1)
     }
 
+    @Disabled("Autentication not implemented")
     @Test
     fun `Query for database schema given id`() {
         val variables = mapOf("id" to "myDbId")
