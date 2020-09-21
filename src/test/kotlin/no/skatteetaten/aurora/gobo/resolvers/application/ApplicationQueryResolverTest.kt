@@ -1,7 +1,7 @@
 package no.skatteetaten.aurora.gobo.resolvers.application
 
 import com.ninjasquad.springmockk.MockkBean
-import io.mockk.every
+import io.mockk.coEvery
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentDetailsBuilder
 import no.skatteetaten.aurora.gobo.ApplicationResourceBuilder
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
@@ -15,7 +15,6 @@ import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
-import reactor.kotlin.core.publisher.toMono
 
 class ApplicationQueryResolverTest : GraphQLTestWithDbhAndSkap() {
 
@@ -31,18 +30,18 @@ class ApplicationQueryResolverTest : GraphQLTestWithDbhAndSkap() {
     @Test
     fun `Query for applications given affiliations`() {
         val affiliations = listOf("paas")
-        every { applicationService.getApplications(affiliations) } returns listOf(ApplicationResourceBuilder().build()).toMono()
-        every { permissionService.getPermission(any(), any()) } returns AuroraNamespacePermissions(
+        coEvery { applicationService.getApplications(affiliations) } returns listOf(ApplicationResourceBuilder().build())
+        coEvery { permissionService.getPermission(any(), any()) } returns AuroraNamespacePermissions(
             view = true,
             admin = true,
             namespace = "namespace"
-        ).toMono()
-        every {
+        )
+        coEvery {
             applicationService.getApplicationDeploymentDetails(
                 any(),
                 any()
             )
-        } returns ApplicationDeploymentDetailsBuilder().build().toMono()
+        } returns ApplicationDeploymentDetailsBuilder().build()
 
         val variables = mapOf("affiliations" to affiliations)
         webTestClient.queryGraphQL(getApplicationsQuery, variables, "test-token")

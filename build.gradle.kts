@@ -16,7 +16,7 @@ plugins {
 val springCloudContractVersion: String = project.property("aurora.springCloudContractVersion") as String
 
 dependencies {
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.8")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9")
 
     implementation("io.projectreactor.kotlin:reactor-kotlin-extensions:1.0.2.RELEASE")
     implementation("org.apache.commons:commons-text:1.9")
@@ -36,7 +36,8 @@ dependencies {
     testImplementation("io.mockk:mockk:1.10.0")
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.22")
     testImplementation("io.projectreactor:reactor-test")
-    testImplementation("no.skatteetaten.aurora:mockmvc-extensions-kotlin:1.1.2")
+    testImplementation("no.skatteetaten.aurora:mockmvc-extensions-kotlin:1.1.5")
     testImplementation("com.ninja-squad:springmockk:2.0.3")
     testImplementation("org.junit-pioneer:junit-pioneer:0.9.0")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.3.9")
 }

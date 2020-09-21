@@ -1,7 +1,7 @@
 package no.skatteetaten.aurora.gobo.resolvers.usersettings
 
 import com.ninjasquad.springmockk.MockkBean
-import io.mockk.every
+import io.mockk.coEvery
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentFilterResourceBuilder
 import no.skatteetaten.aurora.gobo.integration.boober.UserSettingsResource
 import no.skatteetaten.aurora.gobo.integration.boober.UserSettingsService
@@ -27,7 +27,7 @@ class UserSettingsQueryResolverTest : GraphQLTestWithDbhAndSkap() {
 
     @BeforeEach
     fun setUp() {
-        every { userSettingsService.getUserSettings("test-token") } returns
+        coEvery { userSettingsService.getUserSettings("test-token") } returns
             UserSettingsResource(
                 listOf(
                     ApplicationDeploymentFilterResourceBuilder(affiliation = "aurora").build(),

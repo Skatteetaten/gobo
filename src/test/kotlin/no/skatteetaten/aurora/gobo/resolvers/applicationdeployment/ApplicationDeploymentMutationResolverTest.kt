@@ -1,6 +1,7 @@
 package no.skatteetaten.aurora.gobo.resolvers.applicationdeployment
 
 import com.ninjasquad.springmockk.MockkBean
+import io.mockk.coEvery
 import io.mockk.every
 import no.skatteetaten.aurora.gobo.integration.boober.ApplicationDeploymentService
 import no.skatteetaten.aurora.gobo.resolvers.GraphQLTestWithDbhAndSkap
@@ -39,7 +40,7 @@ class ApplicationDeploymentMutationResolverTest : GraphQLTestWithDbhAndSkap() {
     @BeforeEach
     fun setUp() {
         every { applicationUpgradeService.refreshApplicationDeployment(any(), any()) } returns true
-        every { applicationDeploymentService.deleteApplicationDeployment(any(), any()) } returns true
+        coEvery { applicationDeploymentService.deleteApplicationDeployment(any(), any()) } returns true
     }
 
     @Test
