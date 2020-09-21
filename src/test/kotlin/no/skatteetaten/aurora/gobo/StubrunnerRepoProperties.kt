@@ -43,9 +43,10 @@ class StubrunnerRepoProperties(private val registry: DynamicPropertyRegistry) {
         } else {
             logger.info("Reading stubrunner properties from maven settings.xml")
             val document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(File(localMavenSettings))
-            registry.add(stubrunnerUsername) { document.xpath("/settings/servers/server/username") }
-            registry.add(stubrunnerPassword) { document.xpath("/settings/servers/server/password") }
-            registry.add(stubrunnerRepoUrl) { document.xpath("/settings/mirrors/mirror/url") }
+            val credentialsQuery = "/settings/servers/server/id[contains(text(), 'nexus')]/following-sibling::"
+            registry.add(stubrunnerUsername) { document.xpath(credentialsQuery + "username") }
+            registry.add(stubrunnerPassword) { document.xpath(credentialsQuery + "password") }
+            registry.add(stubrunnerRepoUrl) { document.xpath("/settings/mirrors/mirror/id[contains(text(), 'nexus')]/following-sibling::url") }
         }
     }
 
