@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test
 
 class UserSettingsTest {
 
-    private val userSettings = UserSettings(
+    private val userSettings = UserSettingsInput(
         listOf(
             ApplicationDeploymentFilter("filter1", "aurora"),
             ApplicationDeploymentFilter.defaultApplicationDeploymentFilter("filter2", "paas")

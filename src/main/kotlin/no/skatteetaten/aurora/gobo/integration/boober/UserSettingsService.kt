@@ -1,32 +1,33 @@
 package no.skatteetaten.aurora.gobo.integration.boober
 
-import no.skatteetaten.aurora.gobo.resolvers.usersettings.UserSettings
+import no.skatteetaten.aurora.gobo.resolvers.blockAndHandleError
+import no.skatteetaten.aurora.gobo.resolvers.blockNonNullAndHandleError
+import no.skatteetaten.aurora.gobo.resolvers.usersettings.UserSettingsInput
 import org.springframework.stereotype.Service
+import reactor.core.publisher.Mono
+import reactor.kotlin.core.publisher.toMono
+import java.time.Duration
 
 @Service
 class UserSettingsService(private val booberWebClient: BooberWebClient) {
 
-    suspend fun getUserSettings(token: String): UserSettingsResource =
+    fun getUserSettings(token: String): UserSettingsResource =
         booberWebClient.get<UserSettingsResource>(
-            url = "/v1/users/annotations/applicationDeploymentFilters",
-            token = token
-        ).responseOrNull() ?: UserSettingsResource()
+            token,
+            "/v1/users/annotations/applicationDeploymentFilters"
+        ).toMono().blockWithTimeout() ?: UserSettingsResource()
 
-    suspend fun updateUserSettings(token: String, userSettings: UserSettings) {
+    fun updateUserSettings(token: String, userSettings: UserSettingsInput) {
         booberWebClient.patch<Unit>(
-            url = "/v1/users/annotations/applicationDeploymentFilters",
-            token = token,
+            token,
+            "/v1/users/annotations/applicationDeploymentFilters",
             body = userSettings.applicationDeploymentFilters
-        )
+        ).toMono().blockNonNullWithTimeout()
     }
+
+    private fun <T> Mono<T>.blockWithTimeout() = this.blockAndHandleError(Duration.ofSeconds(30), "boober")
+    private fun <T> Mono<T>.blockNonNullWithTimeout() =
+        this.blockNonNullAndHandleError(Duration.ofSeconds(30), "boober")
 }
 
 data class UserSettingsResource(val applicationDeploymentFilters: List<ApplicationDeploymentFilterResource> = emptyList())
-
-data class ApplicationDeploymentFilterResource(
-    val name: String,
-    val affiliation: String,
-    val default: Boolean = false,
-    val applications: List<String> = emptyList(),
-    val environments: List<String> = emptyList()
-)
