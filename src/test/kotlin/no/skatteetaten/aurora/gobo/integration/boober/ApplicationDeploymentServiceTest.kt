@@ -16,7 +16,7 @@ import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.ApplicationDe
 import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.DeleteApplicationDeploymentInput
 import no.skatteetaten.aurora.gobo.testObjectMapper
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.bodyAsString
-import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.execute
+import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.executeBlocking
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.jupiter.api.Test
 import org.springframework.web.reactive.function.client.WebClient
@@ -32,7 +32,7 @@ class ApplicationDeploymentServiceTest {
 
     @Test
     fun `Delete application deployments success`() {
-        val requests = server.execute(Response(items = listOf("abc"))) {
+        val requests = server.executeBlocking(Response(items = listOf("abc"))) {
             val deleted = applicationDeploymentService.deleteApplicationDeployment("token", input)
             assertThat(deleted).isTrue()
         }
@@ -47,7 +47,7 @@ class ApplicationDeploymentServiceTest {
             message = "failure",
             items = listOf(mapOf("abc" to "bcd"))
         )
-        val requests = server.execute(response) {
+        val requests = server.executeBlocking(response) {
             assertThat {
                 applicationDeploymentService.deleteApplicationDeployment("token", input)
             }.isFailure().isInstanceOf(SourceSystemException::class).all {
@@ -65,7 +65,7 @@ class ApplicationDeploymentServiceTest {
     fun `Get application deployment spec`() {
         val ref = ApplicationDeploymentRef("utv", "gobo")
         val response = Response(items = emptyList<String>())
-        val request = server.execute(response) {
+        val request = server.executeBlocking(response) {
             applicationDeploymentService.getSpec("token", "auroraConfigName", "auroraConfigReference", listOf(ref))
         }.first()!!
         assertThat(request.path).contains("utv/gobo")

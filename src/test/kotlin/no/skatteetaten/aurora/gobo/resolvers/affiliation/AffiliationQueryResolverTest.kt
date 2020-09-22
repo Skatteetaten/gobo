@@ -2,6 +2,7 @@ package no.skatteetaten.aurora.gobo.resolvers.affiliation
 
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.clearAllMocks
+import io.mockk.coEvery
 import io.mockk.every
 import no.skatteetaten.aurora.gobo.ApplicationResourceBuilder
 import no.skatteetaten.aurora.gobo.DatabaseSchemaResourceBuilder
@@ -20,7 +21,6 @@ import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
-import reactor.kotlin.core.publisher.toMono
 
 @Disabled
 class AffiliationQueryResolverTest : GraphQLTestWithDbhAndSkap() {
@@ -57,8 +57,7 @@ class AffiliationQueryResolverTest : GraphQLTestWithDbhAndSkap() {
 
     @Test
     fun `Query for all affiliations`() {
-        // FIXME mono warning
-        every { affiliationService.getAllAffiliations() } returns listOf("paas", "demo").toMono()
+        coEvery { affiliationService.getAllAffiliations() } returns listOf("paas", "demo")
 
         webTestClient.queryGraphQL(getAffiliationsQuery, token = "test-token")
             .expectStatus().isOk
@@ -73,8 +72,7 @@ class AffiliationQueryResolverTest : GraphQLTestWithDbhAndSkap() {
 
     @Test
     fun `Query for visible affiliations`() {
-        // FIXME mono warning
-        every { affiliationService.getAllVisibleAffiliations("test-token") } returns listOf("paas", "demo").toMono()
+        coEvery { affiliationService.getAllVisibleAffiliations("test-token") } returns listOf("paas", "demo")
 
         webTestClient.queryGraphQL(
             getAffiliationsWithVisibilityQuery,
@@ -102,9 +100,8 @@ class AffiliationQueryResolverTest : GraphQLTestWithDbhAndSkap() {
 
     @Test
     fun `Query for affiliations with database schemas`() {
-        // FIXME mono warning
-        every { affiliationService.getAllAffiliations() } returns listOf("paas").toMono()
-        every { databaseService.getDatabaseSchemas(any()) } returns listOf(DatabaseSchemaResourceBuilder().build()).toMono()
+        coEvery { affiliationService.getAllAffiliations() } returns listOf("paas")
+        coEvery { databaseService.getDatabaseSchemas(any()) } returns listOf(DatabaseSchemaResourceBuilder().build())
 
         webTestClient.queryGraphQL(getAffiliationsWithDatabaseSchemaQuery, token = "test-token")
             .expectStatus().isOk
@@ -119,8 +116,7 @@ class AffiliationQueryResolverTest : GraphQLTestWithDbhAndSkap() {
 
     @Test
     fun `Query for affiliations with webseal states`() {
-        // FIXME mono warning
-        every { affiliationService.getAllAffiliations() } returns listOf("paas").toMono()
+        coEvery { affiliationService.getAllAffiliations() } returns listOf("paas")
         every { applicationService.getApplications(any()) } returns listOf(ApplicationResourceBuilder().build())
         every { websealService.getStates() } returns listOf(WebsealStateResourceBuilder().build())
 

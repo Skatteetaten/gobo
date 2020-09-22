@@ -3,7 +3,6 @@ package no.skatteetaten.aurora.gobo.resolvers.affiliation
 import com.expediagroup.graphql.annotations.GraphQLDescription
 import com.expediagroup.graphql.spring.operations.Query
 import graphql.schema.DataFetchingEnvironment
-import kotlinx.coroutines.reactive.awaitFirst
 import no.skatteetaten.aurora.gobo.integration.mokey.AffiliationService
 import no.skatteetaten.aurora.gobo.resolvers.GoboEdge
 import no.skatteetaten.aurora.gobo.resolvers.database.DatabaseSchema
@@ -47,9 +46,9 @@ class AffiliationQuery(val affiliationService: AffiliationService) : Query {
     }
 
     private suspend fun getAffiliations(checkForVisibility: Boolean, token: String) = if (checkForVisibility) {
-        affiliationService.getAllVisibleAffiliations(token).awaitFirst()
+        affiliationService.getAllVisibleAffiliations(token)
     } else {
-        affiliationService.getAllAffiliations().awaitFirst()
+        affiliationService.getAllAffiliations()
     }
 }
 

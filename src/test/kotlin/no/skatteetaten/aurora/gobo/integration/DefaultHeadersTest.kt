@@ -6,6 +6,8 @@ import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import no.skatteetaten.aurora.gobo.ApplicationConfig
 import no.skatteetaten.aurora.gobo.HEADER_KLIENTID
+import no.skatteetaten.aurora.gobo.ServiceTypes
+import no.skatteetaten.aurora.gobo.TargetService
 import no.skatteetaten.aurora.gobo.TestConfig
 import no.skatteetaten.aurora.gobo.security.SharedSecretReader
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.execute
@@ -26,6 +28,7 @@ class DefaultHeadersTest {
     private val server = MockWebServer()
 
     @Autowired
+    @TargetService(ServiceTypes.MOKEY)
     private lateinit var webClient: WebClient
 
     @Test

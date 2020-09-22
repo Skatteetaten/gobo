@@ -1,0 +1,6 @@
+kubernetes:
+    url: https://utv-master.paas.skead.no:8443
+
+integrations:
+    dbh:
+        url: http://localhost:9090

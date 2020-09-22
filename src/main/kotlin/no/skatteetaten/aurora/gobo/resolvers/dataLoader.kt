@@ -15,7 +15,9 @@ suspend inline fun <Key, reified Value> DataFetchingEnvironment.load(
     loaderPrefix: String = Value::class.java.simpleName
 ): Value {
     val loaderName = "${loaderPrefix}DataLoader"
-    return this.getDataLoader<Key, Value>(loaderName).load(key, this.getContext()).await()
+    val loader = this.getDataLoader<Key, Value>(loaderName)
+        ?: throw IllegalArgumentException("No data loader called $loaderName was found")
+    return loader.load(key, this.getContext()).await()
 }
 
 /**
@@ -24,7 +26,9 @@ suspend inline fun <Key, reified Value> DataFetchingEnvironment.load(
  */
 suspend inline fun <Key, reified Value> DataFetchingEnvironment.loadMany(key: Key): List<Value> {
     val loaderName = "${Value::class.java.simpleName}ListDataLoader"
-    return this.getDataLoader<Key, List<Value>>(loaderName).load(key, this.getContext()).await()
+    val loader = this.getDataLoader<Key, List<Value>>(loaderName)
+        ?: throw IllegalArgumentException("No data loader called $loaderName was found")
+    return loader.load(key, this.getContext()).await()
 }
 
 /**

@@ -1,6 +1,5 @@
 package no.skatteetaten.aurora.gobo.resolvers.database
 
-import kotlinx.coroutines.reactive.awaitSingle
 import no.skatteetaten.aurora.gobo.KeyDataLoader
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseSchemaResource
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseServiceReactive
@@ -12,7 +11,7 @@ class DatabaseSchemaListDataLoader(val databaseSchemaServiceReactive: DatabaseSe
     KeyDataLoader<String, List<DatabaseSchemaResource>> {
 
     override suspend fun getByKey(affiliation: String, context: GoboGraphQLContext): List<DatabaseSchemaResource> =
-        databaseSchemaServiceReactive.getDatabaseSchemas(affiliation).awaitSingle()
+        databaseSchemaServiceReactive.getDatabaseSchemas(affiliation)
 }
 
 /*

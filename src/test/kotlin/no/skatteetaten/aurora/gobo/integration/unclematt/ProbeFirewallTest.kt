@@ -9,10 +9,9 @@ import assertk.assertions.isInstanceOf
 import assertk.assertions.isNotNull
 import assertk.assertions.message
 import assertk.assertions.prop
-import kotlinx.coroutines.runBlocking
 import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
-import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.execute
+import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.executeBlocking
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
@@ -26,22 +25,18 @@ class ProbeFireWallTest {
 
     @Test
     fun `happy day`() {
-        server.execute(probeResponse) {
-            runBlocking {
-                val probeResultList = probeService.probeFirewall("server.test.no", 9999)
-                assertThat(probeResultList.size).isEqualTo(2)
-            }
+        server.executeBlocking(probeResponse) {
+            val probeResultList = probeService.probeFirewall("server.test.no", 9999)
+            assertThat(probeResultList.size).isEqualTo(2)
         }
     }
 
     @Disabled("Fix error handling for webclient")
     @Test
     fun `throws correct exception when backend returns 404`() {
-        server.execute(404 to Response<String>(message = "something went wrong", items = emptyList())) {
+        server.executeBlocking(404 to Response<String>(message = "something went wrong", items = emptyList())) {
             assertThat {
-                runBlocking {
-                    probeService.probeFirewall("server.test.no", 9999)
-                }
+                probeService.probeFirewall("server.test.no", 9999)
             }.isNotNull().isFailure().all {
                 isInstanceOf(SourceSystemException::class).prop(SourceSystemException::errorMessage).contains("404")
                 message().isNotNull().isEqualTo("something went wrong")

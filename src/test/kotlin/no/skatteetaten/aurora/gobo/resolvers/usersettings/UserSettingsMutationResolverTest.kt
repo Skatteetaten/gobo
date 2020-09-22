@@ -3,7 +3,7 @@ package no.skatteetaten.aurora.gobo.resolvers.usersettings
 import com.fasterxml.jackson.module.kotlin.convertValue
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.ninjasquad.springmockk.MockkBean
-import io.mockk.verify
+import io.mockk.coVerify
 import no.skatteetaten.aurora.gobo.integration.boober.UserSettingsService
 import no.skatteetaten.aurora.gobo.resolvers.GraphQLTestWithDbhAndSkap
 import no.skatteetaten.aurora.gobo.resolvers.graphqlData
@@ -25,7 +25,7 @@ class UserSettingsMutationResolverTest : GraphQLTestWithDbhAndSkap() {
 
     @Test
     fun `Update user settings`() {
-        val userSettings = UserSettings(
+        val userSettings = UserSettingsInput(
             listOf(
                 ApplicationDeploymentFilter(
                     name = "filter",
@@ -45,6 +45,6 @@ class UserSettingsMutationResolverTest : GraphQLTestWithDbhAndSkap() {
             .graphqlData("updateUserSettings").isEqualTo(true)
             .graphqlDoesNotContainErrors()
 
-        verify { userSettingsService.updateUserSettings("test-token", userSettings) }
+        coVerify { userSettingsService.updateUserSettings("test-token", userSettings) }
     }
 }
