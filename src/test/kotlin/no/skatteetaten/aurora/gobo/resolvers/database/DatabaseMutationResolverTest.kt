@@ -3,18 +3,22 @@ package no.skatteetaten.aurora.gobo.resolvers.database
 import com.fasterxml.jackson.module.kotlin.convertValue
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.ninjasquad.springmockk.MockkBean
-import io.mockk.every
+import io.mockk.coEvery
 import no.skatteetaten.aurora.gobo.DatabaseSchemaResourceBuilder
 import no.skatteetaten.aurora.gobo.JdbcUserBuilder
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseServiceReactive
 import no.skatteetaten.aurora.gobo.integration.dbh.SchemaCooldownChangeResponse
-import no.skatteetaten.aurora.gobo.resolvers.*
+import no.skatteetaten.aurora.gobo.resolvers.GraphQLTestWithDbhAndSkap
+import no.skatteetaten.aurora.gobo.resolvers.graphqlData
+import no.skatteetaten.aurora.gobo.resolvers.graphqlDataWithPrefix
+import no.skatteetaten.aurora.gobo.resolvers.graphqlDoesNotContainErrors
+import no.skatteetaten.aurora.gobo.resolvers.graphqlErrorsFirst
+import no.skatteetaten.aurora.gobo.resolvers.isTrue
+import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
-import reactor.kotlin.core.publisher.toFlux
-import reactor.kotlin.core.publisher.toMono
 
 class DatabaseMutationResolverTest : GraphQLTestWithDbhAndSkap() {
     @Value("classpath:graphql/mutations/updateDatabaseSchema.graphql")
@@ -83,7 +87,7 @@ class DatabaseMutationResolverTest : GraphQLTestWithDbhAndSkap() {
 
     @Test
     fun `Mutate database schema return true given response success`() {
-        every { databaseSchemaService.updateDatabaseSchema(any()) } returns DatabaseSchemaResourceBuilder().build().toMono()
+        coEvery { databaseSchemaService.updateDatabaseSchema(any()) } returns DatabaseSchemaResourceBuilder().build()
         webTestClient.queryGraphQL(
             queryResource = updateDatabaseSchemaMutation,
             variables = updateVariables,
@@ -96,11 +100,11 @@ class DatabaseMutationResolverTest : GraphQLTestWithDbhAndSkap() {
 
     @Test
     fun `Delete database schema given ids`() {
-        every { databaseSchemaService.deleteDatabaseSchemas(any()) } returns
+        coEvery { databaseSchemaService.deleteDatabaseSchemas(any()) } returns
             listOf(
                 SchemaCooldownChangeResponse(id = "abc123", success = true),
                 SchemaCooldownChangeResponse(id = "bcd234", success = false)
-            ).toFlux()
+            )
 
         val request = DeleteDatabaseSchemasInput(listOf("abc123", "bcd234"))
         val deleteVariables = mapOf("input" to jacksonObjectMapper().convertValue<Map<String, Any>>(request))
@@ -122,11 +126,11 @@ class DatabaseMutationResolverTest : GraphQLTestWithDbhAndSkap() {
 
     @Test
     fun `Restore database schema given ids`() {
-        every { databaseSchemaService.restoreDatabaseSchemas(any()) } returns
+        coEvery { databaseSchemaService.restoreDatabaseSchemas(any()) } returns
             listOf(
                 SchemaCooldownChangeResponse(id = "abc123", success = true),
                 SchemaCooldownChangeResponse(id = "bcd234", success = false)
-            ).toFlux()
+            )
 
         val request = RestoreDatabaseSchemasInput(listOf("abc123", "bcd234"), active = true)
         val restoreVariables = mapOf("input" to jacksonObjectMapper().convertValue<Map<String, Any>>(request))
@@ -145,7 +149,7 @@ class DatabaseMutationResolverTest : GraphQLTestWithDbhAndSkap() {
 
     @Test
     fun `Test JDBC connection for jdbcUser`() {
-        every { databaseSchemaService.testJdbcConnection(any(),any()) } returns ConnectionVerificationResponse(hasSucceeded = true).toMono()
+        coEvery { databaseSchemaService.testJdbcConnection(any(), any()) } returns ConnectionVerificationResponse(hasSucceeded = true)
         val variables =
             mapOf("input" to jacksonObjectMapper().convertValue<Map<String, Any>>(JdbcUserBuilder().build()))
         webTestClient.queryGraphQL(
@@ -160,7 +164,7 @@ class DatabaseMutationResolverTest : GraphQLTestWithDbhAndSkap() {
 
     @Test
     fun `Test JDBC connection for id`() {
-        every { databaseSchemaService.testJdbcConnection(any<String>()) } returns ConnectionVerificationResponse(hasSucceeded = true).toMono()
+        coEvery { databaseSchemaService.testJdbcConnection(any()) } returns ConnectionVerificationResponse(hasSucceeded = true)
         webTestClient.queryGraphQL(
             queryResource = testJdbcConnectionForIdMutation,
             variables = mapOf("id" to "123"),
@@ -185,7 +189,7 @@ class DatabaseMutationResolverTest : GraphQLTestWithDbhAndSkap() {
 
     @Test
     fun `Create database schema`() {
-        every { databaseSchemaService.createDatabaseSchema(any()) } returns DatabaseSchemaResourceBuilder().build().toMono()
+        coEvery { databaseSchemaService.createDatabaseSchema(any()) } returns DatabaseSchemaResourceBuilder().build()
         webTestClient.queryGraphQL(
             queryResource = createDatabaseSchemaMutation,
             variables = creationVariables,
@@ -198,7 +202,7 @@ class DatabaseMutationResolverTest : GraphQLTestWithDbhAndSkap() {
 
     @Test
     fun `Create connection between existing database schema and dbh`() {
-        every { databaseSchemaService.createDatabaseSchema(any()) } returns DatabaseSchemaResourceBuilder().build().toMono()
+        coEvery { databaseSchemaService.createDatabaseSchema(any()) } returns DatabaseSchemaResourceBuilder().build()
         webTestClient.queryGraphQL(
             queryResource = createDatabaseSchemaMutation,
             variables = connectionVariables,
