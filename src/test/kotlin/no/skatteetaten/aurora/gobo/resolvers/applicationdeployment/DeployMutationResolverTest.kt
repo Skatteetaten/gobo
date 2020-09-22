@@ -3,7 +3,7 @@ package no.skatteetaten.aurora.gobo.resolvers.applicationdeployment
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.ninjasquad.springmockk.MockkBean
-import io.mockk.every
+import io.mockk.coEvery
 import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.integration.boober.ApplicationDeploymentService
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigRefResource
@@ -58,7 +58,7 @@ class DeployMutationResolverTest : GraphQLTestWithDbhAndSkap() {
             )
         )
 
-        every { applicationDeploymentService.deploy("myToken2", any(), any(), any()) } returns result
+        coEvery { applicationDeploymentService.deploy("myToken2", any(), any(), any()) } returns result
 
         val resultFail = Response(
             success = false,
@@ -78,7 +78,7 @@ class DeployMutationResolverTest : GraphQLTestWithDbhAndSkap() {
                 )
             )
         )
-        every { applicationDeploymentService.deploy("myToken", any(), any(), any()) } returns resultFail
+        coEvery { applicationDeploymentService.deploy("myToken", any(), any(), any()) } returns resultFail
     }
 
     @Test

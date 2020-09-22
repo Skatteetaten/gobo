@@ -3,7 +3,6 @@ package no.skatteetaten.aurora.gobo.integration.cantus
 import assertk.assertThat
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
-import assertk.assertions.startsWith
 import no.skatteetaten.aurora.gobo.ApplicationConfig
 import no.skatteetaten.aurora.gobo.StrubrunnerRepoPropertiesEnabler
 import no.skatteetaten.aurora.gobo.TestConfig
@@ -43,9 +42,7 @@ class ImageRegistryServiceBlockingContractTest : StrubrunnerRepoPropertiesEnable
 
         val dockerContentDigest = imageRegistry.resolveTagToSha(imageRepo, tagName, token)
 
-        assertThat(dockerContentDigest)
-            .isNotNull()
-            .startsWith("sha")
+        assertThat(dockerContentDigest).isNotNull().isNotEmpty()
     }
 
     @Test

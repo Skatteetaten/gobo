@@ -1,7 +1,6 @@
 package no.skatteetaten.aurora.gobo.resolvers.application
 
 import com.expediagroup.graphql.spring.operations.Query
-import kotlinx.coroutines.reactive.awaitFirst
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import org.springframework.stereotype.Component
 
@@ -12,7 +11,7 @@ class ApplicationQuery(private val applicationService: ApplicationService) : Que
         affiliations: List<String>,
         applications: List<String>?
     ): ApplicationsConnection {
-        val applicationResources = applicationService.getApplications(affiliations, applications).awaitFirst()
+        val applicationResources = applicationService.getApplications(affiliations, applications)
         val applicationEdges = createApplicationEdges(applicationResources)
 
         return ApplicationsConnection(applicationEdges)

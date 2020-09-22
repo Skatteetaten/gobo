@@ -2,9 +2,8 @@ package no.skatteetaten.aurora.gobo.resolvers.auroraconfig
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.ninjasquad.springmockk.MockkBean
-import io.mockk.every
+import io.mockk.coEvery
 import no.skatteetaten.aurora.gobo.integration.boober.ApplicationDeploymentService
-import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileResource
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileType.APP
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileType.GLOBAL
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigService
@@ -18,7 +17,6 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 
-@Disabled
 class AuroraConfigQueryResolverTest : GraphQLTestWithDbhAndSkap() {
 
     @Value("classpath:graphql/queries/getFile.graphql")
@@ -32,7 +30,7 @@ class AuroraConfigQueryResolverTest : GraphQLTestWithDbhAndSkap() {
 
     @BeforeEach
     fun setUp() {
-        every { auroraConfigService.getAuroraConfig(any(), any(), any()) } returns AuroraConfig(
+        coEvery { auroraConfigService.getAuroraConfig(any(), any(), any()) } returns AuroraConfig(
             name = "demo",
             ref = "master",
             resolvedRef = "abcde",
@@ -77,17 +75,18 @@ class AuroraConfigQueryResolverTest : GraphQLTestWithDbhAndSkap() {
           }
             """.trimIndent()
 
-        every { applicationDeploymentService.getSpec(any(), any(), any(), any()) } returns listOf(
+        coEvery { applicationDeploymentService.getSpec(any(), any(), any(), any()) } returns listOf(
             ApplicationDeploymentSpec(jacksonObjectMapper().readTree(jsonNode))
         )
     }
 
+    @Disabled("unstable test")
     @Test
     fun `Query for application deployment`() {
         val variables = mapOf(
             "auroraConfig" to "demo",
-            "fileName" to "about.json",
-            "applicationDeplymentRef" to mapOf("environment" to "my-env", "application" to "my-application")
+            "fileNames" to "about.json",
+            "applicationDeploymentRefInput" to mapOf("environment" to "my-env", "application" to "my-application")
         )
         webTestClient.queryGraphQL(query, variables, "test-token")
             .expectStatus().isOk

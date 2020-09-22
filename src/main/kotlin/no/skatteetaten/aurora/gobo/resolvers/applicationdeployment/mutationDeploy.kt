@@ -16,7 +16,7 @@ class DeployMutationResolver(
 ) : Mutation {
 
     // FIXME do not allow anonymous access
-    fun deploy(input: DeployApplicationDeploymentInput, dfe: DataFetchingEnvironment): ApplicationDeploymentResult {
+    suspend fun deploy(input: DeployApplicationDeploymentInput, dfe: DataFetchingEnvironment): ApplicationDeploymentResult {
         val payload = ApplyPayload(
             applicationDeploymentRefs = input.applicationDeployment.map {
                 ApplicationDeploymentRefResource(it.environment, it.application)
