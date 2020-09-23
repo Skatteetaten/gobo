@@ -33,6 +33,7 @@ import no.skatteetaten.aurora.gobo.integration.containsAuroraToken
 import no.skatteetaten.aurora.gobo.integration.containsAuroraTokens
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseServiceReactive.Companion.HEADER_COOLDOWN_DURATION_HOURS
 import no.skatteetaten.aurora.gobo.resolvers.database.ConnectionVerificationResponse
+import no.skatteetaten.aurora.gobo.resolvers.database.JdbcUser
 import no.skatteetaten.aurora.gobo.security.SharedSecretReader
 import no.skatteetaten.aurora.gobo.testObjectMapper
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.bodyAsObject

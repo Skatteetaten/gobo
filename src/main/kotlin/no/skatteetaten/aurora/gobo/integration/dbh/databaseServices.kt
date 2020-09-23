@@ -10,6 +10,7 @@ import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.resolvers.IntegrationDisabledException
 import no.skatteetaten.aurora.gobo.resolvers.MissingLabelException
 import no.skatteetaten.aurora.gobo.resolvers.database.ConnectionVerificationResponse
+import no.skatteetaten.aurora.gobo.resolvers.database.JdbcUser
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.stereotype.Service

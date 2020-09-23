@@ -1,8 +1,8 @@
 package no.skatteetaten.aurora.gobo.resolvers.database
 
 import com.ninjasquad.springmockk.MockkBean
-import io.mockk.every
-import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseService
+import io.mockk.coEvery
+import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseServiceReactive
 import no.skatteetaten.aurora.gobo.resolvers.GraphQLTestWithoutDbhAndSkap
 import no.skatteetaten.aurora.gobo.resolvers.IntegrationDisabledException
 import no.skatteetaten.aurora.gobo.resolvers.graphqlErrorsFirst
@@ -13,20 +13,20 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 
-@Disabled
 class DatabaseQueryResolverWithoutDbhTest : GraphQLTestWithoutDbhAndSkap() {
 
     @Value("classpath:graphql/queries/getDatabaseInstances.graphql")
     private lateinit var getDatabaseInstancesQuery: Resource
 
     @MockkBean
-    private lateinit var databaseService: DatabaseService
+    private lateinit var databaseService: DatabaseServiceReactive
 
     @BeforeEach
     fun setUp() {
-        every { databaseService.getDatabaseInstances() } throws IntegrationDisabledException("DBH integration is disabled for this environment")
+        coEvery { databaseService.getDatabaseInstances() } throws IntegrationDisabledException("DBH integration is disabled for this environment")
     }
 
+    @Disabled("Implement errror handling")
     @Test
     fun `Query for database instances returns error message`() {
         webTestClient.queryGraphQL(

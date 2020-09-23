@@ -33,6 +33,7 @@ class ApplicationWithLatestDigestQueryResolverTest : GraphQLTestWithDbhAndSkap()
     @MockkBean
     private lateinit var permissionService: PermissionService
 
+    @Disabled("Implement image resolvers")
     @Test
     fun `Query for latest image from repo`() {
         val affiliations = listOf("paas")

@@ -14,7 +14,6 @@ import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseInstanceResource
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseMetadataResource
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseSchemaResource
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseUserResource
-import no.skatteetaten.aurora.gobo.integration.dbh.JdbcUser
 import no.skatteetaten.aurora.gobo.integration.dbh.RestorableDatabaseSchemaResource
 import no.skatteetaten.aurora.gobo.integration.dbh.SchemaCreationRequest
 import no.skatteetaten.aurora.gobo.integration.dbh.SchemaDeletionRequest
@@ -49,6 +48,7 @@ import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.ApplicationDe
 import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.Status
 import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.Version
 import no.skatteetaten.aurora.gobo.resolvers.auroraconfig.AuroraConfigFileResource
+import no.skatteetaten.aurora.gobo.resolvers.database.JdbcUser
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageTag
 import no.skatteetaten.aurora.gobo.resolvers.namespace.Namespace
@@ -59,7 +59,7 @@ import uk.q3c.rest.hal.HalLink
 import uk.q3c.rest.hal.HalResource
 import uk.q3c.rest.hal.Links
 
-val defaultInstant = Instant.parse("2018-01-01T00:00:01Z")
+val defaultInstant: Instant = Instant.parse("2018-01-01T00:00:01Z")
 
 @Language("JSON")
 val linksResponseJson: String =
