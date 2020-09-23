@@ -59,7 +59,7 @@ import uk.q3c.rest.hal.HalLink
 import uk.q3c.rest.hal.HalResource
 import uk.q3c.rest.hal.Links
 
-val defaultInstant = Instant.parse("2018-01-01T00:00:01Z")
+val defaultInstant: Instant = Instant.parse("2018-01-01T00:00:01Z")
 
 @Language("JSON")
 val linksResponseJson: String =
