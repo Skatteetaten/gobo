@@ -1,5 +1,27 @@
 package no.skatteetaten.aurora.gobo.resolvers.imagerepository
 
+import com.expediagroup.graphql.spring.operations.Query
+import graphql.schema.DataFetchingEnvironment
+import mu.KotlinLogging
+import no.skatteetaten.aurora.gobo.GoboException
+import org.springframework.stereotype.Component
+
+private val logger = KotlinLogging.logger {}
+
+@Component
+class ImageRepositoryQueryResolver : Query {
+
+    suspend fun imageRepositories(repositories: List<String>, dfe: DataFetchingEnvironment): List<ImageRepository> {
+// FIXME:        if (dfe.isAnonymousUser()) throw AccessDeniedException("Anonymous user cannot access imagrepositories")
+        if (repositories.isEmpty()) throw GoboException("repositories is empty")
+
+        return repositories.map { ImageRepository.fromRepoString(it) }
+    }
+}
+
+
+
+
 /*
 private val logger = KotlinLogging.logger {}
 

@@ -6,11 +6,9 @@ import java.time.Instant
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageTagType
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageTagType.Companion.typeOf
-import no.skatteetaten.aurora.gobo.resolvers.GoboConnection
-import no.skatteetaten.aurora.gobo.resolvers.GoboEdge
-import no.skatteetaten.aurora.gobo.resolvers.GoboPageInfo
-import no.skatteetaten.aurora.gobo.resolvers.GoboPagedEdges
-import no.skatteetaten.aurora.gobo.resolvers.load
+import no.skatteetaten.aurora.gobo.integration.cantus.Tag
+import no.skatteetaten.aurora.gobo.integration.cantus.TagsDto
+import no.skatteetaten.aurora.gobo.resolvers.*
 
 private val logger = KotlinLogging.logger {}
 
@@ -50,6 +48,29 @@ data class ImageRepository(
         name = this.name,
         filter = filter
     )
+
+    suspend fun tags(
+            imageRepository: ImageRepository,
+            types: List<ImageTagType>?,
+            filter: String?,
+            first: Int? = null,
+            after: String? = null,
+            dfe: DataFetchingEnvironment
+    ): ImageTagsConnection {
+        val tagsDto = if (!imageRepository.isFullyQualified) {
+            TagsDto(emptyList())
+        } else {
+            dfe.load(imageRepository.toImageRepo(filter))
+        }
+        val imageTags = tagsDto.tags.toImageTags(imageRepository, types)
+        val allEdges = imageTags.map { ImageTagEdge(it) }
+        return ImageTagsConnection(pageEdges(allEdges, first, after))
+    }
+
+    fun List<Tag>.toImageTags(imageRepository: ImageRepository, types: List<ImageTagType>?) = this
+        .map { ImageTag(imageRepository = imageRepository, name = it.name) }
+        .filter { types == null || it.type in types }
+
 
     companion object {
         /**
