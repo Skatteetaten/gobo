@@ -50,24 +50,23 @@ data class ImageRepository(
     )
 
     suspend fun tags(
-            imageRepository: ImageRepository,
             types: List<ImageTagType>?,
             filter: String?,
-            first: Int? = null,
-            after: String? = null,
+            first: Int?,
+            after: String?,
             dfe: DataFetchingEnvironment
     ): ImageTagsConnection {
-        val tagsDto = if (!imageRepository.isFullyQualified) {
+        val tagsDto = if (!isFullyQualified) {
             TagsDto(emptyList())
         } else {
-            dfe.load(imageRepository.toImageRepo(filter))
+            dfe.load(toImageRepo(filter))
         }
-        val imageTags = tagsDto.tags.toImageTags(imageRepository, types)
+        val imageTags = tagsDto.tags.toImageTags(this, types)
         val allEdges = imageTags.map { ImageTagEdge(it) }
         return ImageTagsConnection(pageEdges(allEdges, first, after))
     }
 
-    fun List<Tag>.toImageTags(imageRepository: ImageRepository, types: List<ImageTagType>?) = this
+    private fun List<Tag>.toImageTags(imageRepository: ImageRepository, types: List<ImageTagType>?) = this
         .map { ImageTag(imageRepository = imageRepository, name = it.name) }
         .filter { types == null || it.type in types }
 
@@ -117,10 +116,10 @@ data class ImageTag(
 data class ImageTagEdge(val node: ImageTag) : GoboEdge(node.name)
 
 data class ImageTagsConnection(
-    override val edges: List<ImageTagEdge>,
-    override val pageInfo: GoboPageInfo?,
-    override val totalCount: Int = edges.size
-) : GoboConnection<ImageTagEdge>() {
+    val edges: List<ImageTagEdge>,
+    val pageInfo: GoboPageInfo?,
+    val totalCount: Int = edges.size
+) {
     constructor(paged: GoboPagedEdges<ImageTagEdge>) : this(paged.edges, paged.pageInfo, paged.totalCount)
 }
 

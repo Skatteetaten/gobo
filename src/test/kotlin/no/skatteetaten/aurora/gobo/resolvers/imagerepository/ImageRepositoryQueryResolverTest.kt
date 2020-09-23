@@ -1,6 +1,7 @@
 package no.skatteetaten.aurora.gobo.resolvers.imagerepository
 
 import com.ninjasquad.springmockk.MockkBean
+import io.mockk.coEvery
 import io.mockk.every
 import java.time.Instant.EPOCH
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
@@ -13,6 +14,7 @@ import no.skatteetaten.aurora.gobo.integration.cantus.ImageTagType
 import no.skatteetaten.aurora.gobo.integration.cantus.Tag
 import no.skatteetaten.aurora.gobo.integration.cantus.TagsDto
 import no.skatteetaten.aurora.gobo.resolvers.*
+import org.eclipse.jgit.lib.TagBuilder
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
@@ -108,12 +110,15 @@ class ImageRepositoryQueryResolverTest : GraphQLTestWithDbhAndSkap() {
     @Test
     fun `Query for repositories and tags`() {
         every { imageRegistryServiceBlocking.findTagsByName(imageReposAndTags, "test-token") } returns auroraResponse
+        every { imageRegistryServiceBlocking.findTagNamesInRepoOrderedByCreatedDateDesc(any(), any()) } returns TagsDto(
+            emptyList()
+        )
 
         val variables = mapOf("repositories" to imageReposAndTags.map { it.imageRepository })
         webTestClient.queryGraphQL(reposWithTagsQuery, variables, "test-token")
             .expectStatus().isOk
             .expectBody()
-                .printResult()
+            .printResult()
 
 //            .graphqlDataWithPrefixAndIndex("imageRepositories", endIndex = 1) {
 //                val imageRepoAndTags = imageReposAndTags[index]
