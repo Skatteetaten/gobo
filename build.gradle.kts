@@ -1,18 +1,22 @@
 plugins {
-    id("org.jetbrains.kotlin.jvm") version "1.3.72"
-    id("org.jetbrains.kotlin.plugin.spring") version "1.3.72"
-    id("org.sonarqube") version "3.0"
-
-    id("org.springframework.boot") version "2.3.4.RELEASE"
-    id("org.asciidoctor.convert") version "2.4.0"
-
-    id("com.gorylenko.gradle-git-properties") version "2.2.3"
-    id("com.github.ben-manes.versions") version "0.33.0"
-    id("se.patrikerdes.use-latest-versions") version "0.2.14"
+    id("java")
     id("no.skatteetaten.gradle.aurora") version "4.0.4"
 }
 
-val springCloudContractVersion: String = project.property("aurora.springCloudContractVersion") as String
+aurora {
+    useAuroraDefaults
+    useKotlin {
+        useKtLint
+    }
+    useSpringBoot {
+        useWebFlux
+        useCloudContract
+    }
+
+    features {
+        checkstylePlugin = false
+    }
+}
 
 dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9")
@@ -31,7 +35,6 @@ dependencies {
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
-    testImplementation("org.springframework.cloud:spring-cloud-starter-contract-stub-runner:$springCloudContractVersion")
     testImplementation("io.mockk:mockk:1.10.0")
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.22")
     testImplementation("io.projectreactor:reactor-test")
