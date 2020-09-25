@@ -109,7 +109,7 @@ class ImageRepositoryQueryResolverTest : GraphQLTestWithDbhAndSkap() {
 
     @Test
     fun `Query for repositories and tags`() {
-        every { imageRegistryServiceBlocking.findTagsByName(imageReposAndTags, "test-token") } returns auroraResponse
+        every { imageRegistryServiceBlocking.findTagsByName(any(), any()) } returns auroraResponse
 //        every { imageRegistryServiceBlocking.findTagNamesInRepoOrderedByCreatedDateDesc(any(), any()) } returns TagsDto(
 //            emptyList()
 //        )
