@@ -110,28 +110,37 @@ class ImageRepositoryQueryResolverTest : GraphQLTestWithDbhAndSkap() {
     @Test
     fun `Query for repositories and tags`() {
         every { imageRegistryServiceBlocking.findTagsByName(imageReposAndTags, "test-token") } returns auroraResponse
-        every { imageRegistryServiceBlocking.findTagNamesInRepoOrderedByCreatedDateDesc(any(), any()) } returns TagsDto(
-            emptyList()
-        )
+//        every { imageRegistryServiceBlocking.findTagNamesInRepoOrderedByCreatedDateDesc(any(), any()) } returns TagsDto(
+//            emptyList()
+//        )
+
+        imageReposAndTags.forEach { imageRepoAndTags ->
+            every {
+                imageRegistryServiceBlocking.findTagNamesInRepoOrderedByCreatedDateDesc(
+                        ImageRepository.fromRepoString(imageRepoAndTags.imageRepository).toImageRepo(),
+                        "test-token"
+                )
+            } returns TagsDto(imageRepoAndTags.imageTags.map { Tag(name = it, type = ImageTagType.typeOf(it)) })
+        }
+
 
         val variables = mapOf("repositories" to imageReposAndTags.map { it.imageRepository })
         webTestClient.queryGraphQL(reposWithTagsQuery, variables, "test-token")
             .expectStatus().isOk
             .expectBody()
-            .printResult()
+//            .printResult()
+            .graphqlDataWithPrefixAndIndex("imageRepositories", endIndex = 1) {
+                val imageRepoAndTags = imageReposAndTags[index]
 
-//            .graphqlDataWithPrefixAndIndex("imageRepositories", endIndex = 1) {
-//                val imageRepoAndTags = imageReposAndTags[index]
-//
-//                graphqlData("repository").isEqualTo(imageRepoAndTags.imageRepository)
-//                graphqlData("tags.totalCount").isEqualTo(imageRepoAndTags.imageTags.size)
-//                graphqlData("tags.edges.length()").isEqualTo(imageRepoAndTags.imageTags.size)
-//                graphqlData("tags.edges[0].node.name").isEqualTo(imageRepoAndTags.imageTags[0])
-//                graphqlData("tags.edges[0].node.image.buildTime").isEqualTo(EPOCH.toString())
-//                graphqlData("tags.edges[1].node.name").isEqualTo(imageRepoAndTags.imageTags[1])
-//                graphqlData("tags.edges[1].node.image.buildTime").isEqualTo(EPOCH.toString())
-//            }
-//            .graphqlDoesNotContainErrors()
+                graphqlData("repository").isEqualTo(imageRepoAndTags.imageRepository)
+                graphqlData("tags.totalCount").isEqualTo(imageRepoAndTags.imageTags.size)
+                graphqlData("tags.edges.length()").isEqualTo(imageRepoAndTags.imageTags.size)
+                graphqlData("tags.edges[0].node.name").isEqualTo(imageRepoAndTags.imageTags[0])
+                graphqlData("tags.edges[0].node.image.buildTime").isEqualTo(EPOCH.toString())
+                graphqlData("tags.edges[1].node.name").isEqualTo(imageRepoAndTags.imageTags[1])
+                graphqlData("tags.edges[1].node.image.buildTime").isEqualTo(EPOCH.toString())
+            }
+            .graphqlDoesNotContainErrors()
     }
 
     @Test
