@@ -3,6 +3,7 @@ package no.skatteetaten.aurora.gobo.integration.cantus
 import assertk.assertThat
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
+import kotlinx.coroutines.runBlocking
 import no.skatteetaten.aurora.gobo.ApplicationConfig
 import no.skatteetaten.aurora.gobo.StrubrunnerRepoPropertiesEnabler
 import no.skatteetaten.aurora.gobo.TestConfig
@@ -40,7 +41,7 @@ class ImageRegistryServiceBlockingContractTest : StrubrunnerRepoPropertiesEnable
     @Test
     fun `verify dockerContentDigest can be found`() {
 
-        val dockerContentDigest = imageRegistry.resolveTagToSha(imageRepo, tagName, token)
+        val dockerContentDigest = runBlocking { imageRegistry.resolveTagToSha(imageRepo, tagName, token) }
 
         assertThat(dockerContentDigest).isNotNull().isNotEmpty()
     }

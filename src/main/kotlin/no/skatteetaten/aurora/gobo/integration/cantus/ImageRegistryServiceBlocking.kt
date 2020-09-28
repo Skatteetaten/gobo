@@ -7,12 +7,15 @@ import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.resolvers.handleError
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepoDto
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageTag
+import org.springframework.http.HttpHeaders
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.reactive.function.client.awaitBody
 import org.springframework.web.reactive.function.client.bodyToMono
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
+import uk.q3c.rest.hal.HalResource
 
 private val logger = KotlinLogging.logger {}
 
@@ -38,15 +41,16 @@ class ImageRegistryServiceBlocking(
     @TargetService(ServiceTypes.CANTUS) val webClient: WebClient
 ) {
 
-    fun resolveTagToSha(imageRepoDto: ImageRepoDto, imageTag: String, token: String): String? {
+    suspend fun resolveTagToSha(imageRepoDto: ImageRepoDto, imageTag: String, token: String): String? {
         val requestBody = BodyInserters.fromValue(
             TagUrlsWrapper(listOf("${imageRepoDto.repository}/$imageTag"))
         )
-        val auroraImageTagResource: AuroraResponse<ImageTagResource> =
-            execute<AuroraResponse<ImageTagResource>>(token) {
-                logger.debug("Retrieving type=ImageTagResource from  url=${imageRepoDto.registry} image=${imageRepoDto.imageName}/$imageTag")
-                it.post().uri("/manifest").body(requestBody)
-            }.block()!!
+        val auroraImageTagResource: AuroraResponse<ImageTagResource> = webClient
+            .post()
+            .uri("/manifest")
+            .body(requestBody)
+            .execute(token)
+
         return ImageTagDto.toDto(auroraImageTagResource, imageTag, imageRepoDto).dockerDigest
     }
 
@@ -88,6 +92,16 @@ class ImageRegistryServiceBlocking(
                 )
             }.blockAndHandleCantusFailure()
         )
+
+    private inline fun <reified T : HalResource> AuroraResponse<T>.responseOrNull(): T? =
+        this.items.ifEmpty { null }?.first()
+
+    private inline fun <reified T : HalResource> AuroraResponse<T>.responses(): List<T> = this.items
+
+    private suspend inline fun <reified T : HalResource> WebClient.RequestHeadersSpec<*>.execute(token: String) =
+        this.headers {
+            it.set(HttpHeaders.AUTHORIZATION, "Bearer $token")
+        }.retrieve().awaitBody<AuroraResponse<T>>()
 
     private inline fun <reified T : Any> execute(
         token: String,
