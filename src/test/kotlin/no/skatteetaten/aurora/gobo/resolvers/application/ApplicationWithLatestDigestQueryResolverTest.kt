@@ -43,7 +43,7 @@ class ApplicationWithLatestDigestQueryResolverTest : GraphQLTestWithDbhAndSkap()
         val tag = ImageTag.fromTagString(details.imageDetails!!.dockerImageTagReference!!)
         val imageRepoDto = tag.imageRepository.toImageRepo()
 
-        every {
+        coEvery {
             imageRegistryServiceBlocking.resolveTagToSha(
                 imageRepoDto,
                 tag.name,
