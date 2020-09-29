@@ -24,7 +24,7 @@ abstract class GraphQLTestWithoutDbhAndSkap {
 
     @BeforeEach
     fun setUpInitial() {
-        webTestClient = webTestClient.mutate().responseTimeout(Duration.ofSeconds(10)).build()
+        webTestClient = webTestClient.mutate().responseTimeout(Duration.ofSeconds(30)).build()
     }
 }
 
