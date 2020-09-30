@@ -3,6 +3,7 @@ package no.skatteetaten.aurora.gobo.resolvers.affiliation
 import com.expediagroup.graphql.annotations.GraphQLDescription
 import com.expediagroup.graphql.spring.operations.Query
 import graphql.schema.DataFetchingEnvironment
+import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.integration.mokey.AffiliationService
 import no.skatteetaten.aurora.gobo.resolvers.GoboEdge
 import no.skatteetaten.aurora.gobo.resolvers.database.DatabaseSchema
@@ -10,6 +11,8 @@ import no.skatteetaten.aurora.gobo.resolvers.loadMany
 import no.skatteetaten.aurora.gobo.resolvers.token
 import no.skatteetaten.aurora.gobo.resolvers.webseal.WebsealState
 import org.springframework.stereotype.Component
+
+private val logger = KotlinLogging.logger {}
 
 data class Affiliation(val name: String) {
 
@@ -19,6 +22,7 @@ data class Affiliation(val name: String) {
     }
 
     suspend fun websealStates(dfe: DataFetchingEnvironment): List<WebsealState> {
+        logger.info("inne i affiliation, $name")
         return dfe.loadMany(name)
     }
 }
