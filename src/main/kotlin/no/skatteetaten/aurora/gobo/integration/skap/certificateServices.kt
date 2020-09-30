@@ -1,6 +1,5 @@
 package no.skatteetaten.aurora.gobo.integration.skap
 
-import kotlinx.coroutines.runBlocking
 import no.skatteetaten.aurora.gobo.RequiresSkap
 import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
@@ -20,9 +19,9 @@ import org.springframework.web.reactive.function.client.awaitBody
 class CertificateServiceReactive(
     private val sharedSecretReader: SharedSecretReader,
     @TargetService(ServiceTypes.SKAP) private val webClient: WebClient
-) {
+) : CertificateService {
 
-    suspend fun getCertificates(): List<Certificate> =
+    override suspend fun getCertificates(): List<Certificate> =
         webClient
             .get()
             .uri("/certificate/list")
@@ -32,17 +31,10 @@ class CertificateServiceReactive(
 }
 
 interface CertificateService {
-    fun getCertificates(): List<Certificate> = integrationDisabled()
+    suspend fun getCertificates(): List<Certificate> = integrationDisabled()
 
     private fun integrationDisabled(): Nothing =
         throw IntegrationDisabledException("Skap integration is disabled for this environment")
-}
-
-@Service
-@ConditionalOnBean(RequiresSkap::class)
-class CertificateServiceBlocking(private val certificateService: CertificateServiceReactive) : CertificateService {
-
-    override fun getCertificates() = runBlocking { certificateService.getCertificates() }
 }
 
 @Service

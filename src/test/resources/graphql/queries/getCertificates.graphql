@@ -2,7 +2,6 @@
     certificates {
         totalCount
         edges {
-            cursor
             node {
                 id
                 dn
