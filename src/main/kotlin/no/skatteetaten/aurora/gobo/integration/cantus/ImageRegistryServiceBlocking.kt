@@ -54,15 +54,16 @@ class ImageRegistryServiceBlocking(
         return ImageTagDto.toDto(auroraImageTagResource, imageTag, imageRepoDto).dockerDigest
     }
 
-    fun findImageTagDto(imageRepoDto: ImageRepoDto, imageTag: String, token: String): ImageTagDto {
+    suspend fun findImageTagDto(imageRepoDto: ImageRepoDto, imageTag: String, token: String): ImageTagDto {
         val requestBody = BodyInserters.fromValue(
-            TagUrlsWrapper(listOf("${imageRepoDto.repository}/$imageTag"))
+                TagUrlsWrapper(listOf("${imageRepoDto.repository}/$imageTag"))
         )
-        val auroraImageTagResource: AuroraResponse<ImageTagResource> =
-            execute<AuroraResponse<ImageTagResource>>(token) {
-                logger.debug("Retrieving type=ImageTagResource from  url=${imageRepoDto.registry} image=${imageRepoDto.imageName}/$imageTag")
-                it.post().uri("/manifest").body(requestBody)
-            }.block()!!
+        val auroraImageTagResource: AuroraResponse<ImageTagResource> = webClient
+                .post()
+                .uri("/manifest")
+                .body(requestBody)
+                .execute(token)
+
         return ImageTagDto.toDto(auroraImageTagResource, imageTag, imageRepoDto)
     }
 

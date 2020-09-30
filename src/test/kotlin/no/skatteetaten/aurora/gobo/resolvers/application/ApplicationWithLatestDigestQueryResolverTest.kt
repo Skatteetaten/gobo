@@ -9,16 +9,13 @@ import no.skatteetaten.aurora.gobo.integration.cantus.ImageRegistryServiceBlocki
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import no.skatteetaten.aurora.gobo.integration.mokey.AuroraNamespacePermissions
 import no.skatteetaten.aurora.gobo.integration.mokey.PermissionService
-import no.skatteetaten.aurora.gobo.resolvers.GraphQLTestWithDbhAndSkap
+import no.skatteetaten.aurora.gobo.resolvers.*
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageTag
-import no.skatteetaten.aurora.gobo.resolvers.printResult
-import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 
-@Disabled
 class ApplicationWithLatestDigestQueryResolverTest : GraphQLTestWithDbhAndSkap() {
 
     @Value("classpath:graphql/queries/getApplicationsWithLatestDigest.graphql")
@@ -33,7 +30,6 @@ class ApplicationWithLatestDigestQueryResolverTest : GraphQLTestWithDbhAndSkap()
     @MockkBean
     private lateinit var permissionService: PermissionService
 
-    @Disabled("Implement image resolvers")
     @Test
     fun `Query for latest image from repo`() {
         val affiliations = listOf("paas")
@@ -47,6 +43,7 @@ class ApplicationWithLatestDigestQueryResolverTest : GraphQLTestWithDbhAndSkap()
             imageRegistryServiceBlocking.resolveTagToSha(
                 imageRepoDto,
                 tag.name,
+
                 "test-token"
             )
         } returns "sha256:123"
@@ -65,8 +62,7 @@ class ApplicationWithLatestDigestQueryResolverTest : GraphQLTestWithDbhAndSkap()
         webTestClient.queryGraphQL(getApplicationsQuery, variables, "test-token")
             .expectStatus().isOk
             .expectBody()
-            .printResult()
-            /*
+//            .printResult()
             .graphqlData("applications.totalCount").isNumber
             .graphqlDataWithPrefix("applications.edges[0].node.applicationDeployments[0].details.imageDetails") {
                 graphqlData("dockerImageTagReference").isEqualTo("docker.registry/group/name:2")
@@ -74,6 +70,5 @@ class ApplicationWithLatestDigestQueryResolverTest : GraphQLTestWithDbhAndSkap()
                 graphqlData("isLatestDigest").isEqualTo(true)
             }
             .graphqlDoesNotContainErrors()
-             */
     }
 }

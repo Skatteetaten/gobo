@@ -21,7 +21,7 @@ import org.junit.jupiter.params.provider.ValueSource
 import org.springframework.http.HttpStatus
 import org.springframework.web.reactive.function.client.WebClient
 
-class ImageRegistryServiceBlockingTest {
+class  ImageRegistryServiceBlockingTest {
 
     private val imageRepoName = "no_skatteetaten_aurora_demo/whoami"
 
