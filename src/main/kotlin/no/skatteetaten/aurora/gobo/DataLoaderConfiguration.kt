@@ -45,7 +45,16 @@ class DataLoaderConfiguration(
         }
 
         return object : DataLoaderRegistryFactory {
-            override fun generate() = registry
+            override fun generate() = DataLoaderRegistry().apply {
+                keyLoaders.forEach {
+                    logger.debug("Registering KeyDataLoader: ${it::class.simpleName}")
+                    register(it::class.simpleName, batchDataLoaderMappedSingle(it))
+                }
+                multipleKeysDataLoaders.forEach {
+                    logger.debug("Registering MultipleKeysDataLoader: ${it::class.simpleName}")
+                    register(it::class.simpleName, batchDataLoaderMappedMultiple(it))
+                }
+            }
         }
     }
 

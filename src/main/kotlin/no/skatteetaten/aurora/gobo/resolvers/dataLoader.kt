@@ -17,7 +17,9 @@ suspend inline fun <Key, reified Value> DataFetchingEnvironment.load(
     val loaderName = "${loaderPrefix}DataLoader"
     val loader = this.getDataLoader<Key, Value>(loaderName)
         ?: throw IllegalArgumentException("No data loader called $loaderName was found")
-    return loader.load(key, this.getContext()).await()
+    val l = loader.load(key, this.getContext())
+    val d = loader.dispatch()
+    return l.await()
 }
 
 /**
