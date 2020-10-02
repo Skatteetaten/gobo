@@ -2,17 +2,23 @@ package no.skatteetaten.aurora.gobo.resolvers.application
 
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.coEvery
-import io.mockk.every
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentDetailsBuilder
 import no.skatteetaten.aurora.gobo.ApplicationResourceBuilder
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageRegistryServiceBlocking
+import no.skatteetaten.aurora.gobo.integration.cantus.ImageTagDto
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import no.skatteetaten.aurora.gobo.integration.mokey.AuroraNamespacePermissions
 import no.skatteetaten.aurora.gobo.integration.mokey.PermissionService
-import no.skatteetaten.aurora.gobo.resolvers.*
+import no.skatteetaten.aurora.gobo.resolvers.GraphQLTestWithDbhAndSkap
+import no.skatteetaten.aurora.gobo.resolvers.graphqlData
+import no.skatteetaten.aurora.gobo.resolvers.graphqlDataWithPrefix
+import no.skatteetaten.aurora.gobo.resolvers.graphqlDoesNotContainErrors
+import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepoDto
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageTag
-import org.junit.jupiter.api.Disabled
+import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
+import org.dataloader.DataLoaderRegistry
 import org.junit.jupiter.api.Test
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 
@@ -40,13 +46,13 @@ class ApplicationWithLatestDigestQueryResolverTest : GraphQLTestWithDbhAndSkap()
         val imageRepoDto = tag.imageRepository.toImageRepo()
 
         coEvery {
-            imageRegistryServiceBlocking.resolveTagToSha(
+            imageRegistryServiceBlocking.findImageTagDto(
                 imageRepoDto,
                 tag.name,
 
                 "test-token"
             )
-        } returns "sha256:123"
+        } returns ImageTagDto(imageTag = "abc", imageRepoDto = ImageRepoDto(null, "aurora", "gobo", null))
 
         coEvery { applicationService.getApplications(affiliations) } returns listOf(ApplicationResourceBuilder().build())
 

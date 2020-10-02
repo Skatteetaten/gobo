@@ -1,6 +1,7 @@
 package no.skatteetaten.aurora.gobo
 
 import com.expediagroup.graphql.spring.execution.DataLoaderRegistryFactory
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
@@ -8,8 +9,10 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.future.asCompletableFuture
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.resolvers.GoboGraphQLContext
+import no.skatteetaten.aurora.gobo.resolvers.KtDataLoaderRegistryFactory
 import org.dataloader.BatchLoaderEnvironment
 import org.dataloader.DataLoader
+import org.dataloader.DataLoader.newDataLoader
 import org.dataloader.DataLoaderOptions
 import org.dataloader.DataLoaderRegistry
 import org.dataloader.Try
@@ -43,6 +46,8 @@ class DataLoaderConfiguration(
                 register(it::class.simpleName, batchDataLoaderMappedMultiple(it))
             }
         }
+
+
 
         return object : DataLoaderRegistryFactory {
             override fun generate() = registry

@@ -9,6 +9,7 @@ import no.skatteetaten.aurora.gobo.StrubrunnerRepoPropertiesEnabler
 import no.skatteetaten.aurora.gobo.TestConfig
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository
 import no.skatteetaten.aurora.gobo.security.SharedSecretReader
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -39,6 +40,7 @@ class ImageRegistryServiceBlockingContractTest : StrubrunnerRepoPropertiesEnable
     }
 
     @Test
+    @Disabled("Unstable test")
     fun `verify dockerContentDigest can be found`() {
 
         val dockerContentDigest = runBlocking { imageRegistry.resolveTagToSha(imageRepo, tagName, token) }
