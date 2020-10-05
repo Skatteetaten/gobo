@@ -52,7 +52,11 @@ class ApplicationWithLatestDigestQueryResolverTest : GraphQLTestWithDbhAndSkap()
 
                 "test-token"
             )
-        } returns ImageTagDto(imageTag = "abc", imageRepoDto = ImageRepoDto(null, "aurora", "gobo", null))
+        } returns ImageTagDto(
+            imageTag = "abc",
+            imageRepoDto = ImageRepoDto(null, "aurora", "gobo", null),
+            dockerDigest = "sha256:123"
+        )
 
         coEvery { applicationService.getApplications(affiliations) } returns listOf(ApplicationResourceBuilder().build())
 
