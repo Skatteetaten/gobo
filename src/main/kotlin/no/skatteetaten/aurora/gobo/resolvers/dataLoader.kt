@@ -18,6 +18,8 @@ suspend inline fun <Key, reified Value> DataFetchingEnvironment.load(
     val loader = this.getDataLoader<Key, Value>(loaderName)
         ?: throw IllegalArgumentException("No data loader called $loaderName was found")
     return loader.load(key, this.getContext()).also {
+        // When using nested data loaders, the second data loader is not called without dispatch
+        // For more details https://github.com/graphql-java/graphql-java/issues/1198
         loader.dispatch()
     }.await()
 }
@@ -31,6 +33,8 @@ suspend inline fun <Key, reified Value> DataFetchingEnvironment.loadMany(key: Ke
     val loader = this.getDataLoader<Key, List<Value>>(loaderName)
         ?: throw IllegalArgumentException("No data loader called $loaderName was found")
     return loader.load(key, this.getContext()).also {
+        // When using nested data loaders, the second data loader is not called without dispatch
+        // For more details https://github.com/graphql-java/graphql-java/issues/1198
         loader.dispatch()
     }.await()
 }

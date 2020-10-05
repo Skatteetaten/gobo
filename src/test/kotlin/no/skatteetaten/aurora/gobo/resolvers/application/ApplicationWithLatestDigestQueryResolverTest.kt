@@ -72,7 +72,6 @@ class ApplicationWithLatestDigestQueryResolverTest : GraphQLTestWithDbhAndSkap()
         webTestClient.queryGraphQL(getApplicationsQuery, variables, "test-token")
             .expectStatus().isOk
             .expectBody()
-//            .printResult()
             .graphqlData("applications.totalCount").isNumber
             .graphqlDataWithPrefix("applications.edges[0].node.applicationDeployments[0].details.imageDetails") {
                 graphqlData("dockerImageTagReference").isEqualTo("docker.registry/group/name:2")
