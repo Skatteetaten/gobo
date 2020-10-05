@@ -38,6 +38,8 @@ class ApplicationDeploymentMutationResolverTest : GraphQLTestWithDbhAndSkap() {
 
     @BeforeEach
     fun setUp() {
+        every { applicationUpgradeService.upgrade(any(), any(), any()) } returns "123"
+        every { applicationUpgradeService.deployCurrentVersion(any(), any()) } returns "123"
         every { applicationUpgradeService.refreshApplicationDeployment(any(), any()) } returns true
         every { applicationDeploymentService.deleteApplicationDeployment(any(), any()) } returns true
     }
@@ -48,12 +50,10 @@ class ApplicationDeploymentMutationResolverTest : GraphQLTestWithDbhAndSkap() {
             "input" to mapOf(
                 "applicationDeploymentId" to "123",
                 "version" to "1"
-
             )
         )
         webTestClient.queryGraphQL(redeployWithVersionMutation, variables).expectBody()
-            .graphqlData("redeployWithVersion").isNotEmpty
-            .graphqlDoesNotContainErrors()
+            .graphqlData("redeployWithVersion.applicationDeploymentId").isEqualTo("123")
     }
 
     @Test
@@ -64,7 +64,7 @@ class ApplicationDeploymentMutationResolverTest : GraphQLTestWithDbhAndSkap() {
             )
         )
         webTestClient.queryGraphQL(redeployWithCurrentVersionMutation, variables).expectBody()
-            .graphqlData("redeployWithCurrentVersion").isNotEmpty
+            .graphqlData("redeployWithCurrentVersion.applicationDeploymentId").isEqualTo("123")
             .graphqlDoesNotContainErrors()
     }
 

@@ -1,5 +1,6 @@
 package no.skatteetaten.aurora.gobo.service
 
+import com.fasterxml.jackson.databind.JsonNode
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigService
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
 import no.skatteetaten.aurora.gobo.integration.mokey.RefreshParams
@@ -12,7 +13,7 @@ class ApplicationUpgradeService(
     private val auroraConfigService: AuroraConfigService
 ) {
 
-    fun upgrade(token: String, applicationDeploymentId: String, version: String) {
+    fun upgrade(token: String, applicationDeploymentId: String, version: String): String {
         val details = applicationService.getApplicationDeploymentDetails(token, applicationDeploymentId)
         val (currentLink, auroraConfigFile, applyLink) = details.linkHrefs(
             "FilesCurrent",
@@ -22,15 +23,17 @@ class ApplicationUpgradeService(
 
         val applicationFile = auroraConfigService.getApplicationFile(token, currentLink)
         auroraConfigService.patch(token, version, auroraConfigFile, applicationFile)
-        auroraConfigService.redeploy(token, details, applyLink)
+        val response = auroraConfigService.redeploy(token, details, applyLink)
         refreshApplicationDeployment(token, applicationDeploymentId)
+        return response.applicationDeploymentId()
     }
 
-    fun deployCurrentVersion(token: String, applicationDeploymentId: String) {
+    fun deployCurrentVersion(token: String, applicationDeploymentId: String): String {
         val details = applicationService.getApplicationDeploymentDetails(token, applicationDeploymentId)
         val applyLink = details.link("Apply")?.href ?: throw IllegalArgumentException("")
-        auroraConfigService.redeploy(token, details, applyLink)
+        val response = auroraConfigService.redeploy(token, details, applyLink)
         refreshApplicationDeployment(token, applicationDeploymentId)
+        return response.applicationDeploymentId()
     }
 
     fun refreshApplicationDeployment(token: String, applicationDeploymentId: String): Boolean {
@@ -42,4 +45,6 @@ class ApplicationUpgradeService(
         applicationService.refreshApplicationDeployment(token, RefreshParams(affiliations = affiliations))
         return true
     }
+
+    private fun JsonNode.applicationDeploymentId() : String = this.at("/applicationDeploymentId").textValue() ?: ""
 }

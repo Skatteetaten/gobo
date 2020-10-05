@@ -57,20 +57,22 @@ class ApplicationDeploymentQueryResolver(
     }
 }
 
+data class DeployResponse(val applicationDeploymentId: String)
+
 @Component
 class ApplicationDeploymentMutationResolver(
     private val applicationUpgradeService: ApplicationUpgradeService,
     private val applicationDeploymentService: ApplicationDeploymentService
 ) : GraphQLMutationResolver {
 
-    fun redeployWithVersion(input: ApplicationDeploymentVersionInput, dfe: DataFetchingEnvironment): Boolean {
-        applicationUpgradeService.upgrade(dfe.currentUser().token, input.applicationDeploymentId, input.version)
-        return true
+    fun redeployWithVersion(input: ApplicationDeploymentVersionInput, dfe: DataFetchingEnvironment): DeployResponse {
+        val id = applicationUpgradeService.upgrade(dfe.currentUser().token, input.applicationDeploymentId, input.version)
+        return DeployResponse(id)
     }
 
-    fun redeployWithCurrentVersion(input: ApplicationDeploymentIdInput, dfe: DataFetchingEnvironment): Boolean {
-        applicationUpgradeService.deployCurrentVersion(dfe.currentUser().token, input.applicationDeploymentId)
-        return true
+    fun redeployWithCurrentVersion(input: ApplicationDeploymentIdInput, dfe: DataFetchingEnvironment): DeployResponse {
+        val id = applicationUpgradeService.deployCurrentVersion(dfe.currentUser().token, input.applicationDeploymentId)
+        return DeployResponse(id)
     }
 
     fun refreshApplicationDeployment(input: RefreshByApplicationDeploymentIdInput, dfe: DataFetchingEnvironment) =
