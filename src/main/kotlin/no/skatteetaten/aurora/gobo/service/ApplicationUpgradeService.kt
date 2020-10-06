@@ -23,17 +23,17 @@ class ApplicationUpgradeService(
 
         val applicationFile = auroraConfigService.getApplicationFile(token, currentLink)
         auroraConfigService.patch(token, version, auroraConfigFile, applicationFile)
-        val response = auroraConfigService.redeploy(token, details, applyLink)
-        refreshApplicationDeployment(token, applicationDeploymentId)
-        return response.applicationDeploymentId()
+        return auroraConfigService.redeploy(token, details, applyLink).applicationDeploymentId().also {
+            refreshApplicationDeployment(token, it)
+        }
     }
 
     fun deployCurrentVersion(token: String, applicationDeploymentId: String): String {
         val details = applicationService.getApplicationDeploymentDetails(token, applicationDeploymentId)
         val applyLink = details.link("Apply")?.href ?: throw IllegalArgumentException("")
-        val response = auroraConfigService.redeploy(token, details, applyLink)
-        refreshApplicationDeployment(token, applicationDeploymentId)
-        return response.applicationDeploymentId()
+        return auroraConfigService.redeploy(token, details, applyLink).applicationDeploymentId().also {
+            refreshApplicationDeployment(token, it)
+        }
     }
 
     fun refreshApplicationDeployment(token: String, applicationDeploymentId: String): Boolean {
@@ -46,5 +46,6 @@ class ApplicationUpgradeService(
         return true
     }
 
-    private fun JsonNode.applicationDeploymentId() : String = this.at("/applicationDeploymentId").textValue() ?: ""
+    private fun JsonNode.applicationDeploymentId(): String = this.at("/applicationDeploymentId").textValue()
+        ?: throw IllegalStateException("No applicationDeploymentId found in response")
 }

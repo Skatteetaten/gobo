@@ -8,6 +8,7 @@ import assertk.assertions.isInstanceOf
 import assertk.assertions.isNotNull
 import assertk.assertions.message
 import com.fasterxml.jackson.databind.node.TextNode
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.mockk.mockk
 import no.skatteetaten.aurora.gobo.ApplicationConfig
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentDetailsBuilder
@@ -123,7 +124,7 @@ class ApplicationUpgradeServiceTest {
 
     private fun patchResponse() = Response(items = listOf(AuroraConfigFileBuilder().build()))
 
-    private fun redeployResponse() = Response(items = listOf(TextNode("{}")))
+    private fun redeployResponse() = Response(items = listOf(jacksonObjectMapper().readTree("""{ "applicationDeploymentId": "123" }""")))
 
     private fun refreshResponse() = Response(items = listOf(TextNode("{}")))
 }
