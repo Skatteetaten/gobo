@@ -49,26 +49,21 @@ data class ImageRepository(
         filter = filter
     )
 
+    // TODO should this be named tags? it returns a list
     suspend fun tag(
             names: List<String>,
             dfe: DataFetchingEnvironment
     ): List<ImageWithType?> {
 
         if (!isFullyQualified) {
-                return emptyList<ImageWithType?>()
+                return emptyList()
         }
 
-        val dataloader = dfe.multipleKeysLoader<ImageTag,Image>()
-
-        val tags = names.map { name ->
-            dataloader.load(ImageTag(imageRepository, name)).thenApply {
-                it?.let {
-                    ImageWithType(name, it)
-                }
-            }
+        val imageTags = names.map { ImageTag(this, it) }
+        val values = dfe.loadMultipleKeys<ImageTag, Image>(imageTags.toSet())
+        return values.map {
+            ImageWithType(it.key.name, it.value.get())
         }
-
-        return tags.join()
     }
 
 
