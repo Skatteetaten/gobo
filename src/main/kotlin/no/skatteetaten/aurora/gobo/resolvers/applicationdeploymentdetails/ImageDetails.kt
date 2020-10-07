@@ -5,7 +5,6 @@ import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageTagDto
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageTag
 import no.skatteetaten.aurora.gobo.resolvers.load
-import no.skatteetaten.aurora.gobo.resolvers.loadMany
 import java.time.Instant
 
 private val logger = KotlinLogging.logger {}
@@ -15,7 +14,6 @@ data class ImageDetails(
     val digest: String?,
     val dockerImageTagReference: String?
 ) {
-
 
     suspend fun isLatestDigest(dfe: DataFetchingEnvironment): Boolean? =
         dockerImageTagReference?.let {
