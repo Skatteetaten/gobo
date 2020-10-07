@@ -49,6 +49,29 @@ data class ImageRepository(
         filter = filter
     )
 
+    suspend fun tag(
+            names: List<String>,
+            dfe: DataFetchingEnvironment
+    ): List<ImageWithType?> {
+
+        if (!isFullyQualified) {
+                return emptyList<ImageWithType?>()
+        }
+
+        val dataloader = dfe.multipleKeysLoader<ImageTag,Image>()
+
+        val tags = names.map { name ->
+            dataloader.load(ImageTag(imageRepository, name)).thenApply {
+                it?.let {
+                    ImageWithType(name, it)
+                }
+            }
+        }
+
+        return tags.join()
+    }
+
+
     suspend fun tags(
             types: List<ImageTagType>?,
             filter: String?,

@@ -67,16 +67,22 @@ class ImageRegistryServiceBlocking(
         return ImageTagDto.toDto(auroraImageTagResource, imageTag, imageRepoDto)
     }
 
-    fun findTagsByName(
+    suspend fun findTagsByName(
         imageReposAndTags: List<ImageRepoAndTags>,
         token: String
     ): AuroraResponse<ImageTagResource> {
         val tagUrls = imageReposAndTags.getAllTagUrls()
         val requestBody = BodyInserters.fromValue(tagUrls)
 
-        return execute<AuroraResponse<ImageTagResource>>(token) {
-            it.post().uri("/manifest").body(requestBody)
-        }.block()!!
+//        return execute<AuroraResponse<ImageTagResource>>(token) {
+//            it.post().uri("/manifest").body(requestBody)
+//        }
+        return webClient
+                .post()
+                .uri("/manifest")
+                .body(requestBody)
+                .execute(token)
+
     }
 
     fun findTagNamesInRepoOrderedByCreatedDateDesc(imageRepoDto: ImageRepoDto, token: String) =

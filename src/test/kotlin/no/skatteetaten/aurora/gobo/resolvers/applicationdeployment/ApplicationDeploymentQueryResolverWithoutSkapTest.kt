@@ -56,7 +56,7 @@ class ApplicationDeploymentQueryResolverWithoutSkapTest : GraphQLTestWithoutDbhA
                 any()
             )
         } throws IntegrationDisabledException("Skap integration is disabled for this environment")
-        every { imageRegistryService.findTagsByName(any(), any()) } returns AuroraResponse(
+        coEvery { imageRegistryService.findTagsByName(any(), any()) } returns AuroraResponse(
             listOf(ImageTagResourceBuilder().build())
         )
     }
