@@ -36,6 +36,9 @@ fun <T : MultipleKeysDataLoader<*, V>, V> DataFetchingEnvironment.multipleKeysLo
         .getDataLoader<Any, V>(key) ?: throw IllegalStateException("No $key found")
 }
 
+fun <T> Mono<T>.blockWithRetry(duration: Duration = Duration.ofSeconds(30)) =
+    this.toMono().retryWithLog().block(duration)
+
 fun <T> Mono<T>.blockNonNullAndHandleError(duration: Duration = Duration.ofSeconds(30), sourceSystem: String? = null) =
     this.switchIfEmpty(SourceSystemException("Empty response", sourceSystem = sourceSystem).toMono())
         .blockAndHandleError(duration, sourceSystem)!!

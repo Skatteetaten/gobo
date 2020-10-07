@@ -1,18 +1,24 @@
 package no.skatteetaten.aurora.gobo.integration.mokey
 
+import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
+import no.skatteetaten.aurora.gobo.resolvers.ApplicationRedeployException
 import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.ApplicationDeploymentRef
-import no.skatteetaten.aurora.gobo.resolvers.blockAndHandleError
 import no.skatteetaten.aurora.gobo.resolvers.blockNonNullAndHandleError
+import no.skatteetaten.aurora.gobo.resolvers.blockWithRetry
 import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.reactive.function.client.WebClientResponseException
 import org.springframework.web.reactive.function.client.bodyToMono
 import reactor.core.publisher.Mono
 import java.time.Duration
+
+private val logger = KotlinLogging.logger {}
 
 @Service
 class ApplicationServiceBlocking(private val applicationService: ApplicationService) {
@@ -32,13 +38,23 @@ class ApplicationServiceBlocking(private val applicationService: ApplicationServ
         applicationService.getApplicationDeploymentDetails(token, applicationDeploymentId).blockNonNullWithTimeout()
 
     fun refreshApplicationDeployment(token: String, refreshParams: RefreshParams) =
-        applicationService.refreshApplicationDeployment(token, refreshParams).blockWithTimeout()
+        applicationService.refreshApplicationDeployment(token, refreshParams).doOnError {
+            if (refreshParams.applicationDeploymentId != null && it is WebClientResponseException && it.statusCode == HttpStatus.BAD_REQUEST) {
+                logger.info("Refresh of applicationDeploymentId ${refreshParams.applicationDeploymentId} failed")
+                throw ApplicationRedeployException(
+                    "Refresh of redeployed application failed",
+                    it,
+                    "APP_REFRESH_FAILED",
+                    refreshParams.applicationDeploymentId
+                )
+            }
+            throw it
+        }.blockWithRetry(Duration.ofSeconds(30))
 
     fun getApplicationDeploymentsForDatabases(token: String, databaseIds: List<String>) =
         applicationService.getApplicationDeploymentsForDatabases(token, databaseIds).blockNonNullWithTimeout()
 
     private fun <T> Mono<T>.blockNonNullWithTimeout() = this.blockNonNullAndHandleError(Duration.ofSeconds(30), "mokey")
-    private fun <T> Mono<T>.blockWithTimeout() = this.blockAndHandleError(Duration.ofSeconds(30), "mokey")
 }
 
 @Service
