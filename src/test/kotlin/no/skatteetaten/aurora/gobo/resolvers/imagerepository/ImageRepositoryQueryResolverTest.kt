@@ -96,17 +96,17 @@ class ImageRepositoryQueryResolverTest : GraphQLTestWithDbhAndSkap() {
         webTestClient.queryGraphQL(imageTagQuery, variables, "test-token")
             .expectStatus().isOk
             .expectBody()
-                .printResult()
-//            .graphqlDataWithPrefix("imageRepositories[0]") {
-//                graphqlData("repository").isEqualTo(repo)
-//                graphqlData("tag[0].name").isEqualTo("latest")
-//                graphqlData("tag[0].type").isEqualTo("LATEST")
-//                graphqlData("tag[0].image.buildTime").isEqualTo(EPOCH.toString())
-//                graphqlData("tag[1].name").isEqualTo("1")
-//                graphqlData("tag[1].type").isEqualTo("MAJOR")
-//                graphqlData("tag[1].image.buildTime").isEqualTo(EPOCH.toString())
-//            }
-//            .graphqlDoesNotContainErrors()
+//                .printResult()
+            .graphqlDataWithPrefix("imageRepositories[0]") {
+                graphqlData("repository").isEqualTo(repo)
+                graphqlData("tag[0].name").isEqualTo("latest")
+                graphqlData("tag[0].type").isEqualTo("LATEST")
+                graphqlData("tag[0].image.buildTime").isEqualTo(EPOCH.toString())
+                graphqlData("tag[1].name").isEqualTo("1")
+                graphqlData("tag[1].type").isEqualTo("MAJOR")
+                graphqlData("tag[1].image.buildTime").isEqualTo(EPOCH.toString())
+            }
+            .graphqlDoesNotContainErrors()
     }
 
     @Test
