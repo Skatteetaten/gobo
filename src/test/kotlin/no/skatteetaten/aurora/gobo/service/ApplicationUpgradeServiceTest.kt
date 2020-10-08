@@ -19,6 +19,7 @@ import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigService
 import no.skatteetaten.aurora.gobo.integration.boober.BooberWebClient
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
+import no.skatteetaten.aurora.gobo.resolvers.ApplicationRedeployException
 import no.skatteetaten.aurora.gobo.testObjectMapper
 import no.skatteetaten.aurora.mockmvc.extensions.TestObjectMapperConfigurer
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.execute
@@ -82,6 +83,22 @@ class ApplicationUpgradeServiceTest {
         assertThat(requests[2]?.path).isNotNull().isEqualTo("/boober/AuroraConfigFileCurrent")
         assertThat(requests[3]?.path).isNotNull().isEqualTo("/boober/Apply")
         assertThat(requests[4]?.path).isNotNull().isEqualTo("/mokey/api/auth/refresh")
+    }
+
+    @Test
+    fun `Refresh cache fails during update of application deployment`() {
+        val requests = server.execute(
+            200 to applicationDeploymentDetailsResponse(),
+            200 to applicationFileResponse(),
+            200 to patchResponse(),
+            200 to redeployResponse(),
+            400 to refreshResponse()
+        ) {
+            assertThat { upgradeService.upgrade("token", "applicationDeploymentId", "version") }
+                .isFailure()
+                .isInstanceOf(ApplicationRedeployException::class)
+        }
+        assertThat(requests.size).isEqualTo(5)
     }
 
     @ParameterizedTest
