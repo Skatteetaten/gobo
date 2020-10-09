@@ -101,16 +101,16 @@ class ImageRepositoryQueryResolverTest : GraphQLTestWithDbhAndSkap() {
         webTestClient.queryGraphQL(imageTagQuery, variables, "test-token")
             .expectStatus().isOk
             .expectBody()
-           .graphqlDataWithPrefix("imageRepositories[0]") {
-               graphqlData("repository").isEqualTo(repo)
-               graphqlData("tag[0].name").isEqualTo("latest")
-               graphqlData("tag[0].type").isEqualTo("LATEST")
-               graphqlData("tag[0].image.buildTime").isEqualTo(EPOCH.toString())
-               graphqlData("tag[1].name").isEqualTo("1")
-               graphqlData("tag[1].type").isEqualTo("MAJOR")
-               graphqlData("tag[1].image.buildTime").isEqualTo(EPOCH.toString())
-           }
-           .graphqlDoesNotContainErrors()
+            .graphqlDataWithPrefix("imageRepositories[0]") {
+                graphqlData("repository").isEqualTo(repo)
+                graphqlData("tag[0].name").isEqualTo("latest")
+                graphqlData("tag[0].type").isEqualTo("LATEST")
+                graphqlData("tag[0].image.buildTime").isEqualTo(EPOCH.toString())
+                graphqlData("tag[1].name").isEqualTo("1")
+                graphqlData("tag[1].type").isEqualTo("MAJOR")
+                graphqlData("tag[1].image.buildTime").isEqualTo(EPOCH.toString())
+            }
+            .graphqlDoesNotContainErrors()
     }
 
     @Test
@@ -120,12 +120,11 @@ class ImageRepositoryQueryResolverTest : GraphQLTestWithDbhAndSkap() {
         imageReposAndTags.forEach { imageRepoAndTags ->
             every {
                 imageRegistryServiceBlocking.findTagNamesInRepoOrderedByCreatedDateDesc(
-                        ImageRepository.fromRepoString(imageRepoAndTags.imageRepository).toImageRepo(),
-                        "test-token"
+                    ImageRepository.fromRepoString(imageRepoAndTags.imageRepository).toImageRepo(),
+                    "test-token"
                 )
             } returns TagsDto(imageRepoAndTags.imageTags.map { Tag(name = it, type = ImageTagType.typeOf(it)) })
         }
-
 
         val variables = mapOf("repositories" to imageReposAndTags.map { it.imageRepository })
         webTestClient.queryGraphQL(reposWithTagsQuery, variables, "test-token")
@@ -160,6 +159,8 @@ class ImageRepositoryQueryResolverTest : GraphQLTestWithDbhAndSkap() {
 
     @Test
     fun `Query for tags with no filters present`() {
+        coEvery { imageRegistryServiceBlocking.findTagsByName(any(), any()) } returns createAuroraResponse(1)
+
         webTestClient.queryGraphQL(
             queryResource = reposWithTagsWithoutFiltersQuery,
             variables = mapOf("repositories" to imageReposAndTags.first().imageRepository),
