@@ -9,6 +9,7 @@ import no.skatteetaten.aurora.gobo.integration.cantus.ImageTagType.Companion.typ
 import no.skatteetaten.aurora.gobo.integration.cantus.Tag
 import no.skatteetaten.aurora.gobo.integration.cantus.TagsDto
 import no.skatteetaten.aurora.gobo.resolvers.*
+import org.dataloader.Try
 
 private val logger = KotlinLogging.logger {}
 
@@ -60,7 +61,7 @@ data class ImageRepository(
         }
 
         val imageTags = names.map { ImageTag(this, it) }
-        val values = dfe.loadMultipleKeys<ImageTag, Image>(imageTags.toSet())
+        val values = dfe.loadMultipleKeys<ImageTag, Image>(imageTags)
         return values.map {
             ImageWithType(it.key.name, it.value.get())
         }
@@ -119,7 +120,7 @@ data class ImageTag(
 ) {
     val type: ImageTagType get() = typeOf(name)
 
-    suspend fun image(dfe: DataFetchingEnvironment): Image? = dfe.load<ImageTag, Image>(this)
+    suspend fun image(dfe: DataFetchingEnvironment): Image? = dfe.loadMultipleKeys<ImageTag, Image>(listOf(this)).values.first().get()
 
     companion object {
         fun fromTagString(tagString: String, lastDelimiter: String = ":"): ImageTag {

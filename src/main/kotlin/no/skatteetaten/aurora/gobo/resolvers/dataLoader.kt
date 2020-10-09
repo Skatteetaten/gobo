@@ -43,15 +43,18 @@ suspend inline fun <Key, reified Value> DataFetchingEnvironment.loadMany(key: Ke
  * Load multiple keys of type Key into a Map grouped by the key and a value of type Value using a dataloader named <Value>MultipleKeysDataLoader
  * If the loading fails it will return a failed Try
  */
-suspend inline fun <Key, reified Value> DataFetchingEnvironment.loadMultipleKeys(keys: Set<Key>): Map<Key, Try<Value>> {
+suspend inline fun <Key, reified Value> DataFetchingEnvironment.loadMultipleKeys(keys: List<Key>): Map<Key, Try<Value>> {
     val loaderName = "${Value::class.java.simpleName}MultipleKeysDataLoader"
-    val loader = this.getDataLoader<Set<Key>, Map<Key, Try<Value>>>(loaderName)
+    val loader = this.getDataLoader<Key, Try<Value>>(loaderName)
         ?: throw IllegalArgumentException("No data loader called $loaderName was found")
-    return loader.load(keys, this.getContext()).also {
-        // When using nested data loaders, the second data loader is not called without dispatch
-        // For more details https://github.com/graphql-java/graphql-java/issues/1198
+
+    return keys.map {
+        it to loader.load(it, this.getContext())
+    }.toMap().also {
         loader.dispatch()
-    }.await()
+    }.mapValues {
+        it.value.await()
+    }
 }
 
 /**

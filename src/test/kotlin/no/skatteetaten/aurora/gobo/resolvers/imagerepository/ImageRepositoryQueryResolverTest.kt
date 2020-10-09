@@ -3,7 +3,6 @@ package no.skatteetaten.aurora.gobo.resolvers.imagerepository
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.coEvery
 import io.mockk.every
-import java.time.Instant.EPOCH
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.integration.cantus.AuroraResponse
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageBuildTimeline
@@ -13,13 +12,19 @@ import no.skatteetaten.aurora.gobo.integration.cantus.ImageTagResource
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageTagType
 import no.skatteetaten.aurora.gobo.integration.cantus.Tag
 import no.skatteetaten.aurora.gobo.integration.cantus.TagsDto
-import no.skatteetaten.aurora.gobo.resolvers.*
-import org.eclipse.jgit.lib.TagBuilder
+import no.skatteetaten.aurora.gobo.resolvers.GraphQLTestWithDbhAndSkap
+import no.skatteetaten.aurora.gobo.resolvers.graphqlDataWithPrefix
+import no.skatteetaten.aurora.gobo.resolvers.graphqlDataWithPrefixAndIndex
+import no.skatteetaten.aurora.gobo.resolvers.graphqlDoesNotContainErrors
+import no.skatteetaten.aurora.gobo.resolvers.graphqlErrors
+import no.skatteetaten.aurora.gobo.resolvers.graphqlErrorsFirst
+import no.skatteetaten.aurora.gobo.resolvers.isTrue
+import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
+import java.time.Instant.EPOCH
 
 private fun ImageRepoAndTags.toImageTagResource() =
     this.imageTags.map {
@@ -89,24 +94,23 @@ class ImageRepositoryQueryResolverTest : GraphQLTestWithDbhAndSkap() {
             )
         )
 
-        coEvery { imageRegistryServiceBlocking.findTagsByName(query, "test-token") } returns auroraResponse
+        coEvery { imageRegistryServiceBlocking.findTagsByName(any(), any()) } returns auroraResponse
 
         val variables =
             mapOf("repositories" to query.map { it.imageRepository }, "tagNames" to query.flatMap { it.imageTags })
         webTestClient.queryGraphQL(imageTagQuery, variables, "test-token")
             .expectStatus().isOk
             .expectBody()
-//                .printResult()
-            .graphqlDataWithPrefix("imageRepositories[0]") {
-                graphqlData("repository").isEqualTo(repo)
-                graphqlData("tag[0].name").isEqualTo("latest")
-                graphqlData("tag[0].type").isEqualTo("LATEST")
-                graphqlData("tag[0].image.buildTime").isEqualTo(EPOCH.toString())
-                graphqlData("tag[1].name").isEqualTo("1")
-                graphqlData("tag[1].type").isEqualTo("MAJOR")
-                graphqlData("tag[1].image.buildTime").isEqualTo(EPOCH.toString())
-            }
-            .graphqlDoesNotContainErrors()
+           .graphqlDataWithPrefix("imageRepositories[0]") {
+               graphqlData("repository").isEqualTo(repo)
+               graphqlData("tag[0].name").isEqualTo("latest")
+               graphqlData("tag[0].type").isEqualTo("LATEST")
+               graphqlData("tag[0].image.buildTime").isEqualTo(EPOCH.toString())
+               graphqlData("tag[1].name").isEqualTo("1")
+               graphqlData("tag[1].type").isEqualTo("MAJOR")
+               graphqlData("tag[1].image.buildTime").isEqualTo(EPOCH.toString())
+           }
+           .graphqlDoesNotContainErrors()
     }
 
     @Test

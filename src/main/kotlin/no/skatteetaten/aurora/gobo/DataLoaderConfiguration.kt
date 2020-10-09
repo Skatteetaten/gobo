@@ -65,14 +65,13 @@ class DataLoaderConfiguration(
         DataLoader.newMappedDataLoaderWithTry(
             { keys: Set<K>, env: BatchLoaderEnvironment ->
                 GlobalScope.async(coroutineDispatcher) {
-                        val byKeys = keysDataLoader.getByKeys(
-                            keys.first() as Set<K>,
-                            env.keyContexts.entries.first().value as GoboGraphQLContext
-                        )
-                    byKeys
+                    keysDataLoader.getByKeys(
+                        keys,
+                        env.keyContexts.entries.first().value as GoboGraphQLContext
+                    )
                 }.asCompletableFuture()
             },
-            DataLoaderOptions.newOptions().setCachingEnabled(false)
+            DataLoaderOptions.newOptions().setCachingEnabled(false).setBatchingEnabled(false)
         )
 
     /**
