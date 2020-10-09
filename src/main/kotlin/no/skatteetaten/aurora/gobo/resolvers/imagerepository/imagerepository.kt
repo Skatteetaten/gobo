@@ -71,7 +71,7 @@ data class ImageRepository(
     suspend fun tags(
             types: List<ImageTagType>?,
             filter: String?,
-            first: Int?,
+            first: Int,
             after: String?,
             dfe: DataFetchingEnvironment
     ): ImageTagsConnection {
@@ -120,7 +120,7 @@ data class ImageTag(
 ) {
     val type: ImageTagType get() = typeOf(name)
 
-    suspend fun image(dfe: DataFetchingEnvironment): Image? = dfe.loadMultipleKeys<ImageTag, Image>(listOf(this)).values.ifEmpty { null }?.first()?.get()
+    suspend fun image(dfe: DataFetchingEnvironment): Image? = dfe.load<ImageTag, Image>(this)
 
     companion object {
         fun fromTagString(tagString: String, lastDelimiter: String = ":"): ImageTag {
