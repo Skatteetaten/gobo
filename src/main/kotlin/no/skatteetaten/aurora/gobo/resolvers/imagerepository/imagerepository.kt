@@ -120,7 +120,7 @@ data class ImageTag(
 ) {
     val type: ImageTagType get() = typeOf(name)
 
-    suspend fun image(dfe: DataFetchingEnvironment): Image? = dfe.loadMultipleKeys<ImageTag, Image>(listOf(this)).values.first().get()
+    suspend fun image(dfe: DataFetchingEnvironment): Image? = dfe.loadMultipleKeys<ImageTag, Image>(listOf(this)).values.ifEmpty { null }?.first()?.get()
 
     companion object {
         fun fromTagString(tagString: String, lastDelimiter: String = ":"): ImageTag {
