@@ -1,6 +1,5 @@
 package no.skatteetaten.aurora.gobo.integration.skap
 
-import kotlinx.coroutines.runBlocking
 import no.skatteetaten.aurora.gobo.RequiresSkap
 import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
@@ -19,9 +18,9 @@ import org.springframework.web.reactive.function.client.awaitBody
 class WebsealServiceReactive(
     private val sharedSecretReader: SharedSecretReader,
     @TargetService(ServiceTypes.SKAP) private val webClient: WebClient
-) {
+) : WebsealService {
 
-    suspend fun getStates(): List<WebsealStateResource> =
+    override suspend fun getStates(): List<WebsealStateResource> =
         webClient
             .get()
             .uri("/webseal/v3")
@@ -31,16 +30,10 @@ class WebsealServiceReactive(
 }
 
 interface WebsealService {
-    fun getStates(): List<WebsealStateResource> = integrationDisabled()
+    suspend fun getStates(): List<WebsealStateResource> = integrationDisabled()
 
     private fun integrationDisabled(): Nothing =
         throw IntegrationDisabledException("Skap integration is disabled for this environment")
-}
-
-@Service
-@ConditionalOnBean(RequiresSkap::class)
-class WebsealServiceBlocking(private val websealService: WebsealServiceReactive) : WebsealService {
-    override fun getStates() = runBlocking { websealService.getStates() }
 }
 
 @Service

@@ -118,7 +118,7 @@ class AffiliationQueryResolverTest : GraphQLTestWithDbhAndSkap() {
     fun `Query for affiliations with webseal states`() {
         coEvery { affiliationService.getAllAffiliations() } returns listOf("paas")
         every { applicationService.getApplications(any()) } returns listOf(ApplicationResourceBuilder().build())
-        every { websealService.getStates() } returns listOf(WebsealStateResourceBuilder().build())
+        coEvery { websealService.getStates() } returns listOf(WebsealStateResourceBuilder().build())
 
         webTestClient.queryGraphQL(getAffiliationsWithWebsealStatesQuery, token = "test-token")
             .expectStatus().isOk

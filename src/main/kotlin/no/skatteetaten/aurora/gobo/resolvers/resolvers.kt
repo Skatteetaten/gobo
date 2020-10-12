@@ -14,26 +14,6 @@ import reactor.retry.Retry
 import reactor.retry.RetryContext
 import java.time.Duration
 
-/*
-val DataFetchingEnvironment.token: String?
-    get() {
-        val authorization = this.getContext<GraphQLServletContext>().httpServletRequest.getHeader("Authorization")
-        return authorization?.split(" ")?.lastOrNull()?.trim()
-    }
-
-fun <T : KeyDataLoader<*, V>, V> DataFetchingEnvironment.loader(type: KClass<T>): DataLoader<Any, V> {
-    val key = "${type.simpleName}"
-    return this.getContext<GraphQLServletContext>().dataLoaderRegistry.get()
-        .getDataLoader<Any, V>(key) ?: throw IllegalStateException("No $key found")
-}
-
-fun <T : MultipleKeysDataLoader<*, V>, V> DataFetchingEnvironment.multipleKeysLoader(type: KClass<T>): DataLoader<Any, V> {
-    val key = "${type.simpleName}"
-    return this.getContext<GraphQLServletContext>().dataLoaderRegistry.get()
-        .getDataLoader<Any, V>(key) ?: throw IllegalStateException("No $key found")
-}
-*/
-
 fun <T> Mono<T>.blockNonNullAndHandleError(duration: Duration = Duration.ofSeconds(30), sourceSystem: String? = null) =
     this.switchIfEmpty(SourceSystemException("Empty response", sourceSystem = sourceSystem).toMono())
         .blockAndHandleError(duration, sourceSystem)!!

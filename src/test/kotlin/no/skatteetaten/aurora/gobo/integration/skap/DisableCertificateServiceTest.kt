@@ -9,12 +9,12 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 
 @SpringBootTest(
-    classes = [RequiresSkap::class, CertificateServiceBlocking::class, CertificateServiceDisabled::class],
+    classes = [RequiresSkap::class, CertificateServiceReactive::class, CertificateServiceDisabled::class],
     properties = ["integrations.skap.url=false"]
 )
 class DisableCertificateServiceTest {
     @Autowired(required = false)
-    private var certificateServiceBlocking: CertificateServiceBlocking? = null
+    private var certificateServiceBlocking: CertificateServiceReactive? = null
 
     @Autowired(required = false)
     private var certificateServiceDisabled: CertificateServiceDisabled? = null
