@@ -6,11 +6,14 @@ import java.time.Instant
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageTagType
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageTagType.Companion.typeOf
-import no.skatteetaten.aurora.gobo.resolvers.GoboConnection
+import no.skatteetaten.aurora.gobo.integration.cantus.Tag
+import no.skatteetaten.aurora.gobo.integration.cantus.TagsDto
 import no.skatteetaten.aurora.gobo.resolvers.GoboEdge
 import no.skatteetaten.aurora.gobo.resolvers.GoboPageInfo
 import no.skatteetaten.aurora.gobo.resolvers.GoboPagedEdges
 import no.skatteetaten.aurora.gobo.resolvers.load
+import no.skatteetaten.aurora.gobo.resolvers.loadMultipleKeys
+import no.skatteetaten.aurora.gobo.resolvers.pageEdges
 
 private val logger = KotlinLogging.logger {}
 
@@ -50,6 +53,44 @@ data class ImageRepository(
         name = this.name,
         filter = filter
     )
+
+    // TODO should this be named tags? it returns a list
+    suspend fun tag(
+        names: List<String>,
+        dfe: DataFetchingEnvironment
+    ): List<ImageWithType?> {
+
+        if (!isFullyQualified) {
+            return emptyList()
+        }
+
+        val imageTags = names.map { ImageTag(this, it) }
+        val values = dfe.loadMultipleKeys<ImageTag, Image>(imageTags)
+        return values.map {
+            ImageWithType(it.key.name, it.value.get())
+        }
+    }
+
+    suspend fun tags(
+        types: List<ImageTagType>?,
+        filter: String?,
+        first: Int,
+        after: String?,
+        dfe: DataFetchingEnvironment
+    ): ImageTagsConnection {
+        val tagsDto = if (!isFullyQualified) {
+            TagsDto(emptyList())
+        } else {
+            dfe.load(toImageRepo(filter))
+        }
+        val imageTags = tagsDto.tags.toImageTags(this, types)
+        val allEdges = imageTags.map { ImageTagEdge(it) }
+        return ImageTagsConnection(pageEdges(allEdges, first, after))
+    }
+
+    private fun List<Tag>.toImageTags(imageRepository: ImageRepository, types: List<ImageTagType>?) = this
+        .map { ImageTag(imageRepository = imageRepository, name = it.name) }
+        .filter { types == null || it.type in types }
 
     companion object {
         /**
@@ -96,10 +137,10 @@ data class ImageTag(
 data class ImageTagEdge(val node: ImageTag) : GoboEdge(node.name)
 
 data class ImageTagsConnection(
-    override val edges: List<ImageTagEdge>,
-    override val pageInfo: GoboPageInfo?,
-    override val totalCount: Int = edges.size
-) : GoboConnection<ImageTagEdge>() {
+    val edges: List<ImageTagEdge>,
+    val pageInfo: GoboPageInfo?,
+    val totalCount: Int = edges.size
+) {
     constructor(paged: GoboPagedEdges<ImageTagEdge>) : this(paged.edges, paged.pageInfo, paged.totalCount)
 }
 

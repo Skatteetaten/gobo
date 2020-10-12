@@ -438,7 +438,7 @@ data class AuroraResponseBuilder(val status: Int, val url: String) {
     val statusCode: HttpStatus
         get() = HttpStatus.valueOf(status)
 
-    fun build(): AuroraResponse<HalResource> {
+    fun <T : HalResource> build(): AuroraResponse<T> {
         val statusMessage = when {
             statusCode.is4xxClientError -> {
                 when (statusCode.value()) {

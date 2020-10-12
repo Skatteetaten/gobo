@@ -50,7 +50,7 @@ class ApplicationDeploymentQueryResolverTest : GraphQLTestWithDbhAndSkap() {
         val bigipJob = SkapJobForBigipBuilder().build()
         every { routeService.getSkapJobs("namespace", "name-webseal") } returns listOf(websealjob)
         every { routeService.getSkapJobs("namespace", "name-bigip") } returns listOf(bigipJob)
-        every { imageRegistryService.findTagsByName(any(), any()) } returns AuroraResponse(
+        coEvery { imageRegistryService.findTagsByName(any(), any()) } returns AuroraResponse(
             listOf(
                 ImageTagResourceBuilder().build()
             )

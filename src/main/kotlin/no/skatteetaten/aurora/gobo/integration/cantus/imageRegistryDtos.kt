@@ -16,8 +16,8 @@ enum class ImageTagType {
     companion object {
         fun typeOf(tag: String): ImageTagType {
             return when {
-                tag.toLowerCase() == "latest" -> ImageTagType.LATEST
-                tag.toLowerCase().endsWith("-snapshot") -> ImageTagType.SNAPSHOT
+                tag.toLowerCase() == "latest" -> LATEST
+                tag.toLowerCase().endsWith("-snapshot") -> SNAPSHOT
                 tag.toLowerCase().startsWith("snapshot-") -> ImageTagType.AURORA_SNAPSHOT_VERSION
                 // It is important that COMMIT_HASH is processed before MAJOR to avoid a hash like 1984012 to be
                 // considered a MAJOR version (although, technically it could be major version it is not very likely).

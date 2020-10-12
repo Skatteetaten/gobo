@@ -33,5 +33,5 @@ fun <T : GoboEdge> createPageInfo(pageEdges: List<T>, allEdges: List<T> = pageEd
 
     val page = Cursors(pageEdges)
     val all = Cursors(allEdges)
-    return GoboPageInfo(page.first, page.last, page.isAtStartOf(all), page.isAtEndOf(all))
+    return GoboPageInfo(page.first?.value, page.last?.value, page.isAtStartOf(all), page.isAtEndOf(all))
 }
