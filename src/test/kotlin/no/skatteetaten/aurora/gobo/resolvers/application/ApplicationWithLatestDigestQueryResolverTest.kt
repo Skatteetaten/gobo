@@ -2,23 +2,24 @@ package no.skatteetaten.aurora.gobo.resolvers.application
 
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.coEvery
-import io.mockk.every
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentDetailsBuilder
 import no.skatteetaten.aurora.gobo.ApplicationResourceBuilder
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageRegistryServiceBlocking
+import no.skatteetaten.aurora.gobo.integration.cantus.ImageTagDto
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import no.skatteetaten.aurora.gobo.integration.mokey.AuroraNamespacePermissions
 import no.skatteetaten.aurora.gobo.integration.mokey.PermissionService
 import no.skatteetaten.aurora.gobo.resolvers.GraphQLTestWithDbhAndSkap
+import no.skatteetaten.aurora.gobo.resolvers.graphqlData
+import no.skatteetaten.aurora.gobo.resolvers.graphqlDataWithPrefix
+import no.skatteetaten.aurora.gobo.resolvers.graphqlDoesNotContainErrors
+import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepoDto
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageTag
-import no.skatteetaten.aurora.gobo.resolvers.printResult
 import no.skatteetaten.aurora.gobo.resolvers.queryGraphQL
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 
-@Disabled
 class ApplicationWithLatestDigestQueryResolverTest : GraphQLTestWithDbhAndSkap() {
 
     @Value("classpath:graphql/queries/getApplicationsWithLatestDigest.graphql")
@@ -33,7 +34,6 @@ class ApplicationWithLatestDigestQueryResolverTest : GraphQLTestWithDbhAndSkap()
     @MockkBean
     private lateinit var permissionService: PermissionService
 
-    @Disabled("Implement image resolvers")
     @Test
     fun `Query for latest image from repo`() {
         val affiliations = listOf("paas")
@@ -43,13 +43,18 @@ class ApplicationWithLatestDigestQueryResolverTest : GraphQLTestWithDbhAndSkap()
         val tag = ImageTag.fromTagString(details.imageDetails!!.dockerImageTagReference!!)
         val imageRepoDto = tag.imageRepository.toImageRepo()
 
-        every {
-            imageRegistryServiceBlocking.resolveTagToSha(
+        coEvery {
+            imageRegistryServiceBlocking.findImageTagDto(
                 imageRepoDto,
                 tag.name,
+
                 "test-token"
             )
-        } returns "sha256:123"
+        } returns ImageTagDto(
+            imageTag = "abc",
+            imageRepoDto = ImageRepoDto(null, "aurora", "gobo", null),
+            dockerDigest = "sha256:123"
+        )
 
         coEvery { applicationService.getApplications(affiliations) } returns listOf(ApplicationResourceBuilder().build())
 
@@ -65,8 +70,6 @@ class ApplicationWithLatestDigestQueryResolverTest : GraphQLTestWithDbhAndSkap()
         webTestClient.queryGraphQL(getApplicationsQuery, variables, "test-token")
             .expectStatus().isOk
             .expectBody()
-            .printResult()
-            /*
             .graphqlData("applications.totalCount").isNumber
             .graphqlDataWithPrefix("applications.edges[0].node.applicationDeployments[0].details.imageDetails") {
                 graphqlData("dockerImageTagReference").isEqualTo("docker.registry/group/name:2")
@@ -74,6 +77,5 @@ class ApplicationWithLatestDigestQueryResolverTest : GraphQLTestWithDbhAndSkap()
                 graphqlData("isLatestDigest").isEqualTo(true)
             }
             .graphqlDoesNotContainErrors()
-             */
     }
 }

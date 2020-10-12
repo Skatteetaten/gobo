@@ -1,8 +1,8 @@
 package no.skatteetaten.aurora.gobo.resolvers.imagerepository
 
 import com.ninjasquad.springmockk.MockkBean
+import io.mockk.coEvery
 import io.mockk.every
-import java.time.Instant.EPOCH
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.integration.cantus.AuroraResponse
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageBuildTimeline
@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
+import java.time.Instant.EPOCH
 
 private fun ImageRepoAndTags.toImageTagResource() =
     this.imageTags.map {
@@ -39,7 +40,6 @@ private fun ImageRepoAndTags.toImageTagResource() =
 private fun List<ImageRepoAndTags>.getTagCount() =
     this.flatMap { it.imageTags }.size
 
-@Disabled
 class ImageRepositoryQueryResolverTest : GraphQLTestWithDbhAndSkap() {
     @Value("classpath:graphql/queries/getImageRepositories.graphql")
     private lateinit var reposWithTagsQuery: Resource
@@ -95,7 +95,7 @@ class ImageRepositoryQueryResolverTest : GraphQLTestWithDbhAndSkap() {
             )
         )
 
-        every { imageRegistryServiceBlocking.findTagsByName(query, "test-token") } returns auroraResponse
+        coEvery { imageRegistryServiceBlocking.findTagsByName(any(), any()) } returns auroraResponse
 
         val variables =
             mapOf("repositories" to query.map { it.imageRepository }, "tagNames" to query.flatMap { it.imageTags })
@@ -116,7 +116,16 @@ class ImageRepositoryQueryResolverTest : GraphQLTestWithDbhAndSkap() {
 
     @Test
     fun `Query for repositories and tags`() {
-        every { imageRegistryServiceBlocking.findTagsByName(imageReposAndTags, "test-token") } returns auroraResponse
+        coEvery { imageRegistryServiceBlocking.findTagsByName(any(), any()) } returns auroraResponse
+
+        imageReposAndTags.forEach { imageRepoAndTags ->
+            every {
+                imageRegistryServiceBlocking.findTagNamesInRepoOrderedByCreatedDateDesc(
+                    ImageRepository.fromRepoString(imageRepoAndTags.imageRepository).toImageRepo(),
+                    "test-token"
+                )
+            } returns TagsDto(imageRepoAndTags.imageTags.map { Tag(name = it, type = ImageTagType.typeOf(it)) })
+        }
 
         val variables = mapOf("repositories" to imageReposAndTags.map { it.imageRepository })
         webTestClient.queryGraphQL(reposWithTagsQuery, variables, "test-token")
@@ -137,6 +146,7 @@ class ImageRepositoryQueryResolverTest : GraphQLTestWithDbhAndSkap() {
     }
 
     @Test
+    @Disabled("error handling not implemented")
     fun `Query for repositories with empty array input`() {
         webTestClient.queryGraphQL(
             queryResource = reposWithTagsQuery,
@@ -163,7 +173,7 @@ class ImageRepositoryQueryResolverTest : GraphQLTestWithDbhAndSkap() {
 
     @Test
     fun `Query for tags with only first filter present`() {
-        every { imageRegistryServiceBlocking.findTagsByName(any(), any()) } returns createAuroraResponse(3)
+        coEvery { imageRegistryServiceBlocking.findTagsByName(any(), any()) } returns createAuroraResponse(3)
 
         webTestClient.queryGraphQL(
             queryResource = reposWithOnlyFirstFilter,
@@ -186,7 +196,7 @@ class ImageRepositoryQueryResolverTest : GraphQLTestWithDbhAndSkap() {
         val pageSize = 3
         val variables = mapOf("repositories" to imageReposAndTags.first().imageRepository, "pageSize" to pageSize)
 
-        every { imageRegistryServiceBlocking.findTagsByName(any(), any()) } returns createAuroraResponse(pageSize)
+        coEvery { imageRegistryServiceBlocking.findTagsByName(any(), any()) } returns createAuroraResponse(pageSize)
 
         webTestClient.queryGraphQL(tagsWithPagingQuery, variables, "test-token")
             .expectStatus().isOk
@@ -203,9 +213,10 @@ class ImageRepositoryQueryResolverTest : GraphQLTestWithDbhAndSkap() {
             .graphqlDoesNotContainErrors()
     }
 
+    @Disabled("Error handling not implemented")
     @Test
     fun `Get errors when findTagsByName fails with exception`() {
-        every {
+        coEvery {
             imageRegistryServiceBlocking.findTagsByName(
                 listOf(imageReposAndTags.first()),
                 "test-token"

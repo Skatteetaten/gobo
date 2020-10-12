@@ -1,5 +1,7 @@
 package no.skatteetaten.aurora.gobo.integration.cantus
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import kotlinx.coroutines.reactive.awaitFirst
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
@@ -7,12 +9,14 @@ import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.resolvers.handleError
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepoDto
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageTag
+import org.springframework.http.HttpHeaders
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.bodyToMono
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
+import uk.q3c.rest.hal.HalResource
 
 private val logger = KotlinLogging.logger {}
 
@@ -38,40 +42,43 @@ class ImageRegistryServiceBlocking(
     @TargetService(ServiceTypes.CANTUS) val webClient: WebClient
 ) {
 
-    fun resolveTagToSha(imageRepoDto: ImageRepoDto, imageTag: String, token: String): String? {
+    suspend fun resolveTagToSha(imageRepoDto: ImageRepoDto, imageTag: String, token: String): String? {
         val requestBody = BodyInserters.fromValue(
             TagUrlsWrapper(listOf("${imageRepoDto.repository}/$imageTag"))
         )
-        val auroraImageTagResource: AuroraResponse<ImageTagResource> =
-            execute<AuroraResponse<ImageTagResource>>(token) {
-                logger.debug("Retrieving type=ImageTagResource from  url=${imageRepoDto.registry} image=${imageRepoDto.imageName}/$imageTag")
-                it.post().uri("/manifest").body(requestBody)
-            }.block()!!
+        val auroraImageTagResource: AuroraResponse<ImageTagResource> = webClient
+            .post()
+            .uri("/manifest")
+            .body(requestBody)
+            .execute(token)
+
         return ImageTagDto.toDto(auroraImageTagResource, imageTag, imageRepoDto).dockerDigest
     }
 
-    fun findImageTagDto(imageRepoDto: ImageRepoDto, imageTag: String, token: String): ImageTagDto {
+    suspend fun findImageTagDto(imageRepoDto: ImageRepoDto, imageTag: String, token: String): ImageTagDto {
         val requestBody = BodyInserters.fromValue(
             TagUrlsWrapper(listOf("${imageRepoDto.repository}/$imageTag"))
         )
-        val auroraImageTagResource: AuroraResponse<ImageTagResource> =
-            execute<AuroraResponse<ImageTagResource>>(token) {
-                logger.debug("Retrieving type=ImageTagResource from  url=${imageRepoDto.registry} image=${imageRepoDto.imageName}/$imageTag")
-                it.post().uri("/manifest").body(requestBody)
-            }.block()!!
+        val auroraImageTagResource: AuroraResponse<ImageTagResource> = webClient
+            .post()
+            .uri("/manifest")
+            .body(requestBody)
+            .execute(token)
+
         return ImageTagDto.toDto(auroraImageTagResource, imageTag, imageRepoDto)
     }
 
-    fun findTagsByName(
+    suspend fun findTagsByName(
         imageReposAndTags: List<ImageRepoAndTags>,
         token: String
     ): AuroraResponse<ImageTagResource> {
         val tagUrls = imageReposAndTags.getAllTagUrls()
         val requestBody = BodyInserters.fromValue(tagUrls)
-
-        return execute<AuroraResponse<ImageTagResource>>(token) {
-            it.post().uri("/manifest").body(requestBody)
-        }.block()!!
+        return webClient
+            .post()
+            .uri("/manifest")
+            .body(requestBody)
+            .execute(token)
     }
 
     fun findTagNamesInRepoOrderedByCreatedDateDesc(imageRepoDto: ImageRepoDto, token: String) =
@@ -88,6 +95,13 @@ class ImageRegistryServiceBlocking(
                 )
             }.blockAndHandleCantusFailure()
         )
+
+    private suspend inline fun <reified T : HalResource> WebClient.RequestHeadersSpec<*>.execute(token: String) =
+        this.headers {
+            it.set(HttpHeaders.AUTHORIZATION, "Bearer $token")
+        }.retrieve().bodyToMono<AuroraResponse<T>>().map { response ->
+            response.copy(items = response.items.map { jacksonObjectMapper().convertValue(it, T::class.java) })
+        }.awaitFirst()
 
     private inline fun <reified T : Any> execute(
         token: String,

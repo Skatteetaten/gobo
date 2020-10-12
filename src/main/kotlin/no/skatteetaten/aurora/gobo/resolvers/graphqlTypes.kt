@@ -21,8 +21,8 @@ abstract class GoboEdge(name: String) {
 }
 
 data class GoboPageInfo(
-    val startCursor: GoboCursor?,
-    val endCursor: GoboCursor?,
+    val startCursor: String?,
+    val endCursor: String?,
     val hasPreviousPage: Boolean,
     val hasNextPage: Boolean
 )
