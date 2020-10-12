@@ -22,7 +22,6 @@ data class Affiliation(val name: String) {
     }
 
     suspend fun websealStates(dfe: DataFetchingEnvironment): List<WebsealState> {
-        logger.info("inne i affiliation, $name")
         return dfe.loadMany(name)
     }
 }

@@ -2,7 +2,6 @@ package no.skatteetaten.aurora.gobo.resolvers.webseal
 
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.coEvery
-import kotlinx.coroutines.test.runBlockingTest
 import no.skatteetaten.aurora.gobo.WebsealStateResourceBuilder
 import no.skatteetaten.aurora.gobo.resolvers.GraphQLTestWithDbhAndSkap
 import no.skatteetaten.aurora.gobo.resolvers.graphqlDataWithPrefix
@@ -24,7 +23,7 @@ class WebsealStateResolverTest : GraphQLTestWithDbhAndSkap() {
     private lateinit var websealAffiliationService: WebsealAffiliationService
 
     @Test
-    fun `Get WebSEAL states`() = runBlockingTest {
+    fun `Get WebSEAL states`() {
         coEvery { websealAffiliationService.getWebsealState(any()) } returns
             mapOf(
                 "aurora" to listOf(WebsealStateResourceBuilder().build())
