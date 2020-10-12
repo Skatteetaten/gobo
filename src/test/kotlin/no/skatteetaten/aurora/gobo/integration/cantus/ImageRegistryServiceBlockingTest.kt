@@ -8,12 +8,12 @@ import assertk.assertions.isInstanceOf
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import assertk.assertions.messageContains
-import io.mockk.coEvery
 import no.skatteetaten.aurora.gobo.AuroraResponseBuilder
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository
 import no.skatteetaten.aurora.gobo.testObjectMapper
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.execute
+import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.executeBlocking
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.jupiter.api.Test
@@ -34,40 +34,40 @@ class  ImageRegistryServiceBlockingTest {
     private val imageRegistry = ImageRegistryServiceBlocking(
         WebClient.create(url.toString())
     )
-//
-//    @ParameterizedTest
-//    @ValueSource(ints = [400, 401, 403, 404, 418, 500, 501])
-//    fun `get tags given error from Cantus throw exception`(statusCode: Int) {
-//        val response = AuroraResponseBuilder(status = statusCode, url = "").build()
-//        val mockResponse = MockResponse()
-//            .setBody(testObjectMapper().writeValueAsString(response))
-//            .setResponseCode(200)
-//            .setHeader("Content-Type", "application/json")
-//
-//        server.execute(mockResponse) {
-//            assertThat {
-//                imageRegistry.findTagNamesInRepoOrderedByCreatedDateDesc(imageRepo, token)
-//            }.isNotNull().isFailure().isInstanceOf(SourceSystemException::class)
-//                .messageContains("status=$statusCode message=${HttpStatus.valueOf(statusCode).reasonPhrase}")
-//        }
-//    }
-//
-//    @Test
-//    fun `getTagsByName given non existing tag for image return AuroraResponse with CantusFailure`() {
-//
-//        val repository = "docker1.no/no_skatteetaten_aurora_demo/whoami"
-//        val tag = "10"
-//
-//        val auroraResponseFailure = AuroraResponseBuilder(status = 404, url = "$repository/$tag").build()
-//
-//        val imageRepoAndTags =
-//            listOf(ImageRepoAndTags(repository, listOf(tag)))
-//
-//        server.execute(auroraResponseFailure) {
-//            coEvery {  val auroraResponseFailure = imageRegistry.findTagsByName(imageRepoAndTags, token) } returns auroraResponseFailure
-//            assertThat(auroraResponseFailure.failureCount).isEqualTo(1)
-//            assertThat(auroraResponseFailure.failure.first().url).isNotEmpty()
-//            assertThat(auroraResponseFailure.failure.first().errorMessage).endsWith("status=404 message=Not Found")
-//        }
-//    }
+
+   @ParameterizedTest
+   @ValueSource(ints = [400, 401, 403, 404, 418, 500, 501])
+   fun `get tags given error from Cantus throw exception`(statusCode: Int) {
+       val response: AuroraResponse<ImageTagResource> = AuroraResponseBuilder(status = statusCode, url = "").build()
+       val mockResponse = MockResponse()
+           .setBody(testObjectMapper().writeValueAsString(response))
+           .setResponseCode(200)
+           .setHeader("Content-Type", "application/json")
+
+       server.execute(mockResponse) {
+           assertThat {
+               imageRegistry.findTagNamesInRepoOrderedByCreatedDateDesc(imageRepo, token)
+           }.isNotNull().isFailure().isInstanceOf(SourceSystemException::class)
+               .messageContains("status=$statusCode message=${HttpStatus.valueOf(statusCode).reasonPhrase}")
+       }
+   }
+
+   @Test
+   fun `getTagsByName given non existing tag for image return AuroraResponse with CantusFailure`() {
+
+       val repository = "docker1.no/no_skatteetaten_aurora_demo/whoami"
+       val tag = "10"
+
+       val auroraResponseFailure: AuroraResponse<ImageTagResource> = AuroraResponseBuilder(status = 404, url = "$repository/$tag").build()
+
+       val imageRepoAndTags =
+           listOf(ImageRepoAndTags(repository, listOf(tag)))
+
+       server.executeBlocking(auroraResponseFailure) {
+           val tags = imageRegistry.findTagsByName(imageRepoAndTags, token)
+           assertThat(tags.failureCount).isEqualTo(1)
+           assertThat(tags.failure.first().url).isNotEmpty()
+           assertThat(tags.failure.first().errorMessage).endsWith("status=404 message=Not Found")
+       }
+   }
 }
