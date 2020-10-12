@@ -3,14 +3,12 @@ package no.skatteetaten.aurora.gobo.integration.cantus
 import assertk.assertThat
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
-import io.mockk.coEvery
 import kotlinx.coroutines.runBlocking
 import no.skatteetaten.aurora.gobo.ApplicationConfig
 import no.skatteetaten.aurora.gobo.StrubrunnerRepoPropertiesEnabler
 import no.skatteetaten.aurora.gobo.TestConfig
 import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository
 import no.skatteetaten.aurora.gobo.security.SharedSecretReader
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -55,7 +53,6 @@ class ImageRegistryServiceBlockingContractTest : StrubrunnerRepoPropertiesEnable
                     imageTags = listOf("2", "2.1", "2.1.3", "latest", "dev-SNAPSHOT")
             )
     )
-    private val auroraResponse = createAuroraResponse()
 
     @Test
     fun `verify fetches all tags for specified repo`() {
@@ -65,31 +62,24 @@ class ImageRegistryServiceBlockingContractTest : StrubrunnerRepoPropertiesEnable
     }
 
     @Test
-    @Disabled("Unstable test")
     fun `verify dockerContentDigest can be found`() {
-
         val dockerContentDigest = runBlocking { imageRegistry.resolveTagToSha(imageRepo, tagName, token) }
-
         assertThat(dockerContentDigest).isNotNull().isNotEmpty()
     }
 
     @Test
     fun `getTagsByName given repositories and tagNames return AuroraResponse`() {
-
         val imageReposAndTags = listOf(
             ImageRepoAndTags("docker1.no/no_skatteetaten_aurora_demo/whoami", listOf("1")),
             ImageRepoAndTags("docker2.no/no_skatteetaten_aurora_demo/whoami", listOf("2"))
         )
 
-        coEvery { imageRegistry.findTagsByName(imageReposAndTags, "test-token") } returns auroraResponse
+        val auroraResponse = runBlocking {
+             imageRegistry.findTagsByName(imageReposAndTags, token)
+        }
 
         assertThat(auroraResponse.items.forEach { it.timeline.buildEnded != null })
         assertThat(auroraResponse.failure.forEach { it.errorMessage.isNotEmpty() })
-    }
-
-    private fun createAuroraResponse(itemsCount: Int = imageReposAndTags.getTagCount()): AuroraResponse<ImageTagResource> {
-        val imageTagResources = imageReposAndTags.flatMap { it.toImageTagResource() }.subList(0, itemsCount)
-        return AuroraResponse(items = imageTagResources)
     }
 
 }

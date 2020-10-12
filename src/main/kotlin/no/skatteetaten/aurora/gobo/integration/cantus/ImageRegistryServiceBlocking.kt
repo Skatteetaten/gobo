@@ -1,5 +1,7 @@
 package no.skatteetaten.aurora.gobo.integration.cantus
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import kotlinx.coroutines.reactive.awaitFirst
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
@@ -11,7 +13,6 @@ import org.springframework.http.HttpHeaders
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.WebClient
-import org.springframework.web.reactive.function.client.awaitBody
 import org.springframework.web.reactive.function.client.bodyToMono
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
@@ -56,13 +57,13 @@ class ImageRegistryServiceBlocking(
 
     suspend fun findImageTagDto(imageRepoDto: ImageRepoDto, imageTag: String, token: String): ImageTagDto {
         val requestBody = BodyInserters.fromValue(
-                TagUrlsWrapper(listOf("${imageRepoDto.repository}/$imageTag"))
+            TagUrlsWrapper(listOf("${imageRepoDto.repository}/$imageTag"))
         )
         val auroraImageTagResource: AuroraResponse<ImageTagResource> = webClient
-                .post()
-                .uri("/manifest")
-                .body(requestBody)
-                .execute(token)
+            .post()
+            .uri("/manifest")
+            .body(requestBody)
+            .execute(token)
 
         return ImageTagDto.toDto(auroraImageTagResource, imageTag, imageRepoDto)
     }
@@ -78,11 +79,10 @@ class ImageRegistryServiceBlocking(
 //            it.post().uri("/manifest").body(requestBody)
 //        }
         return webClient
-                .post()
-                .uri("/manifest")
-                .body(requestBody)
-                .execute(token)
-
+            .post()
+            .uri("/manifest")
+            .body(requestBody)
+            .execute(token)
     }
 
     fun findTagNamesInRepoOrderedByCreatedDateDesc(imageRepoDto: ImageRepoDto, token: String) =
@@ -100,15 +100,12 @@ class ImageRegistryServiceBlocking(
             }.blockAndHandleCantusFailure()
         )
 
-    private inline fun <reified T : HalResource> AuroraResponse<T>.responseOrNull(): T? =
-        this.items.ifEmpty { null }?.first()
-
-    private inline fun <reified T : HalResource> AuroraResponse<T>.responses(): List<T> = this.items
-
     private suspend inline fun <reified T : HalResource> WebClient.RequestHeadersSpec<*>.execute(token: String) =
         this.headers {
             it.set(HttpHeaders.AUTHORIZATION, "Bearer $token")
-        }.retrieve().awaitBody<AuroraResponse<T>>()
+        }.retrieve().bodyToMono<AuroraResponse<T>>().map { response ->
+            response.copy(items = response.items.map { jacksonObjectMapper().convertValue(it, T::class.java) })
+        }.awaitFirst()
 
     private inline fun <reified T : Any> execute(
         token: String,
