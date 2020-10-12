@@ -48,8 +48,6 @@ class DataLoaderConfiguration(
             }
         }
 
-
-
         return object : DataLoaderRegistryFactory {
             override fun generate() = registry
         }

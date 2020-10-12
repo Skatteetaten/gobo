@@ -21,10 +21,9 @@ data class ImageDetails(
             val imageTagDto: ImageTagDto = dfe.load(ImageTag.fromTagString(it))
             imageTagDto.dockerDigest == digest
         }
-
 }
 
-//data class ImageTagDigestDTO(val imageTag: ImageTag)
+// data class ImageTagDigestDTO(val imageTag: ImageTag)
 
 /*
 private val logger = KotlinLogging.logger {}

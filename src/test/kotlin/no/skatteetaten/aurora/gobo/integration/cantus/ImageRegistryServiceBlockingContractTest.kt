@@ -16,16 +16,16 @@ import org.springframework.cloud.contract.stubrunner.spring.AutoConfigureStubRun
 import java.time.Instant
 
 private fun List<ImageRepoAndTags>.getTagCount() =
-        this.flatMap { it.imageTags }.size
+    this.flatMap { it.imageTags }.size
 private fun ImageRepoAndTags.toImageTagResource() =
-        this.imageTags.map {
-            ImageTagResource(
-                    requestUrl = "${this.imageRepository}/$it",
-                    dockerDigest = "sha256",
-                    dockerVersion = "2",
-                    timeline = ImageBuildTimeline(null, Instant.EPOCH)
-            )
-        }
+    this.imageTags.map {
+        ImageTagResource(
+            requestUrl = "${this.imageRepository}/$it",
+            dockerDigest = "sha256",
+            dockerVersion = "2",
+            timeline = ImageBuildTimeline(null, Instant.EPOCH)
+        )
+    }
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.NONE,
     classes = [TestConfig::class, ApplicationConfig::class, ImageRegistryServiceBlocking::class, SharedSecretReader::class]
@@ -44,14 +44,14 @@ class ImageRegistryServiceBlockingContractTest : StrubrunnerRepoPropertiesEnable
     private val token: String = "token"
 
     private val imageReposAndTags = listOf(
-            ImageRepoAndTags(
-                    imageRepository = "docker-registry.aurora.sits.no:5000/aurora/openshift-jenkins-master",
-                    imageTags = listOf("1", "1.0", "1.0.0", "1.0.1", "latest", "feature_something-SNAPSHOT")
-            ),
-            ImageRepoAndTags(
-                    imageRepository = "docker-registry.aurora.sits.no:5000/aurora/openshift-jenkins-slave",
-                    imageTags = listOf("2", "2.1", "2.1.3", "latest", "dev-SNAPSHOT")
-            )
+        ImageRepoAndTags(
+            imageRepository = "docker-registry.aurora.sits.no:5000/aurora/openshift-jenkins-master",
+            imageTags = listOf("1", "1.0", "1.0.0", "1.0.1", "latest", "feature_something-SNAPSHOT")
+        ),
+        ImageRepoAndTags(
+            imageRepository = "docker-registry.aurora.sits.no:5000/aurora/openshift-jenkins-slave",
+            imageTags = listOf("2", "2.1", "2.1.3", "latest", "dev-SNAPSHOT")
+        )
     )
 
     @Test
@@ -75,11 +75,10 @@ class ImageRegistryServiceBlockingContractTest : StrubrunnerRepoPropertiesEnable
         )
 
         val auroraResponse = runBlocking {
-             imageRegistry.findTagsByName(imageReposAndTags, token)
+            imageRegistry.findTagsByName(imageReposAndTags, token)
         }
 
         assertThat(auroraResponse.items.forEach { it.timeline.buildEnded != null })
         assertThat(auroraResponse.failure.forEach { it.errorMessage.isNotEmpty() })
     }
-
 }

@@ -15,9 +15,9 @@ class ImageTagDtoDataLoader(private val imageRegistryServiceBlocking: ImageRegis
 
         val imageRepoDto = key.imageRepository.toImageRepo()
         return imageRegistryServiceBlocking.findImageTagDto(
-                imageRepoDto,
-                key.name,
-                token = context.token ?: throw AccessDeniedException("Anonymous user can not get image tags")
+            imageRepoDto,
+            key.name,
+            token = context.token ?: throw AccessDeniedException("Anonymous user can not get image tags")
         )
     }
 }

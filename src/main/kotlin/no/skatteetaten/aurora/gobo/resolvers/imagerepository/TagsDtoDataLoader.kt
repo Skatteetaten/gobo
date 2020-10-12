@@ -13,9 +13,8 @@ class TagsDtoDataLoader(
 ) : KeyDataLoader<ImageRepoDto, TagsDto> {
     override suspend fun getByKey(key: ImageRepoDto, context: GoboGraphQLContext): TagsDto {
         return imageRegistryServiceBlocking.findTagNamesInRepoOrderedByCreatedDateDesc(
-                imageRepoDto = key,
-                token = context.token ?: throw AccessDeniedException("Anonymous user can not get image tags")
+            imageRepoDto = key,
+            token = context.token ?: throw AccessDeniedException("Anonymous user can not get image tags")
         )
-
     }
 }
