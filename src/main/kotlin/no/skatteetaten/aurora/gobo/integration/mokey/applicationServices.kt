@@ -3,6 +3,7 @@ package no.skatteetaten.aurora.gobo.integration.mokey
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
+import no.skatteetaten.aurora.gobo.integration.boober.RedeployResponse
 import no.skatteetaten.aurora.gobo.resolvers.ApplicationRedeployException
 import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.ApplicationDeploymentRef
 import no.skatteetaten.aurora.gobo.resolvers.blockNonNullAndHandleError
@@ -37,15 +38,15 @@ class ApplicationServiceBlocking(private val applicationService: ApplicationServ
     fun getApplicationDeploymentDetails(token: String, applicationDeploymentId: String) =
         applicationService.getApplicationDeploymentDetails(token, applicationDeploymentId).blockNonNullWithTimeout()
 
-    fun refreshApplicationDeployment(token: String, refreshParams: RefreshParams) =
+    fun refreshApplicationDeployment(token: String, refreshParams: RefreshParams, redeployResponse: RedeployResponse? = null) =
         applicationService.refreshApplicationDeployment(token, refreshParams).doOnError {
-            if (refreshParams.applicationDeploymentId != null && it is WebClientResponseException && it.statusCode == HttpStatus.BAD_REQUEST) {
+            if (redeployResponse != null && it is WebClientResponseException && it.statusCode == HttpStatus.BAD_REQUEST) {
                 logger.info("Refresh of applicationDeploymentId ${refreshParams.applicationDeploymentId} failed")
                 throw ApplicationRedeployException(
                     "Refresh of redeployed application failed",
                     it,
                     "APP_REFRESH_FAILED",
-                    refreshParams.applicationDeploymentId
+                    redeployResponse
                 )
             }
             throw it

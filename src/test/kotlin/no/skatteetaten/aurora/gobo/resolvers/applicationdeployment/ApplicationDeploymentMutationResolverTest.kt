@@ -3,6 +3,7 @@ package no.skatteetaten.aurora.gobo.resolvers.applicationdeployment
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import no.skatteetaten.aurora.gobo.integration.boober.ApplicationDeploymentService
+import no.skatteetaten.aurora.gobo.integration.boober.RedeployResponse
 import no.skatteetaten.aurora.gobo.resolvers.GraphQLTestWithDbhAndSkap
 import no.skatteetaten.aurora.gobo.resolvers.graphqlData
 import no.skatteetaten.aurora.gobo.resolvers.graphqlDoesNotContainErrors
@@ -40,7 +41,7 @@ class ApplicationDeploymentMutationResolverTest : GraphQLTestWithDbhAndSkap() {
     fun setUp() {
         every { applicationUpgradeService.upgrade(any(), any(), any()) } returns "123"
         every { applicationUpgradeService.deployCurrentVersion(any(), any()) } returns "123"
-        every { applicationUpgradeService.refreshApplicationDeployment(any(), any()) } returns true
+        every { applicationUpgradeService.refreshApplicationDeployment(any(), any<RedeployResponse>()) } returns true
         every { applicationDeploymentService.deleteApplicationDeployment(any(), any()) } returns true
     }
 
