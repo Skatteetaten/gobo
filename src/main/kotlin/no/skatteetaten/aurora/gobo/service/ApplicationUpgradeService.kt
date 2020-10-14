@@ -1,8 +1,9 @@
 package no.skatteetaten.aurora.gobo.service
 
+import kotlinx.coroutines.runBlocking
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigService
 import no.skatteetaten.aurora.gobo.integration.boober.RedeployResponse
-import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
+import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import no.skatteetaten.aurora.gobo.integration.mokey.RefreshParams
 import no.skatteetaten.aurora.gobo.integration.mokey.linkHrefs
 import org.springframework.stereotype.Service
@@ -21,7 +22,7 @@ class ApplicationUpgradeService(
             "Apply"
         )
 
-        suspend val applicationFile = auroraConfigService.getApplicationFile(token, currentLink)
+        val applicationFile = auroraConfigService.getApplicationFile(token, currentLink)
         auroraConfigService.patch(token, version, auroraConfigFile, applicationFile)
         auroraConfigService.redeploy(token, details, applyLink)
         return auroraConfigService.redeploy(token, details, applyLink).let {
@@ -32,7 +33,7 @@ class ApplicationUpgradeService(
 
     suspend fun deployCurrentVersion(token: String, applicationDeploymentId: String) {
         val details = applicationService.getApplicationDeploymentDetails(token, applicationDeploymentId)
-        val applyLink = details.link("Apply")?.href ?: throw IllegalArgumentException("")
+        val applyLink = details.link("Apply").href ?: throw IllegalArgumentException("")
         auroraConfigService.redeploy(token, details, applyLink)
         return auroraConfigService.redeploy(token, details, applyLink).let {
             refreshApplicationDeployment(token, it)
@@ -40,7 +41,7 @@ class ApplicationUpgradeService(
         }
     }
 
-    fun refreshApplicationDeployment(token: String, applicationDeploymentId: String): Boolean {
+    suspend fun refreshApplicationDeployment(token: String, applicationDeploymentId: String): Boolean {
         applicationService.refreshApplicationDeployment(
             token,
             RefreshParams(applicationDeploymentId)
@@ -48,12 +49,22 @@ class ApplicationUpgradeService(
         return true
     }
 
-    fun refreshApplicationDeployment(token: String, redeployResponse: RedeployResponse): Boolean {
+    suspend fun refreshApplicationDeployment(token: String, redeployResponse: RedeployResponse): Boolean {
         applicationService.refreshApplicationDeployment(
             token,
             RefreshParams(redeployResponse.applicationDeploymentId),
             redeployResponse
         )
+        return true
+    }
+
+    fun refreshApplicationDeployments(token: String, affiliations: List<String>): Boolean {
+        runBlocking {
+            applicationService.refreshApplicationDeployment(
+                token,
+                RefreshParams(affiliations = affiliations)
+            )
+        }
         return true
     }
 }

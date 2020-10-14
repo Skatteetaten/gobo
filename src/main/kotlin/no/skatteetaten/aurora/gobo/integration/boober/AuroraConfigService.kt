@@ -7,7 +7,6 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.fge.jackson.jsonpointer.JsonPointer
 import com.github.fge.jsonpatch.AddOperation
 import com.github.fge.jsonpatch.JsonPatch
-import java.time.Duration
 import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentDetailsResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentRefResource
@@ -87,12 +86,9 @@ class AuroraConfigService(
         applyLink: String
     ): RedeployResponse {
         val payload = ApplyPayload(listOf(details.applicationDeploymentCommand.applicationDeploymentRef))
-        val json = booberWebClient.put<JsonNode>(token, applyLink, body = payload).toMono().blockNonNullWithTimeout()
+        val json = booberWebClient.put<JsonNode>(url = applyLink, token = token, body = payload).response()
         return RedeployResponse(json)
     }
-
-    private fun <T> Mono<T>.blockNonNullWithTimeout() =
-        this.blockNonNullAndHandleError(Duration.ofSeconds(30), "boober")
 }
 
 data class RedeployResponse(private val json: JsonNode) {
