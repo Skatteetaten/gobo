@@ -17,9 +17,11 @@ import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigService
 import no.skatteetaten.aurora.gobo.integration.boober.BooberWebClient
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
+import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
+import no.skatteetaten.aurora.gobo.resolvers.ApplicationRedeployException
 import no.skatteetaten.aurora.gobo.testObjectMapper
 import no.skatteetaten.aurora.mockmvc.extensions.TestObjectMapperConfigurer
-import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.executeBlocking
+import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.execute
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.SocketPolicy
@@ -82,6 +84,22 @@ class ApplicationUpgradeServiceTest {
         assertThat(requests[4]?.path).isNotNull().isEqualTo("/mokey/api/auth/refresh")
     }
 
+    @Test
+    fun `Refresh cache fails during update of application deployment`() {
+        val requests = server.execute(
+            200 to applicationDeploymentDetailsResponse(),
+            200 to applicationFileResponse(),
+            200 to patchResponse(),
+            200 to redeployResponse(),
+            400 to refreshResponse()
+        ) {
+            assertThat { upgradeService.upgrade("token", "applicationDeploymentId", "version") }
+                .isFailure()
+                .isInstanceOf(ApplicationRedeployException::class)
+        }
+        assertThat(requests.size).isEqualTo(5)
+    }
+
     @Disabled("error handling")
     @ParameterizedTest
     @EnumSource(
@@ -125,7 +143,7 @@ class ApplicationUpgradeServiceTest {
 
     private fun patchResponse() = Response(items = listOf(AuroraConfigFileBuilder().build()))
 
-    private fun redeployResponse() = Response(items = listOf(TextNode("{}")))
+    private fun redeployResponse() = Response(items = listOf(jacksonObjectMapper().readTree("""{ "applicationDeploymentId": "123" }""")))
 
     private fun refreshResponse() = Response(items = listOf(TextNode("{}")))
 }

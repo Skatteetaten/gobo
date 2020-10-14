@@ -1,11 +1,13 @@
 package no.skatteetaten.aurora.gobo.integration.boober
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.TextNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.fge.jackson.jsonpointer.JsonPointer
 import com.github.fge.jsonpatch.AddOperation
 import com.github.fge.jsonpatch.JsonPatch
+import java.time.Duration
 import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentDetailsResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentRefResource
@@ -83,11 +85,34 @@ class AuroraConfigService(
         token: String,
         details: ApplicationDeploymentDetailsResource,
         applyLink: String
-    ): JsonNode {
+    ): RedeployResponse {
         val payload = ApplyPayload(listOf(details.applicationDeploymentCommand.applicationDeploymentRef))
-        return booberWebClient.put<JsonNode>(url = applyLink, token = token, body = payload).response()
+        val json = booberWebClient.put<JsonNode>(token, applyLink, body = payload).toMono().blockNonNullWithTimeout()
+        return RedeployResponse(json)
     }
+
+    private fun <T> Mono<T>.blockNonNullWithTimeout() =
+        this.blockNonNullAndHandleError(Duration.ofSeconds(30), "boober")
 }
+
+data class RedeployResponse(private val json: JsonNode) {
+
+    val applicationDeploymentId: String
+        @JsonProperty("id")
+        get() = json.at("/applicationDeploymentId").textValue()
+            ?: throw IllegalStateException("No applicationDeploymentId found in response")
+
+    val affiliation: String
+        get() = json.at("/deploymentSpec/affiliation/value").textValue()
+            ?: throw IllegalStateException("No affiliation found in response")
+}
+
+data class AuroraConfigFileResource(
+    val name: String,
+    val contents: String,
+    val type: AuroraConfigFileType,
+    val contentHash: String
+)
 
 enum class AuroraConfigFileType {
     DEFAULT,

@@ -1,3 +1,5 @@
 mutation redeployWithCurrentVersion($input: ApplicationDeploymentIdInput!) {
-    redeployWithCurrentVersion(input: $input)
+    redeployWithCurrentVersion(input: $input) {
+      applicationDeploymentId
+    }
 }

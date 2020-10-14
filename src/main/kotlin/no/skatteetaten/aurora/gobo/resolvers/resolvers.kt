@@ -14,6 +14,9 @@ import reactor.retry.Retry
 import reactor.retry.RetryContext
 import java.time.Duration
 
+fun <T> Mono<T>.blockWithRetry(duration: Duration = Duration.ofSeconds(30)) =
+    this.toMono().retryWithLog().block(duration)
+
 fun <T> Mono<T>.blockNonNullAndHandleError(duration: Duration = Duration.ofSeconds(30), sourceSystem: String? = null) =
     this.switchIfEmpty(SourceSystemException("Empty response", sourceSystem = sourceSystem).toMono())
         .blockAndHandleError(duration, sourceSystem)!!

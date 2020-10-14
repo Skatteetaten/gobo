@@ -24,8 +24,8 @@ type Query {
 
 type Mutation {
     deploy(input: ApplicationDeploymentInput!): ApplicationDeploymentResult
-    redeployWithVersion(input: ApplicationDeploymentVersionInput!): Boolean
-    redeployWithCurrentVersion(input: ApplicationDeploymentIdInput!): Boolean
+    redeployWithVersion(input: ApplicationDeploymentVersionInput!): DeployResponse
+    redeployWithCurrentVersion(input: ApplicationDeploymentIdInput!): DeployResponse
 
     refreshApplicationDeployment(input: RefreshByApplicationDeploymentIdInput!): Boolean
     refreshApplicationDeployments(input: RefreshByAffiliationsInput!): Boolean
