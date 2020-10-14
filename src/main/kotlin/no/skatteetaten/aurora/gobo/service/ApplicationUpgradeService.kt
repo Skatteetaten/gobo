@@ -1,6 +1,5 @@
 package no.skatteetaten.aurora.gobo.service
 
-import kotlinx.coroutines.runBlocking
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigService
 import no.skatteetaten.aurora.gobo.integration.boober.RedeployResponse
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
@@ -24,47 +23,40 @@ class ApplicationUpgradeService(
 
         val applicationFile = auroraConfigService.getApplicationFile(token, currentLink)
         auroraConfigService.patch(token, version, auroraConfigFile, applicationFile)
-        auroraConfigService.redeploy(token, details, applyLink)
         return auroraConfigService.redeploy(token, details, applyLink).let {
             refreshApplicationDeployment(token, it)
             it.applicationDeploymentId
         }
     }
 
-    suspend fun deployCurrentVersion(token: String, applicationDeploymentId: String) {
+    suspend fun deployCurrentVersion(token: String, applicationDeploymentId: String): String {
         val details = applicationService.getApplicationDeploymentDetails(token, applicationDeploymentId)
-        val applyLink = details.link("Apply").href ?: throw IllegalArgumentException("")
-        auroraConfigService.redeploy(token, details, applyLink)
+        val applyLink = details.link("Apply")?.href ?: throw IllegalArgumentException("")
         return auroraConfigService.redeploy(token, details, applyLink).let {
             refreshApplicationDeployment(token, it)
             it.applicationDeploymentId
         }
     }
 
-    suspend fun refreshApplicationDeployment(token: String, applicationDeploymentId: String): Boolean {
+    suspend fun refreshApplicationDeployment(token: String, applicationDeploymentId: String) {
         applicationService.refreshApplicationDeployment(
             token,
             RefreshParams(applicationDeploymentId)
         )
-        return true
     }
 
-    suspend fun refreshApplicationDeployment(token: String, redeployResponse: RedeployResponse): Boolean {
+    suspend fun refreshApplicationDeployment(token: String, redeployResponse: RedeployResponse) {
         applicationService.refreshApplicationDeployment(
             token,
             RefreshParams(redeployResponse.applicationDeploymentId),
             redeployResponse
         )
-        return true
     }
 
-    fun refreshApplicationDeployments(token: String, affiliations: List<String>): Boolean {
-        runBlocking {
-            applicationService.refreshApplicationDeployment(
-                token,
-                RefreshParams(affiliations = affiliations)
-            )
-        }
-        return true
+    suspend fun refreshApplicationDeployments(token: String, affiliations: List<String>) {
+        applicationService.refreshApplicationDeployment(
+            token,
+            RefreshParams(affiliations = affiliations)
+        )
     }
 }

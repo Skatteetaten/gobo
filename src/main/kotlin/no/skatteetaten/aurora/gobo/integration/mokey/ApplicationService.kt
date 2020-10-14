@@ -1,15 +1,22 @@
 package no.skatteetaten.aurora.gobo.integration.mokey
 
 import kotlinx.coroutines.runBlocking
+import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
+import no.skatteetaten.aurora.gobo.integration.boober.RedeployResponse
+import no.skatteetaten.aurora.gobo.resolvers.ApplicationRedeployException
 import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.ApplicationDeploymentRef
 import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.reactive.function.client.WebClientResponseException
 import org.springframework.web.reactive.function.client.awaitBody
+
+private val logger = KotlinLogging.logger {}
 
 @Service
 class ApplicationService(@TargetService(ServiceTypes.MOKEY) val webClient: WebClient) {
@@ -80,14 +87,33 @@ class ApplicationService(@TargetService(ServiceTypes.MOKEY) val webClient: WebCl
     private fun buildQueryParams(affiliations: List<String>): LinkedMultiValueMap<String, String> =
         LinkedMultiValueMap<String, String>().apply { addAll("affiliation", affiliations) }
 
-    suspend fun refreshApplicationDeployment(token: String, refreshParams: RefreshParams) =
-        webClient
-            .post()
-            .uri("/api/auth/refresh")
-            .body(BodyInserters.fromValue(refreshParams))
-            .header(HttpHeaders.AUTHORIZATION, "Bearer $token")
-            .retrieve()
-            .awaitBody<Unit>()
+    suspend fun refreshApplicationDeployment(
+        token: String,
+        refreshParams: RefreshParams,
+        redeployResponse: RedeployResponse? = null
+    ) {
+        kotlin.runCatching {
+            webClient
+                .post()
+                .uri("/api/auth/refresh")
+                .body(BodyInserters.fromValue(refreshParams))
+                .header(HttpHeaders.AUTHORIZATION, "Bearer $token")
+                .retrieve()
+                .awaitBody<Unit>()
+        }.onFailure {
+            if (redeployResponse != null && it is WebClientResponseException && it.statusCode == HttpStatus.BAD_REQUEST) {
+                logger.info("Refresh of applicationDeploymentId ${refreshParams.applicationDeploymentId} failed")
+                throw ApplicationRedeployException(
+                    "Refresh of redeployed application failed",
+                    it,
+                    "APP_REFRESH_FAILED",
+                    redeployResponse
+                )
+            }
+
+            throw it
+        }.getOrThrow()
+    }
 }
 
 @Service

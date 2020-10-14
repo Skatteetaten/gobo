@@ -7,7 +7,6 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isFailure
 import assertk.assertions.isInstanceOf
 import assertk.assertions.isNotNull
-import assertk.assertions.isTrue
 import assertk.assertions.messageContains
 import assertk.assertions.prop
 import no.skatteetaten.aurora.gobo.integration.Response
@@ -33,8 +32,7 @@ class ApplicationDeploymentServiceTest {
     @Test
     fun `Delete application deployments success`() {
         val requests = server.executeBlocking(Response(items = listOf("abc"))) {
-            val deleted = applicationDeploymentService.deleteApplicationDeployment("token", input)
-            assertThat(deleted).isTrue()
+            applicationDeploymentService.deleteApplicationDeployment("token", input)
         }
         assertThat(requests.first()?.path).isEqualTo("/v1/applicationdeployment/delete")
         assertThat(requests.first()?.bodyAsString()).isNotNull().contains("applicationRefs")

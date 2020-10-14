@@ -14,30 +14,38 @@ import no.skatteetaten.aurora.gobo.resolvers.token
 import no.skatteetaten.aurora.gobo.service.ApplicationUpgradeService
 import org.springframework.stereotype.Component
 
+data class DeployResponse(val applicationDeploymentId: String)
+
 @Component
 class ApplicationDeploymentMutation(
     private val applicationUpgradeService: ApplicationUpgradeService,
     private val applicationDeploymentService: ApplicationDeploymentService
 ) : Mutation {
 
-    suspend fun redeployWithVersion(input: ApplicationDeploymentVersionInput, dfe: DataFetchingEnvironment): Boolean {
-        applicationUpgradeService.upgrade(dfe.token(), input.applicationDeploymentId, input.version)
-        return true
+    suspend fun redeployWithVersion(input: ApplicationDeploymentVersionInput, dfe: DataFetchingEnvironment): DeployResponse {
+        val id = applicationUpgradeService.upgrade(dfe.token(), input.applicationDeploymentId, input.version)
+        return DeployResponse(id)
     }
 
-    suspend fun redeployWithCurrentVersion(input: ApplicationDeploymentIdInput, dfe: DataFetchingEnvironment): Boolean {
-        applicationUpgradeService.deployCurrentVersion(dfe.token(), input.applicationDeploymentId)
-        return true
+    suspend fun redeployWithCurrentVersion(input: ApplicationDeploymentIdInput, dfe: DataFetchingEnvironment): DeployResponse {
+        val id = applicationUpgradeService.deployCurrentVersion(dfe.token(), input.applicationDeploymentId)
+        return DeployResponse(id)
     }
 
-    fun refreshApplicationDeployment(input: RefreshByApplicationDeploymentIdInput, dfe: DataFetchingEnvironment) =
+    suspend fun refreshApplicationDeployment(input: RefreshByApplicationDeploymentIdInput, dfe: DataFetchingEnvironment): Boolean {
         applicationUpgradeService.refreshApplicationDeployment(dfe.token(), input.applicationDeploymentId)
+        return true
+    }
 
-    fun refreshApplicationDeployments(input: RefreshByAffiliationsInput, dfe: DataFetchingEnvironment) =
+    suspend fun refreshApplicationDeployments(input: RefreshByAffiliationsInput, dfe: DataFetchingEnvironment): Boolean {
         applicationUpgradeService.refreshApplicationDeployments(dfe.token(), input.affiliations)
+        return true
+    }
 
-    suspend fun deleteApplicationDeployment(input: DeleteApplicationDeploymentInput, dfe: DataFetchingEnvironment) =
+    suspend fun deleteApplicationDeployment(input: DeleteApplicationDeploymentInput, dfe: DataFetchingEnvironment): Boolean {
         applicationDeploymentService.deleteApplicationDeployment(dfe.token(), input)
+        return true
+    }
 }
 
 @Component

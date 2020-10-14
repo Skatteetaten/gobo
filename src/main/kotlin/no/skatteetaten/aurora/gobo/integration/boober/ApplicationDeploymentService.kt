@@ -19,15 +19,13 @@ class ApplicationDeploymentService(private val booberWebClient: BooberWebClient)
     suspend fun deleteApplicationDeployment(
         token: String,
         input: DeleteApplicationDeploymentInput
-    ): Boolean {
+    ) {
         val response = booberWebClient.post<JsonNode>(
             url = "/v1/applicationdeployment/delete",
             token = token,
             body = mapOf("applicationRefs" to listOf(input))
         ).responses()
         logger.debug { "Response from boober delete application deployment: $response" }
-
-        return true
     }
 
     suspend fun deploy(
