@@ -1,12 +1,12 @@
 package no.skatteetaten.aurora.gobo.integration.boober
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.TextNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.fge.jackson.jsonpointer.JsonPointer
 import com.github.fge.jsonpatch.AddOperation
 import com.github.fge.jsonpatch.JsonPatch
-import java.time.Duration
 import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentDetailsResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentRefResource
@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.BodyInserters
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
+import java.time.Duration
 
 @Service
 class AuroraConfigService(
@@ -100,13 +101,26 @@ class AuroraConfigService(
         token: String,
         details: ApplicationDeploymentDetailsResource,
         applyLink: String
-    ): JsonNode {
+    ): RedeployResponse {
         val payload = ApplyPayload(listOf(details.applicationDeploymentCommand.applicationDeploymentRef))
-        return booberWebClient.put<JsonNode>(token, applyLink, body = payload).toMono().blockNonNullWithTimeout()
+        val json = booberWebClient.put<JsonNode>(token, applyLink, body = payload).toMono().blockNonNullWithTimeout()
+        return RedeployResponse(json)
     }
 
     private fun <T> Mono<T>.blockNonNullWithTimeout() =
         this.blockNonNullAndHandleError(Duration.ofSeconds(30), "boober")
+}
+
+data class RedeployResponse(private val json: JsonNode) {
+
+    val applicationDeploymentId: String
+        @JsonProperty("id")
+        get() = json.at("/applicationDeploymentId").textValue()
+            ?: throw IllegalStateException("No applicationDeploymentId found in response")
+
+    val affiliation: String
+        get() = json.at("/deploymentSpec/affiliation/value").textValue()
+            ?: throw IllegalStateException("No affiliation found in response")
 }
 
 data class AuroraConfigFileResource(

@@ -21,6 +21,10 @@ type ApplicationDeploymentResult {
     applicationDeployments: [ApplicationDeploymentResultItem!]!
 }
 
+type DeployResponse {
+    applicationDeploymentId: String!
+}
+
 input ApplicationDeploymentRef {
     environment: String!
     application: String!
