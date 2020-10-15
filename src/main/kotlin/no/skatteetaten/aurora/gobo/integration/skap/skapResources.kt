@@ -1,6 +1,6 @@
 package no.skatteetaten.aurora.gobo.integration.skap
 
-import no.skatteetaten.aurora.gobo.resolvers.webseal.Acl
+import no.skatteetaten.aurora.gobo.graphql.webseal.Acl
 
 data class WebsealStateResource(
     val acl: Acl,

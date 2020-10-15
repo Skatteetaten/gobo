@@ -20,7 +20,7 @@ spring:
 
 
 graphql:
-    packages: "no.skatteetaten.aurora.gobo.resolvers"
+    packages: "no.skatteetaten.aurora.gobo.graphql"
 
 management:
     endpoints:

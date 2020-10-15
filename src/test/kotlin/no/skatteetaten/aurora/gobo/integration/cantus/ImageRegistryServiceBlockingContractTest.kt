@@ -7,7 +7,7 @@ import kotlinx.coroutines.runBlocking
 import no.skatteetaten.aurora.gobo.ApplicationConfig
 import no.skatteetaten.aurora.gobo.StrubrunnerRepoPropertiesEnabler
 import no.skatteetaten.aurora.gobo.TestConfig
-import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository
+import no.skatteetaten.aurora.gobo.graphql.imagerepository.ImageRepository
 import no.skatteetaten.aurora.gobo.security.SharedSecretReader
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired

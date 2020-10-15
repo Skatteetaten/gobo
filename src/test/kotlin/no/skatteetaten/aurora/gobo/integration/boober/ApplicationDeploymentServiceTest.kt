@@ -11,8 +11,8 @@ import assertk.assertions.messageContains
 import assertk.assertions.prop
 import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
-import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.ApplicationDeploymentRef
-import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.DeleteApplicationDeploymentInput
+import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.ApplicationDeploymentRef
+import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.DeleteApplicationDeploymentInput
 import no.skatteetaten.aurora.gobo.testObjectMapper
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.bodyAsString
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.executeBlocking

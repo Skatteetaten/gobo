@@ -18,7 +18,7 @@ import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigService
 import no.skatteetaten.aurora.gobo.integration.boober.BooberWebClient
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
-import no.skatteetaten.aurora.gobo.resolvers.ApplicationRedeployException
+import no.skatteetaten.aurora.gobo.graphql.ApplicationRedeployException
 import no.skatteetaten.aurora.gobo.testObjectMapper
 import no.skatteetaten.aurora.mockmvc.extensions.TestObjectMapperConfigurer
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.executeBlocking

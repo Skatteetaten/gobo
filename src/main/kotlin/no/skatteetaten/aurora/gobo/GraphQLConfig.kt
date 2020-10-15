@@ -4,9 +4,9 @@ import com.expediagroup.graphql.hooks.SchemaGeneratorHooks
 import com.fasterxml.jackson.databind.JsonNode
 import graphql.schema.GraphQLScalarType
 import graphql.schema.GraphQLType
-import no.skatteetaten.aurora.gobo.resolvers.scalars.InstantScalar
-import no.skatteetaten.aurora.gobo.resolvers.scalars.JsonNodeScalar
-import no.skatteetaten.aurora.gobo.resolvers.scalars.UrlScalar
+import no.skatteetaten.aurora.gobo.graphql.scalars.InstantScalar
+import no.skatteetaten.aurora.gobo.graphql.scalars.JsonNodeScalar
+import no.skatteetaten.aurora.gobo.graphql.scalars.UrlScalar
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import java.net.URL

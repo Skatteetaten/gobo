@@ -1,6 +1,6 @@
 package no.skatteetaten.aurora.gobo.integration.boober
 
-import no.skatteetaten.aurora.gobo.resolvers.auroraapimetadata.ClientConfig
+import no.skatteetaten.aurora.gobo.graphql.auroraapimetadata.ClientConfig
 import org.springframework.stereotype.Service
 
 @Service

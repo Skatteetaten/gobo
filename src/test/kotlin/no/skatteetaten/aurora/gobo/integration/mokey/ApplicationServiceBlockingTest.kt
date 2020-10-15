@@ -4,7 +4,7 @@ import assertk.assertThat
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import no.skatteetaten.aurora.gobo.StrubrunnerRepoPropertiesEnabler
-import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.ApplicationDeploymentRef
+import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.ApplicationDeploymentRef
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest

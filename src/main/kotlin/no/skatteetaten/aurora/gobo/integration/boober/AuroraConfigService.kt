@@ -10,8 +10,8 @@ import com.github.fge.jsonpatch.JsonPatch
 import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentDetailsResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentRefResource
-import no.skatteetaten.aurora.gobo.resolvers.auroraconfig.AuroraConfig
-import no.skatteetaten.aurora.gobo.resolvers.auroraconfig.AuroraConfigFileResource
+import no.skatteetaten.aurora.gobo.graphql.auroraconfig.AuroraConfig
+import no.skatteetaten.aurora.gobo.graphql.auroraconfig.AuroraConfigFileResource
 import org.springframework.stereotype.Service
 
 @Service
