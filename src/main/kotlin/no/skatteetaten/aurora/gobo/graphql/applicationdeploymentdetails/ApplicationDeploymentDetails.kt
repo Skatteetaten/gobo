@@ -162,6 +162,11 @@ data class ApplicationDeploymentDetails(
     }
 }
 
+class DeploymentSpecs(
+    val deploymentSpecCurrent: URL?,
+    val deploymentSpecDeployed: URL?
+)
+
 data class DeployDetails(
     val targetReplicas: Int,
     val availableReplicas: Int,

@@ -40,7 +40,7 @@ private fun ImageRepoAndTags.toImageTagResource() =
 private fun List<ImageRepoAndTags>.getTagCount() =
     this.flatMap { it.imageTags }.size
 
-class ImageRepositoryQueryResolverTest : GraphQLTestWithDbhAndSkap() {
+class ImageRepositoryQueryTest : GraphQLTestWithDbhAndSkap() {
     @Value("classpath:graphql/queries/getImageRepositories.graphql")
     private lateinit var reposWithTagsQuery: Resource
 

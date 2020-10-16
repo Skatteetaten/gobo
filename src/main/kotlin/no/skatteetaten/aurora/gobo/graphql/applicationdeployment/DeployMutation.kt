@@ -11,7 +11,7 @@ import no.skatteetaten.aurora.gobo.graphql.token
 import org.springframework.stereotype.Component
 
 @Component
-class DeployMutationResolver(
+class DeployMutation(
     private val applicationDeploymentService: ApplicationDeploymentService
 ) : Mutation {
 

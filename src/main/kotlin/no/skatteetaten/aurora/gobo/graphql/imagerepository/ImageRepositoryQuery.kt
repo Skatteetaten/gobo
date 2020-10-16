@@ -6,7 +6,7 @@ import no.skatteetaten.aurora.gobo.GoboException
 import org.springframework.stereotype.Component
 
 @Component
-class ImageRepositoryQueryResolver : Query {
+class ImageRepositoryQuery : Query {
 
     suspend fun imageRepositories(repositories: List<String>, dfe: DataFetchingEnvironment): List<ImageRepository> {
 // FIXME:        if (dfe.isAnonymousUser()) throw AccessDeniedException("Anonymous user cannot access imagrepositories")

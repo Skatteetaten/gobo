@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 
-class CertificateResolverTest : GraphQLTestWithDbhAndSkap() {
+class CertificateQueryTest : GraphQLTestWithDbhAndSkap() {
 
     @Value("classpath:graphql/queries/getCertificates.graphql")
     private lateinit var getCertificates: Resource

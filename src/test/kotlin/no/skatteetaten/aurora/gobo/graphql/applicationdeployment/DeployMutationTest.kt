@@ -19,7 +19,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 
-class DeployMutationResolverTest : GraphQLTestWithDbhAndSkap() {
+class DeployMutationTest : GraphQLTestWithDbhAndSkap() {
 
     @Value("classpath:graphql/mutations/deploy.graphql")
     private lateinit var deployMutation: Resource

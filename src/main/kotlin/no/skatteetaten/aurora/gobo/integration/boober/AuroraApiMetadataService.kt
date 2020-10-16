@@ -1,7 +1,13 @@
 package no.skatteetaten.aurora.gobo.integration.boober
 
-import no.skatteetaten.aurora.gobo.graphql.auroraapimetadata.ClientConfig
 import org.springframework.stereotype.Service
+
+data class ClientConfig(
+    val gitUrlPattern: String,
+    val openshiftCluster: String,
+    val openshiftUrl: String,
+    val apiVersion: Int
+)
 
 @Service
 class AuroraApiMetadataService(private val booberWebClient: BooberWebClient) {
