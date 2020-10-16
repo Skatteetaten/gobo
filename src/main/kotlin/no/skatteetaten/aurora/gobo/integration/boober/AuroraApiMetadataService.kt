@@ -1,13 +1,9 @@
 package no.skatteetaten.aurora.gobo.integration.boober
 
+import no.skatteetaten.aurora.gobo.graphql.auroraapimetadata.ClientConfig
 import org.springframework.stereotype.Service
 
-data class ClientConfig(
-    val gitUrlPattern: String,
-    val openshiftCluster: String,
-    val openshiftUrl: String,
-    val apiVersion: Int
-)
+data class ConfigNames(val names: List<String>)
 
 @Service
 class AuroraApiMetadataService(private val booberWebClient: BooberWebClient) {
@@ -16,5 +12,7 @@ class AuroraApiMetadataService(private val booberWebClient: BooberWebClient) {
         booberWebClient.get<ClientConfig>("/v1/clientconfig").response()
 
     suspend fun getConfigNames() =
-        booberWebClient.get<String>("/v1/auroraconfignames").responses()
+        booberWebClient.get<String>("/v1/auroraconfignames").responses().let {
+            ConfigNames(it)
+        }
 }

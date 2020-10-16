@@ -1,41 +1,39 @@
 package no.skatteetaten.aurora.gobo.graphql.applicationdeploymentdetails
 
 import com.ninjasquad.springmockk.MockkBean
-import io.mockk.every
+import io.mockk.coEvery
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentDetailsBuilder
 import no.skatteetaten.aurora.gobo.ApplicationResourceBuilder
-import no.skatteetaten.aurora.gobo.healthResponseJson
-import no.skatteetaten.aurora.gobo.infoResponseJson
-import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
 import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithDbhAndSkap
 import no.skatteetaten.aurora.gobo.graphql.graphqlDataWithPrefix
 import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.graphql.isFalse
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
+import no.skatteetaten.aurora.gobo.healthResponseJson
+import no.skatteetaten.aurora.gobo.infoResponseJson
+import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 
-@Disabled
 class ApplicationDeploymentDetailsResolverTest : GraphQLTestWithDbhAndSkap() {
 
     @Value("classpath:graphql/queries/getApplicationsWithPods.graphql")
     private lateinit var getRepositoriesAndTagsQuery: Resource
 
     @MockkBean
-    private lateinit var applicationServiceBlocking: ApplicationServiceBlocking
+    private lateinit var applicationServiceBlocking: ApplicationService
 
     @BeforeEach
     fun setUp() {
         val affiliations = listOf("paas")
 
         val application = ApplicationResourceBuilder().build()
-        every { applicationServiceBlocking.getApplications(affiliations) } returns
+        coEvery { applicationServiceBlocking.getApplications(affiliations) } returns
             listOf(application)
 
-        every { applicationServiceBlocking.getApplicationDeploymentDetails(any(), any()) } returns
+        coEvery { applicationServiceBlocking.getApplicationDeploymentDetails(any(), any()) } returns
             ApplicationDeploymentDetailsBuilder().build()
     }
 
