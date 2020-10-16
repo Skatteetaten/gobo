@@ -4,18 +4,16 @@ import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import no.skatteetaten.aurora.gobo.SkapJobForBigipBuilder
 import no.skatteetaten.aurora.gobo.SkapJobForWebsealBuilder
-import no.skatteetaten.aurora.gobo.integration.skap.RouteService
 import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithDbhAndSkap
 import no.skatteetaten.aurora.gobo.graphql.graphqlData
 import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
-import org.junit.jupiter.api.Disabled
+import no.skatteetaten.aurora.gobo.integration.skap.RouteService
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 
-@Disabled
-class RouteQueryResolverTest : GraphQLTestWithDbhAndSkap() {
+class RouteQueryTest : GraphQLTestWithDbhAndSkap() {
 
     @Value("classpath:graphql/queries/getRoute.graphql")
     private lateinit var getRoute: Resource
@@ -25,7 +23,6 @@ class RouteQueryResolverTest : GraphQLTestWithDbhAndSkap() {
 
     @Test
     fun `get jobs for app`() {
-
         val websealjob = SkapJobForWebsealBuilder().build()
         val bigipJob = SkapJobForBigipBuilder().build()
         every { routeService.getSkapJobs("namespace", "name-webseal") } returns listOf(websealjob)

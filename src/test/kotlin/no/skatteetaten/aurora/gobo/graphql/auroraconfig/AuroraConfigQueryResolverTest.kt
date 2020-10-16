@@ -3,16 +3,15 @@ package no.skatteetaten.aurora.gobo.graphql.auroraconfig
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.coEvery
-import no.skatteetaten.aurora.gobo.integration.boober.ApplicationDeploymentService
-import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileType.APP
-import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileType.GLOBAL
-import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigService
 import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithDbhAndSkap
 import no.skatteetaten.aurora.gobo.graphql.graphqlDataWithPrefix
 import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
+import no.skatteetaten.aurora.gobo.integration.boober.ApplicationDeploymentService
+import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileType.APP
+import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileType.GLOBAL
+import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigService
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
@@ -80,7 +79,6 @@ class AuroraConfigQueryResolverTest : GraphQLTestWithDbhAndSkap() {
         )
     }
 
-    @Disabled("unstable test")
     @Test
     fun `Query for application deployment`() {
         val variables = mapOf(
