@@ -10,7 +10,7 @@ import assertk.assertions.isNotNull
 import assertk.assertions.messageContains
 import no.skatteetaten.aurora.gobo.AuroraResponseBuilder
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
-import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository
+import no.skatteetaten.aurora.gobo.graphql.imagerepository.ImageRepository
 import no.skatteetaten.aurora.gobo.testObjectMapper
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.execute
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.executeBlocking

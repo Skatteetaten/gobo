@@ -1,8 +1,8 @@
 package no.skatteetaten.aurora.gobo.security
 
 import graphql.schema.DataFetchingEnvironment
-import no.skatteetaten.aurora.gobo.resolvers.GoboGraphQLContext
-import no.skatteetaten.aurora.gobo.resolvers.user.User
+import no.skatteetaten.aurora.gobo.graphql.GoboGraphQLContext
+import no.skatteetaten.aurora.gobo.graphql.user.User
 import org.springframework.security.authentication.AnonymousAuthenticationToken
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken

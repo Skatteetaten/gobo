@@ -7,7 +7,7 @@ import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.future.asCompletableFuture
 import mu.KotlinLogging
-import no.skatteetaten.aurora.gobo.resolvers.GoboGraphQLContext
+import no.skatteetaten.aurora.gobo.graphql.GoboGraphQLContext
 import org.dataloader.BatchLoaderEnvironment
 import org.dataloader.DataLoader
 import org.dataloader.DataLoaderOptions

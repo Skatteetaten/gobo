@@ -1,6 +1,6 @@
 query getRoute($namespace: String!, $name: String!) {
     route(namespace: $namespace, name: $name) {
-       websealJobs {
+       websealJobs{
          id
          payload
          type

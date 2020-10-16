@@ -2,7 +2,7 @@ package no.skatteetaten.aurora.gobo.integration.dbh
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
-import no.skatteetaten.aurora.gobo.resolvers.database.JdbcUser
+import no.skatteetaten.aurora.gobo.graphql.database.JdbcUser
 import java.time.Instant
 
 @JsonIgnoreProperties(ignoreUnknown = true)

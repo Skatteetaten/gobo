@@ -1,6 +1,6 @@
 package no.skatteetaten.aurora.gobo.integration.cantus
 
-import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepoDto
+import no.skatteetaten.aurora.gobo.graphql.imagerepository.ImageRepoDto
 import java.time.Instant
 
 enum class ImageTagType {
