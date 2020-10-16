@@ -5,8 +5,8 @@ import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
 import no.skatteetaten.aurora.gobo.integration.boober.RedeployResponse
-import no.skatteetaten.aurora.gobo.resolvers.ApplicationRedeployException
-import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.ApplicationDeploymentRef
+import no.skatteetaten.aurora.gobo.graphql.ApplicationRedeployException
+import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.ApplicationDeploymentRef
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service

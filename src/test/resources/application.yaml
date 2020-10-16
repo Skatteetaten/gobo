@@ -57,7 +57,7 @@ openshift:
     cluster: http://localhost
 
 graphql:
-    packages: "no.skatteetaten.aurora.gobo.resolvers"
+    packages: "no.skatteetaten.aurora.gobo.graphql"
 
 stubrunner:
   stubs-mode: remote

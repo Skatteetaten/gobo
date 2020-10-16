@@ -1,6 +1,6 @@
 package no.skatteetaten.aurora.gobo.integration.boober
 
-import no.skatteetaten.aurora.gobo.resolvers.usersettings.UserSettingsInput
+import no.skatteetaten.aurora.gobo.graphql.usersettings.UserSettingsInput
 import org.springframework.stereotype.Service
 
 @Service
