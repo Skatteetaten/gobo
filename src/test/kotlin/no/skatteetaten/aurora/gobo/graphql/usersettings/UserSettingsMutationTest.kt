@@ -4,18 +4,16 @@ import com.fasterxml.jackson.module.kotlin.convertValue
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.coVerify
-import no.skatteetaten.aurora.gobo.integration.boober.UserSettingsService
 import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithDbhAndSkap
 import no.skatteetaten.aurora.gobo.graphql.graphqlData
 import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
-import org.junit.jupiter.api.Disabled
+import no.skatteetaten.aurora.gobo.integration.boober.UserSettingsService
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 
-@Disabled
-class UserSettingsMutationResolverTest : GraphQLTestWithDbhAndSkap() {
+class UserSettingsMutationTest : GraphQLTestWithDbhAndSkap() {
 
     @Value("classpath:graphql/mutations/updateUserSettings.graphql")
     private lateinit var updateUserSettingsMutation: Resource
