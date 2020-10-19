@@ -92,6 +92,11 @@ data class ImageRepository(
         .map { ImageTag(imageRepository = imageRepository, name = it.name) }
         .filter { types == null || it.type in types }
 
+    suspend fun guiUrl(dfe: DataFetchingEnvironment): String? {
+        val guiUrl: GuiUrl = dfe.load(this)
+        return guiUrl.url
+    }
+
     companion object {
         /**
          * @param absoluteImageRepoPath Example docker-registry.aurora.sits.no:5000/no_skatteetaten_aurora/dbh
