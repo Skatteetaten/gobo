@@ -41,7 +41,7 @@ data class ApplicationDeployment(
 ) {
 
     suspend fun details(dfe: DataFetchingEnvironment) =
-        dfe.load<String, ApplicationDeploymentDetails>(applicationId)
+        dfe.load<String, ApplicationDeploymentDetails>(id)
 
     suspend fun route(dfe: DataFetchingEnvironment) =
         dfe.load<ApplicationDeployment, Route>(this)
