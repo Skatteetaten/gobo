@@ -1,6 +1,5 @@
 package no.skatteetaten.aurora.gobo.integration.mokey
 
-import kotlinx.coroutines.runBlocking
 import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
 import org.springframework.http.HttpHeaders
@@ -25,14 +24,4 @@ class AffiliationService(@TargetService(ServiceTypes.MOKEY) val webClient: WebCl
             .uri("/api/affiliation")
             .retrieve()
             .awaitBody()
-}
-
-@Service
-class AffiliationServiceBlocking(private val affiliationService: AffiliationService) {
-
-    fun getAllVisibleAffiliations(token: String): List<String> =
-        runBlocking { affiliationService.getAllVisibleAffiliations(token) }
-
-    fun getAllAffiliations(): List<String> =
-        runBlocking { affiliationService.getAllAffiliations() }
 }
