@@ -23,7 +23,7 @@ fun HalResource.addAll(links: Links) =
 
 fun HalResource.linkHref(propertyName: String) =
     link(propertyName)?.href?.let {
-        URLDecoder.decode(it, Charset.defaultCharset())
+        URLDecoder.decode(it, Charset.defaultCharset().name())
     } ?: throw IllegalArgumentException("Link with name $propertyName not found")
 
 fun HalResource.linkHrefs(vararg propertyNames: String) =
