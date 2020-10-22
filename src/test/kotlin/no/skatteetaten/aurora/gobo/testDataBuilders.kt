@@ -52,7 +52,6 @@ import no.skatteetaten.aurora.gobo.graphql.database.JdbcUser
 import no.skatteetaten.aurora.gobo.graphql.imagerepository.ImageRepository
 import no.skatteetaten.aurora.gobo.graphql.imagerepository.ImageTag
 import no.skatteetaten.aurora.gobo.graphql.namespace.Namespace
-import no.skatteetaten.aurora.gobo.graphql.permission.Permission
 import org.intellij.lang.annotations.Language
 import org.springframework.http.HttpStatus
 import uk.q3c.rest.hal.HalLink
@@ -169,7 +168,7 @@ data class ApplicationDeploymentBuilder(
             name = "name",
             affiliation = Affiliation(affiliation),
             environment = "environment",
-            namespace = Namespace("namespaceId", Affiliation(affiliation), Permission()),
+            namespace = Namespace("namespaceId", Affiliation(affiliation)),
             status = Status("code", "comment", listOf(), listOf()),
             version = Version(ImageTag(ImageRepository("", "", ""), "deployTag"), "auroraVersion", "releaseTo"),
             dockerImageRepo = "dockerImageRepo",
