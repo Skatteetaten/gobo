@@ -1,6 +1,5 @@
 package no.skatteetaten.aurora.gobo.integration.skap
 
-import kotlinx.coroutines.runBlocking
 import no.skatteetaten.aurora.gobo.RequiresSkap
 import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
@@ -19,8 +18,8 @@ import org.springframework.web.reactive.function.client.awaitBody
 class RouteServiceReactive(
     private val sharedSecretReader: SharedSecretReader,
     @TargetService(ServiceTypes.SKAP) private val webClient: WebClient
-) {
-    suspend fun getSkapJobs(namespace: String, name: String): List<SkapJob> =
+) : RouteService {
+    override suspend fun getSkapJobs(namespace: String, name: String): List<SkapJob> =
         webClient
             .get()
             .uri {
@@ -32,17 +31,10 @@ class RouteServiceReactive(
 }
 
 interface RouteService {
-    fun getSkapJobs(namespace: String, name: String): List<SkapJob> = integrationDisabled()
+    suspend fun getSkapJobs(namespace: String, name: String): List<SkapJob> = integrationDisabled()
 
     private fun integrationDisabled(): Nothing =
         throw IntegrationDisabledException("Skap integration is disabled for this environment")
-}
-
-@Service
-@ConditionalOnBean(RequiresSkap::class)
-class RouteServiceBlocking(private val routeService: RouteServiceReactive) : RouteService {
-    override fun getSkapJobs(namespace: String, name: String) =
-        runBlocking { routeService.getSkapJobs(namespace, name) }
 }
 
 @Service

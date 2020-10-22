@@ -9,20 +9,20 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 
 @SpringBootTest(
-    classes = [RequiresDbh::class, DatabaseServiceBlocking::class, DatabaseServiceDisabled::class],
+    classes = [RequiresDbh::class, DatabaseServiceReactive::class, DatabaseServiceDisabled::class],
     properties = ["integrations.dbh.url=false"]
 )
 class DisableDatabaseServiceTest {
 
     @Autowired(required = false)
-    private var databaseServiceBlocking: DatabaseServiceBlocking? = null
+    private var databaseService: DatabaseServiceReactive? = null
 
     @Autowired(required = false)
     private var databaseServiceDisabled: DatabaseServiceDisabled? = null
 
     @Test
     fun `Disable DBH given no url configured`() {
-        assertThat(databaseServiceBlocking).isNull()
+        assertThat(databaseService).isNull()
         assertThat(databaseServiceDisabled).isNotNull()
     }
 }

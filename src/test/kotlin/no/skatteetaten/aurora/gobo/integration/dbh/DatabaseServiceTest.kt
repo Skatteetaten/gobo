@@ -19,6 +19,7 @@ import assertk.assertions.support.expected
 import com.jayway.jsonpath.JsonPath
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.runBlocking
 import no.skatteetaten.aurora.gobo.ApplicationConfig
 import no.skatteetaten.aurora.gobo.DatabaseInstanceResourceBuilder
 import no.skatteetaten.aurora.gobo.DatabaseSchemaResourceBuilder
@@ -38,7 +39,7 @@ import no.skatteetaten.aurora.gobo.security.SharedSecretReader
 import no.skatteetaten.aurora.gobo.testObjectMapper
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.bodyAsObject
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.bodyAsString
-import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.execute
+import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.executeBlocking
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.RecordedRequest
 import org.junit.jupiter.api.Disabled
@@ -46,24 +47,19 @@ import org.junit.jupiter.api.Test
 import org.springframework.web.reactive.function.client.WebClient
 import java.net.UnknownHostException
 
-class DatabaseServiceBlockingTest {
+class DatabaseServiceTest {
     private val server = MockWebServer()
     private val sharedSecretReader = mockk<SharedSecretReader> {
         every { secret } returns "abc"
     }
     private val webClient = ApplicationConfig(500, 500, 500, "", sharedSecretReader)
         .webClientDbh(server.url("/").toString(), WebClient.builder())
-    private val databaseService = DatabaseServiceBlocking(
-        DatabaseServiceReactive(
-            webClient,
-            testObjectMapper()
-        )
-    )
+    private val databaseService = DatabaseServiceReactive(webClient, testObjectMapper())
 
     @Test
     fun `Get database instances for affiliation`() {
         val response = DbhResponse.ok(DatabaseInstanceResourceBuilder().build())
-        val request = server.execute(response) {
+        val request = server.executeBlocking(response) {
             val instances = databaseService.getDatabaseInstances()
             assertThat(instances).hasSize(1)
         }.first()
@@ -74,7 +70,7 @@ class DatabaseServiceBlockingTest {
     @Test
     fun `Get database schemas given affiliation`() {
         val response = DbhResponse.ok(DatabaseSchemaResourceBuilder().build())
-        val request = server.execute(response) {
+        val request = server.executeBlocking(response) {
             val databaseSchemas = databaseService.getDatabaseSchemas("paas")
             assertThat(databaseSchemas).hasSize(1)
         }.first()
@@ -86,7 +82,7 @@ class DatabaseServiceBlockingTest {
     @Test
     fun `Get restorable database schemas given affiliation`() {
         val response = DbhResponse.ok(RestorableDatabaseSchemaBuilder().build())
-        val request = server.execute(response) {
+        val request = server.executeBlocking(response) {
             val databaseSchemas = databaseService.getRestorableDatabaseSchemas("paas")
             assertThat(databaseSchemas).hasSize(1)
         }.first()
@@ -108,7 +104,7 @@ class DatabaseServiceBlockingTest {
         val json = JsonPath.parse(testObjectMapper().writeValueAsString(response))
             .set("$.items[0].labels", labelsMissingEnv).jsonString()
 
-        val request = server.execute(json) {
+        val request = server.executeBlocking(json) {
             val databaseSchemas = databaseService.getDatabaseSchemas("paas")
             assertThat(databaseSchemas).hasSize(1)
         }.first()
@@ -120,7 +116,7 @@ class DatabaseServiceBlockingTest {
     @Test
     fun `Get database schemas return failed response`() {
         val response = DbhResponse.failed("test error")
-        server.execute(response) {
+        server.executeBlocking(response) {
             assertThat {
                 databaseService.getDatabaseSchemas("paas")
             }.isNotNull().isFailure().isInstanceOf(SourceSystemException::class)
@@ -131,7 +127,7 @@ class DatabaseServiceBlockingTest {
     @Test
     fun `Get database schema given id`() {
         val response = DbhResponse.ok(DatabaseSchemaResourceBuilder().build())
-        val request = server.execute(response) {
+        val request = server.executeBlocking(response) {
             val databaseSchema = databaseService.getDatabaseSchema("abc123")
             assertThat(databaseSchema).isNotNull()
         }.first()
@@ -142,7 +138,7 @@ class DatabaseServiceBlockingTest {
     @Test
     fun `Get database schema given non-existing id return failed`() {
         val response = DbhResponse.failed("test message")
-        val request = server.execute(response) {
+        val request = server.executeBlocking(response) {
             assertThat { databaseService.getDatabaseSchema("abc123") }
                 .isNotNull().isFailure().isInstanceOf(SourceSystemException::class)
                 .hasMessage("status=Failed error=test message")
@@ -154,7 +150,7 @@ class DatabaseServiceBlockingTest {
     @Test
     fun `Update database schema`() {
         val response = DbhResponse.ok(DatabaseSchemaResourceBuilder().build())
-        val request = server.execute(response) {
+        val request = server.executeBlocking(response) {
             val databaseSchema =
                 databaseService.updateDatabaseSchema(SchemaUpdateRequestBuilder("123").build())
             assertThat(databaseSchema).isNotNull()
@@ -167,7 +163,7 @@ class DatabaseServiceBlockingTest {
     fun `Delete database schema without cooldownDurationHours`() {
         val ok = DbhResponse.ok<DatabaseSchemaResource>()
         val failed = DbhResponse.failed()
-        val requests = server.execute(ok, ok, failed) {
+        val requests = server.executeBlocking(ok, ok, failed) {
             val deletionRequests = listOf(
                 SchemaDeletionRequestBuilder(id = "ok1").build(),
                 SchemaDeletionRequestBuilder(id = "ok2").build(),
@@ -188,7 +184,7 @@ class DatabaseServiceBlockingTest {
     @Test
     fun `Delete database schema with cooldownDurationHours`() {
         val response = DbhResponse.ok<DatabaseSchemaResource>()
-        val request = server.execute(response) {
+        val request = server.executeBlocking(response) {
             val deleted = databaseService.deleteDatabaseSchemas(
                 listOf(SchemaDeletionRequestBuilder(id = "123", cooldownDurationHours = 2).build())
             )
@@ -202,7 +198,7 @@ class DatabaseServiceBlockingTest {
     @Disabled("error handling")
     @Test
     fun `Delete database schema ser ut error response`() {
-        server.execute(404 to DbhResponse.failed()) {
+        server.executeBlocking(404 to DbhResponse.failed()) {
             assertThat {
                 databaseService.deleteDatabaseSchemas(listOf(SchemaDeletionRequestBuilder().build()))
             }.isNotNull().isFailure().isInstanceOf(SourceSystemException::class)
@@ -212,7 +208,7 @@ class DatabaseServiceBlockingTest {
     @Test
     fun `Restore database schema fails with active set to false`() {
         val failed = DbhResponse.failed()
-        val request = server.execute(failed) {
+        val request = server.executeBlocking(failed) {
             val restorationRequests = listOf(
                 SchemaRestorationRequestBuilder(id = "failed", active = false).build()
             )
@@ -228,7 +224,7 @@ class DatabaseServiceBlockingTest {
     @Test
     fun `Restore database schema succeeds with active set to true`() {
         val response = DbhResponse.ok<DatabaseSchemaResource>()
-        val request = server.execute(response) {
+        val request = server.executeBlocking(response) {
             val restored = databaseService.restoreDatabaseSchemas(
                 listOf(SchemaRestorationRequestBuilder(id = "123", active = true).build())
             )
@@ -243,8 +239,8 @@ class DatabaseServiceBlockingTest {
     fun `Test jdbc connection for jdbcUser`() {
         val jdbcUser = JdbcUserBuilder().build()
         val response = DbhResponse.ok(ConnectionVerificationResponse(hasSucceeded = true))
-        val request = server.execute(response) {
-            val success = databaseService.testJdbcConnection(jdbcUser)
+        val request = server.executeBlocking(response) {
+            val success = databaseService.testJdbcConnection(user = jdbcUser)
             assertThat(success.hasSucceeded).isTrue()
         }.first()
 
@@ -258,7 +254,7 @@ class DatabaseServiceBlockingTest {
     @Test
     fun `Test jdbc connection for id`() {
         val response = DbhResponse.ok(ConnectionVerificationResponse(hasSucceeded = true))
-        val request = server.execute(response) {
+        val request = server.executeBlocking(response) {
             val success = databaseService.testJdbcConnection("123")
             assertThat(success.hasSucceeded).isTrue()
         }.first()
@@ -273,7 +269,7 @@ class DatabaseServiceBlockingTest {
     @Test
     fun `Test jdbc connection for id given failing connection`() {
         val response = DbhResponse.ok(ConnectionVerificationResponse(hasSucceeded = false))
-        server.execute(response) {
+        server.executeBlocking(response) {
             val success = databaseService.testJdbcConnection("123")
             assertThat(success.hasSucceeded).isFalse()
         }
@@ -282,7 +278,7 @@ class DatabaseServiceBlockingTest {
     @Test
     fun `Create database schema`() {
         val response = DbhResponse.ok(DatabaseSchemaResourceBuilder().build())
-        val request = server.execute(response) {
+        val request = server.executeBlocking(response) {
             val createdDatabaseSchema =
                 databaseService.createDatabaseSchema(SchemaCreationRequestBuilder().build())
             assertThat(createdDatabaseSchema.id).isEqualTo("123")
@@ -298,15 +294,9 @@ class DatabaseServiceBlockingTest {
     @Disabled("error handling must be fixed")
     @Test
     fun `Get database schema given unknown hostname throw SourceSystemException`() {
-        val serviceWithUnknownHost =
-            DatabaseServiceBlocking(
-                DatabaseServiceReactive(
-                    WebClient.create("http://unknown-hostname"),
-                    testObjectMapper()
-                )
-            )
+        val serviceWithUnknownHost = DatabaseServiceReactive(WebClient.create("http://unknown-hostname"), testObjectMapper())
 
-        assertThat { serviceWithUnknownHost.getDatabaseSchema("abc123") }
+        assertThat { runBlocking { serviceWithUnknownHost.getDatabaseSchema("abc123") } }
             .isNotNull().isFailure().isInstanceOf(SourceSystemException::class)
             .cause().isNotNull().isInstanceOf(UnknownHostException::class)
     }

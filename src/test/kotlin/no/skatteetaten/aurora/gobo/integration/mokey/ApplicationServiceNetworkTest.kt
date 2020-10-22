@@ -4,7 +4,7 @@ import assertk.assertThat
 import assertk.assertions.isNotNull
 import no.skatteetaten.aurora.gobo.ApplicationResourceBuilder
 import no.skatteetaten.aurora.gobo.testObjectMapper
-import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.execute
+import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.executeBlocking
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.SocketPolicy
@@ -19,7 +19,7 @@ class ApplicationServiceNetworkTest {
     private val server = MockWebServer()
     private val url = server.url("/").toString()
 
-    private val applicationServiceBlocking = ApplicationServiceBlocking(ApplicationService(WebClient.create(url)))
+    private val applicationService = ApplicationService(WebClient.create(url))
 
     @Test
     fun `Retry on read timeout`() {
@@ -30,8 +30,8 @@ class ApplicationServiceNetworkTest {
             .setBody(testObjectMapper().writeValueAsString(ApplicationResourceBuilder().build()))
             .setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
 
-        server.execute(errorResponse, okResponse) {
-            val application = applicationServiceBlocking.getApplication("test123")
+        server.executeBlocking(errorResponse, okResponse) {
+            val application = applicationService.getApplication("test123")
             assertThat(application).isNotNull()
         }
     }

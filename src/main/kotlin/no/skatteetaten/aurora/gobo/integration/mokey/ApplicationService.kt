@@ -1,6 +1,5 @@
 package no.skatteetaten.aurora.gobo.integration.mokey
 
-import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
@@ -114,28 +113,4 @@ class ApplicationService(@TargetService(ServiceTypes.MOKEY) val webClient: WebCl
             throw it
         }.getOrThrow()
     }
-}
-
-@Service
-class ApplicationServiceBlocking(private val applicationService: ApplicationService) {
-    fun getApplications(affiliations: List<String>, applications: List<String>? = null) =
-        runBlocking { applicationService.getApplications(affiliations, applications) }
-
-    fun getApplication(id: String): ApplicationResource =
-        runBlocking { applicationService.getApplication(id) }
-
-    fun getApplicationDeployment(applicationDeploymentId: String) =
-        runBlocking { applicationService.getApplicationDeployment(applicationDeploymentId) }
-
-    fun getApplicationDeployment(applicationDeploymentRefs: List<ApplicationDeploymentRef>) =
-        runBlocking { applicationService.getApplicationDeployment(applicationDeploymentRefs) }
-
-    fun getApplicationDeploymentDetails(token: String, applicationDeploymentId: String) =
-        runBlocking { applicationService.getApplicationDeploymentDetails(token, applicationDeploymentId) }
-
-    fun refreshApplicationDeployment(token: String, refreshParams: RefreshParams) =
-        runBlocking { applicationService.refreshApplicationDeployment(token, refreshParams) }
-
-    fun getApplicationDeploymentsForDatabases(token: String, databaseIds: List<String>) =
-        runBlocking { applicationService.getApplicationDeploymentsForDatabases(token, databaseIds) }
 }

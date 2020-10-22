@@ -9,19 +9,19 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 
 @SpringBootTest(
-    classes = [RequiresSkap::class, RouteServiceBlocking::class, RouteServiceDisabled::class],
+    classes = [RequiresSkap::class, RouteServiceReactive::class, RouteServiceDisabled::class],
     properties = ["integrations.skap.url=false"]
 )
 class DisableRouteServiceTest {
     @Autowired(required = false)
-    private var routeServiceBlocking: RouteServiceBlocking? = null
+    private var routeService: RouteServiceReactive? = null
 
     @Autowired(required = false)
     private var routeServiceDisabled: RouteServiceDisabled? = null
 
     @Test
     fun `Disable skap given no url configured`() {
-        assertThat(routeServiceBlocking).isNull()
+        assertThat(routeService).isNull()
         assertThat(routeServiceDisabled).isNotNull()
     }
 }

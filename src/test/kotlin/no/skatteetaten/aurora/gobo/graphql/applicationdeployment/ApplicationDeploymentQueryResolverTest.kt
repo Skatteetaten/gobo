@@ -2,7 +2,6 @@ package no.skatteetaten.aurora.gobo.graphql.applicationdeployment
 
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.coEvery
-import io.mockk.every
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentResourceBuilder
 import no.skatteetaten.aurora.gobo.ImageTagResourceBuilder
 import no.skatteetaten.aurora.gobo.SkapJobForBigipBuilder
@@ -47,8 +46,8 @@ class ApplicationDeploymentQueryResolverTest : GraphQLTestWithDbhAndSkap() {
 
         val websealjob = SkapJobForWebsealBuilder().build()
         val bigipJob = SkapJobForBigipBuilder().build()
-        every { routeService.getSkapJobs("namespace", "name-webseal") } returns listOf(websealjob)
-        every { routeService.getSkapJobs("namespace", "name-bigip") } returns listOf(bigipJob)
+        coEvery { routeService.getSkapJobs("namespace", "name-webseal") } returns listOf(websealjob)
+        coEvery { routeService.getSkapJobs("namespace", "name-bigip") } returns listOf(bigipJob)
         coEvery { imageRegistryService.findTagsByName(any(), any()) } returns AuroraResponse(
             listOf(
                 ImageTagResourceBuilder().build()
