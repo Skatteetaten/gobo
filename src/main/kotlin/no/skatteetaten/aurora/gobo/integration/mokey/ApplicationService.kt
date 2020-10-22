@@ -1,5 +1,6 @@
 package no.skatteetaten.aurora.gobo.integration.mokey
 
+import kotlinx.coroutines.reactive.awaitFirstOrNull
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
@@ -14,6 +15,7 @@ import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import org.springframework.web.reactive.function.client.awaitBody
+import org.springframework.web.reactive.function.client.bodyToMono
 
 private val logger = KotlinLogging.logger {}
 
@@ -98,7 +100,8 @@ class ApplicationService(@TargetService(ServiceTypes.MOKEY) val webClient: WebCl
                 .body(BodyInserters.fromValue(refreshParams))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer $token")
                 .retrieve()
-                .awaitBody<Unit>()
+                .bodyToMono<Unit>()
+                .awaitFirstOrNull()
         }.onFailure {
             if (redeployResponse != null && it is WebClientResponseException && it.statusCode == HttpStatus.BAD_REQUEST) {
                 logger.info("Refresh of applicationDeploymentId ${refreshParams.applicationDeploymentId} failed")

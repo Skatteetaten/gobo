@@ -57,9 +57,10 @@ class AuroraConfigService(
     suspend fun getApplicationFile(token: String, it: String): String {
         return booberWebClient
             .get<AuroraConfigFileResource>(token = token, url = it)
-            .response()
-            .takeIf { it.type == AuroraConfigFileType.APP }
-            ?.name!!
+            .responses()
+            .filter { it.type == AuroraConfigFileType.APP }
+            .map { it.name }
+            .first()
     }
 
     suspend fun patch(

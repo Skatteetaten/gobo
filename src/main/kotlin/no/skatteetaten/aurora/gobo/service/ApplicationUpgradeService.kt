@@ -31,7 +31,7 @@ class ApplicationUpgradeService(
 
     suspend fun deployCurrentVersion(token: String, applicationDeploymentId: String): String {
         val details = applicationService.getApplicationDeploymentDetails(token, applicationDeploymentId)
-        val applyLink = details.link("Apply")?.href ?: throw IllegalArgumentException("")
+        val applyLink = details.link("Apply")?.href ?: throw IllegalArgumentException("No apply link found")
         return auroraConfigService.redeploy(token, details, applyLink).let {
             refreshApplicationDeployment(token, it)
             it.applicationDeploymentId
