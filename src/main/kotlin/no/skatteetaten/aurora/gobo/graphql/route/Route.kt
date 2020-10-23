@@ -32,9 +32,9 @@ data class WebsealJob(
             val mapper = ObjectMapper()
 
             val payload = mapper.readValue<Map<String, Any>>(skapJob.payload)
-            val roles: List<String> by payload.withDefault { emptyList<String>() }
-            val host: String by payload.withDefault { null }
-            val routeName: String by payload.withDefault { null }
+            val roles: List<String> by payload.withDefaultEmptyList()
+            val host: String by payload.withDefaultNull()
+            val routeName: String by payload.withDefaultNull()
 
             return WebsealJob(
                 id = skapJob.id,
@@ -75,13 +75,13 @@ data class BigipJob(
             val mapper = ObjectMapper()
 
             val payload = mapper.readValue<Map<String, Any>>(skapJob.payload)
-            val asmPolicy: String by payload.withDefault { null }
-            val externalHost: String by payload.withDefault { null }
-            val apiPaths: List<String> by payload.withDefault { emptyList<String>() }
-            val oauthScopes: List<String> by payload.withDefault { emptyList<String>() }
-            val hostname: String by payload.withDefault { null }
-            val serviceName: String by payload.withDefault { null }
-            val name: String by payload.withDefault { null }
+            val asmPolicy: String by payload.withDefaultNull()
+            val externalHost: String by payload.withDefaultNull()
+            val apiPaths: List<String> by payload.withDefaultEmptyList()
+            val oauthScopes: List<String> by payload.withDefaultEmptyList()
+            val hostname: String by payload.withDefaultNull()
+            val serviceName: String by payload.withDefaultNull()
+            val name: String by payload.withDefaultNull()
 
             return BigipJob(
                 id = skapJob.id,
@@ -102,3 +102,6 @@ data class BigipJob(
         }
     }
 }
+
+private fun Map<String, Any>.withDefaultEmptyList() = this.withDefault { emptyList<String>() }
+private fun Map<String, Any>.withDefaultNull() = this.withDefault { null }
