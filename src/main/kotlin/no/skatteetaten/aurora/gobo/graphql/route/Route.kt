@@ -1,5 +1,6 @@
 package no.skatteetaten.aurora.gobo.graphql.route
 
+import com.expediagroup.graphql.annotations.GraphQLIgnore
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import no.skatteetaten.aurora.gobo.integration.skap.SkapJob
@@ -17,10 +18,13 @@ data class WebsealJob(
     val status: String,
     val updated: String,
     val errorMessage: String?,
+    @GraphQLIgnore
     val roles: List<String>?,
     val host: String?,
     val routeName: String?
 ) {
+
+    fun roles() = roles.toString()
 
     companion object {
 
