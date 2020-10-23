@@ -102,7 +102,7 @@ class ApplicationService(@TargetService(ServiceTypes.MOKEY) val webClient: WebCl
                 .retrieve()
                 .bodyToMono<Unit>()
                 .awaitFirstOrNull()
-        }.onFailure {
+        }.recover {
             if (redeployResponse != null && it is WebClientResponseException && it.statusCode == HttpStatus.BAD_REQUEST) {
                 logger.info("Refresh of applicationDeploymentId ${refreshParams.applicationDeploymentId} failed")
                 throw ApplicationRedeployException(

@@ -10,9 +10,11 @@ import no.skatteetaten.aurora.gobo.GoboException
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.graphql.IntegrationDisabledException
 import org.apache.commons.lang3.exception.ExceptionUtils
+import org.springframework.stereotype.Component
 
 private val logger = KotlinLogging.logger { }
 
+@Component
 class GoboDataFetcherExceptionHandler : DataFetcherExceptionHandler {
     override fun onException(handlerParameters: DataFetcherExceptionHandlerParameters?): DataFetcherExceptionHandlerResult {
         handlerParameters ?: return DataFetcherExceptionHandlerResult.newResult().build()
