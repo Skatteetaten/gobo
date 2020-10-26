@@ -3,6 +3,7 @@ package no.skatteetaten.aurora.gobo.integration.boober
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
 import java.net.URI
@@ -24,7 +25,14 @@ inline fun <reified T : Any> Response<T>.responses(): List<T> = when {
         extensions = mapOf("message" to this.message, "errors" to this.items)
     )
     this.count == 0 -> emptyList()
-    else -> this.items.map { item -> jacksonObjectMapper().convertValue(item, T::class.java) }
+    else -> this.items.map { item ->
+        kotlin.runCatching {
+            jacksonObjectMapper().convertValue(item, T::class.java)
+        }.onFailure {
+            KotlinLogging.logger { }.error(it) { "Unable to parse response items from boober: $item" }
+            throw it
+        }.getOrThrow()
+    }
 }
 
 inline fun <reified T : Any> Response<T>.response(): T = this.responses().first()
@@ -38,7 +46,10 @@ class BooberWebClient(
     val objectMapper: ObjectMapper
 ) : WebClient by webClient {
 
-    fun WebClient.RequestHeadersUriSpec<*>.booberUrl(url: String, params: Map<String, String> = emptyMap()): WebClient.RequestHeadersSpec<*> =
+    fun WebClient.RequestHeadersUriSpec<*>.booberUrl(
+        url: String,
+        params: Map<String, String> = emptyMap()
+    ): WebClient.RequestHeadersSpec<*> =
         this.uri(getBooberUrl(url), params)
 
     fun WebClient.RequestBodyUriSpec.booberUrl(url: String, params: Map<String, String> = emptyMap()) =
@@ -87,7 +98,8 @@ class BooberWebClient(
         etag: String? = null,
         params: Map<String, String> = emptyMap()
     ) =
-        webClient.put().booberUrl(url, params).body(BodyInserters.fromValue(body)).execute<T>(token = token, etag = etag)
+        webClient.put().booberUrl(url, params).body(BodyInserters.fromValue(body))
+            .execute<T>(token = token, etag = etag)
 
     final suspend inline fun <reified T : Any> post(
         url: String,
