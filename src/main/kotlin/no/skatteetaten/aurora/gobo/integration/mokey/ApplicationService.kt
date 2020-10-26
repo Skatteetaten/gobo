@@ -1,6 +1,6 @@
 package no.skatteetaten.aurora.gobo.integration.mokey
 
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.reactive.awaitFirstOrNull
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
@@ -15,6 +15,7 @@ import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import org.springframework.web.reactive.function.client.awaitBody
+import org.springframework.web.reactive.function.client.bodyToMono
 
 private val logger = KotlinLogging.logger {}
 
@@ -99,8 +100,9 @@ class ApplicationService(@TargetService(ServiceTypes.MOKEY) val webClient: WebCl
                 .body(BodyInserters.fromValue(refreshParams))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer $token")
                 .retrieve()
-                .awaitBody<Unit>()
-        }.onFailure {
+                .bodyToMono<Unit>()
+                .awaitFirstOrNull()
+        }.recover {
             if (redeployResponse != null && it is WebClientResponseException && it.statusCode == HttpStatus.BAD_REQUEST) {
                 logger.info("Refresh of applicationDeploymentId ${refreshParams.applicationDeploymentId} failed")
                 throw ApplicationRedeployException(
@@ -114,28 +116,4 @@ class ApplicationService(@TargetService(ServiceTypes.MOKEY) val webClient: WebCl
             throw it
         }.getOrThrow()
     }
-}
-
-@Service
-class ApplicationServiceBlocking(private val applicationService: ApplicationService) {
-    fun getApplications(affiliations: List<String>, applications: List<String>? = null) =
-        runBlocking { applicationService.getApplications(affiliations, applications) }
-
-    fun getApplication(id: String): ApplicationResource =
-        runBlocking { applicationService.getApplication(id) }
-
-    fun getApplicationDeployment(applicationDeploymentId: String) =
-        runBlocking { applicationService.getApplicationDeployment(applicationDeploymentId) }
-
-    fun getApplicationDeployment(applicationDeploymentRefs: List<ApplicationDeploymentRef>) =
-        runBlocking { applicationService.getApplicationDeployment(applicationDeploymentRefs) }
-
-    fun getApplicationDeploymentDetails(token: String, applicationDeploymentId: String) =
-        runBlocking { applicationService.getApplicationDeploymentDetails(token, applicationDeploymentId) }
-
-    fun refreshApplicationDeployment(token: String, refreshParams: RefreshParams) =
-        runBlocking { applicationService.refreshApplicationDeployment(token, refreshParams) }
-
-    fun getApplicationDeploymentsForDatabases(token: String, databaseIds: List<String>) =
-        runBlocking { applicationService.getApplicationDeploymentsForDatabases(token, databaseIds) }
 }

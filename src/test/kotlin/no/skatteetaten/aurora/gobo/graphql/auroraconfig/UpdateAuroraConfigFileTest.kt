@@ -6,7 +6,6 @@ import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithDbhAndSkap
 import no.skatteetaten.aurora.gobo.graphql.graphqlDataWithPrefix
 import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
-import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileType.DEFAULT
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigService
 import org.junit.jupiter.api.BeforeEach
@@ -33,12 +32,7 @@ class UpdateAuroraConfigFileTest : GraphQLTestWithDbhAndSkap() {
 
         coEvery {
             auroraConfigService.updateAuroraConfigFile(any(), any(), any(), any(), any(), any())
-        } returns Response(
-            success = true,
-            message = "Ok",
-            items = listOf(auroraConfigFileResource),
-            count = 1
-        )
+        } returns auroraConfigFileResource
     }
 
     @Test

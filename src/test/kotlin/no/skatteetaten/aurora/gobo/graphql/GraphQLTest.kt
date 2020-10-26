@@ -8,6 +8,8 @@ import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
 
+const val PROFILE_WITH_DBH_AND_SKAP = "with-dbh-and-skap"
+
 @WithMockUser
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
@@ -21,5 +23,5 @@ abstract class GraphQLTestWithoutDbhAndSkap {
     fun shutdown() = clearAllMocks()
 }
 
-@ActiveProfiles("with-dbh-and-skap")
+@ActiveProfiles(PROFILE_WITH_DBH_AND_SKAP)
 abstract class GraphQLTestWithDbhAndSkap : GraphQLTestWithoutDbhAndSkap()

@@ -1,6 +1,6 @@
 package no.skatteetaten.aurora.gobo.integration.cantus
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.databind.ObjectMapper
 import kotlinx.coroutines.reactive.awaitFirst
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.ServiceTypes
@@ -39,7 +39,8 @@ private fun List<ImageRepoAndTags>.getAllTagUrls() =
 
 @Service
 class ImageRegistryServiceBlocking(
-    @TargetService(ServiceTypes.CANTUS) val webClient: WebClient
+    @TargetService(ServiceTypes.CANTUS) val webClient: WebClient,
+    private val objectMapper: ObjectMapper
 ) {
 
     suspend fun resolveTagToSha(imageRepoDto: ImageRepoDto, imageTag: String, token: String): String? {
@@ -100,7 +101,7 @@ class ImageRegistryServiceBlocking(
         this.headers {
             it.set(HttpHeaders.AUTHORIZATION, "Bearer $token")
         }.retrieve().bodyToMono<AuroraResponse<T>>().map { response ->
-            response.copy(items = response.items.map { jacksonObjectMapper().convertValue(it, T::class.java) })
+            response.copy(items = response.items.map { objectMapper.convertValue(it, T::class.java) })
         }.awaitFirst()
 
     private inline fun <reified T : Any> execute(

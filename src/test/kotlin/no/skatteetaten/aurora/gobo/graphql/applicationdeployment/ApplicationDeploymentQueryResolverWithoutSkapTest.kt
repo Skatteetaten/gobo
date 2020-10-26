@@ -2,7 +2,6 @@ package no.skatteetaten.aurora.gobo.graphql.applicationdeployment
 
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.coEvery
-import io.mockk.every
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentResourceBuilder
 import no.skatteetaten.aurora.gobo.ImageTagResourceBuilder
 import no.skatteetaten.aurora.gobo.integration.cantus.AuroraResponse
@@ -50,7 +49,7 @@ class ApplicationDeploymentQueryResolverWithoutSkapTest : GraphQLTestWithoutDbhA
             msg = "Hei"
         ).build()
 
-        every {
+        coEvery {
             routeService.getSkapJobs(
                 any(),
                 any()

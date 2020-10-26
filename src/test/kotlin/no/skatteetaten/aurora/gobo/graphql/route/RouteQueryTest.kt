@@ -1,7 +1,7 @@
 package no.skatteetaten.aurora.gobo.graphql.route
 
 import com.ninjasquad.springmockk.MockkBean
-import io.mockk.every
+import io.mockk.coEvery
 import no.skatteetaten.aurora.gobo.SkapJobForBigipBuilder
 import no.skatteetaten.aurora.gobo.SkapJobForWebsealBuilder
 import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithDbhAndSkap
@@ -25,8 +25,8 @@ class RouteQueryTest : GraphQLTestWithDbhAndSkap() {
     fun `get jobs for app`() {
         val websealjob = SkapJobForWebsealBuilder().build()
         val bigipJob = SkapJobForBigipBuilder().build()
-        every { routeService.getSkapJobs("namespace", "name-webseal") } returns listOf(websealjob)
-        every { routeService.getSkapJobs("namespace", "name-bigip") } returns listOf(bigipJob)
+        coEvery { routeService.getSkapJobs("namespace", "name-webseal") } returns listOf(websealjob)
+        coEvery { routeService.getSkapJobs("namespace", "name-bigip") } returns listOf(bigipJob)
 
         webTestClient.queryGraphQL(
             queryResource = getRoute,

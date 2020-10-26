@@ -64,7 +64,7 @@ data class AuroraConfigFileResource(
 
 data class NewAuroraConfigFileInput(
     val auroraConfigName: String,
-    val auroraConfigReference: String = "master",
+    val auroraConfigReference: String?,
     val fileName: String,
     val contents: String
 )
@@ -78,7 +78,7 @@ data class UpdateAuroraConfigFileInput(
 )
 
 data class AuroraConfigFileValidationResponse(
-    val message: String,
+    val message: String?,
     val success: Boolean,
-    val file: AuroraConfigFileResource?
+    val file: AuroraConfigFileResource? = null
 )

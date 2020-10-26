@@ -1,5 +1,7 @@
 package no.skatteetaten.aurora.gobo.graphql.applicationdeploymentdetails
 
+import graphql.schema.DataFetchingEnvironment
+import no.skatteetaten.aurora.gobo.graphql.load
 import java.net.URL
 import java.time.Instant
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentDetailsResource
@@ -162,10 +164,18 @@ data class ApplicationDeploymentDetails(
     }
 }
 
+data class DeploymentSpec(val jsonRepresentation: String)
+
 class DeploymentSpecs(
     val deploymentSpecCurrent: URL?,
     val deploymentSpecDeployed: URL?
-)
+) {
+    suspend fun current(dfe: DataFetchingEnvironment): DeploymentSpec? =
+        deploymentSpecCurrent?.let { dfe.load(it) }
+
+    suspend fun deployed(dfe: DataFetchingEnvironment): DeploymentSpec? =
+        deploymentSpecDeployed?.let { dfe.load(it) }
+}
 
 data class DeployDetails(
     val targetReplicas: Int,

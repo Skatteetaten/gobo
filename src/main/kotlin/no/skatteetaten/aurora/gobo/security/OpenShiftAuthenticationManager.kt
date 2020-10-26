@@ -1,6 +1,5 @@
 package no.skatteetaten.aurora.gobo.security
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import mu.KotlinLogging
 import no.skatteetaten.aurora.kubernetes.KubernetesReactorClient
 import org.springframework.security.access.AccessDeniedException
@@ -16,13 +15,12 @@ import reactor.core.publisher.Mono.just
 private val logger = KotlinLogging.logger {}
 
 @Component
-class OpenShiftAuthenticationManager(private val kubernetesClient: KubernetesReactorClient) : ReactiveAuthenticationManager {
+class OpenShiftAuthenticationManager(private val kubernetesClient: KubernetesReactorClient) :
+    ReactiveAuthenticationManager {
     override fun authenticate(authentication: Authentication): Mono<Authentication> = runCatching {
         currentUser(authentication.credentials.toString())
     }.mapCatching { monoUser ->
         monoUser.flatMap {
-            logger.debug { "Received user: ${jacksonObjectMapper().writeValueAsString(it)}" }
-
             just(
                 PreAuthenticatedAuthenticationToken(
                     it,

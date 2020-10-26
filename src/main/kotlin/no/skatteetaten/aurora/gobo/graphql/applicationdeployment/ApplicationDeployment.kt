@@ -10,7 +10,6 @@ import no.skatteetaten.aurora.gobo.graphql.imagerepository.ImageRepository
 import no.skatteetaten.aurora.gobo.graphql.imagerepository.ImageTag
 import no.skatteetaten.aurora.gobo.graphql.load
 import no.skatteetaten.aurora.gobo.graphql.namespace.Namespace
-import no.skatteetaten.aurora.gobo.graphql.permission.Permission
 import no.skatteetaten.aurora.gobo.graphql.route.Route
 import java.time.Instant
 
@@ -41,7 +40,7 @@ data class ApplicationDeployment(
 ) {
 
     suspend fun details(dfe: DataFetchingEnvironment) =
-        dfe.load<String, ApplicationDeploymentDetails>(applicationId)
+        dfe.load<String, ApplicationDeploymentDetails>(id)
 
     suspend fun route(dfe: DataFetchingEnvironment) =
         dfe.load<ApplicationDeployment, Route>(this)
@@ -56,7 +55,7 @@ data class ApplicationDeployment(
                 name = deployment.name,
                 affiliation = Affiliation(deployment.affiliation),
                 environment = deployment.environment,
-                namespace = Namespace(deployment.namespace, Affiliation(deployment.affiliation), Permission()),
+                namespace = Namespace(deployment.namespace, Affiliation(deployment.affiliation)),
                 status = Status(
                     code = deployment.status.code,
                     comment = "",

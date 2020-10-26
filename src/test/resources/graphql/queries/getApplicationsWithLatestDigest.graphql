@@ -6,6 +6,14 @@ query getApplications($affiliations: [String!]!) {
                 name
                 applicationDeployments {
                     details {
+                        deploymentSpecs {
+                            current {
+                                jsonRepresentation
+                            }
+                            deployed {
+                                jsonRepresentation
+                            }
+                        }
                         imageDetails {
                             imageBuildTime
                             digest

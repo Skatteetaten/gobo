@@ -4,11 +4,6 @@ import com.ninjasquad.springmockk.MockkBean
 import io.mockk.coEvery
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentDetailsBuilder
 import no.skatteetaten.aurora.gobo.ApplicationResourceBuilder
-import no.skatteetaten.aurora.gobo.integration.cantus.ImageRegistryServiceBlocking
-import no.skatteetaten.aurora.gobo.integration.cantus.ImageTagDto
-import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
-import no.skatteetaten.aurora.gobo.integration.mokey.AuroraNamespacePermissions
-import no.skatteetaten.aurora.gobo.integration.mokey.PermissionService
 import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithDbhAndSkap
 import no.skatteetaten.aurora.gobo.graphql.graphqlData
 import no.skatteetaten.aurora.gobo.graphql.graphqlDataWithPrefix
@@ -16,10 +11,16 @@ import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.graphql.imagerepository.ImageRepoDto
 import no.skatteetaten.aurora.gobo.graphql.imagerepository.ImageTag
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
+import no.skatteetaten.aurora.gobo.integration.cantus.ImageRegistryServiceBlocking
+import no.skatteetaten.aurora.gobo.integration.cantus.ImageTagDto
+import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
+import no.skatteetaten.aurora.gobo.integration.mokey.AuroraNamespacePermissions
+import no.skatteetaten.aurora.gobo.integration.mokey.PermissionService
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 
+// TODO should return DeploymentSpecCurrent in ApplicationDeploymentDetailsBuilder
 class ApplicationWithLatestDigestQueryResolverTest : GraphQLTestWithDbhAndSkap() {
 
     @Value("classpath:graphql/queries/getApplicationsWithLatestDigest.graphql")
@@ -47,7 +48,6 @@ class ApplicationWithLatestDigestQueryResolverTest : GraphQLTestWithDbhAndSkap()
             imageRegistryServiceBlocking.findImageTagDto(
                 imageRepoDto,
                 tag.name,
-
                 "test-token"
             )
         } returns ImageTagDto(

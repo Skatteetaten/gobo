@@ -3,7 +3,7 @@ package no.skatteetaten.aurora.gobo.graphql.auroraconfig
 import com.expediagroup.graphql.spring.operations.Mutation
 import graphql.schema.DataFetchingEnvironment
 import no.skatteetaten.aurora.gobo.graphql.token
-import no.skatteetaten.aurora.gobo.integration.Response
+import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigService
 import org.springframework.stereotype.Component
 
@@ -17,8 +17,8 @@ class AuroraConfigMutation(
         dfe: DataFetchingEnvironment
     ): AuroraConfigFileValidationResponse {
         val token = dfe.token()
-        val addResult =
-            service.updateAuroraConfigFile(
+        return try {
+            val result = service.updateAuroraConfigFile(
                 token,
                 input.auroraConfigName,
                 input.auroraConfigReference ?: "master",
@@ -26,14 +26,13 @@ class AuroraConfigMutation(
                 input.contents,
                 input.existingHash
             )
-
-        val result: AuroraConfigFileResource = addResult.items.first()
-
-        return AuroraConfigFileValidationResponse(
-            message = addResult.message,
-            success = addResult.success,
-            file = result
-        )
+            AuroraConfigFileValidationResponse(message = "OK", success = true, file = result)
+        } catch (e: SourceSystemException) {
+            AuroraConfigFileValidationResponse(
+                message = e.message,
+                success = false
+            )
+        }
     }
 
     // FIXME no anonymous user access
@@ -42,21 +41,20 @@ class AuroraConfigMutation(
         dfe: DataFetchingEnvironment
     ): AuroraConfigFileValidationResponse {
         val token = dfe.token()
-        val addResult: Response<AuroraConfigFileResource> =
-            service.addAuroraConfigFile(
+        return try {
+            val result = service.addAuroraConfigFile(
                 token,
                 input.auroraConfigName,
-                input.auroraConfigReference,
+                input.auroraConfigReference ?: "master",
                 input.fileName,
                 input.contents
             )
-
-        val result: AuroraConfigFileResource = addResult.items.first()
-
-        return AuroraConfigFileValidationResponse(
-            message = addResult.message,
-            success = addResult.success,
-            file = result
-        )
+            AuroraConfigFileValidationResponse(message = "OK", success = true, file = result)
+        } catch (e: SourceSystemException) {
+            AuroraConfigFileValidationResponse(
+                message = e.message,
+                success = false
+            )
+        }
     }
 }

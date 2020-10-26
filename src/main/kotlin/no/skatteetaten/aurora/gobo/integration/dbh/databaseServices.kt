@@ -2,7 +2,6 @@ package no.skatteetaten.aurora.gobo.integration.dbh
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import kotlinx.coroutines.reactive.awaitFirst
-import kotlinx.coroutines.runBlocking
 import no.skatteetaten.aurora.gobo.RequiresDbh
 import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
@@ -183,42 +182,6 @@ interface DatabaseService {
 
     private fun integrationDisabled(): Nothing =
         throw IntegrationDisabledException("DBH integration is disabled for this environment")
-}
-
-@Service
-@ConditionalOnBean(RequiresDbh::class)
-class DatabaseServiceBlocking(private val databaseService: DatabaseServiceReactive) :
-    DatabaseService {
-
-    override fun getDatabaseInstances() =
-        runBlocking { databaseService.getDatabaseInstances() }
-
-    override fun getDatabaseSchemas(affiliation: String) =
-        runBlocking { databaseService.getDatabaseSchemas(affiliation) }
-
-    override fun getDatabaseSchema(id: String) =
-        runBlocking { databaseService.getDatabaseSchema(id) }
-
-    override fun getRestorableDatabaseSchemas(affiliation: String) =
-        runBlocking { databaseService.getRestorableDatabaseSchemas(affiliation) }
-
-    override fun updateDatabaseSchema(input: SchemaUpdateRequest): DatabaseSchemaResource =
-        runBlocking { databaseService.updateDatabaseSchema(input) }
-
-    override fun deleteDatabaseSchemas(input: List<SchemaDeletionRequest>): List<SchemaCooldownChangeResponse> =
-        runBlocking { databaseService.deleteDatabaseSchemas(input) }
-
-    override fun restoreDatabaseSchemas(input: List<SchemaRestorationRequest>): List<SchemaCooldownChangeResponse> =
-        runBlocking { databaseService.restoreDatabaseSchemas(input) }
-
-    override fun testJdbcConnection(user: JdbcUser) =
-        runBlocking { databaseService.testJdbcConnection(user = user) }
-
-    override fun testJdbcConnection(id: String) =
-        runBlocking { databaseService.testJdbcConnection(id = id) }
-
-    override fun createDatabaseSchema(input: SchemaCreationRequest) =
-        runBlocking { databaseService.createDatabaseSchema(input) }
 }
 
 @Service

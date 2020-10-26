@@ -42,10 +42,11 @@ data class ImageRepository(
     val name: String
 ) {
 
-    val isFullyQualified: Boolean get() = registryUrl != null
-
     val repository: String
         get() = listOf(registryUrl, namespace, name).joinToString("/")
+
+    fun isFullyQualified(): Boolean? =
+        registryUrl != null
 
     fun toImageRepo(filter: String? = null) = ImageRepoDto(
         registry = this.registryUrl,
@@ -60,7 +61,8 @@ data class ImageRepository(
         dfe: DataFetchingEnvironment
     ): List<ImageWithType?> {
 
-        if (!isFullyQualified) {
+        // TODO fix schema? isFullyQualified cannot be null
+        if (!isFullyQualified()!!) {
             return emptyList()
         }
 
@@ -78,7 +80,8 @@ data class ImageRepository(
         after: String?,
         dfe: DataFetchingEnvironment
     ): ImageTagsConnection {
-        val tagsDto = if (!isFullyQualified) {
+        // TODO fix schema? isFullyQualified cannot be null
+        val tagsDto = if (!isFullyQualified()!!) {
             TagsDto(emptyList())
         } else {
             dfe.load(toImageRepo(filter))
@@ -91,6 +94,11 @@ data class ImageRepository(
     private fun List<Tag>.toImageTags(imageRepository: ImageRepository, types: List<ImageTagType>?) = this
         .map { ImageTag(imageRepository = imageRepository, name = it.name) }
         .filter { types == null || it.type in types }
+
+    suspend fun guiUrl(dfe: DataFetchingEnvironment): String? {
+        val guiUrl: GuiUrl = dfe.load(this)
+        return guiUrl.url
+    }
 
     companion object {
         /**

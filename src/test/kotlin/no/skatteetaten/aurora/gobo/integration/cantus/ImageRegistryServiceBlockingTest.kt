@@ -8,6 +8,7 @@ import assertk.assertions.isInstanceOf
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import assertk.assertions.messageContains
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import no.skatteetaten.aurora.gobo.AuroraResponseBuilder
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.graphql.imagerepository.ImageRepository
@@ -32,7 +33,7 @@ class ImageRegistryServiceBlockingTest {
 
     private val token: String = "token"
     private val imageRegistry = ImageRegistryServiceBlocking(
-        WebClient.create(url.toString())
+        WebClient.create(url.toString()), jacksonObjectMapper()
     )
 
     @ParameterizedTest

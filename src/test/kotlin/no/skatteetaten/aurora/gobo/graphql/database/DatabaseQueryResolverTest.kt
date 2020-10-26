@@ -7,7 +7,6 @@ import no.skatteetaten.aurora.gobo.DatabaseInstanceResourceBuilder
 import no.skatteetaten.aurora.gobo.DatabaseSchemaResourceBuilder
 import no.skatteetaten.aurora.gobo.RestorableDatabaseSchemaBuilder
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseServiceReactive
-import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationServiceBlocking
 import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithDbhAndSkap
 import no.skatteetaten.aurora.gobo.graphql.graphqlData
 import no.skatteetaten.aurora.gobo.graphql.graphqlDataWithPrefix
@@ -15,6 +14,7 @@ import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.graphql.graphqlErrors
 import no.skatteetaten.aurora.gobo.graphql.graphqlErrorsFirst
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
+import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
@@ -42,7 +42,7 @@ class DatabaseQueryResolverTest : GraphQLTestWithDbhAndSkap() {
     private lateinit var databaseService: DatabaseServiceReactive
 
     @MockkBean
-    private lateinit var applicationService: ApplicationServiceBlocking
+    private lateinit var applicationService: ApplicationService
 
     @BeforeEach
     fun setUp() {

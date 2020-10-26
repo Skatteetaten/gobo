@@ -3,11 +3,11 @@ package no.skatteetaten.aurora.gobo.graphql.certificate
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.coEvery
 import no.skatteetaten.aurora.gobo.CertificateResourceBuilder
-import no.skatteetaten.aurora.gobo.integration.skap.CertificateService
 import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithDbhAndSkap
 import no.skatteetaten.aurora.gobo.graphql.graphqlData
 import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
+import no.skatteetaten.aurora.gobo.integration.skap.CertificateService
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
@@ -30,6 +30,7 @@ class CertificateQueryTest : GraphQLTestWithDbhAndSkap() {
             .expectStatus().isOk
             .expectBody()
             .graphqlData("certificates.totalCount").isEqualTo(2)
+            .graphqlData("certificates.edges[0].cursor").isNotEmpty
             .graphqlDoesNotContainErrors()
     }
 }
