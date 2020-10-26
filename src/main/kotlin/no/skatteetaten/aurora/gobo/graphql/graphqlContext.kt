@@ -10,11 +10,10 @@ import org.springframework.http.server.reactive.ServerHttpResponse
 import org.springframework.security.core.context.SecurityContext
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
-import java.lang.IllegalArgumentException
 import kotlin.coroutines.coroutineContext
 
 fun DataFetchingEnvironment.token() = this.getContext<GoboGraphQLContext>().token
-    ?: throw IllegalArgumentException("Token is not set")
+    ?: throw AccessDeniedException("Token is not set")
 
 class GoboGraphQLContext(val token: String?, val request: ServerHttpRequest, val response: ServerHttpResponse, val securityContext: SecurityContext?) :
     GraphQLContext
