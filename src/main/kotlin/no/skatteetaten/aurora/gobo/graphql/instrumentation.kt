@@ -80,7 +80,7 @@ class UserUsage {
                 }
             }
         } catch (e: Throwable) {
-            logger.warn(e) { "Unable to get graphQl contaxt: " }
+            logger.warn(e) { "Unable to get GraphQL context: " }
         }
     }
 }
