@@ -1,6 +1,7 @@
 package no.skatteetaten.aurora.gobo.integration.boober
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import mu.KotlinLogging
@@ -17,6 +18,8 @@ import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import org.springframework.web.reactive.function.client.awaitBody
 
+val objectMapper: ObjectMapper = jacksonObjectMapper().registerModules(JavaTimeModule())
+
 inline fun <reified T : Any> Response<T>.responses(): List<T> = when {
     !this.success -> throw SourceSystemException(
         message = this.message,
@@ -27,7 +30,7 @@ inline fun <reified T : Any> Response<T>.responses(): List<T> = when {
     this.count == 0 -> emptyList()
     else -> this.items.map { item ->
         kotlin.runCatching {
-            jacksonObjectMapper().convertValue(item, T::class.java)
+            objectMapper.convertValue(item, T::class.java)
         }.onFailure {
             KotlinLogging.logger { }.error(it) { "Unable to parse response items from boober: $item" }
             throw it
