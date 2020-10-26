@@ -7,7 +7,6 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.fge.jackson.jsonpointer.JsonPointer
 import com.github.fge.jsonpatch.AddOperation
 import com.github.fge.jsonpatch.JsonPatch
-import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentDetailsResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentRefResource
 import no.skatteetaten.aurora.gobo.graphql.auroraconfig.AuroraConfig
@@ -35,18 +34,17 @@ class AuroraConfigService(
         fileName: String,
         content: String,
         oldHash: String
-    ): Response<AuroraConfigFileResource> {
+    ): AuroraConfigFileResource {
         val url = "/v2/auroraconfig/{auroraConfig}?reference={reference}"
         val body = mapOf("content" to content, "fileName" to fileName)
 
-        val response = booberWebClient.put<AuroraConfigFileResource>(
+        return booberWebClient.put<AuroraConfigFileResource>(
             url = url,
             params = mapOf("auroraConfig" to auroraConfig, "reference" to reference),
             body = body,
             token = token,
             etag = oldHash
-        ).responses()
-        return Response(items = response)
+        ).response()
     }
 
     suspend fun addAuroraConfigFile(
@@ -55,15 +53,15 @@ class AuroraConfigService(
         reference: String,
         fileName: String,
         content: String
-    ): Response<AuroraConfigFileResource> {
+    ): AuroraConfigFileResource {
         val url = "/v2/auroraconfig/{auroraConfig}?reference={reference}"
         val body = mapOf("content" to content, "fileName" to fileName)
-        return booberWebClient.put(
+        return booberWebClient.put<AuroraConfigFileResource>(
             url = url,
             params = mapOf("auroraConfig" to auroraConfig, "reference" to reference),
             body = body,
             token = token
-        )
+        ).response()
     }
 
     suspend fun getApplicationFile(token: String, it: String): String {

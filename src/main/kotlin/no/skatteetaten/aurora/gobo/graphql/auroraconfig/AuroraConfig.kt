@@ -78,7 +78,7 @@ data class UpdateAuroraConfigFileInput(
 )
 
 data class AuroraConfigFileValidationResponse(
-    val message: String,
+    val message: String?,
     val success: Boolean,
-    val file: AuroraConfigFileResource?
+    val file: AuroraConfigFileResource? = null
 )

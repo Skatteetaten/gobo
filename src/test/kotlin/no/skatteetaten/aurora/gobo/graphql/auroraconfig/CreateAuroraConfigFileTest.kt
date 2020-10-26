@@ -2,7 +2,6 @@ package no.skatteetaten.aurora.gobo.graphql.auroraconfig
 
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.coEvery
-import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileType.DEFAULT
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigService
 import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithDbhAndSkap
@@ -34,12 +33,7 @@ class CreateAuroraConfigFileTest : GraphQLTestWithDbhAndSkap() {
 
         coEvery {
             auroraConfigService.addAuroraConfigFile(any(), any(), any(), any(), any())
-        } returns Response(
-            success = true,
-            message = "Ok",
-            items = listOf(auroraConfigFileResource),
-            count = 1
-        )
+        } returns auroraConfigFileResource
     }
 
     @Test
