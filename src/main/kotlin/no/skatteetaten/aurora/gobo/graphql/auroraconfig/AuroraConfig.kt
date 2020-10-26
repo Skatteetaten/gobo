@@ -64,7 +64,7 @@ data class AuroraConfigFileResource(
 
 data class NewAuroraConfigFileInput(
     val auroraConfigName: String,
-    val auroraConfigReference: String = "master",
+    val auroraConfigReference: String?,
     val fileName: String,
     val contents: String
 )

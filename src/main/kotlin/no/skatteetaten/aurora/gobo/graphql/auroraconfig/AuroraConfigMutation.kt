@@ -46,7 +46,7 @@ class AuroraConfigMutation(
             service.addAuroraConfigFile(
                 token,
                 input.auroraConfigName,
-                input.auroraConfigReference,
+                input.auroraConfigReference ?: "master",
                 input.fileName,
                 input.contents
             )
