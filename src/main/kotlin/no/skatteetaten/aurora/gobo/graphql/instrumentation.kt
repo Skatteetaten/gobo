@@ -24,7 +24,10 @@ class GoboInstrumentation : SimpleInstrumentation() {
     val fieldUsage = FieldUsage()
     val userUsage = UserUsage()
 
-    override fun instrumentExecutionInput(executionInput: ExecutionInput?, parameters: InstrumentationExecutionParameters?): ExecutionInput {
+    override fun instrumentExecutionInput(
+        executionInput: ExecutionInput?,
+        parameters: InstrumentationExecutionParameters?
+    ): ExecutionInput {
         executionInput?.let {
             val query = it.query.removeNewLines()
             if (query.trimStart().startsWith("mutation")) {
@@ -68,16 +71,12 @@ class UserUsage {
     val users: ConcurrentHashMap<String, LongAdder> = ConcurrentHashMap()
 
     fun update(executionContext: ExecutionContext?) {
-
         try {
-            val context = executionContext?.getContext<GoboGraphQLContext>()
-            val clientId = context?.request?.headers?.getFirst("CLIENT_ID")
-            if (clientId != null) {
-                users.computeIfAbsent(clientId) { LongAdder() }.increment()
-            } else {
-                val user = context?.request?.headers?.get(HttpHeaders.USER_AGENT)
-                if (user != null) {
-                    users.computeIfAbsent(user.get(0)) { LongAdder() }.increment()
+            executionContext?.getContext<GoboGraphQLContext>()?.request?.headers?.let { headers ->
+                headers.getFirst("CLIENT_ID")?.let { clientId ->
+                    users.computeIfAbsent(clientId) { LongAdder() }.increment()
+                } ?: headers.getFirst(HttpHeaders.USER_AGENT)?.let { userAgent ->
+                    users.computeIfAbsent(userAgent) { LongAdder() }.increment()
                 }
             }
         } catch (e: Throwable) {
