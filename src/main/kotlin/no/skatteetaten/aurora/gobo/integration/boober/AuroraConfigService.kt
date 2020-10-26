@@ -39,7 +39,14 @@ class AuroraConfigService(
         val url = "/v2/auroraconfig/{auroraConfig}?reference={reference}"
         val body = mapOf("content" to content, "fileName" to fileName)
 
-        return booberWebClient.put(url = url, params = mapOf("auroraConfig" to auroraConfig, "reference" to reference), body = body, token = token, etag = oldHash)
+        val response = booberWebClient.put<AuroraConfigFileResource>(
+            url = url,
+            params = mapOf("auroraConfig" to auroraConfig, "reference" to reference),
+            body = body,
+            token = token,
+            etag = oldHash
+        ).responses()
+        return Response(items = response)
     }
 
     suspend fun addAuroraConfigFile(
@@ -51,7 +58,12 @@ class AuroraConfigService(
     ): Response<AuroraConfigFileResource> {
         val url = "/v2/auroraconfig/{auroraConfig}?reference={reference}"
         val body = mapOf("content" to content, "fileName" to fileName)
-        return booberWebClient.put(url = url, params = mapOf("auroraConfig" to auroraConfig, "reference" to reference), body = body, token = token)
+        return booberWebClient.put(
+            url = url,
+            params = mapOf("auroraConfig" to auroraConfig, "reference" to reference),
+            body = body,
+            token = token
+        )
     }
 
     suspend fun getApplicationFile(token: String, it: String): String {
