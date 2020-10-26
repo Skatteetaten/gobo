@@ -73,10 +73,9 @@ class UserUsage {
     fun update(executionContext: ExecutionContext?) {
         try {
             executionContext?.getContext<GoboGraphQLContext>()?.request?.headers?.let { headers ->
-                headers.getFirst("CLIENT_ID")?.let { clientId ->
-                    users.computeIfAbsent(clientId) { LongAdder() }.increment()
-                } ?: headers.getFirst(HttpHeaders.USER_AGENT)?.let { userAgent ->
-                    users.computeIfAbsent(userAgent) { LongAdder() }.increment()
+                val user = headers.getFirst("CLIENT_ID") ?: headers.getFirst(HttpHeaders.USER_AGENT)
+                user?.let {
+                    users.computeIfAbsent(it) { LongAdder() }.increment()
                 }
             }
         } catch (e: Throwable) {
