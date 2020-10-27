@@ -30,11 +30,13 @@ class GoboInstrumentation : SimpleInstrumentation() {
     ): ExecutionInput {
         executionInput?.let {
             val query = it.query.removeNewLines()
-            if (query.trimStart().startsWith("mutation")) {
-                logger.info("mutation=\"$query\" - variable-keys=${it.variables.keys}")
-            } else {
-                val variables = if (it.variables.isEmpty()) "" else " - variables=${it.variables}"
-                logger.info("query=\"$query\"$variables")
+            if (!query.startsWith("query IntrospectionQuery")) {
+                if (query.trimStart().startsWith("mutation")) {
+                    logger.info("mutation=\"$query\" - variable-keys=${it.variables.keys}")
+                } else {
+                    val variables = if (it.variables.isEmpty()) "" else " - variables=${it.variables}"
+                    logger.info("query=\"$query\"$variables")
+                }
             }
         }
         return super.instrumentExecutionInput(executionInput, parameters)
@@ -45,9 +47,16 @@ class GoboInstrumentation : SimpleInstrumentation() {
         parameters: InstrumentationExecutionParameters?
     ): ExecutionContext {
         val selectionSet = executionContext?.operationDefinition?.selectionSet ?: SelectionSet(emptyList())
-        fieldUsage.update(selectionSet)
-        userUsage.update(executionContext)
+        if (selectionSet.selections.isNotEmpty() && selectionSet.isNotIntrospectioQuery()) {
+            fieldUsage.update(selectionSet)
+            userUsage.update(executionContext)
+        }
         return super.instrumentExecutionContext(executionContext, parameters)
+    }
+
+    private fun SelectionSet.isNotIntrospectioQuery(): Boolean {
+        val selection = this.selections?.first()
+        return !(selection is Field && selection.name.startsWith("__schema"))
     }
 }
 
@@ -60,10 +69,8 @@ class FieldUsage {
         selectionSet?.selections?.map {
             if (it is Field) {
                 val fullName = if (parent == null) it.name else "$parent.${it.name}"
-                if (!fullName.startsWith("__schema")) {
-                    _fields.computeIfAbsent(fullName) { LongAdder() }.increment()
-                    update(it.selectionSet, fullName)
-                }
+                _fields.computeIfAbsent(fullName) { LongAdder() }.increment()
+                update(it.selectionSet, fullName)
             }
         }
     }
@@ -76,10 +83,8 @@ class UserUsage {
         try {
             executionContext?.getContext<GoboGraphQLContext>()?.request?.headers?.let { headers ->
                 val user = headers.getFirst("CLIENT_ID") ?: headers.getFirst(HttpHeaders.USER_AGENT)
-                if (!users.containsKey(user)) {
-                    user?.let {
-                        users.computeIfAbsent(it) { LongAdder() }.increment()
-                    }
+                user?.let {
+                    users.computeIfAbsent(it) { LongAdder() }.increment()
                 }
             }
         } catch (e: Throwable) {
