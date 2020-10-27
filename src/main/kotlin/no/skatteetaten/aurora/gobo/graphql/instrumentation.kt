@@ -60,8 +60,10 @@ class FieldUsage {
         selectionSet?.selections?.map {
             if (it is Field) {
                 val fullName = if (parent == null) it.name else "$parent.${it.name}"
-                _fields.computeIfAbsent(fullName) { LongAdder() }.increment()
-                update(it.selectionSet, fullName)
+                if (!fullName.startsWith("__schema")) {
+                    _fields.computeIfAbsent(fullName) { LongAdder() }.increment()
+                    update(it.selectionSet, fullName)
+                }
             }
         }
     }
@@ -74,8 +76,10 @@ class UserUsage {
         try {
             executionContext?.getContext<GoboGraphQLContext>()?.request?.headers?.let { headers ->
                 val user = headers.getFirst("CLIENT_ID") ?: headers.getFirst(HttpHeaders.USER_AGENT)
-                user?.let {
-                    users.computeIfAbsent(it) { LongAdder() }.increment()
+                if (!users.containsKey(user)) {
+                    user?.let {
+                        users.computeIfAbsent(it) { LongAdder() }.increment()
+                    }
                 }
             }
         } catch (e: Throwable) {
