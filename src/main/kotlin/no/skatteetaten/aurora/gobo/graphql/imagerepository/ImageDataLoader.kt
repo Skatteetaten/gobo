@@ -12,7 +12,7 @@ class ImageDataLoader(val imageRegistryServiceBlocking: ImageRegistryServiceBloc
     override suspend fun getByKey(key: ImageTag, ctx: GoboGraphQLContext): Image? {
         val imageReposAndTags = ImageRepoAndTags.fromImageTags(setOf(key))
         // TODO can it contain multiple tags?
-        val response = imageRegistryServiceBlocking.findTagsByName(imageReposAndTags, ctx.token!!).items.first()
+        val response = imageRegistryServiceBlocking.findTagsByName(imageReposAndTags, ctx.token()).items.first()
         return Image(response.timeline.buildEnded, response.requestUrl)
     }
 }

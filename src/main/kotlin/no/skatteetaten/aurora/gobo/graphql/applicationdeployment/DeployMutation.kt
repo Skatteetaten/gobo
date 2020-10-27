@@ -16,7 +16,6 @@ class DeployMutation(
     private val applicationDeploymentService: ApplicationDeploymentService
 ) : Mutation {
 
-    // FIXME do not allow anonymous access
     suspend fun deploy(input: DeployApplicationDeploymentInput, dfe: DataFetchingEnvironment): ApplicationDeploymentResult {
         dfe.checkValidUserToken()
 

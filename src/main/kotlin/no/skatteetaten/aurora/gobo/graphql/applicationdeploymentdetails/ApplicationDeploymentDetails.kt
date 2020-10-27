@@ -34,8 +34,6 @@ data class PodResource(
     val links: List<Link>,
     val managementResponses: ManagementResponses?,
     val containers: List<Container>,
-    // TODO: remove after AOS-3026 is deployed. Also remove in graphqls
-    val status: String = phase,
     val ready: Boolean = containers.all { it.ready },
     val restartCount: Int = containers.sumBy { it.restartCount }
 ) {
