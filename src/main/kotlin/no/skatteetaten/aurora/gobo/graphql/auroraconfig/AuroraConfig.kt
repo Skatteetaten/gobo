@@ -5,6 +5,7 @@ import graphql.schema.DataFetchingEnvironment
 import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.ApplicationDeploymentRef
 import no.skatteetaten.aurora.gobo.graphql.loadMany
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileType
+import no.skatteetaten.aurora.gobo.security.checkValidUserToken
 
 data class AuroraConfig(
     val name: String,
@@ -13,11 +14,12 @@ data class AuroraConfig(
     val files: List<AuroraConfigFileResource>
 ) {
 
-    // FIXME no anonymous access
     fun files(
         types: List<AuroraConfigFileType>?,
-        fileNames: List<String>?
+        fileNames: List<String>?,
+        dfe: DataFetchingEnvironment
     ): List<AuroraConfigFileResource> {
+        dfe.checkValidUserToken()
         return files.filter {
             types == null || types.contains(it.type)
         }.filter {
@@ -25,11 +27,11 @@ data class AuroraConfig(
         }
     }
 
-    // FIXME no anonymous access
     suspend fun applicationDeploymentSpec(
         applicationDeploymentRefs: List<ApplicationDeploymentRef>,
         dfe: DataFetchingEnvironment
     ): List<ApplicationDeploymentSpec> {
+        dfe.checkValidUserToken()
         return dfe.loadMany(
             AdSpecKey(
                 name,
@@ -43,16 +45,20 @@ data class AuroraConfig(
 data class ApplicationDeploymentSpec(
     val rawJsonValueWithDefaults: JsonNode
 ) {
-    val cluster = rawJsonValueWithDefaults.at("/cluster/value").textValue()
-    val environment = rawJsonValueWithDefaults.at("/envName/value").textValue()
-    val name = rawJsonValueWithDefaults.at("/name/value").textValue()
-    val version = rawJsonValueWithDefaults.at("/version/value").textValue()
-    val releaseTo: String? = rawJsonValueWithDefaults.at("/releaseTo/value").textValue()
-    val application = rawJsonValueWithDefaults.at("/name/value").textValue()
-    val type = rawJsonValueWithDefaults.at("/type/value").textValue()
-    val deployStrategy = rawJsonValueWithDefaults.at("/deployStrategy/type/value").textValue()
-    val replicas = rawJsonValueWithDefaults.at("/replicas/value").intValue().toString()
-    val paused = rawJsonValueWithDefaults.at("/pause/value").booleanValue()
+    val cluster = rawJsonValueWithDefaults.text("/cluster/value")
+    val environment = rawJsonValueWithDefaults.text("/envName/value")
+    val name = rawJsonValueWithDefaults.text("/name/value")
+    val version = rawJsonValueWithDefaults.text("/version/value")
+    val releaseTo: String? = rawJsonValueWithDefaults.text("/releaseTo/value")
+    val application = rawJsonValueWithDefaults.text("/name/value")
+    val type = rawJsonValueWithDefaults.text("/type/value")
+    val deployStrategy = rawJsonValueWithDefaults.text("/deployStrategy/type/value")
+    val replicas = rawJsonValueWithDefaults.int("/replicas/value")
+    val paused = rawJsonValueWithDefaults.boolean("/pause/value")
+
+    private fun JsonNode.text(path: String) = this.at(path).textValue()
+    private fun JsonNode.boolean(path: String) = this.at(path).booleanValue()
+    private fun JsonNode.int(path: String) = this.at(path).intValue()
 }
 
 data class AuroraConfigFileResource(

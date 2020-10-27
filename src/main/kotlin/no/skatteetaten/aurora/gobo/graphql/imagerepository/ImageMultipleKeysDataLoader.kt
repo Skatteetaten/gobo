@@ -18,7 +18,7 @@ class ImageMultipleKeysDataLoader(val imageRegistryServiceBlocking: ImageRegistr
             val auroraResponse =
                 imageRegistryServiceBlocking.findTagsByName(
                     imageReposAndTags = imageReposAndTags,
-                    token = ctx.token!!
+                    token = ctx.token()
                 )
 
             val successes = auroraResponse.items.associate { imageTagResource ->

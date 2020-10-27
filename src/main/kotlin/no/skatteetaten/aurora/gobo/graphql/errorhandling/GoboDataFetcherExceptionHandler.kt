@@ -65,9 +65,7 @@ private fun DataFetcherExceptionHandlerParameters.logErrorInfo() {
         else logger.warn(message)
     }
 
-    this.dataFetchingEnvironment?.getSource<Any>()?.let {
-        log("$msg\ndataSource=${it.javaClass.simpleName} dataSourceValue=$it")
-    } ?: log(msg)
+    log(msg)
 }
 
 private fun DataFetcherExceptionHandlerParameters.toExceptionWhileDataFetching() =

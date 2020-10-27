@@ -96,6 +96,9 @@ fun WebTestClient.BodyContentSpec.graphqlErrors(jsonPath: String) =
 fun WebTestClient.BodyContentSpec.graphqlErrorsFirst(jsonPath: String) =
     graphqlJsonPath(jsonPath, "errors[0]")
 
+fun WebTestClient.BodyContentSpec.graphqlErrorsMissingToken() =
+    graphqlErrorsFirst("message").isEqualTo("Token is not set")
+
 private fun WebTestClient.BodyContentSpec.graphqlJsonPath(jsonPath: String, type: String): JsonPathAssertions {
     val expression = if (jsonPath.startsWith("[")) {
         "$.$type$jsonPath"

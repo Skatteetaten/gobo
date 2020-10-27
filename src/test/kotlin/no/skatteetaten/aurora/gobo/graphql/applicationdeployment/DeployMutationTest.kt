@@ -11,6 +11,7 @@ import no.skatteetaten.aurora.gobo.integration.boober.DeployResource
 import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithDbhAndSkap
 import no.skatteetaten.aurora.gobo.graphql.graphqlData
 import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
+import no.skatteetaten.aurora.gobo.graphql.graphqlErrorsMissingToken
 import no.skatteetaten.aurora.gobo.graphql.isFalse
 import no.skatteetaten.aurora.gobo.graphql.isTrue
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
@@ -122,5 +123,21 @@ class DeployMutationTest : GraphQLTestWithDbhAndSkap() {
             .graphqlData("deploy.applicationDeployments[0].spec.version").isEqualTo("1.0")
             .graphqlData("deploy.applicationDeployments[0].spec.cluster").isEqualTo("myCluster")
             .graphqlDoesNotContainErrors()
+    }
+
+    @Test
+    fun `Deploy without a token`() {
+        val variables = mapOf(
+            "input" to mapOf(
+                "auroraConfigName" to "b/d/e",
+                "auroraConfigReference" to "feature/1337",
+                "applicationDeployment" to emptyList<ApplicationDeploymentRef>()
+            )
+        )
+
+        webTestClient.queryGraphQL(deployMutation, variables = variables)
+            .expectStatus().isOk
+            .expectBody()
+            .graphqlErrorsMissingToken()
     }
 }
