@@ -1,8 +1,12 @@
 package no.skatteetaten.aurora.gobo.graphql.gobo
 
-/*
+import com.expediagroup.graphql.spring.operations.Query
+import no.skatteetaten.aurora.gobo.graphql.GoboInstrumentation
+import org.springframework.stereotype.Component
+import java.time.Instant
+
 @Component
-class GoboQueryResolver(private val goboInstrumentation: GoboInstrumentation) : GraphQLQueryResolver {
+class GoboQueryResolver(private val goboInstrumentation: GoboInstrumentation) : Query {
 
     private val startTime = Instant.now()
 
@@ -12,4 +16,3 @@ class GoboQueryResolver(private val goboInstrumentation: GoboInstrumentation) : 
         return Gobo(startTime, GoboUsage(fields, users))
     }
 }
-*/

@@ -1,7 +1,18 @@
 package no.skatteetaten.aurora.gobo.graphql
 
-/*
-private val logger = KotlinLogging.logger {}
+import graphql.ExecutionInput
+import graphql.execution.ExecutionContext
+import graphql.execution.instrumentation.SimpleInstrumentation
+import graphql.execution.instrumentation.parameters.InstrumentationExecutionParameters
+import graphql.language.Field
+import graphql.language.SelectionSet
+import mu.KotlinLogging
+import org.springframework.http.HttpHeaders
+import org.springframework.stereotype.Component
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.LongAdder
+
+private val logger = KotlinLogging.logger { }
 
 fun String.removeNewLines() =
     this.replace("\n", " ")
@@ -60,11 +71,15 @@ class UserUsage {
     val users: ConcurrentHashMap<String, LongAdder> = ConcurrentHashMap()
 
     fun update(executionContext: ExecutionContext?) {
-        val context = executionContext?.context
-        if (context is GraphQLServletContext) {
-            val user = context.httpServletRequest.currentUser()
-            users.computeIfAbsent(user.id) { LongAdder() }.increment()
+        try {
+            executionContext?.getContext<GoboGraphQLContext>()?.request?.headers?.let { headers ->
+                val user = headers.getFirst("CLIENT_ID") ?: headers.getFirst(HttpHeaders.USER_AGENT)
+                user?.let {
+                    users.computeIfAbsent(it) { LongAdder() }.increment()
+                }
+            }
+        } catch (e: Throwable) {
+            logger.warn(e) { "Unable to get GraphQL context: " }
         }
     }
 }
-*/
