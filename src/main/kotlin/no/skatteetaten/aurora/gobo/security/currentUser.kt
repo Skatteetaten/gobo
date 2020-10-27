@@ -14,7 +14,7 @@ private const val GUEST_USER_ID = "anonymous"
 private const val GUEST_USER_NAME = "Gjestebruker"
 val ANONYMOUS_USER = User(GUEST_USER_ID, GUEST_USER_NAME)
 
-fun DataFetchingEnvironment.checkValidToken() {
+fun DataFetchingEnvironment.checkValidUserToken() {
     if (this.currentUser() == ANONYMOUS_USER) throw AccessDeniedException("Valid token required")
 }
 

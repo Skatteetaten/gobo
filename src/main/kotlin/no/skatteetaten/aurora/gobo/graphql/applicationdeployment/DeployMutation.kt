@@ -8,7 +8,7 @@ import no.skatteetaten.aurora.gobo.integration.boober.ApplyPayload
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentRefResource
 import no.skatteetaten.aurora.gobo.graphql.auroraconfig.ApplicationDeploymentSpec
 import no.skatteetaten.aurora.gobo.graphql.token
-import no.skatteetaten.aurora.gobo.security.checkValidToken
+import no.skatteetaten.aurora.gobo.security.checkValidUserToken
 import org.springframework.stereotype.Component
 
 @Component
@@ -18,7 +18,7 @@ class DeployMutation(
 
     // FIXME do not allow anonymous access
     suspend fun deploy(input: DeployApplicationDeploymentInput, dfe: DataFetchingEnvironment): ApplicationDeploymentResult {
-        dfe.checkValidToken()
+        dfe.checkValidUserToken()
 
         val payload = ApplyPayload(
             applicationDeploymentRefs = input.applicationDeployment.map {

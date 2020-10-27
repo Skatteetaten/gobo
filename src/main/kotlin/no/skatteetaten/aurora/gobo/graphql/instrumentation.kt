@@ -74,9 +74,7 @@ class UserUsage {
         try {
             executionContext?.getContext<GoboGraphQLContext>()?.request?.headers?.let { headers ->
                 val user = headers.getFirst("CLIENT_ID") ?: headers.getFirst(HttpHeaders.USER_AGENT)
-                user?.let {
-                    users.computeIfAbsent(it) { LongAdder() }.increment()
-                }
+                user?.let { users.computeIfAbsent(it) { LongAdder() }.increment() }
             }
         } catch (e: Throwable) {
             logger.warn(e) { "Unable to get GraphQL context: " }
