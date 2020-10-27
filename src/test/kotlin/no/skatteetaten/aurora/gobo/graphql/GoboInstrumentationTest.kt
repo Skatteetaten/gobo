@@ -1,7 +1,18 @@
 package no.skatteetaten.aurora.gobo.graphql
 
+import assertk.all
+import assertk.assertThat
+import assertk.assertions.contains
+import assertk.assertions.hasSize
+import assertk.assertions.isEqualTo
+import graphql.execution.ExecutionContextBuilder
+import graphql.execution.ExecutionId
+import graphql.language.Field
+import graphql.language.OperationDefinition
+import graphql.language.SelectionSet
+import org.junit.Test
+
 // FIXME instrumentation test
-/*
 class GoboInstrumentationTest {
 
     private val goboInstrumentation = GoboInstrumentation()
@@ -56,4 +67,3 @@ class GoboInstrumentationTest {
         assertThat("{}".removeNewLines()).isEqualTo("{}")
     }
 }
-*/
