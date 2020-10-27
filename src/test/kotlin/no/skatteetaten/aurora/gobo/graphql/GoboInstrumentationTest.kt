@@ -12,7 +12,6 @@ import graphql.language.OperationDefinition
 import graphql.language.SelectionSet
 import org.junit.Test
 
-// FIXME instrumentation test
 class GoboInstrumentationTest {
 
     private val goboInstrumentation = GoboInstrumentation()
