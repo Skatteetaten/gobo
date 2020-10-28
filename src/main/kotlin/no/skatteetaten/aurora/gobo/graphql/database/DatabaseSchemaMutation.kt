@@ -4,6 +4,7 @@ import com.expediagroup.graphql.spring.operations.Mutation
 import graphql.schema.DataFetchingEnvironment
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseServiceReactive
 import no.skatteetaten.aurora.gobo.graphql.affiliation.Affiliation
+import no.skatteetaten.aurora.gobo.security.checkValidUserToken
 import org.springframework.stereotype.Component
 
 @Component
@@ -13,30 +14,29 @@ class DatabaseSchemaMutation(val databaseService: DatabaseServiceReactive) : Mut
         input: JdbcUser,
         dfe: DataFetchingEnvironment
     ): ConnectionVerificationResponse {
-// FIXME:        if (dfe.isAnonymousUser()) throw AccessDeniedException("Anonymous user cannot test jdbc connection")
+        dfe.checkValidUserToken()
         return databaseService.testJdbcConnection(user = input)
     }
 
     suspend fun testJdbcConnectionForId(id: String, dfe: DataFetchingEnvironment): ConnectionVerificationResponse {
-// FIXME:        if (dfe.isAnonymousUser()) throw AccessDeniedException("Anonymous user cannot test jdbc connection")
+        dfe.checkValidUserToken()
         return databaseService.testJdbcConnection(id = id)
     }
 
     suspend fun createDatabaseSchema(input: CreateDatabaseSchemaInput, dfe: DataFetchingEnvironment): DatabaseSchema {
-        // FIXME:        if (dfe.isAnonymousUser()) throw AccessDeniedException("Anonymous user cannot create database schema")
+        dfe.checkValidUserToken()
         return databaseService.createDatabaseSchema(input.toSchemaCreationRequest())
             .let { DatabaseSchema.create(it, Affiliation(it.affiliation)) }
     }
 
     suspend fun updateDatabaseSchema(input: UpdateDatabaseSchemaInput, dfe: DataFetchingEnvironment): DatabaseSchema {
-        // FIXME: if (dfe.isAnonymousUser()) throw AccessDeniedException("Anonymous user cannot update database schema")
+        dfe.checkValidUserToken()
         return databaseService.updateDatabaseSchema(input.toSchemaUpdateRequest())
             .let { DatabaseSchema.create(it, Affiliation(it.affiliation)) }
     }
 
     suspend fun databaseSchema(id: String, dfe: DataFetchingEnvironment): DatabaseSchema? {
-// FIXME:        if (dfe.isAnonymousUser()) throw AccessDeniedException("Anonymous user cannot get database schema")
-
+        dfe.checkValidUserToken()
         val databaseSchema = databaseService.getDatabaseSchema(id)
         return DatabaseSchema.create(databaseSchema, Affiliation(databaseSchema.affiliation))
     }
@@ -45,7 +45,7 @@ class DatabaseSchemaMutation(val databaseService: DatabaseServiceReactive) : Mut
         input: DeleteDatabaseSchemasInput,
         dfe: DataFetchingEnvironment
     ): CooldownChangeDatabaseSchemasResponse {
-        // FIXME: if (dfe.isAnonymousUser()) throw AccessDeniedException("Anonymous user cannot delete database schemas")
+        dfe.checkValidUserToken()
         val responses = databaseService.deleteDatabaseSchemas(input.toSchemaDeletionRequests())
         return CooldownChangeDatabaseSchemasResponse.create(responses)
     }
@@ -54,7 +54,7 @@ class DatabaseSchemaMutation(val databaseService: DatabaseServiceReactive) : Mut
         input: RestoreDatabaseSchemasInput,
         dfe: DataFetchingEnvironment
     ): CooldownChangeDatabaseSchemasResponse {
-        // FIXME: if (dfe.isAnonymousUser()) throw AccessDeniedException("Anonymous user cannot restore database schemas")
+        dfe.checkValidUserToken()
         val responses = databaseService.restoreDatabaseSchemas(input.toSchemaRestorationRequests())
         return CooldownChangeDatabaseSchemasResponse.create(responses)
     }

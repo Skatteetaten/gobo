@@ -8,7 +8,6 @@ import no.skatteetaten.aurora.gobo.graphql.IntegrationDisabledException
 import no.skatteetaten.aurora.gobo.graphql.graphqlErrorsFirst
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
@@ -26,7 +25,6 @@ class DatabaseQueryResolverWithoutDbhTest : GraphQLTestWithoutDbhAndSkap() {
         coEvery { databaseService.getDatabaseInstances() } throws IntegrationDisabledException("DBH integration is disabled for this environment")
     }
 
-    @Disabled("Implement errror handling")
     @Test
     fun `Query for database instances returns error message`() {
         webTestClient.queryGraphQL(
@@ -35,6 +33,7 @@ class DatabaseQueryResolverWithoutDbhTest : GraphQLTestWithoutDbhAndSkap() {
         )
             .expectStatus().isOk
             .expectBody()
-            .graphqlErrorsFirst("message").isEqualTo("DBH integration is disabled for this environment")
+            .graphqlErrorsFirst("message")
+            .isEqualTo("Exception while fetching data (/databaseInstances) : DBH integration is disabled for this environment")
     }
 }

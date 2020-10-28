@@ -5,21 +5,21 @@ import graphql.schema.DataFetchingEnvironment
 import no.skatteetaten.aurora.gobo.graphql.token
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigService
+import no.skatteetaten.aurora.gobo.security.checkValidUserToken
 import org.springframework.stereotype.Component
 
 @Component
 class AuroraConfigMutation(
     private val service: AuroraConfigService
 ) : Mutation {
-    // FIXME no anonymous access
     suspend fun updateAuroraConfigFile(
         input: UpdateAuroraConfigFileInput,
         dfe: DataFetchingEnvironment
     ): AuroraConfigFileValidationResponse {
-        val token = dfe.token()
+        dfe.checkValidUserToken()
         return try {
             val result = service.updateAuroraConfigFile(
-                token,
+                dfe.token(),
                 input.auroraConfigName,
                 input.auroraConfigReference ?: "master",
                 input.fileName,
@@ -35,15 +35,14 @@ class AuroraConfigMutation(
         }
     }
 
-    // FIXME no anonymous user access
     suspend fun createAuroraConfigFile(
         input: NewAuroraConfigFileInput,
         dfe: DataFetchingEnvironment
     ): AuroraConfigFileValidationResponse {
-        val token = dfe.token()
+        dfe.checkValidUserToken()
         return try {
             val result = service.addAuroraConfigFile(
-                token,
+                dfe.token(),
                 input.auroraConfigName,
                 input.auroraConfigReference ?: "master",
                 input.fileName,

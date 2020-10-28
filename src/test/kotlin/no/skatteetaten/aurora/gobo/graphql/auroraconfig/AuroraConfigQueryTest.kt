@@ -6,6 +6,7 @@ import io.mockk.coEvery
 import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithDbhAndSkap
 import no.skatteetaten.aurora.gobo.graphql.graphqlDataWithPrefix
 import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
+import no.skatteetaten.aurora.gobo.graphql.graphqlErrorsMissingToken
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
 import no.skatteetaten.aurora.gobo.integration.boober.ApplicationDeploymentService
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileType.APP
@@ -16,7 +17,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 
-class AuroraConfigQueryResolverTest : GraphQLTestWithDbhAndSkap() {
+class AuroraConfigQueryTest : GraphQLTestWithDbhAndSkap() {
 
     @Value("classpath:graphql/queries/getFile.graphql")
     private lateinit var query: Resource
@@ -79,14 +80,15 @@ class AuroraConfigQueryResolverTest : GraphQLTestWithDbhAndSkap() {
         )
     }
 
+    private val input = mapOf(
+        "auroraConfig" to "demo",
+        "fileNames" to "about.json",
+        "applicationDeploymentRefInput" to mapOf("environment" to "my-env", "application" to "my-application")
+    )
+
     @Test
     fun `Query for application deployment`() {
-        val variables = mapOf(
-            "auroraConfig" to "demo",
-            "fileNames" to "about.json",
-            "applicationDeploymentRefInput" to mapOf("environment" to "my-env", "application" to "my-application")
-        )
-        webTestClient.queryGraphQL(query, variables, "test-token")
+        webTestClient.queryGraphQL(query, input, "test-token")
             .expectStatus().isOk
             .expectBody()
             .graphqlDataWithPrefix("auroraConfig") {
@@ -99,5 +101,13 @@ class AuroraConfigQueryResolverTest : GraphQLTestWithDbhAndSkap() {
                 graphqlData("applicationDeploymentSpec[0].releaseTo").doesNotExist()
             }
             .graphqlDoesNotContainErrors()
+    }
+
+    @Test
+    fun `Query without token`() {
+        webTestClient.queryGraphQL(query, input)
+            .expectStatus().isOk
+            .expectBody()
+            .graphqlErrorsMissingToken()
     }
 }

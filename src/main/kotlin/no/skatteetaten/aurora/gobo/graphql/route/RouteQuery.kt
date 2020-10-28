@@ -3,6 +3,7 @@ package no.skatteetaten.aurora.gobo.graphql.route
 import com.expediagroup.graphql.spring.operations.Query
 import graphql.schema.DataFetchingEnvironment
 import no.skatteetaten.aurora.gobo.integration.skap.RouteService
+import no.skatteetaten.aurora.gobo.security.checkValidUserToken
 import org.springframework.stereotype.Component
 
 @Component
@@ -15,7 +16,7 @@ class RouteQuery(
         name: String,
         dfe: DataFetchingEnvironment
     ): Route {
-        // TODO if (dfe.isAnonymousUser()) throw AccessDeniedException("Anonymous user cannot get WebSEAL/BigIp jobs")
+        dfe.checkValidUserToken()
         return Route(
             websealJobs = routeService.getSkapJobs(namespace, "$name-webseal").map { WebsealJob.create(it) },
             bigipJobs = routeService.getSkapJobs(namespace, "$name-bigip").map { BigipJob.create(it) }

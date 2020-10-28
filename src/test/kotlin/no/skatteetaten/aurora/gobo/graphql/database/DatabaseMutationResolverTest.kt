@@ -12,10 +12,9 @@ import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithDbhAndSkap
 import no.skatteetaten.aurora.gobo.graphql.graphqlData
 import no.skatteetaten.aurora.gobo.graphql.graphqlDataWithPrefix
 import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
-import no.skatteetaten.aurora.gobo.graphql.graphqlErrorsFirst
+import no.skatteetaten.aurora.gobo.graphql.graphqlErrorsMissingToken
 import no.skatteetaten.aurora.gobo.graphql.isTrue
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
@@ -175,7 +174,6 @@ class DatabaseMutationResolverTest : GraphQLTestWithDbhAndSkap() {
             .graphqlDoesNotContainErrors()
     }
 
-    @Disabled("Autentication not implemented")
     @Test
     fun `Test JDBC connection for id without token`() {
         webTestClient.queryGraphQL(
@@ -183,8 +181,7 @@ class DatabaseMutationResolverTest : GraphQLTestWithDbhAndSkap() {
             variables = mapOf("id" to "123")
         )
             .expectBody()
-            .graphqlErrorsFirst("[?(@.message =~ /.*Anonymous user cannot test jdbc connection/)]")
-            .isNotEmpty
+            .graphqlErrorsMissingToken()
     }
 
     @Test

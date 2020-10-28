@@ -3,6 +3,7 @@ package no.skatteetaten.aurora.gobo.security
 import graphql.schema.DataFetchingEnvironment
 import no.skatteetaten.aurora.gobo.graphql.AccessDeniedException
 import no.skatteetaten.aurora.gobo.graphql.GoboGraphQLContext
+import no.skatteetaten.aurora.gobo.graphql.token
 import no.skatteetaten.aurora.gobo.graphql.user.User
 import org.springframework.security.authentication.AnonymousAuthenticationToken
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
@@ -15,7 +16,10 @@ private const val GUEST_USER_NAME = "Gjestebruker"
 val ANONYMOUS_USER = User(GUEST_USER_ID, GUEST_USER_NAME)
 
 fun DataFetchingEnvironment.checkValidUserToken() {
-    if (this.currentUser() == ANONYMOUS_USER) throw AccessDeniedException("Valid token required")
+    token()
+    if (currentUser() == ANONYMOUS_USER) {
+        throw AccessDeniedException("Valid token required")
+    }
 }
 
 fun DataFetchingEnvironment.currentUser() = this.getContext<GoboGraphQLContext>().securityContext?.authentication?.let {

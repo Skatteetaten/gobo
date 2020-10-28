@@ -34,7 +34,7 @@ class GoboGraphQLContextFactory : GraphQLContextFactory<GoboGraphQLContext> {
     @ExperimentalCoroutinesApi
     override suspend fun generateContext(request: ServerHttpRequest, response: ServerHttpResponse): GoboGraphQLContext {
         request.logHeaders()
-        
+
         val reactorContext =
             coroutineContext[ReactorContext]?.context ?: throw RuntimeException("Reactor Context unavailable")
         val securityContext = reactorContext.getOrDefault<Mono<SecurityContext>>(
