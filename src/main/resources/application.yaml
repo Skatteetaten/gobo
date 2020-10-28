@@ -87,7 +87,6 @@ aurora.webflux.header.filter.enabled: false
 
 logging:
     level:
-        no.skatteetaten: DEBUG
         org:
             jboss: WARN
             hibernate: WARN
