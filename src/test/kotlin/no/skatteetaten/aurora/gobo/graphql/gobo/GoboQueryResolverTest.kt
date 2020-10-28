@@ -5,12 +5,10 @@ import no.skatteetaten.aurora.gobo.graphql.graphqlData
 import no.skatteetaten.aurora.gobo.graphql.graphqlDataWithPrefix
 import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 
-@Disabled
 class GoboQueryResolverTest : GraphQLTestWithDbhAndSkap() {
 
     @Value("classpath:graphql/queries/getGoboUsage.graphql")
@@ -42,6 +40,10 @@ class GoboQueryResolverTest : GraphQLTestWithDbhAndSkap() {
             variables = mapOf("nameContains" to "gobo")
         )
             .expectStatus().isOk
+            .expectBody()
+            .graphqlDataWithPrefix("gobo.usage.usedFields[0]") {
+                graphqlData("name").isEqualTo("gobo")
+            }
     }
 
     @Test
@@ -50,7 +52,7 @@ class GoboQueryResolverTest : GraphQLTestWithDbhAndSkap() {
             .expectStatus().isOk
             .expectBody()
             .graphqlDataWithPrefix("gobo.usage.users[0]") {
-                graphqlData("name").isEqualTo("anonymous")
+                graphqlData("name").isNotEmpty
                 graphqlData("count").isNumber
             }
             .graphqlDoesNotContainErrors()
