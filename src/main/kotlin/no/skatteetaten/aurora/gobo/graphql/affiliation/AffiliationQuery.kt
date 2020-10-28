@@ -16,14 +16,14 @@ class AffiliationQuery(val affiliationService: AffiliationService) : Query {
     ): AffiliationsConnection {
 
         val affiliationNames = name?.let { listOf(name) }
-            ?: getAffiliations(checkForVisibility ?: false, dfe.token())
+            ?: getAffiliations(checkForVisibility ?: false, dfe)
 
         val affiliations = affiliationNames.map { AffiliationEdge(Affiliation(it)) }
         return AffiliationsConnection(affiliations)
     }
 
-    private suspend fun getAffiliations(checkForVisibility: Boolean, token: String) = if (checkForVisibility) {
-        affiliationService.getAllVisibleAffiliations(token)
+    private suspend fun getAffiliations(checkForVisibility: Boolean, dfe: DataFetchingEnvironment) = if (checkForVisibility) {
+        affiliationService.getAllVisibleAffiliations(dfe.token())
     } else {
         affiliationService.getAllAffiliations()
     }
