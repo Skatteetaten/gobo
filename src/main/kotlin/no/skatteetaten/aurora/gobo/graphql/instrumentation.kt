@@ -32,15 +32,16 @@ class GoboInstrumentation : SimpleInstrumentation() {
     ): ExecutionInput {
         executionInput?.let {
             val request = (executionInput.context as GoboGraphQLContext).request
-            val clientId = request.clientId()
+            val requestInfo =
+                "clientId=\"${request.klientid()}\" korrelasjonsid=\"${request.korrelasjonsid()}\" host=\"${request.remoteAddress?.hostName}\""
 
             val query = it.query.removeNewLines()
             if (!query.startsWith("query IntrospectionQuery")) {
                 if (query.trimStart().startsWith("mutation")) {
-                    logger.info("mutation=\"$query\" - variable-keys=${it.variables.keys}")
+                    logger.info("$requestInfo mutation=\"$query\" - variable-keys=${it.variables.keys}")
                 } else {
                     val variables = if (it.variables.isEmpty()) "" else " - variables=${it.variables}"
-                    logger.info("clientId=\"$clientId\" query=\"$query\"$variables")
+                    logger.info("$requestInfo query=\"$query\"$variables")
                 }
             }
         }
@@ -87,7 +88,7 @@ class UserUsage {
     fun update(executionContext: ExecutionContext?) {
         try {
             executionContext?.getContext<GoboGraphQLContext>()?.request?.let { request ->
-                request.clientId()?.let {
+                request.klientid()?.let {
                     users.computeIfAbsent(it) { LongAdder() }.increment()
                 }
             }
@@ -97,8 +98,8 @@ class UserUsage {
     }
 }
 
-fun HttpRequest?.clientId() =
+fun HttpRequest?.klientid() =
     this?.headers?.getFirst(AuroraRequestParser.KLIENTID_FIELD) ?: this?.headers?.getFirst(HttpHeaders.USER_AGENT)
 
-fun HttpRequest?.korrelasjonsId() =
+fun HttpRequest?.korrelasjonsid() =
     this?.headers?.getFirst(AuroraRequestParser.KORRELASJONSID_FIELD)

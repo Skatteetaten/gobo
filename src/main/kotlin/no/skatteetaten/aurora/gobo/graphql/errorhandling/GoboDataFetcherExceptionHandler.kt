@@ -9,8 +9,8 @@ import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.GoboException
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.graphql.IntegrationDisabledException
-import no.skatteetaten.aurora.gobo.graphql.clientId
-import no.skatteetaten.aurora.gobo.graphql.korrelasjonsId
+import no.skatteetaten.aurora.gobo.graphql.klientid
+import no.skatteetaten.aurora.gobo.graphql.korrelasjonsid
 import org.apache.commons.lang3.exception.ExceptionUtils
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClientResponseException
@@ -62,8 +62,8 @@ private fun DataFetcherExceptionHandlerParameters.logErrorInfo() {
 
     val status = if (exception is WebClientResponseException) {
         val request = exception.request
-        val korrelasjonsId = request.korrelasjonsId()?.let { "Korrelasjonsid=\"$it\"" } ?: ""
-        val clientId = request.clientId()?.let { "Klientid=\"$it\"" } ?: ""
+        val korrelasjonsId = request.korrelasjonsid()?.let { "Korrelasjonsid=\"$it\"" } ?: ""
+        val clientId = request.klientid()?.let { "Klientid=\"$it\"" } ?: ""
         "$korrelasjonsId $clientId statusCode=\"${exception.statusCode} " +
             "statusText=\"${exception.statusText}\" responseBody=\"${exception.responseBodyAsString}\""
     } else {
