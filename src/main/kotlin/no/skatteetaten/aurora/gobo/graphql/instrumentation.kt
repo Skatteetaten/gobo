@@ -7,7 +7,9 @@ import graphql.execution.instrumentation.parameters.InstrumentationExecutionPara
 import graphql.language.Field
 import graphql.language.SelectionSet
 import mu.KotlinLogging
+import no.skatteetaten.aurora.webflux.AuroraRequestParser
 import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpRequest
 import org.springframework.stereotype.Component
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.LongAdder
@@ -29,13 +31,16 @@ class GoboInstrumentation : SimpleInstrumentation() {
         parameters: InstrumentationExecutionParameters?
     ): ExecutionInput {
         executionInput?.let {
+            val request = (executionInput.context as GoboGraphQLContext).request
+            val clientId = request.clientId()
+
             val query = it.query.removeNewLines()
             if (!query.startsWith("query IntrospectionQuery")) {
                 if (query.trimStart().startsWith("mutation")) {
                     logger.info("mutation=\"$query\" - variable-keys=${it.variables.keys}")
                 } else {
                     val variables = if (it.variables.isEmpty()) "" else " - variables=${it.variables}"
-                    logger.info("query=\"$query\"$variables")
+                    logger.info("clientId=\"$clientId\" query=\"$query\"$variables")
                 }
             }
         }
@@ -81,9 +86,8 @@ class UserUsage {
 
     fun update(executionContext: ExecutionContext?) {
         try {
-            executionContext?.getContext<GoboGraphQLContext>()?.request?.headers?.let { headers ->
-                val user = headers.getFirst("CLIENT_ID") ?: headers.getFirst(HttpHeaders.USER_AGENT)
-                user?.let {
+            executionContext?.getContext<GoboGraphQLContext>()?.request?.let { request ->
+                request.clientId()?.let {
                     users.computeIfAbsent(it) { LongAdder() }.increment()
                 }
             }
@@ -92,3 +96,9 @@ class UserUsage {
         }
     }
 }
+
+fun HttpRequest?.clientId() =
+    this?.headers?.getFirst(AuroraRequestParser.KLIENTID_FIELD) ?: this?.headers?.getFirst(HttpHeaders.USER_AGENT)
+
+fun HttpRequest?.korrelasjonsId() =
+    this?.headers?.getFirst(AuroraRequestParser.KORRELASJONSID_FIELD)
