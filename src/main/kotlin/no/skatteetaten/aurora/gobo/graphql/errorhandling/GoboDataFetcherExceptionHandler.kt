@@ -11,6 +11,7 @@ import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.graphql.IntegrationDisabledException
 import org.apache.commons.lang3.exception.ExceptionUtils
 import org.springframework.stereotype.Component
+import org.springframework.web.reactive.function.client.WebClientResponseException
 
 private val logger = KotlinLogging.logger { }
 
@@ -52,12 +53,18 @@ private fun DataFetcherExceptionHandlerParameters.logErrorInfo() {
     val exceptionName = this::class.simpleName
     val cause = exception.cause?.let { it::class.simpleName } ?: ""
     val source = if (exception is SourceSystemException) {
-        exception.sourceSystem
+        "source=\"${exception.sourceSystem}\""
     } else {
         ""
     }
 
-    logger.error("Exception in data fetcher, exception=\"$exception\" cause=\"$cause\" message=\"$exceptionName\" source=\"$source\"")
+    val status = if (exception is WebClientResponseException) {
+        "statusCode=\"${exception.statusCode} statusText=\"${exception.statusText}\" responseBody=${exception.responseBodyAsString}"
+    } else {
+        ""
+    }
+
+    logger.error("Exception in data fetcher, exception=\"$exception\" cause=\"$cause\" message=\"$exceptionName\" $source $status")
 }
 
 private fun DataFetcherExceptionHandlerParameters.toExceptionWhileDataFetching() =
