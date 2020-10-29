@@ -98,11 +98,11 @@ spring:
 
 integrations:
     boober:
-        url: http://boober.aurora.utv.paas.skead.no
+        url: http://boober-aurora.utv.paas.skead.no
     mokey:
         url: http://mokey-aurora.utv.paas.skead.no
     cantus:
-        url: http://cantus.aurora.utv.paas.skead.no
+        url: http://cantus-aurora.utv.paas.skead.no
     skap:
         url: http://localhost:9090
     docker:
