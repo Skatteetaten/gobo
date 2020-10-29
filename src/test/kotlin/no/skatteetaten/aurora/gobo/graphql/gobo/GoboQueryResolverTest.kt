@@ -22,7 +22,7 @@ class GoboQueryResolverTest : GraphQLTestWithDbhAndSkap() {
 
     @Test
     fun `Get Gobo usage`() {
-        webTestClient.queryGraphQL(getGoboUsageQuery)
+        webTestClient.queryGraphQL(queryResource = getGoboUsageQuery, token = "test-token")
             .expectStatus().isOk
             .expectBody()
             .graphqlData("gobo.startTime").isNotEmpty
@@ -37,7 +37,8 @@ class GoboQueryResolverTest : GraphQLTestWithDbhAndSkap() {
     fun `Get Gobo usage with field name containing`() {
         webTestClient.queryGraphQL(
             queryResource = getGoboUsageFieldNameContainsQuery,
-            variables = mapOf("nameContains" to "gobo")
+            variables = mapOf("nameContains" to "gobo"),
+            token = "test-token"
         )
             .expectStatus().isOk
             .expectBody()
@@ -48,7 +49,7 @@ class GoboQueryResolverTest : GraphQLTestWithDbhAndSkap() {
 
     @Test
     fun `Get Gobo user usage`() {
-        webTestClient.queryGraphQL(getGoboUserUsageQuery)
+        webTestClient.queryGraphQL(queryResource = getGoboUserUsageQuery, token = "test-token")
             .expectStatus().isOk
             .expectBody()
             .graphqlDataWithPrefix("gobo.usage.users[0]") {
