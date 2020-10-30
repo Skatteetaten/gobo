@@ -120,7 +120,7 @@ class DatabaseQueryResolverTest : GraphQLTestWithDbhAndSkap() {
                 graphqlData("engine").isEqualTo("POSTGRES")
                 graphqlData("affiliation.name").isEqualTo("paas")
                 graphqlData("createdBy").isEqualTo("abc123")
-//                graphqlData("applicationDeployments.length()").isEqualTo(1) TODO:implement dataloader
+                graphqlData("applicationDeployments.length()").isEqualTo(1)
             }
             .graphqlDoesNotContainErrors()
     }
@@ -145,8 +145,7 @@ class DatabaseQueryResolverTest : GraphQLTestWithDbhAndSkap() {
             .expectStatus().isOk
             .expectBody()
             .graphqlData("databaseSchema.engine").isEqualTo("POSTGRES")
-            // TODO missing data loader
-            //  .graphqlData("databaseSchema.applicationDeployments.length()").isEqualTo(1)
+            .graphqlData("databaseSchema.applicationDeployments.length()").isEqualTo(1)
             .graphqlDoesNotContainErrors()
     }
 

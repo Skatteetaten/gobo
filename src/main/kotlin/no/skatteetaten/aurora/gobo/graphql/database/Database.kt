@@ -1,7 +1,9 @@
 package no.skatteetaten.aurora.gobo.graphql.database
 
 import graphql.schema.DataFetchingEnvironment
-import java.time.Instant
+import no.skatteetaten.aurora.gobo.graphql.affiliation.Affiliation
+import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.ApplicationDeployment
+import no.skatteetaten.aurora.gobo.graphql.loadMany
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseInstanceResource
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseSchemaResource
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseUserResource
@@ -10,8 +12,7 @@ import no.skatteetaten.aurora.gobo.integration.dbh.SchemaCreationRequest
 import no.skatteetaten.aurora.gobo.integration.dbh.SchemaDeletionRequest
 import no.skatteetaten.aurora.gobo.integration.dbh.SchemaRestorationRequest
 import no.skatteetaten.aurora.gobo.integration.dbh.SchemaUpdateRequest
-import no.skatteetaten.aurora.gobo.graphql.affiliation.Affiliation
-import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.ApplicationDeployment
+import java.time.Instant
 
 data class Label(val key: String, val value: String)
 
@@ -83,8 +84,7 @@ data class DatabaseSchema(
             )
     }
     suspend fun applicationDeployments(dfe: DataFetchingEnvironment): List<ApplicationDeployment> {
-//        dfe.loadMany<>() TODO; use dataloader
-        return emptyList()
+        return dfe.loadMany(id)
     }
 }
 
