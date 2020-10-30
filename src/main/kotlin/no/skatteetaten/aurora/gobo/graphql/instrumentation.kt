@@ -32,8 +32,9 @@ class GoboInstrumentation : SimpleInstrumentation() {
     ): ExecutionInput {
         executionInput?.let {
             val request = (executionInput.context as GoboGraphQLContext).request
+            logger.debug("Request hostName=\"${request.remoteAddress?.hostName}\"")
             val requestInfo =
-                "clientId=\"${request.klientid()}\" korrelasjonsid=\"${request.korrelasjonsid()}\" hostName=\"${request.remoteAddress?.hostName}\""
+                "clientId=\"${request.klientid()}\" korrelasjonsid=\"${request.korrelasjonsid()}\""
 
             val query = it.query.removeNewLines()
             if (!query.startsWith("query IntrospectionQuery")) {
@@ -53,14 +54,14 @@ class GoboInstrumentation : SimpleInstrumentation() {
         parameters: InstrumentationExecutionParameters?
     ): ExecutionContext {
         val selectionSet = executionContext?.operationDefinition?.selectionSet ?: SelectionSet(emptyList())
-        if (selectionSet.selections.isNotEmpty() && selectionSet.isNotIntrospectioQuery()) {
+        if (selectionSet.selections.isNotEmpty() && selectionSet.isNotIntrospectionQuery()) {
             fieldUsage.update(selectionSet)
             userUsage.update(executionContext)
         }
         return super.instrumentExecutionContext(executionContext, parameters)
     }
 
-    private fun SelectionSet.isNotIntrospectioQuery(): Boolean {
+    private fun SelectionSet.isNotIntrospectionQuery(): Boolean {
         val selection = this.selections?.first()
         return !(selection is Field && selection.name.startsWith("__schema"))
     }
@@ -87,10 +88,8 @@ class UserUsage {
 
     fun update(executionContext: ExecutionContext?) {
         try {
-            executionContext?.getContext<GoboGraphQLContext>()?.request?.let { request ->
-                request.klientid()?.let {
-                    users.computeIfAbsent(it) { LongAdder() }.increment()
-                }
+            executionContext?.getContext<GoboGraphQLContext>()?.request?.klientid()?.let {
+                users.computeIfAbsent(it) { LongAdder() }.increment()
             }
         } catch (e: Throwable) {
             logger.warn(e) { "Unable to get GraphQL context: " }
