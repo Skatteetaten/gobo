@@ -1,7 +1,5 @@
 package no.skatteetaten.aurora.gobo.graphql
 
-import com.expediagroup.graphql.spring.exception.SimpleKotlinGraphQLError
-import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
 import kotlinx.coroutines.future.await
 import org.dataloader.Try
@@ -51,27 +49,10 @@ suspend inline fun <Key, reified Value> DataFetchingEnvironment.loadMultipleKeys
     return keys.map {
         it to loader.load(it, this.getContext())
     }.toMap().also {
+        // When using nested data loaders, the second data loader is not called without dispatch
+        // For more details https://github.com/graphql-java/graphql-java/issues/1198
         loader.dispatch()
     }.mapValues {
         it.value.await()
     }
-}
-
-/**
- * Load a single key of type Key into a value of type Value using a dataloader named <Value>DataLoader
- * If the loading fails a partial result will be returned with data for successes and this failure in the error list
- */
-suspend inline fun <Key, reified Value> DataFetchingEnvironment.loadOptional(key: Key): DataFetcherResult<Value?> {
-    val dfr = DataFetcherResult.newResult<Value>()
-    return try {
-        dfr.data(load(key))
-    } catch (e: Exception) {
-        dfr.error(
-            SimpleKotlinGraphQLError(
-                e,
-                listOf(mergedField.singleField.sourceLocation),
-                path = executionStepInfo.path.toList()
-            )
-        )
-    }.build()
 }

@@ -2,11 +2,10 @@ package no.skatteetaten.aurora.gobo.graphql.imagerepository
 
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.coEvery
-import io.mockk.every
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.integration.cantus.AuroraResponse
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageBuildTimeline
-import no.skatteetaten.aurora.gobo.integration.cantus.ImageRegistryServiceBlocking
+import no.skatteetaten.aurora.gobo.integration.cantus.ImageRegistryService
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageRepoAndTags
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageTagResource
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageTagType
@@ -57,7 +56,7 @@ class ImageRepositoryQueryTest : GraphQLTestWithDbhAndSkap() {
     private lateinit var imageTagQuery: Resource
 
     @MockkBean
-    private lateinit var imageRegistryServiceBlocking: ImageRegistryServiceBlocking
+    private lateinit var imageRegistryService: ImageRegistryService
 
     private val imageReposAndTags = listOf(
         ImageRepoAndTags(
@@ -75,8 +74,8 @@ class ImageRepositoryQueryTest : GraphQLTestWithDbhAndSkap() {
     @BeforeEach
     fun setUp() {
         imageReposAndTags.forEach { imageRepoAndTags ->
-            every {
-                imageRegistryServiceBlocking.findTagNamesInRepoOrderedByCreatedDateDesc(
+            coEvery {
+                imageRegistryService.findTagNamesInRepoOrderedByCreatedDateDesc(
                     ImageRepository.fromRepoString(imageRepoAndTags.imageRepository).toImageRepo(),
                     "test-token"
                 )
@@ -95,7 +94,7 @@ class ImageRepositoryQueryTest : GraphQLTestWithDbhAndSkap() {
             )
         )
 
-        coEvery { imageRegistryServiceBlocking.findTagsByName(any(), any()) } returns auroraResponse
+        coEvery { imageRegistryService.findTagsByName(any(), any()) } returns auroraResponse
 
         val variables =
             mapOf("repositories" to query.map { it.imageRepository }, "tagNames" to query.flatMap { it.imageTags })
@@ -116,11 +115,11 @@ class ImageRepositoryQueryTest : GraphQLTestWithDbhAndSkap() {
 
     @Test
     fun `Query for repositories and tags`() {
-        coEvery { imageRegistryServiceBlocking.findTagsByName(any(), any()) } returns auroraResponse
+        coEvery { imageRegistryService.findTagsByName(any(), any()) } returns auroraResponse
 
         imageReposAndTags.forEach { imageRepoAndTags ->
-            every {
-                imageRegistryServiceBlocking.findTagNamesInRepoOrderedByCreatedDateDesc(
+            coEvery {
+                imageRegistryService.findTagNamesInRepoOrderedByCreatedDateDesc(
                     ImageRepository.fromRepoString(imageRepoAndTags.imageRepository).toImageRepo(),
                     "test-token"
                 )
@@ -173,7 +172,7 @@ class ImageRepositoryQueryTest : GraphQLTestWithDbhAndSkap() {
 
     @Test
     fun `Query for tags with only first filter present`() {
-        coEvery { imageRegistryServiceBlocking.findTagsByName(any(), any()) } returns createAuroraResponse(3)
+        coEvery { imageRegistryService.findTagsByName(any(), any()) } returns createAuroraResponse(3)
 
         webTestClient.queryGraphQL(
             queryResource = reposWithOnlyFirstFilter,
@@ -196,7 +195,7 @@ class ImageRepositoryQueryTest : GraphQLTestWithDbhAndSkap() {
         val pageSize = 3
         val variables = mapOf("repositories" to imageReposAndTags.first().imageRepository, "pageSize" to pageSize)
 
-        coEvery { imageRegistryServiceBlocking.findTagsByName(any(), any()) } returns createAuroraResponse(pageSize)
+        coEvery { imageRegistryService.findTagsByName(any(), any()) } returns createAuroraResponse(pageSize)
 
         webTestClient.queryGraphQL(tagsWithPagingQuery, variables, "test-token")
             .expectStatus().isOk
@@ -217,7 +216,7 @@ class ImageRepositoryQueryTest : GraphQLTestWithDbhAndSkap() {
     @Test
     fun `Get errors when findTagsByName fails with exception`() {
         coEvery {
-            imageRegistryServiceBlocking.findTagsByName(
+            imageRegistryService.findTagsByName(
                 listOf(imageReposAndTags.first()),
                 "test-token"
             )

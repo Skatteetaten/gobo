@@ -4,14 +4,14 @@ import com.ninjasquad.springmockk.MockkBean
 import io.mockk.coEvery
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentResourceBuilder
 import no.skatteetaten.aurora.gobo.ImageTagResourceBuilder
-import no.skatteetaten.aurora.gobo.integration.cantus.AuroraResponse
-import no.skatteetaten.aurora.gobo.integration.cantus.ImageRegistryServiceBlocking
-import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseServiceReactive
-import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithoutDbhAndSkap
 import no.skatteetaten.aurora.gobo.graphql.IntegrationDisabledException
 import no.skatteetaten.aurora.gobo.graphql.graphqlErrorsFirst
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
+import no.skatteetaten.aurora.gobo.integration.cantus.AuroraResponse
+import no.skatteetaten.aurora.gobo.integration.cantus.ImageRegistryService
+import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseServiceReactive
+import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import no.skatteetaten.aurora.gobo.integration.skap.RouteService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -27,7 +27,7 @@ class ApplicationDeploymentQueryResolverWithoutSkapTest : GraphQLTestWithoutDbhA
     private lateinit var applicationService: ApplicationService
 
     @MockkBean
-    private lateinit var imageRegistryService: ImageRegistryServiceBlocking
+    private lateinit var imageRegistryService: ImageRegistryService
 
     @MockkBean
     private lateinit var databaseServiceReactive: DatabaseServiceReactive

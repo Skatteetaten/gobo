@@ -2,11 +2,8 @@ package no.skatteetaten.aurora.gobo.integration.cantus
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import kotlinx.coroutines.reactive.awaitFirst
-import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
-import no.skatteetaten.aurora.gobo.integration.SourceSystemException
-import no.skatteetaten.aurora.gobo.graphql.handleError
 import no.skatteetaten.aurora.gobo.graphql.imagerepository.ImageRepoDto
 import no.skatteetaten.aurora.gobo.graphql.imagerepository.ImageTag
 import org.springframework.http.HttpHeaders
@@ -14,11 +11,7 @@ import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.bodyToMono
-import reactor.core.publisher.Mono
-import reactor.kotlin.core.publisher.toMono
 import uk.q3c.rest.hal.HalResource
-
-private val logger = KotlinLogging.logger {}
 
 data class TagUrlsWrapper(val tagUrls: List<String>)
 
@@ -38,7 +31,7 @@ private fun List<ImageRepoAndTags>.getAllTagUrls() =
     TagUrlsWrapper(this.flatMap { it.getTagUrls() })
 
 @Service
-class ImageRegistryServiceBlocking(
+class ImageRegistryService(
     @TargetService(ServiceTypes.CANTUS) val webClient: WebClient,
     private val objectMapper: ObjectMapper
 ) {
@@ -82,20 +75,16 @@ class ImageRegistryServiceBlocking(
             .execute(token)
     }
 
-    fun findTagNamesInRepoOrderedByCreatedDateDesc(imageRepoDto: ImageRepoDto, token: String) =
-        TagsDto.toDto(
-            execute<AuroraResponse<TagResource>>(token) { client ->
-                logger.debug("Retrieving type=TagResource from  url=${imageRepoDto.registry} image=${imageRepoDto.imageName}")
-
-                val filterQueryParam = imageRepoDto.filter?.let {
-                    "&filter=$it"
-                } ?: ""
-                client.get().uri(
-                    "/tags?repoUrl=${imageRepoDto.registry}/{namespace}/{imageTag}$filterQueryParam",
-                    imageRepoDto.mappedTemplateVars
-                )
-            }.blockAndHandleCantusFailure()
-        )
+    suspend fun findTagNamesInRepoOrderedByCreatedDateDesc(imageRepoDto: ImageRepoDto, token: String): TagsDto {
+        val filterQueryParam = imageRepoDto.filter?.let {
+            "&filter=$it"
+        } ?: ""
+        val resource = webClient.get().uri(
+            "/tags?repoUrl=${imageRepoDto.registry}/{namespace}/{imageTag}$filterQueryParam",
+            imageRepoDto.mappedTemplateVars
+        ).execute<TagResource>(token)
+        return TagsDto.toDto(resource)
+    }
 
     private suspend inline fun <reified T : HalResource> WebClient.RequestHeadersSpec<*>.execute(token: String) =
         this.headers {
@@ -103,28 +92,4 @@ class ImageRegistryServiceBlocking(
         }.retrieve().bodyToMono<AuroraResponse<T>>().map { response ->
             response.copy(items = response.items.map { objectMapper.convertValue(it, T::class.java) })
         }.awaitFirst()
-
-    private inline fun <reified T : Any> execute(
-        token: String,
-        fn: (WebClient) -> WebClient.RequestHeadersSpec<*>
-    ): Mono<T> = fn(webClient)
-        .headers {
-            it.set("Authorization", "Bearer $token")
-        }
-        .retrieve()
-        .bodyToMono<T>()
-        .handleGenericError()
-
-    private fun <T> Mono<T>.handleGenericError(): Mono<T> =
-        this.handleError("cantus")
-            .switchIfEmpty(SourceSystemException("Empty response", sourceSystem = "cantus").toMono())
-
-    private fun <T> Mono<T>.blockAndHandleCantusFailure(): T =
-        this.flatMap {
-            if (it is AuroraResponse<*> && it.failureCount > 0) {
-                Mono.error(SourceSystemException(message = it.message, sourceSystem = "cantus"))
-            } else {
-                Mono.just(it)
-            }
-        }.block()!!
 }

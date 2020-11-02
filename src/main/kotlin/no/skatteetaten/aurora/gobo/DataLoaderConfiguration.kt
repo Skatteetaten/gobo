@@ -26,10 +26,6 @@ interface MultipleKeysDataLoader<K, V> {
     suspend fun getByKeys(keys: Set<K>, ctx: GoboGraphQLContext): Map<K, Try<V>>
 }
 
-interface MultipleKeysBatchedDataLoader<K, V> {
-    suspend fun getByKeys(keys: Set<K>, ctx: GoboGraphQLContext): Map<K, Try<V>>
-}
-
 private val logger = KotlinLogging.logger { }
 
 @Configuration
@@ -74,25 +70,6 @@ class DataLoaderConfiguration(
                 }.asCompletableFuture()
             },
             DataLoaderOptions.newOptions().setCachingEnabled(false).setBatchingEnabled(false)
-        )
-
-    /**
-     * Use this if you have a service that loads multiple ids and include batching
-     */
-    private fun <K, V> batchDataLoaderMappedMultipleBatched(
-        coroutineDispatcher: ExecutorCoroutineDispatcher,
-        keysDataLoader: MultipleKeysDataLoader<K, V>
-    ): DataLoader<K, V> =
-        DataLoader.newMappedDataLoaderWithTry(
-            { keys: Set<K>, env: BatchLoaderEnvironment ->
-                GlobalScope.async(coroutineDispatcher) {
-                    keysDataLoader.getByKeys(
-                        keys,
-                        env.keyContexts.entries.first().value as GoboGraphQLContext
-                    )
-                }.asCompletableFuture()
-            },
-            DataLoaderOptions.newOptions().setCachingEnabled(false)
         )
 
     /**

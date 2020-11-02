@@ -12,7 +12,7 @@ import no.skatteetaten.aurora.gobo.graphql.graphqlDataWithPrefix
 import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
 import no.skatteetaten.aurora.gobo.integration.cantus.AuroraResponse
-import no.skatteetaten.aurora.gobo.integration.cantus.ImageRegistryServiceBlocking
+import no.skatteetaten.aurora.gobo.integration.cantus.ImageRegistryService
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import no.skatteetaten.aurora.gobo.integration.skap.RouteService
 import org.junit.jupiter.api.BeforeEach
@@ -35,7 +35,7 @@ class ApplicationDeploymentQueryResolverTest : GraphQLTestWithDbhAndSkap() {
     private lateinit var routeService: RouteService
 
     @MockkBean
-    private lateinit var imageRegistryService: ImageRegistryServiceBlocking
+    private lateinit var imageRegistryService: ImageRegistryService
 
     @BeforeEach
     fun setUp() {

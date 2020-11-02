@@ -2,9 +2,8 @@ package no.skatteetaten.aurora.gobo.graphql
 
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.coEvery
-import io.mockk.every
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentResourceBuilder
-import no.skatteetaten.aurora.gobo.integration.cantus.ImageRegistryServiceBlocking
+import no.skatteetaten.aurora.gobo.integration.cantus.ImageRegistryService
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Disabled
@@ -20,7 +19,7 @@ class ApplicationDeploymentsAndImagesResolversTest : GraphQLTestWithDbhAndSkap()
     private lateinit var applicationService: ApplicationService
 
     @MockkBean
-    private lateinit var imageRegistryService: ImageRegistryServiceBlocking
+    private lateinit var imageRegistryService: ImageRegistryService
 
     @BeforeEach
     fun setUp() {
@@ -30,7 +29,7 @@ class ApplicationDeploymentsAndImagesResolversTest : GraphQLTestWithDbhAndSkap()
     @Disabled("error handling")
     @Test
     fun `Query for application deployments and images, throw exception for images`() {
-        every { imageRegistryService.findTagNamesInRepoOrderedByCreatedDateDesc(any(), any()) } throws
+        coEvery { imageRegistryService.findTagNamesInRepoOrderedByCreatedDateDesc(any(), any()) } throws
             RuntimeException("test exception")
 
         webTestClient.queryGraphQL(

@@ -11,7 +11,7 @@ import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.graphql.imagerepository.ImageRepoDto
 import no.skatteetaten.aurora.gobo.graphql.imagerepository.ImageTag
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
-import no.skatteetaten.aurora.gobo.integration.cantus.ImageRegistryServiceBlocking
+import no.skatteetaten.aurora.gobo.integration.cantus.ImageRegistryService
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageTagDto
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import no.skatteetaten.aurora.gobo.integration.mokey.AuroraNamespacePermissions
@@ -30,7 +30,7 @@ class ApplicationWithLatestDigestQueryResolverTest : GraphQLTestWithDbhAndSkap()
     private lateinit var applicationService: ApplicationService
 
     @MockkBean
-    private lateinit var imageRegistryServiceBlocking: ImageRegistryServiceBlocking
+    private lateinit var imageRegistryService: ImageRegistryService
 
     @MockkBean
     private lateinit var permissionService: PermissionService
@@ -45,7 +45,7 @@ class ApplicationWithLatestDigestQueryResolverTest : GraphQLTestWithDbhAndSkap()
         val imageRepoDto = tag.imageRepository.toImageRepo()
 
         coEvery {
-            imageRegistryServiceBlocking.findImageTagDto(
+            imageRegistryService.findImageTagDto(
                 imageRepoDto,
                 tag.name,
                 "test-token"

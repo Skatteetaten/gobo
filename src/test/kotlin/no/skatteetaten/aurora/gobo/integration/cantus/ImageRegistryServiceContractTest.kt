@@ -28,13 +28,13 @@ private fun ImageRepoAndTags.toImageTagResource() =
     }
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.NONE,
-    classes = [TestConfig::class, ApplicationConfig::class, ImageRegistryServiceBlocking::class, SharedSecretReader::class]
+    classes = [TestConfig::class, ApplicationConfig::class, ImageRegistryService::class, SharedSecretReader::class]
 )
 @AutoConfigureStubRunner(ids = ["no.skatteetaten.aurora:cantus:+:stubs:6568"])
-class ImageRegistryServiceBlockingContractTest : StrubrunnerRepoPropertiesEnabler() {
+class ImageRegistryServiceContractTest : StrubrunnerRepoPropertiesEnabler() {
 
     @Autowired
-    private lateinit var imageRegistry: ImageRegistryServiceBlocking
+    private lateinit var imageRegistry: ImageRegistryService
 
     private val imageRepoName = "url/namespace/name"
     private val tagName = "1"
@@ -57,7 +57,7 @@ class ImageRegistryServiceBlockingContractTest : StrubrunnerRepoPropertiesEnable
     @Test
     fun `verify fetches all tags for specified repo`() {
 
-        val tags = imageRegistry.findTagNamesInRepoOrderedByCreatedDateDesc(imageRepo, token)
+        val tags = runBlocking { imageRegistry.findTagNamesInRepoOrderedByCreatedDateDesc(imageRepo, token) }
         assertThat(tags.tags).isNotEmpty()
     }
 

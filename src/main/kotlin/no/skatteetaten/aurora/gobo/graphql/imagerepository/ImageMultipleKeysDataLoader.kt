@@ -2,21 +2,21 @@ package no.skatteetaten.aurora.gobo.graphql.imagerepository
 
 import no.skatteetaten.aurora.gobo.MultipleKeysDataLoader
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
-import no.skatteetaten.aurora.gobo.integration.cantus.ImageRegistryServiceBlocking
+import no.skatteetaten.aurora.gobo.integration.cantus.ImageRegistryService
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageRepoAndTags
 import no.skatteetaten.aurora.gobo.graphql.GoboGraphQLContext
 import org.dataloader.Try
 import org.springframework.stereotype.Component
 
 @Component
-class ImageMultipleKeysDataLoader(val imageRegistryServiceBlocking: ImageRegistryServiceBlocking) :
+class ImageMultipleKeysDataLoader(val imageRegistryService: ImageRegistryService) :
     MultipleKeysDataLoader<ImageTag, Image?> {
     override suspend fun getByKeys(keys: Set<ImageTag>, ctx: GoboGraphQLContext): Map<ImageTag, Try<Image?>> {
         val imageReposAndTags = ImageRepoAndTags.fromImageTags(keys)
 
         return try {
             val auroraResponse =
-                imageRegistryServiceBlocking.findTagsByName(
+                imageRegistryService.findTagsByName(
                     imageReposAndTags = imageReposAndTags,
                     token = ctx.token()
                 )
