@@ -6,10 +6,7 @@ import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.ApplicationDeploymentRef
 import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.DeleteApplicationDeploymentInput
 import no.skatteetaten.aurora.gobo.graphql.auroraconfig.ApplicationDeploymentSpec
-import no.skatteetaten.aurora.gobo.graphql.blockNonNullAndHandleError
 import org.springframework.stereotype.Service
-import reactor.core.publisher.Mono
-import java.time.Duration
 
 private val logger = KotlinLogging.logger { }
 
@@ -58,9 +55,6 @@ class ApplicationDeploymentService(private val booberWebClient: BooberWebClient)
             ApplicationDeploymentSpec(it)
         }
     }
-
-    private fun <T> Mono<T>.blockNonNullWithTimeout() =
-        this.blockNonNullAndHandleError(Duration.ofSeconds(30), "boober")
 }
 
 data class DeployResource(

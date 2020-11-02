@@ -34,7 +34,7 @@ class GoboInstrumentation : SimpleInstrumentation() {
             val request = (executionInput.context as GoboGraphQLContext).request
             logger.debug("Request hostName=\"${request.remoteAddress?.hostName}\"")
             val requestInfo =
-                "clientId=\"${request.klientid()}\" korrelasjonsid=\"${request.korrelasjonsid()}\""
+                "Klientid=\"${request.klientid()}\" Korrelasjonsid=\"${request.korrelasjonsid()}\""
 
             val query = it.query.removeNewLines()
             if (!query.startsWith("query IntrospectionQuery")) {

@@ -8,40 +8,10 @@ import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import reactor.core.publisher.Mono
-import reactor.kotlin.core.publisher.toMono
 import reactor.netty.http.client.PrematureCloseException
-import reactor.retry.Retry
 import reactor.retry.RetryContext
-import java.time.Duration
-
-fun <T> Mono<T>.blockWithRetry(duration: Duration = Duration.ofSeconds(30)) =
-    this.toMono().retryWithLog().block(duration)
-
-fun <T> Mono<T>.blockNonNullAndHandleError(duration: Duration = Duration.ofSeconds(30), sourceSystem: String? = null) =
-    this.switchIfEmpty(SourceSystemException("Empty response", sourceSystem = sourceSystem).toMono())
-        .blockAndHandleError(duration, sourceSystem)!!
-
-fun <T> Mono<T>.blockAndHandleError(duration: Duration = Duration.ofSeconds(30), sourceSystem: String? = null) =
-    this.retryWithLog().handleError(sourceSystem).block(duration)
 
 private val logger = KotlinLogging.logger { }
-fun <T> Mono<T>.retryWithLog() =
-    this.retryWhen(
-        Retry.onlyIf<Mono<T>> { it.isServerError() || it.isTimeout() }
-            .exponentialBackoff(Duration.ofMillis(100), Duration.ofSeconds(1))
-            .retryMax(3)
-            .doOnRetry {
-                logger.debug {
-                    val e = it.exception()
-                    val msg = "Retrying failed request times=${it.iteration()}, ${e.message}"
-                    if (e is WebClientResponseException) {
-                        "$msg, method=${e.request?.method} uri=${e.request?.uri}"
-                    } else {
-                        msg
-                    }
-                }
-            }
-    )
 
 fun <T> RetryContext<Mono<T>>.isServerError() =
     this.exception() is WebClientResponseException && (this.exception() as WebClientResponseException).statusCode.is5xxServerError
