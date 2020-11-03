@@ -13,7 +13,9 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.cloud.contract.stubrunner.spring.AutoConfigureStubRunner
+import org.springframework.test.annotation.DirtiesContext
 
+@DirtiesContext
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.NONE,
     classes = [TestConfig::class, ApplicationConfig::class, ImageRegistryService::class, SharedSecretReader::class]
