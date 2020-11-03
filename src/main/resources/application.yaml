@@ -10,7 +10,9 @@ spring:
     application:
         name: gobo
     profiles:
-        active: local
+#        active: local
+#        active: utv
+        active: inmemory
     codec:
         max-in-memory-size: -1 # unlimited
     zipkin:
@@ -93,8 +95,38 @@ logging:
             springframework: WARN
             apache: WARN
 ---
+#spring:
+#    profiles: local
+
+---
+
 spring:
-    profiles: local
+    profiles: utv
+    application:
+        name: gobo
+    datasource:
+        url: jdbc:postgresql://uil0aup-drivein-pgsql01:5432/imocssyarmnozrrofrafhmnxiytmtf
+        username: imocssyarmnozrrofrafhmnxiytmtf
+        password: a1WAJEoIIJO5pOgoVj1R3Mwx0zZrj4
+        driverClassName: org.postgresql.Driver
+
+
+
+---
+
+spring:
+#    profiles: local
+    profiles: inmemory
+    application:
+        name: gobo
+    datasource:
+        url: jdbc:h2:mem:testdb;MODE=PostgreSQL
+        driverClassName: org.h2.Driver
+        username: sa
+        password: password
+    h2:
+        console:
+            enabled: true
 
 integrations:
     boober:

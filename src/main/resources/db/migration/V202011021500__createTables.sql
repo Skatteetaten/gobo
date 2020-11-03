@@ -1,0 +1,11 @@
+CREATE TABLE FIELD (
+   ID       uuid NOT NULL PRIMARY KEY,
+   NAME     varchar(200) NOT NULL,
+   COUNT    number NOT NULL
+);
+
+CREATE TABLE FIELD_CLIENT (
+   FIELD_NHAME  varchar(200) NOT NULL REFERENCES FIELD(ID),
+   NAME     varchar(200) NOT NULL,
+   COUNT    number NOT NULL #
+);
