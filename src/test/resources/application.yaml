@@ -3,8 +3,6 @@ spring:
         name: gobo
     main:
         banner-mode: "off"
-    sleuth:
-        enabled: false
 
 integrations:
     mokey:
@@ -52,6 +50,11 @@ integrations:
 aurora:
     token:
         value: abc123
+    webflux:
+        header:
+            webclient:
+                interceptor:
+                    enabled: true
 
 openshift:
     cluster: http://localhost

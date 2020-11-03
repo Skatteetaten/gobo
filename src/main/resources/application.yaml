@@ -15,12 +15,18 @@ spring:
         max-in-memory-size: -1 # unlimited
     zipkin:
         enabled: false
-    sleuth:
-        enabled: false
-
 
 graphql:
     packages: "no.skatteetaten.aurora.gobo.graphql"
+
+aurora:
+    webflux:
+        header:
+            filter:
+                enabled: true
+            webclient:
+                interceptor:
+                    enabled: true
 
 management:
     endpoints:
@@ -76,14 +82,6 @@ integrations:
             https: true
             auth: Basic
             readOnly: false
-
-gobo:
-    graphql:
-        tracing-enabled: false
-
-aurora.webflux.header.webclient.interceptor.enabled: true
-aurora.mvc.header.filter.enabled: false
-aurora.webflux.header.filter.enabled: false
 
 logging:
     level:

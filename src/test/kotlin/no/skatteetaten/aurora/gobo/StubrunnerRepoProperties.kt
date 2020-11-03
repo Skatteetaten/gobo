@@ -5,15 +5,28 @@ import java.io.File
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.xpath.XPathFactory
 import mu.KotlinLogging
+import org.junit.jupiter.api.BeforeEach
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
 import org.w3c.dom.Document
+import reactor.core.publisher.Hooks
+import reactor.core.scheduler.Schedulers
 
 const val stubrunnerUsername = "stubrunner.username"
 const val stubrunnerPassword = "stubrunner.password"
 const val stubrunnerRepoUrl = "stubrunner.repositoryRoot"
 
 abstract class StrubrunnerRepoPropertiesEnabler {
+
+    // Spring cloud sleuth does not clean up its hooks when the spring context shuts down
+    // https://github.com/spring-cloud/spring-cloud-sleuth/issues/1712
+    @BeforeEach
+    fun setUp() {
+        Hooks.resetOnEachOperator()
+        Hooks.resetOnLastOperator()
+        Schedulers.resetOnScheduleHooks()
+    }
+
     companion object {
         @DynamicPropertySource
         @JvmStatic

@@ -8,7 +8,6 @@ import io.netty.handler.timeout.WriteTimeoutHandler
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.integration.HEADER_AURORA_TOKEN
 import no.skatteetaten.aurora.gobo.security.SharedSecretReader
-import no.skatteetaten.aurora.webflux.AuroraRequestParser
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
@@ -18,7 +17,6 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.core.Ordered
 import org.springframework.core.annotation.Order
 import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpHeaders.USER_AGENT
 import org.springframework.http.MediaType
 import org.springframework.http.client.reactive.ReactorClientHttpConnector
 import org.springframework.stereotype.Component
@@ -27,11 +25,8 @@ import org.springframework.web.reactive.function.client.WebClient
 import reactor.kotlin.core.publisher.toMono
 import reactor.netty.http.client.HttpClient
 import reactor.netty.tcp.SslProvider
-import java.util.UUID
 import java.util.concurrent.TimeUnit
 import kotlin.math.min
-
-val HEADER_KLIENTID = "KlientID"
 
 enum class ServiceTypes {
     MOKEY, BOOBER, UNCLEMATT, CANTUS, DBH, SKAP
@@ -109,12 +104,6 @@ class ApplicationConfig(
 
     fun WebClient.Builder.init() =
         this.defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .defaultHeader(HEADER_KLIENTID, applicationName)
-            .defaultHeader(USER_AGENT, applicationName)
-            .defaultHeader(
-                AuroraRequestParser.KORRELASJONSID_FIELD,
-                UUID.randomUUID().toString() // FIXME set korrelasjonsid
-            )
             .filter(
                 ExchangeFilterFunction.ofRequestProcessor {
                     val bearer = it.headers()[HttpHeaders.AUTHORIZATION]?.firstOrNull()?.let { token ->
