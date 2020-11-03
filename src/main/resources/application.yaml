@@ -6,13 +6,14 @@ info:
         unclematt: ${integrations.unclematt.url}
         cantus: ${integrations.cantus.url}
 
+
 spring:
     application:
         name: gobo
     profiles:
-#        active: local
-#        active: utv
-        active: inmemory
+        active:
+            - local
+            - inmemory
     codec:
         max-in-memory-size: -1 # unlimited
     zipkin:
@@ -127,6 +128,8 @@ spring:
     h2:
         console:
             enabled: true
+    flyway:
+        enabled: true
 
 integrations:
     boober:
