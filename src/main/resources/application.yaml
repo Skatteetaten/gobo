@@ -11,9 +11,9 @@ spring:
     application:
         name: gobo
     profiles:
-        active:
-#            - local
-            - inmemory
+        active: utv
+#            - utv
+#            - inmemory
     codec:
         max-in-memory-size: -1 # unlimited
     zipkin:
