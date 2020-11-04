@@ -5,6 +5,7 @@ import graphql.execution.DataFetcherExceptionHandler
 import graphql.execution.DataFetcherExceptionHandlerParameters
 import graphql.execution.DataFetcherExceptionHandlerResult
 import mu.KotlinLogging
+import no.skatteetaten.aurora.gobo.graphql.AccessDeniedException
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.graphql.IntegrationDisabledException
 import no.skatteetaten.aurora.gobo.graphql.klientid
@@ -68,12 +69,15 @@ private fun DataFetcherExceptionHandlerParameters.logErrorInfo() {
 
     val logText =
         "Exception while fetching data, exception=\"$exception\" cause=\"$cause\" message=\"$exceptionName\" $source $status"
-    if (exception is WebClientResponseException && exception.statusCode == HttpStatus.FORBIDDEN) {
+    if (exception.isForbidden() || exception.isAccessDenied()) {
         logger.warn(logText)
     } else {
         logger.error(logText)
     }
 }
+
+private fun Throwable.isForbidden() = this is WebClientResponseException && this.statusCode == HttpStatus.FORBIDDEN
+private fun Throwable.isAccessDenied() = this is AccessDeniedException
 
 private fun DataFetcherExceptionHandlerParameters.toExceptionWhileDataFetching(t: Throwable) =
     ExceptionWhileDataFetching(path, t, sourceLocation)

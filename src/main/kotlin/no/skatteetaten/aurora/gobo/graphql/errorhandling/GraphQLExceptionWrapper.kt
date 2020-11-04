@@ -7,12 +7,18 @@ import graphql.execution.DataFetcherExceptionHandlerParameters
 import graphql.execution.ExecutionPath
 import graphql.language.SourceLocation
 import no.skatteetaten.aurora.gobo.GoboException
+import no.skatteetaten.aurora.gobo.graphql.korrelasjonsid
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
+import no.skatteetaten.aurora.webflux.AuroraRequestParser
 import org.springframework.web.reactive.function.client.WebClientResponseException
 
 class GraphQLExceptionWrapper private constructor(
     private val exception: Throwable,
-    private val message: String? = exception.message,
+    private val message: String? = if (exception is WebClientResponseException) {
+        exception.statusCode.name
+    } else {
+        exception.message
+    },
     private val cause: Throwable? = exception.cause,
     private val location: SourceLocation? = null,
     private val executionPath: ExecutionPath? = null
@@ -42,7 +48,8 @@ class GraphQLExceptionWrapper private constructor(
                 mapOf(
                     "code" to exception.statusCode.name,
                     "cause" to cause?.javaClass?.simpleName,
-                    "errorMessage" to exception.responseBodyAsString
+                    "errorMessage" to exception.responseBodyAsString,
+                    AuroraRequestParser.KORRELASJONSID_FIELD to exception.request.korrelasjonsid()
                 )
             }
             else -> {
