@@ -10,7 +10,7 @@ import graphql.execution.ExecutionId
 import graphql.language.Field
 import graphql.language.OperationDefinition
 import graphql.language.SelectionSet
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 class GoboInstrumentationTest {
 

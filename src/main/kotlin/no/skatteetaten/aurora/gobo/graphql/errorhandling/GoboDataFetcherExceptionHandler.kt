@@ -1,18 +1,17 @@
 package no.skatteetaten.aurora.gobo.graphql.errorhandling
 
 import graphql.ExceptionWhileDataFetching
-import graphql.GraphQLError
 import graphql.execution.DataFetcherExceptionHandler
 import graphql.execution.DataFetcherExceptionHandlerParameters
 import graphql.execution.DataFetcherExceptionHandlerResult
 import mu.KotlinLogging
-import no.skatteetaten.aurora.gobo.GoboException
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.graphql.IntegrationDisabledException
 import no.skatteetaten.aurora.gobo.graphql.klientid
 import no.skatteetaten.aurora.gobo.graphql.korrelasjonsid
 import org.apache.commons.lang3.exception.ExceptionUtils
 import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClientResponseException
 
@@ -41,15 +40,10 @@ private fun DataFetcherExceptionHandlerParameters.handleIntegrationDisabledExcep
         it
     }
 
-private fun DataFetcherExceptionHandlerParameters.handleGeneralDataFetcherException(): GraphQLError {
-    logErrorInfo()
-
-    return if (exception is GoboException) {
-        GraphQLExceptionWrapper(this)
-    } else {
-        toExceptionWhileDataFetching()
+private fun DataFetcherExceptionHandlerParameters.handleGeneralDataFetcherException() =
+    GraphQLExceptionWrapper(this).also {
+        logErrorInfo()
     }
-}
 
 private fun DataFetcherExceptionHandlerParameters.logErrorInfo() {
     val exception = this.exception
@@ -72,11 +66,14 @@ private fun DataFetcherExceptionHandlerParameters.logErrorInfo() {
         ""
     }
 
-    logger.error("Exception in data fetcher, exception=\"$exception\" cause=\"$cause\" message=\"$exceptionName\" $source $status")
+    val logText =
+        "Exception while fetching data, exception=\"$exception\" cause=\"$cause\" message=\"$exceptionName\" $source $status"
+    if (exception is WebClientResponseException && exception.statusCode == HttpStatus.FORBIDDEN) {
+        logger.warn(logText)
+    } else {
+        logger.error(logText)
+    }
 }
-
-private fun DataFetcherExceptionHandlerParameters.toExceptionWhileDataFetching() =
-    ExceptionWhileDataFetching(path, exception, sourceLocation)
 
 private fun DataFetcherExceptionHandlerParameters.toExceptionWhileDataFetching(t: Throwable) =
     ExceptionWhileDataFetching(path, t, sourceLocation)
