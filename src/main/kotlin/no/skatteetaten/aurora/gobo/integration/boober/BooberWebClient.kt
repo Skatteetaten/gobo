@@ -47,7 +47,7 @@ class BooberWebClient(
     @Value("\${integrations.boober.url:}") val booberUrl: String?,
     @TargetService(ServiceTypes.BOOBER) val webClient: WebClient,
     val objectMapper: ObjectMapper
-) : WebClient by webClient {
+) {
 
     fun WebClient.RequestHeadersUriSpec<*>.booberUrl(
         url: String,
@@ -121,7 +121,7 @@ class BooberWebClient(
             return "$booberUrl$link"
         }
 
-        val booberUri = URI(booberUrl)
+        val booberUri = URI(booberUrl!!)
         val linkUri = URI(link)
         return URI(
             booberUri.scheme,

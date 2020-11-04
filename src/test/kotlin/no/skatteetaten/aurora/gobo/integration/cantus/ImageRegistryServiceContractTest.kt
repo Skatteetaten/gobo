@@ -13,19 +13,9 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.cloud.contract.stubrunner.spring.AutoConfigureStubRunner
-import java.time.Instant
+import org.springframework.test.annotation.DirtiesContext
 
-private fun List<ImageRepoAndTags>.getTagCount() =
-    this.flatMap { it.imageTags }.size
-private fun ImageRepoAndTags.toImageTagResource() =
-    this.imageTags.map {
-        ImageTagResource(
-            requestUrl = "${this.imageRepository}/$it",
-            dockerDigest = "sha256",
-            dockerVersion = "2",
-            timeline = ImageBuildTimeline(null, Instant.EPOCH)
-        )
-    }
+@DirtiesContext
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.NONE,
     classes = [TestConfig::class, ApplicationConfig::class, ImageRegistryService::class, SharedSecretReader::class]
@@ -43,20 +33,8 @@ class ImageRegistryServiceContractTest : StrubrunnerRepoPropertiesEnabler() {
 
     private val token: String = "token"
 
-    private val imageReposAndTags = listOf(
-        ImageRepoAndTags(
-            imageRepository = "docker-registry.aurora.sits.no:5000/aurora/openshift-jenkins-master",
-            imageTags = listOf("1", "1.0", "1.0.0", "1.0.1", "latest", "feature_something-SNAPSHOT")
-        ),
-        ImageRepoAndTags(
-            imageRepository = "docker-registry.aurora.sits.no:5000/aurora/openshift-jenkins-slave",
-            imageTags = listOf("2", "2.1", "2.1.3", "latest", "dev-SNAPSHOT")
-        )
-    )
-
     @Test
     fun `verify fetches all tags for specified repo`() {
-
         val tags = runBlocking { imageRegistry.findTagNamesInRepoOrderedByCreatedDateDesc(imageRepo, token) }
         assertThat(tags.tags).isNotEmpty()
     }

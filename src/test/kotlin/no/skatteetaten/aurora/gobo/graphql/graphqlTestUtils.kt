@@ -1,6 +1,8 @@
 package no.skatteetaten.aurora.gobo.graphql
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import no.skatteetaten.aurora.webflux.AuroraRequestParser.KLIENTID_FIELD
+import no.skatteetaten.aurora.webflux.AuroraRequestParser.KORRELASJONSID_FIELD
 import java.nio.charset.StandardCharsets
 import org.apache.commons.text.StringEscapeUtils
 import org.springframework.core.io.Resource
@@ -35,7 +37,10 @@ fun WebTestClient.queryGraphQL(
     token: String? = null
 ): WebTestClient.ResponseSpec {
     val query = createQuery(queryResource, variables)
-    val requestSpec = this.post().uri("/graphql").header("Content-Type", "application/json")
+    val requestSpec = this.post().uri("/graphql")
+        .header(HttpHeaders.CONTENT_TYPE, "application/json")
+        .header(KORRELASJONSID_FIELD, "unit-test")
+        .header(KLIENTID_FIELD, "gobo")
     token?.let {
         requestSpec.header(HttpHeaders.AUTHORIZATION, "Bearer $token")
     }
