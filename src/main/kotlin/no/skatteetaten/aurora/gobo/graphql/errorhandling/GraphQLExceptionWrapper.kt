@@ -15,7 +15,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 class GraphQLExceptionWrapper private constructor(
     private val exception: Throwable,
     private val message: String? = if (exception is WebClientResponseException) {
-        exception.statusCode.name
+        "Downstream request failed with ${exception.statusCode.name}"
     } else {
         exception.message
     },
