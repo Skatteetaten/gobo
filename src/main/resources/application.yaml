@@ -12,7 +12,7 @@ spring:
         name: gobo
     profiles:
         active:
-            - local
+#            - local
             - inmemory
     codec:
         max-in-memory-size: -1 # unlimited
@@ -90,6 +90,7 @@ aurora.webflux.header.filter.enabled: false
 
 logging:
     level:
+        root: debug
         org:
             jboss: WARN
             hibernate: WARN
