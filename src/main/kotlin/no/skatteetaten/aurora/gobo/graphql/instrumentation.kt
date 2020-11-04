@@ -33,16 +33,14 @@ class GoboInstrumentation : SimpleInstrumentation() {
         executionInput?.let {
             val request = (executionInput.context as GoboGraphQLContext).request
             logger.debug("Request hostName=\"${request.remoteAddress?.hostName}\"")
-            val requestInfo =
-                "Klientid=\"${request.klientid()}\" Korrelasjonsid=\"${request.korrelasjonsid()}\""
 
             val query = it.query.removeNewLines()
             if (!query.startsWith("query IntrospectionQuery")) {
                 if (query.trimStart().startsWith("mutation")) {
-                    logger.info("$requestInfo mutation=\"$query\" - variable-keys=${it.variables.keys}")
+                    logger.info("mutation=\"$query\" - variable-keys=${it.variables.keys}")
                 } else {
                     val variables = if (it.variables.isEmpty()) "" else " - variables=${it.variables}"
-                    logger.info("$requestInfo query=\"$query\"$variables")
+                    logger.info("query=\"$query\"$variables")
                 }
             }
         }
