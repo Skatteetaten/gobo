@@ -8,13 +8,18 @@ import no.skatteetaten.aurora.gobo.graphql.graphqlData
 import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.graphql.isTrue
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
+import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import no.skatteetaten.aurora.gobo.service.ApplicationUpgradeService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
+import org.springframework.security.test.context.support.WithMockUser
 
-class ApplicationDeploymentMutationResolverTest : GraphQLTestWithDbhAndSkap() {
+@WithMockUser
+@Import(ApplicationDeploymentQuery::class, ApplicationDeploymentMutation::class)
+class ApplicationDeploymentMutationTest : GraphQLTestWithDbhAndSkap() {
     @Value("classpath:graphql/mutations/redeployWithVersion.graphql")
     private lateinit var redeployWithVersionMutation: Resource
 
@@ -35,6 +40,9 @@ class ApplicationDeploymentMutationResolverTest : GraphQLTestWithDbhAndSkap() {
 
     @MockkBean(relaxed = true)
     private lateinit var applicationDeploymentService: ApplicationDeploymentService
+
+    @MockkBean
+    private lateinit var applicationService: ApplicationService
 
     @BeforeEach
     fun setUp() {

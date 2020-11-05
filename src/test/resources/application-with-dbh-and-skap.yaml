@@ -3,3 +3,6 @@ integrations:
     url: http://localhost:6567
   skap:
     url: http://localhost:6569
+
+graphql:
+    packages: "no.skatteetaten.aurora.gobo.graphql"
