@@ -65,8 +65,8 @@ internal class FieldServiceTest {
     @Test
     fun `'addField' should return created entity`() {
 //        val (id, name, count) = service.addField(FieldDto(1, "gobo.usage.usedFields.name", 10))
-        val (id, name, count) = service.addField(FieldDto(name = "gobo.usage.usedFields.name", count = 10))
-        softly.assertThat(id).isEqualTo(1)
+        val (name, count) = service.addField(FieldDto(name = "gobo.usage.usedFields.name", count = 10))
+//        softly.assertThat(id).isEqualTo(1)
         softly.assertThat(name).isEqualTo("gobo.usage.usedFields.name")
         softly.assertThat(count).isEqualTo(10)
     }

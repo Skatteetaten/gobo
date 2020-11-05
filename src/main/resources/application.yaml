@@ -11,7 +11,7 @@ spring:
     application:
         name: gobo
     profiles:
-        active: utv
+        active: local
 #            - utv
 #            - inmemory
     codec:
@@ -102,7 +102,7 @@ logging:
 ---
 
 spring:
-    profiles: utv
+    profiles: local
     application:
         name: gobo
     datasource:
@@ -116,7 +116,7 @@ spring:
 ---
 
 spring:
-    profiles: local
+    profiles: inmemory
 #    profiles: inmemory
     application:
         name: gobo
