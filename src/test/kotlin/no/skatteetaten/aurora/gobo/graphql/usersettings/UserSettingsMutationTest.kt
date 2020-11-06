@@ -11,8 +11,10 @@ import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
 import no.skatteetaten.aurora.gobo.integration.boober.UserSettingsService
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
 
+@Import(UserSettingsQuery::class, UserSettingsMutation::class)
 class UserSettingsMutationTest : GraphQLTestWithDbhAndSkap() {
 
     @Value("classpath:graphql/mutations/updateUserSettings.graphql")

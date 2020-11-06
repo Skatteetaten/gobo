@@ -1,25 +1,33 @@
 package no.skatteetaten.aurora.gobo.graphql.affiliation
 
 import com.ninjasquad.springmockk.MockkBean
-import io.mockk.clearAllMocks
 import io.mockk.coEvery
 import no.skatteetaten.aurora.gobo.ApplicationResourceBuilder
 import no.skatteetaten.aurora.gobo.DatabaseSchemaResourceBuilder
 import no.skatteetaten.aurora.gobo.WebsealStateResourceBuilder
 import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithDbhAndSkap
+import no.skatteetaten.aurora.gobo.graphql.database.DatabaseSchemaListDataLoader
 import no.skatteetaten.aurora.gobo.graphql.graphqlData
 import no.skatteetaten.aurora.gobo.graphql.graphqlDataWithPrefix
 import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
+import no.skatteetaten.aurora.gobo.graphql.webseal.WebsealStateListDataLoader
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseServiceReactive
 import no.skatteetaten.aurora.gobo.integration.mokey.AffiliationService
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import no.skatteetaten.aurora.gobo.integration.skap.WebsealService
-import org.junit.jupiter.api.AfterEach
+import no.skatteetaten.aurora.gobo.service.WebsealAffiliationService
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
 
+@Import(
+    AffiliationQuery::class,
+    WebsealAffiliationService::class,
+    WebsealStateListDataLoader::class,
+    DatabaseSchemaListDataLoader::class
+)
 class AffiliationQueryTest : GraphQLTestWithDbhAndSkap() {
 
     @Value("classpath:graphql/queries/getAffiliations.graphql")
@@ -48,9 +56,6 @@ class AffiliationQueryTest : GraphQLTestWithDbhAndSkap() {
 
     @MockkBean
     private lateinit var websealService: WebsealService
-
-    @AfterEach
-    fun tearDown() = clearAllMocks()
 
     @Test
     fun `Query for all affiliations`() {

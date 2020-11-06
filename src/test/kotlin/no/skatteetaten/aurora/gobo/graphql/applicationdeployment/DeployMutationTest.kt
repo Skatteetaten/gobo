@@ -15,11 +15,14 @@ import no.skatteetaten.aurora.gobo.graphql.graphqlErrorsMissingToken
 import no.skatteetaten.aurora.gobo.graphql.isFalse
 import no.skatteetaten.aurora.gobo.graphql.isTrue
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
+import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
 
+@Import(ApplicationDeploymentQuery::class, DeployMutation::class)
 class DeployMutationTest : GraphQLTestWithDbhAndSkap() {
 
     @Value("classpath:graphql/mutations/deploy.graphql")
@@ -27,6 +30,9 @@ class DeployMutationTest : GraphQLTestWithDbhAndSkap() {
 
     @MockkBean
     private lateinit var applicationDeploymentService: ApplicationDeploymentService
+
+    @MockkBean
+    private lateinit var applicationService: ApplicationService
 
     @BeforeEach
     fun setUp() {

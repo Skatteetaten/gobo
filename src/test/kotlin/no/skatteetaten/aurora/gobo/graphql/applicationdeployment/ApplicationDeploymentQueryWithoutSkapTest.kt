@@ -7,7 +7,9 @@ import no.skatteetaten.aurora.gobo.ImageTagResourceBuilder
 import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithoutDbhAndSkap
 import no.skatteetaten.aurora.gobo.graphql.IntegrationDisabledException
 import no.skatteetaten.aurora.gobo.graphql.graphqlErrorsFirst
+import no.skatteetaten.aurora.gobo.graphql.imagerepository.ImageDataLoader
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
+import no.skatteetaten.aurora.gobo.graphql.route.RouteDataLoader
 import no.skatteetaten.aurora.gobo.integration.cantus.AuroraResponse
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageRegistryService
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseServiceReactive
@@ -16,9 +18,11 @@ import no.skatteetaten.aurora.gobo.integration.skap.RouteService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
 
-class ApplicationDeploymentQueryResolverWithoutSkapTest : GraphQLTestWithoutDbhAndSkap() {
+@Import(ApplicationDeploymentQuery::class, ImageDataLoader::class, RouteDataLoader::class)
+class ApplicationDeploymentQueryWithoutSkapTest : GraphQLTestWithoutDbhAndSkap() {
 
     @Value("classpath:graphql/queries/getApplicationDeployment.graphql")
     private lateinit var getApplicationsQuery: Resource

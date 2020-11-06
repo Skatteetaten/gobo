@@ -2,17 +2,19 @@ package no.skatteetaten.aurora.gobo.graphql.database
 
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.coEvery
-import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseServiceReactive
 import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithoutDbhAndSkap
 import no.skatteetaten.aurora.gobo.graphql.IntegrationDisabledException
 import no.skatteetaten.aurora.gobo.graphql.graphqlErrorsFirst
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
+import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseServiceReactive
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
 
-class DatabaseQueryResolverWithoutDbhTest : GraphQLTestWithoutDbhAndSkap() {
+@Import(DatabaseSchemaQuery::class)
+class DatabaseSchemaQueryWithoutDbhTest : GraphQLTestWithoutDbhAndSkap() {
 
     @Value("classpath:graphql/queries/getDatabaseInstances.graphql")
     private lateinit var getDatabaseInstancesQuery: Resource

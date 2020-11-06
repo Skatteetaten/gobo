@@ -4,15 +4,19 @@ import com.ninjasquad.springmockk.MockkBean
 import io.mockk.coEvery
 import no.skatteetaten.aurora.gobo.WebsealStateResourceBuilder
 import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithDbhAndSkap
+import no.skatteetaten.aurora.gobo.graphql.affiliation.AffiliationQuery
 import no.skatteetaten.aurora.gobo.graphql.graphqlDataWithPrefix
 import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
+import no.skatteetaten.aurora.gobo.integration.mokey.AffiliationService
 import no.skatteetaten.aurora.gobo.service.WebsealAffiliationService
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
 
-class WebsealStateResolverTest : GraphQLTestWithDbhAndSkap() {
+@Import(AffiliationQuery::class, WebsealStateListDataLoader::class)
+class WebsealStateTest : GraphQLTestWithDbhAndSkap() {
     @Value("classpath:graphql/queries/getWebsealStates.graphql")
     private lateinit var getWebsealStates: Resource
 
@@ -21,6 +25,9 @@ class WebsealStateResolverTest : GraphQLTestWithDbhAndSkap() {
 
     @MockkBean
     private lateinit var websealAffiliationService: WebsealAffiliationService
+
+    @MockkBean
+    private lateinit var affiliationService: AffiliationService
 
     @Test
     fun `Get WebSEAL states`() {

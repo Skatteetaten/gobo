@@ -12,9 +12,11 @@ import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
 
-class UserSettingsQueryResolverTest : GraphQLTestWithDbhAndSkap() {
+@Import(UserSettingsQuery::class)
+class UserSettingsQueryTest : GraphQLTestWithDbhAndSkap() {
 
     @Value("classpath:graphql/queries/getUserSettingsWithAffiliation.graphql")
     private lateinit var getUserSettingsWithAffiliationQuery: Resource

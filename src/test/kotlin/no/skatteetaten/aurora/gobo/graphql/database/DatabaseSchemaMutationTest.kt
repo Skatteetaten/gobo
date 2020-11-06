@@ -17,9 +17,11 @@ import no.skatteetaten.aurora.gobo.graphql.isTrue
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
 
-class DatabaseMutationResolverTest : GraphQLTestWithDbhAndSkap() {
+@Import(DatabaseSchemaQuery::class, DatabaseSchemaMutation::class)
+class DatabaseSchemaMutationTest : GraphQLTestWithDbhAndSkap() {
     @Value("classpath:graphql/mutations/updateDatabaseSchema.graphql")
     private lateinit var updateDatabaseSchemaMutation: Resource
 
