@@ -22,9 +22,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
-import org.springframework.security.test.context.support.WithMockUser
 
-@WithMockUser
 @Import(ApplicationDeploymentQuery::class, ImageDataLoader::class, RouteDataLoader::class)
 class ApplicationDeploymentQueryTest : GraphQLTestWithDbhAndSkap() {
 

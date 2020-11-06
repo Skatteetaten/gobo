@@ -11,7 +11,8 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 
-class ApplicationDeploymentsAndImagesResolversTest : GraphQLTestWithDbhAndSkap() {
+@Disabled("error handling")
+class ApplicationDeploymentsAndImagesQueryTest : GraphQLTestWithDbhAndSkap() {
     @Value("classpath:graphql/queries/getApplicationDeploymentsAndImages.graphql")
     private lateinit var applicationDeploymentsAndImages: Resource
 
@@ -26,7 +27,6 @@ class ApplicationDeploymentsAndImagesResolversTest : GraphQLTestWithDbhAndSkap()
         coEvery { applicationService.getApplicationDeployment(any<String>()) } returns ApplicationDeploymentResourceBuilder().build()
     }
 
-    @Disabled("error handling")
     @Test
     fun `Query for application deployments and images, throw exception for images`() {
         coEvery { imageRegistryService.findTagNamesInRepoOrderedByCreatedDateDesc(any(), any()) } throws

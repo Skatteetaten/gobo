@@ -11,8 +11,10 @@ import no.skatteetaten.aurora.gobo.integration.boober.ConfigNames
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
 
+@Import(AuroraApiMetadataQuery::class, ConfigNamesDataLoader::class)
 class AuroraApiMetadataQueryTest : GraphQLTestWithDbhAndSkap() {
 
     @Value("classpath:graphql/queries/getMetadata.graphql")

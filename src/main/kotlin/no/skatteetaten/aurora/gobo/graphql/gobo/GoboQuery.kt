@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component
 import java.time.Instant
 
 @Component
-class GoboQueryResolver(private val goboInstrumentation: GoboInstrumentation) : Query {
+class GoboQuery(private val goboInstrumentation: GoboInstrumentation) : Query {
 
     private val startTime = Instant.now()
 

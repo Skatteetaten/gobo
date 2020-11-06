@@ -10,8 +10,10 @@ import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
 
+@Import(ScanQuery::class)
 class ScanQueryTest : GraphQLTestWithDbhAndSkap() {
 
     @Value("classpath:graphql/queries/scan.graphql")

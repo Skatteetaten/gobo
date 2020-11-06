@@ -18,7 +18,6 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
-import org.springframework.security.test.context.support.WithMockUser
 
 @Import(ApplicationQuery::class, PermissionDataLoader::class, ApplicationDeploymentDetailsDataLoader::class)
 class ApplicationQueryTest : GraphQLTestWithDbhAndSkap() {
@@ -32,7 +31,6 @@ class ApplicationQueryTest : GraphQLTestWithDbhAndSkap() {
     @MockkBean
     private lateinit var permissionService: PermissionService
 
-    @WithMockUser
     @Test
     fun `Query for applications given affiliations`() {
         val affiliations = listOf("paas")

@@ -2,6 +2,7 @@ package no.skatteetaten.aurora.gobo.graphql.imagerepository
 
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.coEvery
+import no.skatteetaten.aurora.gobo.AuroraIntegration
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.integration.cantus.AuroraResponse
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageBuildTimeline
@@ -23,6 +24,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
 import java.time.Instant.EPOCH
 
@@ -39,6 +41,13 @@ private fun ImageRepoAndTags.toImageTagResource() =
 private fun List<ImageRepoAndTags>.getTagCount() =
     this.flatMap { it.imageTags }.size
 
+@Import(
+    ImageRepositoryQuery::class,
+    TagsDtoDataLoader::class,
+    ImageDataLoader::class,
+    GuiUrlDataLoader::class,
+    ImageMultipleKeysDataLoader::class
+)
 class ImageRepositoryQueryTest : GraphQLTestWithDbhAndSkap() {
     @Value("classpath:graphql/queries/getImageRepositories.graphql")
     private lateinit var reposWithTagsQuery: Resource
@@ -57,6 +66,9 @@ class ImageRepositoryQueryTest : GraphQLTestWithDbhAndSkap() {
 
     @MockkBean
     private lateinit var imageRegistryService: ImageRegistryService
+
+    @MockkBean(relaxed = true)
+    private lateinit var auroraIntegration: AuroraIntegration
 
     private val imageReposAndTags = listOf(
         ImageRepoAndTags(
