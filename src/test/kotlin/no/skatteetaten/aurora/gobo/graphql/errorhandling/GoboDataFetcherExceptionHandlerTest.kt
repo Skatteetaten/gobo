@@ -44,7 +44,7 @@ class GoboDataFetcherExceptionHandlerTest {
     }
 
     @Test
-    fun `Given Exception do not add GraphQL error`() {
+    fun `Given Exception adds GraphQL error`() {
         val handlerParameters = DataFetcherExceptionHandlerParameters
             .newExceptionParameters()
             .dataFetchingEnvironment(env)
@@ -53,7 +53,7 @@ class GoboDataFetcherExceptionHandlerTest {
 
         val exceptions = exceptionHandler.onException(handlerParameters)
         assertThat(exceptions.errors).hasSize(1)
-        assertThat(exceptions.errors.first()).isInstanceOf(graphql.ExceptionWhileDataFetching::class)
+        assertThat(exceptions.errors.first()).isInstanceOf(GraphQLExceptionWrapper::class)
     }
 
     @Test
