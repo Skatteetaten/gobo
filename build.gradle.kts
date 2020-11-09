@@ -5,7 +5,6 @@ plugins {
 
 aurora {
     useAuroraDefaults
-    useAsciiDoctor
     useKotlin {
         useKtLint
     }
