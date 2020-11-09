@@ -6,7 +6,6 @@ import no.skatteetaten.aurora.gobo.ApplicationDeploymentWithDbResourceBuilder
 import no.skatteetaten.aurora.gobo.DatabaseInstanceResourceBuilder
 import no.skatteetaten.aurora.gobo.DatabaseSchemaResourceBuilder
 import no.skatteetaten.aurora.gobo.RestorableDatabaseSchemaBuilder
-import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseServiceReactive
 import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithDbhAndSkap
 import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.ApplicationDeploymentListDataLoader
 import no.skatteetaten.aurora.gobo.graphql.graphqlData
@@ -15,6 +14,7 @@ import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.graphql.graphqlErrors
 import no.skatteetaten.aurora.gobo.graphql.graphqlErrorsMissingToken
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
+import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseService
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -41,7 +41,7 @@ class DatabaseSchemaQueryTest : GraphQLTestWithDbhAndSkap() {
     private lateinit var getRestorableDatabaseSchemasQuery: Resource
 
     @MockkBean
-    private lateinit var databaseService: DatabaseServiceReactive
+    private lateinit var databaseService: DatabaseService
 
     @MockkBean
     private lateinit var applicationService: ApplicationService

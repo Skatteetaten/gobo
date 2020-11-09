@@ -12,7 +12,7 @@ import no.skatteetaten.aurora.gobo.graphql.graphqlDataWithPrefix
 import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
 import no.skatteetaten.aurora.gobo.graphql.webseal.WebsealStateListDataLoader
-import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseServiceReactive
+import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseService
 import no.skatteetaten.aurora.gobo.integration.mokey.AffiliationService
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import no.skatteetaten.aurora.gobo.integration.skap.WebsealService
@@ -49,7 +49,7 @@ class AffiliationQueryTest : GraphQLTestWithDbhAndSkap() {
     private lateinit var affiliationService: AffiliationService
 
     @MockkBean
-    private lateinit var databaseService: DatabaseServiceReactive
+    private lateinit var databaseService: DatabaseService
 
     @MockkBean
     private lateinit var applicationService: ApplicationService

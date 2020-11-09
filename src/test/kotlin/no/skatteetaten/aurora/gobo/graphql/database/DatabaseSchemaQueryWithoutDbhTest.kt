@@ -6,7 +6,7 @@ import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithoutDbhAndSkap
 import no.skatteetaten.aurora.gobo.graphql.IntegrationDisabledException
 import no.skatteetaten.aurora.gobo.graphql.graphqlErrorsFirst
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
-import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseServiceReactive
+import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
@@ -20,7 +20,7 @@ class DatabaseSchemaQueryWithoutDbhTest : GraphQLTestWithoutDbhAndSkap() {
     private lateinit var getDatabaseInstancesQuery: Resource
 
     @MockkBean
-    private lateinit var databaseService: DatabaseServiceReactive
+    private lateinit var databaseService: DatabaseService
 
     @BeforeEach
     fun setUp() {

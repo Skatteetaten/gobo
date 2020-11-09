@@ -25,42 +25,42 @@ import reactor.kotlin.core.publisher.toMono
 class DatabaseServiceReactive(
     @TargetService(ServiceTypes.DBH) private val webClient: WebClient,
     val objectMapper: ObjectMapper
-) {
+) : DatabaseService {
     companion object {
         const val HEADER_COOLDOWN_DURATION_HOURS = "cooldown-duration-hours"
     }
 
-    suspend fun getDatabaseInstances(): List<DatabaseInstanceResource> = webClient
+    override suspend fun getDatabaseInstances(): List<DatabaseInstanceResource> = webClient
         .get()
         .uri("/api/v1/admin/databaseInstance/")
         .retrieveItems()
 
-    suspend fun getDatabaseSchemas(affiliation: String): List<DatabaseSchemaResource> = webClient
+    override suspend fun getDatabaseSchemas(affiliation: String): List<DatabaseSchemaResource> = webClient
         .get()
         .uri {
             it.path("/api/v1/schema/").queryParam("labels", "affiliation=$affiliation").build()
         }
         .retrieveItems()
 
-    suspend fun getDatabaseSchema(id: String): DatabaseSchemaResource = webClient
+    override suspend fun getDatabaseSchema(id: String): DatabaseSchemaResource = webClient
         .get()
         .uri("/api/v1/schema/{id}", id)
         .retrieveItem()
 
-    suspend fun getRestorableDatabaseSchemas(affiliation: String): List<RestorableDatabaseSchemaResource> = webClient
+    override suspend fun getRestorableDatabaseSchemas(affiliation: String): List<RestorableDatabaseSchemaResource> = webClient
         .get()
         .uri {
             it.path("/api/v1/restorableSchema/").queryParam("labels", "affiliation=$affiliation").build()
         }
         .retrieveItems()
 
-    suspend fun updateDatabaseSchema(input: SchemaUpdateRequest): DatabaseSchemaResource = webClient
+    override suspend fun updateDatabaseSchema(input: SchemaUpdateRequest): DatabaseSchemaResource = webClient
         .put()
         .uri("/api/v1/schema/{id}", input.id)
         .body(BodyInserters.fromValue(input))
         .retrieveItem()
 
-    suspend fun deleteDatabaseSchemas(input: List<SchemaDeletionRequest>): List<SchemaCooldownChangeResponse> {
+    override suspend fun deleteDatabaseSchemas(input: List<SchemaDeletionRequest>): List<SchemaCooldownChangeResponse> {
         val responses = input.map { request ->
             val requestSpec = webClient
                 .delete()
@@ -78,7 +78,7 @@ class DatabaseServiceReactive(
         return Flux.merge(responses).map { SchemaCooldownChangeResponse(id = it.first, success = it.second.isOk()) }.collectList().awaitFirst()
     }
 
-    suspend fun restoreDatabaseSchemas(input: List<SchemaRestorationRequest>): List<SchemaCooldownChangeResponse> {
+    override suspend fun restoreDatabaseSchemas(input: List<SchemaRestorationRequest>): List<SchemaCooldownChangeResponse> {
         val responses = input.map { request ->
             webClient
                 .patch()
@@ -100,7 +100,15 @@ class DatabaseServiceReactive(
         return Flux.merge(responses).map { SchemaCooldownChangeResponse(id = it.first, success = it.second.isOk()) }.collectList().awaitFirst()
     }
 
-    suspend fun testJdbcConnection(id: String? = null, user: JdbcUser? = null): ConnectionVerificationResponse =
+    override suspend fun testJdbcConnection(user: JdbcUser): ConnectionVerificationResponse {
+        return testJdbcConnectionInternal(user = user)
+    }
+
+    override suspend fun testJdbcConnection(id: String): ConnectionVerificationResponse {
+        return testJdbcConnectionInternal(id = id)
+    }
+
+    private suspend fun testJdbcConnectionInternal(id: String? = null, user: JdbcUser? = null): ConnectionVerificationResponse =
         webClient
             .put()
             .uri("/api/v1/schema/validate")
@@ -114,7 +122,7 @@ class DatabaseServiceReactive(
             )
             .retrieveItem()
 
-    suspend fun createDatabaseSchema(input: SchemaCreationRequest): DatabaseSchemaResource {
+    override suspend fun createDatabaseSchema(input: SchemaCreationRequest): DatabaseSchemaResource {
         val missingLabels = input.findMissingOrEmptyLabels()
         if (missingLabels.isNotEmpty()) {
             throw MissingLabelException("Missing labels in mutation input: $missingLabels")
@@ -137,8 +145,8 @@ class DatabaseServiceReactive(
         this.flatMap {
             when {
                 it.isFailure() -> onFailure(it)
-                it.isEmpty() -> Mono.empty<List<T>>()
-                else -> onSuccess<T>(it)
+                it.isEmpty() -> Mono.empty()
+                else -> onSuccess(it)
             }
         }
 
@@ -163,22 +171,22 @@ class DatabaseServiceReactive(
 private fun WebClient.ResponseSpec.bodyToDbhResponse() = this.bodyToMono<DbhResponse<*>>()
 
 interface DatabaseService {
-    fun getDatabaseInstances(): List<DatabaseInstanceResource> = integrationDisabled()
-    fun getDatabaseSchemas(affiliation: String): List<DatabaseSchemaResource> = integrationDisabled()
-    fun getDatabaseSchema(id: String): DatabaseSchemaResource? = integrationDisabled()
-    fun getRestorableDatabaseSchemas(affiliation: String): List<RestorableDatabaseSchemaResource> =
+    suspend fun getDatabaseInstances(): List<DatabaseInstanceResource> = integrationDisabled()
+    suspend fun getDatabaseSchemas(affiliation: String): List<DatabaseSchemaResource> = integrationDisabled()
+    suspend fun getDatabaseSchema(id: String): DatabaseSchemaResource = integrationDisabled()
+    suspend fun getRestorableDatabaseSchemas(affiliation: String): List<RestorableDatabaseSchemaResource> =
         integrationDisabled()
 
-    fun updateDatabaseSchema(input: SchemaUpdateRequest): DatabaseSchemaResource = integrationDisabled()
-    fun deleteDatabaseSchemas(input: List<SchemaDeletionRequest>): List<SchemaCooldownChangeResponse> =
+    suspend fun updateDatabaseSchema(input: SchemaUpdateRequest): DatabaseSchemaResource = integrationDisabled()
+    suspend fun deleteDatabaseSchemas(input: List<SchemaDeletionRequest>): List<SchemaCooldownChangeResponse> =
         integrationDisabled()
 
-    fun restoreDatabaseSchemas(input: List<SchemaRestorationRequest>): List<SchemaCooldownChangeResponse> =
+    suspend fun restoreDatabaseSchemas(input: List<SchemaRestorationRequest>): List<SchemaCooldownChangeResponse> =
         integrationDisabled()
 
-    fun testJdbcConnection(user: JdbcUser): ConnectionVerificationResponse = integrationDisabled()
-    fun testJdbcConnection(id: String): ConnectionVerificationResponse = integrationDisabled()
-    fun createDatabaseSchema(input: SchemaCreationRequest): DatabaseSchemaResource = integrationDisabled()
+    suspend fun testJdbcConnection(user: JdbcUser): ConnectionVerificationResponse = integrationDisabled()
+    suspend fun testJdbcConnection(id: String): ConnectionVerificationResponse = integrationDisabled()
+    suspend fun createDatabaseSchema(input: SchemaCreationRequest): DatabaseSchemaResource = integrationDisabled()
 
     private fun integrationDisabled(): Nothing =
         throw IntegrationDisabledException("DBH integration is disabled for this environment")
