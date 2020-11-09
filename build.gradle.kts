@@ -26,7 +26,9 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("com.expediagroup:graphql-kotlin-spring-server:3.6.6")
 
-    implementation("uk.q3c.rest:hal-kotlin:0.5.4.0.db32476")
+    implementation("uk.q3c.rest:hal-kotlin:0.5.4.0.db32476") {
+        exclude(group = "com.google.guava", module = "guava")
+    }
     implementation("io.fabric8:openshift-client:4.12.0")
     implementation("com.github.fge:json-patch:1.13")
     implementation("com.jayway.jsonpath:json-path:2.4.0")
