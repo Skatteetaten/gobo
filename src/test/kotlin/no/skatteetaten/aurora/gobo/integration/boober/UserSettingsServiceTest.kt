@@ -4,10 +4,10 @@ import assertk.assertThat
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import no.skatteetaten.aurora.gobo.integration.Response
-import no.skatteetaten.aurora.gobo.resolvers.usersettings.ApplicationDeploymentFilter
-import no.skatteetaten.aurora.gobo.resolvers.usersettings.UserSettings
+import no.skatteetaten.aurora.gobo.graphql.usersettings.ApplicationDeploymentFilter
+import no.skatteetaten.aurora.gobo.graphql.usersettings.UserSettingsInput
 import no.skatteetaten.aurora.gobo.testObjectMapper
-import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.execute
+import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.executeBlocking
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.jupiter.api.Test
 import org.springframework.http.HttpMethod
@@ -30,7 +30,7 @@ class UserSettingsServiceTest {
 
     @Test
     fun `Get application deployment filters`() {
-        val request = server.execute(response) {
+        val request = server.executeBlocking(response) {
             val response = applicationDeploymentFilterService.getUserSettings("token")
             assertThat(response.applicationDeploymentFilters.size).isEqualTo(1)
             assertThat(response.applicationDeploymentFilters[0]).isEqualTo(filter)
@@ -42,7 +42,7 @@ class UserSettingsServiceTest {
 
     @Test
     fun `Get application deployment filters when no filters are present`() {
-        val request = server.execute(Response(items = emptyList<UserSettingsResource>())) {
+        val request = server.executeBlocking(Response(items = emptyList<UserSettingsResource>())) {
             val response = applicationDeploymentFilterService.getUserSettings("token")
             assertThat(response.applicationDeploymentFilters).isEmpty()
         }.first()
@@ -53,8 +53,8 @@ class UserSettingsServiceTest {
 
     @Test
     fun `Update user settings`() {
-        val userSettings = UserSettings(listOf(ApplicationDeploymentFilter(filter)))
-        val request = server.execute(response) {
+        val userSettings = UserSettingsInput(listOf(ApplicationDeploymentFilter(filter)))
+        val request = server.executeBlocking(response) {
             applicationDeploymentFilterService.updateUserSettings("token", userSettings)
         }.first()
 
@@ -64,8 +64,8 @@ class UserSettingsServiceTest {
 
     @Test
     fun `Remove application deployment filters`() {
-        val userSettings = UserSettings(emptyList())
-        val request = server.execute(Response(items = listOf(UserSettingsResource(emptyList())))) {
+        val userSettings = UserSettingsInput(emptyList())
+        val request = server.executeBlocking(Response(items = listOf(UserSettingsResource(emptyList())))) {
             applicationDeploymentFilterService.updateUserSettings("token", userSettings)
         }.first()
 

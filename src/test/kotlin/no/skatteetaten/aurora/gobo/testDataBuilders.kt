@@ -4,7 +4,6 @@ import io.fabric8.kubernetes.api.model.ObjectMeta
 import io.fabric8.openshift.api.model.User
 import java.time.Instant
 import no.skatteetaten.aurora.gobo.integration.boober.ApplicationDeploymentFilterResource
-import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileResource
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileType
 import no.skatteetaten.aurora.gobo.integration.cantus.AuroraResponse
 import no.skatteetaten.aurora.gobo.integration.cantus.CantusFailure
@@ -15,7 +14,6 @@ import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseInstanceResource
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseMetadataResource
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseSchemaResource
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseUserResource
-import no.skatteetaten.aurora.gobo.integration.dbh.JdbcUser
 import no.skatteetaten.aurora.gobo.integration.dbh.RestorableDatabaseSchemaResource
 import no.skatteetaten.aurora.gobo.integration.dbh.SchemaCreationRequest
 import no.skatteetaten.aurora.gobo.integration.dbh.SchemaDeletionRequest
@@ -38,25 +36,29 @@ import no.skatteetaten.aurora.gobo.integration.mokey.PodResourceResource
 import no.skatteetaten.aurora.gobo.integration.mokey.StatusResource
 import no.skatteetaten.aurora.gobo.integration.mokey.VersionResource
 import no.skatteetaten.aurora.gobo.integration.mokey.addAll
-import no.skatteetaten.aurora.gobo.integration.skap.Acl
-import no.skatteetaten.aurora.gobo.integration.skap.Certificate
 import no.skatteetaten.aurora.gobo.integration.skap.SkapJob
 import no.skatteetaten.aurora.gobo.integration.skap.WebsealStateResource
 import no.skatteetaten.aurora.gobo.integration.unclematt.ProbeResult
 import no.skatteetaten.aurora.gobo.integration.unclematt.ProbeStatus
 import no.skatteetaten.aurora.gobo.integration.unclematt.Result
-import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.ApplicationDeployment
-import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.Status
-import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.Version
-import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageRepository
-import no.skatteetaten.aurora.gobo.resolvers.imagerepository.ImageTag
+import no.skatteetaten.aurora.gobo.graphql.affiliation.Affiliation
+import no.skatteetaten.aurora.gobo.graphql.application.Certificate
+import no.skatteetaten.aurora.gobo.graphql.webseal.Acl
+import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.ApplicationDeployment
+import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.Status
+import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.Version
+import no.skatteetaten.aurora.gobo.graphql.auroraconfig.AuroraConfigFileResource
+import no.skatteetaten.aurora.gobo.graphql.database.JdbcUser
+import no.skatteetaten.aurora.gobo.graphql.imagerepository.ImageRepository
+import no.skatteetaten.aurora.gobo.graphql.imagerepository.ImageTag
+import no.skatteetaten.aurora.gobo.graphql.namespace.Namespace
 import org.intellij.lang.annotations.Language
 import org.springframework.http.HttpStatus
 import uk.q3c.rest.hal.HalLink
 import uk.q3c.rest.hal.HalResource
 import uk.q3c.rest.hal.Links
 
-val defaultInstant = Instant.parse("2018-01-01T00:00:01Z")
+val defaultInstant: Instant = Instant.parse("2018-01-01T00:00:01Z")
 
 @Language("JSON")
 val linksResponseJson: String =
@@ -164,9 +166,9 @@ data class ApplicationDeploymentBuilder(
         ApplicationDeployment(
             id = "id",
             name = "name",
-            affiliationId = affiliation,
+            affiliation = Affiliation(affiliation),
             environment = "environment",
-            namespaceId = "namespaceId",
+            namespace = Namespace("namespaceId", Affiliation(affiliation)),
             status = Status("code", "comment", listOf(), listOf()),
             version = Version(ImageTag(ImageRepository("", "", ""), "deployTag"), "auroraVersion", "releaseTo"),
             dockerImageRepo = "dockerImageRepo",
@@ -410,7 +412,10 @@ data class SchemaCreationRequestBuilder(
 
     fun build() =
         SchemaCreationRequest(
-            labels, JdbcUser(username = "username", password = "pass", jdbcUrl = "url"), "ORACLE", null
+            labels,
+            JdbcUser(username = "username", password = "pass", jdbcUrl = "url"),
+            "ORACLE",
+            null
         )
 }
 
@@ -435,7 +440,7 @@ data class AuroraResponseBuilder(val status: Int, val url: String) {
     val statusCode: HttpStatus
         get() = HttpStatus.valueOf(status)
 
-    fun build(): AuroraResponse<HalResource> {
+    fun <T : HalResource> build(): AuroraResponse<T> {
         val statusMessage = when {
             statusCode.is4xxClientError -> {
                 when (statusCode.value()) {
@@ -481,7 +486,7 @@ data class CertificateResourceBuilder(val id: String = "1", val dn: String = ".a
     )
 }
 
-data class WebsealStateResourceBuilder(val namespace: String = "test") {
+data class WebsealStateResourceBuilder(val namespace: String = "namespace") {
 
     fun build() = WebsealStateResource(
         acl = Acl("acl-name", true, true, emptyList()),

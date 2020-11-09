@@ -15,8 +15,18 @@ spring:
         max-in-memory-size: -1 # unlimited
     zipkin:
         enabled: false
-    sleuth:
-        enabled: false
+
+graphql:
+    packages: "no.skatteetaten.aurora.gobo.graphql"
+
+aurora:
+    webflux:
+        header:
+            filter:
+                enabled: true
+            webclient:
+                interceptor:
+                    enabled: true
 
 management:
     endpoints:
@@ -73,17 +83,8 @@ integrations:
             auth: Basic
             readOnly: false
 
-gobo:
-    graphql:
-        tracing-enabled: false
-
-aurora.webflux.header.webclient.interceptor.enabled: true
-aurora.mvc.header.filter.enabled: false
-aurora.webflux.header.filter.enabled: false
-
 logging:
     level:
-        no.skatteetaten: INFO
         org:
             jboss: WARN
             hibernate: WARN
@@ -95,11 +96,13 @@ spring:
 
 integrations:
     boober:
-        url: http://boober.aurora.utv.paas.skead.no
+        url: http://boober-aurora.utv.paas.skead.no
     mokey:
         url: http://mokey-aurora.utv.paas.skead.no
     cantus:
-        url: http://cantus.aurora.utv.paas.skead.no
+        url: http://cantus-aurora.utv.paas.skead.no
+    skap:
+        url: http://localhost:9090
     docker:
         cluster:
             url: docker-registry.default.svc:5000

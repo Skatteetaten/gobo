@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import java.net.URLDecoder
 import java.nio.charset.Charset
-import no.skatteetaten.aurora.gobo.resolvers.applicationdeploymentdetails.Link
+import no.skatteetaten.aurora.gobo.graphql.applicationdeploymentdetails.Link
 import org.springframework.web.util.UriUtils
 import uk.q3c.rest.hal.HalLink
 import uk.q3c.rest.hal.HalResource
@@ -23,7 +23,7 @@ fun HalResource.addAll(links: Links) =
 
 fun HalResource.linkHref(propertyName: String) =
     link(propertyName)?.href?.let {
-        URLDecoder.decode(it, Charset.defaultCharset())
+        URLDecoder.decode(it, Charset.defaultCharset().name())
     } ?: throw IllegalArgumentException("Link with name $propertyName not found")
 
 fun HalResource.linkHrefs(vararg propertyNames: String) =

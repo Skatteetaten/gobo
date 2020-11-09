@@ -52,11 +52,17 @@ integrations:
 aurora:
     token:
         value: abc123
+    webflux:
+        header:
+            webclient:
+                interceptor:
+                    enabled: true
 
 openshift:
     cluster: http://localhost
 
-gobo.stub.repository: releases # snapshots
+graphql:
+    packages: "no.skatteetaten.aurora.gobo.graphql"
 
 stubrunner:
   stubs-mode: remote

@@ -1,0 +1,13 @@
+{
+  affiliations {
+    totalCount
+    edges {
+      node {
+        name
+        websealStates {
+          name
+        }
+      }
+    }
+  }
+}

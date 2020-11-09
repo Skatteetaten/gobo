@@ -1,14 +1,6 @@
 package no.skatteetaten.aurora.gobo.integration.skap
 
-import java.time.Instant
-
-data class Certificate(
-    val id: String,
-    val dn: String,
-    val issuedDate: Instant?,
-    val revokedDate: Instant?,
-    val expiresDate: Instant?
-)
+import no.skatteetaten.aurora.gobo.graphql.webseal.Acl
 
 data class WebsealStateResource(
     val acl: Acl,
@@ -26,11 +18,4 @@ data class SkapJob(
     val status: String,
     val updated: String,
     val errorMessage: String? = null
-)
-
-data class Acl(
-    val aclName: String,
-    val anyOther: Boolean,
-    val `open`: Boolean,
-    val roles: List<String>
 )

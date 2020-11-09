@@ -2,6 +2,7 @@ package no.skatteetaten.aurora.gobo.integration.dbh
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
+import no.skatteetaten.aurora.gobo.graphql.database.JdbcUser
 import java.time.Instant
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -88,7 +89,10 @@ data class SchemaCreationRequest(
     val instanceName: String? = null
 ) {
     private val requiredLabels = listOf(
-        "affiliation", "name", "environment", "application"
+        "affiliation",
+        "name",
+        "environment",
+        "application"
     )
 
     fun findMissingOrEmptyLabels(): List<String> = requiredLabels.filter { labels[it]?.isEmpty() ?: true }
@@ -109,12 +113,6 @@ data class SchemaDeletionRequest(
 data class SchemaRestorationRequest(
     val id: String,
     val active: Boolean
-)
-
-data class JdbcUser(
-    val username: String,
-    val password: String,
-    val jdbcUrl: String
 )
 
 data class DbhResponse<T>(val status: String, val items: List<T>, val totalCount: Int = items.size) {

@@ -2,11 +2,10 @@
 
 package no.skatteetaten.aurora.gobo
 
-import no.skatteetaten.aurora.webflux.config.WebFluxStarterApplicationConfig
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 
-@SpringBootApplication(exclude = [WebFluxStarterApplicationConfig::class])
+@SpringBootApplication
 class Gobo
 
 fun main(args: Array<String>) {

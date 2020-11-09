@@ -1,25 +1,18 @@
 package no.skatteetaten.aurora.gobo.integration.boober
 
-import no.skatteetaten.aurora.gobo.resolvers.auroraapimetadata.ClientConfig
-import no.skatteetaten.aurora.gobo.resolvers.blockNonNullAndHandleError
+import no.skatteetaten.aurora.gobo.graphql.auroraapimetadata.ClientConfig
 import org.springframework.stereotype.Service
-import reactor.kotlin.core.publisher.toMono
+
+data class ConfigNames(val names: List<String>)
 
 @Service
 class AuroraApiMetadataService(private val booberWebClient: BooberWebClient) {
 
-    fun getClientConfig(): ClientConfig {
-        return booberWebClient
-            .anonymousGet<ClientConfig>("/v1/clientconfig")
-            .toMono()
-            .blockNonNullAndHandleError()
-    }
+    suspend fun getClientConfig() =
+        booberWebClient.get<ClientConfig>("/v1/clientconfig").response()
 
-    fun getConfigNames(): List<String> {
-        return booberWebClient
-            .anonymousGet<String>("/v1/auroraconfignames")
-            .collectList()
-            .toMono()
-            .blockNonNullAndHandleError()
-    }
+    suspend fun getConfigNames() =
+        booberWebClient.get<String>("/v1/auroraconfignames").responses().let {
+            ConfigNames(it)
+        }
 }

@@ -1,10 +1,13 @@
 package no.skatteetaten.aurora.gobo.integration.boober
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import java.net.URI
+import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
+import java.net.URI
 import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import org.springframework.beans.factory.annotation.Value
@@ -13,10 +16,31 @@ import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClientResponseException
-import org.springframework.web.reactive.function.client.bodyToMono
-import reactor.core.publisher.Flux
-import reactor.core.publisher.Mono
-import reactor.kotlin.core.publisher.toFlux
+import org.springframework.web.reactive.function.client.awaitBody
+
+val objectMapper: ObjectMapper = jacksonObjectMapper().registerModules(JavaTimeModule())
+
+inline fun <reified T : Any> Response<T>.responses(): List<T> = when {
+    !this.success -> throw SourceSystemException(
+        message = this.message,
+        errorMessage = this.items.toString(),
+        sourceSystem = "boober",
+        extensions = mapOf("message" to this.message, "errors" to this.items)
+    )
+    this.count == 0 -> emptyList()
+    else -> this.items.map { item ->
+        kotlin.runCatching {
+            objectMapper.convertValue(item, T::class.java)
+        }.onFailure {
+            KotlinLogging.logger { }.error(it) { "Unable to parse response items from boober: $item" }
+            throw it
+        }.getOrThrow()
+    }
+}
+
+inline fun <reified T : Any> Response<T>.response(): T = this.responses().first()
+
+inline fun <reified T : Any> Response<T>.responseOrNull(): T? = this.responses().ifEmpty { null }?.first()
 
 @Service
 class BooberWebClient(
@@ -25,85 +49,20 @@ class BooberWebClient(
     val objectMapper: ObjectMapper
 ) {
 
-    final inline fun <reified T : Any> anonymousGet(url: String, params: Map<String, String> = emptyMap()): Flux<T> =
-        execute {
-            it.get().uri(getBooberUrl(url), params)
-        }
-
-    final inline fun <reified T : Any> get(
-        token: String,
+    fun WebClient.RequestHeadersUriSpec<*>.booberUrl(
         url: String,
         params: Map<String, String> = emptyMap()
-    ): Flux<T> =
-        execute(token) {
-            it.get().uri(getBooberUrl(url), params)
-        }
+    ): WebClient.RequestHeadersSpec<*> =
+        this.uri(getBooberUrl(url), params)
 
-    final inline fun <reified T : Any> patch(
-        token: String,
-        url: String,
-        params: Map<String, String> = emptyMap(),
-        body: Any
-    ): Flux<T> =
-        execute(token) {
-            it.patch().uri(getBooberUrl(url), params).body(BodyInserters.fromValue(body))
-        }
+    fun WebClient.RequestBodyUriSpec.booberUrl(url: String, params: Map<String, String> = emptyMap()) =
+        this.uri(getBooberUrl(url), params)
 
-    final inline fun <reified T : Any> put(
-        token: String,
-        url: String,
-        params: Map<String, String> = emptyMap(),
-        body: Any
-    ): Flux<T> =
-        execute(token) {
-            it.put().uri(getBooberUrl(url), params).body(BodyInserters.fromValue(body))
-        }
-
-    final inline fun <reified T : Any> post(
-        token: String,
-        url: String,
-        params: List<String> = emptyList(),
-        body: Any
-    ): Flux<T> =
-        execute(token) {
-            it.post().uri(getBooberUrl(url), params).body(BodyInserters.fromValue(body))
-        }
-
-    fun getBooberUrl(link: String): String {
-        if (booberUrl.isNullOrEmpty()) {
-            return link
-        }
-
-        if (link.startsWith("/")) {
-            return "$booberUrl$link"
-        }
-
-        val booberUri = URI(booberUrl)
-        val linkUri = URI(link)
-        return URI(
-            booberUri.scheme,
-            linkUri.userInfo,
-            booberUri.host,
-            booberUri.port,
-            linkUri.path,
-            linkUri.query,
-            linkUri.fragment
-        ).toString()
-    }
-
-    final inline fun <reified T : Any> execute(
-        fn: (WebClient) -> WebClient.RequestHeadersSpec<*>
-    ): Flux<T> {
-        return execute(null, fn)
-    }
-
-    // TODO: Is this the correct way to abstract this?
-    final inline fun <reified T : Any> executeMono(
+    final suspend inline fun <reified T : Any> WebClient.RequestHeadersSpec<*>.execute(
         token: String? = null,
-        etag: String? = null,
-        fn: (WebClient) -> WebClient.RequestHeadersSpec<*>
-    ): Mono<T> {
-        return fn(webClient).let {
+        etag: String? = null
+    ): Response<T> {
+        return this.let {
             if (token != null) {
                 it.header(HttpHeaders.AUTHORIZATION, "Bearer $token")
             } else {
@@ -116,8 +75,63 @@ class BooberWebClient(
                 it
             }
         }.retrieve()
-            .bodyToMono<T>()
-            .onErrorMap { handleBooberHttpError(it) }
+            .awaitBody()
+    }
+
+    final suspend inline fun <reified T : Any> get(
+        url: String,
+        token: String? = null,
+        etag: String? = null,
+        params: Map<String, String> = emptyMap()
+    ) =
+        webClient.get().booberUrl(url, params).execute<T>(token = token, etag = etag)
+
+    final suspend inline fun <reified T : Any> patch(
+        url: String,
+        body: Any,
+        token: String? = null,
+        params: Map<String, String> = emptyMap()
+    ) =
+        webClient.patch().booberUrl(url, params).body(BodyInserters.fromValue(body)).execute<T>(token)
+
+    final suspend inline fun <reified T : Any> put(
+        url: String,
+        body: Any,
+        token: String? = null,
+        etag: String? = null,
+        params: Map<String, String> = emptyMap()
+    ) =
+        webClient.put().booberUrl(url, params).body(BodyInserters.fromValue(body))
+            .execute<T>(token = token, etag = etag)
+
+    final suspend inline fun <reified T : Any> post(
+        url: String,
+        body: Any,
+        token: String? = null,
+        params: Map<String, String> = emptyMap()
+    ) =
+        webClient.post().booberUrl(url, params).body(BodyInserters.fromValue(body)).execute<T>(token)
+
+    fun getBooberUrl(link: String): String {
+        if (booberUrl.isNullOrEmpty()) {
+            return link
+        }
+
+        if (link.startsWith("/")) {
+            return "$booberUrl$link"
+        }
+
+        val booberUri = URI(booberUrl!!)
+        val linkUri = URI(link)
+        return URI(
+            booberUri.scheme,
+            linkUri.userInfo,
+            booberUri.host,
+            booberUri.port,
+            linkUri.path,
+            linkUri.query,
+            linkUri.fragment
+        ).toString()
     }
 
     fun handleBooberHttpError(it: Throwable): SourceSystemException {
@@ -138,22 +152,6 @@ class BooberWebClient(
                 code = "",
                 sourceSystem = "boober"
             )
-        }
-    }
-
-    final inline fun <reified T : Any> execute(
-        token: String? = null,
-        fn: (WebClient) -> WebClient.RequestHeadersSpec<*>
-    ): Flux<T> {
-        return executeMono<Response<Any>>(token, null, fn).flatMapMany { r ->
-            if (!r.success) SourceSystemException(
-                message = r.message,
-                errorMessage = r.items.toString(),
-                sourceSystem = "boober",
-                extensions = mapOf("message" to r.message, "errors" to r.items)
-            ).toFlux()
-            else if (r.count == 0) Flux.empty()
-            else r.items.map { item -> objectMapper.convertValue(item, T::class.java) }.toFlux()
         }
     }
 }

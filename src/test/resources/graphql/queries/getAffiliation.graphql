@@ -1,0 +1,10 @@
+query getAffiliation($name: String!) {
+  affiliations(name: $name) {
+    totalCount
+    edges {
+      node {
+        name
+      }
+    }
+  }
+}

@@ -5,10 +5,10 @@ import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
 import assertk.assertions.isNull
-import no.skatteetaten.aurora.gobo.resolvers.GoboCursor
-import no.skatteetaten.aurora.gobo.resolvers.GoboEdge
-import no.skatteetaten.aurora.gobo.resolvers.GoboPagedEdges
-import no.skatteetaten.aurora.gobo.resolvers.pageEdges
+import no.skatteetaten.aurora.gobo.graphql.GoboCursor
+import no.skatteetaten.aurora.gobo.graphql.GoboEdge
+import no.skatteetaten.aurora.gobo.graphql.GoboPagedEdges
+import no.skatteetaten.aurora.gobo.graphql.pageEdges
 import org.junit.jupiter.api.Test
 
 class PagingTest {
@@ -90,8 +90,8 @@ class PagingTest {
             assertThat(edges).isEqualTo(expectedEdges)
             assertThat(pageInfo.hasPreviousPage).isEqualTo(hasPrevPage)
             assertThat(pageInfo.hasNextPage).isEqualTo(hasNexPage)
-            assertThat(pageInfo.startCursor?.value).isEqualTo(expectedEdges.first().cursor.value)
-            assertThat(pageInfo.endCursor?.value).isEqualTo(expectedEdges.last().cursor.value)
+            assertThat(pageInfo.startCursor).isEqualTo(expectedEdges.first().cursor.value)
+            assertThat(pageInfo.endCursor).isEqualTo(expectedEdges.last().cursor.value)
         }
     }
 }

@@ -7,78 +7,73 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.fge.jackson.jsonpointer.JsonPointer
 import com.github.fge.jsonpatch.AddOperation
 import com.github.fge.jsonpatch.JsonPatch
-import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentDetailsResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentRefResource
-import no.skatteetaten.aurora.gobo.resolvers.auroraconfig.AuroraConfig
-import no.skatteetaten.aurora.gobo.resolvers.blockNonNullAndHandleError
+import no.skatteetaten.aurora.gobo.graphql.auroraconfig.AuroraConfig
+import no.skatteetaten.aurora.gobo.graphql.auroraconfig.AuroraConfigFileResource
 import org.springframework.stereotype.Service
-import org.springframework.web.reactive.function.BodyInserters
-import reactor.core.publisher.Mono
-import reactor.kotlin.core.publisher.toMono
-import java.time.Duration
 
 @Service
 class AuroraConfigService(
     private val booberWebClient: BooberWebClient
 ) {
 
-    fun getAuroraConfig(token: String, auroraConfig: String, reference: String): AuroraConfig {
+    suspend fun getAuroraConfig(token: String, auroraConfig: String, reference: String): AuroraConfig {
         return booberWebClient
             .get<AuroraConfig>(
-                token,
-                "/v2/auroraconfig/{auroraConfig}?reference={reference}",
-                mapOf("auroraConfig" to auroraConfig, "reference" to reference)
-            )
-            .toMono()
-            .blockNonNullWithTimeout()
+                url = "/v2/auroraconfig/{auroraConfig}?reference={reference}",
+                token = token,
+                params = mapOf("auroraConfig" to auroraConfig, "reference" to reference)
+            ).response()
     }
 
-    fun updateAuroraConfigFile(
+    suspend fun updateAuroraConfigFile(
         token: String,
         auroraConfig: String,
         reference: String,
         fileName: String,
         content: String,
         oldHash: String
-    ): Response<AuroraConfigFileResource> {
+    ): AuroraConfigFileResource {
         val url = "/v2/auroraconfig/{auroraConfig}?reference={reference}"
         val body = mapOf("content" to content, "fileName" to fileName)
 
-        return booberWebClient.executeMono<Response<AuroraConfigFileResource>>(token, etag = oldHash) {
-            it.put()
-                .uri(booberWebClient.getBooberUrl(url), mapOf("auroraConfig" to auroraConfig, "reference" to reference))
-                .body(BodyInserters.fromValue(body))
-        }.blockNonNullWithTimeout()
+        return booberWebClient.put<AuroraConfigFileResource>(
+            url = url,
+            params = mapOf("auroraConfig" to auroraConfig, "reference" to reference),
+            body = body,
+            token = token,
+            etag = oldHash
+        ).response()
     }
 
-    fun addAuroraConfigFile(
+    suspend fun addAuroraConfigFile(
         token: String,
         auroraConfig: String,
         reference: String,
         fileName: String,
         content: String
-    ): Response<AuroraConfigFileResource> {
+    ): AuroraConfigFileResource {
         val url = "/v2/auroraconfig/{auroraConfig}?reference={reference}"
         val body = mapOf("content" to content, "fileName" to fileName)
-
-        return booberWebClient.executeMono<Response<AuroraConfigFileResource>>(token) {
-            it.put()
-                .uri(booberWebClient.getBooberUrl(url), mapOf("auroraConfig" to auroraConfig, "reference" to reference))
-                .body(BodyInserters.fromValue(body))
-        }.blockNonNullWithTimeout()
+        return booberWebClient.put<AuroraConfigFileResource>(
+            url = url,
+            params = mapOf("auroraConfig" to auroraConfig, "reference" to reference),
+            body = body,
+            token = token
+        ).response()
     }
 
-    fun getApplicationFile(token: String, it: String): String {
+    suspend fun getApplicationFile(token: String, it: String): String {
         return booberWebClient
-            .get<AuroraConfigFileResource>(token, it)
+            .get<AuroraConfigFileResource>(token = token, url = it)
+            .responses()
             .filter { it.type == AuroraConfigFileType.APP }
             .map { it.name }
-            .toMono()
-            .blockNonNullWithTimeout()
+            .first()
     }
 
-    fun patch(
+    suspend fun patch(
         token: String,
         version: String,
         auroraConfigFile: String,
@@ -88,8 +83,7 @@ class AuroraConfigService(
             token = token,
             url = auroraConfigFile.replace("{fileName}", applicationFile), // TODO placeholder cannot contain slash
             body = createVersionPatch(version)
-        ).toMono()
-            .blockNonNullWithTimeout()
+        ).response()
     }
 
     private fun createVersionPatch(version: String): Map<String, String> {
@@ -97,18 +91,15 @@ class AuroraConfigService(
         return mapOf("content" to jacksonObjectMapper().writeValueAsString(jsonPatch))
     }
 
-    fun redeploy(
+    suspend fun redeploy(
         token: String,
         details: ApplicationDeploymentDetailsResource,
         applyLink: String
     ): RedeployResponse {
         val payload = ApplyPayload(listOf(details.applicationDeploymentCommand.applicationDeploymentRef))
-        val json = booberWebClient.put<JsonNode>(token, applyLink, body = payload).toMono().blockNonNullWithTimeout()
+        val json = booberWebClient.put<JsonNode>(url = applyLink, token = token, body = payload).response()
         return RedeployResponse(json)
     }
-
-    private fun <T> Mono<T>.blockNonNullWithTimeout() =
-        this.blockNonNullAndHandleError(Duration.ofSeconds(30), "boober")
 }
 
 data class RedeployResponse(private val json: JsonNode) {

@@ -3,35 +3,29 @@ package no.skatteetaten.aurora.gobo.integration.boober
 import com.fasterxml.jackson.databind.JsonNode
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.integration.Response
-import no.skatteetaten.aurora.gobo.resolvers.applicationdeployment.ApplicationDeploymentRef
-import no.skatteetaten.aurora.gobo.resolvers.auroraconfig.ApplicationDeploymentSpec
-import no.skatteetaten.aurora.gobo.resolvers.blockNonNullAndHandleError
+import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.ApplicationDeploymentRef
+import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.DeleteApplicationDeploymentInput
+import no.skatteetaten.aurora.gobo.graphql.auroraconfig.ApplicationDeploymentSpec
 import org.springframework.stereotype.Service
-import org.springframework.web.reactive.function.BodyInserters
-import reactor.core.publisher.Mono
-import reactor.kotlin.core.publisher.toMono
-import java.time.Duration
 
 private val logger = KotlinLogging.logger { }
 
 @Service
 class ApplicationDeploymentService(private val booberWebClient: BooberWebClient) {
 
-    fun deleteApplicationDeployment(
+    suspend fun deleteApplicationDeployment(
         token: String,
         input: DeleteApplicationDeploymentInput
-    ): Boolean {
+    ) {
         val response = booberWebClient.post<JsonNode>(
             url = "/v1/applicationdeployment/delete",
             token = token,
             body = mapOf("applicationRefs" to listOf(input))
-        ).toMono().blockNonNullWithTimeout()
+        ).responses()
         logger.debug { "Response from boober delete application deployment: $response" }
-
-        return true
     }
 
-    fun deploy(
+    suspend fun deploy(
         token: String,
         auroraConfig: String,
         reference: String,
@@ -39,15 +33,12 @@ class ApplicationDeploymentService(private val booberWebClient: BooberWebClient)
     ): Response<DeployResource> {
 
         val url = "/v1/apply/{auroraConfig}?reference={reference}"
-        return booberWebClient.executeMono<Response<DeployResource>>(token) {
-            it.put().uri(booberWebClient.getBooberUrl(url), mapOf("auroraConfig" to auroraConfig, "reference" to reference))
-                .body(BodyInserters.fromValue(payload))
-        }.blockNonNullWithTimeout()
+        return booberWebClient.put(url = url, params = mapOf("auroraConfig" to auroraConfig, "reference" to reference), body = payload)
     }
 
     // TODO this should support  a list of applicationSpecCommands that also takes in responseType and Defaults.
     // TODO Should we move the default/formatting code here instead of in boober?
-    fun getSpec(
+    suspend fun getSpec(
         token: String,
         auroraConfigName: String,
         auroraConfigReference: String,
@@ -60,19 +51,11 @@ class ApplicationDeploymentService(private val booberWebClient: BooberWebClient)
         ) + "&reference={auroraConfigReference}"
 
         val url = "/v1/auroradeployspec/{auroraConfig}?$requestParam"
-
-        val response = booberWebClient.executeMono<Response<JsonNode>>(token) {
-            it.get().uri(booberWebClient.getBooberUrl(url), auroraConfigName, auroraConfigReference)
-        }.blockNonNullWithTimeout()
-
-        return response.items.map { ApplicationDeploymentSpec(it) }
+        return booberWebClient.get<JsonNode>(url = url, params = mapOf("auroraConfig" to auroraConfigName, "auroraConfigReference" to auroraConfigReference)).responses().map {
+            ApplicationDeploymentSpec(it)
+        }
     }
-
-    private fun <T> Mono<T>.blockNonNullWithTimeout() =
-        this.blockNonNullAndHandleError(Duration.ofSeconds(30), "boober")
 }
-
-data class DeleteApplicationDeploymentInput(val namespace: String, val name: String)
 
 data class DeployResource(
     val auroraConfigRef: AuroraConfigRefResource,

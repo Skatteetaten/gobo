@@ -6,8 +6,6 @@ import io.netty.handler.ssl.util.InsecureTrustManagerFactory
 import io.netty.handler.timeout.ReadTimeoutHandler
 import io.netty.handler.timeout.WriteTimeoutHandler
 import mu.KotlinLogging
-import no.skatteetaten.aurora.filter.logging.AuroraHeaderFilter
-import no.skatteetaten.aurora.filter.logging.RequestKorrelasjon
 import no.skatteetaten.aurora.gobo.integration.HEADER_AURORA_TOKEN
 import no.skatteetaten.aurora.gobo.security.SharedSecretReader
 import org.springframework.beans.factory.annotation.Qualifier
@@ -16,11 +14,9 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.context.annotation.Primary
 import org.springframework.core.Ordered
 import org.springframework.core.annotation.Order
 import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpHeaders.USER_AGENT
 import org.springframework.http.MediaType
 import org.springframework.http.client.reactive.ReactorClientHttpConnector
 import org.springframework.stereotype.Component
@@ -29,11 +25,8 @@ import org.springframework.web.reactive.function.client.WebClient
 import reactor.kotlin.core.publisher.toMono
 import reactor.netty.http.client.HttpClient
 import reactor.netty.tcp.SslProvider
-import java.util.UUID
 import java.util.concurrent.TimeUnit
 import kotlin.math.min
-
-val HEADER_KLIENTID = "KlientID"
 
 enum class ServiceTypes {
     MOKEY, BOOBER, UNCLEMATT, CANTUS, DBH, SKAP
@@ -66,7 +59,6 @@ class ApplicationConfig(
 ) {
 
     @Bean
-    @Primary
     @TargetService(ServiceTypes.MOKEY)
     fun webClientMokey(@Value("\${integrations.mokey.url}") mokeyUrl: String, builder: WebClient.Builder): WebClient {
         logger.info("Configuring Mokey WebClient with baseUrl={}", mokeyUrl)
@@ -90,7 +82,6 @@ class ApplicationConfig(
         builder: WebClient.Builder
     ): WebClient {
         logger.info("Configuring Cantus WebClient with base Url={}", cantusUrl)
-
         return builder.init().baseUrl(cantusUrl).build()
     }
 
@@ -113,12 +104,6 @@ class ApplicationConfig(
 
     fun WebClient.Builder.init() =
         this.defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .defaultHeader(HEADER_KLIENTID, applicationName)
-            .defaultHeader(USER_AGENT, applicationName)
-            .defaultHeader(
-                AuroraHeaderFilter.KORRELASJONS_ID,
-                RequestKorrelasjon.getId() ?: UUID.randomUUID().toString()
-            )
             .filter(
                 ExchangeFilterFunction.ofRequestProcessor {
                     val bearer = it.headers()[HttpHeaders.AUTHORIZATION]?.firstOrNull()?.let { token ->

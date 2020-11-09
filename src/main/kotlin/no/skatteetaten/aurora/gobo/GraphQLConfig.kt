@@ -1,41 +1,48 @@
 package no.skatteetaten.aurora.gobo
 
-import com.coxautodev.graphql.tools.SchemaParserOptions
-import com.oembedler.moon.graphql.boot.GraphQLWebAutoConfiguration.MUTATION_EXECUTION_STRATEGY
-import com.oembedler.moon.graphql.boot.GraphQLWebAutoConfiguration.QUERY_EXECUTION_STRATEGY
-import com.oembedler.moon.graphql.boot.GraphQLWebAutoConfiguration.SUBSCRIPTION_EXECUTION_STRATEGY
-import graphql.execution.AsyncExecutionStrategy
-import graphql.execution.ExecutionStrategy
-import graphql.execution.SubscriptionExecutionStrategy
-import graphql.execution.instrumentation.Instrumentation
-import graphql.execution.instrumentation.tracing.TracingInstrumentation
-import no.skatteetaten.aurora.gobo.resolvers.errorhandling.GoboDataFetcherExceptionHandler
-import org.dataloader.Try
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import com.expediagroup.graphql.hooks.SchemaGeneratorHooks
+import com.fasterxml.jackson.databind.JsonNode
+import graphql.schema.GraphQLScalarType
+import graphql.schema.GraphQLType
+import no.skatteetaten.aurora.gobo.graphql.scalars.InstantScalar
+import no.skatteetaten.aurora.gobo.graphql.scalars.JsonNodeScalar
+import no.skatteetaten.aurora.gobo.graphql.scalars.UrlScalar
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import java.net.URL
+import java.time.Instant
+import kotlin.reflect.KType
 
 @Configuration
 class GraphQLConfig {
-
     @Bean
-    fun schemaParserOptions(): SchemaParserOptions =
-        SchemaParserOptions
-            .newOptions()
-            .genericWrappers(listOf(SchemaParserOptions.GenericWrapper(Try::class.java, 0)))
-            .build()
+    fun hooks() = GoboSchemaGeneratorHooks()
+}
 
-    @Bean
-    fun executionStrategies(): Map<String, ExecutionStrategy> {
-        val exceptionHandler = GoboDataFetcherExceptionHandler()
-        return mapOf(
-            QUERY_EXECUTION_STRATEGY to AsyncExecutionStrategy(exceptionHandler),
-            MUTATION_EXECUTION_STRATEGY to AsyncExecutionStrategy(exceptionHandler),
-            SUBSCRIPTION_EXECUTION_STRATEGY to SubscriptionExecutionStrategy(exceptionHandler)
-        )
+class GoboSchemaGeneratorHooks : SchemaGeneratorHooks {
+
+    override fun willGenerateGraphQLType(type: KType): GraphQLType? = when (type.classifier) {
+        Instant::class -> instantType
+        URL::class -> urlType
+        JsonNode::class -> jsonNodeType
+        else -> null
     }
 
-    @Bean
-    @ConditionalOnProperty(name = ["gobo.graphql.tracing-enabled"], havingValue = "true", matchIfMissing = false)
-    fun tracingInstrumentation(): Instrumentation = TracingInstrumentation()
+    private val instantType = GraphQLScalarType.newScalar()
+        .name("Instant")
+        .description("A type representing java.time.Instant")
+        .coercing(InstantScalar)
+        .build()
+
+    private val jsonNodeType = GraphQLScalarType.newScalar()
+        .name("JsonNode")
+        .description("A type representing com.fasterxml.jackson.databind.JsonNode")
+        .coercing(JsonNodeScalar)
+        .build()
+
+    private val urlType = GraphQLScalarType.newScalar()
+        .name("URL")
+        .description("A type representing java.net.URL")
+        .coercing(UrlScalar)
+        .build()
 }

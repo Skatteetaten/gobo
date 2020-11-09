@@ -1,8 +1,0 @@
-type Permission {
-  paas: PermissionDetails!
-}
-
-type PermissionDetails {
- view : Boolean!
- admin: Boolean!
-}

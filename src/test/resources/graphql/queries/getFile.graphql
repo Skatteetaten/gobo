@@ -1,11 +1,11 @@
-query getFile($auroraConfig: String!, $fileName: String!, $applicationDeplymentRef: ApplicationDeploymentRef!) {
+query getFile($auroraConfig: String!, $fileNames: String!, $applicationDeploymentRefInput: ApplicationDeploymentRefInput!) {
     auroraConfig(name:$auroraConfig) {
         resolvedRef
-        files(fileName: [$fileName]){
+        files(fileNames: [$fileNames]){
             name
             contents
         }
-        applicationDeploymentSpec(applicationDeploymentRefs: [$applicationDeplymentRef]) {
+        applicationDeploymentSpec(applicationDeploymentRefs: [$applicationDeploymentRefInput]) {
             cluster
             environment
             version
