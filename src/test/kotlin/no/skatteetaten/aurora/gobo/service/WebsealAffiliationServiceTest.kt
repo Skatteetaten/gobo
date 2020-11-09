@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test
 class WebsealAffiliationServiceTest {
 
     private val applicationService = mockk<ApplicationService> {
-        coEvery { getApplications(any(), any()) } returns listOf(
+        coEvery { getApplications(any()) } returns listOf(
             ApplicationResourceBuilder(affiliation = "paas", namespace = "paas").build(),
             ApplicationResourceBuilder(affiliation = "aurora", namespace = "aurora").build()
         )

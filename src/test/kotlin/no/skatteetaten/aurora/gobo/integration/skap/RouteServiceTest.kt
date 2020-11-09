@@ -19,7 +19,8 @@ class RouteServiceTest {
         every { secret } returns "test-token"
     }
     private val jobService = RouteServiceReactive(
-        sharedSecretReader, WebClient.create(server.url("/").toString())
+        sharedSecretReader,
+        WebClient.create(server.url("/").toString())
     )
 
     @Test

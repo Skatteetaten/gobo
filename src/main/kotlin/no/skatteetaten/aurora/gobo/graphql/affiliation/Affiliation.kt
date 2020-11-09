@@ -14,9 +14,7 @@ data class Affiliation(val name: String) {
         return dfe.loadMany(name)
     }
 
-    suspend fun websealStates(dfe: DataFetchingEnvironment): List<WebsealState> {
-        return dfe.loadMany(name)
-    }
+    suspend fun websealStates(dfe: DataFetchingEnvironment): List<WebsealState> = dfe.loadMany(name)
 }
 
 data class AffiliationEdge(val node: Affiliation) : GoboEdge(node.name)

@@ -33,7 +33,8 @@ class ImageRegistryServiceTest {
 
     private val token: String = "token"
     private val imageRegistry = ImageRegistryService(
-        WebClient.create(url.toString()), jacksonObjectMapper()
+        WebClient.create(url.toString()),
+        jacksonObjectMapper()
     )
 
     @Disabled("webclient error handling")

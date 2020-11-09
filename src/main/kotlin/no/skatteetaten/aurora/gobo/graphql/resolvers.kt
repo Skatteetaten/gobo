@@ -38,7 +38,8 @@ fun <T> Mono<T>.handleError(sourceSystem: String?) =
             else -> throw SourceSystemException(
                 message = it.message
                     ?: "",
-                cause = it, errorMessage = "Error response"
+                cause = it,
+                errorMessage = "Error response"
             )
         }
     }

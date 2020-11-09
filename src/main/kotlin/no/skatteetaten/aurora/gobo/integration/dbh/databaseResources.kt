@@ -89,7 +89,10 @@ data class SchemaCreationRequest(
     val instanceName: String? = null
 ) {
     private val requiredLabels = listOf(
-        "affiliation", "name", "environment", "application"
+        "affiliation",
+        "name",
+        "environment",
+        "application"
     )
 
     fun findMissingOrEmptyLabels(): List<String> = requiredLabels.filter { labels[it]?.isEmpty() ?: true }
