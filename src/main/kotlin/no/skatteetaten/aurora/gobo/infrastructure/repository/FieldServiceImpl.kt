@@ -15,7 +15,21 @@ private val logger = KotlinLogging.logger {}
 internal class FieldServiceImpl(val fieldRepo: FieldRepository) : FieldService {
 
     override fun addField(field: FieldDto): FieldDto {
-        logger.debug("Adding field: {}", field)
         return fieldRepo.save(FieldEnity.fromDto(field)).toDto()
+    }
+    override fun getAllFields(): List<FieldDto> {
+        return fieldRepo.findAll().map { it.toDto() }
+    }
+
+    override fun insertOrUpdateField(field: FieldDto): FieldDto {
+        val foundField = fieldRepo.findById(field.name)
+        return if (!foundField.isEmpty)
+            fieldRepo.save(FieldEnity.fromDto(field, foundField.get())).toDto()
+        else
+            fieldRepo.save(FieldEnity.fromDto(field)).toDto()
+    }
+
+    override fun getFieldWithName(name: String): FieldDto? {
+        return (fieldRepo.findById(name)).get().toDto()
     }
 }

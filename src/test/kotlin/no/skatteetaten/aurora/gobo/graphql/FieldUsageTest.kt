@@ -7,13 +7,20 @@ import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
 import graphql.language.Field
 import graphql.language.SelectionSet
+import io.mockk.every
+import io.mockk.mockk
+import no.skatteetaten.aurora.gobo.domain.FieldService
+import no.skatteetaten.aurora.gobo.domain.model.FieldDto
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 class FieldUsageTest {
-    private val usage = FieldUsage()
+    private val fieldService: FieldService = mockk()
+    private val usage = FieldUsage(fieldService)
 
     @Test
     fun `Get field name from SelectionSet`() {
+
         val id = SelectionSet.newSelectionSet().selections(listOf(Field("id"), Field("id"))).build()
         val databaseSchema = SelectionSet.newSelectionSet().selections(listOf(Field("databaseSchema", id))).build()
         usage.update(databaseSchema)

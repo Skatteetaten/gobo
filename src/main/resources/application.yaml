@@ -81,12 +81,16 @@ integrations:
             readOnly: false
 
 gobo:
-    graphql:
-        tracing-enabled: false
+    updateFieldUsage:
+        fixedRate: 200
 
 aurora.webflux.header.webclient.interceptor.enabled: true
 aurora.mvc.header.filter.enabled: false
 aurora.webflux.header.filter.enabled: false
+
+
+
+
 
 logging:
     level:

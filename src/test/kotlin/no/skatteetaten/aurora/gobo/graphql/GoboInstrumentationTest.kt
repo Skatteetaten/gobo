@@ -5,16 +5,29 @@ import assertk.assertThat
 import assertk.assertions.contains
 import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
+import com.ninjasquad.springmockk.MockkBean
 import graphql.execution.ExecutionContextBuilder
 import graphql.execution.ExecutionId
 import graphql.language.Field
 import graphql.language.OperationDefinition
 import graphql.language.SelectionSet
+import no.skatteetaten.aurora.gobo.domain.FieldService
 import org.junit.Test
+import javax.annotation.PostConstruct
 
 class GoboInstrumentationTest {
 
-    private val goboInstrumentation = GoboInstrumentation()
+    @MockkBean
+    private lateinit var fieldService: FieldService
+
+//    private val usage = FieldUsage(fieldService)
+
+    private val goboInstrumentation = GoboInstrumentation(fieldService)
+
+    @PostConstruct
+    fun gurre() {
+        print("hei")
+    }
 
     @Test
     fun `Find field names from ExecutionContext`() {

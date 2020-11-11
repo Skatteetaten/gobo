@@ -8,14 +8,14 @@ import javax.persistence.Table
 @Entity
 @Table(name = "FIELD")
 internal data class FieldEnity(
-    @Id val name: String,
+    @Id val name: String? = null,
     val count: Int? = null
 ) {
 
-    private constructor() : this("", 0)
+    public constructor() : this("", 0)
 
     fun toDto(): FieldDto = FieldDto(
-        name = this.name,
+        name = this.name!!,
         count = this.count
     )
 
@@ -23,6 +23,11 @@ internal data class FieldEnity(
         fun fromDto(dto: FieldDto) = FieldEnity(
             name = dto.name,
             count = dto.count
+        )
+
+        fun fromDto(updateField: FieldDto, currentField: FieldEnity) = FieldEnity(
+            name = currentField.name!!,
+            count = updateField.count ?: currentField.count
         )
     }
 }

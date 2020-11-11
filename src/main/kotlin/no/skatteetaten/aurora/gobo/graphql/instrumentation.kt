@@ -7,12 +7,15 @@ import graphql.execution.instrumentation.parameters.InstrumentationExecutionPara
 import graphql.language.Field
 import graphql.language.SelectionSet
 import mu.KotlinLogging
+import no.skatteetaten.aurora.gobo.domain.FieldService
+import no.skatteetaten.aurora.gobo.domain.model.FieldDto
 import no.skatteetaten.aurora.webflux.AuroraRequestParser
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpRequest
 import org.springframework.stereotype.Component
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.LongAdder
+import javax.annotation.PostConstruct
 
 private val logger = KotlinLogging.logger { }
 
@@ -21,10 +24,15 @@ fun String.removeNewLines() =
         .replace(Regex("\\s+"), " ")
 
 @Component
-class GoboInstrumentation : SimpleInstrumentation() {
+class GoboInstrumentation(val fieldService: FieldService) : SimpleInstrumentation() {
 
-    val fieldUsage = FieldUsage()
+    val fieldUsage = FieldUsage(fieldService)
     val userUsage = UserUsage()
+
+    @PostConstruct
+    fun gurre() {
+        print("hei")
+    }
 
     override fun instrumentExecutionInput(
         executionInput: ExecutionInput?,
@@ -67,7 +75,8 @@ class GoboInstrumentation : SimpleInstrumentation() {
     }
 }
 
-class FieldUsage {
+class FieldUsage(val fieldService: FieldService) {
+
     private val _fields: ConcurrentHashMap<String, LongAdder> = ConcurrentHashMap()
     val fields: Map<String, LongAdder>
         get() = _fields.toSortedMap()
@@ -79,6 +88,12 @@ class FieldUsage {
                 _fields.computeIfAbsent(fullName) { LongAdder() }.increment()
                 update(it.selectionSet, fullName)
             }
+        }
+    }
+
+    fun insertOrUpdateFieldUsage() {
+        fields.map {
+            fieldService.insertOrUpdateField(FieldDto(it.key, it.value.toInt()))
         }
     }
 }
