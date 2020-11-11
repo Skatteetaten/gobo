@@ -1,6 +1,6 @@
 package no.skatteetaten.aurora.gobo.infrastructure
 
-import no.skatteetaten.aurora.gobo.domain.FieldRepository
+import no.skatteetaten.aurora.gobo.infrastructure.repository.FieldRepository
 import no.skatteetaten.aurora.gobo.infrastructure.entity.FieldEnity
 import org.springframework.boot.autoconfigure.domain.EntityScan
 import org.springframework.context.annotation.Configuration

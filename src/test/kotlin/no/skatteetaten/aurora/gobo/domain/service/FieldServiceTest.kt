@@ -1,7 +1,7 @@
 package no.skatteetaten.aurora.gobo.domain.service
 
 import no.skatteetaten.aurora.gobo.FieldConfiguration
-import no.skatteetaten.aurora.gobo.domain.FieldRepository
+import no.skatteetaten.aurora.gobo.infrastructure.repository.FieldRepository
 import no.skatteetaten.aurora.gobo.domain.FieldService
 import no.skatteetaten.aurora.gobo.domain.model.FieldDto
 import org.assertj.core.api.JUnitSoftAssertions

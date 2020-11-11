@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component
 class ScheduleTasks(val goboInstrumentation: GoboInstrumentation) {
 
     @Scheduled(fixedRateString = "\${gobo.updateFieldUsage.fixedRate:5000}")
-    fun InsertOrUpdateFieldUsageAsScheduledTask() {
+    fun insertOrUpdateFieldUsageAsScheduledTask() {
         goboInstrumentation.fieldUsage.insertOrUpdateFieldUsage()
     }
 }

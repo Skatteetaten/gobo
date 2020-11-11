@@ -1,4 +1,4 @@
-package no.skatteetaten.aurora.gobo.domain
+package no.skatteetaten.aurora.gobo.infrastructure.repository
 
 import no.skatteetaten.aurora.gobo.infrastructure.entity.FieldEnity
 import org.springframework.data.jpa.repository.JpaRepository

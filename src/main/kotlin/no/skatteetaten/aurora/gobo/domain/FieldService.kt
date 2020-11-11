@@ -9,7 +9,5 @@ interface FieldService {
 
     fun getAllFields(): List<FieldDto>
 
-//    fun updateWithName(name: String, field: FieldDto): FieldDto?
-
     fun insertOrUpdateField(field: FieldDto): FieldDto
 }
