@@ -84,12 +84,14 @@ class DataLoaderConfiguration(
             { keys: Set<K>, env: BatchLoaderEnvironment ->
                 GlobalScope.async(coroutineDispatcher) {
                     keys.map { key ->
-                        key to try {
-                            val ctx = env.keyContexts[key] as GoboGraphQLContext
-                            DataFetcherResult.newResult<V>().data(keyDataLoader.getByKey(key, ctx)).build()
-                        } catch (e: Exception) {
-                            DataFetcherResult.newResult<V>().error(GraphQLExceptionWrapper(e)).build()
-                        }
+                        key to DataFetcherResult.newResult<V>().apply {
+                            try {
+                                val ctx = env.keyContexts[key] as GoboGraphQLContext
+                                data(keyDataLoader.getByKey(key, ctx))
+                            } catch (e: Exception) {
+                                error(GraphQLExceptionWrapper(e))
+                            }
+                        }.build()
                     }.toMap()
                 }.asCompletableFuture()
             },
