@@ -1,6 +1,7 @@
 package no.skatteetaten.aurora.gobo
 
 import com.expediagroup.graphql.spring.execution.DataLoaderRegistryFactory
+import graphql.execution.DataFetcherResult
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.asCoroutineDispatcher
@@ -8,11 +9,11 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.future.asCompletableFuture
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.graphql.GoboGraphQLContext
+import no.skatteetaten.aurora.gobo.graphql.errorhandling.GraphQLExceptionWrapper
 import org.dataloader.BatchLoaderEnvironment
 import org.dataloader.DataLoader
 import org.dataloader.DataLoaderOptions
 import org.dataloader.DataLoaderRegistry
-import org.dataloader.Try
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -23,7 +24,7 @@ interface KeyDataLoader<K, V> {
 }
 
 interface MultipleKeysDataLoader<K, V> {
-    suspend fun getByKeys(keys: Set<K>, ctx: GoboGraphQLContext): Map<K, Try<V>>
+    suspend fun getByKeys(keys: Set<K>, ctx: GoboGraphQLContext): Map<K, DataFetcherResult<V>>
 }
 
 private val logger = KotlinLogging.logger { }
@@ -59,8 +60,8 @@ class DataLoaderConfiguration(
     private fun <K, V> batchDataLoaderMappedMultiple(
         coroutineDispatcher: ExecutorCoroutineDispatcher,
         keysDataLoader: MultipleKeysDataLoader<K, V>
-    ): DataLoader<K, V> =
-        DataLoader.newMappedDataLoaderWithTry(
+    ): DataLoader<K, DataFetcherResult<V>> =
+        DataLoader.newMappedDataLoader(
             { keys: Set<K>, env: BatchLoaderEnvironment ->
                 GlobalScope.async(coroutineDispatcher) {
                     keysDataLoader.getByKeys(
@@ -78,16 +79,16 @@ class DataLoaderConfiguration(
     private fun <K, V> batchDataLoaderMappedSingle(
         coroutineDispatcher: ExecutorCoroutineDispatcher,
         keyDataLoader: KeyDataLoader<K, V>
-    ): DataLoader<K, V> =
-        DataLoader.newMappedDataLoaderWithTry(
+    ): DataLoader<K, DataFetcherResult<V>> =
+        DataLoader.newMappedDataLoader(
             { keys: Set<K>, env: BatchLoaderEnvironment ->
                 GlobalScope.async(coroutineDispatcher) {
                     keys.map { key ->
                         key to try {
                             val ctx = env.keyContexts[key] as GoboGraphQLContext
-                            Try.succeeded(keyDataLoader.getByKey(key, ctx))
+                            DataFetcherResult.newResult<V>().data(keyDataLoader.getByKey(key, ctx)).build()
                         } catch (e: Exception) {
-                            Try.failed<V>(e)
+                            DataFetcherResult.newResult<V>().error(GraphQLExceptionWrapper(e)).build()
                         }
                     }.toMap()
                 }.asCompletableFuture()

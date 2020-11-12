@@ -1,17 +1,18 @@
 package no.skatteetaten.aurora.gobo.graphql.imagerepository
 
+import graphql.execution.DataFetcherResult
 import no.skatteetaten.aurora.gobo.MultipleKeysDataLoader
+import no.skatteetaten.aurora.gobo.graphql.GoboGraphQLContext
+import no.skatteetaten.aurora.gobo.graphql.errorhandling.GraphQLExceptionWrapper
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageRegistryService
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageRepoAndTags
-import no.skatteetaten.aurora.gobo.graphql.GoboGraphQLContext
-import org.dataloader.Try
 import org.springframework.stereotype.Component
 
 @Component
 class ImageMultipleKeysDataLoader(val imageRegistryService: ImageRegistryService) :
     MultipleKeysDataLoader<ImageTag, Image?> {
-    override suspend fun getByKeys(keys: Set<ImageTag>, ctx: GoboGraphQLContext): Map<ImageTag, Try<Image?>> {
+    override suspend fun getByKeys(keys: Set<ImageTag>, ctx: GoboGraphQLContext): Map<ImageTag, DataFetcherResult<Image?>> {
         val imageReposAndTags = ImageRepoAndTags.fromImageTags(keys)
 
         return try {
@@ -24,26 +25,26 @@ class ImageMultipleKeysDataLoader(val imageRegistryService: ImageRegistryService
             val successes = auroraResponse.items.associate { imageTagResource ->
                 val imageTag = ImageTag.fromTagString(imageTagResource.requestUrl, "/")
                 val image = Image(imageTagResource.timeline.buildEnded, imageTagResource.requestUrl)
-                imageTag to Try.succeeded(image)
+                imageTag to DataFetcherResult.newResult<Image?>().data(image).build()
             }
 
             val failures = auroraResponse.failure.associate {
                 val imageTag = ImageTag.fromTagString(it.url, "/")
 
-                val result: Try<Image?> =
+                val result = DataFetcherResult.newResult<Image?>().apply {
                     if (it.errorMessage.contains("application/vnd.docker.distribution.manifest.v1")) {
-                        Try.succeeded(null)
+                        data(null)
                     } else {
-                        Try.failed(
-                            SourceSystemException(message = it.errorMessage, sourceSystem = "cantus")
-                        )
+                        error(GraphQLExceptionWrapper(SourceSystemException(message = it.errorMessage, sourceSystem = "cantus")))
                     }
+                }.build()
+
                 imageTag to result
             }
 
             successes + failures
         } catch (e: SourceSystemException) {
-            keys.associateWith { Try.failed<Image>(e) }
+            keys.associateWith { DataFetcherResult.newResult<Image?>().error(GraphQLExceptionWrapper(e)).build() }
         }
     }
 }

@@ -34,6 +34,8 @@ class GraphQLExceptionWrapper private constructor(
         executionPath = exceptionWhileDataFetching.path?.let { ExecutionPath.fromList(it) }
     )
 
+    constructor(exception: Throwable) : this(exception = exception, executionPath = null)
+
     override fun getExtensions(): Map<String, Any?> =
         when (exception) {
             is GoboException -> {
