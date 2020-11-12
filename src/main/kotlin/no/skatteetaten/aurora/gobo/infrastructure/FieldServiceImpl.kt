@@ -22,14 +22,15 @@ internal class FieldServiceImpl(val fieldRepo: FieldRepository) : FieldService {
     }
 
     override fun insertOrUpdateField(field: FieldDto): FieldDto {
-        val foundField = fieldRepo.findById(field.name)
+//        val foundField = fieldRepo.findById(field.id)
+        val foundField = fieldRepo.findByName(field.name)
         return if (!foundField.isEmpty)
             fieldRepo.save(FieldEnity.fromDto(field, foundField.get())).toDto()
         else
             fieldRepo.save(FieldEnity.fromDto(field)).toDto()
     }
 
-    override fun getFieldWithName(name: String): FieldDto? {
-        return (fieldRepo.findById(name)).get().toDto()
-    }
+//    override fun getFieldWithName(name: String): FieldDto? {
+//        return (fieldRepo.findById(name)).get().toDto()
+//    }
 }

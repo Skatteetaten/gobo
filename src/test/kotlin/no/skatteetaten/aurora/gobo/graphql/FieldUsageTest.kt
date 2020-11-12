@@ -7,11 +7,8 @@ import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
 import graphql.language.Field
 import graphql.language.SelectionSet
-import io.mockk.every
 import io.mockk.mockk
 import no.skatteetaten.aurora.gobo.domain.FieldService
-import no.skatteetaten.aurora.gobo.domain.model.FieldDto
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 class FieldUsageTest {

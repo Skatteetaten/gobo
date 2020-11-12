@@ -8,7 +8,6 @@ import graphql.language.Field
 import graphql.language.SelectionSet
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.domain.FieldService
-import no.skatteetaten.aurora.gobo.domain.model.FieldDto
 import no.skatteetaten.aurora.webflux.AuroraRequestParser
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpRequest
