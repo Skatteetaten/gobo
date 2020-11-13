@@ -13,7 +13,7 @@ import no.skatteetaten.aurora.webflux.AuroraRequestParser
 import org.springframework.web.reactive.function.client.WebClientResponseException
 
 class GraphQLExceptionWrapper private constructor(
-    private val exception: Throwable,
+    val exception: Throwable,
     private val message: String? = if (exception is WebClientResponseException) {
         "Downstream request failed with ${exception.statusCode.name}"
     } else {
