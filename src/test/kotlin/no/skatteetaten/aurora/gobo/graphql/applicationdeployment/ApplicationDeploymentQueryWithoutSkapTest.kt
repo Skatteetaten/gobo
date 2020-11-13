@@ -6,6 +6,7 @@ import no.skatteetaten.aurora.gobo.ApplicationDeploymentResourceBuilder
 import no.skatteetaten.aurora.gobo.ImageTagResourceBuilder
 import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithoutDbhAndSkap
 import no.skatteetaten.aurora.gobo.graphql.IntegrationDisabledException
+import no.skatteetaten.aurora.gobo.graphql.graphqlDataWithPrefix
 import no.skatteetaten.aurora.gobo.graphql.graphqlErrorsFirst
 import no.skatteetaten.aurora.gobo.graphql.imagerepository.ImageDataLoader
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
@@ -63,8 +64,6 @@ class ApplicationDeploymentQueryWithoutSkapTest : GraphQLTestWithoutDbhAndSkap()
         webTestClient.queryGraphQL(getApplicationsQuery, variables, "test-token")
             .expectStatus().isOk
             .expectBody()
-            // TODO fix partial result
-            /*
             .graphqlDataWithPrefix("applicationDeployment") {
                 graphqlData("id").isEqualTo("123")
                 graphqlData("status.reports").exists()
@@ -72,8 +71,7 @@ class ApplicationDeploymentQueryWithoutSkapTest : GraphQLTestWithoutDbhAndSkap()
                 graphqlData("message").exists()
                 graphqlData("route.progressions").doesNotExist()
             }
-             */
             .graphqlErrorsFirst("message")
-            .isEqualTo("Exception while fetching data (/applicationDeployment/route) : Skap integration is disabled for this environment")
+            .isEqualTo("Skap integration is disabled for this environment")
     }
 }

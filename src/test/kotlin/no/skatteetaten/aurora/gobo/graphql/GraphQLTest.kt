@@ -9,12 +9,14 @@ import no.skatteetaten.aurora.gobo.security.GoboSecurityContextRepository
 import no.skatteetaten.aurora.gobo.security.OpenShiftAuthenticationManager
 import no.skatteetaten.aurora.gobo.security.WebSecurityConfig
 import no.skatteetaten.aurora.kubernetes.KubernetesReactorClient
+import org.junit.jupiter.api.BeforeEach
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest
 import org.springframework.context.annotation.Import
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
+import java.time.Duration
 
 const val PROFILE_WITH_DBH_AND_SKAP = "with-dbh-and-skap"
 
@@ -36,6 +38,11 @@ abstract class GraphQLTestWithoutDbhAndSkap {
 
     @MockkBean(relaxed = true)
     protected lateinit var kubernetesReactorClient: KubernetesReactorClient
+
+    @BeforeEach
+    fun setUpAll() {
+        webTestClient = webTestClient.mutate().responseTimeout(Duration.ofSeconds(10)).build()
+    }
 }
 
 @ActiveProfiles(PROFILE_WITH_DBH_AND_SKAP)
