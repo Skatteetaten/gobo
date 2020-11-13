@@ -139,7 +139,7 @@ class DatabaseServiceReactive(
         retrieveItems<T>().first()
 
     private suspend inline fun <reified T> WebClient.RequestHeadersSpec<*>.retrieveItems(): List<T> =
-        this.retrieve().bodyToDbhResponse().items<T>().awaitFirst()!!
+        this.retrieve().bodyToDbhResponse().items<T>().defaultIfEmpty(emptyList()).awaitFirst()!!
 
     private inline fun <reified T> Mono<DbhResponse<*>>.items(): Mono<List<T>> =
         this.flatMap {
