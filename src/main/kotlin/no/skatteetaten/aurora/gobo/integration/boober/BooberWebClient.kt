@@ -29,11 +29,10 @@ inline fun <reified T : Any> Response<T>.responses(): List<T> = when {
     )
     this.count == 0 -> emptyList()
     else -> this.items.map { item ->
-        kotlin.runCatching {
+        runCatching {
             objectMapper.convertValue(item, T::class.java)
         }.onFailure {
-            KotlinLogging.logger { }.error(it) { "Unable to parse response items from boober: $item" }
-            throw it
+            KotlinLogging.logger {}.error(it) { "Unable to parse response items from boober: $item" }
         }.getOrThrow()
     }
 }

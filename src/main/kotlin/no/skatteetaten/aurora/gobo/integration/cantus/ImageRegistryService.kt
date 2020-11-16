@@ -31,6 +31,8 @@ data class ImageRepoAndTags(val imageRepository: String, val imageTags: List<Str
 private fun List<ImageRepoAndTags>.getAllTagUrls() =
     TagUrlsWrapper(this.flatMap { it.getTagUrls() })
 
+val logger = KotlinLogging.logger { }
+
 @Service
 class ImageRegistryService(
     @TargetService(ServiceTypes.CANTUS) val webClient: WebClient,
@@ -93,11 +95,10 @@ class ImageRegistryService(
         }.retrieve().bodyToMono<AuroraResponse<T>>().map { response ->
             response.copy(
                 items = response.items.map { item ->
-                    kotlin.runCatching {
+                    runCatching {
                         objectMapper.convertValue(item, T::class.java)
                     }.onFailure {
-                        KotlinLogging.logger { }.error(it) { "Unable to parse response items from cantus: $item" }
-                        throw it
+                        logger.error(it) { "Unable to parse response items from cantus: $item" }
                     }.getOrThrow()
                 }
             )
