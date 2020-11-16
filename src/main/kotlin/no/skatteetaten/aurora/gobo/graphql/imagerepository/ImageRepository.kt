@@ -70,7 +70,11 @@ data class ImageRepository(
         val imageTags = names.map { ImageTag(this, it) }
         val values = dfe.loadMultipleKeys<ImageTag, Image>(imageTags)
         return values.map {
-            ImageWithType(it.key.name, it.value.data)
+            if (it.value.hasErrors()) {
+                null
+            } else {
+                ImageWithType(it.key.name, it.value.data)
+            }
         }
     }
 
