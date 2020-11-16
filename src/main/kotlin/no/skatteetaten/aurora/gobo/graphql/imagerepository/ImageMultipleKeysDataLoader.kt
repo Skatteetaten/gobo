@@ -43,7 +43,7 @@ class ImageMultipleKeysDataLoader(val imageRegistryService: ImageRegistryService
             }
 
             successes + failures
-        } catch (e: SourceSystemException) {
+        } catch (e: Exception) {
             keys.associateWith { DataFetcherResult.newResult<Image?>().error(GraphQLExceptionWrapper(e)).build() }
         }
     }
