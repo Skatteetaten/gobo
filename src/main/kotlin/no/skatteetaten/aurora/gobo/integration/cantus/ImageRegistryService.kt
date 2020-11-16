@@ -2,6 +2,7 @@ package no.skatteetaten.aurora.gobo.integration.cantus
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import kotlinx.coroutines.reactive.awaitFirst
+import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
 import no.skatteetaten.aurora.gobo.graphql.imagerepository.ImageRepoDto
@@ -29,6 +30,8 @@ data class ImageRepoAndTags(val imageRepository: String, val imageTags: List<Str
 
 private fun List<ImageRepoAndTags>.getAllTagUrls() =
     TagUrlsWrapper(this.flatMap { it.getTagUrls() })
+
+val logger = KotlinLogging.logger { }
 
 @Service
 class ImageRegistryService(
@@ -90,6 +93,14 @@ class ImageRegistryService(
         this.headers {
             it.set(HttpHeaders.AUTHORIZATION, "Bearer $token")
         }.retrieve().bodyToMono<AuroraResponse<T>>().map { response ->
-            response.copy(items = response.items.map { objectMapper.convertValue(it, T::class.java) })
+            response.copy(
+                items = response.items.map { item ->
+                    runCatching {
+                        objectMapper.convertValue(item, T::class.java)
+                    }.onFailure {
+                        logger.error(it) { "Unable to parse response items from cantus: $item" }
+                    }.getOrThrow()
+                }
+            )
         }.awaitFirst()
 }
