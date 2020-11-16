@@ -50,7 +50,6 @@ private fun DataFetcherExceptionHandlerParameters.logErrorInfo() {
     val exception = this.exception
     val exceptionName = this::class.simpleName
     val cause = exception.cause?.let { it::class.simpleName } ?: ""
-    val location = this.field.singleField.sourceLocation
     val source = if (exception is SourceSystemException) {
         "source=\"${exception.sourceSystem}\""
     } else {
@@ -69,7 +68,7 @@ private fun DataFetcherExceptionHandlerParameters.logErrorInfo() {
     }
 
     val logText =
-        "Exception while fetching data, exception=\"$exception\" cause=\"$cause\" message=\"$exceptionName\" location=\"$location\" $source $status"
+        "Exception while fetching data, exception=\"$exception\" cause=\"$cause\" message=\"$exceptionName\" path=\"$path\" $source $status"
     if (exception.isForbidden() || exception.isAccessDenied()) {
         logger.warn(logText)
     } else {
