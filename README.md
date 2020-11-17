@@ -35,11 +35,6 @@ Quickly deploy to test environment (fish shell):
     oc start-build gobo --from-file=(ls build/distributions/gobo-*-Leveransepakke.zip) --wait -n paas-mokey
     
 
-## GraphQL tracing
-
-To enable tracing: `gobo.graphql.tracing-enabled=true`
-
-
 ## Contract tests
 
 To run contract tests against a snapshot stub-jar file, set `gobo.stub.repository: snapshots` in `application.yaml`.
