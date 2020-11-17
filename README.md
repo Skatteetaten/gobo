@@ -33,8 +33,3 @@ Quickly deploy to test environment (fish shell):
 
     ./gradlew clean build -x test;
     oc start-build gobo --from-file=(ls build/distributions/gobo-*-Leveransepakke.zip) --wait -n paas-mokey
-    
-
-## Contract tests
-
-To run contract tests against a snapshot stub-jar file, set `gobo.stub.repository: snapshots` in `application.yaml`.
