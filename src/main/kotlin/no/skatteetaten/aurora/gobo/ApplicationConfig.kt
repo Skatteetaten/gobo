@@ -8,7 +8,6 @@ import io.netty.handler.timeout.WriteTimeoutHandler
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.integration.HEADER_AURORA_TOKEN
 import no.skatteetaten.aurora.gobo.security.SharedSecretReader
-import org.eclipse.jetty.client.api.Request
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
@@ -19,7 +18,6 @@ import org.springframework.core.Ordered
 import org.springframework.core.annotation.Order
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
-import org.springframework.http.client.reactive.JettyClientHttpConnector
 import org.springframework.http.client.reactive.ReactorClientHttpConnector
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction
@@ -27,8 +25,6 @@ import org.springframework.web.reactive.function.client.WebClient
 import reactor.kotlin.core.publisher.toMono
 import reactor.netty.http.client.HttpClient
 import reactor.netty.tcp.SslProvider
-import java.net.URI
-import java.nio.charset.StandardCharsets
 import java.util.concurrent.TimeUnit
 import kotlin.math.min
 
@@ -86,23 +82,7 @@ class ApplicationConfig(
         builder: WebClient.Builder
     ): WebClient {
         logger.info("Configuring Cantus WebClient with base Url={}", cantusUrl)
-        val client = object : org.eclipse.jetty.client.HttpClient() {
-            override fun newRequest(uri: URI?): Request {
-                val request = super.newRequest(uri)
-                return if (request.path.startsWith("/tags")) {
-                    request.enhanceRequest()
-                } else {
-                    request
-                }
-            }
-        }
-
-        return builder.init().clientConnector(JettyClientHttpConnector(client)).baseUrl(cantusUrl).build()
-    }
-
-    private fun Request.enhanceRequest() = onResponseContent { response, content ->
-        val body = StandardCharsets.UTF_8.decode(content).toString()
-        logger.info("Response body from cantus /tags: ${body.replace("\n", " ").take(1000)}")
+        return builder.init().baseUrl(cantusUrl).build()
     }
 
     @Bean
