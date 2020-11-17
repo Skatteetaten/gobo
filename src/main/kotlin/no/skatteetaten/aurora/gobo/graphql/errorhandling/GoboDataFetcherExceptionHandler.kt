@@ -55,10 +55,7 @@ private fun DataFetcherExceptionHandlerParameters.handleGeneralDataFetcherExcept
 
     val logText =
         "Exception while fetching data, exception=\"$exception\" cause=\"$cause\" message=\"$exceptionName\" path=\"$path\" $source ${exception.logTextRequest()}"
-    if (exception is WebClientResponseException &&
-        (exception.isForbidden() || exception.isAccessDenied() || exception.isNotFound() ||
-            exception.isBooberBadRequest(booberUrl))
-    ) {
+    if (exception.isWebClientResponseWarnLoggable(booberUrl) || exception.isAccessDenied()) {
         logger.warn(logText)
     } else {
         logger.error(logText)
@@ -71,8 +68,11 @@ private fun DataFetcherExceptionHandlerParameters.handleGeneralDataFetcherExcept
     return GraphQLExceptionWrapper(this)
 }
 
+private fun Throwable.isWebClientResponseWarnLoggable(booberUrl: String) = this is WebClientResponseException && (
+    isForbidden() || isNotFound() || isBooberBadRequest(booberUrl)
+    )
+
 private fun Throwable.logTextRequest() = if (this is WebClientResponseException) {
-    val request = request
     val korrelasjonsId = request.korrelasjonsid()?.let { "Korrelasjonsid=\"$it\"" } ?: ""
     val clientId = request.klientid()?.let { "Klientid=\"$it\"" } ?: ""
     val referer = request?.headers?.getFirst(HttpHeaders.REFERER)?.let { "Referer=\"$it\"" } ?: ""
