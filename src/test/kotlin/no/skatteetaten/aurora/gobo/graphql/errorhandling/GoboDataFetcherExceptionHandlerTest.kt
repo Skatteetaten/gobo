@@ -14,7 +14,7 @@ import no.skatteetaten.aurora.gobo.graphql.IntegrationDisabledException
 import org.junit.jupiter.api.Test
 
 class GoboDataFetcherExceptionHandlerTest {
-    private val exceptionHandler = GoboDataFetcherExceptionHandler()
+    private val exceptionHandler = GoboDataFetcherExceptionHandler("http://boober")
     private val env = mockk<DataFetchingEnvironment>(relaxed = true)
 
     @Test
