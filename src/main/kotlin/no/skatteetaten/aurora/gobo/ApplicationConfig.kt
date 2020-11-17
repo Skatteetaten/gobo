@@ -102,7 +102,7 @@ class ApplicationConfig(
 
     private fun Request.enhanceRequest() = onResponseContent { response, content ->
         val body = StandardCharsets.UTF_8.decode(content).toString()
-        logger.info("Response body from cantus: $body")
+        logger.info("Response body from cantus /tags: ${body.replace("\n", " ")}")
     }
 
     @Bean
