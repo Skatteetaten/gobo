@@ -34,6 +34,7 @@ dependencies {
     implementation("com.jayway.jsonpath:json-path:2.4.0")
     implementation("io.projectreactor.addons:reactor-extra:3.3.3.RELEASE")
     implementation("no.skatteetaten.aurora.kubernetes:kubernetes-reactor-coroutines-client:1.3.1")
+    implementation("org.eclipse.jetty:jetty-reactive-httpclient:1.1.4")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
