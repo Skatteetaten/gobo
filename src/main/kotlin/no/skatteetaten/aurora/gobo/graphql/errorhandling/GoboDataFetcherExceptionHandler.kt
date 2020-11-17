@@ -54,14 +54,10 @@ private fun DataFetcherExceptionHandlerParameters.handleGeneralDataFetcherExcept
     }
 
     val logText =
-        "Exception while fetching data, exception=\"$exception\" cause=\"$cause\" message=\"$exceptionName\" path=\"$path\" $source ${exception.requestLogText()}"
+        "Exception while fetching data, exception=\"$exception\" cause=\"$cause\" message=\"$exceptionName\" path=\"$path\" $source ${exception.logTextRequest()}"
     if (exception is WebClientResponseException &&
-        (
-            exception.isForbidden() ||
-                exception.isAccessDenied() ||
-                exception.isNotFound() ||
-                exception.isBooberBadRequest(booberUrl)
-            )
+        (exception.isForbidden() || exception.isAccessDenied() || exception.isNotFound() ||
+            exception.isBooberBadRequest(booberUrl))
     ) {
         logger.warn(logText)
     } else {
@@ -75,7 +71,7 @@ private fun DataFetcherExceptionHandlerParameters.handleGeneralDataFetcherExcept
     return GraphQLExceptionWrapper(this)
 }
 
-private fun Throwable.requestLogText() = if (this is WebClientResponseException) {
+private fun Throwable.logTextRequest() = if (this is WebClientResponseException) {
     val request = request
     val korrelasjonsId = request.korrelasjonsid()?.let { "Korrelasjonsid=\"$it\"" } ?: ""
     val clientId = request.klientid()?.let { "Klientid=\"$it\"" } ?: ""
