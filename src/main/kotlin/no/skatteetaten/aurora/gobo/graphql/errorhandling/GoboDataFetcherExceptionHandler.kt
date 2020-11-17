@@ -69,7 +69,7 @@ private fun DataFetcherExceptionHandlerParameters.logErrorInfo() {
 
     val logText =
         "Exception while fetching data, exception=\"$exception\" cause=\"$cause\" message=\"$exceptionName\" path=\"$path\" $source $status"
-    if (exception.isForbidden() || exception.isAccessDenied()) {
+    if (exception.isForbidden() || exception.isAccessDenied() || exception.isNotFound()) {
         logger.warn(logText)
     } else {
         logger.error(logText)
@@ -81,6 +81,7 @@ private fun DataFetcherExceptionHandlerParameters.logErrorInfo() {
 }
 
 private fun Throwable.isForbidden() = this is WebClientResponseException && this.statusCode == HttpStatus.FORBIDDEN
+private fun Throwable.isNotFound() = this is WebClientResponseException && this.statusCode == HttpStatus.NOT_FOUND
 private fun Throwable.isAccessDenied() = this is AccessDeniedException
 private fun Throwable.isLoggableException() = this is ClassCastException
 
