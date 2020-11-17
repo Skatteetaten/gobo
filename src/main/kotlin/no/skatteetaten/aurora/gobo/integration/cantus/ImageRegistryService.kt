@@ -1,6 +1,7 @@
 package no.skatteetaten.aurora.gobo.integration.cantus
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.convertValue
 import kotlinx.coroutines.reactive.awaitFirst
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.ServiceTypes
@@ -12,7 +13,6 @@ import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.bodyToMono
-import uk.q3c.rest.hal.HalResource
 
 data class TagUrlsWrapper(val tagUrls: List<String>)
 
@@ -89,18 +89,26 @@ class ImageRegistryService(
         return TagsDto.toDto(resource)
     }
 
-    private suspend inline fun <reified T : HalResource> WebClient.RequestHeadersSpec<*>.execute(token: String) =
+    private suspend inline fun <reified T : Any> WebClient.RequestHeadersSpec<*>.execute(token: String): AuroraResponse<T> =
         this.headers {
             it.set(HttpHeaders.AUTHORIZATION, "Bearer $token")
-        }.retrieve().bodyToMono<AuroraResponse<T>>().map { response ->
-            response.copy(
-                items = response.items.map { item ->
-                    runCatching {
-                        objectMapper.convertValue(item, T::class.java)
-                    }.onFailure {
-                        logger.error(it) { "Unable to parse response items from cantus: $item" }
-                    }.getOrThrow()
-                }
-            )
+        }.retrieve().bodyToMono<AuroraResponse<Any>>().map { response ->
+            response.run {
+                AuroraResponse(
+                    items = items.map { item ->
+                        runCatching {
+                            objectMapper.convertValue(item, T::class.java)
+                        }.onFailure {
+                            logger.error(it) { "Unable to parse response items from cantus: $item" }
+                        }.getOrThrow()
+                    },
+                    failure = failure,
+                    success = success,
+                    message = message,
+                    failureCount = failureCount,
+                    successCount = successCount,
+                    count = count
+                )
+            }
         }.awaitFirst()
 }
