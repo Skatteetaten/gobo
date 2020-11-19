@@ -45,3 +45,17 @@ dependencies {
     testImplementation("org.junit-pioneer:junit-pioneer:1.0.0")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.4.1")
 }
+
+val downloadPlaygroundfiles = task<de.undercouch.gradle.tasks.download.Download>("download-playground") {
+    val baseUrl = "https://cdn.jsdelivr.net/npm/graphql-playground-react/build"
+    src(
+        listOf(
+            "$baseUrl/static/js/middleware.js",
+            "$baseUrl/static/css/index.css",
+            "$baseUrl/favicon.png",
+            "$baseUrl/logo.png"
+        )
+    )
+    dest("src/main/resources/static/playground/")
+    onlyIfModified(true)
+}
