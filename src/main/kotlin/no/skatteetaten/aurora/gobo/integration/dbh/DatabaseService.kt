@@ -2,6 +2,7 @@ package no.skatteetaten.aurora.gobo.integration.dbh
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import kotlinx.coroutines.reactive.awaitFirst
+import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.RequiresDbh
 import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
@@ -19,6 +20,8 @@ import org.springframework.web.reactive.function.client.bodyToMono
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
+
+private val logger = KotlinLogging.logger { }
 
 @Service
 @ConditionalOnBean(RequiresDbh::class)
@@ -47,12 +50,13 @@ class DatabaseServiceReactive(
         .uri("/api/v1/schema/{id}", id)
         .retrieveItem()
 
-    override suspend fun getRestorableDatabaseSchemas(affiliation: String): List<RestorableDatabaseSchemaResource> = webClient
-        .get()
-        .uri {
-            it.path("/api/v1/restorableSchema/").queryParam("labels", "affiliation=$affiliation").build()
-        }
-        .retrieveItems()
+    override suspend fun getRestorableDatabaseSchemas(affiliation: String): List<RestorableDatabaseSchemaResource> =
+        webClient
+            .get()
+            .uri {
+                it.path("/api/v1/restorableSchema/").queryParam("labels", "affiliation=$affiliation").build()
+            }
+            .retrieveItems()
 
     override suspend fun updateDatabaseSchema(input: SchemaUpdateRequest): DatabaseSchemaResource = webClient
         .put()
@@ -75,7 +79,8 @@ class DatabaseServiceReactive(
             }
         }
 
-        return Flux.merge(responses).map { SchemaCooldownChangeResponse(id = it.first, success = it.second.isOk()) }.collectList().awaitFirst()
+        return Flux.merge(responses).map { SchemaCooldownChangeResponse(id = it.first, success = it.second.isOk()) }
+            .collectList().awaitFirst()
     }
 
     override suspend fun restoreDatabaseSchemas(input: List<SchemaRestorationRequest>): List<SchemaCooldownChangeResponse> {
@@ -97,7 +102,8 @@ class DatabaseServiceReactive(
                 }
         }
 
-        return Flux.merge(responses).map { SchemaCooldownChangeResponse(id = it.first, success = it.second.isOk()) }.collectList().awaitFirst()
+        return Flux.merge(responses).map { SchemaCooldownChangeResponse(id = it.first, success = it.second.isOk()) }
+            .collectList().awaitFirst()
     }
 
     override suspend fun testJdbcConnection(user: JdbcUser): ConnectionVerificationResponse {
@@ -108,7 +114,10 @@ class DatabaseServiceReactive(
         return testJdbcConnectionInternal(id = id)
     }
 
-    private suspend fun testJdbcConnectionInternal(id: String? = null, user: JdbcUser? = null): ConnectionVerificationResponse =
+    private suspend fun testJdbcConnectionInternal(
+        id: String? = null,
+        user: JdbcUser? = null
+    ): ConnectionVerificationResponse =
         webClient
             .put()
             .uri("/api/v1/schema/validate")
@@ -139,7 +148,7 @@ class DatabaseServiceReactive(
         retrieveItems<T>().first()
 
     private suspend inline fun <reified T> WebClient.RequestHeadersSpec<*>.retrieveItems(): List<T> =
-        this.retrieve().bodyToDbhResponse().items<T>().awaitFirst()!!
+        this.retrieve().bodyToDbhResponse().items<T>().defaultIfEmpty(emptyList()).awaitFirst()!!
 
     private inline fun <reified T> Mono<DbhResponse<*>>.items(): Mono<List<T>> =
         this.flatMap {
@@ -158,7 +167,13 @@ class DatabaseServiceReactive(
 
     private inline fun <reified T> onSuccess(r: DbhResponse<*>): Mono<List<T>> =
         r.items
-            .map { objectMapper.convertValue(it, T::class.java) }
+            .map { item ->
+                runCatching {
+                    objectMapper.convertValue(item, T::class.java)
+                }.onFailure {
+                    logger.error(it) { "Unable to parse response items from dbh: $item" }
+                }.getOrThrow()
+            }
             .filter {
                 when (it) {
                     is ResourceValidator -> it.valid

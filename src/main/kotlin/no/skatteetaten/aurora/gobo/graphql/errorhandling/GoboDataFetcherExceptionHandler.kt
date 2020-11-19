@@ -11,6 +11,7 @@ import no.skatteetaten.aurora.gobo.graphql.IntegrationDisabledException
 import no.skatteetaten.aurora.gobo.graphql.klientid
 import no.skatteetaten.aurora.gobo.graphql.korrelasjonsid
 import org.apache.commons.lang3.exception.ExceptionUtils
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
@@ -19,13 +20,14 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 private val logger = KotlinLogging.logger { }
 
 @Component
-class GoboDataFetcherExceptionHandler : DataFetcherExceptionHandler {
+class GoboDataFetcherExceptionHandler(@Value("integrations.boober.url") private val booberUrl: String) :
+    DataFetcherExceptionHandler {
     override fun onException(handlerParameters: DataFetcherExceptionHandlerParameters?): DataFetcherExceptionHandlerResult {
         handlerParameters ?: return DataFetcherExceptionHandlerResult.newResult().build()
 
         val graphqlException = handlerParameters.handleIntegrationDisabledException()?.let {
             handlerParameters.toExceptionWhileDataFetching(it)
-        } ?: handlerParameters.handleGeneralDataFetcherException()
+        } ?: handlerParameters.handleGeneralDataFetcherException(booberUrl)
 
         return DataFetcherExceptionHandlerResult.newResult(graphqlException).build()
     }
@@ -41,12 +43,7 @@ private fun DataFetcherExceptionHandlerParameters.handleIntegrationDisabledExcep
         it
     }
 
-private fun DataFetcherExceptionHandlerParameters.handleGeneralDataFetcherException() =
-    GraphQLExceptionWrapper(this).also {
-        logErrorInfo()
-    }
-
-private fun DataFetcherExceptionHandlerParameters.logErrorInfo() {
+private fun DataFetcherExceptionHandlerParameters.handleGeneralDataFetcherException(booberUrl: String): GraphQLExceptionWrapper {
     val exception = this.exception
     val exceptionName = this::class.simpleName
     val cause = exception.cause?.let { it::class.simpleName } ?: ""
@@ -56,28 +53,43 @@ private fun DataFetcherExceptionHandlerParameters.logErrorInfo() {
         ""
     }
 
-    val status = if (exception is WebClientResponseException) {
-        val request = exception.request
-        val korrelasjonsId = request.korrelasjonsid()?.let { "Korrelasjonsid=\"$it\"" } ?: ""
-        val clientId = request.klientid()?.let { "Klientid=\"$it\"" } ?: ""
-        val referer = request?.headers?.getFirst(HttpHeaders.REFERER)?.let { "Referer=\"$it\"" } ?: ""
-        "$korrelasjonsId $clientId $referer statusCode=\"${exception.statusCode} " +
-            "statusText=\"${exception.statusText}\" responseBody=\"${exception.responseBodyAsString}\""
-    } else {
-        ""
-    }
-
     val logText =
-        "Exception while fetching data, exception=\"$exception\" cause=\"$cause\" message=\"$exceptionName\" $source $status"
-    if (exception.isForbidden() || exception.isAccessDenied()) {
+        "Exception while fetching data, exception=\"$exception\" cause=\"$cause\" message=\"$exceptionName\" path=\"$path\" $source ${exception.logTextRequest()}"
+    if (exception.isWebClientResponseWarnLoggable(booberUrl) || exception.isAccessDenied()) {
         logger.warn(logText)
     } else {
         logger.error(logText)
     }
+
+    if (exception.isLoggableException()) {
+        logger.error(exception) { "Data fetching failed with loggable exception" }
+    }
+
+    return GraphQLExceptionWrapper(this)
 }
 
-private fun Throwable.isForbidden() = this is WebClientResponseException && this.statusCode == HttpStatus.FORBIDDEN
+private fun Throwable.isWebClientResponseWarnLoggable(booberUrl: String) = this is WebClientResponseException && (
+    isForbidden() || isNotFound() || isBooberBadRequest(booberUrl)
+    )
+
+private fun Throwable.logTextRequest() = if (this is WebClientResponseException) {
+    val korrelasjonsId = request.korrelasjonsid()?.let { "Korrelasjonsid=\"$it\"" } ?: ""
+    val clientId = request.klientid()?.let { "Klientid=\"$it\"" } ?: ""
+    val referer = request?.headers?.getFirst(HttpHeaders.REFERER)?.let { "Referer=\"$it\"" } ?: ""
+    "$korrelasjonsId $clientId $referer statusCode=\"$statusCode\" " +
+        "statusText=\"$statusText\" responseBody=\"$responseBodyAsString\""
+} else {
+    ""
+}
+
+private fun WebClientResponseException.isForbidden() = statusCode == HttpStatus.FORBIDDEN
+private fun WebClientResponseException.isNotFound() = statusCode == HttpStatus.NOT_FOUND
+
+private fun WebClientResponseException.isBooberBadRequest(booberUrl: String) = statusCode == HttpStatus.BAD_REQUEST &&
+    request?.uri?.toASCIIString()?.startsWith(booberUrl) ?: false
+
 private fun Throwable.isAccessDenied() = this is AccessDeniedException
+private fun Throwable.isLoggableException() = this is ClassCastException
 
 private fun DataFetcherExceptionHandlerParameters.toExceptionWhileDataFetching(t: Throwable) =
     ExceptionWhileDataFetching(path, t, sourceLocation)
