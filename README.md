@@ -46,5 +46,8 @@ To run contract tests against a snapshot stub-jar file, set `gobo.stub.repositor
 
 
 ## Download static playground files from graphql-kotlin
-To download static playground files from graphql-kotlin, run command
+The playground files must be included to run the gobo-playground application in the browser in offline environment. 
+This apply for running in secure environment e.g. test environment within Skatteetaten.
+
+To download static playground files from graphql-kotlin, run command:
 ./gradlew download-playground
