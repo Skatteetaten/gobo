@@ -7,10 +7,12 @@ import graphql.execution.DataFetcherExceptionHandlerParameters
 import graphql.execution.DataFetcherExceptionHandlerResult
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.graphql.AccessDeniedException
+import no.skatteetaten.aurora.gobo.graphql.GoboGraphQLContext
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.graphql.IntegrationDisabledException
-import no.skatteetaten.aurora.webflux.AuroraRequestParser.KLIENTID_FIELD
-import no.skatteetaten.aurora.webflux.AuroraRequestParser.KORRELASJONSID_FIELD
+import no.skatteetaten.aurora.gobo.graphql.klientid
+import no.skatteetaten.aurora.gobo.graphql.korrelasjonsid
+import no.skatteetaten.aurora.webflux.AuroraRequestParser
 import org.apache.commons.lang3.exception.ExceptionUtils
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
@@ -47,8 +49,11 @@ private fun DataFetcherExceptionHandlerParameters.handleIntegrationDisabledExcep
 private fun DataFetcherExceptionHandlerParameters.handleGeneralDataFetcherException(booberUrl: String): GraphQLExceptionWrapper {
     val exception = this.exception
     val exceptionName = this::class.simpleName
-    val korrelasjonsId = BaggageField.getByName(KORRELASJONSID_FIELD)?.value ?: ""
-    val klientId = BaggageField.getByName(KLIENTID_FIELD)?.value ?: ""
+
+    val request = this.dataFetchingEnvironment.getContext<GoboGraphQLContext>().request
+    val korrelasjonsId = request.korrelasjonsid() ?: BaggageField.getByName(AuroraRequestParser.KORRELASJONSID_FIELD)?.value ?: ""
+    val klientId = request.klientid()
+
     val cause = exception.cause?.let { it::class.simpleName } ?: ""
     val source = if (exception is SourceSystemException) {
         "source=\"${exception.sourceSystem}\""
