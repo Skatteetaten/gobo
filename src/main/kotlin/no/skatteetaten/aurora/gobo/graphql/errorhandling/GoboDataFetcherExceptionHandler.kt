@@ -20,7 +20,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 private val logger = KotlinLogging.logger { }
 
 @Component
-class GoboDataFetcherExceptionHandler(@Value("integrations.boober.url") private val booberUrl: String) :
+class GoboDataFetcherExceptionHandler(@Value("\${integrations.boober.url}") private val booberUrl: String) :
     DataFetcherExceptionHandler {
     override fun onException(handlerParameters: DataFetcherExceptionHandlerParameters?): DataFetcherExceptionHandlerResult {
         handlerParameters ?: return DataFetcherExceptionHandlerResult.newResult().build()
