@@ -54,7 +54,7 @@ private fun DataFetcherExceptionHandlerParameters.handleGeneralDataFetcherExcept
     }
 
     val logText =
-        "Exception while fetching data, exception=\"$exception\" cause=\"$cause\" message=\"$exceptionName\" path=\"$path\" $source ${exception.logTextRequest()}"
+        """Exception while fetching data, exception="$exception" cause="$cause" message="$exceptionName" path="$path" $source ${exception.logTextRequest()}"""
     if (exception.isWebClientResponseWarnLoggable(booberUrl) || exception.isAccessDenied()) {
         logger.warn(logText)
     } else {
@@ -76,8 +76,8 @@ private fun Throwable.logTextRequest() = if (this is WebClientResponseException)
     val korrelasjonsId = request.korrelasjonsid()?.let { "Korrelasjonsid=\"$it\"" } ?: ""
     val clientId = request.klientid()?.let { "Klientid=\"$it\"" } ?: ""
     val referer = request?.headers?.getFirst(HttpHeaders.REFERER)?.let { "Referer=\"$it\"" } ?: ""
-    "$korrelasjonsId $clientId $referer statusCode=\"$statusCode\" " +
-        "statusText=\"$statusText\" responseBody=\"$responseBodyAsString\""
+    val requestUrl = request?.uri?.toASCIIString() ?: ""
+    """$korrelasjonsId $clientId $referer statusCode="$statusCode" statusText="$statusText" requestUrl="$requestUrl" responseBody="$responseBodyAsString"""
 } else {
     ""
 }
