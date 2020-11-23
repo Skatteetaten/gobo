@@ -12,6 +12,7 @@ import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.graphql.IntegrationDisabledException
 import no.skatteetaten.aurora.gobo.graphql.klientid
 import no.skatteetaten.aurora.gobo.graphql.korrelasjonsid
+import no.skatteetaten.aurora.gobo.graphql.removeNewLines
 import no.skatteetaten.aurora.webflux.AuroraRequestParser
 import org.apache.commons.lang3.exception.ExceptionUtils
 import org.springframework.beans.factory.annotation.Value
@@ -51,7 +52,9 @@ private fun DataFetcherExceptionHandlerParameters.handleGeneralDataFetcherExcept
     val exceptionName = this::class.simpleName
 
     val context = dataFetchingEnvironment.getContext<GoboGraphQLContext>()
-    val korrelasjonsId = context.request.korrelasjonsid() ?: BaggageField.getByName(AuroraRequestParser.KORRELASJONSID_FIELD)?.value ?: ""
+    val korrelasjonsId =
+        context.request.korrelasjonsid() ?: BaggageField.getByName(AuroraRequestParser.KORRELASJONSID_FIELD)?.value
+        ?: ""
     val klientId = context.request.klientid()
 
     val source = if (exception is SourceSystemException) {
@@ -82,7 +85,7 @@ private fun Throwable.isWebClientResponseWarnLoggable(booberUrl: String) = this 
 private fun Throwable.logTextRequest() = if (this is WebClientResponseException) {
     val referer = request?.headers?.getFirst(HttpHeaders.REFERER)?.let { "Referer=\"$it\"" } ?: ""
     val requestUrl = request?.uri?.toASCIIString() ?: ""
-    """$referer statusCode="$statusCode" statusText="$statusText" requestUrl="$requestUrl" responseBody="$responseBodyAsString"""
+    """$referer statusCode="$statusCode" statusText="$statusText" requestUrl="$requestUrl" responseBody="${responseBodyAsString.removeNewLines()}"""
 } else {
     ""
 }
