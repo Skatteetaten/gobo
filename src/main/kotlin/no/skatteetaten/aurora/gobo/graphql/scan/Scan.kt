@@ -15,7 +15,7 @@ data class Scan(
     companion object {
         fun fromProbeResultList(probeResultList: List<ProbeResult>): Scan {
             if (probeResultList.isEmpty()) {
-                throw SourceSystemException("Received empty result")
+                throw SourceSystemException(message = "Received empty result", sourceSystem = "unclematt")
             }
 
             val firstResult = probeResultList.first().result

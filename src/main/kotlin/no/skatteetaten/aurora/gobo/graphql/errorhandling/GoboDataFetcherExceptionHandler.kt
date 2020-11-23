@@ -1,15 +1,19 @@
 package no.skatteetaten.aurora.gobo.graphql.errorhandling
 
+import brave.baggage.BaggageField
 import graphql.ExceptionWhileDataFetching
 import graphql.execution.DataFetcherExceptionHandler
 import graphql.execution.DataFetcherExceptionHandlerParameters
 import graphql.execution.DataFetcherExceptionHandlerResult
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.graphql.AccessDeniedException
+import no.skatteetaten.aurora.gobo.graphql.GoboGraphQLContext
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.graphql.IntegrationDisabledException
 import no.skatteetaten.aurora.gobo.graphql.klientid
 import no.skatteetaten.aurora.gobo.graphql.korrelasjonsid
+import no.skatteetaten.aurora.gobo.graphql.removeNewLines
+import no.skatteetaten.aurora.webflux.AuroraRequestParser
 import org.apache.commons.lang3.exception.ExceptionUtils
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
@@ -46,7 +50,13 @@ private fun DataFetcherExceptionHandlerParameters.handleIntegrationDisabledExcep
 private fun DataFetcherExceptionHandlerParameters.handleGeneralDataFetcherException(booberUrl: String): GraphQLExceptionWrapper {
     val exception = this.exception
     val exceptionName = this::class.simpleName
-    val cause = exception.cause?.let { it::class.simpleName } ?: ""
+
+    val context = dataFetchingEnvironment.getContext<GoboGraphQLContext>()
+    val korrelasjonsId =
+        context.request.korrelasjonsid() ?: BaggageField.getByName(AuroraRequestParser.KORRELASJONSID_FIELD)?.value
+            ?: ""
+    val klientId = context.request.klientid()
+
     val source = if (exception is SourceSystemException) {
         "source=\"${exception.sourceSystem}\""
     } else {
@@ -54,7 +64,7 @@ private fun DataFetcherExceptionHandlerParameters.handleGeneralDataFetcherExcept
     }
 
     val logText =
-        """Exception while fetching data, exception="$exception" cause="$cause" message="$exceptionName" path="$path" $source ${exception.logTextRequest()}"""
+        """Exception while fetching data, Korrelasjonsid="$korrelasjonsId" Klientid="$klientId" exception="$exception" message="$exceptionName" path="$path" ${context.query} $source ${exception.logTextRequest()}"""
     if (exception.isWebClientResponseWarnLoggable(booberUrl) || exception.isAccessDenied()) {
         logger.warn(logText)
     } else {
@@ -73,11 +83,9 @@ private fun Throwable.isWebClientResponseWarnLoggable(booberUrl: String) = this 
     )
 
 private fun Throwable.logTextRequest() = if (this is WebClientResponseException) {
-    val korrelasjonsId = request.korrelasjonsid()?.let { "Korrelasjonsid=\"$it\"" } ?: ""
-    val clientId = request.klientid()?.let { "Klientid=\"$it\"" } ?: ""
     val referer = request?.headers?.getFirst(HttpHeaders.REFERER)?.let { "Referer=\"$it\"" } ?: ""
     val requestUrl = request?.uri?.toASCIIString() ?: ""
-    """$korrelasjonsId $clientId $referer statusCode="$statusCode" statusText="$statusText" requestUrl="$requestUrl" responseBody="$responseBodyAsString"""
+    """$referer statusCode="$statusCode" statusText="$statusText" requestUrl="$requestUrl" responseBody="${responseBodyAsString.removeNewLines()}"""
 } else {
     ""
 }
