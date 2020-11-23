@@ -20,6 +20,8 @@ fun String.removeNewLines() =
     this.replace("\n", " ")
         .replace(Regex("\\s+"), " ")
 
+private fun String.isNotIntrospectionQuery() = !startsWith("query IntrospectionQuery")
+
 @Component
 class GoboInstrumentation : SimpleInstrumentation() {
 
@@ -33,24 +35,23 @@ class GoboInstrumentation : SimpleInstrumentation() {
         executionInput?.let {
             val context = (executionInput.context as GoboGraphQLContext)
             val request = context.request
-            logger.debug {
-                """Request hostName="${request.remoteAddress?.hostName}" """
-            }
+            logger.debug { """Request hostName="${request.remoteAddress?.hostName}" """ }
 
-            val query = it.query.removeNewLines()
-            context.query = query
-
-            if (!query.startsWith("query IntrospectionQuery")) {
-                logger.debug {
-                    if (query.trimStart().startsWith("mutation")) {
-                        """mutation="$query" - variable-keys=${it.variables.keys}"""
-                    } else {
-                        val variables = if (it.variables.isEmpty()) "" else " - variables=${it.variables}"
-                        """query="$query"$variables"""
-                    }
+            val queryText = it.query.removeNewLines().let { query ->
+                if (query.trimStart().startsWith("mutation")) {
+                    """mutation="$query" - variable-keys=${it.variables.keys}"""
+                } else {
+                    val variables = if (it.variables.isEmpty()) "" else " - variables=${it.variables}"
+                    """query="$query"$variables"""
                 }
             }
+
+            context.query = queryText
+            if (queryText.isNotIntrospectionQuery()) {
+                logger.debug(queryText)
+            }
         }
+
         return super.instrumentExecutionInput(executionInput, parameters)
     }
 

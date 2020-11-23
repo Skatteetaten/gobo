@@ -54,7 +54,7 @@ private fun DataFetcherExceptionHandlerParameters.handleGeneralDataFetcherExcept
     val context = dataFetchingEnvironment.getContext<GoboGraphQLContext>()
     val korrelasjonsId =
         context.request.korrelasjonsid() ?: BaggageField.getByName(AuroraRequestParser.KORRELASJONSID_FIELD)?.value
-        ?: ""
+            ?: ""
     val klientId = context.request.klientid()
 
     val source = if (exception is SourceSystemException) {
@@ -64,7 +64,7 @@ private fun DataFetcherExceptionHandlerParameters.handleGeneralDataFetcherExcept
     }
 
     val logText =
-        """Exception while fetching data, Korrelasjonsid="$korrelasjonsId" Klientid="$klientId" exception="$exception" message="$exceptionName" path="$path" query="${context.query}" $source ${exception.logTextRequest()}"""
+        """Exception while fetching data, Korrelasjonsid="$korrelasjonsId" Klientid="$klientId" exception="$exception" message="$exceptionName" path="$path" ${context.query} $source ${exception.logTextRequest()}"""
     if (exception.isWebClientResponseWarnLoggable(booberUrl) || exception.isAccessDenied()) {
         logger.warn(logText)
     } else {
