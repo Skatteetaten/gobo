@@ -1,5 +1,6 @@
 package no.skatteetaten.aurora.gobo.graphql
 
+import brave.baggage.BaggageField
 import com.expediagroup.graphql.execution.GraphQLContext
 import com.expediagroup.graphql.spring.execution.GraphQLContextFactory
 import graphql.schema.DataFetchingEnvironment
@@ -7,6 +8,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.ReactorContext
 import mu.KotlinLogging
+import no.skatteetaten.aurora.webflux.AuroraRequestParser
 import org.springframework.http.HttpHeaders
 import org.springframework.http.server.reactive.ServerHttpRequest
 import org.springframework.http.server.reactive.ServerHttpResponse
@@ -25,6 +27,8 @@ class GoboGraphQLContext(
     var query: String? = null
 ) : GraphQLContext {
     fun token() = token ?: throw AccessDeniedException("Token is not set")
+    fun korrelasjonsid() = request.korrelasjonsid() ?: BaggageField.getByName(AuroraRequestParser.KORRELASJONSID_FIELD)?.value ?: ""
+    fun klientid() = request.klientid()
 }
 
 private val logger = KotlinLogging.logger {}

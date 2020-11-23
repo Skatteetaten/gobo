@@ -20,7 +20,7 @@ class PermissionDataLoader(
                 Permission(paas = PermissionDetails(view = it.view, admin = it.admin))
             }
         }.recoverCatching {
-            logger.warn("Failed checking for permission message=${it.localizedMessage}")
+            logger.warn("Failed checking for permission message=${it.localizedMessage}, Korrelasjonsid=${context.korrelasjonsid()} Klientid=${context.klientid()}")
             Permission()
         }.getOrThrow()
     }
