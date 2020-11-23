@@ -21,7 +21,8 @@ class GoboGraphQLContext(
     private val token: String?,
     val request: ServerHttpRequest,
     val response: ServerHttpResponse,
-    val securityContext: SecurityContext?
+    val securityContext: SecurityContext?,
+    var query: String? = null
 ) : GraphQLContext {
     fun token() = token ?: throw AccessDeniedException("Token is not set")
 }

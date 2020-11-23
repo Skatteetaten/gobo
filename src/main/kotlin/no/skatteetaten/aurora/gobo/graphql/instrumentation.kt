@@ -31,16 +31,23 @@ class GoboInstrumentation : SimpleInstrumentation() {
         parameters: InstrumentationExecutionParameters?
     ): ExecutionInput {
         executionInput?.let {
-            val request = (executionInput.context as GoboGraphQLContext).request
-            logger.debug("Request hostName=\"${request.remoteAddress?.hostName}\"")
+            val context = (executionInput.context as GoboGraphQLContext)
+            val request = context.request
+            logger.debug {
+                """Request hostName="${request.remoteAddress?.hostName}" """
+            }
 
             val query = it.query.removeNewLines()
+            context.query = query
+
             if (!query.startsWith("query IntrospectionQuery")) {
-                if (query.trimStart().startsWith("mutation")) {
-                    logger.info("mutation=\"$query\" - variable-keys=${it.variables.keys}")
-                } else {
-                    val variables = if (it.variables.isEmpty()) "" else " - variables=${it.variables}"
-                    logger.info("query=\"$query\"$variables")
+                logger.debug {
+                    if (query.trimStart().startsWith("mutation")) {
+                        """mutation="$query" - variable-keys=${it.variables.keys}"""
+                    } else {
+                        val variables = if (it.variables.isEmpty()) "" else " - variables=${it.variables}"
+                        """query="$query"$variables"""
+                    }
                 }
             }
         }
