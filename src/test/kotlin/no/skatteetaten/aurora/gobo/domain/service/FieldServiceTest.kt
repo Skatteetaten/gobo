@@ -39,12 +39,12 @@ internal class FieldServiceTest {
 
     @Test
     fun `'insertOrUpdateField' first addField and when update field should return created entity`() {
-        var insertField = service.addField(FieldDto(name = "gobo.usage.usedFields.name", count = 10))
+        val insertField = service.addField(FieldDto(name = "gobo.usage.usedFields.name", count = 10))
         softly.assertThat(insertField.name).isEqualTo("gobo.usage.usedFields.name")
         softly.assertThat(insertField.count).isEqualTo(10)
 
-        insertField.count = 12
-        val (name, count) = service.insertOrUpdateField(insertField)
+        val updatedField = insertField.copy(count = 12)
+        val (name, count) = service.insertOrUpdateField(updatedField)
         softly.assertThat(name).isEqualTo("gobo.usage.usedFields.name")
         softly.assertThat(count).isEqualTo(12)
     }
@@ -52,12 +52,12 @@ internal class FieldServiceTest {
     @Test
     fun `'insertOrUpdateField' two times insertOrUpdateField should return created entity`() {
         var tmpField = FieldDto(name = "gobo.usage.usedFields.name", count = 10)
-        var insertField = service.insertOrUpdateField(tmpField)
+        val insertField = service.insertOrUpdateField(tmpField)
         softly.assertThat(insertField.name).isEqualTo("gobo.usage.usedFields.name")
         softly.assertThat(insertField.count).isEqualTo(10)
 
-        insertField.count = 12
-        val (name, count) = service.insertOrUpdateField(insertField)
+        val updatedField = insertField.copy(count = 12)
+        val (name, count) = service.insertOrUpdateField(updatedField)
         softly.assertThat(name).isEqualTo("gobo.usage.usedFields.name")
         softly.assertThat(count).isEqualTo(12)
     }

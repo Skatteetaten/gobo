@@ -1,9 +1,9 @@
 package no.skatteetaten.aurora.gobo.domain.model
 
 data class FieldDto(
-    var id: Int,
+    var id: Int? = 0,
     var name: String,
-    var count: Int? = null
+    var count: Long
 )
 
 // data class FieldClientDto(

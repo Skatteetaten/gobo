@@ -14,7 +14,7 @@ internal data class FieldEnity(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Int = 0,
     val name: String,
-    val count: Int? = null
+    val count: Long
 ) {
 
     private constructor() : this(0, "", 0)
@@ -27,14 +27,13 @@ internal data class FieldEnity(
 
     companion object {
         fun fromDto(dto: FieldDto) = FieldEnity(
-            id = dto.id ?: 0,
+//            id = dto.id ?: 0,
             name = dto.name,
             count = dto.count
         )
 
         fun fromDto(updateField: FieldDto, currentField: FieldEnity) = FieldEnity(
-            name = currentField.name!!,
-            count = updateField.count ?: currentField.count
+            currentField.id, currentField.name, updateField.count
         )
     }
 }

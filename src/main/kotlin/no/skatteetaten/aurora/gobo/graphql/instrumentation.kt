@@ -8,6 +8,7 @@ import graphql.language.Field
 import graphql.language.SelectionSet
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.domain.FieldService
+import no.skatteetaten.aurora.gobo.domain.model.FieldDto
 import no.skatteetaten.aurora.webflux.AuroraRequestParser
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpRequest
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Component
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.LongAdder
 import javax.annotation.PostConstruct
+import javax.annotation.PreDestroy
 
 private val logger = KotlinLogging.logger { }
 
@@ -29,8 +31,13 @@ class GoboInstrumentation(val fieldService: FieldService) : SimpleInstrumentatio
     val userUsage = UserUsage()
 
     @PostConstruct
-    fun gurre() {
-        print("hei")
+    fun initateAfterSpringStartup() {
+        fieldUsage.initiateFieldUsage()
+    }
+
+    @PreDestroy
+    fun beforeSpringShutdown() {
+        fieldUsage.insertOrUpdateFieldUsage()
     }
 
     override fun instrumentExecutionInput(
@@ -63,6 +70,7 @@ class GoboInstrumentation(val fieldService: FieldService) : SimpleInstrumentatio
         val selectionSet = executionContext?.operationDefinition?.selectionSet ?: SelectionSet(emptyList())
         if (selectionSet.selections.isNotEmpty() && selectionSet.isNotIntrospectionQuery()) {
             fieldUsage.update(selectionSet)
+//            executionContext?.getContext<GoboGraphQLContext>()?.request?.klientid()
             userUsage.update(executionContext)
         }
         return super.instrumentExecutionContext(executionContext, parameters)
@@ -74,10 +82,10 @@ class GoboInstrumentation(val fieldService: FieldService) : SimpleInstrumentatio
     }
 }
 
-class FieldUsage(val fieldService: FieldService) {
+        class FieldUsage(val fieldService: FieldService) {
 
-    private val _fields: ConcurrentHashMap<String, LongAdder> = ConcurrentHashMap()
-    val fields: Map<String, LongAdder>
+            private var _fields: ConcurrentHashMap<String, LongAdder> = ConcurrentHashMap()
+            val fields: Map<String, LongAdder>
         get() = _fields.toSortedMap()
 
     fun update(selectionSet: SelectionSet?, parent: String? = null) {
@@ -90,9 +98,14 @@ class FieldUsage(val fieldService: FieldService) {
         }
     }
 
+    fun initiateFieldUsage() {
+        fieldService.getAllFields().map { _fields.put(it.name, LongAdder().apply { add(it.count) }) }
+    }
+
     fun insertOrUpdateFieldUsage() {
         fields.map {
-            fieldService.insertOrUpdateField(FieldDto(it.key, it.value.toInt()))
+            print(it)
+            fieldService.insertOrUpdateField(FieldDto(name = it.key, count = it.value.toLong()))
         }
     }
 }

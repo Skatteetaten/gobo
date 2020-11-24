@@ -82,7 +82,7 @@ integrations:
 
 gobo:
     updateFieldUsage:
-        fixedRate: 200
+        fixedRate: 5000
 
 aurora.webflux.header.webclient.interceptor.enabled: true
 aurora.mvc.header.filter.enabled: false
