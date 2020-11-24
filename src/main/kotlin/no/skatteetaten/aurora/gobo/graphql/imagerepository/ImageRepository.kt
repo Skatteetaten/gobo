@@ -1,6 +1,7 @@
 package no.skatteetaten.aurora.gobo.graphql.imagerepository
 
 import com.expediagroup.graphql.annotations.GraphQLIgnore
+import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
 import java.time.Instant
 import mu.KotlinLogging
@@ -84,16 +85,21 @@ data class ImageRepository(
         first: Int,
         after: String?,
         dfe: DataFetchingEnvironment
-    ): ImageTagsConnection {
+    ): DataFetcherResult<ImageTagsConnection> {
         // TODO fix schema? isFullyQualified cannot be null
         val tagsDto = if (!isFullyQualified()!!) {
-            TagsDto(emptyList())
+            DataFetcherResult.newResult<TagsDto>().data(TagsDto(emptyList())).build()
         } else {
-            dfe.loadOrThrow(toImageRepo(filter))
+            dfe.load(toImageRepo(filter))
         }
-        val imageTags = tagsDto.tags.toImageTags(this, types)
+
+        val tags = tagsDto.data?.tags ?: emptyList()
+        val imageTags = tags.toImageTags(this, types)
         val allEdges = imageTags.map { ImageTagEdge(it) }
-        return ImageTagsConnection(pageEdges(allEdges, first, after))
+        return DataFetcherResult.newResult<ImageTagsConnection>()
+            .data(ImageTagsConnection(pageEdges(allEdges, first, after)))
+            .errors(tagsDto.errors)
+            .build()
     }
 
     private fun List<Tag>.toImageTags(imageRepository: ImageRepository, types: List<ImageTagType>?) = this
