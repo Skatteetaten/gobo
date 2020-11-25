@@ -57,7 +57,7 @@ private fun DataFetcherExceptionHandlerParameters.handleGeneralDataFetcherExcept
     }
 
     val logText =
-        """Exception while fetching data, Korrelasjonsid="${context.korrelasjonsid()}" Klientid="${context.klientid()}" exception="$exception" message="$exceptionName" path="$path" ${context.query} $source ${exception.logTextRequest()}"""
+        """Exception while fetching data, exception="$exception" Korrelasjonsid="${context.korrelasjonsid()}" Klientid="${context.klientid()}" message="$exceptionName" path="$path" ${context.query} $source ${exception.logTextRequest()}"""
     if (exception.isWebClientResponseWarnLoggable(booberUrl) || exception.isAccessDenied()) {
         logger.warn(logText)
     } else {
