@@ -4,9 +4,10 @@ import kotlinx.coroutines.reactive.awaitFirstOrNull
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
-import no.skatteetaten.aurora.gobo.integration.boober.RedeployResponse
 import no.skatteetaten.aurora.gobo.graphql.ApplicationRedeployException
 import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.ApplicationDeploymentRef
+import no.skatteetaten.aurora.gobo.graphql.awaitWithRetry
+import no.skatteetaten.aurora.gobo.integration.boober.RedeployResponse
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
@@ -14,7 +15,6 @@ import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClientResponseException
-import org.springframework.web.reactive.function.client.awaitBody
 import org.springframework.web.reactive.function.client.bodyToMono
 
 private val logger = KotlinLogging.logger {}
@@ -32,7 +32,7 @@ class ApplicationService(@TargetService(ServiceTypes.MOKEY) val webClient: WebCl
                 it.path("/api/application").queryParams(buildQueryParams(affiliations)).build()
             }
             .retrieve()
-            .awaitBody()
+            .awaitWithRetry()
         return applications?.let { resources.filter { applications.contains(it.name) } } ?: resources
     }
 
@@ -41,7 +41,7 @@ class ApplicationService(@TargetService(ServiceTypes.MOKEY) val webClient: WebCl
             .get()
             .uri("/api/application/{id}", id)
             .retrieve()
-            .awaitBody()
+            .awaitWithRetry()
     }
 
     suspend fun getApplicationDeployment(applicationDeploymentId: String): ApplicationDeploymentResource {
@@ -49,7 +49,7 @@ class ApplicationService(@TargetService(ServiceTypes.MOKEY) val webClient: WebCl
             .get()
             .uri("/api/applicationdeployment/{applicationDeploymentId}", applicationDeploymentId)
             .retrieve()
-            .awaitBody()
+            .awaitWithRetry()
     }
 
     suspend fun getApplicationDeployment(applicationDeploymentRefs: List<ApplicationDeploymentRef>): List<ApplicationDeploymentResource> {
@@ -58,7 +58,7 @@ class ApplicationService(@TargetService(ServiceTypes.MOKEY) val webClient: WebCl
             .uri("/api/applicationdeployment")
             .body(BodyInserters.fromValue(applicationDeploymentRefs))
             .retrieve()
-            .awaitBody()
+            .awaitWithRetry()
     }
 
     suspend fun getApplicationDeploymentDetails(
@@ -70,7 +70,7 @@ class ApplicationService(@TargetService(ServiceTypes.MOKEY) val webClient: WebCl
             .uri("/api/auth/applicationdeploymentdetails/{applicationDeploymentId}", applicationDeploymentId)
             .header(HttpHeaders.AUTHORIZATION, "Bearer $token")
             .retrieve()
-            .awaitBody()
+            .awaitWithRetry()
     }
 
     suspend fun getApplicationDeploymentsForDatabases(
@@ -83,7 +83,7 @@ class ApplicationService(@TargetService(ServiceTypes.MOKEY) val webClient: WebCl
             .header(HttpHeaders.AUTHORIZATION, "Bearer $token")
             .body(BodyInserters.fromValue(databaseIds))
             .retrieve()
-            .awaitBody()
+            .awaitWithRetry()
 
     private fun buildQueryParams(affiliations: List<String>): LinkedMultiValueMap<String, String> =
         LinkedMultiValueMap<String, String>().apply { addAll("affiliation", affiliations) }
