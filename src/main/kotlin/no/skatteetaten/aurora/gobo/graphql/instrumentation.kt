@@ -82,10 +82,10 @@ class GoboInstrumentation(val fieldService: FieldService) : SimpleInstrumentatio
     }
 }
 
-        class FieldUsage(val fieldService: FieldService) {
+class FieldUsage(val fieldService: FieldService) {
 
-            private var _fields: ConcurrentHashMap<String, LongAdder> = ConcurrentHashMap()
-            val fields: Map<String, LongAdder>
+    private var _fields: ConcurrentHashMap<String, LongAdder> = ConcurrentHashMap()
+    val fields: Map<String, LongAdder>
         get() = _fields.toSortedMap()
 
     fun update(selectionSet: SelectionSet?, parent: String? = null) {
