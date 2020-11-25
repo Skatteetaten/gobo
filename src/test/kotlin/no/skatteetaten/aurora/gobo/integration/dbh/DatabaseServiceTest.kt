@@ -2,7 +2,6 @@ package no.skatteetaten.aurora.gobo.integration.dbh
 
 import assertk.Assert
 import assertk.assertThat
-import assertk.assertions.cause
 import assertk.assertions.contains
 import assertk.assertions.endsWith
 import assertk.assertions.hasMessage
@@ -29,13 +28,13 @@ import no.skatteetaten.aurora.gobo.SchemaCreationRequestBuilder
 import no.skatteetaten.aurora.gobo.SchemaDeletionRequestBuilder
 import no.skatteetaten.aurora.gobo.SchemaRestorationRequestBuilder
 import no.skatteetaten.aurora.gobo.SchemaUpdateRequestBuilder
+import no.skatteetaten.aurora.gobo.graphql.database.ConnectionVerificationResponse
+import no.skatteetaten.aurora.gobo.graphql.database.JdbcUser
+import no.skatteetaten.aurora.gobo.graphql.database.RestorableDatabaseSchema
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.integration.containsAuroraToken
 import no.skatteetaten.aurora.gobo.integration.containsAuroraTokens
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseServiceReactive.Companion.HEADER_COOLDOWN_DURATION_HOURS
-import no.skatteetaten.aurora.gobo.graphql.database.ConnectionVerificationResponse
-import no.skatteetaten.aurora.gobo.graphql.database.JdbcUser
-import no.skatteetaten.aurora.gobo.graphql.database.RestorableDatabaseSchema
 import no.skatteetaten.aurora.gobo.security.SharedSecretReader
 import no.skatteetaten.aurora.gobo.testObjectMapper
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.bodyAsObject
@@ -43,9 +42,9 @@ import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.bodyAsString
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.executeBlocking
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.RecordedRequest
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.reactive.function.client.WebClientResponseException
 import java.net.UnknownHostException
 
 class DatabaseServiceTest {
@@ -204,13 +203,12 @@ class DatabaseServiceTest {
         assertThat(request?.headers?.get(HEADER_COOLDOWN_DURATION_HOURS)).isEqualTo("2")
     }
 
-    @Disabled("error handling")
     @Test
     fun `Delete database schema ser ut error response`() {
         server.executeBlocking(404 to DbhResponse.failed()) {
             assertThat {
                 databaseService.deleteDatabaseSchemas(listOf(SchemaDeletionRequestBuilder().build()))
-            }.isNotNull().isFailure().isInstanceOf(SourceSystemException::class)
+            }.isNotNull().isFailure().isInstanceOf(WebClientResponseException::class)
         }
     }
 
@@ -300,14 +298,15 @@ class DatabaseServiceTest {
         assertThat(creationRequest?.jdbcUser).isNotNull()
     }
 
-    @Disabled("error handling must be fixed")
     @Test
-    fun `Get database schema given unknown hostname throw SourceSystemException`() {
-        val serviceWithUnknownHost = DatabaseServiceReactive(WebClient.create("http://unknown-hostname"), testObjectMapper())
+    fun `Get database schema given unknown hostname throws exception`() {
+        val serviceWithUnknownHost = DatabaseServiceReactive(
+            WebClient.create("http://unknown-hostname"),
+            testObjectMapper()
+        )
 
         assertThat { runBlocking { serviceWithUnknownHost.getDatabaseSchema("abc123") } }
-            .isNotNull().isFailure().isInstanceOf(SourceSystemException::class)
-            .cause().isNotNull().isInstanceOf(UnknownHostException::class)
+            .isNotNull().isFailure().isInstanceOf(UnknownHostException::class)
     }
 
     private fun Assert<List<RecordedRequest?>>.containsPath(endingWith: String) = given { requests ->
