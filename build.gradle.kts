@@ -1,6 +1,6 @@
 plugins {
     id("java")
-    id("no.skatteetaten.gradle.aurora") version "4.0.5"
+    id("no.skatteetaten.gradle.aurora") version "4.1.1"
 }
 
 aurora {
@@ -12,14 +12,16 @@ aurora {
         useWebFlux
         useCloudContract
     }
-
     features {
         checkstylePlugin = false
+    }
+    versions {
+        springCloudContract = "2.2.5.RELEASE"
     }
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.1")
 
     implementation("io.projectreactor.kotlin:reactor-kotlin-extensions:1.0.2.RELEASE")
     implementation("org.apache.commons:commons-text:1.9")
