@@ -21,7 +21,6 @@ import no.skatteetaten.aurora.gobo.graphql.graphqlErrorsFirst
 import no.skatteetaten.aurora.gobo.graphql.isTrue
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Import
@@ -157,7 +156,6 @@ class ImageRepositoryQueryTest : GraphQLTestWithDbhAndSkap() {
     }
 
     @Test
-    @Disabled("error handling not implemented")
     fun `Query for repositories with empty array input`() {
         webTestClient.queryGraphQL(
             queryResource = reposWithTagsQuery,
@@ -224,14 +222,10 @@ class ImageRepositoryQueryTest : GraphQLTestWithDbhAndSkap() {
             .graphqlDoesNotContainErrors()
     }
 
-    @Disabled("Error handling not implemented")
     @Test
     fun `Get errors when findTagsByName fails with exception`() {
         coEvery {
-            imageRegistryService.findTagsByName(
-                listOf(imageReposAndTags.first()),
-                "test-token"
-            )
+            imageRegistryService.findTagsByName(any(), "test-token")
         } throws SourceSystemException("test exception", RuntimeException("testing testing"))
 
         val variables = mapOf("repositories" to imageReposAndTags.first().imageRepository)
