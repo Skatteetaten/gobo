@@ -13,6 +13,8 @@ integrations:
         url: http://localhost:6566
     cantus:
         url: http://localhost:6568
+    boober:
+        url: http://localhost:6569
     docker:
         cluster:
             url: docker-registry.default.svc:5000
@@ -52,6 +54,11 @@ integrations:
 aurora:
     token:
         value: abc123
+    webflux:
+        header:
+            webclient:
+                interceptor:
+                    enabled: true
 
 openshift:
     cluster: http://localhost

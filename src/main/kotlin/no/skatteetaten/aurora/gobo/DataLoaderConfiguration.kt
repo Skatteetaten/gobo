@@ -1,6 +1,7 @@
 package no.skatteetaten.aurora.gobo
 
 import com.expediagroup.graphql.spring.execution.DataLoaderRegistryFactory
+import graphql.execution.DataFetcherResult
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.asCoroutineDispatcher
@@ -12,7 +13,6 @@ import org.dataloader.BatchLoaderEnvironment
 import org.dataloader.DataLoader
 import org.dataloader.DataLoaderOptions
 import org.dataloader.DataLoaderRegistry
-import org.dataloader.Try
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -23,11 +23,7 @@ interface KeyDataLoader<K, V> {
 }
 
 interface MultipleKeysDataLoader<K, V> {
-    suspend fun getByKeys(keys: Set<K>, ctx: GoboGraphQLContext): Map<K, Try<V>>
-}
-
-interface MultipleKeysBatchedDataLoader<K, V> {
-    suspend fun getByKeys(keys: Set<K>, ctx: GoboGraphQLContext): Map<K, Try<V>>
+    suspend fun getByKeys(keys: Set<K>, ctx: GoboGraphQLContext): Map<K, DataFetcherResult<V>>
 }
 
 private val logger = KotlinLogging.logger { }
@@ -63,8 +59,8 @@ class DataLoaderConfiguration(
     private fun <K, V> batchDataLoaderMappedMultiple(
         coroutineDispatcher: ExecutorCoroutineDispatcher,
         keysDataLoader: MultipleKeysDataLoader<K, V>
-    ): DataLoader<K, V> =
-        DataLoader.newMappedDataLoaderWithTry(
+    ): DataLoader<K, DataFetcherResult<V>> =
+        DataLoader.newMappedDataLoader(
             { keys: Set<K>, env: BatchLoaderEnvironment ->
                 GlobalScope.async(coroutineDispatcher) {
                     keysDataLoader.getByKeys(
@@ -77,41 +73,24 @@ class DataLoaderConfiguration(
         )
 
     /**
-     * Use this if you have a service that loads multiple ids and include batching
-     */
-    private fun <K, V> batchDataLoaderMappedMultipleBatched(
-        coroutineDispatcher: ExecutorCoroutineDispatcher,
-        keysDataLoader: MultipleKeysDataLoader<K, V>
-    ): DataLoader<K, V> =
-        DataLoader.newMappedDataLoaderWithTry(
-            { keys: Set<K>, env: BatchLoaderEnvironment ->
-                GlobalScope.async(coroutineDispatcher) {
-                    keysDataLoader.getByKeys(
-                        keys,
-                        env.keyContexts.entries.first().value as GoboGraphQLContext
-                    )
-                }.asCompletableFuture()
-            },
-            DataLoaderOptions.newOptions().setCachingEnabled(false)
-        )
-
-    /**
      * Use this if you have a service that loads a single id. Will make requests in parallel
      */
     private fun <K, V> batchDataLoaderMappedSingle(
         coroutineDispatcher: ExecutorCoroutineDispatcher,
         keyDataLoader: KeyDataLoader<K, V>
-    ): DataLoader<K, V> =
-        DataLoader.newMappedDataLoaderWithTry(
+    ): DataLoader<K, DataFetcherResult<V>> =
+        DataLoader.newMappedDataLoader(
             { keys: Set<K>, env: BatchLoaderEnvironment ->
                 GlobalScope.async(coroutineDispatcher) {
                     keys.map { key ->
-                        key to try {
-                            val ctx = env.keyContexts[key] as GoboGraphQLContext
-                            Try.succeeded(keyDataLoader.getByKey(key, ctx))
-                        } catch (e: Exception) {
-                            Try.failed<V>(e)
-                        }
+                        key to DataFetcherResult.newResult<V>().apply {
+                            try {
+                                val ctx = env.keyContexts[key] as GoboGraphQLContext
+                                data(keyDataLoader.getByKey(key, ctx))
+                            } catch (e: Exception) {
+                                error(GraphQLExceptionWrapper(e))
+                            }
+                        }.build()
                     }.toMap()
                 }.asCompletableFuture()
             },

@@ -29,11 +29,10 @@ inline fun <reified T : Any> Response<T>.responses(): List<T> = when {
     )
     this.count == 0 -> emptyList()
     else -> this.items.map { item ->
-        kotlin.runCatching {
+        runCatching {
             objectMapper.convertValue(item, T::class.java)
         }.onFailure {
-            KotlinLogging.logger { }.error(it) { "Unable to parse response items from boober: $item" }
-            throw it
+            KotlinLogging.logger {}.error(it) { "Unable to parse response items from boober: $item" }
         }.getOrThrow()
     }
 }
@@ -47,7 +46,7 @@ class BooberWebClient(
     @Value("\${integrations.boober.url:}") val booberUrl: String?,
     @TargetService(ServiceTypes.BOOBER) val webClient: WebClient,
     val objectMapper: ObjectMapper
-) : WebClient by webClient {
+) {
 
     fun WebClient.RequestHeadersUriSpec<*>.booberUrl(
         url: String,
@@ -121,7 +120,7 @@ class BooberWebClient(
             return "$booberUrl$link"
         }
 
-        val booberUri = URI(booberUrl)
+        val booberUri = URI(booberUrl!!)
         val linkUri = URI(link)
         return URI(
             booberUri.scheme,

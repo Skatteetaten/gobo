@@ -3,12 +3,12 @@ package no.skatteetaten.aurora.gobo.graphql.database
 import com.expediagroup.graphql.spring.operations.Query
 import graphql.schema.DataFetchingEnvironment
 import no.skatteetaten.aurora.gobo.graphql.affiliation.Affiliation
-import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseServiceReactive
+import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseService
 import no.skatteetaten.aurora.gobo.security.checkValidUserToken
 import org.springframework.stereotype.Component
 
 @Component
-class DatabaseSchemaQuery(val databaseService: DatabaseServiceReactive) : Query {
+class DatabaseSchemaQuery(val databaseService: DatabaseService) : Query {
 
     suspend fun databaseInstances(affiliation: String?, dfe: DataFetchingEnvironment): List<DatabaseInstance> {
         dfe.checkValidUserToken()

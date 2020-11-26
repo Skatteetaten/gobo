@@ -10,13 +10,9 @@ import no.skatteetaten.aurora.gobo.graphql.webseal.WebsealState
 data class Affiliation(val name: String) {
 
     @GraphQLDescription("Get all database schemas for the given affiliation")
-    suspend fun databaseSchemas(dfe: DataFetchingEnvironment): List<DatabaseSchema> {
-        return dfe.loadMany(name)
-    }
+    suspend fun databaseSchemas(dfe: DataFetchingEnvironment): List<DatabaseSchema> = dfe.loadMany(name)
 
-    suspend fun websealStates(dfe: DataFetchingEnvironment): List<WebsealState> {
-        return dfe.loadMany(name)
-    }
+    suspend fun websealStates(dfe: DataFetchingEnvironment): List<WebsealState> = dfe.loadMany(name)
 }
 
 data class AffiliationEdge(val node: Affiliation) : GoboEdge(node.name)

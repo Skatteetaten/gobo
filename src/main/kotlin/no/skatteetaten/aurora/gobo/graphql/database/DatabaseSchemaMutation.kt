@@ -2,13 +2,13 @@ package no.skatteetaten.aurora.gobo.graphql.database
 
 import com.expediagroup.graphql.spring.operations.Mutation
 import graphql.schema.DataFetchingEnvironment
-import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseServiceReactive
 import no.skatteetaten.aurora.gobo.graphql.affiliation.Affiliation
+import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseService
 import no.skatteetaten.aurora.gobo.security.checkValidUserToken
 import org.springframework.stereotype.Component
 
 @Component
-class DatabaseSchemaMutation(val databaseService: DatabaseServiceReactive) : Mutation {
+class DatabaseSchemaMutation(val databaseService: DatabaseService) : Mutation {
 
     suspend fun testJdbcConnectionForJdbcUser(
         input: JdbcUser,

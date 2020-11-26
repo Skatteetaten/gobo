@@ -6,16 +6,20 @@ import assertk.assertions.isInstanceOf
 import graphql.ExceptionWhileDataFetching
 import graphql.execution.DataFetcherExceptionHandlerParameters
 import graphql.schema.DataFetchingEnvironment
+import io.mockk.every
 import io.mockk.mockk
 import java.util.concurrent.CompletionException
 import no.skatteetaten.aurora.gobo.GoboException
+import no.skatteetaten.aurora.gobo.graphql.GoboGraphQLContext
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.graphql.IntegrationDisabledException
 import org.junit.jupiter.api.Test
 
 class GoboDataFetcherExceptionHandlerTest {
-    private val exceptionHandler = GoboDataFetcherExceptionHandler()
-    private val env = mockk<DataFetchingEnvironment>(relaxed = true)
+    private val exceptionHandler = GoboDataFetcherExceptionHandler("http://boober")
+    private val env = mockk<DataFetchingEnvironment>(relaxed = true) {
+        every { getContext<GoboGraphQLContext>() } returns mockk<GoboGraphQLContext>(relaxed = true)
+    }
 
     @Test
     fun `Given GoboException add GraphQL error to execution context`() {
@@ -44,7 +48,7 @@ class GoboDataFetcherExceptionHandlerTest {
     }
 
     @Test
-    fun `Given Exception do not add GraphQL error`() {
+    fun `Given Exception adds GraphQL error`() {
         val handlerParameters = DataFetcherExceptionHandlerParameters
             .newExceptionParameters()
             .dataFetchingEnvironment(env)
@@ -53,7 +57,7 @@ class GoboDataFetcherExceptionHandlerTest {
 
         val exceptions = exceptionHandler.onException(handlerParameters)
         assertThat(exceptions.errors).hasSize(1)
-        assertThat(exceptions.errors.first()).isInstanceOf(graphql.ExceptionWhileDataFetching::class)
+        assertThat(exceptions.errors.first()).isInstanceOf(GraphQLExceptionWrapper::class)
     }
 
     @Test

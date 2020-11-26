@@ -15,8 +15,10 @@ import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
 
+@Import(AuroraConfigQuery::class, ApplicationDeploymentSpecListDataLoader::class)
 class AuroraConfigQueryTest : GraphQLTestWithDbhAndSkap() {
 
     @Value("classpath:graphql/queries/getFile.graphql")

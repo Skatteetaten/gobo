@@ -21,7 +21,7 @@ import org.springframework.test.context.ActiveProfiles
 class ApplicationServiceTest : StrubrunnerRepoPropertiesEnabler() {
 
     @Autowired
-    lateinit var applicationService: ApplicationService
+    private lateinit var applicationService: ApplicationService
 
     @Test
     fun `Get applications for affiliation`() {

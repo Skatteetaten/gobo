@@ -10,7 +10,6 @@ class ApplicationDeploymentListDataLoader(
     private val applicationService: ApplicationService
 ) : KeyDataLoader<String, List<ApplicationDeployment>> {
 
-    // TODO this is not optimal, should batch all the keys
     override suspend fun getByKey(key: String, context: GoboGraphQLContext): List<ApplicationDeployment> {
         val resources =
             applicationService.getApplicationDeploymentsForDatabases(context.token(), listOf(key))

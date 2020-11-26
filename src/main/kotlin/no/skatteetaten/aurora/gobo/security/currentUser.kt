@@ -18,7 +18,7 @@ val ANONYMOUS_USER = User(GUEST_USER_ID, GUEST_USER_NAME)
 fun DataFetchingEnvironment.checkValidUserToken() {
     token()
     if (currentUser() == ANONYMOUS_USER) {
-        throw AccessDeniedException("Valid bearer token required")
+        throw AccessDeniedException("Valid authentication token required")
     }
 }
 

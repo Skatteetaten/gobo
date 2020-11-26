@@ -11,8 +11,10 @@ import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
 
+@Import(AuroraConfigQuery::class, AuroraConfigMutation::class)
 class CreateAuroraConfigFileTest : GraphQLTestWithDbhAndSkap() {
 
     @Value("classpath:graphql/mutations/createAuroraConfigFile.graphql")

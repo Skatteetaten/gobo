@@ -24,6 +24,8 @@ fun String.removeNewLines() =
     this.replace("\n", " ")
         .replace(Regex("\\s+"), " ")
 
+private fun String.isNotIntrospectionQuery() = !startsWith("query IntrospectionQuery")
+
 @Component
 class GoboInstrumentation(val fieldService: FieldService) : SimpleInstrumentation() {
 
@@ -45,21 +47,25 @@ class GoboInstrumentation(val fieldService: FieldService) : SimpleInstrumentatio
         parameters: InstrumentationExecutionParameters?
     ): ExecutionInput {
         executionInput?.let {
-            val request = (executionInput.context as GoboGraphQLContext).request
-            logger.debug("Request hostName=\"${request.remoteAddress?.hostName}\"")
-            val requestInfo =
-                "Klientid=\"${request.klientid()}\" Korrelasjonsid=\"${request.korrelasjonsid()}\""
+            val context = (executionInput.context as GoboGraphQLContext)
+            val request = context.request
+            logger.debug { """Request hostName="${request.remoteAddress?.hostName}" """ }
 
-            val query = it.query.removeNewLines()
-            if (!query.startsWith("query IntrospectionQuery")) {
+            val queryText = it.query.removeNewLines().let { query ->
                 if (query.trimStart().startsWith("mutation")) {
-                    logger.info("$requestInfo mutation=\"$query\" - variable-keys=${it.variables.keys}")
+                    """mutation="$query" - variable-keys=${it.variables.keys}"""
                 } else {
                     val variables = if (it.variables.isEmpty()) "" else " - variables=${it.variables}"
-                    logger.info("$requestInfo query=\"$query\"$variables")
+                    """query="$query"$variables"""
                 }
             }
+
+            context.query = queryText
+            if (queryText.isNotIntrospectionQuery()) {
+                logger.debug(queryText)
+            }
         }
+
         return super.instrumentExecutionInput(executionInput, parameters)
     }
 
@@ -70,7 +76,6 @@ class GoboInstrumentation(val fieldService: FieldService) : SimpleInstrumentatio
         val selectionSet = executionContext?.operationDefinition?.selectionSet ?: SelectionSet(emptyList())
         if (selectionSet.selections.isNotEmpty() && selectionSet.isNotIntrospectionQuery()) {
             fieldUsage.update(selectionSet)
-//            executionContext?.getContext<GoboGraphQLContext>()?.request?.klientid()
             userUsage.update(executionContext)
         }
         return super.instrumentExecutionContext(executionContext, parameters)

@@ -26,7 +26,8 @@ internal data class FieldEnity(
         )
 
         fun fromDto(updateField: FieldDto, currentField: FieldEnity) = FieldEnity(
-            currentField.name, updateField.count
+            currentField.name,
+            updateField.count
         )
     }
 }

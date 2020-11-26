@@ -5,6 +5,7 @@ import io.mockk.coEvery
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentDetailsBuilder
 import no.skatteetaten.aurora.gobo.ApplicationResourceBuilder
 import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithDbhAndSkap
+import no.skatteetaten.aurora.gobo.graphql.application.ApplicationQuery
 import no.skatteetaten.aurora.gobo.graphql.graphqlDataWithPrefix
 import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.graphql.isFalse
@@ -15,25 +16,27 @@ import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
 
-class ApplicationDeploymentDetailsResolverTest : GraphQLTestWithDbhAndSkap() {
+@Import(ApplicationQuery::class, ApplicationDeploymentDetailsDataLoader::class)
+class ApplicationDeploymentDetailsTest : GraphQLTestWithDbhAndSkap() {
 
     @Value("classpath:graphql/queries/getApplicationsWithPods.graphql")
     private lateinit var getRepositoriesAndTagsQuery: Resource
 
     @MockkBean
-    private lateinit var applicationServiceBlocking: ApplicationService
+    private lateinit var applicationService: ApplicationService
 
     @BeforeEach
     fun setUp() {
         val affiliations = listOf("paas")
 
         val application = ApplicationResourceBuilder().build()
-        coEvery { applicationServiceBlocking.getApplications(affiliations) } returns
+        coEvery { applicationService.getApplications(affiliations) } returns
             listOf(application)
 
-        coEvery { applicationServiceBlocking.getApplicationDeploymentDetails(any(), any()) } returns
+        coEvery { applicationService.getApplicationDeploymentDetails(any(), any()) } returns
             ApplicationDeploymentDetailsBuilder().build()
     }
 

@@ -6,7 +6,6 @@ info:
         unclematt: ${integrations.unclematt.url}
         cantus: ${integrations.cantus.url}
 
-
 spring:
     application:
         name: gobo
@@ -18,12 +17,18 @@ spring:
         max-in-memory-size: -1 # unlimited
     zipkin:
         enabled: false
-    sleuth:
-        enabled: false
-
 
 graphql:
     packages: "no.skatteetaten.aurora.gobo.graphql"
+
+aurora:
+    webflux:
+        header:
+            filter:
+                enabled: true
+            webclient:
+                interceptor:
+                    enabled: true
 
 management:
     endpoints:
@@ -84,16 +89,9 @@ gobo:
     updateFieldUsage:
         fixedRate: 5000
 
-aurora.webflux.header.webclient.interceptor.enabled: true
-aurora.mvc.header.filter.enabled: false
-aurora.webflux.header.filter.enabled: false
-
-
-
-
-
 logging:
     level:
+        no.skatteetaten: INFO
         org:
             jboss: WARN
             hibernate: WARN
@@ -195,3 +193,5 @@ spring:
 aurora:
     token:
         location: /u01/secrets/app/aurora-token/token
+
+logging.level.com.expediagroup.graphql.spring: WARN

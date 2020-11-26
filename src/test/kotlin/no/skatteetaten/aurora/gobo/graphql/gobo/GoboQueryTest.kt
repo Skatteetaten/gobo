@@ -1,5 +1,6 @@
 package no.skatteetaten.aurora.gobo.graphql.gobo
 
+import no.skatteetaten.aurora.gobo.graphql.GoboInstrumentation
 import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithDbhAndSkap
 import no.skatteetaten.aurora.gobo.graphql.graphqlData
 import no.skatteetaten.aurora.gobo.graphql.graphqlDataWithPrefix
@@ -7,9 +8,11 @@ import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
 
-class GoboQueryResolverTest : GraphQLTestWithDbhAndSkap() {
+@Import(GoboQuery::class, GoboInstrumentation::class)
+class GoboQueryTest : GraphQLTestWithDbhAndSkap() {
 
     @Value("classpath:graphql/queries/getGoboUsage.graphql")
     private lateinit var getGoboUsageQuery: Resource

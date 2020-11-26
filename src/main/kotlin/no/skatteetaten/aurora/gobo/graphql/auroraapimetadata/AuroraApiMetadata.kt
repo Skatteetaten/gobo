@@ -1,14 +1,14 @@
 package no.skatteetaten.aurora.gobo.graphql.auroraapimetadata
 
 import graphql.schema.DataFetchingEnvironment
-import no.skatteetaten.aurora.gobo.graphql.load
+import no.skatteetaten.aurora.gobo.graphql.loadOrThrow
 import no.skatteetaten.aurora.gobo.integration.boober.ConfigNames
 
 data class AuroraApiMetadata(
     val clientConfig: ClientConfig
 ) {
     suspend fun configNames(dfe: DataFetchingEnvironment): List<String> {
-        return dfe.load<AuroraApiMetadata, ConfigNames>(this).names
+        return dfe.loadOrThrow<AuroraApiMetadata, ConfigNames>(this).names
     }
 }
 

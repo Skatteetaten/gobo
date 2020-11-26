@@ -6,9 +6,11 @@ import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
 
-class CurrentUserQueryResolverTest : GraphQLTestWithDbhAndSkap() {
+@Import(CurrentUserQuery::class)
+class CurrentUserQueryTest : GraphQLTestWithDbhAndSkap() {
 
     @Value("classpath:graphql/queries/getCurrentUser.graphql")
     private lateinit var getCurrentUserQuery: Resource

@@ -35,7 +35,7 @@ data class CantusFailure(
     val errorMessage: String
 )
 
-data class AuroraResponse<T : HalResource?>(
+data class AuroraResponse<T : Any>(
     val items: List<T> = emptyList(),
     val failure: List<CantusFailure> = emptyList(),
     val success: Boolean = true,

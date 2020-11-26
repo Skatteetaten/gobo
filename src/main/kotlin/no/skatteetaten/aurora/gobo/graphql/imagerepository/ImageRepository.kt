@@ -1,6 +1,7 @@
 package no.skatteetaten.aurora.gobo.graphql.imagerepository
 
 import com.expediagroup.graphql.annotations.GraphQLIgnore
+import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
 import java.time.Instant
 import mu.KotlinLogging
@@ -13,6 +14,7 @@ import no.skatteetaten.aurora.gobo.graphql.GoboPageInfo
 import no.skatteetaten.aurora.gobo.graphql.GoboPagedEdges
 import no.skatteetaten.aurora.gobo.graphql.load
 import no.skatteetaten.aurora.gobo.graphql.loadMultipleKeys
+import no.skatteetaten.aurora.gobo.graphql.loadOrThrow
 import no.skatteetaten.aurora.gobo.graphql.pageEdges
 
 private val logger = KotlinLogging.logger {}
@@ -69,7 +71,11 @@ data class ImageRepository(
         val imageTags = names.map { ImageTag(this, it) }
         val values = dfe.loadMultipleKeys<ImageTag, Image>(imageTags)
         return values.map {
-            ImageWithType(it.key.name, it.value.get())
+            if (it.value.hasErrors()) {
+                null
+            } else {
+                ImageWithType(it.key.name, it.value.data)
+            }
         }
     }
 
@@ -79,16 +85,21 @@ data class ImageRepository(
         first: Int,
         after: String?,
         dfe: DataFetchingEnvironment
-    ): ImageTagsConnection {
+    ): DataFetcherResult<ImageTagsConnection> {
         // TODO fix schema? isFullyQualified cannot be null
         val tagsDto = if (!isFullyQualified()!!) {
-            TagsDto(emptyList())
+            DataFetcherResult.newResult<TagsDto>().data(TagsDto(emptyList())).build()
         } else {
             dfe.load(toImageRepo(filter))
         }
-        val imageTags = tagsDto.tags.toImageTags(this, types)
+
+        val tags = tagsDto.data?.tags ?: emptyList()
+        val imageTags = tags.toImageTags(this, types)
         val allEdges = imageTags.map { ImageTagEdge(it) }
-        return ImageTagsConnection(pageEdges(allEdges, first, after))
+        return DataFetcherResult.newResult<ImageTagsConnection>()
+            .data(ImageTagsConnection(pageEdges(allEdges, first, after)))
+            .errors(tagsDto.errors)
+            .build()
     }
 
     private fun List<Tag>.toImageTags(imageRepository: ImageRepository, types: List<ImageTagType>?) = this
@@ -96,7 +107,7 @@ data class ImageRepository(
         .filter { types == null || it.type in types }
 
     suspend fun guiUrl(dfe: DataFetchingEnvironment): String? {
-        val guiUrl: GuiUrl = dfe.load(this)
+        val guiUrl: GuiUrl = dfe.loadOrThrow(this)
         return guiUrl.url
     }
 
@@ -130,7 +141,7 @@ data class ImageTag(
 ) {
     val type: ImageTagType get() = typeOf(name)
 
-    suspend fun image(dfe: DataFetchingEnvironment): Image? = dfe.load<ImageTag, Image>(this)
+    suspend fun image(dfe: DataFetchingEnvironment) = dfe.load<ImageTag, Image?>(this)
 
     companion object {
         fun fromTagString(tagString: String, lastDelimiter: String = ":"): ImageTag {
