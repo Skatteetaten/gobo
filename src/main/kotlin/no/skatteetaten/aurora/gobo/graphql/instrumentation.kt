@@ -100,6 +100,7 @@ class FieldUsage(val fieldService: FieldService) {
 
     fun initiateFieldUsage() {
         fieldService.getAllFields().map { _fields.put(it.name, LongAdder().apply { add(it.count) }) }
+//        fieldService.getAllFields().map { _fields.put(it.name, GoboFieldCounter().apply { it.count}) }
     }
 
     fun insertOrUpdateFieldUsage() {

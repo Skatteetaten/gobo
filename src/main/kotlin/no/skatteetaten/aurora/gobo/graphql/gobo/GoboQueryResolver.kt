@@ -14,7 +14,8 @@ class GoboQueryResolver(private val goboInstrumentation: GoboInstrumentation) : 
 
     fun gobo(dfe: DataFetchingEnvironment): Gobo {
         dfe.checkValidUserToken()
-        val fields = goboInstrumentation.fieldUsage.fields.map { GoboField(it.key, it.value.sum()) }
+//        val fields = goboInstrumentation.fieldUsage.fields.map { GoboField(it.key, it.value.sum()) }
+        val fields = goboInstrumentation.fieldUsage.fields.map { GoboFieldCounter(it.key, it.value.sum()) }
         val users = goboInstrumentation.userUsage.users.map { GoboUser(it.key, it.value.sum()) }
         return Gobo(startTime, GoboUsage(fields, users))
     }
