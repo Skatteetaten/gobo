@@ -2,20 +2,17 @@ package no.skatteetaten.aurora.gobo.integration.unclematt
 
 import assertk.all
 import assertk.assertThat
-import assertk.assertions.contains
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFailure
 import assertk.assertions.isInstanceOf
 import assertk.assertions.isNotNull
-import assertk.assertions.message
-import assertk.assertions.prop
+import assertk.assertions.messageContains
 import no.skatteetaten.aurora.gobo.integration.Response
-import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.executeBlocking
 import okhttp3.mockwebserver.MockWebServer
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.reactive.function.client.WebClientResponseException
 
 class ProbeFireWallTest {
 
@@ -31,15 +28,13 @@ class ProbeFireWallTest {
         }
     }
 
-    @Disabled("Fix error handling for webclient")
     @Test
     fun `throws correct exception when backend returns 404`() {
         server.executeBlocking(404 to Response<String>(message = "something went wrong", items = emptyList())) {
             assertThat {
                 probeService.probeFirewall("server.test.no", 9999)
             }.isNotNull().isFailure().all {
-                isInstanceOf(SourceSystemException::class).prop(SourceSystemException::errorMessage).contains("404")
-                message().isNotNull().isEqualTo("something went wrong")
+                isInstanceOf(WebClientResponseException::class).messageContains("404 Not Found")
             }
         }
     }

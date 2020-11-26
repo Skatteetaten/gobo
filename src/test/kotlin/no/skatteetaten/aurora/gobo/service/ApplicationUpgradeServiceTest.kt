@@ -1,38 +1,32 @@
 package no.skatteetaten.aurora.gobo.service
 
 import assertk.assertThat
-import assertk.assertions.contains
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFailure
 import assertk.assertions.isInstanceOf
 import assertk.assertions.isNotNull
-import assertk.assertions.message
+import assertk.assertions.messageContains
 import com.fasterxml.jackson.databind.node.TextNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.mockk.mockk
 import no.skatteetaten.aurora.gobo.ApplicationConfig
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentDetailsBuilder
 import no.skatteetaten.aurora.gobo.AuroraConfigFileBuilder
+import no.skatteetaten.aurora.gobo.graphql.ApplicationRedeployException
 import no.skatteetaten.aurora.gobo.integration.Response
-import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigService
 import no.skatteetaten.aurora.gobo.integration.boober.BooberWebClient
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
-import no.skatteetaten.aurora.gobo.graphql.ApplicationRedeployException
 import no.skatteetaten.aurora.gobo.testObjectMapper
 import no.skatteetaten.aurora.mockmvc.extensions.TestObjectMapperConfigurer
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.executeBlocking
-import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
-import okhttp3.mockwebserver.SocketPolicy
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
-import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.EnumSource
 import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.reactive.function.client.WebClientResponseException
 import uk.q3c.rest.hal.Links
 
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
@@ -100,32 +94,12 @@ class ApplicationUpgradeServiceTest {
         assertThat(requests.size).isEqualTo(5)
     }
 
-    @Disabled("error handling")
-    @ParameterizedTest
-    @EnumSource(
-        value = SocketPolicy::class,
-        names = ["DISCONNECT_AFTER_REQUEST", "DISCONNECT_DURING_RESPONSE_BODY", "NO_RESPONSE"],
-        mode = EnumSource.Mode.INCLUDE
-    )
-    fun `Handle exception from AuroraConfigService`(socketPolicy: SocketPolicy) {
-        val failureResponse = MockResponse().apply { this.socketPolicy = socketPolicy }
-
-        server.executeBlocking(failureResponse) {
-            assertThat {
-                upgradeService.upgrade("token", "applicationDeploymentId", "version")
-            }.isNotNull().isFailure().isInstanceOf(SourceSystemException::class)
-        }
-    }
-
-    @Disabled("error handling")
     @Test
     fun `Handle error response from AuroraConfigService`() {
-
         server.executeBlocking(404 to "Not found") {
             assertThat {
                 upgradeService.upgrade("token", "applicationDeploymentId", "version")
-            }.isNotNull().isFailure().isInstanceOf(SourceSystemException::class)
-                .message().isNotNull().contains("404")
+            }.isNotNull().isFailure().isInstanceOf(WebClientResponseException::class).messageContains("404")
         }
     }
 
@@ -143,7 +117,8 @@ class ApplicationUpgradeServiceTest {
 
     private fun patchResponse() = Response(items = listOf(AuroraConfigFileBuilder().build()))
 
-    private fun redeployResponse() = Response(items = listOf(jacksonObjectMapper().readTree("""{ "applicationDeploymentId": "123" }""")))
+    private fun redeployResponse() =
+        Response(items = listOf(jacksonObjectMapper().readTree("""{ "applicationDeploymentId": "123" }""")))
 
     private fun refreshResponse() = Response(items = listOf(TextNode("{}")))
 }
