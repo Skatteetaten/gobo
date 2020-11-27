@@ -5,22 +5,18 @@ import assertk.assertThat
 import assertk.assertions.contains
 import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
-import com.ninjasquad.springmockk.MockkBean
 import graphql.execution.ExecutionContextBuilder
 import graphql.execution.ExecutionId
 import graphql.language.Field
 import graphql.language.OperationDefinition
 import graphql.language.SelectionSet
+import io.mockk.mockk
 import no.skatteetaten.aurora.gobo.infrastructure.repository.FieldServiceImpl
 import org.junit.jupiter.api.Test
-import org.springframework.context.annotation.Import
 
-@Import(GoboInstrumentation::class)
 class GoboInstrumentationTest {
 
-    @MockkBean
-    private lateinit var fieldService: FieldServiceImpl
-
+    private val fieldService: FieldServiceImpl = mockk()
     private val goboInstrumentation = GoboInstrumentation(fieldService)
 
     @Test
