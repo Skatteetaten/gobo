@@ -83,6 +83,11 @@ integrations:
             auth: Basic
             readOnly: false
 
+
+gobo:
+    updateFieldUsage:
+        fixedRate: 5000
+
 logging:
     level:
         org:
@@ -90,6 +95,20 @@ logging:
             hibernate: WARN
             springframework: WARN
             apache: WARN
+---
+
+spring:
+    profiles: local
+    application:
+        name: gobo
+    datasource:
+        url: jdbc:postgresql://uil0aup-drivein-pgsql01:5432/imocssyarmnozrrofrafhmnxiytmtf
+        username: imocssyarmnozrrofrafhmnxiytmtf
+        password: a1WAJEoIIJO5pOgoVj1R3Mwx0zZrj4
+        driverClassName: org.postgresql.Driver
+
+
+
 ---
 spring:
     profiles: local

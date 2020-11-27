@@ -11,13 +11,15 @@ import graphql.execution.ExecutionId
 import graphql.language.Field
 import graphql.language.OperationDefinition
 import graphql.language.SelectionSet
-import no.skatteetaten.aurora.gobo.domain.FieldService
+import no.skatteetaten.aurora.gobo.infrastructure.repository.FieldServiceImpl
 import org.junit.jupiter.api.Test
+import org.springframework.context.annotation.Import
 
+@Import(GoboInstrumentation::class)
 class GoboInstrumentationTest {
 
     @MockkBean
-    private lateinit var fieldService: FieldService
+    private lateinit var fieldService: FieldServiceImpl
 
     private val goboInstrumentation = GoboInstrumentation(fieldService)
 

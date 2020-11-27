@@ -30,6 +30,9 @@ dependencies {
     implementation("com.expediagroup:graphql-kotlin-spring-server:3.6.7")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 
+    // Postgres
+    implementation("org.postgresql:postgresql")
+
 //    implementation("com.h2database:h2")
 
     implementation("org.flywaydb:flyway-core")
