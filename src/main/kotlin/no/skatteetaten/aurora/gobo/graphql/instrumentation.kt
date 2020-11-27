@@ -7,12 +7,16 @@ import graphql.execution.instrumentation.parameters.InstrumentationExecutionPara
 import graphql.language.Field
 import graphql.language.SelectionSet
 import mu.KotlinLogging
+import no.skatteetaten.aurora.gobo.domain.FieldService
+import no.skatteetaten.aurora.gobo.domain.model.FieldDto
 import no.skatteetaten.aurora.webflux.AuroraRequestParser
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpRequest
 import org.springframework.stereotype.Component
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.LongAdder
+import javax.annotation.PostConstruct
+import javax.annotation.PreDestroy
 
 private val logger = KotlinLogging.logger { }
 
@@ -23,10 +27,20 @@ fun String.removeNewLines() =
 private fun String.isNotIntrospectionQuery() = !startsWith("query IntrospectionQuery")
 
 @Component
-class GoboInstrumentation : SimpleInstrumentation() {
+class GoboInstrumentation(val fieldService: FieldService) : SimpleInstrumentation() {
 
-    val fieldUsage = FieldUsage()
+    val fieldUsage = FieldUsage(fieldService)
     val userUsage = UserUsage()
+
+    @PostConstruct
+    fun initateAfterSpringStartup() {
+        fieldUsage.initiateFieldUsage()
+    }
+
+    @PreDestroy
+    fun beforeSpringShutdown() {
+        fieldUsage.insertOrUpdateFieldUsage()
+    }
 
     override fun instrumentExecutionInput(
         executionInput: ExecutionInput?,
@@ -73,7 +87,7 @@ class GoboInstrumentation : SimpleInstrumentation() {
     }
 }
 
-class FieldUsage {
+class FieldUsage(val fieldService: FieldService) {
     private val _fields: ConcurrentHashMap<String, LongAdder> = ConcurrentHashMap()
     val fields: Map<String, LongAdder>
         get() = _fields.toSortedMap()
@@ -85,6 +99,18 @@ class FieldUsage {
                 _fields.computeIfAbsent(fullName) { LongAdder() }.increment()
                 update(it.selectionSet, fullName)
             }
+        }
+    }
+
+    fun initiateFieldUsage() {
+        fieldService.getAllFields().map { _fields.put(it.name, LongAdder().apply { add(it.count) }) }
+//        fieldService.getAllFields().map { _fields.put(it.name, GoboFieldCounter().apply { it.count}) }
+    }
+
+    fun insertOrUpdateFieldUsage() {
+        fields.map {
+            print(it)
+            fieldService.insertOrUpdateField(FieldDto(name = it.key, count = it.value.toLong()))
         }
     }
 }

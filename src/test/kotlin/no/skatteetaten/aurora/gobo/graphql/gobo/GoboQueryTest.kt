@@ -1,5 +1,7 @@
 package no.skatteetaten.aurora.gobo.graphql.gobo
 
+import io.mockk.mockk
+import no.skatteetaten.aurora.gobo.domain.FieldService
 import no.skatteetaten.aurora.gobo.graphql.GoboInstrumentation
 import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithDbhAndSkap
 import no.skatteetaten.aurora.gobo.graphql.graphqlData
@@ -11,8 +13,12 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
 
-@Import(GoboQuery::class, GoboInstrumentation::class)
+@Import(GoboQuery::class)
 class GoboQueryTest : GraphQLTestWithDbhAndSkap() {
+
+    private val fieldService: FieldService = mockk()
+
+    private val goboInstrumentation = GoboInstrumentation(fieldService)
 
     @Value("classpath:graphql/queries/getGoboUsage.graphql")
     private lateinit var getGoboUsageQuery: Resource

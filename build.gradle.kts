@@ -1,6 +1,7 @@
 plugins {
     id("java")
     id("no.skatteetaten.gradle.aurora") version "4.1.1"
+    id("org.flywaydb.flyway") version "7.1.1"
 }
 
 aurora {
@@ -27,6 +28,11 @@ dependencies {
     implementation("org.apache.commons:commons-text:1.9")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("com.expediagroup:graphql-kotlin-spring-server:3.6.7")
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+
+//    implementation("com.h2database:h2")
+
+    implementation("org.flywaydb:flyway-core")
 
     implementation("uk.q3c.rest:hal-kotlin:0.5.4.0.db32476") {
         exclude(group = "com.google.guava", module = "guava")

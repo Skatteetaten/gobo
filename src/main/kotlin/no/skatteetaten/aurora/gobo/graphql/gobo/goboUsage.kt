@@ -2,11 +2,13 @@ package no.skatteetaten.aurora.gobo.graphql.gobo
 
 import java.time.Instant
 
-data class GoboField(val name: String, val count: Long)
+data class GoboFieldCounter(val name: String, val count: Long)
+
+data class GoboFieldUsage(val name: String, val count: Long, val clients: List<GoboUser>)
 
 data class GoboUser(val name: String, val count: Long)
 
-data class GoboUsage(val usedFields: List<GoboField>, val users: List<GoboUser>) {
+data class GoboUsage(val usedFields: List<GoboFieldCounter>, val users: List<GoboUser>) {
     fun usedFields(nameContains: String?) =
         if (nameContains == null) {
             usedFields
