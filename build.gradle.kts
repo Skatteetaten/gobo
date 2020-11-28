@@ -33,7 +33,7 @@ dependencies {
     // Postgres
     implementation("org.postgresql:postgresql")
 
-//    implementation("com.h2database:h2")
+    implementation("com.h2database:h2")
 
     implementation("org.flywaydb:flyway-core")
 
