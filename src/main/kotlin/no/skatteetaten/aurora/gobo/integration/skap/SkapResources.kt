@@ -2,6 +2,8 @@ package no.skatteetaten.aurora.gobo.integration.skap
 
 import no.skatteetaten.aurora.gobo.graphql.webseal.Acl
 
+const val HEADER_AURORA_TOKEN = "aurora-token"
+
 data class WebsealStateResource(
     val acl: Acl,
     val junctions: List<Map<String, String>>,

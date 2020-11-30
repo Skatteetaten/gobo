@@ -95,6 +95,21 @@ class ApplicationUpgradeServiceTest {
     }
 
     @Test
+    fun `Deploy current version`() {
+        val requests = server.executeBlocking(
+            applicationDeploymentDetailsResponse(),
+            redeployResponse(),
+            refreshResponse()
+        ) {
+            upgradeService.deployCurrentVersion("token", "applicationDeploymentId")
+        }
+
+        assertThat(requests[0]?.path).isNotNull()
+            .isEqualTo("/mokey/api/auth/applicationdeploymentdetails/applicationDeploymentId")
+        assertThat(requests[1]?.path).isNotNull().isEqualTo("/boober/Apply")
+    }
+
+    @Test
     fun `Handle error response from AuroraConfigService`() {
         server.executeBlocking(404 to "Not found") {
             assertThat {
