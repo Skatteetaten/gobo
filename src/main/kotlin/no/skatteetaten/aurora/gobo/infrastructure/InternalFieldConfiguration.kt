@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 import org.springframework.transaction.annotation.EnableTransactionManagement
 
 @Configuration
-@EnableJpaRepositories(basePackageClasses = arrayOf(FieldRepository::class))
-@EntityScan(basePackageClasses = arrayOf(FieldEnity::class))
+@EnableJpaRepositories(basePackageClasses = [FieldRepository::class])
+@EntityScan(basePackageClasses = [FieldEnity::class])
 @EnableTransactionManagement
-internal class InternalFieldConfiguration
+class InternalFieldConfiguration
