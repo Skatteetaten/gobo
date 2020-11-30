@@ -2,6 +2,7 @@ package no.skatteetaten.aurora.gobo.integration
 
 import assertk.Assert
 import assertk.assertions.support.expected
+import no.skatteetaten.aurora.gobo.integration.skap.HEADER_AURORA_TOKEN
 import okhttp3.mockwebserver.RecordedRequest
 import org.springframework.http.HttpHeaders
 
