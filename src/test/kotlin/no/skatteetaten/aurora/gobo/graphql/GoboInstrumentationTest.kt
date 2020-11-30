@@ -11,7 +11,7 @@ import graphql.language.Field
 import graphql.language.OperationDefinition
 import graphql.language.SelectionSet
 import io.mockk.mockk
-import no.skatteetaten.aurora.gobo.infrastructure.repository.FieldServiceImpl
+import no.skatteetaten.aurora.gobo.infrastructure.FieldServiceImpl
 import org.junit.jupiter.api.Test
 
 class GoboInstrumentationTest {

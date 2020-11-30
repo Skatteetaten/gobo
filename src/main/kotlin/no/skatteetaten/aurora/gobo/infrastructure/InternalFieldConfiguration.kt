@@ -9,8 +9,8 @@ import org.springframework.scheduling.annotation.EnableScheduling
 import org.springframework.transaction.annotation.EnableTransactionManagement
 
 @Configuration
-@EnableJpaRepositories(basePackageClasses = arrayOf(FieldRepository::class))
-@EntityScan(basePackageClasses = arrayOf(FieldEnity::class))
+@EnableJpaRepositories(basePackageClasses = [FieldRepository::class])
+@EntityScan(basePackageClasses = [FieldEnity::class])
 @EnableTransactionManagement
 @EnableScheduling
 internal class InternalFieldConfiguration
