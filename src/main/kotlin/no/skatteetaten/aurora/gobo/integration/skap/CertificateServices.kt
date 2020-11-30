@@ -3,8 +3,8 @@ package no.skatteetaten.aurora.gobo.integration.skap
 import no.skatteetaten.aurora.gobo.RequiresSkap
 import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
-import no.skatteetaten.aurora.gobo.integration.HEADER_AURORA_TOKEN
 import no.skatteetaten.aurora.gobo.graphql.IntegrationDisabledException
+import no.skatteetaten.aurora.gobo.graphql.application.Certificate
 import no.skatteetaten.aurora.gobo.security.SharedSecretReader
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
@@ -15,22 +15,22 @@ import org.springframework.web.reactive.function.client.awaitBody
 
 @Service
 @ConditionalOnBean(RequiresSkap::class)
-class WebsealServiceReactive(
+class CertificateServiceReactive(
     private val sharedSecretReader: SharedSecretReader,
     @TargetService(ServiceTypes.SKAP) private val webClient: WebClient
-) : WebsealService {
+) : CertificateService {
 
-    override suspend fun getStates(): List<WebsealStateResource> =
+    override suspend fun getCertificates(): List<Certificate> =
         webClient
             .get()
-            .uri("/webseal/v3")
+            .uri("/certificate/list")
             .header(HttpHeaders.AUTHORIZATION, "$HEADER_AURORA_TOKEN ${sharedSecretReader.secret}")
             .retrieve()
             .awaitBody()
 }
 
-interface WebsealService {
-    suspend fun getStates(): List<WebsealStateResource> = integrationDisabled()
+interface CertificateService {
+    suspend fun getCertificates(): List<Certificate> = integrationDisabled()
 
     private fun integrationDisabled(): Nothing =
         throw IntegrationDisabledException("Skap integration is disabled for this environment")
@@ -38,4 +38,4 @@ interface WebsealService {
 
 @Service
 @ConditionalOnMissingBean(RequiresSkap::class)
-class WebsealServiceDisabled : WebsealService
+class CertificateServiceDisabled : CertificateService
