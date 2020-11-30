@@ -27,7 +27,7 @@ class FieldUsageTest {
             contains("databaseSchema")
             contains("databaseSchema.id")
         }
-        assertThat(fields["databaseSchema"]?.sum()).isEqualTo(1L)
-        assertThat(fields["databaseSchema.id"]?.sum()).isEqualTo(2L)
+        fields["databaseSchema"]?.count?.let { assertThat(it.sum()).isEqualTo(1L) }
+        fields["databaseSchema.id"]?.count?.let { assertThat(it.sum()).isEqualTo(2L) }
     }
 }

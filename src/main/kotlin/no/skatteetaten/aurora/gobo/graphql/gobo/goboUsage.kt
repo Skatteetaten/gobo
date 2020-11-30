@@ -1,14 +1,15 @@
 package no.skatteetaten.aurora.gobo.graphql.gobo
 
 import java.time.Instant
+import java.util.concurrent.atomic.LongAdder
 
 data class GoboFieldCounter(val name: String, val count: Long)
 
-data class GoboFieldUsage(val name: String, val count: Long, val clients: List<GoboUser>)
+data class GoboFieldUsage(val name: String, val count: LongAdder = LongAdder(), val clients: List<GoboUser>)
 
 data class GoboUser(val name: String, val count: Long)
 
-data class GoboUsage(val usedFields: List<GoboFieldCounter>, val users: List<GoboUser>) {
+data class GoboUsage(val usedFields: List<GoboFieldUsage>, val users: List<GoboUser>) {
     fun usedFields(nameContains: String?) =
         if (nameContains == null) {
             usedFields

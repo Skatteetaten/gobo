@@ -32,7 +32,7 @@ class GoboInstrumentationTest {
             hasSize(1)
             contains("id")
         }
-        assertThat(goboInstrumentation.fieldUsage.fields["id"]?.sum()).isEqualTo(1L)
+        goboInstrumentation.fieldUsage.fields["id"]?.count?.let { assertThat(it.sum()).isEqualTo(1L) }
     }
 
     @Test

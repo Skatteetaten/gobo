@@ -9,6 +9,8 @@ import graphql.language.SelectionSet
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.domain.FieldService
 import no.skatteetaten.aurora.gobo.domain.model.FieldDto
+import no.skatteetaten.aurora.gobo.graphql.gobo.GoboFieldUsage
+import no.skatteetaten.aurora.gobo.graphql.gobo.GoboUser
 import no.skatteetaten.aurora.webflux.AuroraRequestParser
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpRequest
@@ -88,29 +90,37 @@ class GoboInstrumentation(val fieldService: FieldService) : SimpleInstrumentatio
 }
 
 class FieldUsage(val fieldService: FieldService) {
-    private val _fields: ConcurrentHashMap<String, LongAdder> = ConcurrentHashMap()
-    val fields: Map<String, LongAdder>
+    private val _fields: ConcurrentHashMap<String, GoboFieldUsage> = ConcurrentHashMap()
+    val fields: Map<String, GoboFieldUsage>
         get() = _fields.toSortedMap()
+    val clientsMap: ConcurrentHashMap<String, LongAdder> = ConcurrentHashMap()
 
     fun update(selectionSet: SelectionSet?, parent: String? = null) {
         selectionSet?.selections?.map {
             if (it is Field) {
                 val fullName = if (parent == null) it.name else "$parent.${it.name}"
-                _fields.computeIfAbsent(fullName) { LongAdder() }.increment()
+                clientsMap.computeIfAbsent("donald") { LongAdder() }.increment()
+
+                _fields.computeIfAbsent(fullName) {
+                    GoboFieldUsage(
+                        name = fullName,
+                        clients = clientsMap.map { GoboUser(it.key, it.value.sum()) }
+                    )
+                }.count.increment()
                 update(it.selectionSet, fullName)
             }
         }
     }
 
     fun initiateFieldUsage() {
-        fieldService.getAllFields().map { _fields.put(it.name, LongAdder().apply { add(it.count) }) }
+//        fieldService.getAllFields().map { _fields.put(it.name, LongAdder().apply { add(it.count) }) }
 //        fieldService.getAllFields().map { _fields.put(it.name, GoboFieldCounter().apply { it.count}) }
     }
 
     fun insertOrUpdateFieldUsage() {
         fields.map {
             print(it)
-            fieldService.insertOrUpdateField(FieldDto(name = it.key, count = it.value.toLong()))
+            fieldService.insertOrUpdateField(FieldDto(name = it.key, count = it.value.count.sum()))
         }
     }
 }
