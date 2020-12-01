@@ -77,7 +77,7 @@ class GoboInstrumentation(val fieldService: FieldService) : SimpleInstrumentatio
     ): ExecutionContext {
         val selectionSet = executionContext?.operationDefinition?.selectionSet ?: SelectionSet(emptyList())
         if (selectionSet.selections.isNotEmpty() && selectionSet.isNotIntrospectionQuery()) {
-            fieldUsage.update(selectionSet)
+            fieldUsage.update(executionContext, selectionSet)
             userUsage.update(executionContext)
         }
         return super.instrumentExecutionContext(executionContext, parameters)
@@ -95,19 +95,24 @@ class FieldUsage(val fieldService: FieldService) {
         get() = _fields.toSortedMap()
     val clientsMap: ConcurrentHashMap<String, LongAdder> = ConcurrentHashMap()
 
-    fun update(selectionSet: SelectionSet?, parent: String? = null) {
+    fun update(executionContext: ExecutionContext?, selectionSet: SelectionSet?, parent: String? = null) {
         selectionSet?.selections?.map {
             if (it is Field) {
                 val fullName = if (parent == null) it.name else "$parent.${it.name}"
-                clientsMap.computeIfAbsent("donald") { LongAdder() }.increment()
-
-                _fields.computeIfAbsent(fullName) {
-                    GoboFieldUsage(
-                        name = fullName,
-                        clients = clientsMap.map { GoboUser(it.key, it.value.sum()) }
-                    )
-                }.count.increment()
-                update(it.selectionSet, fullName)
+                try {
+                    executionContext?.getContext<GoboGraphQLContext>()?.request?.klientid()?.let {
+                        clientsMap.computeIfAbsent(it) { LongAdder() }.increment()
+                    }
+                    _fields.computeIfAbsent(fullName) {
+                        GoboFieldUsage(
+                            name = fullName,
+                            clients = clientsMap.map { GoboUser(it.key, it.value.sum()) }
+                        )
+                    }.count.increment()
+                    update(executionContext, it.selectionSet, fullName)
+                } catch (e: Throwable) {
+                    logger.warn(e) { "Unable to get GraphQL context: " }
+                }
             }
         }
     }
