@@ -12,22 +12,29 @@ private val logger = KotlinLogging.logger {}
 
 @Service
 @Transactional
-internal class FieldServiceImpl(val fieldRepo: FieldRepository) : FieldService {
+class FieldServiceImpl(val fieldRepo: FieldRepository) : FieldService {
 
     override fun addField(field: FieldDto): FieldDto {
         return fieldRepo.save(FieldEnity.fromDto(field)).toDto()
     }
+
     override fun getAllFields(): List<FieldDto> {
         return fieldRepo.findAll().map { it.toDto() }
     }
 
-    override fun insertOrUpdateField(field: FieldDto): FieldDto {
-        return fieldRepo.findByName(field.name)?.let {
-            fieldRepo.save(FieldEnity.fromDto(field, it)).toDto()
-        } ?: fieldRepo.save(FieldEnity.fromDto(field)).toDto()
+    override fun insertOrUpdateField(field: FieldDto) {
+        fieldRepo.findByName(field.name)?.let {
+            val updated = fieldRepo.incrementCounter(field.count, field.name)
+            if (updated != 1) {
+                logger.error("Unable to update name:${field.name} with count:${field.count}, rows updated:$updated")
+            }
+        } ?: fieldRepo.save(FieldEnity.fromDto(field)).also {
+            logger.debug("Saved field with name:${it.name} and count:${field.count}")
+        }
+        fieldRepo.flush()
     }
 
-//    override fun getFieldWithName(name: String): FieldDto? {
-//        return (fieldRepo.findById(name)).get().toDto()
-//    }
+    override fun getFieldWithName(name: String): FieldDto? {
+        return fieldRepo.findById(name).takeIf { it.isPresent }?.get()?.toDto()
+    }
 }
