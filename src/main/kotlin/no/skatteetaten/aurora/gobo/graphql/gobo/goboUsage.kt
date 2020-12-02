@@ -1,20 +1,12 @@
 package no.skatteetaten.aurora.gobo.graphql.gobo
 
-import com.expediagroup.graphql.annotations.GraphQLIgnore
 import java.time.Instant
-import java.util.concurrent.atomic.LongAdder
 
 data class GoboFieldCounter(val name: String, val count: Long)
 
-data class GoboFieldUsage(
-    val name: String,
-    @GraphQLIgnore
-    val count: LongAdder = LongAdder(),
-    val clients: List<GoboUser>
-) {
+data class GoboFieldUser(val name: String, val user: String)
 
-    fun count() = count.sum()
-}
+data class GoboFieldUsage(val name: String, val count: Long, val clients: List<GoboUser>)
 
 data class GoboUser(val name: String, val count: Long)
 

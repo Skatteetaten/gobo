@@ -9,7 +9,7 @@ import graphql.language.SelectionSet
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.domain.FieldService
 import no.skatteetaten.aurora.gobo.domain.model.FieldDto
-import no.skatteetaten.aurora.gobo.graphql.gobo.GoboFieldUsage
+import no.skatteetaten.aurora.gobo.graphql.gobo.GoboFieldUser
 import no.skatteetaten.aurora.gobo.graphql.gobo.GoboUser
 import no.skatteetaten.aurora.webflux.AuroraRequestParser
 import org.springframework.http.HttpHeaders
@@ -90,42 +90,35 @@ class GoboInstrumentation(val fieldService: FieldService) : SimpleInstrumentatio
 }
 
 class FieldUsage(val fieldService: FieldService) {
-    private val _fields: ConcurrentHashMap<String, GoboFieldUsage> = ConcurrentHashMap()
-    val fields: Map<String, GoboFieldUsage>
+    private val _fieldUsers: ConcurrentHashMap<GoboFieldUser, LongAdder> = ConcurrentHashMap()
+    private val _fields: ConcurrentHashMap<String, LongAdder> = ConcurrentHashMap()
+    val fields: Map<String, LongAdder>
         get() = _fields.toSortedMap()
-    val clientsMap: ConcurrentHashMap<String, LongAdder> = ConcurrentHashMap()
 
     fun update(executionContext: ExecutionContext?, selectionSet: SelectionSet?, parent: String? = null) {
         selectionSet?.selections?.map {
             if (it is Field) {
                 val fullName = if (parent == null) it.name else "$parent.${it.name}"
-                try {
-                    executionContext?.getContext<GoboGraphQLContext>()?.request?.klientid()?.let {
-                        clientsMap.computeIfAbsent(it) { LongAdder() }.increment()
-                    }
-                    _fields.computeIfAbsent(fullName) {
-                        GoboFieldUsage(
-                            name = fullName,
-                            clients = clientsMap.map { GoboUser(it.key, it.value.sum()) }
-                        )
-                    }.count.increment()
-                    update(executionContext, it.selectionSet, fullName)
-                } catch (e: Throwable) {
-                    logger.warn(e) { "Unable to get GraphQL context: " }
-                }
+                val clientId: String? = executionContext?.getContext<GoboGraphQLContext>()?.request?.klientid()
+                _fields.computeIfAbsent(fullName) { LongAdder() }.increment()
+                clientId?.let { it1 -> GoboFieldUser(fullName, it1) }?.let { it2 -> _fieldUsers.computeIfAbsent(it2) { LongAdder() }.increment() }
+                update(executionContext, it.selectionSet, fullName)
             }
         }
     }
 
+    fun getFieldUsers(fieldName: String): List<GoboUser> {
+        return _fieldUsers.filter { it.key.name == fieldName }.map { GoboUser(it.key.user, it.value.sum()) }
+    }
+
     fun initiateFieldUsage() {
-//        fieldService.getAllFields().map { _fields.put(it.name, LongAdder().apply { add(it.count) }) }
-//        fieldService.getAllFields().map { _fields.put(it.name, GoboFieldCounter().apply { it.count}) }
+        fieldService.getAllFields().map { _fields.put(it.name, LongAdder().apply { add(it.count) }) }
     }
 
     fun insertOrUpdateFieldUsage() {
         fields.map {
             print(it)
-            fieldService.insertOrUpdateField(FieldDto(name = it.key, count = it.value.count.sum()))
+            fieldService.insertOrUpdateField(FieldDto(name = it.key, count = it.value.toLong()))
         }
     }
 }
