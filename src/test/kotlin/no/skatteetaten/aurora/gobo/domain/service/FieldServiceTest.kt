@@ -2,6 +2,7 @@ package no.skatteetaten.aurora.gobo.domain.service
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import assertk.assertions.isNotNull
 import no.skatteetaten.aurora.gobo.domain.FieldService
 import no.skatteetaten.aurora.gobo.domain.model.FieldDto
 import no.skatteetaten.aurora.gobo.infrastructure.FieldServiceImpl
@@ -33,35 +34,23 @@ class FieldServiceTest {
         assertThat(insertField.count).isEqualTo(10)
 
         val updatedField = insertField.copy(count = 12)
-        val (name, count) = service.insertOrUpdateField(updatedField)
-        assertThat(name).isEqualTo("gobo.usage.usedFields.name")
-        assertThat(count).isEqualTo(12)
-    }
-
-    @Test
-    fun `'insertOrUpdateField' two times insertOrUpdateField should return created entity`() {
-        val tmpField = FieldDto(name = "gobo.usage.usedFields.name", count = 10)
-        val insertField = service.insertOrUpdateField(tmpField)
-        assertThat(insertField.name).isEqualTo("gobo.usage.usedFields.name")
-        assertThat(insertField.count).isEqualTo(10)
-
-        val updatedField = insertField.copy(count = 12)
-        val (name, count) = service.insertOrUpdateField(updatedField)
-        assertThat(name).isEqualTo("gobo.usage.usedFields.name")
-        assertThat(count).isEqualTo(12)
+        service.insertOrUpdateField(updatedField)
+        val persistedField = service.getFieldWithName(updatedField.name)
+        assertThat(persistedField?.name).isNotNull().isEqualTo("gobo.usage.usedFields.name")
+        assertThat(persistedField?.count).isNotNull().isEqualTo(22)
     }
 
     @Test
     fun `'getAllFields' should return list of created entity`() {
         val tmpField1 = FieldDto(name = "gobo.usage.usedFields", count = 42)
-        val insertField1 = service.insertOrUpdateField(tmpField1)
+        service.insertOrUpdateField(tmpField1)
 
         val tmpField2 = FieldDto(name = "gobo.usage.usedFields.name", count = 40)
-        val insertField2 = service.insertOrUpdateField(tmpField2)
+        service.insertOrUpdateField(tmpField2)
 
         val listOfFields = service.getAllFields()
         assertThat(listOfFields.size).isEqualTo(2)
-        assertThat(listOfFields[0]).isEqualTo(insertField1)
-        assertThat(listOfFields[1]).isEqualTo(insertField2)
+        assertThat(listOfFields[0]).isEqualTo(tmpField1)
+        assertThat(listOfFields[1]).isEqualTo(tmpField2)
     }
 }

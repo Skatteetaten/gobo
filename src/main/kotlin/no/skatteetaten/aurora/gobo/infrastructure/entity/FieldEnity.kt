@@ -7,7 +7,7 @@ import javax.persistence.Table
 
 @Entity
 @Table(name = "FIELD")
-internal data class FieldEnity(
+data class FieldEnity(
     @Id val name: String,
     val count: Long
 ) {
