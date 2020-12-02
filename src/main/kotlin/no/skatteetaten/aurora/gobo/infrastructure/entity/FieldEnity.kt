@@ -1,12 +1,13 @@
 package no.skatteetaten.aurora.gobo.infrastructure.entity
 
+import no.skatteetaten.aurora.gobo.domain.model.FieldClientDto
 import no.skatteetaten.aurora.gobo.domain.model.FieldDto
 import javax.persistence.Entity
+import javax.persistence.Table
 import javax.persistence.Id
 import javax.persistence.OneToMany
-import javax.persistence.Table
-import javax.persistence.CascadeType
 import javax.persistence.FetchType
+import javax.persistence.CascadeType
 
 @Entity
 @Table(name = "field")
@@ -24,7 +25,8 @@ data class FieldEnity(
 
     fun toDto(): FieldDto = FieldDto(
         name = this.name,
-        count = this.count
+        count = this.count,
+        clients = fieldclients.map { FieldClientDto(it.name, it.count) }
     )
 
     companion object {

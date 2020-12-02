@@ -8,7 +8,6 @@ import graphql.language.Field
 import graphql.language.SelectionSet
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.domain.FieldService
-import no.skatteetaten.aurora.gobo.domain.model.FieldDto
 import no.skatteetaten.aurora.gobo.graphql.gobo.GoboFieldUser
 import no.skatteetaten.aurora.gobo.graphql.gobo.GoboUser
 import no.skatteetaten.aurora.webflux.AuroraRequestParser
@@ -118,7 +117,7 @@ class FieldUsage(val fieldService: FieldService) {
     fun insertOrUpdateFieldUsage() {
         fields.map {
             print(it)
-            fieldService.insertOrUpdateField(FieldDto(name = it.key, count = it.value.toLong()))
+//            fieldService.insertOrUpdateField(FieldDto(name = it.key, count = it.value.toLong()))
         }
     }
 }

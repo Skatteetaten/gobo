@@ -19,9 +19,7 @@ class FieldServiceImpl(val fieldRepo: FieldRepository) : FieldService {
     }
 
     override fun getAllFields(): List<FieldDto> {
-        var res = fieldRepo.findAll()
-//        return fieldRepo.findAll().map { it.toDto() }
-        return emptyList()
+        return fieldRepo.findAll().map { it.toDto() }
     }
 
     override fun insertOrUpdateField(field: FieldDto) {
