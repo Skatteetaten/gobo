@@ -29,7 +29,6 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("com.expediagroup:graphql-kotlin-spring-server:3.6.8")
     implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
-    implementation("org.simpleflatmapper:sfm-springjdbc:8.2.3")
 
     // Postgres
     implementation("org.postgresql:postgresql")
