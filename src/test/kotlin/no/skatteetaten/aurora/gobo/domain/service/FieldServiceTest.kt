@@ -8,7 +8,6 @@ import no.skatteetaten.aurora.gobo.domain.FieldService
 import no.skatteetaten.aurora.gobo.domain.model.FieldClientDto
 import no.skatteetaten.aurora.gobo.domain.model.FieldDto
 import no.skatteetaten.aurora.gobo.infrastructure.FieldServiceImpl
-import no.skatteetaten.aurora.gobo.infrastructure.InternalFieldConfiguration
 import no.skatteetaten.aurora.gobo.infrastructure.repository.FieldClientRepository
 import no.skatteetaten.aurora.gobo.infrastructure.repository.FieldRepository
 import org.junit.jupiter.api.Test
@@ -16,7 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.test.context.ContextConfiguration
 
-@ContextConfiguration(classes = [InternalFieldConfiguration::class, FieldClientRepository::class, FieldServiceImpl::class, FieldRepository::class])
+@ContextConfiguration(classes = [FieldClientRepository::class, FieldServiceImpl::class, FieldRepository::class])
 @DataJpaTest
 class FieldServiceTest {
 
