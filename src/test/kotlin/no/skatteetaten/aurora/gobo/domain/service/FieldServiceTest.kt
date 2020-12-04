@@ -48,11 +48,11 @@ class FieldServiceTest {
                 clients = listOf(FieldClientDto("donald", 5), FieldClientDto("duck", 5))
             )
         )
-        val insertField = service.getFieldWithName("gobo.usage.usedFields.name")
-        assertThat(insertField?.name).isEqualTo("gobo.usage.usedFields.name")
-        assertThat(insertField?.count).isEqualTo(10)
+        val insertField = service.getFieldWithName("gobo.usage.usedFields.name")!!
+        assertThat(insertField.name).isEqualTo("gobo.usage.usedFields.name")
+        assertThat(insertField.count).isEqualTo(10)
 
-        val updatedField = insertField!!.copy(count = 12, clients = listOf(FieldClientDto("donald", 12)))
+        val updatedField = insertField.copy(count = 12, clients = listOf(FieldClientDto("donald", 12)))
         service.insertOrUpdateField(updatedField)
         val persistedField = service.getFieldWithName(updatedField.name)
         assertThat(persistedField?.name).isNotNull().isEqualTo("gobo.usage.usedFields.name")
