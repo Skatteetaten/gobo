@@ -11,35 +11,35 @@ private val logger = KotlinLogging.logger {}
 @Repository
 class FieldClientRepository(private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate) {
 
-    fun save(client: FieldClientDto, fieldName: String) {
-        val updated = namedParameterJdbcTemplate.update(
-            "insert into field_client(name, count, field_name) values (:name, :count, :fieldName)",
-            mapOf("name" to client.name, "count" to client.count, "fieldName" to fieldName)
-        )
-        logger.debug("Inserted field name:${client.name} count:${client.count} fieldName:$fieldName, rows updated $updated")
+    fun save(client: List<FieldClientDto>, fieldName: String) {
+        client.forEach { save(it, fieldName) }
     }
 
-    fun findByFieldName(fieldName: String): List<FieldClientDto> =
-        namedParameterJdbcTemplate.query<FieldClientDto>(
-            "select name, count from field_client where field_name = :field_name",
-            mapOf("field_name" to fieldName)
-        ) { rs, _ ->
-            FieldClientDto(rs.getName(), rs.getCount())
-        }
-
-    fun findByNameAndFieldName(name: String, fieldName: String): List<FieldClientDto> =
-        namedParameterJdbcTemplate.query<FieldClientDto>(
-            "select name, count from field_client where name = :name and field_name = :field_name",
-            mapOf("name" to name, "field_name" to fieldName)
-        ) { rs, _ ->
-            FieldClientDto(rs.getName(), rs.getCount())
-        }
-
-    fun incrementCounter(name: String, count: Long): Int =
-        namedParameterJdbcTemplate.update(
-            "update field_client set count = count + :count where name = :name",
-            mapOf("count" to count, "name" to name)
+    fun save(client: FieldClientDto, fieldName: String) {
+        val sql = "insert into field_client(name, count, field_name) values (:name, :count, :fieldName)"
+        val updated = namedParameterJdbcTemplate.update(
+            sql,
+            mapOf("name" to client.name, "count" to client.count, "fieldName" to fieldName)
         )
+        logger.debug("Inserted field_client name:${client.name} count:${client.count} fieldName:$fieldName, rows updated $updated")
+    }
+
+    fun findByFieldName(fieldName: String): List<FieldClientDto> {
+        val sql = "select name, count from field_client where field_name = :field_name"
+        return namedParameterJdbcTemplate.query<FieldClientDto>(sql, mapOf("field_name" to fieldName)) { rs, _ ->
+            FieldClientDto(rs.getName(), rs.getCount())
+        }
+    }
+
+    fun incrementCounter(name: String, fieldName: String, count: Long): Int {
+        val sql = "update field_client set count = count + :count where name = :name and field_name = :field_name"
+        return namedParameterJdbcTemplate.update(
+            sql,
+            mapOf("count" to count, "name" to name, "field_name" to fieldName)
+        ).also {
+            logger.debug("Updated field client counter name:$name fieldName:$fieldName counter:$count")
+        }
+    }
 
     private fun ResultSet.getName() = getString("name")
     private fun ResultSet.getCount() = getLong("count")

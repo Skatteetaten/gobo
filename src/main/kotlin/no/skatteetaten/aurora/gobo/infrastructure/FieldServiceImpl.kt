@@ -17,6 +17,7 @@ class FieldServiceImpl(
 
     override fun addField(field: FieldDto) {
         fieldRepo.save(field)
+        fieldClientRepository.save(field.clients, field.name)
     }
 
     override fun getAllFields(): List<FieldDto> {
@@ -32,7 +33,7 @@ class FieldServiceImpl(
         }
 
         field.clients.forEach {
-            fieldClientRepository.incrementCounter(it.name, it.count).takeIfInsertRequired {
+            fieldClientRepository.incrementCounter(it.name, field.name, it.count).takeIfInsertRequired {
                 fieldClientRepository.save(it, field.name)
             }
         }
