@@ -21,8 +21,7 @@ class FieldRepository(private val namedParameterJdbcTemplate: NamedParameterJdbc
             val name = it.getName()
             fields.addField(name, it.getCount())
 
-            val clientName = it.getClientName()
-            if (clientName != null) {
+            it.getClientName()?.let { clientName ->
                 fieldClients.addClient(name, clientName, it.getClientCount())
             }
         }
