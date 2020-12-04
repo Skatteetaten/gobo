@@ -3,7 +3,7 @@ package no.skatteetaten.aurora.gobo.domain
 import no.skatteetaten.aurora.gobo.domain.model.FieldDto
 
 interface FieldService {
-    fun addField(field: FieldDto): FieldDto
+    fun addField(field: FieldDto)
 
     fun getFieldWithName(name: String): FieldDto?
 
