@@ -11,12 +11,12 @@ import graphql.language.Field
 import graphql.language.OperationDefinition
 import graphql.language.SelectionSet
 import io.mockk.mockk
-import no.skatteetaten.aurora.gobo.infrastructure.FieldServiceImpl
+import no.skatteetaten.aurora.gobo.infrastructure.FieldServiceDatabase
 import org.junit.jupiter.api.Test
 
 class GoboInstrumentationTest {
 
-    private val fieldService: FieldServiceImpl = mockk()
+    private val fieldService: FieldServiceDatabase = mockk()
     private val goboInstrumentation = GoboInstrumentation(fieldService)
 
     @Test

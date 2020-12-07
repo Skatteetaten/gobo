@@ -1,13 +1,13 @@
 package no.skatteetaten.aurora.gobo.graphql.gobo
 
 import com.ninjasquad.springmockk.MockkBean
+import no.skatteetaten.aurora.gobo.domain.FieldService
 import no.skatteetaten.aurora.gobo.graphql.GoboInstrumentation
 import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithDbhAndSkap
 import no.skatteetaten.aurora.gobo.graphql.graphqlData
 import no.skatteetaten.aurora.gobo.graphql.graphqlDataWithPrefix
 import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
-import no.skatteetaten.aurora.gobo.infrastructure.FieldServiceImpl
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Import
@@ -17,7 +17,7 @@ import org.springframework.core.io.Resource
 class GoboQueryTest : GraphQLTestWithDbhAndSkap() {
 
     @MockkBean(relaxed = true)
-    private lateinit var fieldService: FieldServiceImpl
+    private lateinit var fieldService: FieldService
 
     @Value("classpath:graphql/queries/getGoboUsage.graphql")
     private lateinit var getGoboUsageQuery: Resource

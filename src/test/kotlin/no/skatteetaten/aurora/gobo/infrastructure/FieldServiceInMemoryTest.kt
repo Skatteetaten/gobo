@@ -1,28 +1,14 @@
-package no.skatteetaten.aurora.gobo.domain.service
+package no.skatteetaten.aurora.gobo.infrastructure
 
 import assertk.assertThat
 import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
-import assertk.assertions.isFailure
-import assertk.assertions.isInstanceOf
-import no.skatteetaten.aurora.gobo.domain.FieldService
 import no.skatteetaten.aurora.gobo.domain.model.FieldClientDto
 import no.skatteetaten.aurora.gobo.domain.model.FieldDto
-import no.skatteetaten.aurora.gobo.infrastructure.FieldServiceImpl
-import no.skatteetaten.aurora.gobo.infrastructure.repository.FieldClientRepository
-import no.skatteetaten.aurora.gobo.infrastructure.repository.FieldRepository
 import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
-import org.springframework.dao.DuplicateKeyException
-import org.springframework.test.context.ContextConfiguration
 
-@ContextConfiguration(classes = [FieldClientRepository::class, FieldServiceImpl::class, FieldRepository::class])
-@DataJpaTest
-class FieldServiceTest {
-
-    @Autowired
-    private lateinit var service: FieldService
+class FieldServiceInMemoryTest {
+    private val service = FieldServiceInMemory()
 
     private val field1 = FieldDto(
         name = "gobo.usage.usedFields",
@@ -55,7 +41,7 @@ class FieldServiceTest {
 
         val persistedField = service.getFieldWithName(updatedField.name)!!
         assertThat(persistedField.name).isEqualTo("gobo.usage.usedFields")
-        assertThat(persistedField.count).isEqualTo(22)
+        assertThat(persistedField.count).isEqualTo(12)
     }
 
     @Test
@@ -69,11 +55,5 @@ class FieldServiceTest {
         assertThat(fields[1]).isEqualTo(field2)
         assertThat(fields[0].clients).hasSize(2)
         assertThat(fields[1].clients).hasSize(1)
-    }
-
-    @Test
-    fun `Throw exception when trying to add same field twice`() {
-        service.addField(field1)
-        assertThat { service.addField(field1) }.isFailure().isInstanceOf(DuplicateKeyException::class)
     }
 }
