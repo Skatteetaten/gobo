@@ -1,4 +1,4 @@
-package no.skatteetaten.aurora.gobo.domain.service
+package no.skatteetaten.aurora.gobo.infrastructure
 
 import assertk.assertThat
 import assertk.assertions.hasSize
@@ -8,7 +8,6 @@ import assertk.assertions.isInstanceOf
 import no.skatteetaten.aurora.gobo.domain.FieldService
 import no.skatteetaten.aurora.gobo.domain.model.FieldClientDto
 import no.skatteetaten.aurora.gobo.domain.model.FieldDto
-import no.skatteetaten.aurora.gobo.infrastructure.FieldServiceDatabase
 import no.skatteetaten.aurora.gobo.infrastructure.repository.FieldClientRepository
 import no.skatteetaten.aurora.gobo.infrastructure.repository.FieldRepository
 import org.junit.jupiter.api.Test
@@ -56,6 +55,7 @@ class FieldServiceDatabaseTest {
         val persistedField = service.getFieldWithName(updatedField.name)!!
         assertThat(persistedField.name).isEqualTo("gobo.usage.usedFields")
         assertThat(persistedField.count).isEqualTo(22)
+        assertThat(persistedField.clients[0].count).isEqualTo(17)
     }
 
     @Test

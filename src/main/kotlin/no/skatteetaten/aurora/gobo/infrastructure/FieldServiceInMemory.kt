@@ -2,9 +2,11 @@ package no.skatteetaten.aurora.gobo.infrastructure
 
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.domain.FieldService
+import no.skatteetaten.aurora.gobo.domain.model.FieldClientDto
 import no.skatteetaten.aurora.gobo.domain.model.FieldDto
 import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Component
+import org.springframework.util.LinkedMultiValueMap
 import javax.annotation.PostConstruct
 
 private val logger = KotlinLogging.logger {}
@@ -12,7 +14,7 @@ private val logger = KotlinLogging.logger {}
 @Profile("local")
 @Component
 class FieldServiceInMemory : FieldService {
-    private val fields = mutableSetOf<FieldDto>()
+    private val fields = LinkedMultiValueMap<String, FieldDto>()
 
     @PostConstruct
     fun init() {
@@ -21,19 +23,28 @@ class FieldServiceInMemory : FieldService {
 
     override fun addField(field: FieldDto) {
         logger.info("Adding field:$field")
-        fields.add(field)
+        fields.add(field.name, field)
     }
 
     override fun getFieldWithName(name: String) =
-        fields.find { it.name == name }
+        fields[name]?.let { f ->
+            val allClients = mutableMapOf<String, Long>()
+            f.flatMap { it.clients }.forEach {
+                allClients.computeIfPresent(it.name) { _, v ->
+                    it.count + v
+                } ?: allClients.put(it.name, it.count)
+            }
 
-    override fun getAllFields() = fields.toList()
+            FieldDto(
+                name = name,
+                count = f.sumOf { it.count },
+                clients = allClients.map { FieldClientDto(it.key, it.value) }
+            )
+        }
+
+    override fun getAllFields() = fields.keys.map { getFieldWithName(it)!! }
 
     override fun insertOrUpdateField(field: FieldDto) {
-        logger.info("Updating field:$field")
-        getFieldWithName(field.name)?.let { f ->
-            fields.remove(f)
-            fields.add(field)
-        } ?: addField(field)
+        addField(field)
     }
 }

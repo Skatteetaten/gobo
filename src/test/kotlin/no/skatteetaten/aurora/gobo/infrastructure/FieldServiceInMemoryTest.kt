@@ -6,7 +6,9 @@ import assertk.assertions.isEqualTo
 import no.skatteetaten.aurora.gobo.domain.model.FieldClientDto
 import no.skatteetaten.aurora.gobo.domain.model.FieldDto
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
 
+@TestInstance(TestInstance.Lifecycle.PER_METHOD)
 class FieldServiceInMemoryTest {
     private val service = FieldServiceInMemory()
 
@@ -41,7 +43,8 @@ class FieldServiceInMemoryTest {
 
         val persistedField = service.getFieldWithName(updatedField.name)!!
         assertThat(persistedField.name).isEqualTo("gobo.usage.usedFields")
-        assertThat(persistedField.count).isEqualTo(12)
+        assertThat(persistedField.count).isEqualTo(22)
+        assertThat(persistedField.clients[0].count).isEqualTo(17)
     }
 
     @Test
