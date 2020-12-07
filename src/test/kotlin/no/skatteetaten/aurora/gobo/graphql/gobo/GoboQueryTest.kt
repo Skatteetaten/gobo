@@ -1,5 +1,6 @@
 package no.skatteetaten.aurora.gobo.graphql.gobo
 
+import org.junit.jupiter.api.BeforeEach
 import com.ninjasquad.springmockk.MockkBean
 import no.skatteetaten.aurora.gobo.graphql.GoboInstrumentation
 import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithDbhAndSkap
@@ -12,12 +13,15 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
+import io.mockk.every
+import no.skatteetaten.aurora.gobo.domain.FieldService
+import no.skatteetaten.aurora.gobo.domain.model.FieldDto
 
-@Import(GoboQuery::class, GoboInstrumentation::class)
+@Import(GoboQuery::class, FieldService::class)
 class GoboQueryTest : GraphQLTestWithDbhAndSkap() {
 
     @MockkBean(relaxed = true)
-    private lateinit var fieldService: FieldServiceImpl
+    private lateinit var fieldService: FieldService
 
     @Value("classpath:graphql/queries/getGoboUsage.graphql")
     private lateinit var getGoboUsageQuery: Resource
@@ -27,6 +31,12 @@ class GoboQueryTest : GraphQLTestWithDbhAndSkap() {
 
     @Value("classpath:graphql/queries/getGoboUserUsage.graphql")
     private lateinit var getGoboUserUsageQuery: Resource
+
+    @BeforeEach
+    internal fun setUp() {
+        TODO("Not yet implemented")
+        every { fieldService.getAllFields() } returns listOf(List<FieldDto>)
+    }
 
     @Test
     fun `Get Gobo usage`() {
