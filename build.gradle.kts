@@ -27,8 +27,8 @@ dependencies {
     implementation("io.projectreactor.kotlin:reactor-kotlin-extensions:1.1.0")
     implementation("org.apache.commons:commons-text:1.9")
     implementation("org.springframework.boot:spring-boot-starter-security")
-    implementation("com.expediagroup:graphql-kotlin-spring-server:3.6.7")
-    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("com.expediagroup:graphql-kotlin-spring-server:3.6.8")
+    implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
 
     // Postgres
     implementation("org.postgresql:postgresql")
