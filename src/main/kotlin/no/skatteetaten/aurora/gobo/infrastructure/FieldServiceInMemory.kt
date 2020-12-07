@@ -6,13 +6,14 @@ import no.skatteetaten.aurora.gobo.domain.model.FieldClientDto
 import no.skatteetaten.aurora.gobo.domain.model.FieldDto
 import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Component
+import org.springframework.stereotype.Service
 import org.springframework.util.LinkedMultiValueMap
 import javax.annotation.PostConstruct
 
 private val logger = KotlinLogging.logger {}
 
 @Profile("local")
-@Component
+@Service
 class FieldServiceInMemory : FieldService {
     private val fields = LinkedMultiValueMap<String, FieldDto>()
 
