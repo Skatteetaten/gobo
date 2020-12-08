@@ -5,6 +5,10 @@
             usedFields {
                 name
                 count
+                clients {
+                  name
+                  count
+                }
             }
         }
     }
