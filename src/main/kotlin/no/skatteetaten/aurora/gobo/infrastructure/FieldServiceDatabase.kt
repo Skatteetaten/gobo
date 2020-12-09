@@ -5,15 +5,23 @@ import no.skatteetaten.aurora.gobo.domain.FieldService
 import no.skatteetaten.aurora.gobo.domain.model.FieldDto
 import no.skatteetaten.aurora.gobo.infrastructure.repository.FieldClientRepository
 import no.skatteetaten.aurora.gobo.infrastructure.repository.FieldRepository
+import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Service
+import javax.annotation.PostConstruct
 
 private val logger = KotlinLogging.logger {}
 
+@Profile("!local")
 @Service
-class FieldServiceImpl(
+class FieldServiceDatabase(
     val fieldRepo: FieldRepository,
     val fieldClientRepository: FieldClientRepository
 ) : FieldService {
+
+    @PostConstruct
+    fun init() {
+        logger.info("Starting field service database integration")
+    }
 
     override fun addField(field: FieldDto) {
         fieldRepo.save(field)
