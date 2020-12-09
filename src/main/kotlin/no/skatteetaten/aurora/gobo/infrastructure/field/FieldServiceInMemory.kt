@@ -1,4 +1,4 @@
-package no.skatteetaten.aurora.gobo.infrastructure
+package no.skatteetaten.aurora.gobo.infrastructure.field
 
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.domain.FieldService
@@ -22,7 +22,7 @@ class FieldServiceInMemory : FieldService {
     }
 
     override fun addField(field: FieldDto) {
-        logger.info("Adding field:$field")
+        logger.trace("Adding field:$field")
         fields.add(field.name, field)
     }
 

@@ -1,16 +1,27 @@
-package no.skatteetaten.aurora.gobo.infrastructure
+package no.skatteetaten.aurora.gobo.infrastructure.field
 
 import assertk.assertThat
 import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
+import assertk.assertions.isFailure
+import assertk.assertions.isInstanceOf
+import no.skatteetaten.aurora.gobo.domain.FieldService
 import no.skatteetaten.aurora.gobo.domain.model.FieldClientDto
 import no.skatteetaten.aurora.gobo.domain.model.FieldDto
+import no.skatteetaten.aurora.gobo.infrastructure.field.repository.FieldClientRepository
+import no.skatteetaten.aurora.gobo.infrastructure.field.repository.FieldRepository
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
+import org.springframework.dao.DuplicateKeyException
+import org.springframework.test.context.ContextConfiguration
 
-@TestInstance(TestInstance.Lifecycle.PER_METHOD)
-class FieldServiceInMemoryTest {
-    private val service = FieldServiceInMemory()
+@ContextConfiguration(classes = [FieldClientRepository::class, FieldServiceDatabase::class, FieldRepository::class])
+@DataJpaTest
+class FieldServiceDatabaseTest {
+
+    @Autowired
+    private lateinit var service: FieldService
 
     private val field1 = FieldDto(
         name = "gobo.usage.usedFields",
@@ -58,5 +69,11 @@ class FieldServiceInMemoryTest {
         assertThat(fields[1]).isEqualTo(field2)
         assertThat(fields[0].clients).hasSize(2)
         assertThat(fields[1].clients).hasSize(1)
+    }
+
+    @Test
+    fun `Throw exception when trying to add same field twice`() {
+        service.addField(field1)
+        assertThat { service.addField(field1) }.isFailure().isInstanceOf(DuplicateKeyException::class)
     }
 }

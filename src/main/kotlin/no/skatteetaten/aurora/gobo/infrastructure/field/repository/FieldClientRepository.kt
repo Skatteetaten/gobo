@@ -1,4 +1,4 @@
-package no.skatteetaten.aurora.gobo.infrastructure.repository
+package no.skatteetaten.aurora.gobo.infrastructure.field.repository
 
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.domain.model.FieldClientDto

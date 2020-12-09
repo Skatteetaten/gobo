@@ -1,10 +1,10 @@
-package no.skatteetaten.aurora.gobo.infrastructure
+package no.skatteetaten.aurora.gobo.infrastructure.field
 
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.domain.FieldService
 import no.skatteetaten.aurora.gobo.domain.model.FieldDto
-import no.skatteetaten.aurora.gobo.infrastructure.repository.FieldClientRepository
-import no.skatteetaten.aurora.gobo.infrastructure.repository.FieldRepository
+import no.skatteetaten.aurora.gobo.infrastructure.field.repository.FieldClientRepository
+import no.skatteetaten.aurora.gobo.infrastructure.field.repository.FieldRepository
 import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Service
 import javax.annotation.PostConstruct
