@@ -18,6 +18,8 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.LongAdder
 import javax.annotation.PostConstruct
 import javax.annotation.PreDestroy
+import no.skatteetaten.aurora.gobo.domain.model.FieldClientDto
+import no.skatteetaten.aurora.gobo.domain.model.FieldDto
 
 private val logger = KotlinLogging.logger { }
 
@@ -115,9 +117,10 @@ class FieldUsage(val fieldService: FieldService) {
     }
 
     fun insertOrUpdateFieldUsage() {
-        fields.map {
-            print(it)
-//            fieldService.insertOrUpdateField(FieldDto(name = it.key, count = it.value.toLong()))
+        fields.map { field ->
+            val keys = _fieldUsers.keys.filter { field.key == it.name }
+            val clients = keys.map { FieldClientDto(it.user, _fieldUsers[it]?.sumThenReset() ?: 0) }
+            fieldService.insertOrUpdateField(FieldDto(name = field.key, count = field.value.sumThenReset(), clients = clients))
         }
     }
 }
