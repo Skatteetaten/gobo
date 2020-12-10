@@ -10,14 +10,21 @@ import graphql.execution.ExecutionId
 import graphql.language.Field
 import graphql.language.OperationDefinition
 import graphql.language.SelectionSet
+import io.mockk.every
 import io.mockk.mockk
-import no.skatteetaten.aurora.gobo.infrastructure.field.FieldServiceDatabase
+import no.skatteetaten.aurora.gobo.domain.ClientService
+import no.skatteetaten.aurora.gobo.domain.FieldService
 import org.junit.jupiter.api.Test
 
 class GoboInstrumentationTest {
 
-    private val fieldService: FieldServiceDatabase = mockk()
-    private val goboInstrumentation = GoboInstrumentation(fieldService)
+    private val fieldService = mockk<FieldService> {
+        every { getAllFields() } returns emptyList()
+    }
+    private val clientService = mockk<ClientService> {
+        every { getAllClients() } returns emptyList()
+    }
+    private val goboInstrumentation = GoboInstrumentation(fieldService, clientService)
 
     @Test
     fun `Find field names from ExecutionContext`() {

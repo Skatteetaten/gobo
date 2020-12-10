@@ -5,7 +5,7 @@ import assertk.assertions.hasSize
 import org.junit.jupiter.api.Test
 
 class GoboUsageTest {
-    private val clients = listOf(GoboUser("donald", 12), GoboUser("dolly", 15))
+    private val clients = listOf(GoboClient("donald", 12), GoboClient("dolly", 15))
     private val usage = GoboUsage(listOf(GoboFieldUsage("abc", 1L, clients), GoboFieldUsage("bcd", 3L, clients)), emptyList())
 
     @Test

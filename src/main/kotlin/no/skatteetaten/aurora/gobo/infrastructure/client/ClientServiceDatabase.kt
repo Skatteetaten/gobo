@@ -4,11 +4,13 @@ import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.domain.ClientService
 import no.skatteetaten.aurora.gobo.domain.model.ClientDto
 import no.skatteetaten.aurora.gobo.infrastructure.client.repository.ClientRepository
+import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Service
 import javax.annotation.PostConstruct
 
 private val logger = KotlinLogging.logger {}
 
+@Profile("!local")
 @Service
 class ClientServiceDatabase(private val clientRepository: ClientRepository) : ClientService {
 

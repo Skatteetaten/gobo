@@ -9,6 +9,6 @@ class ScheduleTasks(val goboInstrumentation: GoboInstrumentation) {
 
     @Scheduled(fixedRateString = "\${gobo.updateFieldUsage.fixedRate:5000}")
     fun insertOrUpdateFieldUsageAsScheduledTask() {
-        goboInstrumentation.fieldUsage.insertOrUpdateFieldUsage()
+        goboInstrumentation.update()
     }
 }
