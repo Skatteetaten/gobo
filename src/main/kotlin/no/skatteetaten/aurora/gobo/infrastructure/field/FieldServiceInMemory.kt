@@ -7,7 +7,6 @@ import no.skatteetaten.aurora.gobo.domain.model.FieldDto
 import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Service
 import org.springframework.util.LinkedMultiValueMap
-import javax.annotation.PostConstruct
 
 private val logger = KotlinLogging.logger {}
 
@@ -15,11 +14,6 @@ private val logger = KotlinLogging.logger {}
 @Service
 class FieldServiceInMemory : FieldService {
     private val fields = LinkedMultiValueMap<String, FieldDto>()
-
-    @PostConstruct
-    fun init() {
-        logger.info("Starting field service in-memory integration")
-    }
 
     override fun addField(field: FieldDto) {
         logger.trace("Adding field:$field")

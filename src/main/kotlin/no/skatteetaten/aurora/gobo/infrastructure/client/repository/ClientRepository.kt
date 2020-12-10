@@ -2,12 +2,14 @@ package no.skatteetaten.aurora.gobo.infrastructure.client.repository
 
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.domain.model.ClientDto
+import org.springframework.context.annotation.Profile
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
 import java.sql.ResultSet
 
 private val logger = KotlinLogging.logger {}
 
+@Profile("!local")
 @Repository
 class ClientRepository(private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate) {
 

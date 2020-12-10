@@ -8,3 +8,7 @@ spring:
 integrations:
     dbh:
         url: http://localhost:9090
+
+gobo:
+    graphqlUsage:
+        fixedRate: 5000

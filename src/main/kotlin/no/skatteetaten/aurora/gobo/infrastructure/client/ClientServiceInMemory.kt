@@ -6,7 +6,6 @@ import no.skatteetaten.aurora.gobo.domain.model.ClientDto
 import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Service
 import org.springframework.util.LinkedMultiValueMap
-import javax.annotation.PostConstruct
 
 private val logger = KotlinLogging.logger {}
 
@@ -14,11 +13,6 @@ private val logger = KotlinLogging.logger {}
 @Service
 class ClientServiceInMemory : ClientService {
     private val clients = LinkedMultiValueMap<String, ClientDto>()
-
-    @PostConstruct
-    fun init() {
-        logger.info("Starting client service in-memory integration")
-    }
 
     override fun addClient(client: ClientDto) {
         logger.trace("Adding client:$client")
