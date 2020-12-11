@@ -5,14 +5,12 @@ import graphql.execution.ExecutionContext
 import graphql.execution.instrumentation.SimpleInstrumentation
 import graphql.execution.instrumentation.parameters.InstrumentationExecutionParameters
 import graphql.language.SelectionSet
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import mu.KotlinLogging
-import no.skatteetaten.aurora.gobo.infrastructure.client.Client
-import no.skatteetaten.aurora.gobo.infrastructure.field.FieldClient
 import no.skatteetaten.aurora.gobo.graphql.gobo.GoboFieldUser
+import no.skatteetaten.aurora.gobo.infrastructure.client.Client
 import no.skatteetaten.aurora.gobo.infrastructure.client.ClientService
 import no.skatteetaten.aurora.gobo.infrastructure.field.Field
+import no.skatteetaten.aurora.gobo.infrastructure.field.FieldClient
 import no.skatteetaten.aurora.gobo.infrastructure.field.FieldService
 import no.skatteetaten.aurora.webflux.AuroraRequestParser
 import org.springframework.http.HttpHeaders
@@ -35,17 +33,8 @@ class GoboInstrumentation(
     private val fieldService: FieldService,
     private val clientService: ClientService
 ) : SimpleInstrumentation() {
-
     val fieldUsage = FieldUsage()
     val clientUsage = ClientUsage()
-
-    init {
-        GlobalScope.launch {
-            logger.debug("Populating fields and clients")
-            fieldUsage.initialize(fieldService.getAllFields())
-            clientUsage.initialize(clientService.getAllClients())
-        }
-    }
 
     @PreDestroy
     fun update() {
