@@ -8,7 +8,12 @@ data class GoboFieldUsage(val name: String, val count: Long, val clients: List<G
 
 data class GoboClient(val name: String, val count: Long)
 
-data class GoboUsage(val usedFields: List<GoboFieldUsage>, val clients: List<GoboClient>) {
+data class GoboUsage(
+    val usedFields: List<GoboFieldUsage>,
+    val clients: List<GoboClient>,
+    val numberOfFields: Int = usedFields.size,
+    val numberOfClients: Int = clients.size
+) {
     fun usedFields(nameContains: String?) =
         if (nameContains == null) {
             usedFields

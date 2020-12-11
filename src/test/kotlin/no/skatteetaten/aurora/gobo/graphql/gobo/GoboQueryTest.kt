@@ -56,6 +56,8 @@ class GoboQueryTest : GraphQLTestWithDbhAndSkap() {
             .expectStatus().isOk
             .expectBody()
             .graphqlData("gobo.startTime").isNotEmpty
+            .graphqlData("gobo.usage.numberOfFields").isNumber
+            .graphqlData("gobo.usage.numberOfClients").isNumber
             .graphqlDataWithPrefix("gobo.usage.usedFields[0]") {
                 graphqlData("name").isNotEmpty
                 graphqlData("count").isNotEmpty
