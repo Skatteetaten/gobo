@@ -4,13 +4,14 @@ import graphql.ExecutionInput
 import graphql.execution.ExecutionContext
 import graphql.execution.instrumentation.SimpleInstrumentation
 import graphql.execution.instrumentation.parameters.InstrumentationExecutionParameters
-import graphql.language.Field
 import graphql.language.SelectionSet
 import mu.KotlinLogging
-import no.skatteetaten.aurora.gobo.domain.ClientService
-import no.skatteetaten.aurora.gobo.domain.FieldService
-import no.skatteetaten.aurora.gobo.domain.model.ClientDto
+import no.skatteetaten.aurora.gobo.infrastructure.client.Client
+import no.skatteetaten.aurora.gobo.infrastructure.field.FieldClient
 import no.skatteetaten.aurora.gobo.graphql.gobo.GoboFieldUser
+import no.skatteetaten.aurora.gobo.infrastructure.client.ClientService
+import no.skatteetaten.aurora.gobo.infrastructure.field.Field
+import no.skatteetaten.aurora.gobo.infrastructure.field.FieldService
 import no.skatteetaten.aurora.webflux.AuroraRequestParser
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpRequest
@@ -18,8 +19,6 @@ import org.springframework.stereotype.Component
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.LongAdder
 import javax.annotation.PreDestroy
-import no.skatteetaten.aurora.gobo.domain.model.FieldClientDto
-import no.skatteetaten.aurora.gobo.domain.model.FieldDto
 
 private val logger = KotlinLogging.logger { }
 
@@ -90,11 +89,11 @@ class GoboInstrumentation(
 
     private fun SelectionSet.isNotIntrospectionQuery(): Boolean {
         val selection = this.selections?.first()
-        return !(selection is Field && selection.name.startsWith("__schema"))
+        return !(selection is graphql.language.Field && selection.name.startsWith("__schema"))
     }
 }
 
-class FieldUsage(initialFields: List<FieldDto>) {
+class FieldUsage(initialFields: List<Field>) {
     private val _fieldUsers: ConcurrentHashMap<GoboFieldUser, LongAdder> = ConcurrentHashMap()
     private val _fields: ConcurrentHashMap<String, LongAdder> = ConcurrentHashMap()
     val fields: Map<String, LongAdder>
@@ -111,7 +110,7 @@ class FieldUsage(initialFields: List<FieldDto>) {
 
     fun update(executionContext: ExecutionContext?, selectionSet: SelectionSet?, parent: String? = null) {
         selectionSet?.selections?.map {
-            if (it is Field) {
+            if (it is graphql.language.Field) {
                 val fullName = if (parent == null) it.name else "$parent.${it.name}"
                 val clientId: String? = executionContext?.getContext<GoboGraphQLContext>()?.request?.klientid()
                 _fields.computeIfAbsent(fullName) { LongAdder() }.increment()
@@ -125,8 +124,8 @@ class FieldUsage(initialFields: List<FieldDto>) {
     fun getAndResetFieldUsage() =
         fields.map { field ->
             val keys = _fieldUsers.keys.filter { field.key == it.name }
-            val clients = keys.map { FieldClientDto(it.user, _fieldUsers[it]?.sumThenReset() ?: 0) }
-            FieldDto(
+            val clients = keys.map { FieldClient(it.user, _fieldUsers[it]?.sumThenReset() ?: 0) }
+            Field(
                 name = field.key,
                 count = field.value.sumThenReset(),
                 clients = clients
@@ -134,7 +133,7 @@ class FieldUsage(initialFields: List<FieldDto>) {
         }
 }
 
-class ClientUsage(initialClients: List<ClientDto>) {
+class ClientUsage(initialClients: List<Client>) {
     val clients: ConcurrentHashMap<String, LongAdder> = ConcurrentHashMap()
 
     init {
@@ -155,7 +154,7 @@ class ClientUsage(initialClients: List<ClientDto>) {
 
     fun getAndResetClientUsage() =
         clients.map {
-            ClientDto(
+            Client(
                 name = it.key,
                 count = it.value.sumThenReset()
             )

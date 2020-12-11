@@ -1,35 +1,28 @@
 package no.skatteetaten.aurora.gobo.infrastructure.field
 
-import mu.KotlinLogging
-import no.skatteetaten.aurora.gobo.domain.FieldService
-import no.skatteetaten.aurora.gobo.domain.model.FieldDto
 import no.skatteetaten.aurora.gobo.infrastructure.field.repository.FieldClientRepository
 import no.skatteetaten.aurora.gobo.infrastructure.field.repository.FieldRepository
-import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Service
 
-private val logger = KotlinLogging.logger {}
-
-@Profile("!local")
 @Service
-class FieldServiceDatabase(
+class FieldService(
     val fieldRepo: FieldRepository,
     val fieldClientRepository: FieldClientRepository
-) : FieldService {
+) {
 
-    override fun addField(field: FieldDto) {
+    fun addField(field: Field) {
         fieldRepo.save(field)
         fieldClientRepository.save(field.clients, field.name)
     }
 
-    override fun getAllFields(): List<FieldDto> {
+    fun getAllFields(): List<Field> {
         return fieldRepo.findAll().map {
             val clients = fieldClientRepository.findByFieldName(it.name)
             it.copy(clients = clients)
         }
     }
 
-    override fun insertOrUpdateField(field: FieldDto) {
+    fun insertOrUpdateField(field: Field) {
         fieldRepo.incrementCounter(field.name, field.count).takeIfInsertRequired {
             fieldRepo.save(field)
         }
@@ -41,7 +34,7 @@ class FieldServiceDatabase(
         }
     }
 
-    override fun getFieldWithName(name: String) =
+    fun getFieldWithName(name: String) =
         fieldRepo.findByName(name)?.let {
             it.copy(clients = fieldClientRepository.findByFieldName(it.name))
         }

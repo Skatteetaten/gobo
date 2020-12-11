@@ -12,8 +12,8 @@ import graphql.language.OperationDefinition
 import graphql.language.SelectionSet
 import io.mockk.every
 import io.mockk.mockk
-import no.skatteetaten.aurora.gobo.domain.ClientService
-import no.skatteetaten.aurora.gobo.domain.FieldService
+import no.skatteetaten.aurora.gobo.infrastructure.client.ClientService
+import no.skatteetaten.aurora.gobo.infrastructure.field.FieldService
 import org.junit.jupiter.api.Test
 
 class GoboInstrumentationTest {

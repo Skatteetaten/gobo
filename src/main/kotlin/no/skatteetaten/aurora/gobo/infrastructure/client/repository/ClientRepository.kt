@@ -1,35 +1,33 @@
 package no.skatteetaten.aurora.gobo.infrastructure.client.repository
 
 import mu.KotlinLogging
-import no.skatteetaten.aurora.gobo.domain.model.ClientDto
-import org.springframework.context.annotation.Profile
+import no.skatteetaten.aurora.gobo.infrastructure.client.Client
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
 import java.sql.ResultSet
 
 private val logger = KotlinLogging.logger {}
 
-@Profile("!local")
 @Repository
 class ClientRepository(private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate) {
 
-    fun save(client: ClientDto) {
+    fun save(client: Client) {
         val sql = "insert into client(name, count) values(:name, :count)"
         val updated = namedParameterJdbcTemplate.update(sql, mapOf("name" to client.name, "count" to client.count))
         logger.debug("Inserted field name:${client.name} count:${client.count}, rows updated $updated")
     }
 
-    fun findAll(): List<ClientDto> {
+    fun findAll(): List<Client> {
         val sql = "select name, count from client"
         return namedParameterJdbcTemplate.query(sql) { rs, _ ->
-            ClientDto(rs.getName(), rs.getCount())
+            Client(rs.getName(), rs.getCount())
         }
     }
 
-    fun findByName(name: String): ClientDto? {
+    fun findByName(name: String): Client? {
         val sql = "select name, count from client where name = :name"
         return namedParameterJdbcTemplate.query(sql, mapOf("name" to name)) { rs, _ ->
-            ClientDto(rs.getName(), rs.getCount())
+            Client(rs.getName(), rs.getCount())
         }.ifEmpty { null }?.first()
     }
 

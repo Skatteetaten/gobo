@@ -1,26 +1,22 @@
 package no.skatteetaten.aurora.gobo.infrastructure.client
 
-import no.skatteetaten.aurora.gobo.domain.ClientService
-import no.skatteetaten.aurora.gobo.domain.model.ClientDto
 import no.skatteetaten.aurora.gobo.infrastructure.client.repository.ClientRepository
-import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Service
 
-@Profile("!local")
 @Service
-class ClientServiceDatabase(private val clientRepository: ClientRepository) : ClientService {
+class ClientService(private val clientRepository: ClientRepository) {
 
-    override fun addClient(client: ClientDto) {
+    fun addClient(client: Client) {
         clientRepository.save(client)
     }
 
-    override fun getClientWithName(name: String): ClientDto? =
+    fun getClientWithName(name: String): Client? =
         clientRepository.findByName(name)
 
-    override fun getAllClients(): List<ClientDto> =
+    fun getAllClients(): List<Client> =
         clientRepository.findAll()
 
-    override fun insertOrUpdateClient(client: ClientDto) {
+    fun insertOrUpdateClient(client: Client) {
         clientRepository.incrementCounter(client.name, client.count).takeIfInsertRequired {
             clientRepository.save(client)
         }

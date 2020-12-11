@@ -5,9 +5,6 @@ import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFailure
 import assertk.assertions.isInstanceOf
-import no.skatteetaten.aurora.gobo.domain.FieldService
-import no.skatteetaten.aurora.gobo.domain.model.FieldClientDto
-import no.skatteetaten.aurora.gobo.domain.model.FieldDto
 import no.skatteetaten.aurora.gobo.infrastructure.field.repository.FieldClientRepository
 import no.skatteetaten.aurora.gobo.infrastructure.field.repository.FieldRepository
 import org.junit.jupiter.api.Test
@@ -16,23 +13,23 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.dao.DuplicateKeyException
 import org.springframework.test.context.ContextConfiguration
 
-@ContextConfiguration(classes = [FieldClientRepository::class, FieldServiceDatabase::class, FieldRepository::class])
+@ContextConfiguration(classes = [FieldClientRepository::class, FieldService::class, FieldRepository::class])
 @DataJpaTest
-class FieldServiceDatabaseTest {
+class FieldServiceTest {
 
     @Autowired
     private lateinit var service: FieldService
 
-    private val field1 = FieldDto(
+    private val field1 = Field(
         name = "gobo.usage.usedFields",
         count = 10,
-        clients = listOf(FieldClientDto("donald", 5), FieldClientDto("duck", 5))
+        clients = listOf(FieldClient("donald", 5), FieldClient("duck", 5))
     )
 
-    private val field2 = FieldDto(
+    private val field2 = Field(
         name = "gobo.usage.usedFields.name",
         count = 40,
-        clients = listOf(FieldClientDto("donald", 40))
+        clients = listOf(FieldClient("donald", 40))
     )
 
     @Test
@@ -49,7 +46,7 @@ class FieldServiceDatabaseTest {
     @Test
     fun `Update existing field with new count and client`() {
         service.addField(field1)
-        val updatedField = field1.copy(count = 12, clients = listOf(FieldClientDto("donald", 12)))
+        val updatedField = field1.copy(count = 12, clients = listOf(FieldClient("donald", 12)))
         service.insertOrUpdateField(updatedField)
 
         val persistedField = service.getFieldWithName(updatedField.name)!!

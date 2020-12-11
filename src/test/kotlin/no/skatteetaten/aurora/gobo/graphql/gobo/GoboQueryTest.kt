@@ -2,24 +2,24 @@ package no.skatteetaten.aurora.gobo.graphql.gobo
 
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
-import no.skatteetaten.aurora.gobo.domain.ClientService
-import no.skatteetaten.aurora.gobo.domain.FieldService
-import no.skatteetaten.aurora.gobo.domain.model.ClientDto
-import no.skatteetaten.aurora.gobo.domain.model.FieldClientDto
-import no.skatteetaten.aurora.gobo.domain.model.FieldDto
+import no.skatteetaten.aurora.gobo.infrastructure.client.Client
+import no.skatteetaten.aurora.gobo.infrastructure.field.FieldClient
+import no.skatteetaten.aurora.gobo.infrastructure.field.Field
 import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithDbhAndSkap
 import no.skatteetaten.aurora.gobo.graphql.graphqlData
 import no.skatteetaten.aurora.gobo.graphql.graphqlDataWithPrefix
 import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.graphql.printResult
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
+import no.skatteetaten.aurora.gobo.infrastructure.client.ClientService
+import no.skatteetaten.aurora.gobo.infrastructure.field.FieldService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
 
-@Import(GoboQuery::class, FieldService::class)
+@Import(GoboQuery::class)
 class GoboQueryTest : GraphQLTestWithDbhAndSkap() {
 
     @MockkBean
@@ -40,14 +40,14 @@ class GoboQueryTest : GraphQLTestWithDbhAndSkap() {
     @BeforeEach
     internal fun setUp() {
         every { fieldService.getAllFields() } returns listOf(
-            FieldDto(
+            Field(
                 "gobo",
                 5,
-                listOf(FieldClientDto("donald", 2), FieldClientDto("joe", 3))
+                listOf(FieldClient("donald", 2), FieldClient("joe", 3))
             )
         )
 
-        every { clientService.getAllClients() } returns listOf(ClientDto("donald", 2))
+        every { clientService.getAllClients() } returns listOf(Client("donald", 2))
     }
 
     @Test
@@ -84,13 +84,13 @@ class GoboQueryTest : GraphQLTestWithDbhAndSkap() {
             .expectStatus().isOk
             .expectBody()
             .printResult()
-            /*
-            .graphqlDataWithPrefix("gobo.usage.clients[0]") {
-                graphqlData("name").isNotEmpty
-                graphqlData("count").isNumber
-            }
-            .graphqlDoesNotContainErrors()
+        /*
+        .graphqlDataWithPrefix("gobo.usage.clients[0]") {
+            graphqlData("name").isNotEmpty
+            graphqlData("count").isNumber
+        }
+        .graphqlDoesNotContainErrors()
 
-             */
+         */
     }
 }

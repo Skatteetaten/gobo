@@ -1,23 +1,21 @@
 package no.skatteetaten.aurora.gobo.infrastructure.field.repository
 
 import mu.KotlinLogging
-import no.skatteetaten.aurora.gobo.domain.model.FieldClientDto
-import org.springframework.context.annotation.Profile
+import no.skatteetaten.aurora.gobo.infrastructure.field.FieldClient
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
 import java.sql.ResultSet
 
 private val logger = KotlinLogging.logger {}
 
-@Profile("!local")
 @Repository
 class FieldClientRepository(private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate) {
 
-    fun save(client: List<FieldClientDto>, fieldName: String) {
+    fun save(client: List<FieldClient>, fieldName: String) {
         client.forEach { save(it, fieldName) }
     }
 
-    fun save(client: FieldClientDto, fieldName: String) {
+    fun save(client: FieldClient, fieldName: String) {
         val sql = "insert into field_client(name, count, field_name) values (:name, :count, :fieldName)"
         val updated = namedParameterJdbcTemplate.update(
             sql,
@@ -26,10 +24,10 @@ class FieldClientRepository(private val namedParameterJdbcTemplate: NamedParamet
         logger.debug("Inserted field_client name:${client.name} count:${client.count} fieldName:$fieldName, rows updated $updated")
     }
 
-    fun findByFieldName(fieldName: String): List<FieldClientDto> {
+    fun findByFieldName(fieldName: String): List<FieldClient> {
         val sql = "select name, count from field_client where field_name = :field_name"
-        return namedParameterJdbcTemplate.query<FieldClientDto>(sql, mapOf("field_name" to fieldName)) { rs, _ ->
-            FieldClientDto(rs.getName(), rs.getCount())
+        return namedParameterJdbcTemplate.query<FieldClient>(sql, mapOf("field_name" to fieldName)) { rs, _ ->
+            FieldClient(rs.getName(), rs.getCount())
         }
     }
 

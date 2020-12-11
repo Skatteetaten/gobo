@@ -4,8 +4,6 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFailure
 import assertk.assertions.isInstanceOf
-import no.skatteetaten.aurora.gobo.domain.ClientService
-import no.skatteetaten.aurora.gobo.domain.model.ClientDto
 import no.skatteetaten.aurora.gobo.infrastructure.client.repository.ClientRepository
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -13,19 +11,19 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.dao.DuplicateKeyException
 import org.springframework.test.context.ContextConfiguration
 
-@ContextConfiguration(classes = [ClientRepository::class, ClientServiceDatabase::class])
+@ContextConfiguration(classes = [ClientRepository::class, ClientService::class])
 @DataJpaTest
-class ClientServiceDatabaseTest {
+class ClientServiceTest {
 
     @Autowired
     private lateinit var service: ClientService
 
-    private val client1 = ClientDto(
+    private val client1 = Client(
         name = "donald",
         count = 5
     )
 
-    private val client2 = ClientDto(
+    private val client2 = Client(
         name = "joe",
         count = 10
     )

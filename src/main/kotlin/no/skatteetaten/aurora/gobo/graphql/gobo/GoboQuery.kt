@@ -2,11 +2,11 @@ package no.skatteetaten.aurora.gobo.graphql.gobo
 
 import com.expediagroup.graphql.spring.operations.Query
 import graphql.schema.DataFetchingEnvironment
-import no.skatteetaten.aurora.gobo.domain.ClientService
+import no.skatteetaten.aurora.gobo.infrastructure.client.ClientService
+import no.skatteetaten.aurora.gobo.infrastructure.field.FieldService
 import no.skatteetaten.aurora.gobo.security.checkValidUserToken
 import org.springframework.stereotype.Component
 import java.time.Instant
-import no.skatteetaten.aurora.gobo.domain.FieldService
 
 @Component
 class GoboQuery(
