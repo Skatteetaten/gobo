@@ -98,15 +98,6 @@ class FieldUsage {
     val fields: Map<String, LongAdder>
         get() = _fields.toSortedMap()
 
-    fun initialize(initialFields: List<Field>) {
-        initialFields.forEach { field ->
-            _fields[field.name] = LongAdder().apply { add(field.count) }
-            field.clients.forEach { client ->
-                _fieldUsers[GoboFieldUser(field.name, client.name)] = LongAdder().apply { add(client.count) }
-            }
-        }
-    }
-
     fun update(executionContext: ExecutionContext?, selectionSet: SelectionSet?, parent: String? = null) {
         selectionSet?.selections?.map {
             if (it is graphql.language.Field) {
@@ -134,12 +125,6 @@ class FieldUsage {
 
 class ClientUsage {
     val clients: ConcurrentHashMap<String, LongAdder> = ConcurrentHashMap()
-
-    fun initialize(initialClients: List<Client>) {
-        initialClients.forEach {
-            clients[it.name] = LongAdder().apply { add(it.count) }
-        }
-    }
 
     fun update(executionContext: ExecutionContext?) {
         try {
