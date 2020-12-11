@@ -9,7 +9,6 @@ import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithDbhAndSkap
 import no.skatteetaten.aurora.gobo.graphql.graphqlData
 import no.skatteetaten.aurora.gobo.graphql.graphqlDataWithPrefix
 import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
-import no.skatteetaten.aurora.gobo.graphql.printResult
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
 import no.skatteetaten.aurora.gobo.infrastructure.client.ClientService
 import no.skatteetaten.aurora.gobo.infrastructure.field.FieldService
@@ -19,7 +18,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
 
-@Import(GoboQuery::class)
+@Import(GoboQuery::class, GoboFieldUsageListDataLoader::class, GoboClientListDataLoader::class)
 class GoboQueryTest : GraphQLTestWithDbhAndSkap() {
 
     @MockkBean
@@ -56,8 +55,6 @@ class GoboQueryTest : GraphQLTestWithDbhAndSkap() {
             .expectStatus().isOk
             .expectBody()
             .graphqlData("gobo.startTime").isNotEmpty
-            .graphqlData("gobo.usage.numberOfFields").isNumber
-            .graphqlData("gobo.usage.numberOfClients").isNumber
             .graphqlDataWithPrefix("gobo.usage.usedFields[0]") {
                 graphqlData("name").isNotEmpty
                 graphqlData("count").isNotEmpty
@@ -85,14 +82,10 @@ class GoboQueryTest : GraphQLTestWithDbhAndSkap() {
         webTestClient.queryGraphQL(queryResource = getGoboClientUsageQuery, token = "test-token")
             .expectStatus().isOk
             .expectBody()
-            .printResult()
-        /*
-        .graphqlDataWithPrefix("gobo.usage.clients[0]") {
-            graphqlData("name").isNotEmpty
-            graphqlData("count").isNumber
-        }
-        .graphqlDoesNotContainErrors()
-
-         */
+            .graphqlDataWithPrefix("gobo.usage.clients[0]") {
+                graphqlData("name").isNotEmpty
+                graphqlData("count").isNumber
+            }
+            .graphqlDoesNotContainErrors()
     }
 }

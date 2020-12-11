@@ -2,8 +2,6 @@
     gobo {
         startTime
         usage {
-            numberOfFields
-            numberOfClients
             usedFields {
                 name
                 count
