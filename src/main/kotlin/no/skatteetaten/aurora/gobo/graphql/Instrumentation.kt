@@ -5,6 +5,8 @@ import graphql.execution.ExecutionContext
 import graphql.execution.instrumentation.SimpleInstrumentation
 import graphql.execution.instrumentation.parameters.InstrumentationExecutionParameters
 import graphql.language.SelectionSet
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.infrastructure.client.Client
 import no.skatteetaten.aurora.gobo.infrastructure.field.FieldClient
@@ -34,8 +36,16 @@ class GoboInstrumentation(
     private val clientService: ClientService
 ) : SimpleInstrumentation() {
 
-    val fieldUsage = FieldUsage(fieldService.getAllFields())
-    val clientUsage = ClientUsage(clientService.getAllClients())
+    val fieldUsage = FieldUsage()
+    val clientUsage = ClientUsage()
+
+    init {
+        GlobalScope.launch {
+            logger.debug("Populating fields and clients")
+            fieldUsage.initialize(fieldService.getAllFields())
+            clientUsage.initialize(clientService.getAllClients())
+        }
+    }
 
     @PreDestroy
     fun update() {
@@ -93,13 +103,13 @@ class GoboInstrumentation(
     }
 }
 
-class FieldUsage(initialFields: List<Field>) {
+class FieldUsage {
     private val _fieldUsers: ConcurrentHashMap<GoboFieldUser, LongAdder> = ConcurrentHashMap()
     private val _fields: ConcurrentHashMap<String, LongAdder> = ConcurrentHashMap()
     val fields: Map<String, LongAdder>
         get() = _fields.toSortedMap()
 
-    init {
+    fun initialize(initialFields: List<Field>) {
         initialFields.forEach { field ->
             _fields[field.name] = LongAdder().apply { add(field.count) }
             field.clients.forEach { client ->
@@ -133,10 +143,10 @@ class FieldUsage(initialFields: List<Field>) {
         }
 }
 
-class ClientUsage(initialClients: List<Client>) {
+class ClientUsage {
     val clients: ConcurrentHashMap<String, LongAdder> = ConcurrentHashMap()
 
-    init {
+    fun initialize(initialClients: List<Client>) {
         initialClients.forEach {
             clients[it.name] = LongAdder().apply { add(it.count) }
         }

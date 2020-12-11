@@ -13,7 +13,7 @@ import graphql.language.SelectionSet
 import org.junit.jupiter.api.Test
 
 class FieldUsageTest {
-    private val usage = FieldUsage(emptyList())
+    private val usage = FieldUsage()
 
     @Test
     fun `Get field name from SelectionSet`() {
