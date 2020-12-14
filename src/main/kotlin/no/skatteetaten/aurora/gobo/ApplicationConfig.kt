@@ -19,7 +19,6 @@ import org.springframework.core.annotation.Order
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.http.client.reactive.ReactorClientHttpConnector
-import org.springframework.scheduling.annotation.EnableScheduling
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction
 import org.springframework.web.reactive.function.client.WebClient
@@ -51,7 +50,6 @@ class RequiresSkap
 private val logger = KotlinLogging.logger {}
 
 @Configuration
-@EnableScheduling
 class ApplicationConfig(
     @Value("\${gobo.webclient.read-timeout:30000}") val readTimeout: Long,
     @Value("\${gobo.webclient.write-timeout:30000}") val writeTimeout: Long,
