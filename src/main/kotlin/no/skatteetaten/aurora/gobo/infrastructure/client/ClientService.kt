@@ -10,8 +10,8 @@ class ClientService(private val clientRepository: ClientRepository) {
         clientRepository.save(client)
     }
 
-    fun getClientWithName(name: String): Client? =
-        clientRepository.findByName(name)
+    fun getClientWithName(name: String): List<Client> =
+        clientRepository.findWithName(name)
 
     fun getAllClients(): List<Client> =
         clientRepository.findAll()

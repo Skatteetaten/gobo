@@ -36,7 +36,7 @@ class FieldServiceTest {
     fun `Save new field`() {
         service.addField(field1)
 
-        val field = service.getFieldWithName(field1.name)!!
+        val field = service.getFieldWithName(field1.name).first()
         assertThat(field.name).isEqualTo("gobo.usage.usedFields")
         assertThat(field.count).isEqualTo(10)
         assertThat(field.clients).hasSize(2)
@@ -49,7 +49,7 @@ class FieldServiceTest {
         val updatedField = field1.copy(count = 12, clients = listOf(FieldClient("donald", 12)))
         service.insertOrUpdateField(updatedField)
 
-        val persistedField = service.getFieldWithName(updatedField.name)!!
+        val persistedField = service.getFieldWithName(updatedField.name).first()
         assertThat(persistedField.name).isEqualTo("gobo.usage.usedFields")
         assertThat(persistedField.count).isEqualTo(22)
         assertThat(persistedField.clients[0].count).isEqualTo(17)
@@ -72,5 +72,17 @@ class FieldServiceTest {
     fun `Throw exception when trying to add same field twice`() {
         service.addField(field1)
         assertThat { service.addField(field1) }.isFailure().isInstanceOf(DuplicateKeyException::class)
+    }
+
+    @Test
+    fun `Get field with name containing`() {
+        service.addField(field1)
+        service.addField(field2)
+
+        val result1 = service.getFieldWithName("gobo")
+        val result2 = service.getFieldWithName("gobo.usage.usedFields.name")
+
+        assertThat(result1).hasSize(2)
+        assertThat(result2).hasSize(1)
     }
 }

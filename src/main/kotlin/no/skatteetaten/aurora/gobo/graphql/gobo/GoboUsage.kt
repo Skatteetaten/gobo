@@ -11,17 +11,11 @@ data class GoboFieldUsage(val name: String, val count: Long, val clients: List<G
 data class GoboClient(val name: String, val count: Long)
 
 class GoboUsage {
-    suspend fun usedFields(dfe: DataFetchingEnvironment, nameContains: String?): List<GoboFieldUsage> {
-        val fields = dfe.loadMany<GoboUsage, GoboFieldUsage>(this)
-        return if (nameContains == null) {
-            fields
-        } else {
-            fields.filter { it.name.contains(nameContains) }
-        }
-    }
+    suspend fun usedFields(dfe: DataFetchingEnvironment, nameContains: String?) =
+        dfe.loadMany<String, GoboFieldUsage>(nameContains ?: "")
 
-    suspend fun clients(dfe: DataFetchingEnvironment) =
-        dfe.loadMany<GoboUsage, GoboClient>(this)
+    suspend fun clients(dfe: DataFetchingEnvironment, nameContains: String?) =
+        dfe.loadMany<String, GoboClient>(nameContains ?: "")
 }
 
 data class Gobo(val startTime: Instant, val usage: GoboUsage = GoboUsage())
