@@ -53,7 +53,7 @@ class GraphQLConfig(
 
     @Scheduled(cron = "\${gobo.graphqlUsage.cron:0 15 1 * * ?}")
     fun updateGraphqlUsage() {
-        logger.info { "Running scheduled job at ${LocalDateTime.now()}" }
+        logger.info { "Running scheduled job to update usage data at ${LocalDateTime.now()}" }
         goboInstrumentation.update()
     }
 }
