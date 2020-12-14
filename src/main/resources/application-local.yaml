@@ -57,6 +57,6 @@ kubernetes:
 
 gobo:
     graphqlUsage:
-        cron: "*/1 * * * * *"
+        cron: "*/1 * * * * *" # every second
 
 # logging.level.no.skatteetaten.aurora.gobo: DEBUG
