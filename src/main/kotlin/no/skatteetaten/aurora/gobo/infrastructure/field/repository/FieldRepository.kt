@@ -45,11 +45,10 @@ class FieldRepository(private val namedParameterJdbcTemplate: NamedParameterJdbc
         return namedParameterJdbcTemplate.query(sql, resultSetExtractor) ?: emptyList()
     }
 
-    fun findByName(name: String): Field? {
+    fun findWithName(name: String): List<Field> {
         val sql =
-            "select f.name as name, f.count as count, fc.name as client_name, fc.count as client_count from field f left join field_client fc on f.name = fc.field_name where f.name = :name"
-        return namedParameterJdbcTemplate.query(sql, mapOf("name" to name), resultSetExtractor)?.ifEmpty { null }
-            ?.first()
+            "select f.name as name, f.count as count, fc.name as client_name, fc.count as client_count from field f left join field_client fc on f.name = fc.field_name where f.name like :name"
+        return namedParameterJdbcTemplate.query(sql, mapOf("name" to "%$name%"), resultSetExtractor) ?: emptyList()
     }
 
     fun incrementCounter(name: String, count: Long): Int {

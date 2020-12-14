@@ -15,12 +15,7 @@ class FieldService(
         fieldClientRepository.save(field.clients, field.name)
     }
 
-    fun getAllFields(): List<Field> {
-        return fieldRepo.findAll().map {
-            val clients = fieldClientRepository.findByFieldName(it.name)
-            it.copy(clients = clients)
-        }
-    }
+    fun getAllFields() = fieldRepo.findAll()
 
     fun insertOrUpdateField(field: Field) {
         fieldRepo.incrementCounter(field.name, field.count).takeIfInsertRequired {
@@ -34,10 +29,7 @@ class FieldService(
         }
     }
 
-    fun getFieldWithName(name: String) =
-        fieldRepo.findByName(name)?.let {
-            it.copy(clients = fieldClientRepository.findByFieldName(it.name))
-        }
+    fun getFieldWithName(name: String) = fieldRepo.findWithName(name)
 
     private fun Int.takeIfInsertRequired(fn: () -> Unit = {}) {
         if (this == 0) {

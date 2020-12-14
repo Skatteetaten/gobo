@@ -36,17 +36,18 @@ class GoboQueryTest : GraphQLTestWithDbhAndSkap() {
     @Value("classpath:graphql/queries/getGoboClientUsage.graphql")
     private lateinit var getGoboClientUsageQuery: Resource
 
+    @Value("classpath:graphql/queries/getGoboClientUsageNameContains.graphql")
+    private lateinit var getGoboClientUsageNameContainsQuery: Resource
+
     @BeforeEach
     internal fun setUp() {
-        every { fieldService.getAllFields() } returns listOf(
-            Field(
-                "gobo",
-                5,
-                listOf(FieldClient("donald", 2), FieldClient("joe", 3))
-            )
-        )
+        val field = Field("gobo", 5, listOf(FieldClient("donald", 2), FieldClient("joe", 3)))
+        every { fieldService.getAllFields() } returns listOf(field)
+        every { fieldService.getFieldWithName(any()) } returns listOf(field)
 
-        every { clientService.getAllClients() } returns listOf(Client("donald", 2))
+        val client = Client("donald", 2)
+        every { clientService.getAllClients() } returns listOf(client)
+        every { clientService.getClientWithName(any()) } returns listOf(client)
     }
 
     @Test
@@ -87,5 +88,19 @@ class GoboQueryTest : GraphQLTestWithDbhAndSkap() {
                 graphqlData("count").isNumber
             }
             .graphqlDoesNotContainErrors()
+    }
+
+    @Test
+    fun `Get Gobo usage with client name containing`() {
+        webTestClient.queryGraphQL(
+            queryResource = getGoboClientUsageNameContainsQuery,
+            variables = mapOf("nameContains" to "donald"),
+            token = "test-token"
+        )
+            .expectStatus().isOk
+            .expectBody()
+            .graphqlDataWithPrefix("gobo.usage.clients[0]") {
+                graphqlData("name").isEqualTo("donald")
+            }
     }
 }

@@ -24,11 +24,11 @@ class ClientRepository(private val namedParameterJdbcTemplate: NamedParameterJdb
         }
     }
 
-    fun findByName(name: String): Client? {
-        val sql = "select name, count from client where name = :name"
-        return namedParameterJdbcTemplate.query(sql, mapOf("name" to name)) { rs, _ ->
+    fun findWithName(name: String): List<Client> {
+        val sql = "select name, count from client where name like :name"
+        return namedParameterJdbcTemplate.query(sql, mapOf("name" to "%$name%")) { rs, _ ->
             Client(rs.getName(), rs.getCount())
-        }.ifEmpty { null }?.first()
+        }
     }
 
     fun incrementCounter(name: String, count: Long): Int {
