@@ -57,4 +57,4 @@ kubernetes:
 
 gobo:
     graphqlUsage:
-        fixedRate: 1000
+        cron:   "0 15 2 * * ?"

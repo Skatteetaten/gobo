@@ -48,7 +48,7 @@ class GraphQLConfig(
     /**
      * Updates the usage data every 10 minutes by default
      */
-    @Scheduled(fixedRateString = "\${gobo.graphqlUsage.fixedRate:600000}")
+    @Scheduled(cron = "\${gobo.graphqlUsßage.cron:0 */5 * * * ?}")
     fun updateGraphqlUsage() {
         goboInstrumentation.update()
     }
