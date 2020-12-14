@@ -77,4 +77,13 @@ class ClientServiceTest {
         assertThat(results1).hasSize(2)
         assertThat(results2).hasSize(1)
     }
+
+    @Test
+    fun `Get field count`() {
+        service.addClient(client1)
+        service.addClient(client2)
+
+        val clientCount = service.getClientCount()
+        assertThat(clientCount).isEqualTo(2)
+    }
 }

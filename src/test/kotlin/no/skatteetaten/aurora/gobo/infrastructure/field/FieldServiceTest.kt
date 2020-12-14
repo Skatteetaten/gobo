@@ -85,4 +85,13 @@ class FieldServiceTest {
         assertThat(result1).hasSize(2)
         assertThat(result2).hasSize(1)
     }
+
+    @Test
+    fun `Get field count`() {
+        service.addField(field1)
+        service.addField(field2)
+
+        val fieldCount = service.getFieldCount()
+        assertThat(fieldCount).isEqualTo(2)
+    }
 }

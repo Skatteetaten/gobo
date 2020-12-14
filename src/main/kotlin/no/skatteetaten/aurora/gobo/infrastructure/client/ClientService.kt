@@ -22,6 +22,8 @@ class ClientService(private val clientRepository: ClientRepository) {
         }
     }
 
+    fun getClientCount() = clientRepository.count()
+
     private fun Int.takeIfInsertRequired(fn: () -> Unit = {}) {
         if (this == 0) {
             fn()

@@ -39,6 +39,11 @@ class FieldRepository(private val namedParameterJdbcTemplate: NamedParameterJdbc
         logger.debug("Inserted field name:${field.name} count:${field.count}, rows updated $updated")
     }
 
+    fun count(): Long {
+        val sql = "select count(*) from field"
+        return namedParameterJdbcTemplate.queryForObject(sql, emptyMap<String, String>(), Long::class.java) ?: 0
+    }
+
     fun findAll(): List<Field> {
         val sql =
             "select f.name as name, f.count as count, fc.name as client_name, fc.count as client_count from field f left join field_client fc on f.name = fc.field_name"

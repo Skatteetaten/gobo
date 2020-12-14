@@ -17,6 +17,11 @@ class ClientRepository(private val namedParameterJdbcTemplate: NamedParameterJdb
         logger.debug("Inserted field name:${client.name} count:${client.count}, rows updated $updated")
     }
 
+    fun count(): Long {
+        val sql = "select count(*) from client"
+        return namedParameterJdbcTemplate.queryForObject(sql, emptyMap<String, String>(), Long::class.java) ?: 0
+    }
+
     fun findAll(): List<Client> {
         val sql = "select name, count from client"
         return namedParameterJdbcTemplate.query(sql) { rs, _ ->

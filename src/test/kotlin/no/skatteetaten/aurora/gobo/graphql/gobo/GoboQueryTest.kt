@@ -18,7 +18,13 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
 
-@Import(GoboQuery::class, GoboFieldUsageListDataLoader::class, GoboClientListDataLoader::class)
+@Import(
+    GoboQuery::class,
+    GoboFieldUsageListDataLoader::class,
+    GoboClientListDataLoader::class,
+    GoboFieldCountDataLoader::class,
+    GoboClientCountDataLoader::class
+)
 class GoboQueryTest : GraphQLTestWithDbhAndSkap() {
 
     @MockkBean
@@ -44,6 +50,7 @@ class GoboQueryTest : GraphQLTestWithDbhAndSkap() {
         val field = Field("gobo", 5, listOf(FieldClient("donald", 2), FieldClient("joe", 3)))
         every { fieldService.getAllFields() } returns listOf(field)
         every { fieldService.getFieldWithName(any()) } returns listOf(field)
+        every { fieldService.getFieldCount() } returns 1
 
         val client = Client("donald", 2)
         every { clientService.getAllClients() } returns listOf(client)
@@ -56,6 +63,8 @@ class GoboQueryTest : GraphQLTestWithDbhAndSkap() {
             .expectStatus().isOk
             .expectBody()
             .graphqlData("gobo.startTime").isNotEmpty
+            .graphqlData("gobo.usage.numberOfFields").isNumber
+            .graphqlData("gobo.usage.numberOfClients").isNumber
             .graphqlDataWithPrefix("gobo.usage.usedFields[0]") {
                 graphqlData("name").isNotEmpty
                 graphqlData("count").isNotEmpty

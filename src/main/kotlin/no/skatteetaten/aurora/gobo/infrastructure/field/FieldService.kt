@@ -31,6 +31,8 @@ class FieldService(
 
     fun getFieldWithName(name: String) = fieldRepo.findWithName(name)
 
+    fun getFieldCount() = fieldRepo.count()
+
     private fun Int.takeIfInsertRequired(fn: () -> Unit = {}) {
         if (this == 0) {
             fn()
