@@ -2,6 +2,7 @@ package no.skatteetaten.aurora.gobo.infrastructure.field
 
 import assertk.assertThat
 import assertk.assertions.hasSize
+import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFailure
 import assertk.assertions.isInstanceOf
@@ -93,5 +94,13 @@ class FieldServiceTest {
 
         val fieldCount = service.getFieldCount()
         assertThat(fieldCount).isEqualTo(2)
+    }
+
+    @Test
+    fun `Do not insert or update field with count 0`() {
+        service.insertOrUpdateField(Field("test", 0))
+
+        val fields = service.getAllFields()
+        assertThat(fields).isEmpty()
     }
 }

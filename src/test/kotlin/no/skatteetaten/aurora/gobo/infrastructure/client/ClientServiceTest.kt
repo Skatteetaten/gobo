@@ -2,6 +2,7 @@ package no.skatteetaten.aurora.gobo.infrastructure.client
 
 import assertk.assertThat
 import assertk.assertions.hasSize
+import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFailure
 import assertk.assertions.isInstanceOf
@@ -79,11 +80,19 @@ class ClientServiceTest {
     }
 
     @Test
-    fun `Get field count`() {
+    fun `Get client count`() {
         service.addClient(client1)
         service.addClient(client2)
 
         val clientCount = service.getClientCount()
         assertThat(clientCount).isEqualTo(2)
+    }
+
+    @Test
+    fun `Do not insert or update client with count 0`() {
+        service.insertOrUpdateClient(Client("test", 0))
+
+        val clients = service.getAllClients()
+        assertThat(clients).isEmpty()
     }
 }

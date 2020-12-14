@@ -18,13 +18,17 @@ class FieldService(
     fun getAllFields() = fieldRepo.findAll()
 
     fun insertOrUpdateField(field: Field) {
-        fieldRepo.incrementCounter(field.name, field.count).takeIfInsertRequired {
-            fieldRepo.save(field)
+        if (field.count > 0) {
+            fieldRepo.incrementCounter(field.name, field.count).takeIfInsertRequired {
+                fieldRepo.save(field)
+            }
         }
 
         field.clients.forEach {
-            fieldClientRepository.incrementCounter(it.name, field.name, it.count).takeIfInsertRequired {
-                fieldClientRepository.save(it, field.name)
+            if (it.count > 0) {
+                fieldClientRepository.incrementCounter(it.name, field.name, it.count).takeIfInsertRequired {
+                    fieldClientRepository.save(it, field.name)
+                }
             }
         }
     }

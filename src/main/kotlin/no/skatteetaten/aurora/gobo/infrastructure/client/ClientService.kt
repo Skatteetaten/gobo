@@ -17,8 +17,10 @@ class ClientService(private val clientRepository: ClientRepository) {
         clientRepository.findAll()
 
     fun insertOrUpdateClient(client: Client) {
-        clientRepository.incrementCounter(client.name, client.count).takeIfInsertRequired {
-            clientRepository.save(client)
+        if (client.count > 0) {
+            clientRepository.incrementCounter(client.name, client.count).takeIfInsertRequired {
+                clientRepository.save(client)
+            }
         }
     }
 
