@@ -51,9 +51,6 @@ class GraphQLConfig(
     @Bean
     fun hooks() = GoboSchemaGeneratorHooks()
 
-    /**
-     * Updates the usage data at configured cron schedule
-     */
     @Scheduled(cron = "\${gobo.graphqlUsage.cron:0 15 2 * * ?}")
     fun updateGraphqlUsage() {
         logger.debug { "Running scheduled job at ${LocalDateTime.now()}" }
