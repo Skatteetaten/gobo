@@ -1,0 +1,10 @@
+query getMostUsedFields($mostUsedOnly: Boolean!) {
+    gobo {
+        startTime
+        usage {
+            usedFields(mostUsedOnly: $mostUsedOnly) {
+                name
+            }
+        }
+    }
+}

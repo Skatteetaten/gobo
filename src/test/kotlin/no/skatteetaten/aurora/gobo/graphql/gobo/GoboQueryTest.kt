@@ -45,6 +45,9 @@ class GoboQueryTest : GraphQLTestWithDbhAndSkap() {
     @Value("classpath:graphql/queries/getGoboClientUsageNameContains.graphql")
     private lateinit var getGoboClientUsageNameContainsQuery: Resource
 
+    @Value("classpath:graphql/queries/getGoboUsageMostUsed.graphql")
+    private lateinit var getGoboMostUsedFieldsQuery: Resource
+
     @BeforeEach
     internal fun setUp() {
         val field = Field("gobo", 5, listOf(FieldClient("donald", 2), FieldClient("joe", 3)))
@@ -111,5 +114,19 @@ class GoboQueryTest : GraphQLTestWithDbhAndSkap() {
             .graphqlDataWithPrefix("gobo.usage.clients[0]") {
                 graphqlData("name").isEqualTo("donald")
             }
+            .graphqlDoesNotContainErrors()
+    }
+
+    @Test
+    fun `Get most used fields`() {
+        webTestClient.queryGraphQL(
+            queryResource = getGoboMostUsedFieldsQuery,
+            variables = mapOf("mostUsedOnly" to true),
+            token = "test-token"
+        )
+            .expectStatus().isOk
+            .expectBody()
+            .graphqlData("gobo.usage.usedFields[0].name").isEqualTo("gobo")
+            .graphqlDoesNotContainErrors()
     }
 }

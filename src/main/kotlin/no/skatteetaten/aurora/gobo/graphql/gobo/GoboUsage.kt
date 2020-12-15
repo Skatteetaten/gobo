@@ -19,8 +19,18 @@ class GoboUsage {
     suspend fun numberOfFields(dfe: DataFetchingEnvironment) =
         dfe.loadOrThrow<GoboUsage, GoboFieldCount>(this).numberOfFields
 
-    suspend fun usedFields(dfe: DataFetchingEnvironment, nameContains: String?) =
-        dfe.loadMany<String, GoboFieldUsage>(nameContains ?: "")
+    suspend fun usedFields(
+        dfe: DataFetchingEnvironment,
+        nameContains: String?,
+        mostUsedOnly: Boolean?
+    ): List<GoboFieldUsage> {
+        val fields = dfe.loadMany<String, GoboFieldUsage>(nameContains ?: "")
+        return if (mostUsedOnly == true) {
+            fields.sortedByDescending { it.count }.take(5)
+        } else {
+            fields
+        }
+    }
 
     suspend fun clients(dfe: DataFetchingEnvironment, nameContains: String?) =
         dfe.loadMany<String, GoboClient>(nameContains ?: "")
