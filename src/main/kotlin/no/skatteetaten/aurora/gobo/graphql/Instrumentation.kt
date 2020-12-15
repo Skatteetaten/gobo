@@ -38,6 +38,12 @@ class GoboInstrumentation(
 
     @PreDestroy
     fun update() {
+        val numOfFields = fieldUsage.fields.entries.count { it.value.sum() > 0 }
+        val numOfClients = clientUsage.clients.entries.count { it.value.sum() > 0 }
+        if (numOfFields > 0 || numOfClients > 0) {
+            logger.info("Updating $numOfFields fields and $numOfClients clients")
+        }
+
         fieldUsage.getAndResetFieldUsage().forEach {
             fieldService.insertOrUpdateField(it)
         }
