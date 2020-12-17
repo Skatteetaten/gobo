@@ -5,6 +5,8 @@ import com.expediagroup.graphql.spring.GraphQLConfigurationProperties
 import com.fasterxml.jackson.databind.JsonNode
 import graphql.schema.GraphQLScalarType
 import graphql.schema.GraphQLType
+import mu.KotlinLogging
+import no.skatteetaten.aurora.gobo.graphql.GoboInstrumentation
 import no.skatteetaten.aurora.gobo.graphql.scalars.InstantScalar
 import no.skatteetaten.aurora.gobo.graphql.scalars.JsonNodeScalar
 import no.skatteetaten.aurora.gobo.graphql.scalars.UrlScalar
@@ -13,17 +15,24 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Primary
 import org.springframework.core.io.Resource
+import org.springframework.scheduling.annotation.EnableScheduling
+import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.web.reactive.function.server.bodyValueAndAwait
 import org.springframework.web.reactive.function.server.coRouter
 import org.springframework.web.reactive.function.server.html
 import java.net.URL
 import java.time.Instant
+import java.time.LocalDateTime
 import kotlin.reflect.KType
 
+private val logger = KotlinLogging.logger { }
+
 @Configuration
+@EnableScheduling
 class GraphQLConfig(
     private val config: GraphQLConfigurationProperties,
-    @Value("classpath:/playground/gobo-graphql-playground.html") private val playgroundHtml: Resource
+    @Value("classpath:/playground/gobo-graphql-playground.html") private val playgroundHtml: Resource,
+    private val goboInstrumentation: GoboInstrumentation
 ) {
     private val body = playgroundHtml.inputStream.bufferedReader().use { reader ->
         reader.readText()
@@ -41,6 +50,12 @@ class GraphQLConfig(
 
     @Bean
     fun hooks() = GoboSchemaGeneratorHooks()
+
+    @Scheduled(cron = "\${gobo.graphqlUsage.cron:0 15 1 * * ?}")
+    fun updateGraphqlUsage() {
+        logger.info { "Running scheduled job to update usage data at ${LocalDateTime.now()}" }
+        goboInstrumentation.update()
+    }
 }
 
 class GoboSchemaGeneratorHooks : SchemaGeneratorHooks {

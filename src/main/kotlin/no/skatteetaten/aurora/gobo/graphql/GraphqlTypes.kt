@@ -2,14 +2,6 @@ package no.skatteetaten.aurora.gobo.graphql
 
 import org.springframework.util.Base64Utils
 
-abstract class GoboConnection<T> {
-    abstract val edges: List<T>
-    abstract val pageInfo: GoboPageInfo?
-
-    open val totalCount: Int
-        get() = edges.size
-}
-
 class GoboCursor(input: String) {
     val value: String = Base64Utils.encodeToString(input.toByteArray())
 

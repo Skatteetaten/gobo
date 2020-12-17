@@ -1,7 +1,5 @@
 package no.skatteetaten.aurora.gobo.graphql
 
-import java.lang.Math.min
-
 data class GoboPagedEdges<T>(val edges: List<T>, val pageInfo: GoboPageInfo, val totalCount: Int)
 
 fun <T : GoboEdge> pageEdges(allEdges: List<T>, first: Int? = null, after: String? = null): GoboPagedEdges<T> {
@@ -17,7 +15,7 @@ private fun <T : GoboEdge> createPage(edges: List<T>, first: Int?, afterCursor: 
 }
 
 fun <T> createPage(edges: List<T>, offset: Int, limit: Int = edges.size): List<T> {
-    val endIndex = min(offset + limit, edges.size)
+    val endIndex = (offset + limit).coerceAtMost(edges.size)
     return edges.subList(offset, endIndex)
 }
 

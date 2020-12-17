@@ -1,6 +1,7 @@
 plugins {
     id("java")
     id("no.skatteetaten.gradle.aurora") version "4.1.1"
+    id("org.flywaydb.flyway") version "7.1.1"
 }
 
 aurora {
@@ -26,7 +27,15 @@ dependencies {
     implementation("io.projectreactor.kotlin:reactor-kotlin-extensions:1.1.0")
     implementation("org.apache.commons:commons-text:1.9")
     implementation("org.springframework.boot:spring-boot-starter-security")
-    implementation("com.expediagroup:graphql-kotlin-spring-server:3.6.7")
+    implementation("com.expediagroup:graphql-kotlin-spring-server:3.6.8")
+    implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
+
+    // Postgres
+    implementation("org.postgresql:postgresql")
+
+    implementation("com.h2database:h2")
+
+    implementation("org.flywaydb:flyway-core")
 
     implementation("uk.q3c.rest:hal-kotlin:0.5.4.0.db32476") {
         exclude(group = "com.google.guava", module = "guava")
@@ -44,7 +53,7 @@ dependencies {
     testImplementation("io.projectreactor:reactor-test")
     testImplementation("no.skatteetaten.aurora:mockmvc-extensions-kotlin:1.1.5")
     testImplementation("com.ninja-squad:springmockk:2.0.3")
-    testImplementation("org.junit-pioneer:junit-pioneer:1.0.0")
+    testImplementation("org.junit-pioneer:junit-pioneer:1.1.0")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.4.1")
 }
 

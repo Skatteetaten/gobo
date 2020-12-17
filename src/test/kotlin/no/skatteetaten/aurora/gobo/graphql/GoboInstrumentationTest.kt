@@ -10,11 +10,21 @@ import graphql.execution.ExecutionId
 import graphql.language.Field
 import graphql.language.OperationDefinition
 import graphql.language.SelectionSet
+import io.mockk.every
+import io.mockk.mockk
+import no.skatteetaten.aurora.gobo.infrastructure.client.ClientService
+import no.skatteetaten.aurora.gobo.infrastructure.field.FieldService
 import org.junit.jupiter.api.Test
 
 class GoboInstrumentationTest {
 
-    private val goboInstrumentation = GoboInstrumentation()
+    private val fieldService = mockk<FieldService> {
+        every { getAllFields() } returns emptyList()
+    }
+    private val clientService = mockk<ClientService> {
+        every { getAllClients() } returns emptyList()
+    }
+    private val goboInstrumentation = GoboInstrumentation(fieldService, clientService)
 
     @Test
     fun `Find field names from ExecutionContext`() {
@@ -29,7 +39,7 @@ class GoboInstrumentationTest {
             hasSize(1)
             contains("id")
         }
-        assertThat(goboInstrumentation.fieldUsage.fields["id"]?.sum()).isEqualTo(1L)
+        goboInstrumentation.fieldUsage.fields["id"]?.let { assertThat(it.sum()).isEqualTo(1L) }
     }
 
     @Test

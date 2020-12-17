@@ -1,7 +1,7 @@
 {
     gobo {
         usage {
-            users {
+            clients {
                 name
                 count
             }
