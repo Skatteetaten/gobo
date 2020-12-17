@@ -1,9 +1,8 @@
-package no.skatteetaten.aurora.gobo.infrastructure.repository
+package no.skatteetaten.aurora.gobo.infrastructure.field.repository
 
 import mu.KotlinLogging
-import no.skatteetaten.aurora.gobo.domain.model.FieldClientDto
-import no.skatteetaten.aurora.gobo.domain.model.FieldDto
-import org.springframework.context.annotation.Profile
+import no.skatteetaten.aurora.gobo.infrastructure.field.FieldClient
+import no.skatteetaten.aurora.gobo.infrastructure.field.Field
 import org.springframework.jdbc.core.ResultSetExtractor
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
@@ -12,13 +11,12 @@ import java.sql.ResultSet
 
 private val logger = KotlinLogging.logger {}
 
-@Profile("!local")
 @Repository
 class FieldRepository(private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate) {
 
-    private val resultSetExtractor = ResultSetExtractor<List<FieldDto>> {
-        val fields = mutableSetOf<FieldDto>()
-        val fieldClients = LinkedMultiValueMap<String, FieldClientDto>()
+    private val resultSetExtractor = ResultSetExtractor<List<Field>> {
+        val fields = mutableSetOf<Field>()
+        val fieldClients = LinkedMultiValueMap<String, FieldClient>()
         while (it.next()) {
             val name = it.getName()
             fields.addField(name, it.getCount())
@@ -35,23 +33,27 @@ class FieldRepository(private val namedParameterJdbcTemplate: NamedParameterJdbc
         }
     }
 
-    fun save(field: FieldDto) {
+    fun save(field: Field) {
         val sql = "insert into field(name, count) values (:name, :count)"
         val updated = namedParameterJdbcTemplate.update(sql, mapOf("name" to field.name, "count" to field.count))
         logger.debug("Inserted field name:${field.name} count:${field.count}, rows updated $updated")
     }
 
-    fun findAll(): List<FieldDto> {
+    fun count(): Long {
+        val sql = "select count(*) from field"
+        return namedParameterJdbcTemplate.queryForObject(sql, emptyMap<String, String>(), Long::class.java) ?: 0
+    }
+
+    fun findAll(): List<Field> {
         val sql =
             "select f.name as name, f.count as count, fc.name as client_name, fc.count as client_count from field f left join field_client fc on f.name = fc.field_name"
         return namedParameterJdbcTemplate.query(sql, resultSetExtractor) ?: emptyList()
     }
 
-    fun findByName(name: String): FieldDto? {
+    fun findWithName(name: String): List<Field> {
         val sql =
-            "select f.name as name, f.count as count, fc.name as client_name, fc.count as client_count from field f left join field_client fc on f.name = fc.field_name where f.name = :name"
-        return namedParameterJdbcTemplate.query(sql, mapOf("name" to name), resultSetExtractor)?.ifEmpty { null }
-            ?.first()
+            "select f.name as name, f.count as count, fc.name as client_name, fc.count as client_count from field f left join field_client fc on f.name = fc.field_name where f.name like :name"
+        return namedParameterJdbcTemplate.query(sql, mapOf("name" to "%$name%"), resultSetExtractor) ?: emptyList()
     }
 
     fun incrementCounter(name: String, count: Long): Int {
@@ -61,9 +63,9 @@ class FieldRepository(private val namedParameterJdbcTemplate: NamedParameterJdbc
         }
     }
 
-    private fun MutableSet<FieldDto>.addField(name: String, count: Long) = add(FieldDto(name, count))
-    private fun LinkedMultiValueMap<String, FieldClientDto>.addClient(fieldName: String, name: String, count: Long) =
-        add(fieldName, FieldClientDto(name, count))
+    private fun MutableSet<Field>.addField(name: String, count: Long) = add(Field(name, count))
+    private fun LinkedMultiValueMap<String, FieldClient>.addClient(fieldName: String, name: String, count: Long) =
+        add(fieldName, FieldClient(name, count))
 
     private fun ResultSet.getName() = getString("name")
     private fun ResultSet.getClientName(): String? = getString("client_name")

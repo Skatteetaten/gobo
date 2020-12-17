@@ -1,27 +1,37 @@
 package no.skatteetaten.aurora.gobo.graphql.gobo
 
-import org.junit.jupiter.api.BeforeEach
 import com.ninjasquad.springmockk.MockkBean
+import io.mockk.every
+import no.skatteetaten.aurora.gobo.infrastructure.client.Client
+import no.skatteetaten.aurora.gobo.infrastructure.field.FieldClient
+import no.skatteetaten.aurora.gobo.infrastructure.field.Field
 import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithDbhAndSkap
 import no.skatteetaten.aurora.gobo.graphql.graphqlData
 import no.skatteetaten.aurora.gobo.graphql.graphqlDataWithPrefix
 import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
+import no.skatteetaten.aurora.gobo.infrastructure.client.ClientService
+import no.skatteetaten.aurora.gobo.infrastructure.field.FieldService
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
-import io.mockk.every
-import no.skatteetaten.aurora.gobo.domain.FieldService
-import no.skatteetaten.aurora.gobo.domain.model.FieldClientDto
-import no.skatteetaten.aurora.gobo.domain.model.FieldDto
-import org.junit.jupiter.api.Disabled
 
-@Import(GoboQuery::class, FieldService::class)
+@Import(
+    GoboQuery::class,
+    GoboFieldUsageListDataLoader::class,
+    GoboClientListDataLoader::class,
+    GoboFieldCountDataLoader::class,
+    GoboClientCountDataLoader::class
+)
 class GoboQueryTest : GraphQLTestWithDbhAndSkap() {
 
     @MockkBean
     private lateinit var fieldService: FieldService
+
+    @MockkBean
+    private lateinit var clientService: ClientService
 
     @Value("classpath:graphql/queries/getGoboUsage.graphql")
     private lateinit var getGoboUsageQuery: Resource
@@ -29,18 +39,25 @@ class GoboQueryTest : GraphQLTestWithDbhAndSkap() {
     @Value("classpath:graphql/queries/getGoboUsageFieldNameContains.graphql")
     private lateinit var getGoboUsageFieldNameContainsQuery: Resource
 
-    @Value("classpath:graphql/queries/getGoboUserUsage.graphql")
-    private lateinit var getGoboUserUsageQuery: Resource
+    @Value("classpath:graphql/queries/getGoboClientUsage.graphql")
+    private lateinit var getGoboClientUsageQuery: Resource
+
+    @Value("classpath:graphql/queries/getGoboClientUsageNameContains.graphql")
+    private lateinit var getGoboClientUsageNameContainsQuery: Resource
+
+    @Value("classpath:graphql/queries/getGoboUsageMostUsed.graphql")
+    private lateinit var getGoboMostUsedFieldsQuery: Resource
 
     @BeforeEach
     internal fun setUp() {
-        every { fieldService.getAllFields() } returns listOf(
-            FieldDto(
-                "gobo",
-                5,
-                listOf(FieldClientDto("donald", 2), FieldClientDto("joe", 3))
-            )
-        )
+        val field = Field("gobo", 5, listOf(FieldClient("donald", 2), FieldClient("joe", 3)))
+        every { fieldService.getAllFields() } returns listOf(field)
+        every { fieldService.getFieldWithName(any()) } returns listOf(field)
+        every { fieldService.getFieldCount() } returns 1
+
+        val client = Client("donald", 2)
+        every { clientService.getAllClients() } returns listOf(client)
+        every { clientService.getClientWithName(any()) } returns listOf(client)
     }
 
     @Test
@@ -49,6 +66,8 @@ class GoboQueryTest : GraphQLTestWithDbhAndSkap() {
             .expectStatus().isOk
             .expectBody()
             .graphqlData("gobo.startTime").isNotEmpty
+            .graphqlData("gobo.usage.numberOfFields").isNumber
+            .graphqlData("gobo.usage.numberOfClients").isNumber
             .graphqlDataWithPrefix("gobo.usage.usedFields[0]") {
                 graphqlData("name").isNotEmpty
                 graphqlData("count").isNotEmpty
@@ -71,16 +90,43 @@ class GoboQueryTest : GraphQLTestWithDbhAndSkap() {
             }
     }
 
-    @Disabled("Implement client usage")
     @Test
-    fun `Get Gobo user usage`() {
-        webTestClient.queryGraphQL(queryResource = getGoboUserUsageQuery, token = "test-token")
+    fun `Get Gobo client usage`() {
+        webTestClient.queryGraphQL(queryResource = getGoboClientUsageQuery, token = "test-token")
             .expectStatus().isOk
             .expectBody()
-            .graphqlDataWithPrefix("gobo.usage.users[0]") {
+            .graphqlDataWithPrefix("gobo.usage.clients[0]") {
                 graphqlData("name").isNotEmpty
                 graphqlData("count").isNumber
             }
+            .graphqlDoesNotContainErrors()
+    }
+
+    @Test
+    fun `Get Gobo usage with client name containing`() {
+        webTestClient.queryGraphQL(
+            queryResource = getGoboClientUsageNameContainsQuery,
+            variables = mapOf("nameContains" to "donald"),
+            token = "test-token"
+        )
+            .expectStatus().isOk
+            .expectBody()
+            .graphqlDataWithPrefix("gobo.usage.clients[0]") {
+                graphqlData("name").isEqualTo("donald")
+            }
+            .graphqlDoesNotContainErrors()
+    }
+
+    @Test
+    fun `Get most used fields`() {
+        webTestClient.queryGraphQL(
+            queryResource = getGoboMostUsedFieldsQuery,
+            variables = mapOf("mostUsedOnly" to true),
+            token = "test-token"
+        )
+            .expectStatus().isOk
+            .expectBody()
+            .graphqlData("gobo.usage.usedFields[0].name").isEqualTo("gobo")
             .graphqlDoesNotContainErrors()
     }
 }

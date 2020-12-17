@@ -4,22 +4,21 @@ import graphql.ExecutionInput
 import graphql.execution.ExecutionContext
 import graphql.execution.instrumentation.SimpleInstrumentation
 import graphql.execution.instrumentation.parameters.InstrumentationExecutionParameters
-import graphql.language.Field
 import graphql.language.SelectionSet
 import mu.KotlinLogging
-import no.skatteetaten.aurora.gobo.domain.FieldService
 import no.skatteetaten.aurora.gobo.graphql.gobo.GoboFieldUser
-import no.skatteetaten.aurora.gobo.graphql.gobo.GoboUser
+import no.skatteetaten.aurora.gobo.infrastructure.client.Client
+import no.skatteetaten.aurora.gobo.infrastructure.client.ClientService
+import no.skatteetaten.aurora.gobo.infrastructure.field.Field
+import no.skatteetaten.aurora.gobo.infrastructure.field.FieldClient
+import no.skatteetaten.aurora.gobo.infrastructure.field.FieldService
 import no.skatteetaten.aurora.webflux.AuroraRequestParser
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpRequest
 import org.springframework.stereotype.Component
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.LongAdder
-import javax.annotation.PostConstruct
 import javax.annotation.PreDestroy
-import no.skatteetaten.aurora.gobo.domain.model.FieldClientDto
-import no.skatteetaten.aurora.gobo.domain.model.FieldDto
 
 private val logger = KotlinLogging.logger { }
 
@@ -30,19 +29,28 @@ fun String.removeNewLines() =
 private fun String.isNotIntrospectionQuery() = !startsWith("query IntrospectionQuery")
 
 @Component
-class GoboInstrumentation(val fieldService: FieldService) : SimpleInstrumentation() {
-
-    val fieldUsage = FieldUsage(fieldService)
-    val userUsage = UserUsage()
-
-    @PostConstruct
-    fun initateAfterSpringStartup() {
-        fieldUsage.initiateFieldUsage()
-    }
+class GoboInstrumentation(
+    private val fieldService: FieldService,
+    private val clientService: ClientService
+) : SimpleInstrumentation() {
+    val fieldUsage = FieldUsage()
+    val clientUsage = ClientUsage()
 
     @PreDestroy
-    fun beforeSpringShutdown() {
-        fieldUsage.insertOrUpdateFieldUsage()
+    fun update() {
+        val numOfFields = fieldUsage.fields.entries.count { it.value.sum() > 0 }
+        val numOfClients = clientUsage.clients.entries.count { it.value.sum() > 0 }
+        if (numOfFields > 0 || numOfClients > 0) {
+            logger.info("Updating $numOfFields fields and $numOfClients clients")
+        }
+
+        fieldUsage.getAndResetFieldUsage().forEach {
+            fieldService.insertOrUpdateField(it)
+        }
+
+        clientUsage.getAndResetClientUsage().forEach {
+            clientService.insertOrUpdateClient(it)
+        }
     }
 
     override fun instrumentExecutionInput(
@@ -79,18 +87,18 @@ class GoboInstrumentation(val fieldService: FieldService) : SimpleInstrumentatio
         val selectionSet = executionContext?.operationDefinition?.selectionSet ?: SelectionSet(emptyList())
         if (selectionSet.selections.isNotEmpty() && selectionSet.isNotIntrospectionQuery()) {
             fieldUsage.update(executionContext, selectionSet)
-            userUsage.update(executionContext)
+            clientUsage.update(executionContext)
         }
         return super.instrumentExecutionContext(executionContext, parameters)
     }
 
     private fun SelectionSet.isNotIntrospectionQuery(): Boolean {
         val selection = this.selections?.first()
-        return !(selection is Field && selection.name.startsWith("__schema"))
+        return !(selection is graphql.language.Field && selection.name.startsWith("__schema"))
     }
 }
 
-class FieldUsage(val fieldService: FieldService) {
+class FieldUsage {
     private val _fieldUsers: ConcurrentHashMap<GoboFieldUser, LongAdder> = ConcurrentHashMap()
     private val _fields: ConcurrentHashMap<String, LongAdder> = ConcurrentHashMap()
     val fields: Map<String, LongAdder>
@@ -98,45 +106,49 @@ class FieldUsage(val fieldService: FieldService) {
 
     fun update(executionContext: ExecutionContext?, selectionSet: SelectionSet?, parent: String? = null) {
         selectionSet?.selections?.map {
-            if (it is Field) {
+            if (it is graphql.language.Field) {
                 val fullName = if (parent == null) it.name else "$parent.${it.name}"
                 val clientId: String? = executionContext?.getContext<GoboGraphQLContext>()?.request?.klientid()
                 _fields.computeIfAbsent(fullName) { LongAdder() }.increment()
-                clientId?.let { it1 -> GoboFieldUser(fullName, it1) }?.let { it2 -> _fieldUsers.computeIfAbsent(it2) { LongAdder() }.increment() }
+                clientId?.let { it1 -> GoboFieldUser(fullName, it1) }
+                    ?.let { it2 -> _fieldUsers.computeIfAbsent(it2) { LongAdder() }.increment() }
                 update(executionContext, it.selectionSet, fullName)
             }
         }
     }
 
-    fun getFieldUsers(fieldName: String): List<GoboUser> {
-        return _fieldUsers.filter { it.key.name == fieldName }.map { GoboUser(it.key.user, it.value.sum()) }
-    }
-
-    fun initiateFieldUsage() {
-        fieldService.getAllFields().map { _fields.put(it.name, LongAdder().apply { add(it.count) }) }
-    }
-
-    fun insertOrUpdateFieldUsage() {
+    fun getAndResetFieldUsage() =
         fields.map { field ->
             val keys = _fieldUsers.keys.filter { field.key == it.name }
-            val clients = keys.map { FieldClientDto(it.user, _fieldUsers[it]?.sumThenReset() ?: 0) }
-            fieldService.insertOrUpdateField(FieldDto(name = field.key, count = field.value.sumThenReset(), clients = clients))
+            val clients = keys.map { FieldClient(it.user, _fieldUsers[it]?.sumThenReset() ?: 0) }
+            Field(
+                name = field.key,
+                count = field.value.sumThenReset(),
+                clients = clients
+            )
         }
-    }
 }
 
-class UserUsage {
-    val users: ConcurrentHashMap<String, LongAdder> = ConcurrentHashMap()
+class ClientUsage {
+    val clients: ConcurrentHashMap<String, LongAdder> = ConcurrentHashMap()
 
     fun update(executionContext: ExecutionContext?) {
         try {
             executionContext?.getContext<GoboGraphQLContext>()?.request?.klientid()?.let {
-                users.computeIfAbsent(it) { LongAdder() }.increment()
+                clients.computeIfAbsent(it) { LongAdder() }.increment()
             }
         } catch (e: Throwable) {
             logger.warn(e) { "Unable to get GraphQL context: " }
         }
     }
+
+    fun getAndResetClientUsage() =
+        clients.map {
+            Client(
+                name = it.key,
+                count = it.value.sumThenReset()
+            )
+        }
 }
 
 fun HttpRequest?.klientid() =

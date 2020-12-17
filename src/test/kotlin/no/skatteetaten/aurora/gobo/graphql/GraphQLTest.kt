@@ -5,6 +5,8 @@ import com.ninjasquad.springmockk.MockkBean
 import no.skatteetaten.aurora.gobo.DataLoaderConfiguration
 import no.skatteetaten.aurora.gobo.GraphQLConfig
 import no.skatteetaten.aurora.gobo.graphql.errorhandling.GoboDataFetcherExceptionHandler
+import no.skatteetaten.aurora.gobo.infrastructure.client.ClientService
+import no.skatteetaten.aurora.gobo.infrastructure.field.FieldService
 import no.skatteetaten.aurora.gobo.security.GoboSecurityContextRepository
 import no.skatteetaten.aurora.gobo.security.OpenShiftAuthenticationManager
 import no.skatteetaten.aurora.gobo.security.WebSecurityConfig
@@ -30,7 +32,8 @@ const val PROFILE_WITH_DBH_AND_SKAP = "with-dbh-and-skap"
     GoboGraphQLContextFactory::class,
     GoboDataFetcherExceptionHandler::class,
     WebSecurityConfig::class,
-    GraphQLAutoConfiguration::class
+    GraphQLAutoConfiguration::class,
+    GoboInstrumentation::class
 )
 abstract class GraphQLTestWithoutDbhAndSkap {
     @Autowired
@@ -38,6 +41,12 @@ abstract class GraphQLTestWithoutDbhAndSkap {
 
     @MockkBean(relaxed = true)
     protected lateinit var kubernetesReactorClient: KubernetesReactorClient
+
+    @MockkBean(relaxed = true)
+    private lateinit var fieldService: FieldService
+
+    @MockkBean(relaxed = true)
+    private lateinit var clientService: ClientService
 
     @BeforeEach
     fun setUpAll() {

@@ -1,7 +1,7 @@
-query getFields($nameContains: String!) {
+query getClients($nameContains: String!) {
     gobo {
         usage {
-            usedFields(nameContains: $nameContains) {
+            clients(nameContains: $nameContains) {
                 name
                 count
             }

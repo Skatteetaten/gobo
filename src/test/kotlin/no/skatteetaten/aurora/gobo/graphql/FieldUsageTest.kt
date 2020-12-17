@@ -10,13 +10,10 @@ import graphql.execution.ExecutionId
 import graphql.language.Field
 import graphql.language.OperationDefinition
 import graphql.language.SelectionSet
-import io.mockk.mockk
-import no.skatteetaten.aurora.gobo.domain.FieldService
 import org.junit.jupiter.api.Test
 
 class FieldUsageTest {
-    private val fieldService: FieldService = mockk()
-    private val usage = FieldUsage(fieldService)
+    private val usage = FieldUsage()
 
     @Test
     fun `Get field name from SelectionSet`() {
