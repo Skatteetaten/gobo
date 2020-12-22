@@ -1,6 +1,7 @@
 package no.skatteetaten.aurora.gobo.security
 
 import graphql.schema.DataFetchingEnvironment
+import io.fabric8.kubernetes.api.model.authentication.TokenReview
 import no.skatteetaten.aurora.gobo.graphql.AccessDeniedException
 import no.skatteetaten.aurora.gobo.graphql.GoboGraphQLContext
 import no.skatteetaten.aurora.gobo.graphql.token
@@ -8,11 +9,10 @@ import no.skatteetaten.aurora.gobo.graphql.user.User
 import org.springframework.security.authentication.AnonymousAuthenticationToken
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken
-import io.fabric8.openshift.api.model.User as KubernetesUser
 
-private const val UNKNOWN_USER_NAME = "Navn ukjent"
-private const val GUEST_USER_ID = "anonymous"
-private const val GUEST_USER_NAME = "Gjestebruker"
+const val UNKNOWN_USER_NAME = "Navn ukjent"
+const val GUEST_USER_ID = "anonymous"
+const val GUEST_USER_NAME = "Gjestebruker"
 val ANONYMOUS_USER = User(GUEST_USER_ID, GUEST_USER_NAME)
 
 fun DataFetchingEnvironment.checkValidUserToken() {
@@ -32,8 +32,8 @@ fun DataFetchingEnvironment.currentUser() = this.getContext<GoboGraphQLContext>(
 } ?: ANONYMOUS_USER
 
 private fun Any.getUser(token: String) = when (this) {
-    is KubernetesUser -> User(metadata.name, fullName, token)
-    is SpringSecurityUser -> User(username, fullName ?: UNKNOWN_USER_NAME, token)
-    is org.springframework.security.core.userdetails.User -> User(username, UNKNOWN_USER_NAME, token)
+    is TokenReview -> User(id = status.user.username, token = token, groups = status.user.groups)
+    is SpringSecurityUser -> User(id = username, token = token)
+    is org.springframework.security.core.userdetails.User -> User(id = username, token = token)
     else -> ANONYMOUS_USER
 }
