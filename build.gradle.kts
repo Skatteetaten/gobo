@@ -29,6 +29,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("com.expediagroup:graphql-kotlin-spring-server:3.6.8")
     implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
+    implementation("io.github.microutils:kotlin-logging-jvm:2.0.4")
 
     // Postgres
     implementation("org.postgresql:postgresql")
@@ -44,7 +45,7 @@ dependencies {
     implementation("com.github.fge:json-patch:1.13")
     implementation("com.jayway.jsonpath:json-path:2.4.0")
     implementation("io.projectreactor.addons:reactor-extra:3.4.0")
-    implementation("no.skatteetaten.aurora.kubernetes:kubernetes-reactor-coroutines-client:1.3.1")
+    implementation("no.skatteetaten.aurora.kubernetes:kubernetes-reactor-coroutines-client:1.3.4")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")

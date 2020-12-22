@@ -22,7 +22,12 @@ class CurrentUserTest {
 
     @BeforeEach
     fun setUp() {
-        every { dfe.getContext<GoboGraphQLContext>() } returns GoboGraphQLContext("token", mockk(), mockk(), securityContext)
+        every { dfe.getContext<GoboGraphQLContext>() } returns GoboGraphQLContext(
+            "token",
+            mockk(),
+            mockk(),
+            securityContext
+        )
     }
 
     @AfterEach
@@ -45,6 +50,5 @@ class CurrentUserTest {
         val user = dfe.currentUser()
         assertThat(user.id).isEqualTo("username")
         assertThat(user.token).isEqualTo("token")
-        assertThat(user.name).isEqualTo("fullName")
     }
 }
