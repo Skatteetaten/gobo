@@ -39,7 +39,7 @@ private fun Any.getUser(token: String) = when (this) {
     is TokenReview -> User(
         id = status?.user?.username ?: UNKNOWN_USER_NAME.also { logger.warn("Unknown user: $status") },
         token = token,
-        groups = status.user.groups
+        groups = status?.user?.groups ?: emptyList()
     )
     is SpringSecurityUser -> User(id = username, token = token)
     is org.springframework.security.core.userdetails.User -> User(id = username, token = token)
