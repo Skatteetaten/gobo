@@ -32,7 +32,9 @@ class OpenShiftAuthenticationManager(@TargetClient(ClientTypes.SERVICE_ACCOUNT) 
                 PreAuthenticatedAuthenticationToken(
                     it,
                     authentication.credentials.toString(),
-                    it.status.user.groups.apply { add(it.status.user.username) }
+                    it.status.user.groups
+                        .apply { add(it.status.user.username) }
+                        .filter { group -> group.isNotBlank() }
                         .map { authority -> SimpleGrantedAuthority(authority) }
                 ) as Authentication
             )
