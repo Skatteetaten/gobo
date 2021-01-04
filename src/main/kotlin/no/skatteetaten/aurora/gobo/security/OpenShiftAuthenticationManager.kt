@@ -34,7 +34,7 @@ class OpenShiftAuthenticationManager(@TargetClient(ClientTypes.SERVICE_ACCOUNT) 
                     authentication.credentials.toString(),
                     it.status.user.groups
                         .apply { add(it.status.user.username) }
-                        .filter { group -> group.isNotBlank() }
+                        .filter { group: String? -> group?.isNotEmpty() ?: false }
                         .map { authority -> SimpleGrantedAuthority(authority) }
                 ) as Authentication
             )
