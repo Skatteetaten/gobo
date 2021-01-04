@@ -33,7 +33,7 @@ fun DataFetchingEnvironment.currentUser() = this.getContext<GoboGraphQLContext>(
 
 private fun Any.getUser(token: String) = when (this) {
     is io.fabric8.openshift.api.model.User -> User(id = metadata.name, token = token)
-    is TokenReview -> User(id = status.user.username, token = token, groups = status.user.groups)
+    is TokenReview -> User(id = status?.user?.username ?: UNKNOWN_USER_NAME, token = token, groups = status.user.groups)
     is SpringSecurityUser -> User(id = username, token = token)
     is org.springframework.security.core.userdetails.User -> User(id = username, token = token)
     else -> ANONYMOUS_USER
