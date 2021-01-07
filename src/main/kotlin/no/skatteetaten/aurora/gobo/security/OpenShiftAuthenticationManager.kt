@@ -6,6 +6,8 @@ import mu.KotlinLogging
 import no.skatteetaten.aurora.kubernetes.ClientTypes
 import no.skatteetaten.aurora.kubernetes.KubernetesReactorClient
 import no.skatteetaten.aurora.kubernetes.TargetClient
+import no.skatteetaten.aurora.kubernetes.errorMessage
+import no.skatteetaten.aurora.kubernetes.hasError
 import org.springframework.http.HttpStatus
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.security.authentication.ReactiveAuthenticationManager
@@ -28,16 +30,20 @@ class OpenShiftAuthenticationManager(@TargetClient(ClientTypes.SERVICE_ACCOUNT) 
         currentUser(authentication.credentials.toString())
     }.mapCatching { monoUser ->
         monoUser.flatMap {
-            just(
-                PreAuthenticatedAuthenticationToken(
-                    it,
-                    authentication.credentials.toString(),
-                    it.status.user.groups
-                        .apply { it?.status?.user?.username?.let { username -> add(username) } }
-                        .filter { group: String? -> group?.isNotEmpty() ?: false }
-                        .map { authority -> SimpleGrantedAuthority(authority) }
-                ) as Authentication
-            )
+            if (it.hasError()) {
+                error(AccessDeniedException(it.errorMessage()))
+            } else {
+                just(
+                    PreAuthenticatedAuthenticationToken(
+                        it,
+                        authentication.credentials.toString(),
+                        it.status.user.groups
+                            .apply { it?.status?.user?.username?.let { username -> add(username) } }
+                            .filter { group: String? -> group?.isNotEmpty() ?: false }
+                            .map { authority -> SimpleGrantedAuthority(authority) }
+                    ) as Authentication
+                )
+            }
         }
     }.onFailure {
         logger.warn(it) { "Failed authentication!" }
