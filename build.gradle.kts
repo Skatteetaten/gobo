@@ -1,6 +1,6 @@
 plugins {
     kotlin("jvm") version "1.4.21"
-    id("no.skatteetaten.gradle.aurora") version "4.1.1"
+    id("no.skatteetaten.gradle.aurora") version "4.1.4"
     id("org.flywaydb.flyway") version "7.3.2"
 }
 
@@ -16,9 +16,6 @@ aurora {
     features {
         checkstylePlugin = false
     }
-    versions {
-        springCloudContract = "2.2.5.RELEASE"
-    }
 }
 
 dependencies {
@@ -29,7 +26,6 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("com.expediagroup:graphql-kotlin-spring-server:3.7.0")
     implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
-    implementation("io.github.microutils:kotlin-logging-jvm:2.0.4")
 
     // Postgres
     implementation("org.postgresql:postgresql")
@@ -49,11 +45,11 @@ dependencies {
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
-    testImplementation("io.mockk:mockk:1.10.3")
+    testImplementation("io.mockk:mockk:1.10.4")
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.23")
     testImplementation("io.projectreactor:reactor-test")
     testImplementation("no.skatteetaten.aurora:mockmvc-extensions-kotlin:1.1.6")
-    testImplementation("com.ninja-squad:springmockk:2.0.3")
+    testImplementation("com.ninja-squad:springmockk:3.0.1")
     testImplementation("org.junit-pioneer:junit-pioneer:1.1.0")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.4.1")
 }

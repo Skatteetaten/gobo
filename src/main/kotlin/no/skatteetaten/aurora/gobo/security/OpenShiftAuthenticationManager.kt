@@ -60,7 +60,5 @@ class OpenShiftAuthenticationManager(@TargetClient(ClientTypes.SERVICE_ACCOUNT) 
                 throw AccessDeniedException("Invalid OpenShift token", it)
             }
         }
-    }.recoverCatching {
-        throw AccessDeniedException("Unable to validate token with OpenShift", it)
     }.getOrThrow()
 }

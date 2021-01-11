@@ -27,7 +27,9 @@ class GoboGraphQLContext(
     var query: String? = null
 ) : GraphQLContext {
     fun token() = token ?: throw AccessDeniedException("Token is not set")
-    fun korrelasjonsid() = request.korrelasjonsid() ?: BaggageField.getByName(AuroraRequestParser.KORRELASJONSID_FIELD)?.value ?: ""
+    fun korrelasjonsid() =
+        request.korrelasjonsid() ?: BaggageField.getByName(AuroraRequestParser.KORRELASJONSID_FIELD)?.value ?: ""
+
     fun klientid() = request.klientid()
 }
 
