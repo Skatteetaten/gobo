@@ -3,13 +3,12 @@ package no.skatteetaten.aurora.gobo.security
 import com.fkorotkov.kubernetes.authentication.newTokenReview
 import com.fkorotkov.kubernetes.authentication.spec
 import mu.KotlinLogging
+import no.skatteetaten.aurora.gobo.graphql.AccessDeniedException
 import no.skatteetaten.aurora.kubernetes.ClientTypes
 import no.skatteetaten.aurora.kubernetes.KubernetesReactorClient
 import no.skatteetaten.aurora.kubernetes.TargetClient
 import no.skatteetaten.aurora.kubernetes.errorMessage
-import no.skatteetaten.aurora.kubernetes.hasError
 import org.springframework.http.HttpStatus
-import org.springframework.security.access.AccessDeniedException
 import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.authority.SimpleGrantedAuthority
@@ -30,10 +29,8 @@ class OpenShiftAuthenticationManager(@TargetClient(ClientTypes.SERVICE_ACCOUNT) 
         currentUser(authentication.credentials.toString())
     }.mapCatching { monoUser ->
         monoUser.flatMap {
-            if (it.hasError()) {
-                error(AccessDeniedException(it.errorMessage()))
-            } else {
-                just(
+            it.errorMessage()?.let { errorMsg -> error(errorMsg) }
+                ?: just(
                     PreAuthenticatedAuthenticationToken(
                         it,
                         authentication.credentials.toString(),
@@ -43,7 +40,6 @@ class OpenShiftAuthenticationManager(@TargetClient(ClientTypes.SERVICE_ACCOUNT) 
                             .map { authority -> SimpleGrantedAuthority(authority) }
                     ) as Authentication
                 )
-            }
         }
     }.onFailure {
         logger.warn(it) { "Failed authentication!" }
@@ -57,6 +53,7 @@ class OpenShiftAuthenticationManager(@TargetClient(ClientTypes.SERVICE_ACCOUNT) 
         }
         kubernetesClient.post(tokenReview).doOnError {
             if (it is WebClientResponseException && it.statusCode == HttpStatus.FORBIDDEN) {
+                logger.debug("TokenReview failed, does the token have the required permissions?")
                 throw AccessDeniedException("Invalid OpenShift token", it)
             }
         }

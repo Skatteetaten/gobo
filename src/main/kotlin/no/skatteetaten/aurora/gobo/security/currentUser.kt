@@ -16,14 +16,14 @@ const val GUEST_USER_ID = "anonymous"
 const val GUEST_USER_NAME = "Gjestebruker"
 val ANONYMOUS_USER = User(GUEST_USER_ID, GUEST_USER_NAME)
 
-fun DataFetchingEnvironment.checkValidUserToken() {
+suspend fun DataFetchingEnvironment.checkValidUserToken() {
     token()
     if (currentUser() == ANONYMOUS_USER) {
         throw AccessDeniedException("Valid authentication token required")
     }
 }
 
-fun DataFetchingEnvironment.currentUser() = this.getContext<GoboGraphQLContext>().securityContext?.authentication?.let {
+suspend fun DataFetchingEnvironment.currentUser() = this.getContext<GoboGraphQLContext>().securityContext().authentication?.let {
     if (!it.isAuthenticated) ANONYMOUS_USER
     when (it) {
         is PreAuthenticatedAuthenticationToken, is UsernamePasswordAuthenticationToken -> it.principal.getUser(it.credentials.toString())

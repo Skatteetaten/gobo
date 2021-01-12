@@ -6,12 +6,14 @@ import graphql.schema.DataFetchingEnvironment
 import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.runBlocking
 import no.skatteetaten.aurora.gobo.graphql.GoboGraphQLContext
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.security.core.context.SecurityContext
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken
+import reactor.core.publisher.Mono
 
 class CurrentUserTest {
     private val token = mockk<PreAuthenticatedAuthenticationToken>(relaxed = true)
@@ -26,7 +28,7 @@ class CurrentUserTest {
             "token",
             mockk(),
             mockk(),
-            securityContext
+            Mono.just(securityContext)
         )
     }
 
@@ -37,7 +39,7 @@ class CurrentUserTest {
 
     @Test
     fun `Get current user given no principal return anonymous user`() {
-        val user = dfe.currentUser()
+        val user = runBlocking { dfe.currentUser() }
         assertThat(user).isEqualTo(ANONYMOUS_USER)
     }
 
@@ -47,7 +49,7 @@ class CurrentUserTest {
         every { token.credentials } returns "token"
         every { securityContext.authentication } returns token
 
-        val user = dfe.currentUser()
+        val user = runBlocking { dfe.currentUser() }
         assertThat(user.id).isEqualTo("username")
         assertThat(user.token).isEqualTo("token")
     }
