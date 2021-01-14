@@ -127,6 +127,7 @@ class DatabaseSchemaQueryTest : GraphQLTestWithDbhAndSkap() {
             .expectBody()
             .graphqlData("databaseSchemas.edges.length()").isEqualTo(3)
             .graphqlData("databaseSchemas.totalCount").isEqualTo(5)
+            .graphqlData("databaseSchemas.edges[0].cursor").isNotEmpty
             .graphqlDataWithPrefix("databaseSchemas.pageInfo") {
                 graphqlData("endCursor").isNotEmpty
                 graphqlData("hasNextPage").isTrue()
