@@ -43,7 +43,8 @@ class DatabaseSchemaQuery(val databaseService: DatabaseService) : Query {
         val pagedSchemas = pageEdges(schemas, first, after)
         return DatabaseSchemaConnection(
             edges = pagedSchemas.edges,
-            pageInfo = pagedSchemas.pageInfo
+            pageInfo = pagedSchemas.pageInfo,
+            totalCount = schemas.size
         )
     }
 
