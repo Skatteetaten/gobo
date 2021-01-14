@@ -38,7 +38,7 @@ class DatabaseSchemaQuery(val databaseService: DatabaseService) : Query {
             .flatMap { affiliation ->
                 databaseService.getDatabaseSchemas(affiliation)
                     .map { DatabaseSchema.create(it, Affiliation(affiliation)) }
-            }.map { DatabaseSchemaEdge(it) }
+            }.map { DatabaseSchemaEdge(it) }.sortedBy { it.node.name }
 
         val pagedSchemas = pageEdges(schemas, first, after)
         return DatabaseSchemaConnection(
