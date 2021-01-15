@@ -117,7 +117,7 @@ class DatabaseSchemaQueryTest : GraphQLTestWithDbhAndSkap() {
 
     @Test
     fun `Query for database schemas given affiliation`() {
-        val variables = mapOf("affiliations" to listOf("paas"), "pageSize" to 3)
+        val variables = mapOf("affiliations" to listOf("paas"), "pageSize" to 3, "after" to "dGVzdDE=")
         webTestClient.queryGraphQL(
             queryResource = getDatabaseSchemasWithAffiliationQuery,
             variables = variables,
