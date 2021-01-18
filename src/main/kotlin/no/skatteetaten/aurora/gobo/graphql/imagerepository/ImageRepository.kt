@@ -34,7 +34,7 @@ data class ImageRepoDto(
     @GraphQLIgnore
     val mappedTemplateVars = mapOf(
         "namespace" to namespace,
-        "imageTag" to name
+    "imageTag" to name
     )
 }
 
