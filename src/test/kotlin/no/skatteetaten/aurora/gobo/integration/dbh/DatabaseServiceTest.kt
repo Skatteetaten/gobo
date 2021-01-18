@@ -44,8 +44,8 @@ import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.RecordedRequest
 import org.junit.jupiter.api.Test
 import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.reactive.function.client.WebClientRequestException
 import org.springframework.web.reactive.function.client.WebClientResponseException
-import java.net.UnknownHostException
 
 class DatabaseServiceTest {
     private val server = MockWebServer()
@@ -306,7 +306,7 @@ class DatabaseServiceTest {
         )
 
         assertThat { runBlocking { serviceWithUnknownHost.getDatabaseSchema("abc123") } }
-            .isNotNull().isFailure().isInstanceOf(UnknownHostException::class)
+            .isNotNull().isFailure().isInstanceOf(WebClientRequestException::class)
     }
 
     private fun Assert<List<RecordedRequest?>>.containsPath(endingWith: String) = given { requests ->

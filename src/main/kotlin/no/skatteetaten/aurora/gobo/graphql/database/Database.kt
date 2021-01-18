@@ -1,6 +1,8 @@
 package no.skatteetaten.aurora.gobo.graphql.database
 
 import graphql.schema.DataFetchingEnvironment
+import no.skatteetaten.aurora.gobo.graphql.GoboEdge
+import no.skatteetaten.aurora.gobo.graphql.GoboPageInfo
 import no.skatteetaten.aurora.gobo.graphql.affiliation.Affiliation
 import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.ApplicationDeployment
 import no.skatteetaten.aurora.gobo.graphql.loadMany
@@ -46,6 +48,14 @@ data class DatabaseUser(val username: String, val password: String, val type: St
     }
 }
 
+data class DatabaseSchemaEdge(val node: DatabaseSchema) : GoboEdge(node.name)
+
+data class DatabaseSchemaConnection(
+    val edges: List<DatabaseSchemaEdge>,
+    val totalCount: Int = edges.size,
+    val pageInfo: GoboPageInfo
+)
+
 data class DatabaseSchema(
     val id: String,
     val type: String,
@@ -83,6 +93,7 @@ data class DatabaseSchema(
                 users = databaseSchema.users.map { DatabaseUser.create(it) }
             )
     }
+
     suspend fun applicationDeployments(dfe: DataFetchingEnvironment): List<ApplicationDeployment> {
         return dfe.loadMany(id)
     }

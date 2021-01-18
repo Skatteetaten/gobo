@@ -361,6 +361,7 @@ data class DatabaseInstanceResourceBuilder(val affiliation: String = "paas") {
 data class DatabaseSchemaResourceBuilder(
     val createdDate: Long = Instant.now().toEpochMilli(),
     val lastUsedDate: Long? = Instant.now().toEpochMilli(),
+    val name: String = "name",
     val labels: Map<String, String> = mapOf(
         "affiliation" to "aurora",
         "userId" to "abc123",
@@ -376,7 +377,7 @@ data class DatabaseSchemaResourceBuilder(
             id = "123",
             type = "MANAGED",
             jdbcUrl = "jdbc:oracle:thin:@localhost:1521/db",
-            name = "name",
+            name = name,
             createdDate = createdDate,
             lastUsedDate = lastUsedDate,
             databaseInstance = DatabaseInstanceResourceBuilder().build(),

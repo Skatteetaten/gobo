@@ -9,7 +9,7 @@ class GoboCursor(input: String) {
 }
 
 abstract class GoboEdge(name: String) {
-    val cursor = GoboCursor(name)
+    val cursor = GoboCursor(name).value
 }
 
 data class GoboPageInfo(

@@ -60,3 +60,4 @@ gobo:
         cron: "*/60 * * * * *" # every 60 seconds
 
 # logging.level.no.skatteetaten.aurora.gobo: DEBUG
+logging.level.no.skatteetaten.aurora.gobo.security: DEBUG
