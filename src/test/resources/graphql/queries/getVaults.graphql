@@ -1,0 +1,10 @@
+query getVaults($affiliationNames:[String!]!, $vaultNames:[String!]! ){
+  affiliations(name: $affiliationNames)  {
+    vaults(names $vaultNames]) {
+      name
+      hasAccess
+      [permissions]
+      [secrets]
+    }
+  }
+}
