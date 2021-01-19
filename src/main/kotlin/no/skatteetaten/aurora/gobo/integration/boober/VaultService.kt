@@ -2,7 +2,6 @@ package no.skatteetaten.aurora.gobo.integration.boober
 
 import org.springframework.stereotype.Service
 
-
 @Service
 class VaultService(private val booberWebClient: BooberWebClient) {
 

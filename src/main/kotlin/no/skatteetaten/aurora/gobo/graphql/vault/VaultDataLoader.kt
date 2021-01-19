@@ -1,18 +1,16 @@
 package no.skatteetaten.aurora.gobo.graphql.vault
 
 import org.springframework.stereotype.Component
-import com.fasterxml.jackson.databind.JsonNode
 import no.skatteetaten.aurora.gobo.KeyDataLoader
 import no.skatteetaten.aurora.gobo.graphql.GoboGraphQLContext
 import no.skatteetaten.aurora.gobo.integration.boober.BooberWebClient
 import no.skatteetaten.aurora.gobo.integration.boober.response
 
-
 data class VaultKey(
     val affiliationName: String,
     val vaultName: String
 
-    )
+)
 
 @Component
 class VaultDataLoader(val booberWebClient: BooberWebClient) : KeyDataLoader<VaultKey, Vault> {

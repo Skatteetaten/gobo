@@ -17,15 +17,13 @@ data class Affiliation(val name: String) {
 
     suspend fun websealStates(dfe: DataFetchingEnvironment): List<WebsealState> = dfe.loadMany(name)
     suspend fun vaults(names: List<String>, dfe: DataFetchingEnvironment): List<Vault> {
-        return if (names.isEmpty()){
+        return if (names.isEmpty()) {
             dfe.loadMany(name)
         } else {
             names.map {
-                dfe.loadOrThrow(VaultKey(name, it)) //TODO: check booober result, should we return partial result
+                dfe.loadOrThrow(VaultKey(name, it)) // TODO: check booober result, should we return partial result
             }
         }
-
-
     }
 }
 
