@@ -13,6 +13,7 @@ import no.skatteetaten.aurora.gobo.graphql.graphqlDataWithPrefix
 import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.graphql.graphqlErrors
 import no.skatteetaten.aurora.gobo.graphql.graphqlErrorsMissingToken
+import no.skatteetaten.aurora.gobo.graphql.isTrue
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseService
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
@@ -52,7 +53,13 @@ class DatabaseSchemaQueryTest : GraphQLTestWithDbhAndSkap() {
         val auroraInstance = DatabaseInstanceResourceBuilder(affiliation = "aurora").build()
 
         coEvery { databaseService.getDatabaseInstances() } returns listOf(paasInstance, auroraInstance)
-        coEvery { databaseService.getDatabaseSchemas("paas") } returns listOf(DatabaseSchemaResourceBuilder().build())
+        coEvery { databaseService.getDatabaseSchemas("paas") } returns listOf(
+            DatabaseSchemaResourceBuilder(name = "test1").build(),
+            DatabaseSchemaResourceBuilder(name = "test2").build(),
+            DatabaseSchemaResourceBuilder(name = "test3").build(),
+            DatabaseSchemaResourceBuilder(name = "test4").build(),
+            DatabaseSchemaResourceBuilder(name = "test5").build()
+        )
         coEvery { databaseService.getDatabaseSchema("myDbId") } returns DatabaseSchemaResourceBuilder().build()
         coEvery { databaseService.getRestorableDatabaseSchemas("aurora") } returns listOf(
             RestorableDatabaseSchemaBuilder().build()
@@ -63,7 +70,7 @@ class DatabaseSchemaQueryTest : GraphQLTestWithDbhAndSkap() {
 
     @Test
     fun `Query for database schemas with no bearer token`() {
-        val variables = mapOf("affiliations" to listOf("paas"))
+        val variables = mapOf("affiliations" to listOf("paas"), "pageSize" to 5)
         webTestClient.queryGraphQL(
             queryResource = getDatabaseSchemasWithAffiliationQuery,
             variables = variables
@@ -110,7 +117,7 @@ class DatabaseSchemaQueryTest : GraphQLTestWithDbhAndSkap() {
 
     @Test
     fun `Query for database schemas given affiliation`() {
-        val variables = mapOf("affiliations" to listOf("paas"))
+        val variables = mapOf("affiliations" to listOf("paas"), "pageSize" to 3, "after" to "dGVzdDE=")
         webTestClient.queryGraphQL(
             queryResource = getDatabaseSchemasWithAffiliationQuery,
             variables = variables,
@@ -118,8 +125,14 @@ class DatabaseSchemaQueryTest : GraphQLTestWithDbhAndSkap() {
         )
             .expectStatus().isOk
             .expectBody()
-            .graphqlData("databaseSchemas.length()").isEqualTo(1)
-            .graphqlDataWithPrefix("databaseSchemas[0]") {
+            .graphqlData("databaseSchemasPagination.edges.length()").isEqualTo(3)
+            .graphqlData("databaseSchemasPagination.totalCount").isEqualTo(5)
+            .graphqlData("databaseSchemasPagination.edges[0].cursor").isNotEmpty
+            .graphqlDataWithPrefix("databaseSchemasPagination.pageInfo") {
+                graphqlData("endCursor").isNotEmpty
+                graphqlData("hasNextPage").isTrue()
+            }
+            .graphqlDataWithPrefix("databaseSchemasPagination.edges[0].node") {
                 graphqlData("engine").isEqualTo("POSTGRES")
                 graphqlData("affiliation.name").isEqualTo("paas")
                 graphqlData("createdBy").isEqualTo("abc123")

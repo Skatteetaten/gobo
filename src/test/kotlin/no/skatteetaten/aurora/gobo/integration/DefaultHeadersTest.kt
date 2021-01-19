@@ -19,7 +19,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.web.reactive.function.client.WebClientAutoConfiguration
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.cloud.sleuth.annotation.SleuthAnnotationAutoConfiguration
+import org.springframework.cloud.sleuth.autoconfig.zipkin2.ZipkinAutoConfiguration
 import org.springframework.http.HttpHeaders.USER_AGENT
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.bodyToMono
@@ -28,7 +28,7 @@ import org.springframework.web.reactive.function.client.bodyToMono
     classes = [
         WebFluxStarterApplicationConfig::class,
         WebClientAutoConfiguration::class,
-        SleuthAnnotationAutoConfiguration::class,
+        ZipkinAutoConfiguration::class,
         ApplicationConfig::class,
         SharedSecretReader::class
     ]

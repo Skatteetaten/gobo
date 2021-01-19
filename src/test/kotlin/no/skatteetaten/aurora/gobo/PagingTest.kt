@@ -90,8 +90,8 @@ class PagingTest {
             assertThat(edges).isEqualTo(expectedEdges)
             assertThat(pageInfo.hasPreviousPage).isEqualTo(hasPrevPage)
             assertThat(pageInfo.hasNextPage).isEqualTo(hasNexPage)
-            assertThat(pageInfo.startCursor).isEqualTo(expectedEdges.first().cursor.value)
-            assertThat(pageInfo.endCursor).isEqualTo(expectedEdges.last().cursor.value)
+            assertThat(pageInfo.startCursor).isEqualTo(expectedEdges.first().cursor)
+            assertThat(pageInfo.endCursor).isEqualTo(expectedEdges.last().cursor)
         }
     }
 }

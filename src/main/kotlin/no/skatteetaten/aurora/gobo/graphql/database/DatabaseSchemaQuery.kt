@@ -3,6 +3,7 @@ package no.skatteetaten.aurora.gobo.graphql.database
 import com.expediagroup.graphql.spring.operations.Query
 import graphql.schema.DataFetchingEnvironment
 import no.skatteetaten.aurora.gobo.graphql.affiliation.Affiliation
+import no.skatteetaten.aurora.gobo.graphql.pageEdges
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseService
 import no.skatteetaten.aurora.gobo.security.checkValidUserToken
 import org.springframework.stereotype.Component
@@ -26,12 +27,36 @@ class DatabaseSchemaQuery(val databaseService: DatabaseService) : Query {
         return DatabaseSchema.create(databaseSchema, Affiliation(databaseSchema.affiliation))
     }
 
+    // TODO Remove after AOS-5305 is released
     suspend fun databaseSchemas(affiliations: List<String>, dfe: DataFetchingEnvironment): List<DatabaseSchema> {
         dfe.checkValidUserToken()
-        return affiliations.flatMap { affiliation ->
-            databaseService.getDatabaseSchemas(affiliation)
-                .map { DatabaseSchema.create(it, Affiliation(affiliation)) }
-        }
+        return affiliations
+            .flatMap { affiliation ->
+                databaseService.getDatabaseSchemas(affiliation)
+                    .map { DatabaseSchema.create(it, Affiliation(affiliation)) }
+            }
+    }
+
+    // TODO Rename to databaseSchemas after AOS-5305 is released
+    suspend fun databaseSchemasPagination(
+        affiliations: List<String>,
+        first: Int,
+        after: String?,
+        dfe: DataFetchingEnvironment
+    ): DatabaseSchemaConnection {
+        dfe.checkValidUserToken()
+        val schemas = affiliations
+            .flatMap { affiliation ->
+                databaseService.getDatabaseSchemas(affiliation)
+                    .map { DatabaseSchema.create(it, Affiliation(affiliation)) }
+            }.map { DatabaseSchemaEdge(it) }.sortedBy { it.node.name }
+
+        val pagedSchemas = pageEdges(schemas, first, after)
+        return DatabaseSchemaConnection(
+            edges = pagedSchemas.edges,
+            pageInfo = pagedSchemas.pageInfo,
+            totalCount = schemas.size
+        )
     }
 
     suspend fun restorableDatabaseSchemas(

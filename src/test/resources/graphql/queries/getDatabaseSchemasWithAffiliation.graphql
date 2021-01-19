@@ -1,25 +1,35 @@
-query getDatabaseSchemas($affiliations: [String!]!) {
-    databaseSchemas(affiliations: $affiliations) {
-        id
-        affiliation {
+query getDatabaseSchemas($affiliations: [String!]!, $pageSize: Int!, $after: String) {
+    databaseSchemasPagination(affiliations: $affiliations, first: $pageSize, after: $after) {
+        totalCount
+        edges {
+          cursor
+          node {
+          id
+            affiliation {
+                name
+            }
             name
+            application
+            environment
+            discriminator
+            description
+            engine
+            applicationDeployments {
+                id
+            }
+            createdBy
+            createdDate
+            lastUsedDate
+            users {
+                username
+                password
+                type
+            }
+          }
         }
-        name
-        application
-        environment
-        discriminator
-        description
-        engine
-        applicationDeployments {
-            id
-        }
-        createdBy
-        createdDate
-        lastUsedDate
-        users {
-            username
-            password
-            type
+        pageInfo {
+          endCursor
+          hasNextPage
         }
     }
 }
