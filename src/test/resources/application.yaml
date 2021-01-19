@@ -68,7 +68,6 @@ graphql:
 
 stubrunner:
   stubs-mode: remote
-  # repositoryRoot: http://aurora/nexus/service/local/repositories/${gobo.stub.repository}/content
 
 # INFO log enable to view the resolved version of the stubs artifact
 logging.level.org.springframework.cloud.contract.stubrunner.AetherStubDownloader: INFO
