@@ -10,8 +10,7 @@ import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithDbhAndSkap
 import no.skatteetaten.aurora.gobo.graphql.affiliation.AffiliationQuery
 import no.skatteetaten.aurora.gobo.graphql.printResult
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
-import no.skatteetaten.aurora.gobo.integration.Response
-import no.skatteetaten.aurora.gobo.integration.boober.BooberWebClient
+import no.skatteetaten.aurora.gobo.integration.boober.VaultService
 import no.skatteetaten.aurora.gobo.integration.mokey.AffiliationService
 
 @Import(
@@ -27,21 +26,19 @@ class VaultQueryTest : GraphQLTestWithDbhAndSkap() {
     private lateinit var affiliationService: AffiliationService
 
     @MockkBean
-    private lateinit var booberWebClient: BooberWebClient
+    private lateinit var vaultService: VaultService
+
+    private val vault = Vault(
+        name = "boober",
+        hasAccess = true,
+        permissions = emptyList(),
+        secrets = emptyMap()
+    )
 
     @Test
     fun `Query for vault`() {
         // coEvery { affiliationService.getAllAffiliations() } returns listOf("paas", "demo")
-        coEvery { booberWebClient.get<Vault>(url = any(), token = any()) } returns Response(
-            items = listOf(
-                Vault(
-                    name = "boober",
-                    hasAccess = true,
-                    permissions = emptyList(),
-                    secrets = emptyMap()
-                )
-            )
-        )
+        coEvery { vaultService.getVault(any(), any(), any()) } returns vault
 
         val variables = mapOf("affiliationNames" to listOf("aurora"), "vaultNames" to listOf("boober"))
         webTestClient.queryGraphQL(getVaultsQuery, variables, "test-token")
