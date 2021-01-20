@@ -21,7 +21,6 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
-import no.skatteetaten.aurora.gobo.graphql.printResult
 
 @Import(
     AffiliationQuery::class,
@@ -33,6 +32,9 @@ class AffiliationQueryTest : GraphQLTestWithDbhAndSkap() {
 
     @Value("classpath:graphql/queries/getAffiliations.graphql")
     private lateinit var getAffiliationsQuery: Resource
+
+    @Value("classpath:graphql/queries/getAffiliationItems.graphql")
+    private lateinit var getAffiliationItemsQuery: Resource
 
     @Value("classpath:graphql/queries/getAffiliationsWithVisibilityCheck.graphql")
     private lateinit var getAffiliationsWithVisibilityQuery: Resource
@@ -74,6 +76,21 @@ class AffiliationQueryTest : GraphQLTestWithDbhAndSkap() {
     }
 
     @Test
+    fun `Query for all affiliation items`() {
+        coEvery { affiliationService.getAllAffiliations() } returns listOf("paas", "demo")
+
+        webTestClient.queryGraphQL(getAffiliationItemsQuery, token = "test-token")
+            .expectStatus().isOk
+            .expectBody()
+            .graphqlDataWithPrefix("affiliations.items") {
+                graphqlData("[0].name").isEqualTo("paas")
+                graphqlData("[1].name").isEqualTo("demo")
+            }
+            .graphqlData("affiliations.totalCount").isEqualTo(2)
+            .graphqlDoesNotContainErrors()
+    }
+
+    @Test
     fun `Query for visible affiliations`() {
         coEvery { affiliationService.getAllVisibleAffiliations("test-token") } returns listOf("paas", "demo")
 
@@ -96,10 +113,9 @@ class AffiliationQueryTest : GraphQLTestWithDbhAndSkap() {
         webTestClient.queryGraphQL(getAffiliationQuery, mapOf("name" to "aurora"))
             .expectStatus().isOk
             .expectBody()
-            .printResult()
-        // .graphqlData("affiliations.edges[0].node.name").isEqualTo("aurora")
-        // .graphqlData("affiliations.totalCount").isEqualTo(1)
-        // .graphqlDoesNotContainErrors()
+            .graphqlData("affiliations.edges[0].node.name").isEqualTo("aurora")
+            .graphqlData("affiliations.totalCount").isEqualTo(1)
+            .graphqlDoesNotContainErrors()
     }
 
     @Test

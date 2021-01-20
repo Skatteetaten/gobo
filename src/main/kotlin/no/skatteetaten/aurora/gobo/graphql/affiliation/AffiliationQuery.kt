@@ -1,7 +1,6 @@
 package no.skatteetaten.aurora.gobo.graphql.affiliation
 
 import com.expediagroup.graphql.spring.operations.Query
-import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.graphql.GoboGraphQLContext
@@ -19,7 +18,7 @@ class AffiliationQuery(val affiliationService: AffiliationService) : Query {
         names: List<String>?,
         checkForVisibility: Boolean?,
         dfe: DataFetchingEnvironment
-    ): DataFetcherResult<AffiliationsConnection> {
+    ): AffiliationsConnection {
 
         // TODO: This block of code below should be removed
         name?.let {
@@ -27,15 +26,17 @@ class AffiliationQuery(val affiliationService: AffiliationService) : Query {
             context?.klientid()?.let { client ->
                 logger.info("Client $client is using the deprecated name query variable in the affiliation query: ${context.query}")
             }
+            return AffiliationsConnection(listOf(AffiliationEdge(Affiliation(name))))
         }
 
-        val affiliationNames = if (names.isNullOrEmpty())
+        val affiliationNames = if (names.isNullOrEmpty()) {
             getAffiliations(checkForVisibility ?: false, dfe)
-        else
+        } else {
             names
+        }
 
         val affiliations = affiliationNames.map { AffiliationEdge(Affiliation(it)) }
-        return DataFetcherResult.newResult<AffiliationsConnection>().data(AffiliationsConnection(affiliations)).build()
+        return AffiliationsConnection(affiliations)
     }
 
     private suspend fun getAffiliations(checkForVisibility: Boolean, dfe: DataFetchingEnvironment) =

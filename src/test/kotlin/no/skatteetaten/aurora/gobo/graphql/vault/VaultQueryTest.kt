@@ -47,12 +47,12 @@ class VaultQueryTest : GraphQLTestWithDbhAndSkap() {
         webTestClient.queryGraphQL(getVaultsQuery, variables, "test-token")
             .expectStatus().isOk
             .expectBody()
-            .graphqlDataWithPrefix("affiliations.edges[0]") {
-                graphqlData("node.vaults[0].name").isEqualTo("boober")
-                graphqlData("node.vaults[0].hasAccess").isTrue()
-                graphqlData("node.vaults[0].permissions").isEqualTo("APP_PaaS_utv")
-                graphqlData("node.vaults[0].secrets[0].key").isEqualTo("latest.properties")
-                graphqlData("node.vaults[0].secrets[0].value").isEqualTo("QVRTX1VTRVJOQU1FPWJtYwp")
+            .graphqlDataWithPrefix("affiliations.edges[0].node.vaults[0]") {
+                graphqlData("name").isEqualTo("boober")
+                graphqlData("hasAccess").isTrue()
+                graphqlData("permissions").isEqualTo("APP_PaaS_utv")
+                graphqlData("secrets[0].key").isEqualTo("latest.properties")
+                graphqlData("secrets[0].value").isEqualTo("QVRTX1VTRVJOQU1FPWJtYwp")
             }
             .graphqlDoesNotContainErrors()
     }
