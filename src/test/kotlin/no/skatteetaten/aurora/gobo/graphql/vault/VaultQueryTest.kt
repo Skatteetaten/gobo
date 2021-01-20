@@ -8,7 +8,10 @@ import com.ninjasquad.springmockk.MockkBean
 import io.mockk.coEvery
 import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithDbhAndSkap
 import no.skatteetaten.aurora.gobo.graphql.affiliation.AffiliationQuery
-import no.skatteetaten.aurora.gobo.graphql.printResult
+import no.skatteetaten.aurora.gobo.graphql.graphqlData
+import no.skatteetaten.aurora.gobo.graphql.graphqlDataWithPrefix
+import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
+import no.skatteetaten.aurora.gobo.graphql.isTrue
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
 import no.skatteetaten.aurora.gobo.integration.boober.VaultService
 import no.skatteetaten.aurora.gobo.integration.mokey.AffiliationService
@@ -36,7 +39,7 @@ class VaultQueryTest : GraphQLTestWithDbhAndSkap() {
     )
 
     @Test
-    fun `Query for vault`() {
+    fun `Query for single vault`() {
         // coEvery { affiliationService.getAllAffiliations() } returns listOf("paas", "demo")
         coEvery { vaultService.getVault(any(), any(), any()) } returns vault_boober
 
@@ -44,12 +47,14 @@ class VaultQueryTest : GraphQLTestWithDbhAndSkap() {
         webTestClient.queryGraphQL(getVaultsQuery, variables, "test-token")
             .expectStatus().isOk
             .expectBody()
-            .printResult()
-        // .graphqlData("affiliations.edges[0].node.vaults.name").isEqualTo("boober")
-        // .graphqlData("affiliations.edges[0].node.hasAccess").isEqualTo("true")
-        // .graphqlData("affiliations.edges[0].node.permissions").isEqualTo("APP_PaaS_utv")
-        // .graphqlData("affiliations.totalCount").isEqualTo(1)
-        // .graphqlDoesNotContainErrors()
+            .graphqlDataWithPrefix("affiliations.edges[0]") {
+                graphqlData("node.vaults[0].name").isEqualTo("boober")
+                graphqlData("node.vaults[0].hasAccess").isTrue()
+                graphqlData("node.vaults[0].permissions").isEqualTo("APP_PaaS_utv")
+                graphqlData("node.vaults[0].secrets[0].key").isEqualTo("latest.properties")
+                graphqlData("node.vaults[0].secrets[0].value").isEqualTo("QVRTX1VTRVJOQU1FPWJtYwp")
+            }
+            .graphqlDoesNotContainErrors()
     }
 
     // @Test
