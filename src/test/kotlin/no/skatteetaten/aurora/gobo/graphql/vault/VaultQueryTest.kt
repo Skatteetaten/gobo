@@ -28,24 +28,26 @@ class VaultQueryTest : GraphQLTestWithDbhAndSkap() {
     @MockkBean
     private lateinit var vaultService: VaultService
 
-    private val vault = Vault(
+    private val vault_boober = Vault(
         name = "boober",
         hasAccess = true,
-        permissions = emptyList(),
-        secrets = emptyMap()
+        permissions = listOf("APP_PaaS_utv"),
+        secrets = mapOf(Pair("latest.properties", "QVRTX1VTRVJOQU1FPWJtYwp"))
     )
 
     @Test
     fun `Query for vault`() {
         // coEvery { affiliationService.getAllAffiliations() } returns listOf("paas", "demo")
-        coEvery { vaultService.getVault(any(), any(), any()) } returns vault
+        coEvery { vaultService.getVault(any(), any(), any()) } returns vault_boober
 
         val variables = mapOf("affiliationNames" to listOf("aurora"), "vaultNames" to listOf("boober"))
         webTestClient.queryGraphQL(getVaultsQuery, variables, "test-token")
             .expectStatus().isOk
             .expectBody()
             .printResult()
-        // .graphqlData("affiliations.edges[0].node.name").isEqualTo("aurora")
+        // .graphqlData("affiliations.edges[0].node.vaults.name").isEqualTo("boober")
+        // .graphqlData("affiliations.edges[0].node.hasAccess").isEqualTo("true")
+        // .graphqlData("affiliations.edges[0].node.permissions").isEqualTo("APP_PaaS_utv")
         // .graphqlData("affiliations.totalCount").isEqualTo(1)
         // .graphqlDoesNotContainErrors()
     }
