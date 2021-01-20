@@ -34,6 +34,9 @@ class AffiliationQueryTest : GraphQLTestWithDbhAndSkap() {
     @Value("classpath:graphql/queries/getAffiliations.graphql")
     private lateinit var getAffiliationsQuery: Resource
 
+    @Value("classpath:graphql/queries/getAffiliationItems.graphql")
+    private lateinit var getAffiliationItemsQuery: Resource
+
     @Value("classpath:graphql/queries/getAffiliationsWithVisibilityCheck.graphql")
     private lateinit var getAffiliationsWithVisibilityQuery: Resource
 
@@ -68,6 +71,21 @@ class AffiliationQueryTest : GraphQLTestWithDbhAndSkap() {
             .graphqlDataWithPrefix("affiliations.edges") {
                 graphqlData("[0].node.name").isEqualTo("paas")
                 graphqlData("[1].node.name").isEqualTo("demo")
+            }
+            .graphqlData("affiliations.totalCount").isEqualTo(2)
+            .graphqlDoesNotContainErrors()
+    }
+
+    @Test
+    fun `Query for all affiliation items`() {
+        coEvery { affiliationService.getAllAffiliations() } returns listOf("paas", "demo")
+
+        webTestClient.queryGraphQL(getAffiliationItemsQuery, token = "test-token")
+            .expectStatus().isOk
+            .expectBody()
+            .graphqlDataWithPrefix("affiliations.items") {
+                graphqlData("[0].name").isEqualTo("paas")
+                graphqlData("[1].name").isEqualTo("demo")
             }
             .graphqlData("affiliations.totalCount").isEqualTo(2)
             .graphqlDoesNotContainErrors()
