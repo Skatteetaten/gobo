@@ -1,5 +1,5 @@
 query getDatabaseSchemas($affiliations: [String!]!, $pageSize: Int!, $after: String) {
-    databaseSchemasPagination(affiliations: $affiliations, first: $pageSize, after: $after) {
+    databaseSchemas(affiliations: $affiliations, first: $pageSize, after: $after) {
         totalCount
         edges {
           cursor
