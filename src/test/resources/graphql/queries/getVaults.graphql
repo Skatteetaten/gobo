@@ -1,4 +1,4 @@
-  query getVaults($affiliationNames:[String!]!, $vaultNames:[String!]! ){
+  query getVaults($affiliationNames:[String!]!, $vaultNames:[String!] ){
   affiliations(names: $affiliationNames)  {
     edges{
       node{

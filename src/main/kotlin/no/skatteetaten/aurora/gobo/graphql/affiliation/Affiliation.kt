@@ -17,8 +17,8 @@ data class Affiliation(val name: String) {
     suspend fun databaseSchemas(dfe: DataFetchingEnvironment): List<DatabaseSchema> = dfe.loadMany(name)
 
     suspend fun websealStates(dfe: DataFetchingEnvironment): List<WebsealState> = dfe.loadMany(name)
-    suspend fun vaults(names: List<String>, dfe: DataFetchingEnvironment): List<Vault> {
-        return if (names.isEmpty()) {
+    suspend fun vaults(names: List<String>?, dfe: DataFetchingEnvironment): List<Vault> {
+        return if (names.isNullOrEmpty()) {
             dfe.loadMany(name)
         } else {
             names.map {
