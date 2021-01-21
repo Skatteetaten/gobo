@@ -36,7 +36,7 @@ class VaultQueryTest : GraphQLTestWithDbhAndSkap() {
         name = "boober",
         hasAccess = true,
         permissions = listOf("APP_PaaS_utv"),
-        secrets = mapOf(Pair("latest.properties", "QVRTX1VTRVJOQU1FPWJtYwp"))
+        secrets = mapOf("latest.properties" to "QVRTX1VTRVJOQU1FPWJtYwp")
     )
 
     private val vaultList = listOf(
@@ -44,21 +44,21 @@ class VaultQueryTest : GraphQLTestWithDbhAndSkap() {
             name = "boober",
             hasAccess = true,
             permissions = listOf("APP_PaaS_utv"),
-            secrets = mapOf(Pair("latest.properties", "QVRTX1VTRVJOQU1FPWJtYwp"))
+            secrets = mapOf("latest.properties" to "QVRTX1VTRVJOQU1FPWJtYwp")
         ),
         Vault(
             name = "rosita",
             hasAccess = false,
             permissions = listOf("APP_PaaS_utv", "APP_PaaS_drift"),
-            secrets = mapOf(Pair("latest.properties", "RklPTkFfU0VDUkVUX0tFWT1"))
+            secrets = mapOf("latest.properties" to "RklPTkFfU0VDUkVUX0tFWT1")
         ),
         Vault(
             name = "jenkins-gnupg",
             hasAccess = true,
             permissions = listOf("APP_PaaS_utv", "APP_PaaS_drift"),
             secrets = mapOf(
-                Pair("pubring-old.gpg", "mQGiBEE2LvgRBACfDMHe0CHihg9q5pBpdgyNr2xo9J"),
-                Pair("pubring.gpg", "mQGNBF2yj5wBDADngY7jzndMFkyoMfzoB2p7ih")
+                "pubring-old.gpg" to "mQGiBEE2LvgRBACfDMHe0CHihg9q5pBpdgyNr2xo9J",
+                "pubring.gpg" to "mQGNBF2yj5wBDADngY7jzndMFkyoMfzoB2p7ih"
             )
         )
     )
@@ -89,7 +89,6 @@ class VaultQueryTest : GraphQLTestWithDbhAndSkap() {
         webTestClient.queryGraphQL(getVaultsQuery, variables, "test-token")
             .expectStatus().isOk
             .expectBody()
-            // .printResult()
             .graphqlDataWithPrefix("affiliations.edges[0].node.vaults[0]") {
                 graphqlData("name").isEqualTo("jenkins-gnupg")
                 graphqlData("hasAccess").isTrue()
@@ -111,7 +110,6 @@ class VaultQueryTest : GraphQLTestWithDbhAndSkap() {
         webTestClient.queryGraphQL(getVaultsQuery, variables, "test-token")
             .expectStatus().isOk
             .expectBody()
-            // .printResult()
             .graphqlDataWithPrefix("affiliations.edges[0].node.vaults[0]") {
                 graphqlData("name").isEqualTo("boober")
                 graphqlData("hasAccess").isTrue()
