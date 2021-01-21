@@ -125,14 +125,14 @@ class DatabaseSchemaQueryTest : GraphQLTestWithDbhAndSkap() {
         )
             .expectStatus().isOk
             .expectBody()
-            .graphqlData("databaseSchemasPagination.edges.length()").isEqualTo(3)
-            .graphqlData("databaseSchemasPagination.totalCount").isEqualTo(5)
-            .graphqlData("databaseSchemasPagination.edges[0].cursor").isNotEmpty
-            .graphqlDataWithPrefix("databaseSchemasPagination.pageInfo") {
+            .graphqlData("databaseSchemas.edges.length()").isEqualTo(3)
+            .graphqlData("databaseSchemas.totalCount").isEqualTo(5)
+            .graphqlData("databaseSchemas.edges[0].cursor").isNotEmpty
+            .graphqlDataWithPrefix("databaseSchemas.pageInfo") {
                 graphqlData("endCursor").isNotEmpty
                 graphqlData("hasNextPage").isTrue()
             }
-            .graphqlDataWithPrefix("databaseSchemasPagination.edges[0].node") {
+            .graphqlDataWithPrefix("databaseSchemas.edges[0].node") {
                 graphqlData("engine").isEqualTo("POSTGRES")
                 graphqlData("affiliation.name").isEqualTo("paas")
                 graphqlData("createdBy").isEqualTo("abc123")
