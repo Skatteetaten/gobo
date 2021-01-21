@@ -3,6 +3,7 @@ package no.skatteetaten.aurora.gobo.integration.boober
 import org.junit.jupiter.api.Test
 import org.springframework.web.reactive.function.client.WebClient
 import assertk.assertThat
+import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
 import assertk.assertions.isTrue
 import no.skatteetaten.aurora.gobo.graphql.vault.Vault
@@ -28,17 +29,15 @@ internal class VaultServiceTest {
 
     @Test
     fun `Get vault`() {
-        @Test
-        fun `Get vault`() {
-            val response = Response(items = listOf(vaultSimple))
-            val requests = server.executeBlocking(response) {
-                val vault = vaultService.getVault(affiliationName = "aurora", vaultName = "boober", token = "token")
-                assertThat(vault.name).isEqualTo("boober")
-                assertThat(vault.hasAccess).isTrue()
-                assertThat(vault.permissions[0]).isEqualTo("APP_PaaS_utv")
-                assertThat(vault.secrets["latest.properties"]).isEqualTo("QVRTX1VTRVJOQU1FPWJtYwp")
-            }
+        val response = Response(items = listOf(vaultSimple))
+        val requests = server.executeBlocking(response) {
+            val vault = vaultService.getVault(affiliationName = "aurora", vaultName = "boober", token = "token")
+            assertThat(vault.name).isEqualTo("boober")
+            assertThat(vault.hasAccess).isTrue()
+            assertThat(vault.permissions[0]).isEqualTo("APP_PaaS_utv")
+            assertThat(vault.secrets["latest.properties"]).isEqualTo("QVRTX1VTRVJOQU1FPWJtYwp")
         }
+        assertThat(requests).hasSize(1)
     }
 
     @Test
@@ -51,5 +50,6 @@ internal class VaultServiceTest {
             assertThat(vault[0].permissions[0]).isEqualTo("APP_PaaS_utv")
             assertThat(vault[0].secrets["latest.properties"]).isEqualTo("QVRTX1VTRVJOQU1FPWJtYwp")
         }
+        assertThat(requests).hasSize(1)
     }
 }
