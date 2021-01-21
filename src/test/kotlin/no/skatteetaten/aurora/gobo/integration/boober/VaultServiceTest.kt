@@ -34,8 +34,7 @@ internal class VaultServiceTest {
             assertThat(vault.name).isEqualTo("boober")
             assertThat(vault.hasAccess).isTrue()
             assertThat(vault.permissions[0]).isEqualTo("APP_PaaS_utv")
-            val secret = vault.secrets.entries
-            assertThat(vault.secrets[0].).isEqualTo("APP_PaaS_utv")
+            assertThat(vault.secrets["latest.properties"]).isEqualTo("QVRTX1VTRVJOQU1FPWJtYwp")
         }
     }
 }
