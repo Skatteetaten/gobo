@@ -28,13 +28,28 @@ internal class VaultServiceTest {
 
     @Test
     fun `Get vault`() {
+        @Test
+        fun `Get vault`() {
+            val response = Response(items = listOf(vaultSimple))
+            val requests = server.executeBlocking(response) {
+                val vault = vaultService.getVault(affiliationName = "aurora", vaultName = "boober", token = "token")
+                assertThat(vault.name).isEqualTo("boober")
+                assertThat(vault.hasAccess).isTrue()
+                assertThat(vault.permissions[0]).isEqualTo("APP_PaaS_utv")
+                assertThat(vault.secrets["latest.properties"]).isEqualTo("QVRTX1VTRVJOQU1FPWJtYwp")
+            }
+        }
+    }
+
+    @Test
+    fun `Get vaults`() {
         val response = Response(items = listOf(vaultSimple))
         val requests = server.executeBlocking(response) {
-            val vault = vaultService.getVault(affiliationName = "aurora", vaultName = "boober", token = "token")
-            assertThat(vault.name).isEqualTo("boober")
-            assertThat(vault.hasAccess).isTrue()
-            assertThat(vault.permissions[0]).isEqualTo("APP_PaaS_utv")
-            assertThat(vault.secrets["latest.properties"]).isEqualTo("QVRTX1VTRVJOQU1FPWJtYwp")
+            val vault = vaultService.getVaults(affiliationName = "aurora", token = "token")
+            assertThat(vault[0].name).isEqualTo("boober")
+            assertThat(vault[0].hasAccess).isTrue()
+            assertThat(vault[0].permissions[0]).isEqualTo("APP_PaaS_utv")
+            assertThat(vault[0].secrets["latest.properties"]).isEqualTo("QVRTX1VTRVJOQU1FPWJtYwp")
         }
     }
 }
