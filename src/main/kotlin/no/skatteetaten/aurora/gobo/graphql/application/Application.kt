@@ -2,6 +2,7 @@ package no.skatteetaten.aurora.gobo.graphql.application
 
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationResource
 import no.skatteetaten.aurora.gobo.graphql.GoboEdge
+import no.skatteetaten.aurora.gobo.graphql.GoboItems
 import no.skatteetaten.aurora.gobo.graphql.GoboPageInfo
 import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.ApplicationDeployment
 import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.ApplicationDeploymentBuilder
@@ -29,7 +30,10 @@ data class Application(
             .firstOrNull { it.registryUrl != null && !DockerRegistryUtil.isInternal(it.registryUrl) }
 }
 
-data class ApplicationEdge(val node: Application) : GoboEdge(node.name) {
+data class ApplicationEdge(
+    @Deprecated(message = "edges.node is deprecated", replaceWith = ReplaceWith("items"))
+    val node: Application
+) : GoboEdge(node.name) {
     companion object {
         fun create(resource: ApplicationResource, applicationDeployments: List<ApplicationDeployment>) =
             ApplicationEdge(
@@ -43,10 +47,11 @@ data class ApplicationEdge(val node: Application) : GoboEdge(node.name) {
 }
 
 data class ApplicationsConnection(
+    @Deprecated(message = "edges.node is deprecated", replaceWith = ReplaceWith("items"))
     val edges: List<ApplicationEdge>,
-    val totalCount: Int = edges.size,
+    val items: List<Application> = edges.map { it.node },
     val pageInfo: GoboPageInfo = createPageInfo(edges)
-)
+) : GoboItems(items)
 
 private val deploymentBuilder = ApplicationDeploymentBuilder()
 
