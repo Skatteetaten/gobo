@@ -35,7 +35,7 @@ internal class VaultServiceTest {
             assertThat(vault.name).isEqualTo("boober")
             assertThat(vault.hasAccess).isTrue()
             assertThat(vault.permissions?.get(0)).isEqualTo("APP_PaaS_utv")
-            assertThat(vault.secrets["latest.properties"]).isEqualTo("QVRTX1VTRVJOQU1FPWJtYwp")
+            assertThat(vault.secrets?.get("latest.properties")).isEqualTo("QVRTX1VTRVJOQU1FPWJtYwp")
         }
         assertThat(requests).hasSize(1)
     }
@@ -48,7 +48,7 @@ internal class VaultServiceTest {
             assertThat(vault[0].name).isEqualTo("boober")
             assertThat(vault[0].hasAccess).isTrue()
             assertThat(vault[0].permissions?.get(0)).isEqualTo("APP_PaaS_utv")
-            assertThat(vault[0].secrets["latest.properties"]).isEqualTo("QVRTX1VTRVJOQU1FPWJtYwp")
+            assertThat(vault[0].secrets?.get("latest.properties")).isEqualTo("QVRTX1VTRVJOQU1FPWJtYwp")
         }
         assertThat(requests).hasSize(1)
     }
