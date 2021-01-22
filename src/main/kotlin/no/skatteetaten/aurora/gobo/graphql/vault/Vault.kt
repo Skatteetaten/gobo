@@ -7,7 +7,7 @@ data class Secret(val key: String, val value: String)
 data class Vault(
     val name: String,
     val hasAccess: Boolean,
-    val permissions: List<String>,
+    val permissions: List<String>?,
 
     @GraphQLIgnore
     val secrets: Map<String, String>
