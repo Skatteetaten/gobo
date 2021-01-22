@@ -38,19 +38,21 @@ class DataLoaderConfiguration(
     @Bean
     fun dataLoaderRegistryFactory(): DataLoaderRegistryFactory {
         val coroutineDispatcher = Executors.newFixedThreadPool(threadPoolSize).asCoroutineDispatcher()
-        val registry = DataLoaderRegistry().apply {
-            keyLoaders.forEach {
-                logger.debug("Registering KeyDataLoader: ${it::class.simpleName}")
-                register(it::class.simpleName, batchDataLoaderMappedSingle(coroutineDispatcher, it))
-            }
-            multipleKeysDataLoaders.forEach {
-                logger.debug("Registering MultipleKeysDataLoader: ${it::class.simpleName}")
-                register(it::class.simpleName, batchDataLoaderMappedMultiple(coroutineDispatcher, it))
-            }
-        }
+        val kl = keyLoaders.map {
+            logger.debug("Registering KeyDataLoader: ${it::class.simpleName}")
+            it::class.simpleName!! to batchDataLoaderMappedSingle(coroutineDispatcher, it)
+        }.toMap()
+
+        val mkl = multipleKeysDataLoaders.map {
+            logger.debug("Registering MultipleKeysDataLoader: ${it::class.simpleName}")
+            it::class.simpleName!! to batchDataLoaderMappedMultiple(coroutineDispatcher, it)
+        }.toMap()
 
         return object : DataLoaderRegistryFactory {
-            override fun generate() = registry
+            override fun generate() = DataLoaderRegistry().apply {
+                kl.forEach { register(it.key, it.value) }
+                mkl.forEach { register(it.key, it.value) }
+            }
         }
     }
 

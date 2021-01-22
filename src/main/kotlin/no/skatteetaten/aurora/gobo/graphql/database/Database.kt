@@ -66,7 +66,7 @@ data class DatabaseSchema(
     val discriminator: String,
     val description: String?,
     val affiliation: Affiliation,
-    val engine: String,
+    val engine: String?,
     val createdBy: String?,
     val createdDate: Instant,
     val lastUsedDate: Instant?,
