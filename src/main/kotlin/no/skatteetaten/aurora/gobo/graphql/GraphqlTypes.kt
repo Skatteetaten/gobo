@@ -18,3 +18,7 @@ data class GoboPageInfo(
     val hasPreviousPage: Boolean,
     val hasNextPage: Boolean
 )
+
+abstract class GoboItems(private val items: List<Any>) {
+    fun totalCount() = items.size
+}

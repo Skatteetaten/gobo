@@ -1,0 +1,8 @@
+{
+  affiliations {
+    totalCount
+    items {
+      name
+    }
+  }
+}
