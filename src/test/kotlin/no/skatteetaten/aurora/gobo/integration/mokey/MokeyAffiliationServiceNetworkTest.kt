@@ -11,17 +11,17 @@ import okhttp3.mockwebserver.SocketPolicy
 import org.junit.jupiter.api.Test
 import org.springframework.web.reactive.function.client.WebClient
 
-class AffiliationServiceNetworkTest {
+class MokeyAffiliationServiceNetworkTest {
 
     private val server = MockWebServer()
-    private val affiliationService = AffiliationService(WebClient.create(server.url("/").toString()))
+    private val affiliationService = MokeyAffiliationService(WebClient.create(server.url("/").toString()))
 
     @Test
     fun `Get affiliations with retry`() {
         val failed = MockResponse().apply { socketPolicy = SocketPolicy.DISCONNECT_AFTER_REQUEST }
         val success = jsonResponse(listOf("aurora"))
         val requests = server.executeBlocking(failed, failed, success) {
-            val affiliations = affiliationService.getAllAffiliations()
+            val affiliations = affiliationService.getAllDeployedAffiliations()
             assertThat(affiliations.first()).isEqualTo("aurora")
         }
         assertThat(requests).hasSize(3)

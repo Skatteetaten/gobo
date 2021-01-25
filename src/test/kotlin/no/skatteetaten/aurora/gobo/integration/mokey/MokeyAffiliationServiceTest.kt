@@ -19,18 +19,18 @@ import org.springframework.test.context.ActiveProfiles
 @DirtiesContext
 @ActiveProfiles(PROFILE_WITH_DBH_AND_SKAP)
 @SpringBootTest(
-    classes = [WebClientAutoConfiguration::class, ApplicationConfig::class, SharedSecretReader::class, AffiliationService::class],
+    classes = [WebClientAutoConfiguration::class, ApplicationConfig::class, SharedSecretReader::class, MokeyAffiliationService::class],
     webEnvironment = SpringBootTest.WebEnvironment.NONE
 )
 @AutoConfigureStubRunner(ids = ["no.skatteetaten.aurora:mokey:+:stubs:6565"])
-class AffiliationServiceTest : StrubrunnerRepoPropertiesEnabler() {
+class MokeyAffiliationServiceTest : StrubrunnerRepoPropertiesEnabler() {
 
     @Autowired
-    lateinit var affiliationService: AffiliationService
+    lateinit var mokeyAffiliationService: MokeyAffiliationService
 
     @Test
     fun `Get affiliations`() {
-        val affiliations = runBlocking { affiliationService.getAllAffiliations() }
+        val affiliations = runBlocking { mokeyAffiliationService.getAllDeployedAffiliations() }
         assertThat(affiliations).isNotEmpty()
         assertThat(affiliations).contains("paas")
     }

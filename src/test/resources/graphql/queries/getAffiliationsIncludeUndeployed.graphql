@@ -1,0 +1,10 @@
+{
+  affiliations(includeUndeployed: true) {
+    totalCount
+    edges {
+      node {
+        name
+      }
+    }
+  }
+}
