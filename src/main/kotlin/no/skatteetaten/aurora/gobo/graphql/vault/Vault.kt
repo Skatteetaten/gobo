@@ -25,5 +25,5 @@ data class VaultCreationInput(
     val permissions: List<String>
 ) {
     @GraphQLIgnore
-    fun mapToBoobertype() = AuroraSecretVaultPayload(vaultName, permissions, files.map { it.name to it.base64Content }.toMap())
+    fun mapToPayload() = AuroraSecretVaultPayload(vaultName, permissions, files.map { it.name to it.base64Content }.toMap())
 }

@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service
 import no.skatteetaten.aurora.gobo.graphql.vault.VaultCreationInput
 
 data class AuroraSecretVaultPayload(
-    val name: String, // vault name
+    val name: String,
     val permissions: List<String>,
     val secrets: Map<String, String>?
 )
@@ -24,7 +24,7 @@ class VaultService(private val booberWebClient: BooberWebClient) {
         return booberWebClient.put<Vault>(
             url = url,
             token = token,
-            body = input.mapToBoobertype()
+            body = input.mapToPayload()
         ).response()
     }
 }
