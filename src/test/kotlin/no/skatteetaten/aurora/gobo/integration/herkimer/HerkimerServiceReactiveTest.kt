@@ -3,6 +3,7 @@ package no.skatteetaten.aurora.gobo.integration.herkimer
 import assertk.assertThat
 import assertk.assertions.contains
 import assertk.assertions.isEqualTo
+import assertk.assertions.isFalse
 import assertk.assertions.isNotNull
 import assertk.assertions.isTrue
 import com.fasterxml.jackson.databind.JsonNode
@@ -28,13 +29,11 @@ class HerkimerServiceTest {
     private val herkimerService = HerkimerServiceReactive(webClient, jacksonObjectMapper())
 
     @Test
-    fun `Register resource and claim`() {
-        // TODO: use stubs?
+    fun `Fails to register resource`() {
         val resourceHerkimerResponse =
-            AuroraResponse<ResourceHerkimer, ErrorResponse>(items = listOf(ResourceHerkimer("1")))
-        val claimHerkimerResponse =
-            AuroraResponse<JsonNode, ErrorResponse>(items = listOf(jacksonObjectMapper().createObjectNode()))
-        val requests = server.executeBlocking(resourceHerkimerResponse, claimHerkimerResponse) {
+            AuroraResponse<ResourceHerkimer, ErrorResponse>(errors = listOf(ErrorResponse("Nothing works")))
+
+        server.executeBlocking(500 to resourceHerkimerResponse ) {
             val result = herkimerService.registerResourceAndClaim(
                 RegisterResourceAndClaimCommand(
                     ownerId = "12345",
@@ -45,12 +44,7 @@ class HerkimerServiceTest {
                 )
             )
 
-            assertThat(result.success).isTrue()
-        }
-
-        requests.forEach {
-            assertThat(it).containsAuroraToken()
-            assertThat(it?.path).isNotNull().contains("resource")
+            assertThat(result.success).isFalse()
         }
     }
 }

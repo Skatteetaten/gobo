@@ -4,6 +4,7 @@ import assertk.assertThat
 import assertk.assertions.isTrue
 import kotlinx.coroutines.runBlocking
 import no.skatteetaten.aurora.gobo.ApplicationConfig
+import no.skatteetaten.aurora.gobo.RequiresHerkimer
 import no.skatteetaten.aurora.gobo.StrubrunnerRepoPropertiesEnabler
 import no.skatteetaten.aurora.gobo.StubrunnerRepoProperties
 import no.skatteetaten.aurora.gobo.TestConfig
@@ -18,7 +19,7 @@ import org.springframework.test.annotation.DirtiesContext
 @DirtiesContext
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.NONE,
-    classes = [TestConfig::class, ApplicationConfig::class, HerkimerServiceReactive::class, SharedSecretReader::class]
+    classes = [RequiresHerkimer::class, TestConfig::class, ApplicationConfig::class, HerkimerServiceReactive::class, SharedSecretReader::class]
 )
 @AutoConfigureStubRunner(ids = ["no.skatteetaten.aurora:herkimer:+:stubs:6570"])
 class HerkimerServiceContractTest : StrubrunnerRepoPropertiesEnabler() {

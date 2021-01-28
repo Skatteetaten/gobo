@@ -1,6 +1,6 @@
 mutation registerPostgresMotelServer($input: PostgresMotelInput!) {
-  registerPostgresMotelServer(input: $input) {
-    message
-    success
-  }
+    registerPostgresMotelServer(input: $input) {
+      message
+      success
+    }
 }

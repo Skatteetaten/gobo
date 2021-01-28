@@ -31,7 +31,7 @@ class HerkimerServiceReactive(
         val response: AuroraResponse<ResourceHerkimer, ErrorResponse>? =
             webClient.postOrNull(
                 body = registerAndClaimCommand.toResourcePayload(),
-                uri = "/resource/"
+                uri = "/resource"
             )
 
         if (response == null || !response.success) {
@@ -51,8 +51,7 @@ class HerkimerServiceReactive(
             registerAndClaimCommand.resourceKind,
             resourceId,
             registerAndClaimCommand.resourceName
-        )
-            .toHerkimerResult()
+        ).toHerkimerResult()
     }
 
     private fun RegisterResourceAndClaimCommand.toResourcePayload() =
