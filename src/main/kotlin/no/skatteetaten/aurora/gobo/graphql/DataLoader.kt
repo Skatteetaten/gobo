@@ -9,6 +9,8 @@ import java.util.concurrent.CompletableFuture
 /**
  * Batches up the loaded keys and calls the data loader once with all keys.
  * Will return a list of values for each key.
+ *
+ * This function returns a CompletableFuture, must not be called from a suspended function.
  */
 inline fun <Key, reified Value> DataFetchingEnvironment.loadBatchList(
     key: Key,
@@ -23,6 +25,8 @@ inline fun <Key, reified Value> DataFetchingEnvironment.loadBatchList(
 /**
  * Batches up the loaded keys and calls the data loader once with all keys.
  * Will return one value for each key.
+ *
+ * This function returns a CompletableFuture, must not be called from a suspended function.
  */
 inline fun <Key, reified Value> DataFetchingEnvironment.loadBatch(key: Key): CompletableFuture<Value> {
     val loaderName = "${Value::class.java.simpleName}BatchDataLoader"
