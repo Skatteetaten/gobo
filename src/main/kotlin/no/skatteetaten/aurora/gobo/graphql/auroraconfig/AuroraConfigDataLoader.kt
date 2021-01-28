@@ -11,10 +11,10 @@ data class AuroraConfigKey(
 )
 
 @Component
-class AuroraConfigDataLoader(private val service: AuroraConfigService) :
+class AuroraConfigDataLoader(private val auroraConfigService: AuroraConfigService) :
     KeyDataLoader<AuroraConfigKey, AuroraConfig> {
 
     override suspend fun getByKey(key: AuroraConfigKey, context: GoboGraphQLContext): AuroraConfig {
-        return service.getAuroraConfig(context.token(), key.name, key.refInput ?: "master")
+        return auroraConfigService.getAuroraConfig(context.token(), key.name, key.refInput ?: "master")
     }
 }
