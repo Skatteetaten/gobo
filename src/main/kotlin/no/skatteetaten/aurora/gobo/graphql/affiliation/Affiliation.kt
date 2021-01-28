@@ -3,8 +3,9 @@ package no.skatteetaten.aurora.gobo.graphql.affiliation
 import com.expediagroup.graphql.annotations.GraphQLDescription
 import graphql.schema.DataFetchingEnvironment
 import no.skatteetaten.aurora.gobo.graphql.GoboEdge
-import no.skatteetaten.aurora.gobo.graphql.GoboItems
+import no.skatteetaten.aurora.gobo.graphql.application.Application
 import no.skatteetaten.aurora.gobo.graphql.database.DatabaseSchema
+import no.skatteetaten.aurora.gobo.graphql.loadBatchList
 import no.skatteetaten.aurora.gobo.graphql.loadMany
 import no.skatteetaten.aurora.gobo.graphql.loadOrThrow
 import no.skatteetaten.aurora.gobo.graphql.vault.Vault
@@ -26,15 +27,17 @@ data class Affiliation(val name: String) {
             }
         }
     }
+
+    fun applications(dfe: DataFetchingEnvironment) = dfe.loadBatchList<String, Application>(name)
 }
 
 data class AffiliationEdge(
-    @Deprecated(message = "edges.node is deprecated", replaceWith = ReplaceWith("items"))
+    @Deprecated(message = "edges.node is deprecated", replaceWith = ReplaceWith("using array directly in a future update"))
     val node: Affiliation
 ) : GoboEdge(node.name)
 
 data class AffiliationsConnection(
-    @Deprecated(message = "edges.node is deprecated", replaceWith = ReplaceWith("items"))
+    @Deprecated(message = "edges.node is deprecated", replaceWith = ReplaceWith("using array directly in a future update"))
     val edges: List<AffiliationEdge>,
-    val items: List<Affiliation> = edges.map { it.node }
-) : GoboItems(items)
+    val totalCount: Int = edges.size
+)

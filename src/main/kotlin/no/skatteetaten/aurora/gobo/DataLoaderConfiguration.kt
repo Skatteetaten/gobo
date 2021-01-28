@@ -19,6 +19,10 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import java.util.concurrent.Executors
 
+interface KeysBatchDataLoader<K, V> {
+    suspend fun getByKeys(keys: Set<K>, context: GoboGraphQLContext): Map<K, V>
+}
+
 interface KeyDataLoader<K, V> {
     suspend fun getByKey(key: K, context: GoboGraphQLContext): V
 }
@@ -33,11 +37,18 @@ private val logger = KotlinLogging.logger { }
 class DataLoaderConfiguration(
     @Value("\${gobo.dataloader.thread-pool-size:4}") val threadPoolSize: Int,
     val keyLoaders: List<KeyDataLoader<*, *>>,
-    val multipleKeysDataLoaders: List<MultipleKeysDataLoader<*, *>>
+    val multipleKeysDataLoaders: List<MultipleKeysDataLoader<*, *>>,
+    val keysBatchLoaders: List<KeysBatchDataLoader<*, *>>
 ) {
     @Bean
     fun dataLoaderRegistryFactory(): DataLoaderRegistryFactory {
         val coroutineDispatcher = Executors.newFixedThreadPool(threadPoolSize).asCoroutineDispatcher()
+
+        val ksl = keysBatchLoaders.map {
+            logger.debug("Registering KeysBatchDataLoader: ${it::class.simpleName}")
+            it::class.simpleName!! to batchDataLoader(coroutineDispatcher, it)
+        }.toMap()
+
         val kl = keyLoaders.map {
             logger.debug("Registering KeyDataLoader: ${it::class.simpleName}")
             it::class.simpleName!! to batchDataLoaderMappedSingle(coroutineDispatcher, it)
@@ -48,12 +59,29 @@ class DataLoaderConfiguration(
             it::class.simpleName!! to batchDataLoaderMappedMultiple(coroutineDispatcher, it)
         }.toMap()
 
+        val dataLoaders = ksl + kl + mkl
         return object : DataLoaderRegistryFactory {
             override fun generate() = DataLoaderRegistry().apply {
-                kl.forEach { register(it.key, it.value) }
-                mkl.forEach { register(it.key, it.value) }
+                dataLoaders.forEach { register(it.key, it.value) }
             }
         }
+    }
+
+    /**
+     * Use this if you have a service that can load multiple ids in one request.
+     */
+    private fun <K, V> batchDataLoader(
+        coroutineDispatcher: ExecutorCoroutineDispatcher,
+        dataLoader: KeysBatchDataLoader<K, V>
+    ): DataLoader<K, V> {
+        return DataLoader.newMappedDataLoader(
+            { keys: Set<K>, env: BatchLoaderEnvironment ->
+                GlobalScope.async(coroutineDispatcher) {
+                    dataLoader.getByKeys(keys, env.keyContexts.entries.first().value as GoboGraphQLContext)
+                }.asCompletableFuture()
+            },
+            DataLoaderOptions.newOptions().setCachingEnabled(false)
+        )
     }
 
     /**

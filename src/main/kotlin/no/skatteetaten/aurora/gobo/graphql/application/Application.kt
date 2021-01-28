@@ -2,7 +2,6 @@ package no.skatteetaten.aurora.gobo.graphql.application
 
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationResource
 import no.skatteetaten.aurora.gobo.graphql.GoboEdge
-import no.skatteetaten.aurora.gobo.graphql.GoboItems
 import no.skatteetaten.aurora.gobo.graphql.GoboPageInfo
 import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.ApplicationDeployment
 import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.ApplicationDeploymentBuilder
@@ -47,11 +46,14 @@ data class ApplicationEdge(
 }
 
 data class ApplicationsConnection(
-    @Deprecated(message = "edges.node is deprecated", replaceWith = ReplaceWith("items"))
+    @Deprecated(
+        message = "edges.node is deprecated",
+        replaceWith = ReplaceWith("using array directly in a future update")
+    )
     val edges: List<ApplicationEdge>,
-    val items: List<Application> = edges.map { it.node },
-    val pageInfo: GoboPageInfo = createPageInfo(edges)
-) : GoboItems(items)
+    val pageInfo: GoboPageInfo = createPageInfo(edges),
+    val totalCount: Int = edges.size
+)
 
 private val deploymentBuilder = ApplicationDeploymentBuilder()
 

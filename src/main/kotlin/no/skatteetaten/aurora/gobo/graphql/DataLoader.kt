@@ -4,6 +4,32 @@ import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
 import kotlinx.coroutines.future.await
 import no.skatteetaten.aurora.gobo.graphql.errorhandling.GraphQLExceptionWrapper
+import java.util.concurrent.CompletableFuture
+
+/**
+ * Batches up the loaded keys and calls the data loader once with all keys.
+ * Will return a list of values for each key.
+ */
+inline fun <Key, reified Value> DataFetchingEnvironment.loadBatchList(
+    key: Key,
+    loaderPrefix: String = Value::class.java.simpleName
+): CompletableFuture<List<Value>> {
+    val loaderName = "${loaderPrefix}BatchDataLoader"
+    val loader = this.getDataLoader<Key, List<Value>>(loaderName)
+        ?: throw IllegalArgumentException("No data loader called $loaderName was found")
+    return loader.load(key, this.getContext())
+}
+
+/**
+ * Batches up the loaded keys and calls the data loader once with all keys.
+ * Will return one value for each key.
+ */
+inline fun <Key, reified Value> DataFetchingEnvironment.loadBatch(key: Key): CompletableFuture<Value> {
+    val loaderName = "${Value::class.java.simpleName}BatchDataLoader"
+    val loader = this.getDataLoader<Key, Value>(loaderName)
+        ?: throw IllegalArgumentException("No data loader called $loaderName was found")
+    return loader.load(key, this.getContext())
+}
 
 /**
  * Load a single key of type Key into a value of type Value using a dataloader named <Value>DataLoader
