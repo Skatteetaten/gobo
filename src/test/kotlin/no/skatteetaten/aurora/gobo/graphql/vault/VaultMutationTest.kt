@@ -9,12 +9,13 @@ import com.ninjasquad.springmockk.MockkBean
 import io.mockk.coEvery
 import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithDbhAndSkap
 import no.skatteetaten.aurora.gobo.graphql.affiliation.AffiliationQuery
-import no.skatteetaten.aurora.gobo.graphql.printResult
+import no.skatteetaten.aurora.gobo.graphql.graphqlData
+import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
 import no.skatteetaten.aurora.gobo.integration.boober.VaultService
 import no.skatteetaten.aurora.gobo.integration.mokey.AffiliationService
 
-@Import(AffiliationQuery::class, VaultMutation::class)
+@Import(AffiliationQuery::class, VaultMutation::class) //Note: Framework need to import a query to run a mutation, the reason for this import...
 class VaultMutationTest : GraphQLTestWithDbhAndSkap() {
 
     @Value("classpath:graphql/mutations/createVault.graphql")
@@ -24,7 +25,7 @@ class VaultMutationTest : GraphQLTestWithDbhAndSkap() {
     private lateinit var vaultService: VaultService
 
     @MockkBean(relaxed = true)
-    private lateinit var affiliationService: AffiliationService
+    private lateinit var affiliationService: AffiliationService //Note: neccessary be cause of the irrelevant import of AffiliationQuery::class....
 
     @BeforeEach
     fun setUp() {
@@ -33,7 +34,7 @@ class VaultMutationTest : GraphQLTestWithDbhAndSkap() {
 
     @Test
     fun `Create vault`() {
-        val fileMap = mapOf("name" to "latest.json", "content" to "Z3VycmU=")
+        val fileMap = mapOf("name" to "latest.json", "base64Content" to "Z3VycmU=")
         val permissionList = listOf("APP_PaaS_utv")
         val variables = mapOf(
             "input" to mapOf(
@@ -44,8 +45,7 @@ class VaultMutationTest : GraphQLTestWithDbhAndSkap() {
             )
         )
         webTestClient.queryGraphQL(createVaultMutation, variables, "test-token").expectBody()
-            .printResult()
-        // .graphqlData("redeployWithVersion.applicationDeploymentId").isEqualTo("123")
-        // .graphqlDoesNotContainErrors()
+            .graphqlData("createVault.name").isEqualTo("test-vault")
+            .graphqlDoesNotContainErrors()
     }
 }
