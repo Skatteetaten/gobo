@@ -8,11 +8,13 @@ import org.springframework.core.io.Resource
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.coEvery
 import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithDbhAndSkap
+import no.skatteetaten.aurora.gobo.graphql.affiliation.AffiliationQuery
 import no.skatteetaten.aurora.gobo.graphql.printResult
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
 import no.skatteetaten.aurora.gobo.integration.boober.VaultService
+import no.skatteetaten.aurora.gobo.integration.mokey.AffiliationService
 
-@Import(VaultMutation::class)
+@Import(AffiliationQuery::class, VaultMutation::class)
 class VaultMutationTest : GraphQLTestWithDbhAndSkap() {
 
     @Value("classpath:graphql/mutations/createVault.graphql")
@@ -20,6 +22,9 @@ class VaultMutationTest : GraphQLTestWithDbhAndSkap() {
 
     @MockkBean(relaxed = true)
     private lateinit var vaultService: VaultService
+
+    @MockkBean(relaxed = true)
+    private lateinit var affiliationService: AffiliationService
 
     @BeforeEach
     fun setUp() {
