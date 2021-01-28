@@ -1,0 +1,6 @@
+mutation registerPostgresMotelServer($input: PostgresMotelInput!) {
+  registerPostgresMotelServer(input: $input) {
+    message
+    success
+  }
+}

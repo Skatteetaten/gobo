@@ -29,7 +29,7 @@ import java.util.concurrent.TimeUnit
 import kotlin.math.min
 
 enum class ServiceTypes {
-    MOKEY, BOOBER, UNCLEMATT, CANTUS, DBH, SKAP
+    MOKEY, BOOBER, UNCLEMATT, CANTUS, DBH, SKAP, HERKIMER
 }
 
 @Target(AnnotationTarget.TYPE, AnnotationTarget.FUNCTION, AnnotationTarget.FIELD, AnnotationTarget.VALUE_PARAMETER)
@@ -46,6 +46,11 @@ class RequiresDbh
 @Component
 @ConditionalOnProperty("integrations.skap.url")
 class RequiresSkap
+
+@Order(Ordered.HIGHEST_PRECEDENCE)
+@Component
+@ConditionalOnProperty("integrations.herkimer.url")
+class RequiresHerkimer
 
 private val logger = KotlinLogging.logger {}
 
@@ -83,6 +88,19 @@ class ApplicationConfig(
     ): WebClient {
         logger.info("Configuring Cantus WebClient with base Url={}", cantusUrl)
         return builder.init().baseUrl(cantusUrl).build()
+    }
+
+    @Bean
+    @TargetService(ServiceTypes.HERKIMER)
+    fun webClientHerkimer(
+        @Value("\${integrations.herkimer.url}") herkimerUrl: String,
+        builder: WebClient.Builder
+    ): WebClient {
+        logger.info("Configuring Herkimer WebClient with base Url={}", herkimerUrl)
+        return builder.init()
+            .baseUrl(herkimerUrl)
+            .defaultHeader(HttpHeaders.AUTHORIZATION, "$HEADER_AURORA_TOKEN ${sharedSecretReader.secret}")
+            .build()
     }
 
     @Bean

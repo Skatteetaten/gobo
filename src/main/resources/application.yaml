@@ -50,6 +50,8 @@ integrations:
         url: http://unclematt-aurora-daemons.utv.paas.skead.no
     cantus:
         url: http://cantus
+    herkimer:
+        url: http://localhost:9090
     docker:
         cluster:
             url: docker-registry.default.svc:5000

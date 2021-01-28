@@ -25,7 +25,8 @@ class OpenShiftAuthenticationManager(private val kubernetesClient: KubernetesRea
                 PreAuthenticatedAuthenticationToken(
                     it,
                     authentication.credentials.toString(),
-                    listOf(it.identities, it.groups)
+                    // FIXME: when having openshift sa identities is null. Should this be a permanent fix?
+                    listOfNotNull(it.identities, it.groups)
                         .flatten()
                         .map { authority -> SimpleGrantedAuthority(authority) }
                 ) as Authentication
