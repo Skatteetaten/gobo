@@ -21,7 +21,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
 
-@Import(DatabaseSchemaQuery::class, DatabaseSchemaMutation::class)
+@Import(DatabaseSchemaMutation::class)
 class DatabaseSchemaMutationTest : GraphQLTestWithDbhAndSkap() {
     @Value("classpath:graphql/mutations/updateDatabaseSchema.graphql")
     private lateinit var updateDatabaseSchemaMutation: Resource
