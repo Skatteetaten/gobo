@@ -14,7 +14,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
 
-@Import(UserSettingsQuery::class, UserSettingsMutation::class)
+@Import(UserSettingsMutation::class)
 class UserSettingsMutationTest : GraphQLTestWithDbhAndSkap() {
 
     @Value("classpath:graphql/mutations/updateUserSettings.graphql")
