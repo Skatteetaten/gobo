@@ -1,6 +1,5 @@
 package no.skatteetaten.aurora.gobo.graphql.application
 
-import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.KeysBatchDataLoader
 import no.skatteetaten.aurora.gobo.graphql.GoboGraphQLContext
 import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.ApplicationDeployment
