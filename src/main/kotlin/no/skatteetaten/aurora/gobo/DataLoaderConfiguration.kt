@@ -44,7 +44,7 @@ class DataLoaderConfiguration(
     fun dataLoaderRegistryFactory(): DataLoaderRegistryFactory {
         val coroutineDispatcher = Executors.newFixedThreadPool(threadPoolSize).asCoroutineDispatcher()
 
-        val ksl = keysBatchLoaders.map {
+        val kbl = keysBatchLoaders.map {
             logger.debug("Registering KeysBatchDataLoader: ${it::class.simpleName}")
             it::class.simpleName!! to batchDataLoader(coroutineDispatcher, it)
         }.toMap()
@@ -59,7 +59,7 @@ class DataLoaderConfiguration(
             it::class.simpleName!! to batchDataLoaderMappedMultiple(coroutineDispatcher, it)
         }.toMap()
 
-        val dataLoaders = ksl + kl + mkl
+        val dataLoaders = kbl + kl + mkl
         return object : DataLoaderRegistryFactory {
             override fun generate() = DataLoaderRegistry().apply {
                 dataLoaders.forEach { register(it.key, it.value) }

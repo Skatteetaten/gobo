@@ -30,7 +30,6 @@ data class Application(
 }
 
 data class ApplicationEdge(
-    @Deprecated(message = "edges.node is deprecated", replaceWith = ReplaceWith("items"))
     val node: Application
 ) : GoboEdge(node.name) {
     companion object {
@@ -46,10 +45,6 @@ data class ApplicationEdge(
 }
 
 data class ApplicationsConnection(
-    @Deprecated(
-        message = "edges.node is deprecated",
-        replaceWith = ReplaceWith("using array directly in a future update")
-    )
     val edges: List<ApplicationEdge>,
     val pageInfo: GoboPageInfo = createPageInfo(edges),
     val totalCount: Int = edges.size

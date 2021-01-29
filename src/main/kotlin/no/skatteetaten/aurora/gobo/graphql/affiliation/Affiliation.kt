@@ -32,12 +32,10 @@ data class Affiliation(val name: String) {
 }
 
 data class AffiliationEdge(
-    @Deprecated(message = "edges.node is deprecated", replaceWith = ReplaceWith("using array directly in a future update"))
     val node: Affiliation
 ) : GoboEdge(node.name)
 
 data class AffiliationsConnection(
-    @Deprecated(message = "edges.node is deprecated", replaceWith = ReplaceWith("using array directly in a future update"))
     val edges: List<AffiliationEdge>,
     val totalCount: Int = edges.size
 )
