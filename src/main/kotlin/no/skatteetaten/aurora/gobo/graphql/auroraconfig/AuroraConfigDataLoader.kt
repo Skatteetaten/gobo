@@ -7,7 +7,7 @@ import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigService
 
 data class AuroraConfigKey(
     val name: String,
-    val refInput: String?,
+    val refInput: String = "master",
 )
 
 @Component
@@ -15,6 +15,6 @@ class AuroraConfigDataLoader(private val auroraConfigService: AuroraConfigServic
     KeyDataLoader<AuroraConfigKey, AuroraConfig> {
 
     override suspend fun getByKey(key: AuroraConfigKey, context: GoboGraphQLContext): AuroraConfig {
-        return auroraConfigService.getAuroraConfig(context.token(), key.name, key.refInput ?: "master")
+        return auroraConfigService.getAuroraConfig(context.token(), key.name, key.refInput)
     }
 }

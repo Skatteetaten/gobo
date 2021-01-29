@@ -20,7 +20,7 @@ data class Affiliation(val name: String) {
 
     suspend fun auroraConfig(refInput: String?, dfe: DataFetchingEnvironment): DataFetcherResult<AuroraConfig?> {
         dfe.checkValidUserToken()
-        return dfe.load(AuroraConfigKey(name = name, refInput = refInput))
+        return dfe.load(AuroraConfigKey(name = name, refInput = refInput ?: "master"))
     }
 
     @GraphQLDescription("Get all database schemas for the given affiliation")
