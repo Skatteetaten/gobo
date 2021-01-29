@@ -7,8 +7,6 @@ import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.ApplicationDepl
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import org.springframework.stereotype.Component
 
-private val logger = KotlinLogging.logger {}
-
 @Component
 class ApplicationBatchDataLoader(val applicationService: ApplicationService) :
     KeysBatchDataLoader<String, List<Application>> {
@@ -25,9 +23,6 @@ class ApplicationBatchDataLoader(val applicationService: ApplicationService) :
                     name = app.name,
                     applicationDeployments = app.applicationDeployments.map { ApplicationDeployment.create(it) }
                 )
-            }
-            if (apps.isEmpty()) {
-                logger.warn("Empty application list for $affiliation")
             }
 
             affiliation to apps
