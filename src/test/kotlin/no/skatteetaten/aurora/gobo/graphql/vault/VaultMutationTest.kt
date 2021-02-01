@@ -29,13 +29,13 @@ class VaultMutationTest : GraphQLTestWithDbhAndSkap() {
 
     @Test
     fun `Create vault`() {
-        val fileMap = mapOf("name" to "latest.json", "base64Content" to "Z3VycmU=")
+        val secrets = mapOf("key" to "latest.json", "value" to "Z3VycmU=")
         val permissionList = listOf("APP_PaaS_utv")
         val variables = mapOf(
             "input" to mapOf(
                 "affiliationName" to "aurora",
                 "vaultName" to "gurre-test2",
-                "files" to fileMap,
+                "secrets" to secrets,
                 "permissions" to permissionList
             )
         )
