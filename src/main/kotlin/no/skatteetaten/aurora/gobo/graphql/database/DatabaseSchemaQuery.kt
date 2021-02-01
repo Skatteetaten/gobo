@@ -27,18 +27,7 @@ class DatabaseSchemaQuery(val databaseService: DatabaseService) : Query {
         return DatabaseSchema.create(databaseSchema, Affiliation(databaseSchema.affiliation))
     }
 
-    // TODO Remove after AOS-5305 is released
-    suspend fun databaseSchemas(affiliations: List<String>, dfe: DataFetchingEnvironment): List<DatabaseSchema> {
-        dfe.checkValidUserToken()
-        return affiliations
-            .flatMap { affiliation ->
-                databaseService.getDatabaseSchemas(affiliation)
-                    .map { DatabaseSchema.create(it, Affiliation(affiliation)) }
-            }
-    }
-
-    // TODO Rename to databaseSchemas after AOS-5305 is released
-    suspend fun databaseSchemasPagination(
+    suspend fun databaseSchemas(
         affiliations: List<String>,
         first: Int,
         after: String?,

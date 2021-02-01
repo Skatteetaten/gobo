@@ -1,0 +1,17 @@
+  query getVaults($affiliationNames:[String!]!, $vaultNames:[String!] ){
+  affiliations(names: $affiliationNames)  {
+    edges{
+      node{
+        vaults(names: $vaultNames) {
+          name
+          hasAccess
+          permissions
+          secrets{
+            key
+            value
+          }
+        }
+      }
+    }
+  }
+}

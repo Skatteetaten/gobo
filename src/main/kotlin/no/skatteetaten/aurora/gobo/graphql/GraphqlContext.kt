@@ -26,7 +26,9 @@ class GoboGraphQLContext(
     val securityContext: Mono<SecurityContext>,
     var query: String? = null
 ) : GraphQLContext {
-    suspend fun securityContext() = securityContext.awaitFirst()
+    suspend fun securityContext(): SecurityContext = runCatching { securityContext.awaitFirst() }
+        .recoverCatching { throw AccessDeniedException("Invalid bearer token", it) }
+        .getOrThrow()
 
     fun token() = token ?: throw AccessDeniedException("Token is not set")
     fun korrelasjonsid() =

@@ -29,7 +29,9 @@ data class Application(
             .firstOrNull { it.registryUrl != null && !DockerRegistryUtil.isInternal(it.registryUrl) }
 }
 
-data class ApplicationEdge(val node: Application) : GoboEdge(node.name) {
+data class ApplicationEdge(
+    val node: Application
+) : GoboEdge(node.name) {
     companion object {
         fun create(resource: ApplicationResource, applicationDeployments: List<ApplicationDeployment>) =
             ApplicationEdge(
@@ -44,8 +46,8 @@ data class ApplicationEdge(val node: Application) : GoboEdge(node.name) {
 
 data class ApplicationsConnection(
     val edges: List<ApplicationEdge>,
-    val totalCount: Int = edges.size,
-    val pageInfo: GoboPageInfo = createPageInfo(edges)
+    val pageInfo: GoboPageInfo = createPageInfo(edges),
+    val totalCount: Int = edges.size
 )
 
 private val deploymentBuilder = ApplicationDeploymentBuilder()

@@ -1,0 +1,15 @@
+query getAffiliation($name: String!) {
+  affiliations(name: $name) {
+    edges {
+      node {
+        name
+        auroraConfig {
+          name
+          files {
+            name
+          }
+        }
+      }
+    }
+  }
+}
