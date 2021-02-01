@@ -40,7 +40,7 @@ class AuroraConfigFilesNamesQueryTest : GraphQLTestWithDbhAndSkap() {
         webTestClient.queryGraphQL(getAffiliationAuroraConfigFilesWithNamesQuery, mapOf("name" to "aurora"), token = "test-token")
             .expectStatus().isOk
             .expectBody()
-            .graphqlDataWithPrefix("affiliations.items[0]") {
+            .graphqlDataWithPrefix("affiliations.edges[0].node") {
                 graphqlData("name").isEqualTo("aurora")
                 graphqlData("auroraConfig.name").isEqualTo("aurora")
                 graphqlData("auroraConfig.files[0].name").isEqualTo("about.foo")
