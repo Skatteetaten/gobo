@@ -10,11 +10,15 @@ import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.SocketPolicy
 import org.junit.jupiter.api.Test
 import org.springframework.web.reactive.function.client.WebClient
+import no.skatteetaten.aurora.gobo.service.AffiliationService
 
 class MokeyAffiliationServiceNetworkTest {
 
     private val server = MockWebServer()
-    private val affiliationService = MokeyAffiliationService(WebClient.create(server.url("/").toString()))
+    private val affiliationService = AffiliationService(
+        WebClient.create(server.url("/").toString()),
+        WebClient.create(server.url("/").toString())
+    )
 
     @Test
     fun `Get affiliations with retry`() {

@@ -1,4 +1,4 @@
-package no.skatteetaten.aurora.gobo.integration.mokey
+package no.skatteetaten.aurora.gobo.service
 
 import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
@@ -8,12 +8,13 @@ import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
 
 @Service
-class MokeyAffiliationService(
-    @TargetService(ServiceTypes.MOKEY) val WebClient: WebClient
+class AffiliationService(
+    @TargetService(ServiceTypes.MOKEY) val mokeyWebClient: WebClient,
+    @TargetService(ServiceTypes.BOOBER) val booberWebClient: WebClient
 ) {
 
     suspend fun getAllVisibleAffiliations(token: String): List<String> =
-        WebClient
+        mokeyWebClient
             .get()
             .uri("/api/auth/affiliation")
             .header(HttpHeaders.AUTHORIZATION, "Bearer $token")
@@ -21,9 +22,16 @@ class MokeyAffiliationService(
             .awaitWithRetry()
 
     suspend fun getAllDeployedAffiliations(): List<String> =
-        WebClient
+        mokeyWebClient
             .get()
             .uri("/api/affiliation")
+            .retrieve()
+            .awaitWithRetry()
+
+    suspend fun getAllAffiliationNames(): List<String> =
+        booberWebClient
+            .get()
+            .uri("/v1/auroraconfignames")
             .retrieve()
             .awaitWithRetry()
 }

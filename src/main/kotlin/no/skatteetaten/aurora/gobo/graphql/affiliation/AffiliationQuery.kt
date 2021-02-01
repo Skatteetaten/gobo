@@ -3,12 +3,11 @@ package no.skatteetaten.aurora.gobo.graphql.affiliation
 import com.expediagroup.graphql.spring.operations.Query
 import graphql.schema.DataFetchingEnvironment
 import no.skatteetaten.aurora.gobo.graphql.token
-import no.skatteetaten.aurora.gobo.integration.boober.BooberAffiliationService
-import no.skatteetaten.aurora.gobo.integration.mokey.MokeyAffiliationService
+import no.skatteetaten.aurora.gobo.service.AffiliationService
 import org.springframework.stereotype.Component
 
 @Component
-class AffiliationQuery(val mokeyAffiliationService: MokeyAffiliationService, val booberAffiliationService: BooberAffiliationService) : Query {
+class AffiliationQuery(val affiliationService: AffiliationService) : Query {
 
     suspend fun affiliations(
         name: String?,
@@ -25,10 +24,10 @@ class AffiliationQuery(val mokeyAffiliationService: MokeyAffiliationService, val
     }
 
     private suspend fun getAffiliations(checkForVisibility: Boolean, includeUndeployd: Boolean, dfe: DataFetchingEnvironment) = if (checkForVisibility) {
-        mokeyAffiliationService.getAllVisibleAffiliations(dfe.token())
+        affiliationService.getAllVisibleAffiliations(dfe.token())
     } else if (includeUndeployd) {
-        booberAffiliationService.getAllAffiliationNames()
+        affiliationService.getAllAffiliationNames()
     } else {
-        mokeyAffiliationService.getAllDeployedAffiliations()
+        affiliationService.getAllDeployedAffiliations()
     }
 }
