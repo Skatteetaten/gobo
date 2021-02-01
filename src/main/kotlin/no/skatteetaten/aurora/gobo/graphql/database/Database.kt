@@ -5,7 +5,7 @@ import no.skatteetaten.aurora.gobo.graphql.GoboEdge
 import no.skatteetaten.aurora.gobo.graphql.GoboPageInfo
 import no.skatteetaten.aurora.gobo.graphql.affiliation.Affiliation
 import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.ApplicationDeployment
-import no.skatteetaten.aurora.gobo.graphql.loadMany
+import no.skatteetaten.aurora.gobo.graphql.loadBatchList
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseInstanceResource
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseSchemaResource
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseUserResource
@@ -94,9 +94,7 @@ data class DatabaseSchema(
             )
     }
 
-    suspend fun applicationDeployments(dfe: DataFetchingEnvironment): List<ApplicationDeployment> {
-        return dfe.loadMany(id)
-    }
+    fun applicationDeployments(dfe: DataFetchingEnvironment) = dfe.loadBatchList<String, ApplicationDeployment>(id)
 }
 
 data class JdbcUser(
