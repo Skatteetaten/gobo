@@ -11,7 +11,7 @@ class GoboQuery : Query {
 
     private val startTime = Instant.now()
 
-    fun gobo(dfe: DataFetchingEnvironment): Gobo {
+    suspend fun gobo(dfe: DataFetchingEnvironment): Gobo {
         dfe.checkValidUserToken()
         return Gobo(startTime)
     }

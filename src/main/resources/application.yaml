@@ -36,11 +36,6 @@ management:
             exposure:
                 include: info,health,prometheus,env,loggers
 
-# https://github.com/graphql-java-kickstart/graphql-spring-boot/issues/248
-altair:
-    static:
-        basePath:
-
 integrations:
     mokey:
         url: http://mokey
@@ -97,7 +92,9 @@ logging:
 
 ---
 spring:
-    profiles: openshift
+    config:
+        activate:
+            on-profile: openshift
 
 aurora:
     token:

@@ -2,6 +2,7 @@ package no.skatteetaten.aurora.gobo.graphql
 
 import kotlinx.coroutines.reactive.awaitSingle
 import mu.KotlinLogging
+import org.apache.commons.lang3.exception.ExceptionUtils
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.bodyToMono
 import reactor.netty.http.client.PrematureCloseException
@@ -16,7 +17,7 @@ suspend inline fun <reified T : Any> WebClient.ResponseSpec.awaitWithRetry(
     .retryWhen(
         Retry.backoff(maxAttempts, Duration.ofMillis(min))
             .maxBackoff(Duration.ofMillis(max))
-            .filter { it is PrematureCloseException }
+            .filter { ExceptionUtils.throwableOfType(it, PrematureCloseException::class.java)?.let { true } ?: false }
             .doBeforeRetry {
                 KotlinLogging.logger {}.debug {
                     val e = it.failure()

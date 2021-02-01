@@ -1,6 +1,7 @@
 package no.skatteetaten.aurora.gobo.graphql
 
 import com.expediagroup.graphql.spring.GraphQLAutoConfiguration
+import com.expediagroup.graphql.spring.operations.Query
 import com.ninjasquad.springmockk.MockkBean
 import no.skatteetaten.aurora.gobo.DataLoaderConfiguration
 import no.skatteetaten.aurora.gobo.GraphQLConfig
@@ -18,11 +19,17 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest
 import org.springframework.context.annotation.Import
 import org.springframework.security.test.context.support.WithMockUser
+import org.springframework.stereotype.Component
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
 import java.time.Duration
 
 const val PROFILE_WITH_DBH_AND_SKAP = "with-dbh-and-skap"
+
+@Component
+class TestDummyQuery : Query {
+    fun test() = "Dummy query for unit tests"
+}
 
 @WithMockUser
 @WebFluxTest
@@ -35,7 +42,8 @@ const val PROFILE_WITH_DBH_AND_SKAP = "with-dbh-and-skap"
     GoboDataFetcherExceptionHandler::class,
     WebSecurityConfig::class,
     GraphQLAutoConfiguration::class,
-    GoboInstrumentation::class
+    GoboInstrumentation::class,
+    TestDummyQuery::class
 )
 abstract class GraphQLTestWithoutDbhAndSkap {
     @Autowired

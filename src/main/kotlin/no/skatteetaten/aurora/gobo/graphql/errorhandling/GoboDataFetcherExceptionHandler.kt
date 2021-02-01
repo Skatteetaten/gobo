@@ -58,7 +58,7 @@ private fun DataFetcherExceptionHandlerParameters.handleGeneralDataFetcherExcept
 
     val logText =
         """Exception while fetching data, exception="$exception" Korrelasjonsid="${context.korrelasjonsid()}" Klientid="${context.klientid()}" message="$exceptionName" path="$path" ${context.query} $source ${exception.logTextRequest()}"""
-    if (exception.isWebClientResponseWarnLoggable(booberUrl) || exception.isAccessDenied()) {
+    if (exception.isWebClientResponseWarnLoggable(booberUrl) || exception.isAccessDenied() || exception.isInvalidToken()) {
         logger.warn(logText)
     } else {
         logger.error(logText)
@@ -91,6 +91,8 @@ private fun WebClientResponseException.isBooberBadRequest(booberUrl: String) = s
 
 private fun Throwable.isAccessDenied() = this is AccessDeniedException
 private fun Throwable.isLoggableException() = this is ClassCastException
+private fun Throwable.isInvalidToken() =
+    ExceptionUtils.getRootCauseMessage(this)?.contains(other = "invalid bearer token", ignoreCase = true) ?: false
 
 private fun DataFetcherExceptionHandlerParameters.toExceptionWhileDataFetching(t: Throwable) =
     ExceptionWhileDataFetching(path, t, sourceLocation)

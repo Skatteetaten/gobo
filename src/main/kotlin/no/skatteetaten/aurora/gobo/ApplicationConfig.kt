@@ -137,14 +137,15 @@ class ApplicationConfig(
             .clientConnector(clientConnector())
 
     private fun clientConnector(ssl: Boolean = false): ReactorClientHttpConnector {
-        val httpClient = HttpClient.create().compress(true)
-            .tcpConfiguration {
-                it.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectionTimeout)
-                    .doOnConnected { connection ->
-                        connection.addHandlerLast(ReadTimeoutHandler(readTimeout, TimeUnit.MILLISECONDS))
-                        connection.addHandlerLast(WriteTimeoutHandler(writeTimeout, TimeUnit.MILLISECONDS))
-                    }
-            }
+        val httpClient =
+            HttpClient.create().compress(true)
+                .tcpConfiguration {
+                    it.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectionTimeout)
+                        .doOnConnected { connection ->
+                            connection.addHandlerLast(ReadTimeoutHandler(readTimeout, TimeUnit.MILLISECONDS))
+                            connection.addHandlerLast(WriteTimeoutHandler(writeTimeout, TimeUnit.MILLISECONDS))
+                        }
+                }
 
         if (ssl) {
             val sslProvider = SslProvider.builder().sslContext(

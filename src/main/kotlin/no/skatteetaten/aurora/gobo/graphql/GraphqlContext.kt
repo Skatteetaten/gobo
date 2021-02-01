@@ -5,7 +5,7 @@ import com.expediagroup.graphql.execution.GraphQLContext
 import com.expediagroup.graphql.spring.execution.GraphQLContextFactory
 import graphql.schema.DataFetchingEnvironment
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.reactive.awaitFirstOrNull
+import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactor.ReactorContext
 import mu.KotlinLogging
 import no.skatteetaten.aurora.webflux.AuroraRequestParser
@@ -23,11 +23,17 @@ class GoboGraphQLContext(
     private val token: String?,
     val request: ServerHttpRequest,
     val response: ServerHttpResponse,
-    val securityContext: SecurityContext?,
+    val securityContext: Mono<SecurityContext>,
     var query: String? = null
 ) : GraphQLContext {
+    suspend fun securityContext(): SecurityContext = runCatching { securityContext.awaitFirst() }
+        .recoverCatching { throw AccessDeniedException("Unable to get the security context", it) }
+        .getOrThrow()
+
     fun token() = token ?: throw AccessDeniedException("Token is not set")
-    fun korrelasjonsid() = request.korrelasjonsid() ?: BaggageField.getByName(AuroraRequestParser.KORRELASJONSID_FIELD)?.value ?: ""
+    fun korrelasjonsid() =
+        request.korrelasjonsid() ?: BaggageField.getByName(AuroraRequestParser.KORRELASJONSID_FIELD)?.value ?: ""
+
     fun klientid() = request.klientid()
 }
 
@@ -51,7 +57,7 @@ class GoboGraphQLContextFactory : GraphQLContextFactory<GoboGraphQLContext> {
             token = request.headers.getFirst(HttpHeaders.AUTHORIZATION)?.removePrefix("Bearer "),
             request = request,
             response = response,
-            securityContext = securityContext.awaitFirstOrNull()
+            securityContext = securityContext
         )
     }
 

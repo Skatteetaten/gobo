@@ -14,7 +14,7 @@ data class AuroraConfig(
     val files: List<AuroraConfigFileResource>
 ) {
 
-    fun files(
+    suspend fun files(
         types: List<AuroraConfigFileType>?,
         fileNames: List<String>?,
         dfe: DataFetchingEnvironment

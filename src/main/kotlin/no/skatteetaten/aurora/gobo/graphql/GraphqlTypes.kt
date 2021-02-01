@@ -9,7 +9,7 @@ class GoboCursor(input: String) {
 }
 
 abstract class GoboEdge(name: String) {
-    val cursor = GoboCursor(name)
+    val cursor = GoboCursor(name).value
 }
 
 data class GoboPageInfo(
@@ -18,3 +18,7 @@ data class GoboPageInfo(
     val hasPreviousPage: Boolean,
     val hasNextPage: Boolean
 )
+
+abstract class GoboItems(private val items: List<Any>) {
+    fun totalCount() = items.size
+}
