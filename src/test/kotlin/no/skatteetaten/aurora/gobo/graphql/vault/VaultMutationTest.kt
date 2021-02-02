@@ -11,7 +11,6 @@ import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithDbhAndSkap
 import no.skatteetaten.aurora.gobo.graphql.graphqlData
 import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
-import no.skatteetaten.aurora.gobo.integration.boober.DeleteVaultResponse
 import no.skatteetaten.aurora.gobo.integration.boober.VaultService
 
 @Import(VaultMutation::class)
@@ -29,7 +28,6 @@ class VaultMutationTest : GraphQLTestWithDbhAndSkap() {
     @BeforeEach
     fun setUp() {
         coEvery { vaultService.createVault(any(), any()) } returns Vault("test-vault", false, emptyList(), emptyMap())
-        coEvery { vaultService.deleteVault(any(), any()) } returns DeleteVaultResponse("aurora", "test-vault")
     }
 
     @Test
@@ -58,7 +56,8 @@ class VaultMutationTest : GraphQLTestWithDbhAndSkap() {
             )
         )
         webTestClient.queryGraphQL(deleteVaultMutation, variables, "test-token").expectBody()
-            .graphqlData("deleteVault").isEqualTo("true")
+            .graphqlData("deleteVault.affiliationName").isEqualTo("aurora")
+            .graphqlData("deleteVault.vaultName").isEqualTo("gurre-test2")
             .graphqlDoesNotContainErrors()
     }
 }

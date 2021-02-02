@@ -1,3 +1,6 @@
 mutation deleteVault($input: DeleteVaultInput!){
-    deleteVault(input: $input)
+    deleteVault(input: $input){
+      affiliationName
+      vaultName
+    }
 }

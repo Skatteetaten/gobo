@@ -29,3 +29,4 @@ data class VaultCreationInput(
 }
 
 data class DeleteVaultInput(val affiliationName: String, val vaultName: String)
+data class DeleteVaultResponse(val affiliationName: String, val vaultName: String)
