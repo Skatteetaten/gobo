@@ -67,7 +67,7 @@ class AuthorizedTokenCredentialMutation : CredentialMutationTest() {
             .graphqlData("registerPostgresMotelServer").isNotEmpty
             .graphqlData("registerPostgresMotelServer.success").isFalse()
             .graphqlData("registerPostgresMotelServer.message")
-                .isEqualTo("PostgresMotel host=test0oup could not be registered. The AuroraPlattform has internal configuration issues.")
+            .isEqualTo("PostgresMotel host=test0oup could not be registered. The AuroraPlattform has internal configuration issues.")
     }
 }
 

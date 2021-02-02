@@ -14,7 +14,7 @@ import okhttp3.mockwebserver.MockWebServer
 import org.junit.jupiter.api.Test
 import org.springframework.web.reactive.function.client.WebClient
 
-class HerkimerServiceTest {
+class HerkimerServiceReactiveTest {
     private val server = MockWebServer()
     private val sharedSecretReader = mockk<SharedSecretReader> {
         every { secret } returns "abc"
@@ -29,7 +29,7 @@ class HerkimerServiceTest {
             AuroraResponse<ResourceHerkimer, ErrorResponse>(errors = listOf(ErrorResponse("Nothing works")))
 
         server.executeBlocking(500 to resourceHerkimerResponse) {
-            val result = herkimerService.registerResourceAndClaim( defaultRegisterResourceAndClaimCommand )
+            val result = herkimerService.registerResourceAndClaim(defaultRegisterResourceAndClaimCommand)
 
             assertThat(result.success).isFalse()
         }
@@ -44,7 +44,7 @@ class HerkimerServiceTest {
             )
 
         server.executeBlocking(resourceHerkimerResponse) {
-            val result = herkimerService.registerResourceAndClaim( defaultRegisterResourceAndClaimCommand )
+            val result = herkimerService.registerResourceAndClaim(defaultRegisterResourceAndClaimCommand)
 
             assertThat(result.success).isFalse()
         }
@@ -73,5 +73,3 @@ class HerkimerServiceTest {
         resourceKind = ResourceKind.PostgresDatabaseInstance
     )
 }
-
-

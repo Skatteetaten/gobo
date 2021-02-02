@@ -6,7 +6,6 @@ import kotlinx.coroutines.runBlocking
 import no.skatteetaten.aurora.gobo.ApplicationConfig
 import no.skatteetaten.aurora.gobo.RequiresHerkimer
 import no.skatteetaten.aurora.gobo.StrubrunnerRepoPropertiesEnabler
-import no.skatteetaten.aurora.gobo.StubrunnerRepoProperties
 import no.skatteetaten.aurora.gobo.TestConfig
 import no.skatteetaten.aurora.gobo.graphql.credentials.PostgresHerkimerDatabaseInstance
 import no.skatteetaten.aurora.gobo.security.SharedSecretReader
@@ -41,5 +40,4 @@ class HerkimerServiceContractTest : StrubrunnerRepoPropertiesEnabler() {
         }
         assertThat(result.success).isTrue()
     }
-
 }

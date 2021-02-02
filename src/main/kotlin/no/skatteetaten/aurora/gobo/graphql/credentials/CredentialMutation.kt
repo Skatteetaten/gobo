@@ -94,4 +94,3 @@ data class PostgresHerkimerDatabaseInstance(
     val affiliation: String,
     val engine: String = "postgres"
 ) : CredentialBase
-
