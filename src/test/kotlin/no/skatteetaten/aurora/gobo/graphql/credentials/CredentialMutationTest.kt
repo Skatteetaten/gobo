@@ -10,23 +10,24 @@ import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.graphql.graphqlErrorsFirst
 import no.skatteetaten.aurora.gobo.graphql.isFalse
 import no.skatteetaten.aurora.gobo.graphql.isTrue
+import no.skatteetaten.aurora.gobo.graphql.printResult
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
 import no.skatteetaten.aurora.gobo.integration.herkimer.HerkimerResult
 import no.skatteetaten.aurora.gobo.integration.herkimer.HerkimerService
+import no.skatteetaten.aurora.gobo.integration.herkimer.HerkimerServiceDisabled
+import no.skatteetaten.aurora.gobo.integration.herkimer.HerkimerServiceReactive
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
 import org.springframework.security.test.context.support.WithMockUser
+import org.springframework.test.context.TestPropertySource
 
 @Import(CredentialMutation::class)
 abstract class CredentialMutationTest : GraphQLTestWithoutDbhAndSkap() {
 
     @Value("classpath:graphql/mutations/registerPostgresMotelServer.graphql")
     protected lateinit var registerPostgresMotelMutation: Resource
-
-    @MockkBean
-    protected lateinit var herkimerService: HerkimerService
 
     val registerPostgresVariables = mapOf(
         "input" to jacksonObjectMapper().convertValue<Map<String, Any>>(
@@ -39,6 +40,9 @@ abstract class CredentialMutationTest : GraphQLTestWithoutDbhAndSkap() {
     username = "system:serviceaccount:aurora:vra"
 )
 class AuthorizedTokenCredentialMutation : CredentialMutationTest() {
+    @MockkBean
+    protected lateinit var herkimerService: HerkimerService
+
     @Test
     fun `Mutate database schema return true given response success`() {
         coEvery { herkimerService.registerResourceAndClaim(any()) } returns HerkimerResult(true)
@@ -73,7 +77,7 @@ class AuthorizedTokenCredentialMutation : CredentialMutationTest() {
 
 class UnauthorizedTokenCredentialMutation : CredentialMutationTest() {
     @Test
-    fun `Mutate database schema return true given response success`() {
+    fun `Error when unauthorized and registering credentials`() {
         webTestClient.queryGraphQL(
             queryResource = registerPostgresMotelMutation,
             variables = registerPostgresVariables,
@@ -81,5 +85,26 @@ class UnauthorizedTokenCredentialMutation : CredentialMutationTest() {
         ).expectStatus().isOk
             .expectBody()
             .graphqlErrorsFirst("message").isEqualTo("You do not have access to register a Postgres Motel Server")
+    }
+}
+
+@WithMockUser(
+    username = "system:serviceaccount:aurora:vra"
+)
+@TestPropertySource(
+    properties = ["integrations.herkimer.url=false"]
+)
+@Import(HerkimerServiceReactive::class, HerkimerServiceDisabled::class)
+class UnavailableHerkimerCredentialMutation : CredentialMutationTest() {
+
+    @Test
+    fun `verify herkimer is disabled when no url is set`() {
+        webTestClient.queryGraphQL(
+            queryResource = registerPostgresMotelMutation,
+            variables = registerPostgresVariables,
+            token = "test-token"
+        ).expectStatus().isOk
+            .expectBody()
+            .graphqlErrorsFirst("message").isEqualTo("Exception while fetching data (/registerPostgresMotelServer) : Herkimer integration is disabled for this environment")
     }
 }

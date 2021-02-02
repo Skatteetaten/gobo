@@ -5,14 +5,12 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import graphql.schema.DataFetchingEnvironment
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.graphql.AccessDeniedException
-import no.skatteetaten.aurora.gobo.graphql.user.User
 import no.skatteetaten.aurora.gobo.integration.herkimer.CredentialBase
 import no.skatteetaten.aurora.gobo.integration.herkimer.HerkimerResult
 import no.skatteetaten.aurora.gobo.integration.herkimer.HerkimerService
 import no.skatteetaten.aurora.gobo.integration.herkimer.RegisterResourceAndClaimCommand
 import no.skatteetaten.aurora.gobo.integration.herkimer.ResourceKind
 import no.skatteetaten.aurora.gobo.security.checkValidUserToken
-import no.skatteetaten.aurora.gobo.security.currentUser
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 
@@ -27,9 +25,7 @@ class CredentialMutation(
         input: PostgresMotelInput,
         dfe: DataFetchingEnvironment
     ): RegisterPostgresResult {
-        dfe.checkValidUserToken()
-
-        dfe.currentUser().checkIsAuthorized()
+        dfe.checkIsUserAuthorized()
 
         val postgresInstance = input.toHerkimerPostgresInstance()
 
@@ -44,8 +40,10 @@ class CredentialMutation(
         ).toRegisterPostgresResult(input.host)
     }
 }
-private fun User.checkIsAuthorized() {
-    if (!this.id.matches(Regex("system:serviceaccount:aurora[-\\w]*:vra$"))) {
+private suspend fun DataFetchingEnvironment.checkIsUserAuthorized() {
+    val userId = this.checkValidUserToken().id
+
+    if (!userId.matches(Regex("system:serviceaccount:aurora[-\\w]*:vra$"))) {
         throw AccessDeniedException("You do not have access to register a Postgres Motel Server")
     }
 }
