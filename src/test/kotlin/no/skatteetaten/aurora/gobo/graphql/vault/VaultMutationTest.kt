@@ -11,6 +11,7 @@ import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithDbhAndSkap
 import no.skatteetaten.aurora.gobo.graphql.graphqlData
 import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
+import no.skatteetaten.aurora.gobo.integration.boober.DeleteVaultResponse
 import no.skatteetaten.aurora.gobo.integration.boober.VaultService
 
 @Import(VaultMutation::class)
@@ -19,12 +20,16 @@ class VaultMutationTest : GraphQLTestWithDbhAndSkap() {
     @Value("classpath:graphql/mutations/createVault.graphql")
     private lateinit var createVaultMutation: Resource
 
+    @Value("classpath:graphql/mutations/deleteVault.graphql")
+    private lateinit var deleteVaultMutation: Resource
+
     @MockkBean(relaxed = true)
     private lateinit var vaultService: VaultService
 
     @BeforeEach
     fun setUp() {
         coEvery { vaultService.createVault(any(), any()) } returns Vault("test-vault", false, emptyList(), emptyMap())
+        coEvery { vaultService.deleteVault(any(), any()) } returns DeleteVaultResponse("aurora", "test-vault")
     }
 
     @Test
@@ -41,6 +46,19 @@ class VaultMutationTest : GraphQLTestWithDbhAndSkap() {
         )
         webTestClient.queryGraphQL(createVaultMutation, variables, "test-token").expectBody()
             .graphqlData("createVault.name").isEqualTo("test-vault")
+            .graphqlDoesNotContainErrors()
+    }
+
+    @Test
+    fun `Delete vault`() {
+        val variables = mapOf(
+            "input" to mapOf(
+                "affiliationName" to "aurora",
+                "vaultName" to "gurre-test2"
+            )
+        )
+        webTestClient.queryGraphQL(deleteVaultMutation, variables, "test-token").expectBody()
+            .graphqlData("deleteVault").isEqualTo("true")
             .graphqlDoesNotContainErrors()
     }
 }

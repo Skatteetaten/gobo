@@ -14,4 +14,9 @@ class VaultMutation(val vaultService: VaultService) : Mutation {
         dfe.checkValidUserToken()
         return vaultService.createVault(dfe.token(), input)
     }
+
+    suspend fun deleteVault(input: DeleteVaultInput, dfe: DataFetchingEnvironment): Boolean {
+        vaultService.deleteVault(dfe.token(), input)
+        return true
+    }
 }

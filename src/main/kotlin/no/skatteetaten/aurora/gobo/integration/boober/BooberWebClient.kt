@@ -111,6 +111,13 @@ class BooberWebClient(
     ) =
         webClient.post().booberUrl(url, params).body(BodyInserters.fromValue(body)).execute<T>(token)
 
+    final suspend inline fun <reified T : Any> delete(
+        url: String,
+        token: String? = null,
+        params: Map<String, String> = emptyMap()
+    ) =
+        webClient.delete().booberUrl(url, params).execute<T>(token)
+
     fun getBooberUrl(link: String): String {
         if (booberUrl.isNullOrEmpty()) {
             return link

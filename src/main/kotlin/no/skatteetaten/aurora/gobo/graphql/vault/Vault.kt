@@ -27,3 +27,5 @@ data class VaultCreationInput(
     @GraphQLIgnore
     fun mapToPayload() = AuroraSecretVaultPayload(vaultName, permissions, files.map { it.name to it.base64Content }.toMap())
 }
+
+data class DeleteVaultInput(val affiliationName: String, val vaultName: String)

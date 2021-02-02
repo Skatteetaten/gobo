@@ -1,0 +1,3 @@
+mutation deleteVault($input: DeleteVaultInput!){
+    deleteVault(input: $input)
+}
