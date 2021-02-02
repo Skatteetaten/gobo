@@ -5,12 +5,13 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.coEvery
 import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithoutDbhAndSkap
+import no.skatteetaten.aurora.gobo.graphql.contains
 import no.skatteetaten.aurora.gobo.graphql.graphqlData
 import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.graphql.graphqlErrorsFirst
+import no.skatteetaten.aurora.gobo.graphql.graphqlErrorsFirstContainsMessage
 import no.skatteetaten.aurora.gobo.graphql.isFalse
 import no.skatteetaten.aurora.gobo.graphql.isTrue
-import no.skatteetaten.aurora.gobo.graphql.printResult
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
 import no.skatteetaten.aurora.gobo.integration.herkimer.HerkimerResult
 import no.skatteetaten.aurora.gobo.integration.herkimer.HerkimerService
@@ -41,7 +42,7 @@ abstract class CredentialMutationTest : GraphQLTestWithoutDbhAndSkap() {
 )
 class AuthorizedTokenCredentialMutation : CredentialMutationTest() {
     @MockkBean
-    protected lateinit var herkimerService: HerkimerService
+    private lateinit var herkimerService: HerkimerService
 
     @Test
     fun `Mutate database schema return true given response success`() {
@@ -70,8 +71,7 @@ class AuthorizedTokenCredentialMutation : CredentialMutationTest() {
             .expectBody()
             .graphqlData("registerPostgresMotelServer").isNotEmpty
             .graphqlData("registerPostgresMotelServer.success").isFalse()
-            .graphqlData("registerPostgresMotelServer.message")
-            .isEqualTo("PostgresMotel host=test0oup could not be registered. The AuroraPlattform has internal configuration issues.")
+            .graphqlData("registerPostgresMotelServer.message").contains("host=test0oup could not be registered")
     }
 }
 
@@ -84,7 +84,7 @@ class UnauthorizedTokenCredentialMutation : CredentialMutationTest() {
             token = "test-token"
         ).expectStatus().isOk
             .expectBody()
-            .graphqlErrorsFirst("message").isEqualTo("You do not have access to register a Postgres Motel Server")
+            .graphqlErrorsFirstContainsMessage("You do not have access")
     }
 }
 
@@ -105,6 +105,6 @@ class UnavailableHerkimerCredentialMutation : CredentialMutationTest() {
             token = "test-token"
         ).expectStatus().isOk
             .expectBody()
-            .graphqlErrorsFirst("message").isEqualTo("Exception while fetching data (/registerPostgresMotelServer) : Herkimer integration is disabled for this environment")
+            .graphqlErrorsFirstContainsMessage("Herkimer integration is disabled")
     }
 }
