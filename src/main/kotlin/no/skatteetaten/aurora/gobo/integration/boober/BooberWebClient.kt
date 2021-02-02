@@ -20,6 +20,11 @@ import org.springframework.web.reactive.function.client.awaitBody
 
 val objectMapper: ObjectMapper = jacksonObjectMapper().registerModules(JavaTimeModule())
 
+/**
+ * Ignore success, do not throw SourceSystemException here if success = false
+ */
+inline fun <reified T : Any> Response<T>.responsesIgnoreStatus() = this.copy(success = true).responses()
+
 inline fun <reified T : Any> Response<T>.responses(): List<T> = when {
     !this.success -> throw SourceSystemException(
         message = this.message,
