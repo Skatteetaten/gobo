@@ -48,9 +48,9 @@ class HerkimerServiceReactive(
             resourceId
         )
         return result.logWarnIfFailure(
-            registerAndClaimCommand.resourceKind,
-            resourceId,
-            registerAndClaimCommand.resourceName
+            resourceKind = registerAndClaimCommand.resourceKind,
+            resourceId = resourceId,
+            resourceName = registerAndClaimCommand.resourceName
         ).toHerkimerResult()
     }
 
