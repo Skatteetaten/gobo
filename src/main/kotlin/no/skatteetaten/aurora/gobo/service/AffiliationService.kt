@@ -6,11 +6,13 @@ import no.skatteetaten.aurora.gobo.graphql.awaitWithRetry
 import org.springframework.http.HttpHeaders
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
+import no.skatteetaten.aurora.gobo.integration.boober.BooberWebClient
+import no.skatteetaten.aurora.gobo.integration.boober.responses
 
 @Service
 class AffiliationService(
     @TargetService(ServiceTypes.MOKEY) val mokeyWebClient: WebClient,
-    @TargetService(ServiceTypes.BOOBER) val booberWebClient: WebClient
+    @TargetService(ServiceTypes.BOOBER) val BooberWebClient: BooberWebClient
 ) {
 
     suspend fun getAllVisibleAffiliations(token: String): List<String> =
@@ -29,9 +31,5 @@ class AffiliationService(
             .awaitWithRetry()
 
     suspend fun getAllAffiliationNames(): List<String> =
-        booberWebClient
-            .get()
-            .uri("/v1/auroraconfignames")
-            .retrieve()
-            .awaitWithRetry()
+        BooberWebClient.get<String>("/v1/auroraconfignames").responses()
 }

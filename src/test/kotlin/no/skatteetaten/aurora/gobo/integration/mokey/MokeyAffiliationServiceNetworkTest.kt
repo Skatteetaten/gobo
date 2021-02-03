@@ -10,6 +10,8 @@ import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.SocketPolicy
 import org.junit.jupiter.api.Test
 import org.springframework.web.reactive.function.client.WebClient
+import com.fasterxml.jackson.databind.ObjectMapper
+import no.skatteetaten.aurora.gobo.integration.boober.BooberWebClient
 import no.skatteetaten.aurora.gobo.service.AffiliationService
 
 class MokeyAffiliationServiceNetworkTest {
@@ -17,7 +19,7 @@ class MokeyAffiliationServiceNetworkTest {
     private val server = MockWebServer()
     private val affiliationService = AffiliationService(
         WebClient.create(server.url("/").toString()),
-        WebClient.create(server.url("/").toString())
+        BooberWebClient(booberUrl = "/", webClient = WebClient.create(), objectMapper = ObjectMapper())
     )
 
     @Test

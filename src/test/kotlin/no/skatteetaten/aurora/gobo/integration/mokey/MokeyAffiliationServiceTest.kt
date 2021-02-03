@@ -15,12 +15,16 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.cloud.contract.stubrunner.spring.AutoConfigureStubRunner
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
+import no.skatteetaten.aurora.gobo.integration.boober.BooberWebClient
 import no.skatteetaten.aurora.gobo.service.AffiliationService
 
 @DirtiesContext
 @ActiveProfiles(PROFILE_WITH_DBH_AND_SKAP)
 @SpringBootTest(
-    classes = [WebClientAutoConfiguration::class, ApplicationConfig::class, SharedSecretReader::class, AffiliationService::class],
+    classes = [
+        WebClientAutoConfiguration::class, ApplicationConfig::class, SharedSecretReader::class,
+        AffiliationService::class, BooberWebClient::class
+    ],
     webEnvironment = SpringBootTest.WebEnvironment.NONE
 )
 @AutoConfigureStubRunner(ids = ["no.skatteetaten.aurora:mokey:+:stubs:6565"])
