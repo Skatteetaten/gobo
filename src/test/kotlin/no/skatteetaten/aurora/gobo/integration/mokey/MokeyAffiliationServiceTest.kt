@@ -3,6 +3,7 @@ package no.skatteetaten.aurora.gobo.integration.mokey
 import assertk.assertThat
 import assertk.assertions.contains
 import assertk.assertions.isNotEmpty
+import com.ninjasquad.springmockk.MockkBean
 import kotlinx.coroutines.runBlocking
 import no.skatteetaten.aurora.gobo.ApplicationConfig
 import no.skatteetaten.aurora.gobo.StrubrunnerRepoPropertiesEnabler
@@ -22,13 +23,18 @@ import no.skatteetaten.aurora.gobo.service.AffiliationService
 @ActiveProfiles(PROFILE_WITH_DBH_AND_SKAP)
 @SpringBootTest(
     classes = [
-        WebClientAutoConfiguration::class, ApplicationConfig::class, SharedSecretReader::class,
-        AffiliationService::class, BooberWebClient::class
+        WebClientAutoConfiguration::class,
+        ApplicationConfig::class,
+        SharedSecretReader::class,
+        AffiliationService::class
     ],
     webEnvironment = SpringBootTest.WebEnvironment.NONE
 )
 @AutoConfigureStubRunner(ids = ["no.skatteetaten.aurora:mokey:+:stubs:6565"])
 class MokeyAffiliationServiceTest : StrubrunnerRepoPropertiesEnabler() {
+
+    @MockkBean
+    lateinit var booberWebClient: BooberWebClient
 
     @Autowired
     lateinit var affiliationService: AffiliationService

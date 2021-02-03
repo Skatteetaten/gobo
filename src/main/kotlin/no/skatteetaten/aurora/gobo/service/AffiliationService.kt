@@ -12,7 +12,7 @@ import no.skatteetaten.aurora.gobo.integration.boober.responses
 @Service
 class AffiliationService(
     @TargetService(ServiceTypes.MOKEY) val mokeyWebClient: WebClient,
-    @TargetService(ServiceTypes.BOOBER) val BooberWebClient: BooberWebClient
+    val booberWebClient: BooberWebClient
 ) {
 
     suspend fun getAllVisibleAffiliations(token: String): List<String> =
@@ -31,5 +31,5 @@ class AffiliationService(
             .awaitWithRetry()
 
     suspend fun getAllAffiliationNames(): List<String> =
-        BooberWebClient.get<String>("/v1/auroraconfignames").responses()
+        booberWebClient.get<String>("/v1/auroraconfignames").responses()
 }
