@@ -1,14 +1,16 @@
 package no.skatteetaten.aurora.gobo.graphql.credentials
 
+import assertk.assertThat
+import assertk.assertions.isEqualTo
 import com.fasterxml.jackson.module.kotlin.convertValue
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.coEvery
+import io.mockk.slot
 import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithoutDbhAndSkap
 import no.skatteetaten.aurora.gobo.graphql.contains
-import no.skatteetaten.aurora.gobo.graphql.graphqlData
+import no.skatteetaten.aurora.gobo.graphql.graphqlDataWithPrefix
 import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
-import no.skatteetaten.aurora.gobo.graphql.graphqlErrorsFirst
 import no.skatteetaten.aurora.gobo.graphql.graphqlErrorsFirstContainsMessage
 import no.skatteetaten.aurora.gobo.graphql.isFalse
 import no.skatteetaten.aurora.gobo.graphql.isTrue
@@ -17,6 +19,7 @@ import no.skatteetaten.aurora.gobo.integration.herkimer.HerkimerResult
 import no.skatteetaten.aurora.gobo.integration.herkimer.HerkimerService
 import no.skatteetaten.aurora.gobo.integration.herkimer.HerkimerServiceDisabled
 import no.skatteetaten.aurora.gobo.integration.herkimer.HerkimerServiceReactive
+import no.skatteetaten.aurora.gobo.integration.herkimer.RegisterResourceAndClaimCommand
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Import
@@ -30,10 +33,9 @@ abstract class CredentialMutationTest : GraphQLTestWithoutDbhAndSkap() {
     @Value("classpath:graphql/mutations/registerPostgresMotelServer.graphql")
     protected lateinit var registerPostgresMotelMutation: Resource
 
+    protected val postgresMotelInput = PostgresMotelInput("test0oup-pgsql02", "username", "password", "bg")
     val registerPostgresVariables = mapOf(
-        "input" to jacksonObjectMapper().convertValue<Map<String, Any>>(
-            PostgresMotelInput("test0oup", "username", "password", "bg")
-        )
+        "input" to jacksonObjectMapper().convertValue<Map<String, Any>>(postgresMotelInput)
     )
 }
 
@@ -45,8 +47,14 @@ class AuthorizedTokenCredentialMutation : CredentialMutationTest() {
     private lateinit var herkimerService: HerkimerService
 
     @Test
-    fun `Mutate database schema return true given response success`() {
-        coEvery { herkimerService.registerResourceAndClaim(any()) } returns HerkimerResult(true)
+    fun `Mutate credentials return true given response success`() {
+
+        val instanceNameSlot = slot<RegisterResourceAndClaimCommand>()
+        coEvery {
+            herkimerService.registerResourceAndClaim(capture(instanceNameSlot))
+        } returns HerkimerResult(true)
+
+        val expectedInstanceName = "bg-postgres-02"
 
         webTestClient.queryGraphQL(
             queryResource = registerPostgresMotelMutation,
@@ -54,13 +62,17 @@ class AuthorizedTokenCredentialMutation : CredentialMutationTest() {
             token = "test-token"
         ).expectStatus().isOk
             .expectBody()
-            .graphqlData("registerPostgresMotelServer").isNotEmpty
-            .graphqlData("registerPostgresMotelServer.success").isTrue()
+            .graphqlDataWithPrefix("registerPostgresMotelServer") {
+                graphqlData("success").isTrue()
+                graphqlData("message").contains(postgresMotelInput.host)
+            }
             .graphqlDoesNotContainErrors()
+
+        assertThat(instanceNameSlot.captured.resourceName).isEqualTo(expectedInstanceName)
     }
 
     @Test
-    fun `Mutate database schema return false with message given response false`() {
+    fun `Mutate credentials return false with message given response false`() {
         coEvery { herkimerService.registerResourceAndClaim(any()) } returns HerkimerResult(false)
 
         webTestClient.queryGraphQL(
@@ -69,9 +81,10 @@ class AuthorizedTokenCredentialMutation : CredentialMutationTest() {
             token = "test-token"
         ).expectStatus().isOk
             .expectBody()
-            .graphqlData("registerPostgresMotelServer").isNotEmpty
-            .graphqlData("registerPostgresMotelServer.success").isFalse()
-            .graphqlData("registerPostgresMotelServer.message").contains("host=test0oup could not be registered")
+            .graphqlDataWithPrefix("registerPostgresMotelServer") {
+                graphqlData("success").isFalse()
+                graphqlData("message").contains("host=test0oup-pgsql02 could not be registered")
+            }
     }
 }
 

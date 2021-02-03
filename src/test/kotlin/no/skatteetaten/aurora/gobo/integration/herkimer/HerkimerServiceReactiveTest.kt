@@ -67,7 +67,7 @@ class HerkimerServiceReactiveTest {
 
     private val defaultRegisterResourceAndClaimCommand = RegisterResourceAndClaimCommand(
         ownerId = "12345",
-        credentials = PostgresHerkimerDatabaseInstance("host", 5432, "instance", "admin", "pass", "aurora"),
+        credentials = PostgresHerkimerDatabaseInstance("instance", "host", 5432, "admin", "pass", "aurora"),
         resourceName = "resourceName",
         claimName = "claimName",
         resourceKind = ResourceKind.PostgresDatabaseInstance
