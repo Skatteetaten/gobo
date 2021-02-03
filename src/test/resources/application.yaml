@@ -7,6 +7,10 @@ spring:
         enabled: false
 
 integrations:
+    dbh:
+        application:
+            deployment:
+                id: 1235
     mokey:
         url: http://localhost:6565
     unclematt:

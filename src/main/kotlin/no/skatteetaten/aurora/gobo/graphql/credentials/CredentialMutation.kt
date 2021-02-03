@@ -62,7 +62,7 @@ private suspend fun DataFetchingEnvironment.checkIsUserAuthorized() {
     val userId = this.checkValidUserToken().id
 
     // TODO: This is only temporary for internal usage. Jira ticket AOS-5376 looks into authorization of vra
-    if (!userId.matches(Regex("system:serviceaccount:aurora[-\\w]*:vra$"))) {
+    if (!userId.matches(Regex("system:serviceaccount:(aurora|aup)[-\\w]*:vra$"))) {
         throw AccessDeniedException("You do not have access to register a Postgres Motel Server")
     }
 }

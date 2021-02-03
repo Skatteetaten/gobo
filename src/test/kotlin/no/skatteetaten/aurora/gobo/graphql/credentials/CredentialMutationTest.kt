@@ -40,9 +40,9 @@ abstract class CredentialMutationTest : GraphQLTestWithoutDbhAndSkap() {
 }
 
 @WithMockUser(
-    username = "system:serviceaccount:aurora:vra"
+    username = "system:serviceaccount:aup:vra"
 )
-class AuthorizedTokenCredentialMutation : CredentialMutationTest() {
+class AuthorizedAupTokenCredentialMutation : CredentialMutationTest() {
     @MockkBean
     private lateinit var herkimerService: HerkimerService
 
@@ -70,6 +70,14 @@ class AuthorizedTokenCredentialMutation : CredentialMutationTest() {
 
         assertThat(instanceNameSlot.captured.resourceName).isEqualTo(expectedInstanceName)
     }
+}
+
+@WithMockUser(
+    username = "system:serviceaccount:aurora:vra"
+)
+class AuthorizedTokenCredentialMutation : CredentialMutationTest() {
+    @MockkBean
+    private lateinit var herkimerService: HerkimerService
 
     @Test
     fun `Mutate credentials return false with message given response false`() {
@@ -89,6 +97,10 @@ class AuthorizedTokenCredentialMutation : CredentialMutationTest() {
 }
 
 class UnauthorizedTokenCredentialMutation : CredentialMutationTest() {
+
+    @MockkBean
+    private lateinit var herkimerService: HerkimerService
+
     @Test
     fun `Error when unauthorized and registering credentials`() {
         webTestClient.queryGraphQL(
