@@ -12,10 +12,12 @@ import no.skatteetaten.aurora.gobo.integration.herkimer.RegisterResourceAndClaim
 import no.skatteetaten.aurora.gobo.integration.herkimer.ResourceKind
 import no.skatteetaten.aurora.gobo.security.checkValidUserToken
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Component
 
 private val logger = KotlinLogging.logger {}
 
+@ConditionalOnProperty("integrations.dbh.application.deployment.id")
 @Component
 class CredentialMutation(
     private val herkimerService: HerkimerService,

@@ -121,3 +121,22 @@ class UnavailableHerkimerCredentialMutation : CredentialMutationTest() {
             .graphqlErrorsFirstContainsMessage("Herkimer integration is disabled")
     }
 }
+@WithMockUser(
+    username = "system:serviceaccount:aurora:vra"
+)
+@TestPropertySource(
+    properties = ["integrations.dbh.application.deployment.id=false"]
+)
+class DbhApplicationDeploymentIdNotSetCredentialMutation : CredentialMutationTest() {
+
+    @Test
+    fun `verify mutation is disabled when dbh adid is not present`() {
+        webTestClient.queryGraphQL(
+            queryResource = registerPostgresMotelMutation,
+            variables = registerPostgresVariables,
+            token = "test-token"
+        ).expectStatus().isOk
+            .expectBody()
+            .graphqlErrorsFirstContainsMessage("Unknown type PostgresMotelInput")
+    }
+}
