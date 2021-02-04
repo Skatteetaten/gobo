@@ -7,8 +7,8 @@
           hasAccess
           permissions
           secrets{
-            key
-            value
+            file
+            content
           }
         }
       }
