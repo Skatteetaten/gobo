@@ -19,6 +19,9 @@ class VaultMutationTest : GraphQLTestWithDbhAndSkap() {
     @Value("classpath:graphql/mutations/createVault.graphql")
     private lateinit var createVaultMutation: Resource
 
+    @Value("classpath:graphql/mutations/deleteVault.graphql")
+    private lateinit var deleteVaultMutation: Resource
+
     @MockkBean(relaxed = true)
     private lateinit var vaultService: VaultService
 
@@ -41,6 +44,20 @@ class VaultMutationTest : GraphQLTestWithDbhAndSkap() {
         )
         webTestClient.queryGraphQL(createVaultMutation, variables, "test-token").expectBody()
             .graphqlData("createVault.name").isEqualTo("test-vault")
+            .graphqlDoesNotContainErrors()
+    }
+
+    @Test
+    fun `Delete vault`() {
+        val variables = mapOf(
+            "input" to mapOf(
+                "affiliationName" to "aurora",
+                "vaultName" to "gurre-test2"
+            )
+        )
+        webTestClient.queryGraphQL(deleteVaultMutation, variables, "test-token").expectBody()
+            .graphqlData("deleteVault.affiliationName").isEqualTo("aurora")
+            .graphqlData("deleteVault.vaultName").isEqualTo("gurre-test2")
             .graphqlDoesNotContainErrors()
     }
 }
