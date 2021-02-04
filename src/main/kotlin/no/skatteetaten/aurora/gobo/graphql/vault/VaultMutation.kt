@@ -12,11 +12,17 @@ class VaultMutation(val vaultService: VaultService) : Mutation {
 
     suspend fun createVault(input: VaultCreationInput, dfe: DataFetchingEnvironment): Vault {
         dfe.checkValidUserToken()
-        return vaultService.createVault(dfe.token(), input)
+        val vault = vaultService.createVault(dfe.token(), input)
+        return Vault.create(vault)
     }
 
     suspend fun deleteVault(input: DeleteVaultInput, dfe: DataFetchingEnvironment): DeleteVaultResponse {
         vaultService.deleteVault(dfe.token(), input.affiliationName, input.vaultName)
         return DeleteVaultResponse(input.affiliationName, input.vaultName)
+    }
+
+    suspend fun addVaultPermissions(input: AddVaultPermissionsInput, dfe: DataFetchingEnvironment): Vault {
+        val vault = vaultService.addVaultPermissions(dfe.token(), input.affiliationName, input.vaultName, input.permissions)
+        return Vault.create(vault)
     }
 }
