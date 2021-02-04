@@ -13,7 +13,7 @@ import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileType
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigService
-import no.skatteetaten.aurora.gobo.integration.mokey.AffiliationService
+import no.skatteetaten.aurora.gobo.service.AffiliationService
 
 @Import(
     AffiliationQuery::class,

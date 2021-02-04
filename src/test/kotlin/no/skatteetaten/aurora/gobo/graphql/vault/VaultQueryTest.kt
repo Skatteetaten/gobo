@@ -14,7 +14,7 @@ import no.skatteetaten.aurora.gobo.graphql.isFalse
 import no.skatteetaten.aurora.gobo.graphql.isTrue
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
 import no.skatteetaten.aurora.gobo.integration.boober.VaultService
-import no.skatteetaten.aurora.gobo.integration.mokey.AffiliationService
+import no.skatteetaten.aurora.gobo.service.AffiliationService
 
 @Import(
     AffiliationQuery::class,
