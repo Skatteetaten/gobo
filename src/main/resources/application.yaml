@@ -46,7 +46,9 @@ integrations:
     cantus:
         url: http://cantus
     herkimer:
-        url: http://localhost:9090
+        url: http://herkimer
+    naghub:
+        url: http://naghub
     docker:
         cluster:
             url: docker-registry.default.svc:5000

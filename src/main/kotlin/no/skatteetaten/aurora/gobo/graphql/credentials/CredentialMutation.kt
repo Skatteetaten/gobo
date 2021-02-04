@@ -10,6 +10,9 @@ import no.skatteetaten.aurora.gobo.integration.herkimer.HerkimerResult
 import no.skatteetaten.aurora.gobo.integration.herkimer.HerkimerService
 import no.skatteetaten.aurora.gobo.integration.herkimer.RegisterResourceAndClaimCommand
 import no.skatteetaten.aurora.gobo.integration.herkimer.ResourceKind
+import no.skatteetaten.aurora.gobo.integration.naghub.DetailedMessage
+import no.skatteetaten.aurora.gobo.integration.naghub.NagHubColor
+import no.skatteetaten.aurora.gobo.integration.naghub.NagHubService
 import no.skatteetaten.aurora.gobo.security.checkValidUserToken
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
@@ -21,7 +24,9 @@ private val logger = KotlinLogging.logger {}
 @Component
 class CredentialMutation(
     private val herkimerService: HerkimerService,
-    @Value("\${integrations.dbh.application.deployment.id}") val dbhAdId: String
+    @Value("\${integrations.dbh.application.deployment.id}") val dbhAdId: String,
+    private val nagHubService: NagHubService,
+    @Value("\${integrations.mattermost.notifications.registerpostgres.channelid}") val notificationChannel: String,
 ) : Mutation {
     suspend fun registerPostgresMotelServer(
         input: PostgresMotelInput,
@@ -40,8 +45,35 @@ class CredentialMutation(
                 resourceKind = ResourceKind.PostgresDatabaseInstance
             )
         ).toRegisterPostgresResult(input.host)
+            .sendNotification(notificationChannel, input.host)
     }
+
+    private suspend fun RegisterPostgresResult.sendNotification(notificationChannel: String, host: String): RegisterPostgresResult =
+        this.also {
+            val cluster = getClusterFromHost(host)
+            val detailedMessage = if (success) {
+                DetailedMessage(
+                    NagHubColor.Yellow,
+                    "$message. DBH needs to be redeployed in cluster=$cluster"
+                )
+            } else {
+                DetailedMessage(
+                    NagHubColor.Red,
+                    "$message. The host needs to be manually registered for cluster=$cluster."
+                )
+            }
+
+            nagHubService.sendMessage(notificationChannel, null, detailedMessage)
+        }
 }
+
+private fun getClusterFromHost(host: String) =
+    when (host.first().toString()) {
+        "u" -> "utv"
+        "t" -> "test"
+        "p" -> "prod"
+        else -> "unknown"
+    }
 
 private fun PostgresMotelInput.generateInstanceName(): String {
     val numbering = host.substringAfter("pgsql")

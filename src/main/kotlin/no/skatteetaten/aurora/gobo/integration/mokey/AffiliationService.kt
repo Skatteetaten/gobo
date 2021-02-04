@@ -2,7 +2,7 @@ package no.skatteetaten.aurora.gobo.integration.mokey
 
 import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
-import no.skatteetaten.aurora.gobo.graphql.awaitWithRetry
+import no.skatteetaten.aurora.gobo.integration.awaitWithRetry
 import org.springframework.http.HttpHeaders
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient

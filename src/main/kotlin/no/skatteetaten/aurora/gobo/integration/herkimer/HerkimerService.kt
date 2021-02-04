@@ -4,20 +4,18 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.convertValue
-import com.fasterxml.jackson.module.kotlin.readValue
+import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.RequiresHerkimer
 import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
 import no.skatteetaten.aurora.gobo.graphql.IntegrationDisabledException
-import no.skatteetaten.aurora.gobo.graphql.awaitWithRetry
-import no.skatteetaten.aurora.gobo.integration.boober.objectMapper
-import no.skatteetaten.aurora.gobo.integration.cantus.logger
+import no.skatteetaten.aurora.gobo.integration.postOrNull
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.stereotype.Service
-import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.WebClient
-import org.springframework.web.reactive.function.client.WebClientResponseException
+
+private val logger = KotlinLogging.logger {}
 
 @Service
 @ConditionalOnBean(RequiresHerkimer::class)
@@ -76,28 +74,6 @@ private fun <T : AuroraResponse<Item, Error>, Item, Error> T?.logWarnIfFailure(
 
     return this
 }
-
-private suspend inline fun <reified T : AuroraResponse<*, *>, R> WebClient.postOrNull(
-    body: R,
-    uri: String,
-    vararg uriVariables: String
-): T? =
-    runCatching {
-        this.post()
-            .uri(uri, *uriVariables)
-            .body(BodyInserters.fromValue(body))
-            .retrieve()
-            .awaitWithRetry<T>()
-    }.onFailure {
-        val additionalErrorMessage = when (it) {
-            is WebClientResponseException -> {
-                val body = objectMapper.readValue<T>(it.responseBodyAsByteArray)
-                "statusCode=${it.statusCode} errorMessage=${body.message}"
-            }
-            else -> "unknown reason. Exception of type ${it::class.simpleName} with message=${it.message}"
-        }
-        logger.warn("Request failed to herkimer for url=$uri $additionalErrorMessage")
-    }.getOrNull()
 
 private fun <Item, Error> AuroraResponse<Item, Error>?.toHerkimerResult(): HerkimerResult =
     HerkimerResult(

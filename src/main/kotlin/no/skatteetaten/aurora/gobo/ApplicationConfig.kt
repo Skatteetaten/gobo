@@ -29,7 +29,7 @@ import java.util.concurrent.TimeUnit
 import kotlin.math.min
 
 enum class ServiceTypes {
-    MOKEY, BOOBER, UNCLEMATT, CANTUS, DBH, SKAP, HERKIMER
+    MOKEY, BOOBER, UNCLEMATT, CANTUS, DBH, SKAP, HERKIMER, NAGHUB
 }
 
 @Target(AnnotationTarget.TYPE, AnnotationTarget.FUNCTION, AnnotationTarget.FIELD, AnnotationTarget.VALUE_PARAMETER)
@@ -88,6 +88,19 @@ class ApplicationConfig(
     ): WebClient {
         logger.info("Configuring Cantus WebClient with base Url={}", cantusUrl)
         return builder.init().baseUrl(cantusUrl).build()
+    }
+
+    @Bean
+    @TargetService(ServiceTypes.NAGHUB)
+    fun webClientNagHub(
+        @Value("\${integrations.naghub.url}") nagHubUrl: String,
+        builder: WebClient.Builder
+    ): WebClient {
+        logger.info("Configuring Nag-Hub WebClient with base Url={}", nagHubUrl)
+        return builder.init()
+            .baseUrl(nagHubUrl)
+            .defaultHeader(HttpHeaders.AUTHORIZATION, "$HEADER_AURORA_TOKEN ${sharedSecretReader.secret}")
+            .build()
     }
 
     @Bean

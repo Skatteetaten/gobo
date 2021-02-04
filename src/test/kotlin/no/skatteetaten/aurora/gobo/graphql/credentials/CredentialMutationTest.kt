@@ -1,11 +1,14 @@
 package no.skatteetaten.aurora.gobo.graphql.credentials
 
 import assertk.assertThat
+import assertk.assertions.contains
 import assertk.assertions.isEqualTo
 import com.fasterxml.jackson.module.kotlin.convertValue
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.ninjasquad.springmockk.MockkBean
+import io.mockk.Runs
 import io.mockk.coEvery
+import io.mockk.just
 import io.mockk.slot
 import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithoutDbhAndSkap
 import no.skatteetaten.aurora.gobo.graphql.contains
@@ -20,6 +23,10 @@ import no.skatteetaten.aurora.gobo.integration.herkimer.HerkimerService
 import no.skatteetaten.aurora.gobo.integration.herkimer.HerkimerServiceDisabled
 import no.skatteetaten.aurora.gobo.integration.herkimer.HerkimerServiceReactive
 import no.skatteetaten.aurora.gobo.integration.herkimer.RegisterResourceAndClaimCommand
+import no.skatteetaten.aurora.gobo.integration.naghub.DetailedMessage
+import no.skatteetaten.aurora.gobo.integration.naghub.NagHubColor
+import no.skatteetaten.aurora.gobo.integration.naghub.NagHubService
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Import
@@ -37,6 +44,18 @@ abstract class CredentialMutationTest : GraphQLTestWithoutDbhAndSkap() {
     val registerPostgresVariables = mapOf(
         "input" to jacksonObjectMapper().convertValue<Map<String, Any>>(postgresMotelInput)
     )
+
+    protected val messageSlot = slot<DetailedMessage>()
+
+    @MockkBean
+    private lateinit var naghubService: NagHubService
+
+    @BeforeEach
+    fun setup() {
+        coEvery {
+            naghubService.sendMessage(any(), any(), capture(messageSlot))
+        } just Runs
+    }
 }
 
 @WithMockUser(
@@ -69,6 +88,8 @@ class AuthorizedAupTokenCredentialMutation : CredentialMutationTest() {
             .graphqlDoesNotContainErrors()
 
         assertThat(instanceNameSlot.captured.resourceName).isEqualTo(expectedInstanceName)
+        assertThat(messageSlot.captured.text).contains("DBH needs to be redeployed in cluster=test")
+        assertThat(messageSlot.captured.color).isEqualTo(NagHubColor.Yellow)
     }
 }
 
@@ -93,6 +114,9 @@ class AuthorizedTokenCredentialMutation : CredentialMutationTest() {
                 graphqlData("success").isFalse()
                 graphqlData("message").contains("host=test0oup-pgsql02 could not be registered")
             }
+
+        assertThat(messageSlot.captured.text).contains("needs to be manually registered")
+        assertThat(messageSlot.captured.color).isEqualTo(NagHubColor.Red)
     }
 }
 
