@@ -25,7 +25,7 @@ class VaultMutationTest : GraphQLTestWithDbhAndSkap() {
     private lateinit var deleteVaultMutation: Resource
 
     @Value("classpath:graphql/mutations/addVaultPermissions.graphql")
-    private lateinit var addVaultPermissions: Resource
+    private lateinit var addVaultPermissionsMutation: Resource
 
     @MockkBean(relaxed = true)
     private lateinit var vaultService: VaultService
@@ -68,7 +68,7 @@ class VaultMutationTest : GraphQLTestWithDbhAndSkap() {
 
     @Test
     fun `Add vault permission`() {
-        coEvery { vaultService.getVault(any(), any(), any()) } returns BooberVault(
+        coEvery { vaultService.addVaultPermissions(any(), any(), any(), any()) } returns BooberVault(
             name = "gurre-test2",
             hasAccess = true,
             permissions = listOf("APP_PaaS_utv"),
@@ -85,7 +85,7 @@ class VaultMutationTest : GraphQLTestWithDbhAndSkap() {
                 "permissions" to updatedPermissions
             )
         )
-        webTestClient.queryGraphQL(addVaultPermissions, variables, "test-token").expectBody()
+        webTestClient.queryGraphQL(addVaultPermissionsMutation, variables, "test-token").expectBody()
             .printResult()
         // .graphqlData("createVault.name").isEqualTo("test-vault")
         // .graphqlDoesNotContainErrors()
