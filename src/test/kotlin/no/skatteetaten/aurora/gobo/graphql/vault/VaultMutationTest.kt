@@ -75,9 +75,6 @@ class VaultMutationTest : GraphQLTestWithDbhAndSkap() {
             secrets = mapOf("name" to "latest.json", "base64Content" to "Z3VycmU=")
         )
         val updatedPermissions = listOf("APP_PaaS_utv", "APP_PaaS_drift")
-
-        //
-        // val fileMap = mapOf("name" to "latest.json", "base64Content" to "Z3VycmU=")
         val variables = mapOf(
             "input" to mapOf(
                 "affiliationName" to "aurora",
@@ -85,7 +82,8 @@ class VaultMutationTest : GraphQLTestWithDbhAndSkap() {
                 "permissions" to updatedPermissions
             )
         )
-        webTestClient.queryGraphQL(addVaultPermissionsMutation, variables, "test-token").expectBody()
+        webTestClient.queryGraphQL(addVaultPermissionsMutation, variables, "test-token")
+            .expectBody()
             .printResult()
         // .graphqlData("createVault.name").isEqualTo("test-vault")
         // .graphqlDoesNotContainErrors()
