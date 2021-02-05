@@ -11,7 +11,7 @@ data class Vault(
     val permissions: List<String>?,
 
     @GraphQLIgnore
-    val secrets: Map<String, String>
+    val secrets: Map<String, String>?
 ) {
     fun secrets() = secrets?.map { Secret(it.key, it.value) }
 }

@@ -28,7 +28,7 @@ class GoboGraphQLContext(
 ) : GraphQLContext {
     suspend fun securityContext(): SecurityContext = runCatching { securityContext.awaitFirst() }
         .recoverCatching {
-            logger.debug(it) { "Unable to get the security context" }
+            logger.info(it) { "Unable to get the security context" }
             throw AccessDeniedException("Invalid bearer token", it)
         }
         .getOrThrow()
