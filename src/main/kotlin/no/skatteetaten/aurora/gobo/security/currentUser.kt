@@ -16,14 +16,15 @@ const val GUEST_USER_ID = "anonymous"
 const val GUEST_USER_NAME = "Gjestebruker"
 val ANONYMOUS_USER = User(GUEST_USER_ID, GUEST_USER_NAME)
 
-suspend fun DataFetchingEnvironment.checkValidUserToken(): User {
-    token()
-    val user = currentUser()
-    if (currentUser() == ANONYMOUS_USER) {
-        throw AccessDeniedException("Valid authentication token required")
-    }
+suspend fun DataFetchingEnvironment.checkValidUserToken() {
+    getValidUser()
+}
 
-    return user
+suspend fun DataFetchingEnvironment.getValidUser(): User {
+    token()
+    return currentUser().also {
+        if (it == ANONYMOUS_USER) throw AccessDeniedException("Valid authentication token required")
+    }
 }
 
 suspend fun DataFetchingEnvironment.currentUser() =

@@ -10,7 +10,7 @@ import no.skatteetaten.aurora.gobo.integration.herkimer.HerkimerResult
 import no.skatteetaten.aurora.gobo.integration.herkimer.HerkimerService
 import no.skatteetaten.aurora.gobo.integration.herkimer.RegisterResourceAndClaimCommand
 import no.skatteetaten.aurora.gobo.integration.herkimer.ResourceKind
-import no.skatteetaten.aurora.gobo.security.checkValidUserToken
+import no.skatteetaten.aurora.gobo.security.getValidUser
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Component
@@ -59,7 +59,7 @@ private fun PostgresMotelInput.toHerkimerPostgresInstance() =
     )
 
 private suspend fun DataFetchingEnvironment.checkIsUserAuthorized() {
-    val userId = this.checkValidUserToken().id
+    val userId = this.getValidUser().id
 
     // TODO: This is only temporary for internal usage. Jira ticket AOS-5376 looks into authorization of vra
     if (!userId.matches(Regex("system:serviceaccount:(aurora|aup)[-\\w]*:vra$"))) {
@@ -69,8 +69,8 @@ private suspend fun DataFetchingEnvironment.checkIsUserAuthorized() {
 
 private fun HerkimerResult.toRegisterPostgresResult(host: String): RegisterPostgresResult {
     val message =
-        if (!this.success) "PostgresMotel host=$host could not be registered. The AuroraPlattform has internal configuration issues."
-        else "PostgresMotel host=$host has been successfully registered in the AuroraPlattform."
+        if (success) "PostgresMotel host=$host has been successfully registered in the AuroraPlattform."
+        else "PostgresMotel host=$host could not be registered. The AuroraPlattform has internal configuration issues."
 
     return RegisterPostgresResult(
         message,

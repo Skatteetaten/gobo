@@ -5,19 +5,21 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.convertValue
 import com.fasterxml.jackson.module.kotlin.readValue
+import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.RequiresHerkimer
 import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
 import no.skatteetaten.aurora.gobo.graphql.IntegrationDisabledException
 import no.skatteetaten.aurora.gobo.graphql.awaitWithRetry
 import no.skatteetaten.aurora.gobo.integration.boober.objectMapper
-import no.skatteetaten.aurora.gobo.integration.cantus.logger
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClientResponseException
+
+private val logger = KotlinLogging.logger {}
 
 @Service
 @ConditionalOnBean(RequiresHerkimer::class)
@@ -34,7 +36,7 @@ class HerkimerServiceReactive(
                 uri = "/resource"
             )
 
-        if (response == null || !response.success) {
+        if (response?.success != true) {
             return response.also {
                 logger.warn { "Unable to register resourceKind=${registerAndClaimCommand.resourceKind} payload=${registerAndClaimCommand.toResourcePayload()} errorMessage=${response?.message ?: "no message"}" }
             }.toHerkimerResult()
@@ -42,11 +44,13 @@ class HerkimerServiceReactive(
 
         val resourceId = response.items.first().id
 
-        val result = webClient.postOrNull<AuroraResponse<JsonNode, ErrorResponse>, ResourceClaimPayload>(
-            body = registerAndClaimCommand.toClaimPayload(),
-            uri = "/resource/{resourceId}/claims",
-            resourceId
-        )
+        val result: AuroraResponse<JsonNode, ErrorResponse>? =
+            webClient.postOrNull(
+                body = registerAndClaimCommand.toClaimPayload(),
+                uri = "/resource/{resourceId}/claims",
+                resourceId
+            )
+
         return result.logWarnIfFailure(
             resourceKind = registerAndClaimCommand.resourceKind,
             resourceId = resourceId,
@@ -61,15 +65,15 @@ class HerkimerServiceReactive(
         ResourceClaimPayload(ownerId = ownerId, credentials = mapper.convertValue(credentials), name = claimName)
 }
 
-private fun <T : AuroraResponse<Item, Error>, Item, Error> T?.logWarnIfFailure(
+private fun AuroraResponse<*, *>?.logWarnIfFailure(
     resourceKind: ResourceKind,
     resourceId: String,
     resourceName: String
-): T? {
-    if (this == null || !this.success) {
+): AuroraResponse<*, *>? {
+    if (this?.success != true) {
         val message =
             "Unable to claim registered resourceKind=$resourceKind for resourceId=$resourceId " +
-                "resourceName=$resourceName errorMessage=${this?.message ?: "no message"}"
+                "resourceName=$resourceName errorMessage=$messageOrDefault"
 
         logger.warn { message }
     }
@@ -77,8 +81,11 @@ private fun <T : AuroraResponse<Item, Error>, Item, Error> T?.logWarnIfFailure(
     return this
 }
 
-private suspend inline fun <reified T : AuroraResponse<*, *>, R> WebClient.postOrNull(
-    body: R,
+private val AuroraResponse<*, *>?.messageOrDefault: String
+    get() = this?.message ?: "Did not receive a message from herkimer."
+
+private suspend inline fun <reified T : AuroraResponse<*, *>> WebClient.postOrNull(
+    body: Any,
     uri: String,
     vararg uriVariables: String
 ): T? =
@@ -99,7 +106,7 @@ private suspend inline fun <reified T : AuroraResponse<*, *>, R> WebClient.postO
         logger.warn("Request failed to herkimer for url=$uri $additionalErrorMessage")
     }.getOrNull()
 
-private fun <Item, Error> AuroraResponse<Item, Error>?.toHerkimerResult(): HerkimerResult =
+private fun AuroraResponse<*, *>?.toHerkimerResult(): HerkimerResult =
     HerkimerResult(
         this?.success ?: false
     )
