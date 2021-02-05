@@ -10,7 +10,6 @@ import io.mockk.coEvery
 import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithDbhAndSkap
 import no.skatteetaten.aurora.gobo.graphql.graphqlData
 import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
-import no.skatteetaten.aurora.gobo.graphql.printResult
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
 import no.skatteetaten.aurora.gobo.integration.boober.BooberVault
 import no.skatteetaten.aurora.gobo.integration.boober.VaultService
@@ -84,8 +83,8 @@ class VaultMutationTest : GraphQLTestWithDbhAndSkap() {
         )
         webTestClient.queryGraphQL(addVaultPermissionsMutation, variables, "test-token")
             .expectBody()
-            .printResult()
-        // .graphqlData("createVault.name").isEqualTo("test-vault")
-        // .graphqlDoesNotContainErrors()
+            // .printResult()
+            .graphqlData("addVaultPermissions.name").isEqualTo("gurre-test2")
+            .graphqlDoesNotContainErrors()
     }
 }
