@@ -13,6 +13,7 @@ import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.graphql.isFalse
 import no.skatteetaten.aurora.gobo.graphql.isTrue
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
+import no.skatteetaten.aurora.gobo.integration.boober.BooberVault
 import no.skatteetaten.aurora.gobo.integration.boober.VaultService
 import no.skatteetaten.aurora.gobo.service.AffiliationService
 
@@ -32,7 +33,7 @@ class VaultQueryTest : GraphQLTestWithDbhAndSkap() {
     @MockkBean
     private lateinit var vaultService: VaultService
 
-    private val vaultSimple = Vault(
+    private val vaultSimple = BooberVault(
         name = "boober",
         hasAccess = true,
         permissions = listOf("APP_PaaS_utv"),
@@ -40,19 +41,19 @@ class VaultQueryTest : GraphQLTestWithDbhAndSkap() {
     )
 
     private val vaultList = listOf(
-        Vault(
+        BooberVault(
             name = "boober",
             hasAccess = true,
             permissions = listOf("APP_PaaS_utv"),
             secrets = mapOf("latest.properties" to "QVRTX1VTRVJOQU1FPWJtYwp")
         ),
-        Vault(
+        BooberVault(
             name = "rosita",
             hasAccess = false,
             permissions = listOf("APP_PaaS_utv", "APP_PaaS_drift"),
             secrets = mapOf("latest.properties" to "RklPTkFfU0VDUkVUX0tFWT1")
         ),
-        Vault(
+        BooberVault(
             name = "jenkins-gnupg",
             hasAccess = true,
             permissions = listOf("APP_PaaS_utv", "APP_PaaS_drift"),

@@ -6,7 +6,6 @@ import assertk.assertThat
 import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
 import assertk.assertions.isTrue
-import no.skatteetaten.aurora.gobo.graphql.vault.Vault
 import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.testObjectMapper
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.executeBlocking
@@ -20,7 +19,7 @@ internal class VaultServiceTest {
     private val vaultService =
         VaultService(BooberWebClient(url.toString(), WebClient.create(), testObjectMapper()))
 
-    private val vaultSimple = Vault(
+    private val vaultSimple = BooberVault(
         name = "boober",
         hasAccess = true,
         permissions = listOf("APP_PaaS_utv"),
