@@ -98,8 +98,11 @@ private suspend inline fun <reified T : AuroraResponse<*, *>> WebClient.postOrNu
     }.onFailure {
         val additionalErrorMessage = when (it) {
             is WebClientResponseException -> {
-                val body = objectMapper.readValue<T>(it.responseBodyAsByteArray)
-                "statusCode=${it.statusCode} errorMessage=${body.message}"
+                val errorMessage = runCatching {
+                    objectMapper.readValue<T>(it.responseBodyAsByteArray).message
+                }.getOrNull() ?: "Unable to parse body from herkimer"
+
+                "statusCode=${it.statusCode} errorMessage=$errorMessage"
             }
             else -> "unknown reason. Exception of type ${it::class.simpleName} with message=${it.message}"
         }
