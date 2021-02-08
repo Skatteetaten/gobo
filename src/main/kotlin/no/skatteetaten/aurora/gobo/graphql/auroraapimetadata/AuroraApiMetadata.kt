@@ -7,6 +7,10 @@ import no.skatteetaten.aurora.gobo.integration.boober.ConfigNames
 data class AuroraApiMetadata(
     val clientConfig: ClientConfig
 ) {
+    @Deprecated(
+        "Please use affiliations instead",
+        ReplaceWith("{affiliations(includeUndeployed: true){ edges { node { name }}}}")
+    )
     suspend fun configNames(dfe: DataFetchingEnvironment): List<String> {
         return dfe.loadOrThrow<AuroraApiMetadata, ConfigNames>(this).names
     }

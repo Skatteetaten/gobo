@@ -5,7 +5,7 @@ import graphql.schema.DataFetchingEnvironment
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.graphql.GoboGraphQLContext
 import no.skatteetaten.aurora.gobo.graphql.token
-import no.skatteetaten.aurora.gobo.integration.mokey.AffiliationService
+import no.skatteetaten.aurora.gobo.service.AffiliationService
 import org.springframework.stereotype.Component
 
 private val logger = KotlinLogging.logger { }
@@ -17,6 +17,7 @@ class AffiliationQuery(val affiliationService: AffiliationService) : Query {
         name: String?, // TODO: This query variable is deprecated, replaceWith names
         names: List<String>?,
         checkForVisibility: Boolean?,
+        includeUndeployed: Boolean?,
         dfe: DataFetchingEnvironment
     ): AffiliationsConnection {
 
@@ -30,7 +31,7 @@ class AffiliationQuery(val affiliationService: AffiliationService) : Query {
         }
 
         val affiliationNames = if (names.isNullOrEmpty()) {
-            getAffiliations(checkForVisibility ?: false, dfe)
+            getAffiliations(checkForVisibility ?: false, includeUndeployed ?: false, dfe)
         } else {
             names
         }
@@ -39,10 +40,13 @@ class AffiliationQuery(val affiliationService: AffiliationService) : Query {
         return AffiliationsConnection(affiliations)
     }
 
-    private suspend fun getAffiliations(checkForVisibility: Boolean, dfe: DataFetchingEnvironment) =
+    private suspend fun getAffiliations(checkForVisibility: Boolean, includeUndeployd: Boolean, dfe: DataFetchingEnvironment) =
         if (checkForVisibility) {
             affiliationService.getAllVisibleAffiliations(dfe.token())
+        } else if (includeUndeployd) {
+            affiliationService.getAllAffiliationNames()
         } else {
-            affiliationService.getAllAffiliations()
+            // affiliationService.getAllAffiliations()
+            affiliationService.getAllDeployedAffiliations()
         }
 }

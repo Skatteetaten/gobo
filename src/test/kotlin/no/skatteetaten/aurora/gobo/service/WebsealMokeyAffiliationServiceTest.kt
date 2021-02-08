@@ -12,7 +12,7 @@ import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import no.skatteetaten.aurora.gobo.integration.skap.WebsealServiceReactive
 import org.junit.jupiter.api.Test
 
-class WebsealAffiliationServiceTest {
+class WebsealMokeyAffiliationServiceTest {
 
     private val applicationService = mockk<ApplicationService> {
         coEvery { getApplications(any()) } returns listOf(

@@ -25,3 +25,6 @@ data class VaultCreationInput(
     @GraphQLIgnore
     fun mapToPayload() = AuroraSecretVaultPayload(vaultName, permissions, secrets.associate { it.file to it.content })
 }
+
+data class DeleteVaultInput(val affiliationName: String, val vaultName: String)
+data class DeleteVaultResponse(val affiliationName: String, val vaultName: String)

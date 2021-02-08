@@ -13,7 +13,7 @@ import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
 import no.skatteetaten.aurora.gobo.graphql.webseal.WebsealStateListDataLoader
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseService
-import no.skatteetaten.aurora.gobo.integration.mokey.AffiliationService
+import no.skatteetaten.aurora.gobo.service.AffiliationService
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import no.skatteetaten.aurora.gobo.integration.skap.WebsealService
 import no.skatteetaten.aurora.gobo.service.WebsealAffiliationService
@@ -32,6 +32,9 @@ class AffiliationQueryTest : GraphQLTestWithDbhAndSkap() {
 
     @Value("classpath:graphql/queries/getAffiliations.graphql")
     private lateinit var getAffiliationsQuery: Resource
+
+    @Value("classpath:graphql/queries/getAffiliationsIncludeUndeployed.graphql")
+    private lateinit var getAffiliationsIncludeUndeployedQuery: Resource
 
     @Value("classpath:graphql/queries/getAffiliationsWithVisibilityCheck.graphql")
     private lateinit var getAffiliationsWithVisibilityQuery: Resource
@@ -58,8 +61,25 @@ class AffiliationQueryTest : GraphQLTestWithDbhAndSkap() {
     private lateinit var websealService: WebsealService
 
     @Test
-    fun `Query for all affiliations`() {
-        coEvery { affiliationService.getAllAffiliations() } returns listOf("paas", "demo")
+    fun `Query fo all affiliations include undeployed`() {
+        coEvery { affiliationService.getAllDeployedAffiliations() } returns listOf("paas", "demo")
+        coEvery { affiliationService.getAllAffiliationNames() } returns listOf("paas", "demo", "notDeployed")
+
+        webTestClient.queryGraphQL(getAffiliationsIncludeUndeployedQuery, token = "test-token")
+            .expectStatus().isOk
+            .expectBody()
+            .graphqlDataWithPrefix("affiliations.edges") {
+                graphqlData("[0].node.name").isEqualTo("paas")
+                graphqlData("[1].node.name").isEqualTo("demo")
+                graphqlData("[2].node.name").isEqualTo("notDeployed")
+            }
+            .graphqlData("affiliations.totalCount").isEqualTo(3)
+            .graphqlDoesNotContainErrors()
+    }
+
+    @Test
+    fun `Query for all deployed affiliations`() {
+        coEvery { affiliationService.getAllDeployedAffiliations() } returns listOf("paas", "demo")
 
         webTestClient.queryGraphQL(getAffiliationsQuery, token = "test-token")
             .expectStatus().isOk
@@ -102,7 +122,7 @@ class AffiliationQueryTest : GraphQLTestWithDbhAndSkap() {
 
     @Test
     fun `Query for affiliations with database schemas`() {
-        coEvery { affiliationService.getAllAffiliations() } returns listOf("paas")
+        coEvery { affiliationService.getAllDeployedAffiliations() } returns listOf("paas")
         coEvery { databaseService.getDatabaseSchemas(any()) } returns listOf(DatabaseSchemaResourceBuilder().build())
 
         webTestClient.queryGraphQL(getAffiliationsWithDatabaseSchemaQuery, token = "test-token")
@@ -118,7 +138,7 @@ class AffiliationQueryTest : GraphQLTestWithDbhAndSkap() {
 
     @Test
     fun `Query for affiliations with webseal states`() {
-        coEvery { affiliationService.getAllAffiliations() } returns listOf("paas")
+        coEvery { affiliationService.getAllDeployedAffiliations() } returns listOf("paas")
         coEvery { applicationService.getApplications(any()) } returns listOf(ApplicationResourceBuilder().build())
         coEvery { websealService.getStates() } returns listOf(WebsealStateResourceBuilder().build())
 
