@@ -1,7 +1,5 @@
 package no.skatteetaten.aurora.gobo.graphql.usersettings
 
-import com.fasterxml.jackson.module.kotlin.convertValue
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.coVerify
 import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithDbhAndSkap
@@ -38,7 +36,7 @@ class UserSettingsMutationTest : GraphQLTestWithDbhAndSkap() {
         )
         webTestClient.queryGraphQL(
             queryResource = updateUserSettingsMutation,
-            variables = mapOf("input" to jacksonObjectMapper().convertValue<Map<String, Any>>(userSettings)),
+            input = userSettings,
             token = "test-token"
         ).expectStatus().isOk
             .expectBody()

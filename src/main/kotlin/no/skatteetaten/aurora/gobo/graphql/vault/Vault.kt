@@ -22,14 +22,14 @@ data class Vault(
 
 data class Secret(val name: String, val base64Content: String)
 
-data class VaultCreationInput(
+data class CreateVaultInput(
     val affiliationName: String,
     val vaultName: String,
     val secrets: List<Secret>,
     val permissions: List<String>
 ) {
     @GraphQLIgnore
-    fun mapToPayload() = BooberVaultInput(vaultName, permissions, secrets.map { it.name to it.base64Content }.toMap())
+    fun toBooberInput() = BooberVaultInput(vaultName, permissions, secrets.map { it.name to it.base64Content }.toMap())
 }
 
 data class DeleteVaultInput(val affiliationName: String, val vaultName: String)
