@@ -13,7 +13,6 @@ import no.skatteetaten.aurora.gobo.graphql.graphqlDataWithPrefix
 import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.graphql.graphqlErrorsMissingToken
 import no.skatteetaten.aurora.gobo.graphql.isTrue
-import no.skatteetaten.aurora.gobo.graphql.printResult
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseService
 import org.junit.jupiter.api.Test
@@ -143,13 +142,10 @@ class DatabaseSchemaMutationTest : GraphQLTestWithDbhAndSkap() {
             token = "test-token"
         )
             .expectBody()
-            .printResult()
-            /*
             .graphqlData("restoreDatabaseSchemas.succeeded.length()").isEqualTo(1)
             .graphqlData("restoreDatabaseSchemas.succeeded[0]").isEqualTo("abc123")
             .graphqlData("restoreDatabaseSchemas.failed.length()").isEqualTo(1)
             .graphqlData("restoreDatabaseSchemas.failed[0]").isEqualTo("bcd234")
-             */
     }
 
     @Test

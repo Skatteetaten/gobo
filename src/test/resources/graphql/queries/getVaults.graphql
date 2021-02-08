@@ -7,8 +7,8 @@
           hasAccess
           permissions
           secrets{
-            file
-            content
+            name
+            base64Content
           }
         }
       }

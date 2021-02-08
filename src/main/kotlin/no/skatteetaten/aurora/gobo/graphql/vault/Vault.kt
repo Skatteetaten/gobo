@@ -3,7 +3,7 @@ package no.skatteetaten.aurora.gobo.graphql.vault
 import com.expediagroup.graphql.annotations.GraphQLIgnore
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraSecretVaultPayload
 
-data class Secret(val file: String, val content: String)
+data class Secret(val name: String, val base64Content: String)
 
 data class Vault(
     val name: String,
@@ -23,7 +23,8 @@ data class VaultCreationInput(
     val permissions: List<String>
 ) {
     @GraphQLIgnore
-    fun mapToPayload() = AuroraSecretVaultPayload(vaultName, permissions, secrets.associate { it.file to it.content })
+    fun mapToPayload() =
+        AuroraSecretVaultPayload(vaultName, permissions, secrets.associate { it.name to it.base64Content })
 }
 
 data class DeleteVaultInput(val affiliationName: String, val vaultName: String)
