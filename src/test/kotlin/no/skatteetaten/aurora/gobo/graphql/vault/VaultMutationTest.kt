@@ -32,6 +32,9 @@ class VaultMutationTest : GraphQLTestWithDbhAndSkap() {
     @Value("classpath:graphql/mutations/addVaultSecrets.graphql")
     private lateinit var addVaultSecretsMutation: Resource
 
+    @Value("classpath:graphql/mutations/removeVaultSecrets.graphql")
+    private lateinit var removeVaultSecretsMutation: Resource
+
     @MockkBean(relaxed = true)
     private lateinit var vaultService: VaultService
 
@@ -88,14 +91,21 @@ class VaultMutationTest : GraphQLTestWithDbhAndSkap() {
     fun `Add vault secrets`() {
         coEvery { vaultService.addVaultSecrets(any(), any(), any(), any()) } returns BooberVaultBuilder().build()
 
-        val input = AddVaultSecretsInput(
-            affiliationName = "aurora",
-            vaultName = "test-vault",
-            secrets = listOf(Secret("name", "Z3VycmU="))
-        )
+        val input = AddVaultSecretsInput("aurora", "test-vault", listOf(Secret("name", "Z3VycmU=")))
         webTestClient.queryGraphQL(addVaultSecretsMutation, input, "test-token")
             .expectBody()
             .graphqlData("addVaultSecrets.name").isEqualTo("test-vault")
             .graphqlData("addVaultSecrets.secrets.length()").isEqualTo(2)
+    }
+
+    @Test
+    fun `Remove vault secrets`() {
+        coEvery { vaultService.removeVaultSecrets(any(), any(), any(), any()) } returns BooberVaultBuilder().build()
+
+        val input = RemoveVaultSecretsInput("aurora", "test-vault", listOf(Secret("name", "Z3VycmU=")))
+        webTestClient.queryGraphQL(removeVaultSecretsMutation, input, "test-token")
+            .expectBody()
+            .graphqlData("removeVaultSecrets.name").isEqualTo("test-vault")
+            .graphqlData("removeVaultSecrets.secrets").isNotEmpty
     }
 }
