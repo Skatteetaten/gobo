@@ -62,4 +62,19 @@ class VaultService(private val booberWebClient: BooberWebClient) {
             body = updatedVault.toInput()
         ).response()
     }
+
+    suspend fun removeVaultPermissions(
+        token: String,
+        affiliationName: String,
+        vaultName: String,
+        permissions: List<String>
+    ): BooberVault {
+        val vault = getVault(affiliationName, vaultName, token)
+        val updatedVault = vault.copy(permissions = vault.permissions?.minus(permissions))
+        return booberWebClient.put<BooberVault>(
+            url = "/v1/vault/$affiliationName",
+            token = token,
+            body = updatedVault.toInput()
+        ).response()
+    }
 }

@@ -25,4 +25,9 @@ class VaultMutation(val vaultService: VaultService) : Mutation {
         val vault = vaultService.addVaultPermissions(dfe.token(), input.affiliationName, input.vaultName, input.permissions)
         return Vault.create(vault)
     }
+
+    suspend fun removeVaultPermissions(input: RemoveVaultPermissionsInput, dfe: DataFetchingEnvironment): Vault {
+        val vault = vaultService.removeVaultPermissions(dfe.token(), input.affiliationName, input.vaultName, input.permissions)
+        return Vault.create(vault)
+    }
 }

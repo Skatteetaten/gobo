@@ -26,6 +26,9 @@ class VaultMutationTest : GraphQLTestWithDbhAndSkap() {
     @Value("classpath:graphql/mutations/addVaultPermissions.graphql")
     private lateinit var addVaultPermissionsMutation: Resource
 
+    @Value("classpath:graphql/mutations/removeVaultPermissions.graphql")
+    private lateinit var removeVaultPermissionsMutation: Resource
+
     @MockkBean(relaxed = true)
     private lateinit var vaultService: VaultService
 
@@ -83,8 +86,29 @@ class VaultMutationTest : GraphQLTestWithDbhAndSkap() {
         )
         webTestClient.queryGraphQL(addVaultPermissionsMutation, variables, "test-token")
             .expectBody()
-            // .printResult()
             .graphqlData("addVaultPermissions.name").isEqualTo("gurre-test2")
+            .graphqlDoesNotContainErrors()
+    }
+
+    @Test
+    fun `Remove vault permission`() {
+        coEvery { vaultService.removeVaultPermissions(any(), any(), any(), any()) } returns BooberVault(
+            name = "gurre-test2",
+            hasAccess = true,
+            permissions = listOf("APP_PaaS_utv", "APP_PaaS_drift"),
+            secrets = mapOf("name" to "latest.json", "base64Content" to "Z3VycmU=")
+        )
+        val removePermission = listOf("APP_PaaS_drift")
+        val variables = mapOf(
+            "input" to mapOf(
+                "affiliationName" to "aurora",
+                "vaultName" to "gurre-test2",
+                "permissions" to removePermission
+            )
+        )
+        webTestClient.queryGraphQL(removeVaultPermissionsMutation, variables, "test-token")
+            .expectBody()
+            .graphqlData("removeVaultPermissions.name").isEqualTo("gurre-test2")
             .graphqlDoesNotContainErrors()
     }
 }
