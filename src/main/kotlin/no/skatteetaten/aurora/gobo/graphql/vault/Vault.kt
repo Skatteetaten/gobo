@@ -20,16 +20,16 @@ data class Vault(
     }
 }
 
-data class VaultFileInput(val name: String, val base64Content: String)
+data class Secret(val name: String, val base64Content: String)
 
 data class VaultCreationInput(
     val affiliationName: String,
     val vaultName: String,
-    val files: List<VaultFileInput>,
+    val secrets: List<Secret>,
     val permissions: List<String>
 ) {
     @GraphQLIgnore
-    fun mapToPayload() = BooberVaultInput(vaultName, permissions, files.map { it.name to it.base64Content }.toMap())
+    fun mapToPayload() = BooberVaultInput(vaultName, permissions, secrets.map { it.name to it.base64Content }.toMap())
 }
 
 data class DeleteVaultInput(val affiliationName: String, val vaultName: String)
