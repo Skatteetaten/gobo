@@ -1,5 +1,6 @@
 mutation removeVaultPermissions($input: RemoveVaultPermissionsInput!) {
   removeVaultPermissions(input: $input) {
     name
+    permissions
   }
 }

@@ -95,7 +95,7 @@ class VaultMutationTest : GraphQLTestWithDbhAndSkap() {
         coEvery { vaultService.removeVaultPermissions(any(), any(), any(), any()) } returns BooberVault(
             name = "gurre-test2",
             hasAccess = true,
-            permissions = listOf("APP_PaaS_utv", "APP_PaaS_drift"),
+            permissions = listOf("APP_PaaS_utv"),
             secrets = mapOf("name" to "latest.json", "base64Content" to "Z3VycmU=")
         )
         val removePermission = listOf("APP_PaaS_drift")
@@ -109,6 +109,7 @@ class VaultMutationTest : GraphQLTestWithDbhAndSkap() {
         webTestClient.queryGraphQL(removeVaultPermissionsMutation, variables, "test-token")
             .expectBody()
             .graphqlData("removeVaultPermissions.name").isEqualTo("gurre-test2")
+            .graphqlData("removeVaultPermissions.permissions[0]").isEqualTo("APP_PaaS_utv")
             .graphqlDoesNotContainErrors()
     }
 }
