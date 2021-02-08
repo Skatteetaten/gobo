@@ -75,8 +75,8 @@ class VaultQueryTest : GraphQLTestWithDbhAndSkap() {
                 graphqlData("name").isEqualTo("boober")
                 graphqlData("hasAccess").isTrue()
                 graphqlData("permissions").isEqualTo("APP_PaaS_utv")
-                graphqlData("secrets[0].key").isEqualTo("latest.properties")
-                graphqlData("secrets[0].value").isEqualTo("QVRTX1VTRVJOQU1FPWJtYwp")
+                graphqlData("secrets[0].name").isEqualTo("latest.properties")
+                graphqlData("secrets[0].base64Content").isEqualTo("QVRTX1VTRVJOQU1FPWJtYwp")
             }
             .graphqlDoesNotContainErrors()
     }
@@ -94,10 +94,10 @@ class VaultQueryTest : GraphQLTestWithDbhAndSkap() {
                 graphqlData("hasAccess").isTrue()
                 graphqlData("permissions[0]").isEqualTo("APP_PaaS_utv")
                 graphqlData("permissions[1]").isEqualTo("APP_PaaS_drift")
-                graphqlData("secrets[0].key").isEqualTo("pubring-old.gpg")
-                graphqlData("secrets[0].value").isEqualTo("mQGiBEE2LvgRBACfDMHe0CHihg9q5pBpdgyNr2xo9J")
-                graphqlData("secrets[1].key").isEqualTo("pubring.gpg")
-                graphqlData("secrets[1].value").isEqualTo("mQGNBF2yj5wBDADngY7jzndMFkyoMfzoB2p7ih")
+                graphqlData("secrets[0].name").isEqualTo("pubring-old.gpg")
+                graphqlData("secrets[0].base64Content").isEqualTo("mQGiBEE2LvgRBACfDMHe0CHihg9q5pBpdgyNr2xo9J")
+                graphqlData("secrets[1].name").isEqualTo("pubring.gpg")
+                graphqlData("secrets[1].base64Content").isEqualTo("mQGNBF2yj5wBDADngY7jzndMFkyoMfzoB2p7ih")
             }
             .graphqlDoesNotContainErrors()
     }
@@ -114,26 +114,26 @@ class VaultQueryTest : GraphQLTestWithDbhAndSkap() {
                 graphqlData("name").isEqualTo("boober")
                 graphqlData("hasAccess").isTrue()
                 graphqlData("permissions").isEqualTo("APP_PaaS_utv")
-                graphqlData("secrets[0].key").isEqualTo("latest.properties")
-                graphqlData("secrets[0].value").isEqualTo("QVRTX1VTRVJOQU1FPWJtYwp")
+                graphqlData("secrets[0].name").isEqualTo("latest.properties")
+                graphqlData("secrets[0].base64Content").isEqualTo("QVRTX1VTRVJOQU1FPWJtYwp")
             }
             .graphqlDataWithPrefix("affiliations.edges[0].node.vaults[1]") {
                 graphqlData("name").isEqualTo("rosita")
                 graphqlData("hasAccess").isFalse()
                 graphqlData("permissions[0]").isEqualTo("APP_PaaS_utv")
                 graphqlData("permissions[1]").isEqualTo("APP_PaaS_drift")
-                graphqlData("secrets[0].key").isEqualTo("latest.properties")
-                graphqlData("secrets[0].value").isEqualTo("RklPTkFfU0VDUkVUX0tFWT1")
+                graphqlData("secrets[0].name").isEqualTo("latest.properties")
+                graphqlData("secrets[0].base64Content").isEqualTo("RklPTkFfU0VDUkVUX0tFWT1")
             }
             .graphqlDataWithPrefix("affiliations.edges[0].node.vaults[2]") {
                 graphqlData("name").isEqualTo("jenkins-gnupg")
                 graphqlData("hasAccess").isTrue()
                 graphqlData("permissions[0]").isEqualTo("APP_PaaS_utv")
                 graphqlData("permissions[1]").isEqualTo("APP_PaaS_drift")
-                graphqlData("secrets[0].key").isEqualTo("pubring-old.gpg")
-                graphqlData("secrets[0].value").isEqualTo("mQGiBEE2LvgRBACfDMHe0CHihg9q5pBpdgyNr2xo9J")
-                graphqlData("secrets[1].key").isEqualTo("pubring.gpg")
-                graphqlData("secrets[1].value").isEqualTo("mQGNBF2yj5wBDADngY7jzndMFkyoMfzoB2p7ih")
+                graphqlData("secrets[0].name").isEqualTo("pubring-old.gpg")
+                graphqlData("secrets[0].base64Content").isEqualTo("mQGiBEE2LvgRBACfDMHe0CHihg9q5pBpdgyNr2xo9J")
+                graphqlData("secrets[1].name").isEqualTo("pubring.gpg")
+                graphqlData("secrets[1].base64Content").isEqualTo("mQGNBF2yj5wBDADngY7jzndMFkyoMfzoB2p7ih")
             }
             .graphqlDoesNotContainErrors()
     }
