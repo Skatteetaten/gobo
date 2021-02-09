@@ -22,7 +22,7 @@ data class Vault(
 
 data class Secret(val name: String, val base64Content: String)
 
-data class VaultCreationInput(
+data class CreateVaultInput(
     val affiliationName: String,
     val vaultName: String,
     val secrets: List<Secret>,

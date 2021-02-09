@@ -1,7 +1,7 @@
 package no.skatteetaten.aurora.gobo.integration.boober
 
 import org.springframework.stereotype.Service
-import no.skatteetaten.aurora.gobo.graphql.vault.VaultCreationInput
+import no.skatteetaten.aurora.gobo.graphql.vault.CreateVaultInput
 
 data class BooberVaultInput(
     val name: String,
@@ -27,11 +27,11 @@ class VaultService(private val booberWebClient: BooberWebClient) {
     suspend fun getVault(affiliationName: String, vaultName: String, token: String) =
         booberWebClient.get<BooberVault>(token = token, url = "/v1/vault/$affiliationName/$vaultName").response()
 
-    suspend fun createVault(token: String, input: VaultCreationInput): BooberVault {
+    suspend fun createVault(token: String, inputCreate: CreateVaultInput): BooberVault {
         return booberWebClient.put<BooberVault>(
-            url = "/v1/vault/${input.affiliationName}",
+            url = "/v1/vault/${inputCreate.affiliationName}",
             token = token,
-            body = input.mapToPayload()
+            body = inputCreate.mapToPayload()
         ).response()
     }
 

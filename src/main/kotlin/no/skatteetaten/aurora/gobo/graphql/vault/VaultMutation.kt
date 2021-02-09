@@ -10,9 +10,9 @@ import no.skatteetaten.aurora.gobo.security.checkValidUserToken
 @Component
 class VaultMutation(val vaultService: VaultService) : Mutation {
 
-    suspend fun createVault(input: VaultCreationInput, dfe: DataFetchingEnvironment): Vault {
+    suspend fun createVault(inputCreate: CreateVaultInput, dfe: DataFetchingEnvironment): Vault {
         dfe.checkValidUserToken()
-        val vault = vaultService.createVault(dfe.token(), input)
+        val vault = vaultService.createVault(dfe.token(), inputCreate)
         return Vault.create(vault)
     }
 
