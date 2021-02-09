@@ -91,7 +91,7 @@ private fun WebClientResponseException.isBooberBadRequest(booberUrl: String) = s
 
 private fun Throwable.isAccessDenied() = this is AccessDeniedException
 private fun Throwable.isLoggableException() = this is ClassCastException
-private fun Throwable.isInvalidToken() =
+fun Throwable.isInvalidToken() =
     ExceptionUtils.getRootCauseMessage(this)?.contains(other = "invalid bearer token", ignoreCase = true) ?: false
 
 private fun DataFetcherExceptionHandlerParameters.toExceptionWhileDataFetching(t: Throwable) =

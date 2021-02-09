@@ -20,6 +20,11 @@ import org.springframework.web.reactive.function.client.awaitBody
 
 val objectMapper: ObjectMapper = jacksonObjectMapper().registerModules(JavaTimeModule())
 
+/**
+ * Ignore success, do not throw SourceSystemException here if success = false
+ */
+inline fun <reified T : Any> Response<T>.responsesIgnoreStatus() = this.copy(success = true).responses()
+
 inline fun <reified T : Any> Response<T>.responses(): List<T> = when {
     !this.success -> throw SourceSystemException(
         message = this.message,
@@ -110,6 +115,13 @@ class BooberWebClient(
         params: Map<String, String> = emptyMap()
     ) =
         webClient.post().booberUrl(url, params).body(BodyInserters.fromValue(body)).execute<T>(token)
+
+    final suspend inline fun <reified T : Any> delete(
+        url: String,
+        token: String? = null,
+        params: Map<String, String> = emptyMap()
+    ) =
+        webClient.delete().booberUrl(url, params).execute<T>(token)
 
     fun getBooberUrl(link: String): String {
         if (booberUrl.isNullOrEmpty()) {
