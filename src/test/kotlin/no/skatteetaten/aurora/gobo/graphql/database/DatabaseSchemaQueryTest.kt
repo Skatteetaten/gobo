@@ -7,7 +7,7 @@ import no.skatteetaten.aurora.gobo.DatabaseInstanceResourceBuilder
 import no.skatteetaten.aurora.gobo.DatabaseSchemaResourceBuilder
 import no.skatteetaten.aurora.gobo.RestorableDatabaseSchemaBuilder
 import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithDbhAndSkap
-import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.ApplicationDeploymentListDataLoader
+import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.ApplicationDeploymentBatchDataLoader
 import no.skatteetaten.aurora.gobo.graphql.graphqlData
 import no.skatteetaten.aurora.gobo.graphql.graphqlDataWithPrefix
 import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
@@ -23,7 +23,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
 
-@Import(DatabaseSchemaQuery::class, ApplicationDeploymentListDataLoader::class)
+@Import(DatabaseSchemaQuery::class, ApplicationDeploymentBatchDataLoader::class)
 class DatabaseSchemaQueryTest : GraphQLTestWithDbhAndSkap() {
 
     @Value("classpath:graphql/queries/getDatabaseInstances.graphql")

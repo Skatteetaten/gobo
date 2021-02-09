@@ -32,7 +32,7 @@ class HerkimerServiceReactive(
                 uri = "/resource"
             )
 
-        if (response == null || !response.success) {
+        if (response?.success != true) {
             return response.also {
                 logger.warn { "Unable to register resourceKind=${registerAndClaimCommand.resourceKind} payload=${registerAndClaimCommand.toResourcePayload()} errorMessage=${response?.message ?: "no message"}" }
             }.toHerkimerResult()
@@ -40,11 +40,13 @@ class HerkimerServiceReactive(
 
         val resourceId = response.items.first().id
 
-        val result = webClient.postOrNull<AuroraResponse<JsonNode, ErrorResponse>, ResourceClaimPayload>(
-            body = registerAndClaimCommand.toClaimPayload(),
-            uri = "/resource/{resourceId}/claims",
-            resourceId
-        )
+        val result: AuroraResponse<JsonNode, ErrorResponse>? =
+            webClient.postOrNull(
+                body = registerAndClaimCommand.toClaimPayload(),
+                uri = "/resource/{resourceId}/claims",
+                resourceId
+            )
+
         return result.logWarnIfFailure(
             resourceKind = registerAndClaimCommand.resourceKind,
             resourceId = resourceId,
@@ -59,15 +61,15 @@ class HerkimerServiceReactive(
         ResourceClaimPayload(ownerId = ownerId, credentials = mapper.convertValue(credentials), name = claimName)
 }
 
-private fun <T : AuroraResponse<Item, Error>, Item, Error> T?.logWarnIfFailure(
+private fun AuroraResponse<*, *>?.logWarnIfFailure(
     resourceKind: ResourceKind,
     resourceId: String,
     resourceName: String
-): T? {
-    if (this == null || !this.success) {
+): AuroraResponse<*, *>? {
+    if (this?.success != true) {
         val message =
             "Unable to claim registered resourceKind=$resourceKind for resourceId=$resourceId " +
-                "resourceName=$resourceName errorMessage=${this?.message ?: "no message"}"
+                "resourceName=$resourceName errorMessage=$messageOrDefault"
 
         logger.warn { message }
     }
@@ -75,7 +77,10 @@ private fun <T : AuroraResponse<Item, Error>, Item, Error> T?.logWarnIfFailure(
     return this
 }
 
-private fun <Item, Error> AuroraResponse<Item, Error>?.toHerkimerResult(): HerkimerResult =
+private val AuroraResponse<*, *>?.messageOrDefault: String
+    get() = this?.message ?: "Did not receive a message from herkimer."
+
+private fun AuroraResponse<*, *>?.toHerkimerResult(): HerkimerResult =
     HerkimerResult(
         this?.success ?: false
     )

@@ -27,4 +27,16 @@ class VaultService(private val booberWebClient: BooberWebClient) {
             body = input.mapToPayload()
         ).response()
     }
+
+    suspend fun deleteVault(
+        token: String,
+        affiliationName: String,
+        vaultName: String
+    ) {
+        val url = "/v1/vault/$affiliationName/$vaultName"
+        booberWebClient.delete<Vault>(
+            url = url,
+            token = token
+        ).responses()
+    }
 }

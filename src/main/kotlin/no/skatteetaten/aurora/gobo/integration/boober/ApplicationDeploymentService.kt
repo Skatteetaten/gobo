@@ -31,9 +31,14 @@ class ApplicationDeploymentService(private val booberWebClient: BooberWebClient)
         reference: String,
         payload: ApplyPayload
     ): Response<DeployResource> {
-
         val url = "/v1/apply/{auroraConfig}?reference={reference}"
-        return booberWebClient.put(url = url, params = mapOf("auroraConfig" to auroraConfig, "reference" to reference), body = payload)
+        return booberWebClient
+            .put(
+                url = url,
+                params = mapOf("auroraConfig" to auroraConfig, "reference" to reference),
+                body = payload,
+                token = token
+            )
     }
 
     // TODO this should support  a list of applicationSpecCommands that also takes in responseType and Defaults.
@@ -51,7 +56,10 @@ class ApplicationDeploymentService(private val booberWebClient: BooberWebClient)
         ) + "&reference={auroraConfigReference}"
 
         val url = "/v1/auroradeployspec/{auroraConfig}?$requestParam"
-        return booberWebClient.get<JsonNode>(url = url, params = mapOf("auroraConfig" to auroraConfigName, "auroraConfigReference" to auroraConfigReference)).responses().map {
+        return booberWebClient.get<JsonNode>(
+            url = url,
+            params = mapOf("auroraConfig" to auroraConfigName, "auroraConfigReference" to auroraConfigReference)
+        ).responses().map {
             ApplicationDeploymentSpec(it)
         }
     }
