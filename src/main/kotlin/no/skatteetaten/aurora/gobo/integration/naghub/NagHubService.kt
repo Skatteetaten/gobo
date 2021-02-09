@@ -1,6 +1,6 @@
 package no.skatteetaten.aurora.gobo.integration.naghub
 
-import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.annotation.JsonValue
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
@@ -15,6 +15,7 @@ enum class NagHubColor(val hex: String) {
     Green("#008000"),
     Yellow("#FFFF00");
 
+    @JsonValue
     override fun toString(): String = hex
 }
 
@@ -38,9 +39,9 @@ class NagHubService(
             detailedMessages = message.toList()
         )
 
-        webClient.postOrNull<JsonNode, SendMessageRequestNagHub>(
+        webClient.postOrNull(
             body = body,
-            uri = "/posts/{channelId}",
+            uri = "/api/v1/notify/{channelId}",
             channelId
         ) ?: logger.error { "Unable to send notification through Nag-Hub. Failed message=$message and simpleMessage=$simpleMessage" }
     }

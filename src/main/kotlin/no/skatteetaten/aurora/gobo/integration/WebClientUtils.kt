@@ -32,13 +32,13 @@ suspend inline fun <reified T : Any> WebClient.ResponseSpec.awaitWithRetry(
             }
     ).awaitSingle()
 
-suspend inline fun <reified T : Any, R> WebClient.postOrNull(
-    body: R,
+suspend inline fun <reified T : Any> WebClient.postOrNull(
+    body: Any,
     uri: String,
     vararg uriVariables: String
 ): T? =
     runCatching {
-        post<T, R>(uri, body, *uriVariables)
+        post<T>(uri, body, *uriVariables)
     }.onFailure {
         val additionalErrorMessage = when (it) {
             is WebClientResponseException -> {
@@ -50,9 +50,9 @@ suspend inline fun <reified T : Any, R> WebClient.postOrNull(
         webclientLogger.warn(it) { "Request failed for url=$uri $additionalErrorMessage" }
     }.getOrNull()
 
-suspend inline fun <reified T : Any, R> WebClient.post(
+suspend inline fun <reified T : Any> WebClient.post(
     uri: String,
-    body: R,
+    body: Any,
     vararg uriVariables: String
 ) = this.post()
     .uri(uri, *uriVariables)

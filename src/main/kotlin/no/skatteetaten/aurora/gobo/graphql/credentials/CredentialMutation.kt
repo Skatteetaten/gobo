@@ -27,6 +27,10 @@ class CredentialMutation(
     @Value("\${integrations.dbh.application.deployment.id}") val dbhAdId: String,
     private val nagHubService: NagHubService,
     @Value("\${integrations.mattermost.notifications.registerpostgres.channelid}") val notificationChannel: String,
+    @Value("\${openshift.cluster}") val cluster: String,
+    // TODO: better configuration key here
+    @Value("\${somethingHere}") val allowedAdGroup: String
+
 ) : Mutation {
     suspend fun registerPostgresMotelServer(
         input: PostgresMotelInput,
@@ -48,9 +52,11 @@ class CredentialMutation(
             .sendNotification(notificationChannel, input.host)
     }
 
-    private suspend fun RegisterPostgresResult.sendNotification(notificationChannel: String, host: String): RegisterPostgresResult =
+    private suspend fun RegisterPostgresResult.sendNotification(
+        notificationChannel: String,
+        host: String
+    ): RegisterPostgresResult =
         this.also {
-            val cluster = getClusterFromHost(host)
             val detailedMessage = if (success) {
                 DetailedMessage(
                     NagHubColor.Yellow,
@@ -65,15 +71,16 @@ class CredentialMutation(
 
             nagHubService.sendMessage(notificationChannel, null, detailedMessage)
         }
-}
 
-private fun getClusterFromHost(host: String) =
-    when (host.first().toString()) {
-        "u" -> "utv"
-        "t" -> "test"
-        "p" -> "prod"
-        else -> "unknown"
+    private suspend fun DataFetchingEnvironment.checkIsUserAuthorized() {
+        val user = this.getValidUser()
+
+        // TODO: This is only temporary for internal usage. Jira ticket AOS-5376 looks into authorization of vra
+        if (!user.groups.contains(allowedAdGroup)) {
+            throw AccessDeniedException("You do not have access to register a Postgres Motel Server")
+        }
     }
+}
 
 private fun PostgresMotelInput.generateInstanceName(): String {
     val numbering = host.substringAfter("pgsql")
@@ -89,15 +96,6 @@ private fun PostgresMotelInput.toHerkimerPostgresInstance() =
         affiliation = businessGroup,
         instanceName = generateInstanceName()
     )
-
-private suspend fun DataFetchingEnvironment.checkIsUserAuthorized() {
-    val userId = this.getValidUser().id
-
-    // TODO: This is only temporary for internal usage. Jira ticket AOS-5376 looks into authorization of vra
-    if (!userId.matches(Regex("system:serviceaccount:(aurora|aup)[-\\w]*:vra$"))) {
-        throw AccessDeniedException("You do not have access to register a Postgres Motel Server")
-    }
-}
 
 private fun HerkimerResult.toRegisterPostgresResult(host: String): RegisterPostgresResult {
     val message =
