@@ -3,14 +3,15 @@ package no.skatteetaten.aurora.gobo.graphql
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import no.skatteetaten.aurora.webflux.AuroraRequestParser.KLIENTID_FIELD
 import no.skatteetaten.aurora.webflux.AuroraRequestParser.KORRELASJONSID_FIELD
-import java.nio.charset.StandardCharsets
 import org.apache.commons.text.StringEscapeUtils
+import org.hamcrest.Matchers
 import org.springframework.core.io.Resource
 import org.springframework.http.HttpHeaders
 import org.springframework.test.web.reactive.server.JsonPathAssertions
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.util.StreamUtils
 import org.springframework.web.reactive.function.BodyInserters
+import java.nio.charset.StandardCharsets
 
 private fun query(payload: String, variables: String) =
     """
@@ -103,6 +104,12 @@ fun WebTestClient.BodyContentSpec.graphqlErrorsFirst(jsonPath: String) =
 
 fun WebTestClient.BodyContentSpec.graphqlErrorsMissingToken() =
     graphqlErrorsFirst("message").isEqualTo("Token is not set")
+
+fun WebTestClient.BodyContentSpec.graphqlErrorsFirstContainsMessage(message: String): WebTestClient.BodyContentSpec =
+    this.graphqlErrorsFirst("message").contains(message)
+
+fun JsonPathAssertions.contains(value: String) =
+    this.value(Matchers.containsString(value))
 
 private fun WebTestClient.BodyContentSpec.graphqlJsonPath(jsonPath: String, type: String): JsonPathAssertions {
     val expression = if (jsonPath.startsWith("[")) {

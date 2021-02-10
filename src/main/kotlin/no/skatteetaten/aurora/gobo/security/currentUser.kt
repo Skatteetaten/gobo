@@ -17,20 +17,25 @@ const val GUEST_USER_NAME = "Gjestebruker"
 val ANONYMOUS_USER = User(GUEST_USER_ID, GUEST_USER_NAME)
 
 suspend fun DataFetchingEnvironment.checkValidUserToken() {
+    getValidUser()
+}
+
+suspend fun DataFetchingEnvironment.getValidUser(): User {
     token()
-    if (currentUser() == ANONYMOUS_USER) {
-        throw AccessDeniedException("Valid authentication token required")
+    return currentUser().also {
+        if (it == ANONYMOUS_USER) throw AccessDeniedException("Valid authentication token required")
     }
 }
 
-suspend fun DataFetchingEnvironment.currentUser() = this.getContext<GoboGraphQLContext>().securityContext().authentication?.let {
-    if (!it.isAuthenticated) ANONYMOUS_USER
-    when (it) {
-        is PreAuthenticatedAuthenticationToken, is UsernamePasswordAuthenticationToken -> it.principal.getUser(it.credentials.toString())
-        is AnonymousAuthenticationToken -> User(it.name, GUEST_USER_NAME)
-        else -> ANONYMOUS_USER
-    }
-} ?: ANONYMOUS_USER
+suspend fun DataFetchingEnvironment.currentUser() =
+    this.getContext<GoboGraphQLContext>().securityContext().authentication?.let {
+        if (!it.isAuthenticated) ANONYMOUS_USER
+        when (it) {
+            is PreAuthenticatedAuthenticationToken, is UsernamePasswordAuthenticationToken -> it.principal.getUser(it.credentials.toString())
+            is AnonymousAuthenticationToken -> User(it.name, GUEST_USER_NAME)
+            else -> ANONYMOUS_USER
+        }
+    } ?: ANONYMOUS_USER
 
 private val logger = KotlinLogging.logger {}
 

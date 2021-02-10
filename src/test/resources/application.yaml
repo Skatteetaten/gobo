@@ -7,6 +7,10 @@ spring:
         enabled: false
 
 integrations:
+    dbh:
+        application:
+            deployment:
+                id: 1235
     mokey:
         url: http://localhost:6565
     unclematt:
@@ -15,6 +19,8 @@ integrations:
         url: http://localhost:6568
     boober:
         url: http://localhost:6569
+    herkimer:
+        url: http://localhost:6570
     docker:
         cluster:
             url: docker-registry.default.svc:5000
