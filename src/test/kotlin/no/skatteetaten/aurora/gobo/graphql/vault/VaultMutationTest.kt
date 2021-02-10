@@ -13,7 +13,6 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
-import no.skatteetaten.aurora.gobo.graphql.printResult
 
 @Import(VaultMutation::class)
 class VaultMutationTest : GraphQLTestWithDbhAndSkap() {
@@ -35,7 +34,12 @@ class VaultMutationTest : GraphQLTestWithDbhAndSkap() {
 
     @BeforeEach
     fun setUp() {
-        coEvery { vaultService.createVault(any(), any()) } returns BooberVault("test-vault", false, emptyList(), emptyMap())
+        coEvery { vaultService.createVault(any(), any()) } returns BooberVault(
+            "test-vault",
+            false,
+            emptyList(),
+            emptyMap()
+        )
     }
 
     @Test
@@ -52,9 +56,8 @@ class VaultMutationTest : GraphQLTestWithDbhAndSkap() {
         )
         webTestClient.queryGraphQL(createVaultMutation, variables, "test-token")
             .expectBody()
-            .printResult()
-        // .graphqlData("createVault.name").isEqualTo("test-vault")
-        // .graphqlDoesNotContainErrors()
+            .graphqlData("createVault.name").isEqualTo("test-vault")
+            .graphqlDoesNotContainErrors()
     }
 
     @Test
