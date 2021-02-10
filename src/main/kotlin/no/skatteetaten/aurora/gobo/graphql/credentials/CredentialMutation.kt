@@ -24,12 +24,11 @@ private val logger = KotlinLogging.logger {}
 @Component
 class CredentialMutation(
     private val herkimerService: HerkimerService,
-    @Value("\${integrations.dbh.application.deployment.id}") val dbhAdId: String,
     private val nagHubService: NagHubService,
-    @Value("\${integrations.mattermost.notifications.registerpostgres.channelid}") val notificationChannel: String,
+    @Value("\${integrations.dbh.application.deployment.id}") val dbhAdId: String,
     @Value("\${openshift.cluster}") val cluster: String,
-    // TODO: better configuration key here
-    @Value("\${somethingHere}") val allowedAdGroup: String
+    @Value("\${credentials.registerPostgres.notificationChannel}") val notificationChannel: String,
+    @Value("\${credentials.registerPostgres.allowedAdGroup}") val allowedAdGroup: String
 
 ) : Mutation {
     suspend fun registerPostgresMotelServer(
@@ -49,13 +48,10 @@ class CredentialMutation(
                 resourceKind = ResourceKind.PostgresDatabaseInstance
             )
         ).toRegisterPostgresResult(input.host)
-            .sendNotification(notificationChannel, input.host)
+            .sendNotification()
     }
 
-    private suspend fun RegisterPostgresResult.sendNotification(
-        notificationChannel: String,
-        host: String
-    ): RegisterPostgresResult =
+    private suspend fun RegisterPostgresResult.sendNotification(): RegisterPostgresResult =
         this.also {
             val detailedMessage = if (success) {
                 DetailedMessage(

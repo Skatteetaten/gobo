@@ -9,6 +9,10 @@ integrations:
         url: https://herkimer-aurora.utv.paas.skead.no
     naghub:
         url: http://naghub-aurora.utv.paas.skead.no
+    dbh:
+        application:
+            deployment:
+                id: notarealvalue
     skap:
         url: http://localhost:9090
     docker:
@@ -65,3 +69,8 @@ gobo:
 
 # logging.level.no.skatteetaten.aurora.gobo: DEBUG
 logging.level.no.skatteetaten.aurora.gobo.security: DEBUG
+
+credentials:
+    registerPostgres:
+        allowedAdGroup: someAdGroup
+        notificationChannel: something
