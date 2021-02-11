@@ -42,7 +42,10 @@ suspend inline fun <reified T : Any> WebClient.postOrNull(
     }.onFailure {
         val additionalErrorMessage = when (it) {
             is WebClientResponseException -> {
-                val body = objectMapper.readValue<T>(it.responseBodyAsByteArray)
+                val body = runCatching {
+                    objectMapper.readValue<T>(it.responseBodyAsByteArray)
+                }.getOrNull() ?: "Could not read response body. Cause=${it.cause}"
+
                 "statusCode=${it.statusCode} response=$body"
             }
             else -> "unknown reason. Exception of type ${it::class.simpleName} with message=${it.message}"
