@@ -65,7 +65,13 @@ class CredentialMutation(
                 )
             }
 
-            nagHubService.sendMessage(notificationChannel, null, detailedMessage)
+            val result = nagHubService.sendMessage(notificationChannel, null, listOf(detailedMessage))
+
+            if (!result.success) {
+                logger.error {
+                    "Could not send notification to mattermost for a registered postgres motel with message=${detailedMessage.text}"
+                }
+            }
         }
 
     private suspend fun DataFetchingEnvironment.checkIsUserAuthorized() {

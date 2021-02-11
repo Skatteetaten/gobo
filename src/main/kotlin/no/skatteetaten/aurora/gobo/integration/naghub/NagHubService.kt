@@ -1,6 +1,7 @@
 package no.skatteetaten.aurora.gobo.integration.naghub
 
 import com.fasterxml.jackson.annotation.JsonValue
+import com.fasterxml.jackson.databind.JsonNode
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
@@ -29,20 +30,35 @@ data class SendMessageRequestNagHub(
     val detailedMessages: List<DetailedMessage>
 )
 
+data class NagHubResult(
+    val success: Boolean
+)
+
 @Service
 class NagHubService(
     @TargetService(ServiceTypes.NAGHUB) val webClient: WebClient
 ) {
-    suspend fun sendMessage(channelId: String, simpleMessage: String? = null, vararg message: DetailedMessage) {
+    suspend fun sendMessage(
+        channelId: String,
+        simpleMessage: String? = null,
+        messages: List<DetailedMessage>
+    ): NagHubResult {
         val body = SendMessageRequestNagHub(
             simpleMessage = simpleMessage,
-            detailedMessages = message.toList()
+            detailedMessages = messages
         )
 
-        webClient.postOrNull(
+        val response = webClient.postOrNull<JsonNode>(
             body = body,
             uri = "/api/v1/notify/{channelId}",
             channelId
-        ) ?: logger.error { "Unable to send notification through Nag-Hub. Failed message=$message and simpleMessage=$simpleMessage" }
+        )
+
+        response
+            ?: logger.error { "Unable to send notification through Nag-Hub. Failed message=$messages and simpleMessage=$simpleMessage" }
+
+        return NagHubResult(
+            success = response != null
+        )
     }
 }

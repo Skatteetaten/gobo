@@ -1,7 +1,9 @@
 package no.skatteetaten.aurora.gobo.integration.naghub
 
 import assertk.assertThat
+import assertk.assertions.isFalse
 import assertk.assertions.isSuccess
+import assertk.assertions.isTrue
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.mockk.every
 import io.mockk.mockk
@@ -17,7 +19,7 @@ class NagHubServiceTest {
     private val sharedSecretReader = mockk<SharedSecretReader> {
         every { secret } returns "abc"
     }
-    private val webClient = ApplicationConfig(500, 500, 500, "", sharedSecretReader)
+    private val webClient = ApplicationConfig(1500, 1500, 1500, "", sharedSecretReader)
         .webClientNagHub(server.url("/").toString(), WebClient.builder())
     private val nagHubService = NagHubService(webClient)
 
@@ -26,8 +28,36 @@ class NagHubServiceTest {
         val response = jacksonObjectMapper().createObjectNode().toString()
         server.executeBlocking(response) {
             assertThat {
-                nagHubService.sendMessage("12345", null, DetailedMessage(NagHubColor.Red, "hello"))
+                nagHubService.sendMessage(
+                    channelId = "12345",
+                    simpleMessage = "hello world",
+                    messages = listOf(
+                        DetailedMessage(NagHubColor.Red, "hello")
+                    )
+                )
+            }.isSuccess().given {
+                assertThat(it.success).isTrue()
+            }
+        }
+    }
+
+    @Test
+    fun `Should return false when receives error from naghub`() {
+        val response = jacksonObjectMapper().createObjectNode().toString()
+        server.executeBlocking(500 to response) {
+            assertThat {
+                nagHubService.sendMessage(
+                    channelId = "12345",
+                    simpleMessage = "hello world",
+                    messages = listOf(
+                        DetailedMessage(NagHubColor.Red, "hello"),
+                        DetailedMessage(NagHubColor.Red, "hello2")
+                    )
+                )
             }.isSuccess()
+                .given {
+                    assertThat(it.success).isFalse()
+                }
         }
     }
 }

@@ -6,9 +6,7 @@ import assertk.assertions.isEqualTo
 import com.fasterxml.jackson.module.kotlin.convertValue
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.ninjasquad.springmockk.MockkBean
-import io.mockk.Runs
 import io.mockk.coEvery
-import io.mockk.just
 import io.mockk.slot
 import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithoutDbhAndSkap
 import no.skatteetaten.aurora.gobo.graphql.contains
@@ -25,6 +23,7 @@ import no.skatteetaten.aurora.gobo.integration.herkimer.HerkimerServiceReactive
 import no.skatteetaten.aurora.gobo.integration.herkimer.RegisterResourceAndClaimCommand
 import no.skatteetaten.aurora.gobo.integration.naghub.DetailedMessage
 import no.skatteetaten.aurora.gobo.integration.naghub.NagHubColor
+import no.skatteetaten.aurora.gobo.integration.naghub.NagHubResult
 import no.skatteetaten.aurora.gobo.integration.naghub.NagHubService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -45,7 +44,7 @@ abstract class CredentialMutationTest : GraphQLTestWithoutDbhAndSkap() {
         "input" to jacksonObjectMapper().convertValue<Map<String, Any>>(postgresMotelInput)
     )
 
-    protected val messageSlot = slot<DetailedMessage>()
+    protected val messageSlot = slot<List<DetailedMessage>>()
 
     @MockkBean
     private lateinit var naghubService: NagHubService
@@ -54,16 +53,36 @@ abstract class CredentialMutationTest : GraphQLTestWithoutDbhAndSkap() {
     fun setup() {
         coEvery {
             naghubService.sendMessage(any(), any(), capture(messageSlot))
-        } just Runs
+        } returns NagHubResult(true)
     }
 }
 
 @WithMockUser(
-    username = "system:serviceaccount:aup:vra"
+    authorities = ["testAdGroup"]
 )
-class AuthorizedAupTokenCredentialMutation : CredentialMutationTest() {
+class AuthorizedTokenCredentialMutation : CredentialMutationTest() {
     @MockkBean
     private lateinit var herkimerService: HerkimerService
+
+    @Test
+    fun `Mutate credentials return false with message given response false`() {
+        coEvery { herkimerService.registerResourceAndClaim(any()) } returns HerkimerResult(false)
+
+        webTestClient.queryGraphQL(
+            queryResource = registerPostgresMotelMutation,
+            variables = registerPostgresVariables,
+            token = "test-token"
+        ).expectStatus().isOk
+            .expectBody()
+            .graphqlDataWithPrefix("registerPostgresMotelServer") {
+                graphqlData("success").isFalse()
+                graphqlData("message").contains("host=test0oup-pgsql02 could not be registered")
+            }
+
+        val message = messageSlot.captured.first()
+        assertThat(message.text).contains("needs to be manually registered")
+        assertThat(message.color).isEqualTo(NagHubColor.Red)
+    }
 
     @Test
     fun `Mutate credentials return true given response success`() {
@@ -88,35 +107,9 @@ class AuthorizedAupTokenCredentialMutation : CredentialMutationTest() {
             .graphqlDoesNotContainErrors()
 
         assertThat(instanceNameSlot.captured.resourceName).isEqualTo(expectedInstanceName)
-        assertThat(messageSlot.captured.text).contains("DBH needs to be redeployed in cluster=test")
-        assertThat(messageSlot.captured.color).isEqualTo(NagHubColor.Yellow)
-    }
-}
-
-@WithMockUser(
-    username = "system:serviceaccount:aurora:vra"
-)
-class AuthorizedTokenCredentialMutation : CredentialMutationTest() {
-    @MockkBean
-    private lateinit var herkimerService: HerkimerService
-
-    @Test
-    fun `Mutate credentials return false with message given response false`() {
-        coEvery { herkimerService.registerResourceAndClaim(any()) } returns HerkimerResult(false)
-
-        webTestClient.queryGraphQL(
-            queryResource = registerPostgresMotelMutation,
-            variables = registerPostgresVariables,
-            token = "test-token"
-        ).expectStatus().isOk
-            .expectBody()
-            .graphqlDataWithPrefix("registerPostgresMotelServer") {
-                graphqlData("success").isFalse()
-                graphqlData("message").contains("host=test0oup-pgsql02 could not be registered")
-            }
-
-        assertThat(messageSlot.captured.text).contains("needs to be manually registered")
-        assertThat(messageSlot.captured.color).isEqualTo(NagHubColor.Red)
+        val message = messageSlot.captured.first()
+        assertThat(message.text).contains("DBH needs to be redeployed in cluster=http://localhost")
+        assertThat(message.color).isEqualTo(NagHubColor.Yellow)
     }
 }
 
@@ -138,7 +131,7 @@ class UnauthorizedTokenCredentialMutation : CredentialMutationTest() {
 }
 
 @WithMockUser(
-    username = "system:serviceaccount:aurora:vra"
+    authorities = ["testAdGroup"]
 )
 @TestPropertySource(
     properties = ["integrations.herkimer.url=false"]
@@ -157,8 +150,9 @@ class UnavailableHerkimerCredentialMutation : CredentialMutationTest() {
             .graphqlErrorsFirstContainsMessage("Herkimer integration is disabled")
     }
 }
+
 @WithMockUser(
-    username = "system:serviceaccount:aurora:vra"
+    authorities = ["testAdGroup"]
 )
 @TestPropertySource(
     properties = ["integrations.dbh.application.deployment.id=false"]

@@ -6,6 +6,11 @@ spring:
     sleuth:
         enabled: false
 
+credentials:
+    registerPostgres:
+        notificationChannel: testchannel
+        allowedAdGroup: testAdGroup
+
 integrations:
     dbh:
         application:
