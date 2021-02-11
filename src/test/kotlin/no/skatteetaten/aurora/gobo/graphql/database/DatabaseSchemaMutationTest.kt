@@ -142,10 +142,10 @@ class DatabaseSchemaMutationTest : GraphQLTestWithDbhAndSkap() {
             token = "test-token"
         )
             .expectBody()
-        .graphqlData("restoreDatabaseSchemas.succeeded.length()").isEqualTo(1)
-        .graphqlData("restoreDatabaseSchemas.succeeded[0]").isEqualTo("abc123")
-        .graphqlData("restoreDatabaseSchemas.failed.length()").isEqualTo(1)
-        .graphqlData("restoreDatabaseSchemas.failed[0]").isEqualTo("bcd234")
+            .graphqlData("restoreDatabaseSchemas.succeeded.length()").isEqualTo(1)
+            .graphqlData("restoreDatabaseSchemas.succeeded[0]").isEqualTo("abc123")
+            .graphqlData("restoreDatabaseSchemas.failed.length()").isEqualTo(1)
+            .graphqlData("restoreDatabaseSchemas.failed[0]").isEqualTo("bcd234")
     }
 
     @Test

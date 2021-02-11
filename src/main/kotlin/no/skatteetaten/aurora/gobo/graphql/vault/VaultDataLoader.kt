@@ -13,10 +13,11 @@ data class VaultKey(
 @Component
 class VaultDataLoader(val vaultService: VaultService) : KeyDataLoader<VaultKey, Vault> {
     override suspend fun getByKey(key: VaultKey, context: GoboGraphQLContext): Vault {
-        return vaultService.getVault(
+        val vault = vaultService.getVault(
             affiliationName = key.affiliationName,
             vaultName = key.vaultName,
             token = context.token()
         )
+        return Vault.create(vault)
     }
 }

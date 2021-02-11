@@ -1,0 +1,5 @@
+mutation addVaultPermissions($input: AddVaultPermissionsInput!) {
+  addVaultPermissions(input: $input) {
+    name
+  }
+}

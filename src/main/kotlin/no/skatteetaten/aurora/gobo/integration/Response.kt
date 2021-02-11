@@ -5,4 +5,6 @@ data class Response<Item>(
     val message: String = "OK",
     val items: List<Item>,
     val count: Int = items.size
-)
+) {
+    constructor(item: Item) : this(items = listOf(item))
+}
