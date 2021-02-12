@@ -1,5 +1,6 @@
 package no.skatteetaten.aurora.gobo.integration.boober
 
+import assertk.Assert
 import org.junit.jupiter.api.Test
 import org.springframework.web.reactive.function.client.WebClient
 import assertk.assertThat
@@ -7,78 +8,66 @@ import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isTrue
-import no.skatteetaten.aurora.gobo.graphql.vault.DeleteVaultInput
+import assertk.assertions.support.expected
+import no.skatteetaten.aurora.gobo.BooberVaultBuilder
+import no.skatteetaten.aurora.gobo.graphql.vault.Secret
 import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.testObjectMapper
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.bodyAsObject
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.executeBlocking
 import okhttp3.mockwebserver.MockWebServer
+import okhttp3.mockwebserver.RecordedRequest
 
-internal class VaultServiceTest {
+class VaultServiceTest {
+    private val affiliationName = "aurora"
+    private val vaultName = "test-vault"
 
     private val server = MockWebServer()
     private val url = server.url("/")
-    private val input = DeleteVaultInput("aurora", "boober")
 
-    private val vaultService =
-        VaultService(BooberWebClient(url.toString(), WebClient.create(), testObjectMapper()))
-
-    private val vaultSimple = BooberVault(
-        name = "boober",
-        hasAccess = true,
-        permissions = listOf("APP_PaaS_utv"),
-        secrets = mapOf("latest.properties" to "QVRTX1VTRVJOQU1FPWJtYwp")
-    )
+    private val vaultService = VaultService(BooberWebClient(url.toString(), WebClient.create(), testObjectMapper()))
 
     @Test
     fun `Get vault`() {
-        val response = Response(items = listOf(vaultSimple))
+        val response = Response(BooberVaultBuilder().build())
         val requests = server.executeBlocking(response) {
-            val vault = vaultService.getVault(affiliationName = "aurora", vaultName = "boober", token = "token")
-            assertThat(vault.name).isEqualTo("boober")
+            val vault = vaultService.getVault(affiliationName = affiliationName, vaultName = vaultName, token = "token")
+            assertThat(vault.name).isEqualTo(vaultName)
             assertThat(vault.hasAccess).isTrue()
             assertThat(vault.permissions?.get(0)).isEqualTo("APP_PaaS_utv")
             assertThat(vault.secrets?.get("latest.properties")).isEqualTo("QVRTX1VTRVJOQU1FPWJtYwp")
         }
         assertThat(requests).hasSize(1)
+        assertThat(requests).containsGetVaultRequest()
     }
 
     @Test
     fun `Get vaults`() {
-        val response = Response(items = listOf(vaultSimple))
+        val response = Response(BooberVaultBuilder().build())
         val requests = server.executeBlocking(response) {
-            val vault = vaultService.getVaults(affiliationName = "aurora", token = "token")
-            assertThat(vault[0].name).isEqualTo("boober")
+            val vault = vaultService.getVaults(affiliationName = affiliationName, token = "token")
+            assertThat(vault[0].name).isEqualTo(vaultName)
             assertThat(vault[0].hasAccess).isTrue()
             assertThat(vault[0].permissions?.get(0)).isEqualTo("APP_PaaS_utv")
             assertThat(vault[0].secrets?.get("latest.properties")).isEqualTo("QVRTX1VTRVJOQU1FPWJtYwp")
         }
         assertThat(requests).hasSize(1)
+        assertThat(requests.first()?.path).isEqualTo("/v1/vault/$affiliationName")
     }
 
     @Test
     fun `Delete vaults`() {
-        val affiliationName = "aurora"
-        val vaultName = "boober"
         val response = Response<String>(items = emptyList())
         val requests = server.executeBlocking(response) {
             vaultService.deleteVault(affiliationName = affiliationName, token = "token", vaultName = vaultName)
         }
-        assertThat(requests.first()?.path).isEqualTo("/v1/vault/$affiliationName/$vaultName")
+        assertThat(requests).containsGetVaultRequest()
         assertThat(requests).hasSize(1)
     }
 
     @Test
     fun `Add permission to vault`() {
-
-        val affiliationName = "aurora"
-        val vaultName = "boober"
-        val getVaultResponse = BooberVault(
-            name = vaultName,
-            hasAccess = true,
-            permissions = listOf("permission1"),
-            secrets = mapOf("latest.properties" to "QVRTX1VTRVJOQU1FPWJtYwp")
-        )
+        val getVaultResponse = BooberVaultBuilder(permissions = listOf("permission1")).build()
         val putVaultResponse = getVaultResponse.copy(permissions = listOf("permission1", "permission2"))
 
         val requests = server.executeBlocking(
@@ -93,21 +82,18 @@ internal class VaultServiceTest {
             )
             assertThat(booberVault).isNotNull()
         }
-        assertThat(requests.first()?.path).isEqualTo("/v1/vault/$affiliationName/$vaultName")
-        assertThat(requests.last()?.bodyAsObject<BooberVaultInput>()?.permissions).isEqualTo(listOf("permission1", "permission2"))
+        assertThat(requests).containsGetVaultRequest()
+        assertThat(requests.last()?.bodyAsObject<BooberVaultInput>()?.permissions).isEqualTo(
+            listOf(
+                "permission1",
+                "permission2"
+            )
+        )
     }
 
     @Test
     fun `Remove permission from vault`() {
-
-        val affiliationName = "aurora"
-        val vaultName = "boober"
-        val getVaultResponse = BooberVault(
-            name = vaultName,
-            hasAccess = true,
-            permissions = listOf("permission1", "permission2"),
-            secrets = mapOf("latest.properties" to "QVRTX1VTRVJOQU1FPWJtYwp")
-        )
+        val getVaultResponse = BooberVaultBuilder(permissions = listOf("permission1", "permission2")).build()
         val putVaultResponse = getVaultResponse.copy(permissions = listOf("permission1"))
 
         val requests = server.executeBlocking(
@@ -122,7 +108,32 @@ internal class VaultServiceTest {
             )
             assertThat(booberVault).isNotNull()
         }
-        assertThat(requests.first()?.path).isEqualTo("/v1/vault/$affiliationName/$vaultName")
+        assertThat(requests).containsGetVaultRequest()
         assertThat(requests.last()?.bodyAsObject<BooberVaultInput>()?.permissions).isEqualTo(listOf("permission2"))
+    }
+
+    @Test
+    fun `Add secrets to vault`() {
+        val getVaultResponse = BooberVaultBuilder(secrets = mapOf("secret1" to "YWJj")).build()
+        val putVaultResponse = getVaultResponse.copy(secrets = mapOf("secret2" to "MTIz"))
+
+        val requests = server.executeBlocking(Response(getVaultResponse), Response(putVaultResponse)) {
+            val vault = vaultService.addVaultSecrets(
+                token = "token",
+                affiliationName = affiliationName,
+                vaultName = vaultName,
+                secrets = listOf(Secret("secret2", "MTIz"))
+            )
+            assertThat(vault).isNotNull()
+        }
+        assertThat(requests).containsGetVaultRequest()
+        assertThat(
+            requests.last()?.bodyAsObject<BooberVaultInput>()?.secrets
+        ).isEqualTo(mapOf("secret1" to "YWJj", "secret2" to "MTIz"))
+    }
+
+    private fun Assert<List<RecordedRequest?>>.containsGetVaultRequest() = given {
+        if (it.first()?.path == "/v1/vault/$affiliationName/$vaultName") return
+        expected("First request to get vault but was ${it.first()}")
     }
 }

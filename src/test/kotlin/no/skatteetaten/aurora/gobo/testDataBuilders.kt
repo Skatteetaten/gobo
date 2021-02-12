@@ -547,11 +547,14 @@ class ImageTagResourceBuilder {
     )
 }
 
-class BooberVaultBuilder {
+data class BooberVaultBuilder(
+    val permissions: List<String> = listOf("APP_PaaS_utv"),
+    val secrets: Map<String, String> = mapOf("latest.properties" to "QVRTX1VTRVJOQU1FPWJtYwp")
+) {
     fun build() = BooberVault(
         name = "test-vault",
         hasAccess = true,
-        permissions = listOf("APP_PaaS_utv"),
-        secrets = mapOf("name" to "latest.json", "base64Content" to "Z3VycmU=")
+        permissions = permissions,
+        secrets = secrets
     )
 }
