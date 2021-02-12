@@ -4,7 +4,6 @@ import com.expediagroup.graphql.spring.operations.Mutation
 import com.fasterxml.jackson.annotation.JsonProperty
 import graphql.schema.DataFetchingEnvironment
 import mu.KotlinLogging
-import no.skatteetaten.aurora.gobo.graphql.AccessDeniedException
 import no.skatteetaten.aurora.gobo.integration.herkimer.CredentialBase
 import no.skatteetaten.aurora.gobo.integration.herkimer.HerkimerResult
 import no.skatteetaten.aurora.gobo.integration.herkimer.HerkimerService
@@ -14,7 +13,7 @@ import no.skatteetaten.aurora.gobo.integration.naghub.DetailedMessage
 import no.skatteetaten.aurora.gobo.integration.naghub.NagHubColor
 import no.skatteetaten.aurora.gobo.integration.naghub.NagHubResult
 import no.skatteetaten.aurora.gobo.integration.naghub.NagHubService
-import no.skatteetaten.aurora.gobo.security.getValidUser
+import no.skatteetaten.aurora.gobo.security.checkIsUserAuthorized
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Component
@@ -36,7 +35,7 @@ class CredentialMutation(
         input: PostgresMotelInput,
         dfe: DataFetchingEnvironment
     ): RegisterPostgresResult {
-        dfe.checkIsUserAuthorized()
+        dfe.checkIsUserAuthorized(allowedAdGroup)
 
         val postgresInstance = input.toHerkimerPostgresInstance()
 
@@ -78,15 +77,6 @@ class CredentialMutation(
             }
 
         return listOf(notifyMessage)
-    }
-
-    private suspend fun DataFetchingEnvironment.checkIsUserAuthorized() {
-        val user = this.getValidUser()
-
-        // TODO: This is only temporary for internal usage. Jira ticket AOS-5376 looks into authorization of vra
-        if (!user.groups.contains(allowedAdGroup)) {
-            throw AccessDeniedException("You do not have access to register a Postgres Motel Server")
-        }
     }
 }
 
