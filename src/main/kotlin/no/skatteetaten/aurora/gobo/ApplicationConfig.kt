@@ -52,6 +52,11 @@ class RequiresSkap
 @ConditionalOnProperty("integrations.herkimer.url")
 class RequiresHerkimer
 
+@Order(Ordered.HIGHEST_PRECEDENCE)
+@Component
+@ConditionalOnProperty("integrations.naghub.url")
+class RequiresNagHub
+
 private val logger = KotlinLogging.logger {}
 
 @Configuration

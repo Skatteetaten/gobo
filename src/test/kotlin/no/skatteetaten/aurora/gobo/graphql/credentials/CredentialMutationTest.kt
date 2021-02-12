@@ -52,7 +52,7 @@ abstract class CredentialMutationTest : GraphQLTestWithoutDbhAndSkap() {
     @BeforeEach
     fun setup() {
         coEvery {
-            naghubService.sendMessage(any(), any(), capture(messageSlot))
+            naghubService.sendMessage(any(), capture(messageSlot), any())
         } returns NagHubResult(true)
     }
 }

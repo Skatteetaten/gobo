@@ -3,9 +3,12 @@ package no.skatteetaten.aurora.gobo.integration.naghub
 import com.fasterxml.jackson.annotation.JsonValue
 import com.fasterxml.jackson.databind.JsonNode
 import mu.KotlinLogging
+import no.skatteetaten.aurora.gobo.RequiresNagHub
 import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
 import no.skatteetaten.aurora.gobo.integration.postOrNull
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
 
@@ -35,14 +38,15 @@ data class NagHubResult(
 )
 
 @Service
-class NagHubService(
+@ConditionalOnBean(RequiresNagHub::class)
+class NagHubServiceReactive(
     @TargetService(ServiceTypes.NAGHUB) val webClient: WebClient
-) {
-    suspend fun sendMessage(
+) : NagHubService {
+    override suspend fun sendMessage(
         channelId: String,
-        simpleMessage: String? = null,
-        messages: List<DetailedMessage>
-    ): NagHubResult {
+        messages: List<DetailedMessage>,
+        simpleMessage: String?
+    ): NagHubResult? {
         val body = SendMessageRequestNagHub(
             simpleMessage = simpleMessage,
             detailedMessages = messages
@@ -62,3 +66,15 @@ class NagHubService(
         )
     }
 }
+
+interface NagHubService {
+    suspend fun sendMessage(
+        channelId: String,
+        messages: List<DetailedMessage>,
+        simpleMessage: String? = null
+    ): NagHubResult? = null
+}
+
+@Service
+@ConditionalOnMissingBean(RequiresNagHub::class)
+class NagHubServiceDisabled : NagHubService

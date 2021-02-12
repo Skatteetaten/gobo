@@ -12,6 +12,7 @@ import no.skatteetaten.aurora.gobo.integration.herkimer.RegisterResourceAndClaim
 import no.skatteetaten.aurora.gobo.integration.herkimer.ResourceKind
 import no.skatteetaten.aurora.gobo.integration.naghub.DetailedMessage
 import no.skatteetaten.aurora.gobo.integration.naghub.NagHubColor
+import no.skatteetaten.aurora.gobo.integration.naghub.NagHubResult
 import no.skatteetaten.aurora.gobo.integration.naghub.NagHubService
 import no.skatteetaten.aurora.gobo.security.getValidUser
 import org.springframework.beans.factory.annotation.Value
@@ -48,12 +49,23 @@ class CredentialMutation(
                 resourceKind = ResourceKind.PostgresDatabaseInstance
             )
         ).toRegisterPostgresResult(input.host)
-            .sendNotification()
+            .also {
+                nagHubService.sendMessage(notificationChannel, it.toNotifyMessage())
+                    ?.logOnFailure(input.host)
+            }
     }
 
-    private suspend fun RegisterPostgresResult.sendNotification(): RegisterPostgresResult =
-        this.also {
-            val detailedMessage = if (success) {
+    private suspend fun NagHubResult.logOnFailure(host: String) {
+        if (!success) {
+            logger.error {
+                "Could not send notification to mattermost for a registered postgres motel host=$host cluster=$cluster"
+            }
+        }
+    }
+
+    private suspend fun RegisterPostgresResult.toNotifyMessage(): List<DetailedMessage> {
+        val notifyMessage =
+            if (success) {
                 DetailedMessage(
                     NagHubColor.Yellow,
                     "$message. DBH needs to be redeployed in cluster=$cluster"
@@ -65,14 +77,8 @@ class CredentialMutation(
                 )
             }
 
-            val result = nagHubService.sendMessage(notificationChannel, null, listOf(detailedMessage))
-
-            if (!result.success) {
-                logger.error {
-                    "Could not send notification to mattermost for a registered postgres motel with message=${detailedMessage.text}"
-                }
-            }
-        }
+        return listOf(notifyMessage)
+    }
 
     private suspend fun DataFetchingEnvironment.checkIsUserAuthorized() {
         val user = this.getValidUser()

@@ -45,10 +45,6 @@ integrations:
         url: http://unclematt-aurora-daemons.utv.paas.skead.no
     cantus:
         url: http://cantus
-    herkimer:
-        url: http://herkimer
-    naghub:
-        url: http://naghub
     docker:
         cluster:
             url: docker-registry.default.svc:5000

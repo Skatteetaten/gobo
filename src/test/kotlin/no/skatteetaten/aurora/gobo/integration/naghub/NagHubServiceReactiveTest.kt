@@ -2,6 +2,7 @@ package no.skatteetaten.aurora.gobo.integration.naghub
 
 import assertk.assertThat
 import assertk.assertions.isFalse
+import assertk.assertions.isNotNull
 import assertk.assertions.isSuccess
 import assertk.assertions.isTrue
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
@@ -14,14 +15,14 @@ import okhttp3.mockwebserver.MockWebServer
 import org.junit.jupiter.api.Test
 import org.springframework.web.reactive.function.client.WebClient
 
-class NagHubServiceTest {
+class NagHubServiceReactiveTest {
     private val server = MockWebServer()
     private val sharedSecretReader = mockk<SharedSecretReader> {
         every { secret } returns "abc"
     }
     private val webClient = ApplicationConfig(1500, 1500, 1500, "", sharedSecretReader)
         .webClientNagHub(server.url("/").toString(), WebClient.builder())
-    private val nagHubService = NagHubService(webClient)
+    private val nagHubService = NagHubServiceReactive(webClient)
 
     @Test
     fun `Verify is able to send message`() {
@@ -36,7 +37,7 @@ class NagHubServiceTest {
                     )
                 )
             }.isSuccess().given {
-                assertThat(it.success).isTrue()
+                assertThat(it?.success).isNotNull().isTrue()
             }
         }
     }
@@ -56,7 +57,7 @@ class NagHubServiceTest {
                 )
             }.isSuccess()
                 .given {
-                    assertThat(it.success).isFalse()
+                    assertThat(it?.success).isNotNull().isFalse()
                 }
         }
     }
