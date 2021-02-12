@@ -95,9 +95,8 @@ class ApplicationConfig(
         return builder.init().baseUrl(cantusUrl).build()
     }
 
-    @ConditionalOnBean(RequiresHerkimer::class)
-    @Bean
     @ConditionalOnBean(RequiresNagHub::class)
+    @Bean
     @TargetService(ServiceTypes.NAGHUB)
     fun webClientNagHub(
         @Value("\${integrations.naghub.url}") nagHubUrl: String,
@@ -110,6 +109,7 @@ class ApplicationConfig(
             .build()
     }
 
+    @ConditionalOnBean(RequiresHerkimer::class)
     @Bean
     @TargetService(ServiceTypes.HERKIMER)
     fun webClientHerkimer(
