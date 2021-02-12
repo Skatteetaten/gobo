@@ -96,6 +96,7 @@ class ApplicationConfig(
     }
 
     @Bean
+    @ConditionalOnBean(RequiresNagHub::class)
     @TargetService(ServiceTypes.NAGHUB)
     fun webClientNagHub(
         @Value("\${integrations.naghub.url}") nagHubUrl: String,
