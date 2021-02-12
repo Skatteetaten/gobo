@@ -20,6 +20,11 @@ suspend fun DataFetchingEnvironment.checkValidUserToken() {
     getValidUser()
 }
 
+suspend fun <T> DataFetchingEnvironment.ifValidUserToken(whenValidToken: suspend () -> T): T {
+    getValidUser()
+    return whenValidToken()
+}
+
 suspend fun DataFetchingEnvironment.getValidUser(): User {
     token()
     return currentUser().also {
