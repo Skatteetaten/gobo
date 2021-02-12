@@ -95,6 +95,7 @@ class ApplicationConfig(
         return builder.init().baseUrl(cantusUrl).build()
     }
 
+    @ConditionalOnBean(RequiresHerkimer::class)
     @Bean
     @ConditionalOnBean(RequiresNagHub::class)
     @TargetService(ServiceTypes.NAGHUB)

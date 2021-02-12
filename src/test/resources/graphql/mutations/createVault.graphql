@@ -1,4 +1,4 @@
-mutation createVault($input: VaultCreationInput!) {
+mutation createVault($input: CreateVaultInput!) {
   createVault(input: $input) {
     name
   }
