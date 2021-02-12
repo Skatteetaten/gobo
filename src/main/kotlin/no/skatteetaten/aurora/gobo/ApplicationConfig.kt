@@ -90,6 +90,7 @@ class ApplicationConfig(
         return builder.init().baseUrl(cantusUrl).build()
     }
 
+    @ConditionalOnBean(RequiresHerkimer::class)
     @Bean
     @TargetService(ServiceTypes.HERKIMER)
     fun webClientHerkimer(
