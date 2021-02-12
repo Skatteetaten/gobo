@@ -2,6 +2,7 @@ package no.skatteetaten.aurora.gobo.graphql.vault
 
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.coEvery
+import no.skatteetaten.aurora.gobo.BooberVaultBuilder
 import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithDbhAndSkap
 import no.skatteetaten.aurora.gobo.graphql.graphqlData
 import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
@@ -28,6 +29,12 @@ class VaultMutationTest : GraphQLTestWithDbhAndSkap() {
 
     @Value("classpath:graphql/mutations/removeVaultPermissions.graphql")
     private lateinit var removeVaultPermissionsMutation: Resource
+
+    @Value("classpath:graphql/mutations/addVaultSecrets.graphql")
+    private lateinit var addVaultSecretsMutation: Resource
+
+    @Value("classpath:graphql/mutations/removeVaultSecrets.graphql")
+    private lateinit var removeVaultSecretsMutation: Resource
 
     @MockkBean(relaxed = true)
     private lateinit var vaultService: VaultService
@@ -117,5 +124,27 @@ class VaultMutationTest : GraphQLTestWithDbhAndSkap() {
             .graphqlData("removeVaultPermissions.name").isEqualTo("gurre-test2")
             .graphqlData("removeVaultPermissions.permissions[0]").isEqualTo("APP_PaaS_utv")
             .graphqlDoesNotContainErrors()
+    }
+
+    @Test
+    fun `Add vault secrets`() {
+        coEvery { vaultService.addVaultSecrets(any(), any(), any(), any()) } returns BooberVaultBuilder().build()
+
+        val input = AddVaultSecretsInput("aurora", "test-vault", listOf(Secret("name", "Z3VycmU=")))
+        webTestClient.queryGraphQL(addVaultSecretsMutation, input, "test-token")
+            .expectBody()
+            .graphqlData("addVaultSecrets.name").isEqualTo("test-vault")
+            .graphqlData("addVaultSecrets.secrets.length()").isEqualTo(2)
+    }
+
+    @Test
+    fun `Remove vault secrets`() {
+        coEvery { vaultService.removeVaultSecrets(any(), any(), any(), any()) } returns BooberVaultBuilder().build()
+
+        val input = RemoveVaultSecretsInput("aurora", "test-vault", listOf(Secret("name", "Z3VycmU=")))
+        webTestClient.queryGraphQL(removeVaultSecretsMutation, input, "test-token")
+            .expectBody()
+            .graphqlData("removeVaultSecrets.name").isEqualTo("test-vault")
+            .graphqlData("removeVaultSecrets.secrets").isNotEmpty
     }
 }

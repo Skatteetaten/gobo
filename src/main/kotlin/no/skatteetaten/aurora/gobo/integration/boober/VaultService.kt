@@ -2,6 +2,7 @@ package no.skatteetaten.aurora.gobo.integration.boober
 
 import org.springframework.stereotype.Service
 import no.skatteetaten.aurora.gobo.graphql.vault.CreateVaultInput
+import no.skatteetaten.aurora.gobo.graphql.vault.Secret
 
 data class BooberVaultInput(
     val name: String,
@@ -27,13 +28,8 @@ class VaultService(private val booberWebClient: BooberWebClient) {
     suspend fun getVault(affiliationName: String, vaultName: String, token: String) =
         booberWebClient.get<BooberVault>(token = token, url = "/v1/vault/$affiliationName/$vaultName").response()
 
-    suspend fun createVault(token: String, inputCreate: CreateVaultInput): BooberVault {
-        return booberWebClient.put<BooberVault>(
-            url = "/v1/vault/${inputCreate.affiliationName}",
-            token = token,
-            body = inputCreate.mapToPayload()
-        ).response()
-    }
+    suspend fun createVault(token: String, input: CreateVaultInput) =
+        putVault(token, input.affiliationName, input.mapToPayload())
 
     suspend fun deleteVault(
         token: String,
@@ -56,11 +52,7 @@ class VaultService(private val booberWebClient: BooberWebClient) {
         val vault = getVault(affiliationName, vaultName, token)
         val permissionsSet = ((vault.permissions ?: emptyList()) + permissions).toSet()
         val updatedVault = vault.copy(permissions = permissionsSet.toList())
-        return booberWebClient.put<BooberVault>(
-            url = "/v1/vault/$affiliationName",
-            token = token,
-            body = updatedVault.toInput()
-        ).response()
+        return putVault(token, affiliationName, updatedVault.toInput())
     }
 
     suspend fun removeVaultPermissions(
@@ -71,10 +63,37 @@ class VaultService(private val booberWebClient: BooberWebClient) {
     ): BooberVault {
         val vault = getVault(affiliationName, vaultName, token)
         val updatedVault = vault.copy(permissions = vault.permissions?.minus(permissions))
-        return booberWebClient.put<BooberVault>(
+        return putVault(token, affiliationName, updatedVault.toInput())
+    }
+
+    suspend fun addVaultSecrets(
+        token: String,
+        affiliationName: String,
+        vaultName: String,
+        secrets: List<Secret>
+    ): BooberVault {
+        val vault = getVault(affiliationName, vaultName, token)
+        val updatedVault = vault.copy(secrets = (vault.secrets ?: emptyMap()) + secrets.toBooberInput())
+        return putVault(token, affiliationName, updatedVault.toInput())
+    }
+
+    suspend fun removeVaultSecrets(
+        token: String,
+        affiliationName: String,
+        vaultName: String,
+        secrets: List<Secret>
+    ): BooberVault {
+        val vault = getVault(affiliationName, vaultName, token)
+        val updatedVault = vault.copy(secrets = vault.secrets?.minus(secrets.map { it.name }))
+        return putVault(token, affiliationName, updatedVault.toInput())
+    }
+
+    private suspend fun putVault(token: String, affiliationName: String, input: BooberVaultInput) =
+        booberWebClient.put<BooberVault>(
             url = "/v1/vault/$affiliationName",
             token = token,
-            body = updatedVault.toInput()
+            body = input
         ).response()
-    }
+
+    private fun List<Secret>.toBooberInput() = this.map { it.name to it.base64Content }.toMap()
 }
