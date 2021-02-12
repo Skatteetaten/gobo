@@ -40,7 +40,9 @@ class CredentialMutationTest {
         authorities = ["testAdGroup"]
     )
     @Nested
-    inner class AuthorizedTokenCredentialMutation : CredentialMutationBaseTest() {
+    inner class AuthorizedTokenCredentialMutation(
+        @Value("\${openshift.cluster}") val cluster: String
+    ) : CredentialMutationBaseTest() {
         @MockkBean
         private lateinit var herkimerService: HerkimerService
 
@@ -88,7 +90,7 @@ class CredentialMutationTest {
 
             assertThat(instanceNameSlot.captured.resourceName).isEqualTo(expectedInstanceName)
             val message = messageSlot.captured.first()
-            assertThat(message.text).contains("DBH needs to be redeployed in cluster=http://localhost")
+            assertThat(message.text).contains("DBH needs to be redeployed in cluster=$cluster")
             assertThat(message.color).isEqualTo(NagHubColor.Yellow)
         }
     }
