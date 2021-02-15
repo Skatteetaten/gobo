@@ -4,6 +4,7 @@ import org.springframework.stereotype.Component
 import com.expediagroup.graphql.spring.operations.Mutation
 import graphql.schema.DataFetchingEnvironment
 import no.skatteetaten.aurora.gobo.graphql.token
+import no.skatteetaten.aurora.gobo.integration.boober.VaultContext
 import no.skatteetaten.aurora.gobo.integration.boober.VaultService
 import no.skatteetaten.aurora.gobo.security.ifValidUserToken
 
@@ -15,16 +16,14 @@ class VaultMutation(val vaultService: VaultService) : Mutation {
 
     suspend fun deleteVault(input: DeleteVaultInput, dfe: DataFetchingEnvironment) =
         dfe.ifValidUserToken {
-            vaultService.deleteVault(dfe.token(), input.affiliationName, input.vaultName)
+            vaultService.deleteVault(VaultContext(dfe.token(), input.affiliationName, input.vaultName))
             DeleteVaultResponse(input.affiliationName, input.vaultName)
         }
 
     suspend fun addVaultPermissions(input: AddVaultPermissionsInput, dfe: DataFetchingEnvironment) =
         dfe.ifValidUserToken {
             vaultService.addVaultPermissions(
-                token = dfe.token(),
-                affiliationName = input.affiliationName,
-                vaultName = input.vaultName,
+                ctx = VaultContext(dfe.token(), input.affiliationName, input.vaultName),
                 permissions = input.permissions
             ).let { Vault.create(it) }
         }
@@ -32,22 +31,33 @@ class VaultMutation(val vaultService: VaultService) : Mutation {
     suspend fun removeVaultPermissions(input: RemoveVaultPermissionsInput, dfe: DataFetchingEnvironment) =
         dfe.ifValidUserToken {
             vaultService.removeVaultPermissions(
-                token = dfe.token(),
-                affiliationName = input.affiliationName,
-                vaultName = input.vaultName,
+                ctx = VaultContext(dfe.token(), input.affiliationName, input.vaultName),
                 permissions = input.permissions
             ).let { Vault.create(it) }
         }
 
     suspend fun addVaultSecrets(input: AddVaultSecretsInput, dfe: DataFetchingEnvironment) =
         dfe.ifValidUserToken {
-            vaultService.addVaultSecrets(dfe.token(), input.affiliationName, input.vaultName, input.secrets)
-                .let { Vault.create(it) }
+            vaultService.addVaultSecrets(
+                ctx = VaultContext(dfe.token(), input.affiliationName, input.vaultName),
+                secrets = input.secrets
+            ).let { Vault.create(it) }
         }
 
     suspend fun removeVaultSecrets(input: RemoveVaultSecretsInput, dfe: DataFetchingEnvironment) =
         dfe.ifValidUserToken {
-            vaultService.removeVaultSecrets(dfe.token(), input.affiliationName, input.vaultName, input.secrets)
-                .let { Vault.create(it) }
+            vaultService.removeVaultSecrets(
+                ctx = VaultContext(dfe.token(), input.affiliationName, input.vaultName),
+                secrets = input.secrets
+            ).let { Vault.create(it) }
+        }
+
+    suspend fun renameVaultSecret(input: RenameVaultSecretInput, dfe: DataFetchingEnvironment) =
+        dfe.ifValidUserToken {
+            vaultService.renameVaultSecret(
+                ctx = VaultContext(dfe.token(), input.affiliationName, input.vaultName),
+                secretName = input.secretName,
+                newSecretName = input.newSecretName
+            ).let { Vault.create(it) }
         }
 }

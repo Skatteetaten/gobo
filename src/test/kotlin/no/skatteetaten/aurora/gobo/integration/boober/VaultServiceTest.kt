@@ -31,7 +31,13 @@ class VaultServiceTest {
     fun `Get vault`() {
         val response = Response(BooberVaultBuilder().build())
         val requests = server.executeBlocking(response) {
-            val vault = vaultService.getVault(affiliationName = affiliationName, vaultName = vaultName, token = "token")
+            val vault = vaultService.getVault(
+                VaultContext(
+                    token = "token",
+                    affiliationName = affiliationName,
+                    vaultName = vaultName
+                )
+            )
             assertThat(vault.name).isEqualTo(vaultName)
             assertThat(vault.hasAccess).isTrue()
             assertThat(vault.permissions?.get(0)).isEqualTo("APP_PaaS_utv")
@@ -45,7 +51,7 @@ class VaultServiceTest {
     fun `Get vaults`() {
         val response = Response(BooberVaultBuilder().build())
         val requests = server.executeBlocking(response) {
-            val vault = vaultService.getVaults(affiliationName = affiliationName, token = "token")
+            val vault = vaultService.getVaults(token = "token", affiliationName = affiliationName)
             assertThat(vault[0].name).isEqualTo(vaultName)
             assertThat(vault[0].hasAccess).isTrue()
             assertThat(vault[0].permissions?.get(0)).isEqualTo("APP_PaaS_utv")
@@ -59,7 +65,13 @@ class VaultServiceTest {
     fun `Delete vaults`() {
         val response = Response<String>(items = emptyList())
         val requests = server.executeBlocking(response) {
-            vaultService.deleteVault(affiliationName = affiliationName, token = "token", vaultName = vaultName)
+            vaultService.deleteVault(
+                VaultContext(
+                    token = "token",
+                    affiliationName = affiliationName,
+                    vaultName = vaultName
+                )
+            )
         }
         assertThat(requests).containsGetVaultRequest()
         assertThat(requests).hasSize(1)
@@ -75,9 +87,11 @@ class VaultServiceTest {
             Response(putVaultResponse)
         ) {
             val booberVault = vaultService.addVaultPermissions(
-                token = "token",
-                affiliationName = affiliationName,
-                vaultName = vaultName,
+                VaultContext(
+                    token = "token",
+                    affiliationName = affiliationName,
+                    vaultName = vaultName
+                ),
                 permissions = listOf("permission2")
             )
             assertThat(booberVault).isNotNull()
@@ -101,9 +115,11 @@ class VaultServiceTest {
             Response(putVaultResponse)
         ) {
             val booberVault = vaultService.removeVaultPermissions(
-                token = "token",
-                affiliationName = affiliationName,
-                vaultName = vaultName,
+                VaultContext(
+                    token = "token",
+                    affiliationName = affiliationName,
+                    vaultName = vaultName,
+                ),
                 permissions = listOf("permission1")
             )
             assertThat(booberVault).isNotNull()
@@ -119,9 +135,11 @@ class VaultServiceTest {
 
         val requests = server.executeBlocking(Response(getVaultResponse), Response(putVaultResponse)) {
             val vault = vaultService.addVaultSecrets(
-                token = "token",
-                affiliationName = affiliationName,
-                vaultName = vaultName,
+                VaultContext(
+                    token = "token",
+                    affiliationName = affiliationName,
+                    vaultName = vaultName
+                ),
                 secrets = listOf(Secret("secret2", "MTIz"))
             )
             assertThat(vault).isNotNull()
@@ -130,6 +148,28 @@ class VaultServiceTest {
         assertThat(
             requests.last()?.bodyAsObject<BooberVaultInput>()?.secrets
         ).isEqualTo(mapOf("secret1" to "YWJj", "secret2" to "MTIz"))
+    }
+
+    @Test
+    fun `Rename vault secret`() {
+        val getVaultResponse = BooberVaultBuilder(secrets = mapOf("secret1" to "YWJj", "a" to "b")).build()
+        val putVaultResponse = getVaultResponse.copy(secrets = mapOf("secret2" to "YWJj", "a" to "b"))
+
+        val requests = server.executeBlocking(Response(getVaultResponse), Response(putVaultResponse)) {
+            val vault = vaultService.renameVaultSecret(
+                ctx = VaultContext(
+                    token = "token",
+                    affiliationName = affiliationName,
+                    vaultName = vaultName
+                ),
+                secretName = "secret1",
+                newSecretName = "secret2"
+            )
+            assertThat(vault).isNotNull()
+        }
+
+        assertThat(requests).containsGetVaultRequest()
+        assertThat(requests.last()?.bodyAsObject<BooberVaultInput>()?.secrets).isEqualTo(mapOf("secret2" to "YWJj", "a" to "b"))
     }
 
     private fun Assert<List<RecordedRequest?>>.containsGetVaultRequest() = given {
