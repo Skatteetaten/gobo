@@ -34,3 +34,9 @@ data class CreateVaultInput(
 
 data class DeleteVaultInput(val affiliationName: String, val vaultName: String)
 data class DeleteVaultResponse(val affiliationName: String, val vaultName: String)
+
+data class RenameVaultInput(
+    val affiliationName: String,
+    val existingVaultName: String,
+    val newVaultName: String
+)
