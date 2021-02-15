@@ -31,7 +31,7 @@ data class ImageRepoAndTags(val imageRepository: String, val imageTags: List<Str
 private fun List<ImageRepoAndTags>.getAllTagUrls() =
     TagUrlsWrapper(this.flatMap { it.getTagUrls() })
 
-val logger = KotlinLogging.logger { }
+private val logger = KotlinLogging.logger { }
 
 @Service
 class ImageRegistryService(
