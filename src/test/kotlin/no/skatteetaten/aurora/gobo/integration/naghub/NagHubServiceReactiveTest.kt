@@ -1,6 +1,7 @@
 package no.skatteetaten.aurora.gobo.integration.naghub
 
 import assertk.assertThat
+import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
 import assertk.assertions.isNotNull
 import assertk.assertions.isSuccess
@@ -27,7 +28,7 @@ class NagHubServiceReactiveTest {
     @Test
     fun `Verify is able to send message`() {
         val response = jacksonObjectMapper().createObjectNode().toString()
-        server.executeBlocking(response) {
+        val request = server.executeBlocking(response) {
             assertThat {
                 nagHubService.sendMessage(
                     channelId = "12345",
@@ -40,6 +41,8 @@ class NagHubServiceReactiveTest {
                 assertThat(it?.success).isNotNull().isTrue()
             }
         }
+
+        assertThat(request.first()?.path).isEqualTo("/api/v1/notify/12345")
     }
 
     @Test

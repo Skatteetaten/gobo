@@ -8,8 +8,6 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 
-class DsiableNagHubServiceTest
-
 @SpringBootTest(
     classes = [RequiresNagHub::class, NagHubServiceReactive::class, NagHubServiceDisabled::class],
     properties = ["integrations.naghub.url=false"]
