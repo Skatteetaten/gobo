@@ -1,7 +1,6 @@
 package no.skatteetaten.aurora.gobo.integration.boober
 
 import org.springframework.stereotype.Service
-import no.skatteetaten.aurora.gobo.GoboException
 import no.skatteetaten.aurora.gobo.graphql.vault.CreateVaultInput
 import no.skatteetaten.aurora.gobo.graphql.vault.Secret
 
@@ -46,8 +45,15 @@ class VaultService(private val booberWebClient: BooberWebClient) {
     }
 
     suspend fun checkIfVaultExists(affiliationName: String, vaultName: String, token: String) {
-        (booberWebClient.get<BooberVault>(token = token, url = "/v1/vault/$affiliationName/$vaultName").success)
-            .let { throw GoboException("Vault with vault name $vaultName already exists.") }
+        try {
+            val msg = booberWebClient.get<BooberVault>(token = token, url = "/v1/vault/$affiliationName/$vaultName").message
+            println(msg)
+        } catch (e: Exception) {
+            println(e.message)
+        }
+        print("Ferdig...")
+        // (booberWebClient.get<BooberVault>(token = token, url = "/v1/vault/$affiliationName/$vaultName").success)
+        //     .let { throw GoboException("Vault with vault name $vaultName already exists.") }
     }
 
     suspend fun deleteVault(
