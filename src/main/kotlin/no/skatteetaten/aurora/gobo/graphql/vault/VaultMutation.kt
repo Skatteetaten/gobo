@@ -60,4 +60,13 @@ class VaultMutation(val vaultService: VaultService) : Mutation {
                 newSecretName = input.newSecretName
             ).let { Vault.create(it) }
         }
+
+    suspend fun updateVaultSecret(input: UpdateVaultSecretInput, dfe: DataFetchingEnvironment) =
+        dfe.ifValidUserToken {
+            vaultService.updateVaultSecret(
+                ctx = VaultContext(dfe.token(), input.affiliationName, input.vaultName),
+                secretName = input.secretName,
+                content = input.base64Content
+            ).let { Vault.create(it) }
+        }
 }

@@ -17,6 +17,9 @@ data class BooberVault(
     val secrets: Map<String, String>?
 ) {
     fun toInput() = BooberVaultInput(name = name, permissions = permissions, secrets = secrets)
+
+    fun updateSecret(secretName: String, content: String) {
+    }
 }
 
 data class VaultContext(val token: String, val affiliationName: String, val vaultName: String)
@@ -77,6 +80,14 @@ class VaultService(private val booberWebClient: BooberWebClient) {
         } ?: throw IllegalStateException("No secret with name $secretName found") // TODO validering
         val updatedVault = vault.copy(secrets = updatedSecrets)
         return putVault(ctx.token, ctx.affiliationName, updatedVault.toInput())
+    }
+
+    suspend fun updateVaultSecret(ctx: VaultContext, secretName: String, content: String): BooberVault {
+        booberWebClient.put<Map<String, String>>(
+            "/v1/vault/${ctx.affiliationName}/${ctx.vaultName}/$secretName",
+            mapOf("contents" to content)
+        ).response()
+        return getVault(ctx)
     }
 
     private suspend fun putVault(token: String, affiliationName: String, input: BooberVaultInput) =

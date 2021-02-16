@@ -10,3 +10,10 @@ data class RenameVaultSecretInput(
     val secretName: String,
     val newSecretName: String
 )
+
+data class UpdateVaultSecretInput(
+    val affiliationName: String,
+    val vaultName: String,
+    val secretName: String,
+    val base64Content: String
+)
