@@ -48,7 +48,7 @@ class VaultMutation(val vaultService: VaultService) : Mutation {
         dfe.ifValidUserToken {
             vaultService.removeVaultSecrets(
                 ctx = VaultContext(dfe.token(), input.affiliationName, input.vaultName),
-                secrets = input.secrets
+                secretNames = input.secretNames
             ).let { Vault.create(it) }
         }
 

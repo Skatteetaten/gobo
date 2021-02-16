@@ -153,7 +153,7 @@ class VaultMutationTest : GraphQLTestWithDbhAndSkap() {
     fun `Remove vault secrets`() {
         coEvery { vaultService.removeVaultSecrets(any(), any()) } returns BooberVaultBuilder().build()
 
-        val input = RemoveVaultSecretsInput("aurora", "test-vault", listOf(Secret("name", "dGVzdA==")))
+        val input = RemoveVaultSecretsInput("aurora", "test-vault", listOf("name"))
         webTestClient.queryGraphQL(removeVaultSecretsMutation, input, "test-token")
             .expectBody()
             .graphqlData("removeVaultSecrets.name").isEqualTo("test-vault")

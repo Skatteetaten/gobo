@@ -3,6 +3,7 @@ package no.skatteetaten.aurora.gobo.integration.boober
 import org.springframework.stereotype.Service
 import no.skatteetaten.aurora.gobo.graphql.vault.CreateVaultInput
 import no.skatteetaten.aurora.gobo.graphql.vault.Secret
+import java.lang.IllegalArgumentException
 
 data class BooberVaultInput(
     val name: String,
@@ -18,8 +19,10 @@ data class BooberVault(
 ) {
     fun toInput() = BooberVaultInput(name = name, permissions = permissions, secrets = secrets)
 
-    fun updateSecret(secretName: String, content: String) {
-    }
+    fun containsSecret(name: String) =
+        secrets?.containsKey(name) ?: false
+
+    fun doesNotContainSecret(name: String) = !containsSecret(name)
 }
 
 data class VaultContext(val token: String, val affiliationName: String, val vaultName: String)
@@ -60,18 +63,34 @@ class VaultService(private val booberWebClient: BooberWebClient) {
 
     suspend fun addVaultSecrets(ctx: VaultContext, secrets: List<Secret>): BooberVault {
         val vault = getVault(ctx)
+        secrets.forEach {
+            if (vault.containsSecret(it.name)) {
+                throw IllegalArgumentException("Secret named $it is already present in vault") // TODO validering
+            }
+        }
+
         val updatedVault = vault.copy(secrets = (vault.secrets ?: emptyMap()) + secrets.toBooberInput())
         return putVault(ctx.token, ctx.affiliationName, updatedVault.toInput())
     }
 
-    suspend fun removeVaultSecrets(ctx: VaultContext, secrets: List<Secret>): BooberVault {
+    suspend fun removeVaultSecrets(ctx: VaultContext, secretNames: List<String>): BooberVault {
         val vault = getVault(ctx)
-        val updatedVault = vault.copy(secrets = vault.secrets?.minus(secrets.map { it.name }))
+        secretNames.forEach {
+            if (vault.doesNotContainSecret(it)) {
+                throw IllegalArgumentException("No secret named $it found in vault") // TODO validering
+            }
+        }
+
+        val updatedVault = vault.copy(secrets = vault.secrets?.minus(secretNames))
         return putVault(ctx.token, ctx.affiliationName, updatedVault.toInput())
     }
 
     suspend fun renameVaultSecret(ctx: VaultContext, secretName: String, newSecretName: String): BooberVault {
         val vault = getVault(ctx)
+        if (vault.doesNotContainSecret(secretName)) {
+            throw IllegalArgumentException("No secret named $secretName found in vault") // TODO validering
+        }
+
         val updatedSecrets = vault.secrets?.get(secretName)?.let {
             vault.secrets.toMutableMap().apply {
                 remove(secretName)
@@ -83,9 +102,13 @@ class VaultService(private val booberWebClient: BooberWebClient) {
     }
 
     suspend fun updateVaultSecret(ctx: VaultContext, secretName: String, content: String): BooberVault {
+        getVault(ctx).secrets?.get(secretName)
+            ?: throw IllegalStateException("No secret with name $secretName found") // TODO validering
+
         booberWebClient.put<Map<String, String>>(
-            "/v1/vault/${ctx.affiliationName}/${ctx.vaultName}/$secretName",
-            mapOf("contents" to content)
+            url = "/v1/vault/${ctx.affiliationName}/${ctx.vaultName}/$secretName",
+            body = mapOf("contents" to content),
+            token = ctx.token
         ).response()
         return getVault(ctx)
     }
