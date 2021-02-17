@@ -63,8 +63,9 @@ class VaultServiceTest {
 
     @Test
     fun `Delete vaults`() {
+        val getVaultResponse = BooberVaultBuilder(permissions = listOf("permission1")).build()
         val response = Response<String>(items = emptyList())
-        val requests = server.executeBlocking(response) {
+        val requests = server.executeBlocking(Response(getVaultResponse), response) {
             vaultService.deleteVault(
                 VaultContext(
                     token = "token",
@@ -74,7 +75,7 @@ class VaultServiceTest {
             )
         }
         assertThat(requests).containsGetVaultRequest()
-        assertThat(requests).hasSize(1)
+        assertThat(requests).hasSize(2)
     }
 
     @Test
