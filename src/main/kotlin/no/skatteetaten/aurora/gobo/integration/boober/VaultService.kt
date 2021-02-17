@@ -1,6 +1,9 @@
 package no.skatteetaten.aurora.gobo.integration.boober
 
 import org.springframework.stereotype.Service
+import org.springframework.web.reactive.function.client.WebClientResponseException
+import mu.KotlinLogging
+import no.skatteetaten.aurora.gobo.GoboException
 import no.skatteetaten.aurora.gobo.graphql.vault.CreateVaultInput
 import no.skatteetaten.aurora.gobo.graphql.vault.Secret
 
@@ -21,6 +24,8 @@ data class BooberVault(
 
 data class VaultContext(val token: String, val affiliationName: String, val vaultName: String)
 
+private val logger = KotlinLogging.logger { }
+
 @Service
 class VaultService(private val booberWebClient: BooberWebClient) {
 
@@ -37,6 +42,7 @@ class VaultService(private val booberWebClient: BooberWebClient) {
     }
 
     suspend fun deleteVault(ctx: VaultContext) {
+        val vault = getVault(ctx)
         val url = "/v1/vault/${ctx.affiliationName}/${ctx.vaultName}"
         booberWebClient.delete<BooberVault>(
             url = url,
@@ -46,30 +52,20 @@ class VaultService(private val booberWebClient: BooberWebClient) {
 
     suspend fun checkIfVaultExists(affiliationName: String, vaultName: String, token: String) {
         try {
-            val msg = booberWebClient.get<BooberVault>(token = token, url = "/v1/vault/$affiliationName/$vaultName").message
-            println(msg)
-        } catch (e: Exception) {
-            println(e.message)
+            (getVault(VaultContext(token = token, affiliationName = affiliationName, vaultName = vaultName))).name.equals(vaultName)
+                .let { throw GoboException("Vault with vault name $vaultName already exists.") }
+        } catch (e: WebClientResponseException) {
+            logger.debug { "Vault with name $vaultName does not exist. Vault will be created." }
         }
-        print("Ferdig...")
-        // (booberWebClient.get<BooberVault>(token = token, url = "/v1/vault/$affiliationName/$vaultName").success)
-        //     .let { throw GoboException("Vault with vault name $vaultName already exists.") }
-    }
-
-    suspend fun deleteVault(
-        token: String,
-        affiliationName: String,
-        vaultName: String
-    ) {
-        val url = "/v1/vault/$affiliationName/$vaultName"
-        booberWebClient.delete<BooberVault>(
-            url = url,
-            token = token
-        ).responses()
     }
 
     suspend fun addVaultPermissions(ctx: VaultContext, permissions: List<String>): BooberVault {
         val vault = getVault(ctx)
+        permissions.forEach {
+            if (vault.permissions?.contains(it) == true) {
+                throw GoboException("Permission $it already exists for vault with vault name ${ctx.vaultName}.")
+            }
+        }
         val permissionsSet = ((vault.permissions ?: emptyList()) + permissions).toSet()
         val updatedVault = vault.copy(permissions = permissionsSet.toList())
         return putVault(ctx.token, ctx.affiliationName, updatedVault.toInput())

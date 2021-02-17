@@ -5,6 +5,7 @@ info:
         docker: ${integrations.docker-registry.url}
         unclematt: ${integrations.unclematt.url}
         cantus: ${integrations.cantus.url}
+        herkimer: ${integrations.herkimer.url}
 
 spring:
     application:
@@ -45,6 +46,8 @@ integrations:
         url: http://unclematt-aurora-daemons.utv.paas.skead.no
     cantus:
         url: http://cantus
+    herkimer:
+        url: http://herkimer
     docker:
         cluster:
             url: docker-registry.default.svc:5000
