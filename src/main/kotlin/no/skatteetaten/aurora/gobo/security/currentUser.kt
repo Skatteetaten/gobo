@@ -20,6 +20,14 @@ suspend fun DataFetchingEnvironment.checkValidUserToken() {
     getValidUser()
 }
 
+suspend fun DataFetchingEnvironment.checkIsUserAuthorized(allowedAdGroup: String) {
+    val user = this.getValidUser()
+
+    if (!user.groups.contains(allowedAdGroup)) {
+        throw AccessDeniedException("You do not have access to perform this operation")
+    }
+}
+
 suspend fun <T> DataFetchingEnvironment.ifValidUserToken(whenValidToken: suspend () -> T): T {
     getValidUser()
     return whenValidToken()
@@ -45,13 +53,17 @@ suspend fun DataFetchingEnvironment.currentUser() =
 private val logger = KotlinLogging.logger {}
 
 private fun Any.getUser(token: String) = when (this) {
-    is io.fabric8.openshift.api.model.User -> User(id = metadata.name, token = token)
+    is io.fabric8.openshift.api.model.User -> User(id = metadata.name, token = token, groups = groups)
     is TokenReview -> User(
         id = status?.user?.username ?: UNKNOWN_USER_NAME.also { logger.warn("Unknown user: $status") },
         token = token,
         groups = status?.user?.groups ?: emptyList()
     )
-    is SpringSecurityUser -> User(id = username, token = token)
-    is org.springframework.security.core.userdetails.User -> User(id = username, token = token)
+    is SpringSecurityUser -> User(id = username, token = token, groups = authorities.map { it.authority })
+    is org.springframework.security.core.userdetails.User -> User(
+        id = username,
+        token = token,
+        groups = authorities.map { it.authority }
+    )
     else -> ANONYMOUS_USER
 }

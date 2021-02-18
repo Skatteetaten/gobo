@@ -6,7 +6,7 @@ import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
 import no.skatteetaten.aurora.gobo.graphql.ApplicationRedeployException
 import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.ApplicationDeploymentRef
-import no.skatteetaten.aurora.gobo.graphql.awaitWithRetry
+import no.skatteetaten.aurora.gobo.integration.awaitWithRetry
 import no.skatteetaten.aurora.gobo.integration.boober.RedeployResponse
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
