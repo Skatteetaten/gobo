@@ -84,14 +84,14 @@ class VaultService(private val booberWebClient: BooberWebClient) {
         return putVault(ctx.token, ctx.affiliationName, updatedVault.toInput())
     }
 
-    suspend fun removeVaultSecrets(ctx: VaultContext, secrets: List<Secret>): BooberVault {
+    suspend fun removeVaultSecrets(ctx: VaultContext, secretNames: List<String>): BooberVault {
         val vault = getVault(ctx)
-        secrets.forEach {
-            if (vault.secrets?.contains(it.name) == false) {
-                throw GoboException("Secret ${it.name} does not exist on vault with vault name ${ctx.vaultName}.")
+        secretNames.forEach {
+            if (vault.secrets?.contains(it) == false) {
+                throw GoboException("Secret $it does not exist on vault with vault name ${ctx.vaultName}.")
             }
         }
-        val updatedVault = vault.copy(secrets = vault.secrets?.minus(secrets.map { it.name }))
+        val updatedVault = vault.copy(secrets = vault.secrets?.minus(secretNames))
         return putVault(ctx.token, ctx.affiliationName, updatedVault.toInput())
     }
 
@@ -111,6 +111,18 @@ class VaultService(private val booberWebClient: BooberWebClient) {
         } ?: throw IllegalStateException("No secret with name $secretName found") // TODO validering
         val updatedVault = vault.copy(secrets = updatedSecrets)
         return putVault(ctx.token, ctx.affiliationName, updatedVault.toInput())
+    }
+
+    suspend fun updateVaultSecret(ctx: VaultContext, secretName: String, content: String): BooberVault {
+        getVault(ctx).secrets?.get(secretName)
+            ?: throw IllegalStateException("No secret with name $secretName found") // TODO validering
+
+        booberWebClient.put<Map<String, String>>(
+            url = "/v1/vault/${ctx.affiliationName}/${ctx.vaultName}/$secretName",
+            body = mapOf("contents" to content),
+            token = ctx.token
+        ).response()
+        return getVault(ctx)
     }
 
     private suspend fun putVault(token: String, affiliationName: String, input: BooberVaultInput) =
