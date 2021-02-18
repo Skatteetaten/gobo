@@ -48,7 +48,7 @@ class VaultMutation(val vaultService: VaultService) : Mutation {
         dfe.ifValidUserToken {
             vaultService.removeVaultSecrets(
                 ctx = VaultContext(dfe.token(), input.affiliationName, input.vaultName),
-                secrets = input.secrets
+                secretNames = input.secretNames
             ).let { Vault.create(it) }
         }
 
@@ -58,6 +58,15 @@ class VaultMutation(val vaultService: VaultService) : Mutation {
                 ctx = VaultContext(dfe.token(), input.affiliationName, input.vaultName),
                 secretName = input.secretName,
                 newSecretName = input.newSecretName
+            ).let { Vault.create(it) }
+        }
+
+    suspend fun updateVaultSecret(input: UpdateVaultSecretInput, dfe: DataFetchingEnvironment) =
+        dfe.ifValidUserToken {
+            vaultService.updateVaultSecret(
+                ctx = VaultContext(dfe.token(), input.affiliationName, input.vaultName),
+                secretName = input.secretName,
+                content = input.base64Content
             ).let { Vault.create(it) }
         }
 }
