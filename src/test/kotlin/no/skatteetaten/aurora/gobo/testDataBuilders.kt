@@ -52,6 +52,7 @@ import no.skatteetaten.aurora.gobo.graphql.database.JdbcUser
 import no.skatteetaten.aurora.gobo.graphql.imagerepository.ImageRepository
 import no.skatteetaten.aurora.gobo.graphql.imagerepository.ImageTag
 import no.skatteetaten.aurora.gobo.graphql.namespace.Namespace
+import no.skatteetaten.aurora.gobo.integration.boober.BooberVault
 import org.intellij.lang.annotations.Language
 import org.springframework.http.HttpStatus
 import uk.q3c.rest.hal.HalLink
@@ -543,5 +544,17 @@ class ImageTagResourceBuilder {
         dockerDigest = "abc123",
         java = JavaImage("1", "1", "1", ""),
         requestUrl = "http://localhost"
+    )
+}
+
+data class BooberVaultBuilder(
+    val permissions: List<String> = listOf("APP_PaaS_utv"),
+    val secrets: Map<String, String> = mapOf("latest.properties" to "QVRTX1VTRVJOQU1FPWJtYwp")
+) {
+    fun build() = BooberVault(
+        name = "test-vault",
+        hasAccess = true,
+        permissions = permissions,
+        secrets = secrets
     )
 }

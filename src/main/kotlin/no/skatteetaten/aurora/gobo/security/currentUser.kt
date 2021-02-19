@@ -28,6 +28,11 @@ suspend fun DataFetchingEnvironment.checkIsUserAuthorized(allowedAdGroup: String
     }
 }
 
+suspend fun <T> DataFetchingEnvironment.ifValidUserToken(whenValidToken: suspend () -> T): T {
+    getValidUser()
+    return whenValidToken()
+}
+
 suspend fun DataFetchingEnvironment.getValidUser(): User {
     token()
     return currentUser().also {

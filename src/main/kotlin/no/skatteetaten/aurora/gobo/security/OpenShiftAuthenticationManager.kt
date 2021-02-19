@@ -53,7 +53,7 @@ class OpenShiftAuthenticationManager(@TargetClient(ClientTypes.SERVICE_ACCOUNT) 
         }
         kubernetesClient.post(tokenReview).doOnError {
             if (it is WebClientResponseException && it.statusCode == HttpStatus.FORBIDDEN) {
-                logger.debug("TokenReview failed, does the token have the required permissions?")
+                logger.warn("TokenReview failed, does the token have the required permissions?")
                 throw AccessDeniedException("Invalid OpenShift token", it)
             }
         }
