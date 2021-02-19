@@ -14,7 +14,6 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
-import no.skatteetaten.aurora.gobo.graphql.printResult
 
 @Import(VaultMutation::class)
 class VaultMutationTest : GraphQLTestWithDbhAndSkap() {
@@ -77,21 +76,21 @@ class VaultMutationTest : GraphQLTestWithDbhAndSkap() {
             .graphqlDoesNotContainErrors()
     }
 
-    @Test
-    fun `Rename vault`() {
-        val variables = mapOf(
-            "input" to mapOf(
-                "affiliationName" to "aurora",
-                "vaultName" to "test2",
-                "newVaultName" to "new-gurre-test15"
-            )
-        )
-        webTestClient.queryGraphQL(renameVaultMutation, variables, "test-token").expectBody()
-            .printResult()
-        // .graphqlData("deleteVault.affiliationName").isEqualTo("aurora")
-        // .graphqlData("deleteVault.vaultName").isEqualTo("test2")
-        // .graphqlDoesNotContainErrors()
-    }
+    // @Test
+    // fun `Rename vault`() {
+    //     val variables = mapOf(
+    //         "input" to mapOf(
+    //             "affiliationName" to "aurora",
+    //             "vaultName" to "test2",
+    //             "newVaultName" to "new-gurre-test15"
+    //         )
+    //     )
+    //     webTestClient.queryGraphQL(renameVaultMutation, variables, "test-token").expectBody()
+    //         .printResult()
+    //     // .graphqlData("deleteVault.affiliationName").isEqualTo("aurora")
+    //     // .graphqlData("deleteVault.vaultName").isEqualTo("test2")
+    //     // .graphqlDoesNotContainErrors()
+    // }
 
     @Test
     fun `Delete vault`() {
