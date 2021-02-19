@@ -29,7 +29,7 @@ data class BooberVault(
         secrets?.takeIf { it.containsKey(secretName) }?.let { secretName }
 
     fun findExistingSecrets(inputSecrets: List<Secret>) =
-        inputSecrets.filter { secrets?.containsKey(it.name) ?: false }.takeIf { it.isNotEmpty() }
+        inputSecrets.filter { secrets?.containsKey(it.name) ?: false }.map { it.name }.takeIf { it.isNotEmpty() }
 
     fun findMissingSecret(secretName: String) =
         secrets?.takeIf { !it.containsKey(secretName) }?.let { secretName }
@@ -93,8 +93,7 @@ class VaultService(private val booberWebClient: BooberWebClient) {
     suspend fun addVaultSecrets(ctx: VaultContext, secrets: List<Secret>): BooberVault {
         val vault = getVault(ctx)
         vault.findExistingSecrets(secrets)?.let {
-            val names = it.map { s -> s.name }
-            throw GoboException("Secret $names already exists for vault with vault name ${ctx.vaultName}.")
+            throw GoboException("Secret $it already exists for vault with vault name ${ctx.vaultName}.")
         }
 
         val updatedVault = vault.copy(secrets = (vault.secrets ?: emptyMap()) + secrets.toBooberInput())
