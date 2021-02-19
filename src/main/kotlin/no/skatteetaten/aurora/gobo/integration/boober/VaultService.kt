@@ -47,9 +47,15 @@ private val logger = KotlinLogging.logger { }
 @Service
 class VaultService(private val booberWebClient: BooberWebClient) {
 
+    /**
+     * Get all vaults for the affiliation, even if the user does not have access to the vault
+     */
     suspend fun getVaults(token: String, affiliationName: String) =
         booberWebClient.get<BooberVault>(token = token, url = "/v1/vault/$affiliationName").responses()
 
+    /**
+     * Get a vault, throws exception if the user does not have access to the vault
+     */
     suspend fun getVault(ctx: VaultContext) =
         booberWebClient.get<BooberVault>(token = ctx.token, url = "/v1/vault/${ctx.affiliationName}/${ctx.vaultName}")
             .response()
