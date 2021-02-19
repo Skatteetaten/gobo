@@ -20,22 +20,22 @@ data class BooberVault(
     val secrets: Map<String, String>?
 ) {
     fun findExistingPermissions(inputPermissions: List<String>) =
-        inputPermissions.filter { permissions?.contains(it) ?: false }.let {
-            if (it.isEmpty()) {
-                null
-            } else {
-                it
-            }
-        }
+        inputPermissions.filter { permissions?.contains(it) ?: false }.takeIf { it.isNotEmpty() }
 
     fun findMissingPermissions(inputPermissions: List<String>) =
-        (inputPermissions - (permissions ?: emptyList())).let {
-            if (it.isEmpty()) {
-                null
-            } else {
-                it
-            }
-        }
+        (inputPermissions - (permissions ?: emptyList())).takeIf { it.isNotEmpty() }
+
+    fun findExistingSecret(secretName: String) =
+        secrets?.takeIf { it.containsKey(secretName) }?.let { secretName }
+
+    fun findExistingSecrets(inputSecrets: List<Secret>) =
+        inputSecrets.filter { secrets?.containsKey(it.name) ?: false }.takeIf { it.isNotEmpty() }
+
+    fun findMissingSecret(secretName: String) =
+        secrets?.takeIf { !it.containsKey(secretName) }?.let { secretName }
+
+    fun findMissingSecrets(inputSecrets: List<String>) =
+        (inputSecrets - (secrets?.keys ?: emptySet())).takeIf { it.isNotEmpty() }
 
     fun toInput() = BooberVaultInput(name = name, permissions = permissions, secrets = secrets)
 }
@@ -92,47 +92,48 @@ class VaultService(private val booberWebClient: BooberWebClient) {
 
     suspend fun addVaultSecrets(ctx: VaultContext, secrets: List<Secret>): BooberVault {
         val vault = getVault(ctx)
-        secrets.forEach {
-            if (vault.secrets?.contains(it.name) == true) {
-                throw GoboException("Secret ${it.name} already exists for vault with vault name ${ctx.vaultName}.")
-            }
+        vault.findExistingSecrets(secrets)?.let {
+            val names = it.map { s -> s.name }
+            throw GoboException("Secret $names already exists for vault with vault name ${ctx.vaultName}.")
         }
+
         val updatedVault = vault.copy(secrets = (vault.secrets ?: emptyMap()) + secrets.toBooberInput())
         return putVault(ctx.token, ctx.affiliationName, updatedVault.toInput())
     }
 
     suspend fun removeVaultSecrets(ctx: VaultContext, secretNames: List<String>): BooberVault {
         val vault = getVault(ctx)
-        secretNames.forEach {
-            if (vault.secrets?.contains(it) == false) {
-                throw GoboException("Secret $it does not exist on vault with vault name ${ctx.vaultName}.")
-            }
+        vault.findMissingSecrets(secretNames)?.let {
+            throw GoboException("Secret $it does not exist on vault with vault name ${ctx.vaultName}.")
         }
+
         val updatedVault = vault.copy(secrets = vault.secrets?.minus(secretNames))
         return putVault(ctx.token, ctx.affiliationName, updatedVault.toInput())
     }
 
     suspend fun renameVaultSecret(ctx: VaultContext, secretName: String, newSecretName: String): BooberVault {
         val vault = getVault(ctx)
-        if (vault.secrets?.contains(secretName) == false) {
+        vault.findMissingSecret(secretName)?.let {
             throw GoboException("The secret you try to rename from $secretName does not exist for the vault with name ${ctx.vaultName}.")
         }
-        if (vault.secrets?.contains(newSecretName) == true) {
+        vault.findExistingSecret(newSecretName)?.let {
             throw GoboException("The secret you try to rename to $secretName already exists for the vault with name ${ctx.vaultName}.")
         }
+
         val updatedSecrets = vault.secrets?.get(secretName)?.let {
             vault.secrets.toMutableMap().apply {
                 remove(secretName)
                 put(newSecretName, it)
             }
-        } ?: throw IllegalStateException("No secret with name $secretName found") // TODO validering
+        }
         val updatedVault = vault.copy(secrets = updatedSecrets)
         return putVault(ctx.token, ctx.affiliationName, updatedVault.toInput())
     }
 
     suspend fun updateVaultSecret(ctx: VaultContext, secretName: String, content: String): BooberVault {
-        getVault(ctx).secrets?.get(secretName)
-            ?: throw IllegalStateException("No secret with name $secretName found") // TODO validering
+        getVault(ctx).findMissingSecret(secretName)?.let {
+            throw GoboException("Secret $it does not exist on vault with vault name ${ctx.vaultName}.")
+        }
 
         booberWebClient.put<Map<String, String>>(
             url = "/v1/vault/${ctx.affiliationName}/${ctx.vaultName}/$secretName",
@@ -153,15 +154,10 @@ class VaultService(private val booberWebClient: BooberWebClient) {
 
     private suspend fun checkIfVaultExists(affiliationName: String, vaultName: String, token: String) {
         try {
-            ((
-                getVault(
-                    VaultContext(
-                        token = token,
-                        affiliationName = affiliationName,
-                        vaultName = vaultName
-                    )
-                ))
-                .name == vaultName)
+            (
+                getVault(VaultContext(token = token, affiliationName = affiliationName, vaultName = vaultName))
+                    .name == vaultName
+                )
                 .let { throw GoboException("Vault with vault name $vaultName already exists.") }
         } catch (e: WebClientResponseException) {
             logger.debug { "Vault with name $vaultName does not exist. Vault will be created." }
