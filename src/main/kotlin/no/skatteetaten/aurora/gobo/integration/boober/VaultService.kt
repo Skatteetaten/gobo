@@ -19,6 +19,24 @@ data class BooberVault(
     val permissions: List<String>?,
     val secrets: Map<String, String>?
 ) {
+    fun findExistingPermissions(inputPermissions: List<String>) =
+        inputPermissions.filter { permissions?.contains(it) ?: false }.let {
+            if (it.isEmpty()) {
+                null
+            } else {
+                it
+            }
+        }
+
+    fun findMissingPermissions(inputPermissions: List<String>) =
+        (inputPermissions - (permissions ?: emptyList())).let {
+            if (it.isEmpty()) {
+                null
+            } else {
+                it
+            }
+        }
+
     fun toInput() = BooberVaultInput(name = name, permissions = permissions, secrets = secrets)
 }
 
@@ -52,11 +70,10 @@ class VaultService(private val booberWebClient: BooberWebClient) {
 
     suspend fun addVaultPermissions(ctx: VaultContext, permissions: List<String>): BooberVault {
         val vault = getVault(ctx)
-        permissions.forEach {
-            if (vault.permissions?.contains(it) == true) {
-                throw GoboException("Permission $it already exists for vault with vault name ${ctx.vaultName}.")
-            }
+        vault.findExistingPermissions(permissions)?.let {
+            throw GoboException("Permission $it already exists for vault with vault name ${ctx.vaultName}.")
         }
+
         val permissionsSet = ((vault.permissions ?: emptyList()) + permissions).toSet()
         val updatedVault = vault.copy(permissions = permissionsSet.toList())
         return putVault(ctx.token, ctx.affiliationName, updatedVault.toInput())
@@ -64,11 +81,11 @@ class VaultService(private val booberWebClient: BooberWebClient) {
 
     suspend fun removeVaultPermissions(ctx: VaultContext, permissions: List<String>): BooberVault {
         val vault = getVault(ctx)
-        permissions.forEach {
-            if (vault.permissions?.contains(it) == false) {
-                throw GoboException("Permission $it does not exist on vault with vault name ${ctx.vaultName}.")
-            }
+
+        vault.findMissingPermissions(permissions)?.let {
+            throw GoboException("Permission $it does not exist on vault with vault name ${ctx.vaultName}.")
         }
+
         val updatedVault = vault.copy(permissions = vault.permissions?.minus(permissions))
         return putVault(ctx.token, ctx.affiliationName, updatedVault.toInput())
     }
@@ -136,7 +153,15 @@ class VaultService(private val booberWebClient: BooberWebClient) {
 
     private suspend fun checkIfVaultExists(affiliationName: String, vaultName: String, token: String) {
         try {
-            (getVault(VaultContext(token = token, affiliationName = affiliationName, vaultName = vaultName))).name.equals(vaultName)
+            ((
+                getVault(
+                    VaultContext(
+                        token = token,
+                        affiliationName = affiliationName,
+                        vaultName = vaultName
+                    )
+                ))
+                .name == vaultName)
                 .let { throw GoboException("Vault with vault name $vaultName already exists.") }
         } catch (e: WebClientResponseException) {
             logger.debug { "Vault with name $vaultName does not exist. Vault will be created." }
