@@ -14,12 +14,16 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
+import no.skatteetaten.aurora.gobo.graphql.printResult
 
 @Import(VaultMutation::class)
 class VaultMutationTest : GraphQLTestWithDbhAndSkap() {
 
     @Value("classpath:graphql/mutations/createVault.graphql")
     private lateinit var createVaultMutation: Resource
+
+    @Value("classpath:graphql/mutations/renameVault.graphql")
+    private lateinit var renameVaultMutation: Resource
 
     @Value("classpath:graphql/mutations/deleteVault.graphql")
     private lateinit var deleteVaultMutation: Resource
@@ -71,6 +75,22 @@ class VaultMutationTest : GraphQLTestWithDbhAndSkap() {
             .expectBody()
             .graphqlData("createVault.name").isEqualTo("test-vault")
             .graphqlDoesNotContainErrors()
+    }
+
+    @Test
+    fun `Rename vault`() {
+        val variables = mapOf(
+            "input" to mapOf(
+                "affiliationName" to "aurora",
+                "vaultName" to "test2",
+                "newVaultName" to "new-gurre-test15"
+            )
+        )
+        webTestClient.queryGraphQL(renameVaultMutation, variables, "test-token").expectBody()
+            .printResult()
+        // .graphqlData("deleteVault.affiliationName").isEqualTo("aurora")
+        // .graphqlData("deleteVault.vaultName").isEqualTo("test2")
+        // .graphqlDoesNotContainErrors()
     }
 
     @Test

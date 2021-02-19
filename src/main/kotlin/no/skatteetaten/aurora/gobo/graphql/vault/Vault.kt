@@ -37,6 +37,6 @@ data class DeleteVaultResponse(val affiliationName: String, val vaultName: Strin
 
 data class RenameVaultInput(
     val affiliationName: String,
-    val existingVaultName: String,
+    val vaultName: String,
     val newVaultName: String
 )

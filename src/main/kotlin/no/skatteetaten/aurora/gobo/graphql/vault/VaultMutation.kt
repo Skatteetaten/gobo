@@ -14,6 +14,9 @@ class VaultMutation(val vaultService: VaultService) : Mutation {
     suspend fun createVault(input: CreateVaultInput, dfe: DataFetchingEnvironment) =
         dfe.ifValidUserToken { vaultService.createVault(dfe.token(), input).let { Vault.create(it) } }
 
+    suspend fun renameVault(input: RenameVaultInput, dfe: DataFetchingEnvironment) =
+        dfe.ifValidUserToken { vaultService.renameVault(dfe.token(), input).let { Vault.create(it) } }
+
     suspend fun deleteVault(input: DeleteVaultInput, dfe: DataFetchingEnvironment) =
         dfe.ifValidUserToken {
             vaultService.deleteVault(VaultContext(dfe.token(), input.affiliationName, input.vaultName))
