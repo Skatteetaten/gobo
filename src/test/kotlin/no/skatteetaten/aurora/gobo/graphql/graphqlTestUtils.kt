@@ -1,5 +1,6 @@
 package no.skatteetaten.aurora.gobo.graphql
 
+import com.fasterxml.jackson.module.kotlin.convertValue
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import no.skatteetaten.aurora.webflux.AuroraRequestParser.KLIENTID_FIELD
 import no.skatteetaten.aurora.webflux.AuroraRequestParser.KORRELASJONSID_FIELD
@@ -31,6 +32,16 @@ fun createQuery(query: String, variables: Map<String, *> = emptyMap<String, Stri
     val variablesJson = jacksonObjectMapper().writeValueAsString(variables)
     return query(json, variablesJson)
 }
+
+fun WebTestClient.queryGraphQL(
+    queryResource: Resource,
+    input: Any,
+    token: String? = null
+) = queryGraphQL(
+    queryResource,
+    mapOf("input" to jacksonObjectMapper().convertValue<Map<String, Any>>(input)),
+    token
+)
 
 fun WebTestClient.queryGraphQL(
     queryResource: Resource,

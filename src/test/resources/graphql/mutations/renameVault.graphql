@@ -1,0 +1,5 @@
+mutation renameVault($input: RenameVaultInput!) {
+    renameVault(input: $input) {
+      name
+  }
+}

@@ -4,13 +4,16 @@ import com.expediagroup.graphql.spring.operations.Mutation
 import com.fasterxml.jackson.annotation.JsonProperty
 import graphql.schema.DataFetchingEnvironment
 import mu.KotlinLogging
-import no.skatteetaten.aurora.gobo.graphql.AccessDeniedException
 import no.skatteetaten.aurora.gobo.integration.herkimer.CredentialBase
 import no.skatteetaten.aurora.gobo.integration.herkimer.HerkimerResult
 import no.skatteetaten.aurora.gobo.integration.herkimer.HerkimerService
 import no.skatteetaten.aurora.gobo.integration.herkimer.RegisterResourceAndClaimCommand
 import no.skatteetaten.aurora.gobo.integration.herkimer.ResourceKind
-import no.skatteetaten.aurora.gobo.security.getValidUser
+import no.skatteetaten.aurora.gobo.integration.naghub.DetailedMessage
+import no.skatteetaten.aurora.gobo.integration.naghub.NagHubColor
+import no.skatteetaten.aurora.gobo.integration.naghub.NagHubResult
+import no.skatteetaten.aurora.gobo.integration.naghub.NagHubService
+import no.skatteetaten.aurora.gobo.security.checkIsUserAuthorized
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Component
@@ -21,13 +24,18 @@ private val logger = KotlinLogging.logger {}
 @Component
 class CredentialMutation(
     private val herkimerService: HerkimerService,
-    @Value("\${integrations.dbh.application.deployment.id}") val dbhAdId: String
+    private val nagHubService: NagHubService,
+    @Value("\${integrations.dbh.application.deployment.id}") val dbhAdId: String,
+    @Value("\${openshift.cluster}") val cluster: String,
+    @Value("\${credentials.registerPostgres.notificationChannel}") val notificationChannel: String,
+    @Value("\${credentials.registerPostgres.allowedAdGroup}") val allowedAdGroup: String
+
 ) : Mutation {
     suspend fun registerPostgresMotelServer(
         input: PostgresMotelInput,
         dfe: DataFetchingEnvironment
     ): RegisterPostgresResult {
-        dfe.checkIsUserAuthorized()
+        dfe.checkIsUserAuthorized(allowedAdGroup)
 
         val postgresInstance = input.toHerkimerPostgresInstance()
 
@@ -40,6 +48,35 @@ class CredentialMutation(
                 resourceKind = ResourceKind.PostgresDatabaseInstance
             )
         ).toRegisterPostgresResult(input.host)
+            .also {
+                nagHubService.sendMessage(notificationChannel, it.toNotifyMessage())
+                    ?.logOnFailure(input.host)
+            }
+    }
+
+    private suspend fun NagHubResult.logOnFailure(host: String) {
+        if (!success) {
+            logger.error {
+                "Could not send notification to mattermost for a registered postgres motel host=$host cluster=$cluster"
+            }
+        }
+    }
+
+    private suspend fun RegisterPostgresResult.toNotifyMessage(): List<DetailedMessage> {
+        val notifyMessage =
+            if (success) {
+                DetailedMessage(
+                    NagHubColor.Yellow,
+                    "$message. DBH needs to be redeployed in cluster=$cluster"
+                )
+            } else {
+                DetailedMessage(
+                    NagHubColor.Red,
+                    "$message. The host needs to be manually registered for cluster=$cluster."
+                )
+            }
+
+        return listOf(notifyMessage)
     }
 }
 
@@ -57,15 +94,6 @@ private fun PostgresMotelInput.toHerkimerPostgresInstance() =
         affiliation = businessGroup,
         instanceName = generateInstanceName()
     )
-
-private suspend fun DataFetchingEnvironment.checkIsUserAuthorized() {
-    val userId = this.getValidUser().id
-
-    // TODO: This is only temporary for internal usage. Jira ticket AOS-5376 looks into authorization of vra
-    if (!userId.matches(Regex("system:serviceaccount:(aurora|aup)[-\\w]*:vra$"))) {
-        throw AccessDeniedException("You do not have access to register a Postgres Motel Server")
-    }
-}
 
 private fun HerkimerResult.toRegisterPostgresResult(host: String): RegisterPostgresResult {
     val message =
