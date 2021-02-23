@@ -10,6 +10,8 @@ import assertk.assertions.isNotNull
 import assertk.assertions.isTrue
 import assertk.assertions.support.expected
 import no.skatteetaten.aurora.gobo.BooberVaultBuilder
+import no.skatteetaten.aurora.gobo.GoboException
+import no.skatteetaten.aurora.gobo.graphql.vault.RenameVaultInput
 import no.skatteetaten.aurora.gobo.graphql.vault.Secret
 import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.testObjectMapper
@@ -21,6 +23,7 @@ import okhttp3.mockwebserver.RecordedRequest
 class VaultServiceTest {
     private val affiliationName = "aurora"
     private val vaultName = "test-vault"
+    private val renamedVaultName = "renamed-test-vault"
 
     private val server = MockWebServer()
     private val url = server.url("/")
@@ -59,6 +62,66 @@ class VaultServiceTest {
         }
         assertThat(requests).hasSize(1)
         assertThat(requests.first()?.path).isEqualTo("/v1/vault/$affiliationName")
+    }
+
+    @Test
+    fun `Rename vault sunshine`() {
+        val getVaultResponse = BooberVaultBuilder().build()
+        val putVaultResponse = getVaultResponse.copy(name = renamedVaultName)
+        val deleteVaultResponse = getVaultResponse.copy()
+
+        val requests = server.executeBlocking(
+            200 to Response(getVaultResponse),
+            404 to Response(items = emptyList<BooberVault>(), success = false, message = "Vault with name exists.."),
+            200 to Response(putVaultResponse),
+            200 to Response(getVaultResponse),
+            200 to Response(deleteVaultResponse)
+        ) {
+            val renamedVault = vaultService.renameVault(
+                token = "token",
+                RenameVaultInput(
+                    affiliationName = affiliationName,
+                    vaultName = vaultName,
+                    newVaultName = renamedVaultName
+                )
+            )
+            assertThat(renamedVault.name).isEqualTo("renamed-test-vault")
+            assertThat(renamedVault.hasAccess).isTrue()
+            assertThat(renamedVault.permissions).isEqualTo(
+                listOf("APP_PaaS_utv")
+            )
+            assertThat(renamedVault.secrets).isEqualTo(
+                mapOf("latest.properties" to "QVRTX1VTRVJOQU1FPWJtYwp")
+            )
+        }
+    }
+
+    @Test
+    fun `Rename vault failed because new name already exists`() {
+        val getVaultResponse = BooberVaultBuilder().build()
+        val checkIfVaultExistsResponse = BooberVaultBuilder().build()
+        val putVaultResponse = getVaultResponse.copy(name = renamedVaultName)
+        val deleteVaultResponse = getVaultResponse.copy()
+
+        val requests = server.executeBlocking(
+            Response(getVaultResponse),
+            Response(checkIfVaultExistsResponse),
+            putVaultResponse,
+            deleteVaultResponse
+        ) {
+            try {
+                vaultService.renameVault(
+                    token = "token",
+                    RenameVaultInput(
+                        affiliationName = affiliationName,
+                        vaultName = vaultName,
+                        newVaultName = renamedVaultName
+                    )
+                )
+            } catch (e: GoboException) {
+                assertThat(e.errorMessage).isEqualTo("Vault with vault name renamed-test-vault already exists.")
+            }
+        }
     }
 
     @Test

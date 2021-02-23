@@ -72,13 +72,13 @@ class VaultService(private val booberWebClient: BooberWebClient) {
         checkIfVaultExists(VaultContext(token, input.affiliationName, input.newVaultName))
 
         val newBooberVault = oldBooberVault.copy(name = input.newVaultName)
-        val newVault = putVault(
+        val renamedVault = putVault(
             token,
             input.affiliationName,
             BooberVaultInput(newBooberVault.name, newBooberVault.permissions, newBooberVault.secrets?.map { it.key to it.value }?.toMap())
         )
         deleteVault(oldVaultCtx)
-        return newVault
+        return renamedVault
     }
 
     suspend fun deleteVault(ctx: VaultContext) {
