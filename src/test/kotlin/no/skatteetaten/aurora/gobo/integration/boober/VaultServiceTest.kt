@@ -71,11 +71,11 @@ class VaultServiceTest {
         val deleteVaultResponse = getVaultResponse.copy()
 
         val requests = server.executeBlocking(
-            200 to Response(getVaultResponse),
-            404 to Response(items = emptyList<BooberVault>(), success = false, message = "Vault with name exists.."),
-            200 to Response(putVaultResponse),
-            200 to Response(getVaultResponse),
-            200 to Response(deleteVaultResponse)
+            200 to Response(items = listOf(getVaultResponse)),
+            404 to Response(items = listOf(BooberVaultBuilder().build())),
+            200 to Response(items = listOf(putVaultResponse)),
+            200 to Response(items = listOf(getVaultResponse)),
+            200 to Response(items = listOf(deleteVaultResponse))
         ) {
             val renamedVault = vaultService.renameVault(
                 token = "token",
