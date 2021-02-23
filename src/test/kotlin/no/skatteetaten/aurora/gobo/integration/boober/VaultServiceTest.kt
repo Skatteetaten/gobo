@@ -19,7 +19,10 @@ import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.bodyAsObject
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.executeBlocking
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.RecordedRequest
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.TestInstance
 
+@TestInstance(TestInstance.Lifecycle.PER_METHOD)
 class VaultServiceTest {
     private val affiliationName = "aurora"
     private val vaultName = "test-vault"
@@ -29,6 +32,11 @@ class VaultServiceTest {
     private val url = server.url("/")
 
     private val vaultService = VaultService(BooberWebClient(url.toString(), WebClient.create(), testObjectMapper()))
+
+    @AfterEach
+    fun tearDown() {
+        runCatching { server.shutdown() }
+    }
 
     @Test
     fun `Get vault`() {
@@ -71,11 +79,11 @@ class VaultServiceTest {
         val deleteVaultResponse = getVaultResponse.copy()
 
         val requests = server.executeBlocking(
-            200 to Response(items = listOf(getVaultResponse)),
-            404 to Response(items = listOf(BooberVaultBuilder().build())),
-            200 to Response(items = listOf(putVaultResponse)),
-            200 to Response(items = listOf(getVaultResponse)),
-            200 to Response(items = listOf(deleteVaultResponse))
+            200 to Response(getVaultResponse),
+            404 to Response(BooberVaultBuilder().build()),
+            200 to Response(putVaultResponse),
+            200 to Response(getVaultResponse),
+            200 to Response(deleteVaultResponse)
         ) {
             val renamedVault = vaultService.renameVault(
                 token = "token",
@@ -233,7 +241,12 @@ class VaultServiceTest {
         }
 
         assertThat(requests).containsGetVaultRequest()
-        assertThat(requests.last()?.bodyAsObject<BooberVaultInput>()?.secrets).isEqualTo(mapOf("secret2" to "YWJj", "a" to "b"))
+        assertThat(requests.last()?.bodyAsObject<BooberVaultInput>()?.secrets).isEqualTo(
+            mapOf(
+                "secret2" to "YWJj",
+                "a" to "b"
+            )
+        )
     }
 
     private fun Assert<List<RecordedRequest?>>.containsGetVaultRequest() = given {
