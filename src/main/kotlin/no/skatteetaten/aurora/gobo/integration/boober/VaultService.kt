@@ -5,7 +5,6 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.GoboException
 import no.skatteetaten.aurora.gobo.graphql.vault.CreateVaultInput
-import no.skatteetaten.aurora.gobo.graphql.vault.RenameVaultInput
 import no.skatteetaten.aurora.gobo.graphql.vault.Secret
 
 data class BooberVaultInput(
@@ -66,15 +65,14 @@ class VaultService(private val booberWebClient: BooberWebClient) {
         return putVault(token, input.affiliationName, input.mapToPayload())
     }
 
-    suspend fun renameVault(token: String, input: RenameVaultInput): BooberVault {
-        val oldVaultCtx = VaultContext(token, input.affiliationName, input.vaultName)
+    suspend fun renameVault(oldVaultCtx: VaultContext, newVaultName: String): BooberVault {
         val oldBooberVault = getVault(oldVaultCtx)
-        checkIfVaultExists(VaultContext(token, input.affiliationName, input.newVaultName))
+        checkIfVaultExists(VaultContext(oldVaultCtx.token, oldVaultCtx.affiliationName, newVaultName))
 
-        val newBooberVault = oldBooberVault.copy(name = input.newVaultName)
+        val newBooberVault = oldBooberVault.copy(name = newVaultName)
         val renamedVault = putVault(
-            token,
-            input.affiliationName,
+            oldVaultCtx.token,
+            oldVaultCtx.affiliationName,
             BooberVaultInput(newBooberVault.name, newBooberVault.permissions, newBooberVault.secrets?.map { it.key to it.value }?.toMap())
         )
         deleteVault(oldVaultCtx)

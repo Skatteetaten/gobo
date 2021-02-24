@@ -1,6 +1,8 @@
 package no.skatteetaten.aurora.gobo.integration.boober
 
+import javax.management.Query.isInstanceOf
 import assertk.Assert
+import assertk.assertions.isInstanceOf
 import org.junit.jupiter.api.Test
 import org.springframework.web.reactive.function.client.WebClient
 import assertk.assertThat
@@ -10,8 +12,6 @@ import assertk.assertions.isNotNull
 import assertk.assertions.isTrue
 import assertk.assertions.support.expected
 import no.skatteetaten.aurora.gobo.BooberVaultBuilder
-import no.skatteetaten.aurora.gobo.GoboException
-import no.skatteetaten.aurora.gobo.graphql.vault.RenameVaultInput
 import no.skatteetaten.aurora.gobo.graphql.vault.Secret
 import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.testObjectMapper
@@ -21,6 +21,11 @@ import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.RecordedRequest
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.TestInstance
+import assertk.all
+import assertk.assertions.isFailure
+import assertk.assertions.messageContains
+import no.skatteetaten.aurora.gobo.GoboException
+import no.skatteetaten.aurora.gobo.graphql.token
 
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
 class VaultServiceTest {
@@ -86,13 +91,10 @@ class VaultServiceTest {
             200 to Response(deleteVaultResponse)
         ) {
             val renamedVault = vaultService.renameVault(
-                token = "token",
-                RenameVaultInput(
-                    affiliationName = affiliationName,
-                    vaultName = vaultName,
-                    newVaultName = renamedVaultName
-                )
+                VaultContext(token = "token", affiliationName = affiliationName, vaultName = vaultName),
+                renamedVaultName
             )
+
             assertThat(renamedVault.name).isEqualTo("renamed-test-vault")
             assertThat(renamedVault.hasAccess).isTrue()
             assertThat(renamedVault.permissions).isEqualTo(
@@ -117,17 +119,10 @@ class VaultServiceTest {
             putVaultResponse,
             deleteVaultResponse
         ) {
-            try {
-                vaultService.renameVault(
-                    token = "token",
-                    RenameVaultInput(
-                        affiliationName = affiliationName,
-                        vaultName = vaultName,
-                        newVaultName = renamedVaultName
-                    )
-                )
-            } catch (e: GoboException) {
-                assertThat(e.errorMessage).isEqualTo("Vault with vault name renamed-test-vault already exists.")
+            assertThat {
+                vaultService.renameVault(VaultContext(token = "token", affiliationName = affiliationName, vaultName = vaultName), renamedVaultName)
+            }.isNotNull().isFailure().all {
+                isInstanceOf(GoboException::class).messageContains("Vault with vault name renamed-test-vault already exists.")
             }
         }
     }
