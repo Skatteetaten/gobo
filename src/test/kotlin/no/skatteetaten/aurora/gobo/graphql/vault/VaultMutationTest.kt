@@ -50,7 +50,7 @@ class VaultMutationTest : GraphQLTestWithDbhAndSkap() {
 
     @BeforeEach
     fun setUp() {
-        coEvery { vaultService.createVault(any(), any()) } returns BooberVault(
+        coEvery { vaultService.createVault(any(), any(), any()) } returns BooberVault(
             "test-vault",
             false,
             emptyList(),
