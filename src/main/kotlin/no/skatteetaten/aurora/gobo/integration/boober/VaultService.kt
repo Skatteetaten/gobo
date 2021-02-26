@@ -193,8 +193,8 @@ class VaultService(private val booberWebClient: BooberWebClient) {
     private suspend fun checkIfVaultExists(ctx: VaultContext) {
         try {
             (getVault(ctx)).let { throw GoboException("Vault with vault name ${ctx.vaultName} already exists.") }
-        } catch (e: WebClientResponseException) {
-            logger.debug { "Vault with name ${ctx.vaultName} does not exist. Vault will be created." }
+        } catch (e: BooberIntegrationException) {
+            logger.debug(e) { "Vault with name ${ctx.vaultName} does not exist. Vault will be created." }
         }
     }
 }
