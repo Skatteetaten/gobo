@@ -93,7 +93,6 @@ class VaultMutationTest : GraphQLTestWithDbhAndSkap() {
             )
         )
         webTestClient.queryGraphQL(renameVaultMutation, variables, "test-token").expectBody()
-            // .printResult()
             .graphqlData("renameVault.name").isEqualTo("renamed-test2")
             .graphqlDoesNotContainErrors()
     }
