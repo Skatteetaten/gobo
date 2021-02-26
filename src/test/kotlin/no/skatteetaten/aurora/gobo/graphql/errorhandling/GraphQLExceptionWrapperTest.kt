@@ -8,16 +8,22 @@ import assertk.assertions.isNull
 import graphql.ExceptionWhileDataFetching
 import graphql.execution.DataFetcherExceptionHandlerParameters
 import graphql.execution.ExecutionPath
+import io.mockk.every
 import io.mockk.mockk
 import no.skatteetaten.aurora.gobo.GoboException
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.graphql.AccessDeniedException
+import no.skatteetaten.aurora.gobo.graphql.GoboGraphQLContext
 import org.junit.jupiter.api.Test
 
 class GraphQLExceptionWrapperTest {
     private val paramsBuilder = DataFetcherExceptionHandlerParameters
         .newExceptionParameters()
-        .dataFetchingEnvironment(mockk(relaxed = true))
+        .dataFetchingEnvironment(
+            mockk(relaxed = true) {
+                every { getContext<GoboGraphQLContext>() } returns mockk(relaxed = true)
+            }
+        )
 
     @Test
     fun `Create new GraphQLExceptionWrapper`() {
@@ -37,7 +43,6 @@ class GraphQLExceptionWrapperTest {
         assertThat(exceptionWrapper.extensions["code"]).isEqualTo("INTERNAL_SERVER_ERROR")
         assertThat(exceptionWrapper.extensions["cause"]).isEqualTo(IllegalStateException::class.simpleName)
         assertThat(exceptionWrapper.extensions["errorMessage"]).isEqualTo("error message")
-        assertThat(exceptionWrapper.extensions["sourceSystem"]).isNull()
     }
 
     @Test
@@ -57,7 +62,6 @@ class GraphQLExceptionWrapperTest {
         assertThat(exceptionWrapper.extensions["code"]).isEqualTo("INTERNAL_SERVER_ERROR")
         assertThat(exceptionWrapper.extensions["cause"]).isEqualTo(IllegalStateException::class.simpleName)
         assertThat(exceptionWrapper.extensions["errorMessage"]).isEqualTo("error message")
-        assertThat(exceptionWrapper.extensions["sourceSystem"]).isEqualTo("source")
     }
 
     @Test
@@ -70,6 +74,5 @@ class GraphQLExceptionWrapperTest {
         assertThat(exceptionWrapper.extensions["code"]).isNull()
         assertThat(exceptionWrapper.extensions["cause"]).isNull()
         assertThat(exceptionWrapper.extensions["errorMessage"]).isEqualTo("test exception")
-        assertThat(exceptionWrapper.extensions["sourceSystem"]).isNull()
     }
 }
