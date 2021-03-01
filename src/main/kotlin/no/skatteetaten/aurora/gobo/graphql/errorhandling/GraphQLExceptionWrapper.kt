@@ -41,8 +41,6 @@ class GraphQLExceptionWrapper private constructor(
         when (exception) {
             is GoboException -> {
                 mapOf<String, Any?>(
-                    "code" to exception.code,
-                    "cause" to cause?.javaClass?.simpleName,
                     "errorMessage" to exception.errorMessage,
                     AuroraRequestParser.KORRELASJONSID_FIELD to korrelasjonsId
                 ).filter { it.value != null } + exception.extensions

@@ -4,7 +4,6 @@ import assertk.assertThat
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
-import assertk.assertions.isNull
 import graphql.ExceptionWhileDataFetching
 import graphql.execution.DataFetcherExceptionHandlerParameters
 import graphql.execution.ExecutionPath
@@ -40,8 +39,6 @@ class GraphQLExceptionWrapperTest {
         assertThat(exceptionWrapper.message).isEqualTo("test exception")
         assertThat(exceptionWrapper.locations[0]).isNotNull()
         assertThat(exceptionWrapper.path).isEmpty()
-        assertThat(exceptionWrapper.extensions["code"]).isEqualTo("INTERNAL_SERVER_ERROR")
-        assertThat(exceptionWrapper.extensions["cause"]).isEqualTo(IllegalStateException::class.simpleName)
         assertThat(exceptionWrapper.extensions["errorMessage"]).isEqualTo("error message")
     }
 
@@ -59,8 +56,6 @@ class GraphQLExceptionWrapperTest {
 
         val exceptionWrapper = GraphQLExceptionWrapper(handlerParams)
         assertThat(exceptionWrapper.message).isEqualTo("test exception")
-        assertThat(exceptionWrapper.extensions["code"]).isEqualTo("INTERNAL_SERVER_ERROR")
-        assertThat(exceptionWrapper.extensions["cause"]).isEqualTo(IllegalStateException::class.simpleName)
         assertThat(exceptionWrapper.extensions["errorMessage"]).isEqualTo("error message")
     }
 
@@ -71,8 +66,6 @@ class GraphQLExceptionWrapperTest {
 
         val exceptionWrapper = GraphQLExceptionWrapper(exceptionWhileDataFetching)
         assertThat(exceptionWrapper.message).isEqualTo("test exception")
-        assertThat(exceptionWrapper.extensions["code"]).isNull()
-        assertThat(exceptionWrapper.extensions["cause"]).isNull()
         assertThat(exceptionWrapper.extensions["errorMessage"]).isEqualTo("test exception")
     }
 }

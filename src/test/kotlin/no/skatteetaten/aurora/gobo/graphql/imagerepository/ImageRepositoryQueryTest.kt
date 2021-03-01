@@ -233,8 +233,6 @@ class ImageRepositoryQueryTest : GraphQLTestWithDbhAndSkap() {
             .expectStatus().isOk
             .expectBody()
             .graphqlErrors("length()").isEqualTo(6)
-            .graphqlErrorsFirst("extensions.code").exists()
-            .graphqlErrorsFirst("extensions.cause").exists()
             .graphqlErrorsFirst("extensions.errorMessage").exists()
     }
 
