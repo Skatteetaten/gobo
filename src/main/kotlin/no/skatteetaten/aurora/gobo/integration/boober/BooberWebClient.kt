@@ -3,7 +3,6 @@ package no.skatteetaten.aurora.gobo.integration.boober
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import kotlinx.coroutines.reactive.awaitSingle
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
@@ -14,6 +13,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.reactive.function.client.awaitBody
 import org.springframework.web.reactive.function.client.bodyToMono
 import reactor.core.publisher.Mono
 import java.net.URI
@@ -73,14 +73,13 @@ class BooberWebClient(
             } else {
                 it
             }
-        }.exchangeToMono {
-            it.bodyToMono<Response<T>>().flatMap { body ->
-                when {
-                    it.statusCode() != HttpStatus.OK -> Mono.error(BooberIntegrationException(body, it.statusCode()))
-                    else -> Mono.just(body)
+        }
+            .retrieve()
+            .onStatus({ it != HttpStatus.OK }) {
+                it.bodyToMono<Response<*>>().flatMap { body ->
+                    Mono.error(BooberIntegrationException(body, it.statusCode()))
                 }
-            }
-        }.awaitSingle()
+            }.awaitBody()
     }
 
     final suspend inline fun <reified T : Any> get(

@@ -17,6 +17,7 @@ import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigService
 import no.skatteetaten.aurora.gobo.integration.boober.BooberWebClient
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
+import no.skatteetaten.aurora.gobo.integration.mokey.MokeyIntegrationException
 import no.skatteetaten.aurora.gobo.testObjectMapper
 import no.skatteetaten.aurora.mockmvc.extensions.TestObjectMapperConfigurer
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.executeBlocking
@@ -25,8 +26,8 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
+import org.springframework.http.HttpStatus
 import org.springframework.web.reactive.function.client.WebClient
-import org.springframework.web.reactive.function.client.WebClientResponseException
 import uk.q3c.rest.hal.Links
 
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
@@ -114,7 +115,7 @@ class ApplicationUpgradeServiceTest {
         server.executeBlocking(404 to "Not found") {
             assertThat {
                 upgradeService.upgrade("token", "applicationDeploymentId", "version")
-            }.isNotNull().isFailure().isInstanceOf(WebClientResponseException::class).messageContains("404")
+            }.isNotNull().isFailure().isInstanceOf(MokeyIntegrationException::class).messageContains(HttpStatus.NOT_FOUND.reasonPhrase)
         }
     }
 
