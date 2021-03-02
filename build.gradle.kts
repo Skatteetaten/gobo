@@ -37,6 +37,7 @@ dependencies {
     implementation("uk.q3c.rest:hal-kotlin:0.5.4.0.db32476") {
         exclude(group = "com.google.guava", module = "guava")
     }
+
     implementation("io.fabric8:openshift-client:5.0.2")
     implementation("com.github.fge:json-patch:1.13")
     implementation("com.jayway.jsonpath:json-path:2.5.0")

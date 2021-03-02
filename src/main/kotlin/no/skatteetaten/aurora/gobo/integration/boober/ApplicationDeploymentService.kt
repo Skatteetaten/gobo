@@ -58,7 +58,8 @@ class ApplicationDeploymentService(private val booberWebClient: BooberWebClient)
         val url = "/v1/auroradeployspec/{auroraConfig}?$requestParam"
         return booberWebClient.get<JsonNode>(
             url = url,
-            params = mapOf("auroraConfig" to auroraConfigName, "auroraConfigReference" to auroraConfigReference)
+            params = mapOf("auroraConfig" to auroraConfigName, "auroraConfigReference" to auroraConfigReference),
+            token = token
         ).responses().map {
             ApplicationDeploymentSpec(it)
         }
