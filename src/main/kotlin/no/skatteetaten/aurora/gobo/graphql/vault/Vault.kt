@@ -1,8 +1,6 @@
 package no.skatteetaten.aurora.gobo.graphql.vault
 
-import com.expediagroup.graphql.annotations.GraphQLIgnore
 import no.skatteetaten.aurora.gobo.integration.boober.BooberVault
-import no.skatteetaten.aurora.gobo.integration.boober.BooberVaultInput
 
 data class Vault(
     val name: String,
@@ -27,16 +25,13 @@ data class CreateVaultInput(
     val vaultName: String,
     val secrets: List<Secret>,
     val permissions: List<String>
-) {
-    @GraphQLIgnore
-    fun mapToPayload() = BooberVaultInput(vaultName, permissions, secrets.map { it.name to it.base64Content }.toMap())
-}
+)
 
 data class DeleteVaultInput(val affiliationName: String, val vaultName: String)
 data class DeleteVaultResponse(val affiliationName: String, val vaultName: String)
 
 data class RenameVaultInput(
     val affiliationName: String,
-    val existingVaultName: String,
+    val vaultName: String,
     val newVaultName: String
 )

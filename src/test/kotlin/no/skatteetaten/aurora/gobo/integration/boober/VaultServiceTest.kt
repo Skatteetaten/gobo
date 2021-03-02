@@ -1,6 +1,8 @@
 package no.skatteetaten.aurora.gobo.integration.boober
 
+import javax.management.Query.isInstanceOf
 import assertk.Assert
+import assertk.assertions.isInstanceOf
 import org.junit.jupiter.api.Test
 import org.springframework.web.reactive.function.client.WebClient
 import assertk.assertThat
@@ -17,15 +19,29 @@ import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.bodyAsObject
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.executeBlocking
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.RecordedRequest
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.TestInstance
+import assertk.all
+import assertk.assertions.isFailure
+import assertk.assertions.messageContains
+import no.skatteetaten.aurora.gobo.GoboException
+import no.skatteetaten.aurora.gobo.graphql.token
 
+@TestInstance(TestInstance.Lifecycle.PER_METHOD)
 class VaultServiceTest {
     private val affiliationName = "aurora"
     private val vaultName = "test-vault"
+    private val renamedVaultName = "renamed-test-vault"
 
     private val server = MockWebServer()
     private val url = server.url("/")
 
     private val vaultService = VaultService(BooberWebClient(url.toString(), WebClient.create(), testObjectMapper()))
+
+    @AfterEach
+    fun tearDown() {
+        runCatching { server.shutdown() }
+    }
 
     @Test
     fun `Get vault`() {
@@ -59,6 +75,56 @@ class VaultServiceTest {
         }
         assertThat(requests).hasSize(1)
         assertThat(requests.first()?.path).isEqualTo("/v1/vault/$affiliationName")
+    }
+
+    @Test
+    fun `Rename vault sunshine`() {
+        val getVaultResponse = BooberVaultBuilder().build()
+        val putVaultResponse = getVaultResponse.copy(name = renamedVaultName)
+        val deleteVaultResponse = getVaultResponse.copy()
+
+        val requests = server.executeBlocking(
+            200 to Response(getVaultResponse),
+            404 to Response(BooberVaultBuilder().build()),
+            200 to Response(putVaultResponse),
+            200 to Response(getVaultResponse),
+            200 to Response(deleteVaultResponse)
+        ) {
+            val renamedVault = vaultService.renameVault(
+                VaultContext(token = "token", affiliationName = affiliationName, vaultName = vaultName),
+                renamedVaultName
+            )
+
+            assertThat(renamedVault.name).isEqualTo("renamed-test-vault")
+            assertThat(renamedVault.hasAccess).isTrue()
+            assertThat(renamedVault.permissions).isEqualTo(
+                listOf("APP_PaaS_utv")
+            )
+            assertThat(renamedVault.secrets).isEqualTo(
+                mapOf("latest.properties" to "QVRTX1VTRVJOQU1FPWJtYwp")
+            )
+        }
+    }
+
+    @Test
+    fun `Rename vault failed because new name already exists`() {
+        val getVaultResponse = BooberVaultBuilder().build()
+        val checkIfVaultExistsResponse = BooberVaultBuilder().build()
+        val putVaultResponse = getVaultResponse.copy(name = renamedVaultName)
+        val deleteVaultResponse = getVaultResponse.copy()
+
+        val requests = server.executeBlocking(
+            Response(getVaultResponse),
+            Response(checkIfVaultExistsResponse),
+            putVaultResponse,
+            deleteVaultResponse
+        ) {
+            assertThat {
+                vaultService.renameVault(VaultContext(token = "token", affiliationName = affiliationName, vaultName = vaultName), renamedVaultName)
+            }.isNotNull().isFailure().all {
+                isInstanceOf(GoboException::class).messageContains("Vault with vault name renamed-test-vault already exists.")
+            }
+        }
     }
 
     @Test
@@ -170,7 +236,12 @@ class VaultServiceTest {
         }
 
         assertThat(requests).containsGetVaultRequest()
-        assertThat(requests.last()?.bodyAsObject<BooberVaultInput>()?.secrets).isEqualTo(mapOf("secret2" to "YWJj", "a" to "b"))
+        assertThat(requests.last()?.bodyAsObject<BooberVaultInput>()?.secrets).isEqualTo(
+            mapOf(
+                "secret2" to "YWJj",
+                "a" to "b"
+            )
+        )
     }
 
     private fun Assert<List<RecordedRequest?>>.containsGetVaultRequest() = given {

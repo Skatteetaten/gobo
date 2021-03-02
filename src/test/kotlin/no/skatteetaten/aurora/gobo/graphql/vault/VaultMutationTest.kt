@@ -21,6 +21,9 @@ class VaultMutationTest : GraphQLTestWithDbhAndSkap() {
     @Value("classpath:graphql/mutations/createVault.graphql")
     private lateinit var createVaultMutation: Resource
 
+    @Value("classpath:graphql/mutations/renameVault.graphql")
+    private lateinit var renameVaultMutation: Resource
+
     @Value("classpath:graphql/mutations/deleteVault.graphql")
     private lateinit var deleteVaultMutation: Resource
 
@@ -47,8 +50,15 @@ class VaultMutationTest : GraphQLTestWithDbhAndSkap() {
 
     @BeforeEach
     fun setUp() {
-        coEvery { vaultService.createVault(any(), any()) } returns BooberVault(
+        coEvery { vaultService.createVault(any(), any(), any()) } returns BooberVault(
             "test-vault",
+            false,
+            emptyList(),
+            emptyMap()
+        )
+
+        coEvery { vaultService.renameVault(any(), any()) } returns BooberVault(
+            "renamed-test2",
             false,
             emptyList(),
             emptyMap()
@@ -70,6 +80,20 @@ class VaultMutationTest : GraphQLTestWithDbhAndSkap() {
         webTestClient.queryGraphQL(createVaultMutation, variables, "test-token")
             .expectBody()
             .graphqlData("createVault.name").isEqualTo("test-vault")
+            .graphqlDoesNotContainErrors()
+    }
+
+    @Test
+    fun `Rename vault`() {
+        val variables = mapOf(
+            "input" to mapOf(
+                "affiliationName" to "aurora",
+                "newVaultName" to "renamed-test2",
+                "vaultName" to "test2"
+            )
+        )
+        webTestClient.queryGraphQL(renameVaultMutation, variables, "test-token").expectBody()
+            .graphqlData("renameVault.name").isEqualTo("renamed-test2")
             .graphqlDoesNotContainErrors()
     }
 

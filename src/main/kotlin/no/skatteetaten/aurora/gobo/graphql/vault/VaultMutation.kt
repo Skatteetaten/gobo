@@ -12,7 +12,29 @@ import no.skatteetaten.aurora.gobo.security.ifValidUserToken
 class VaultMutation(val vaultService: VaultService) : Mutation {
 
     suspend fun createVault(input: CreateVaultInput, dfe: DataFetchingEnvironment) =
-        dfe.ifValidUserToken { vaultService.createVault(dfe.token(), input).let { Vault.create(it) } }
+        dfe.ifValidUserToken {
+            vaultService.createVault(
+                ctx = VaultContext(
+                    token = dfe.token(),
+                    affiliationName = input.affiliationName,
+                    vaultName = input.vaultName
+                ),
+                permissions = input.permissions,
+                secrets = input.secrets
+            ).let { Vault.create(it) }
+        }
+
+    suspend fun renameVault(input: RenameVaultInput, dfe: DataFetchingEnvironment) =
+        dfe.ifValidUserToken {
+            vaultService.renameVault(
+                oldVaultCtx = VaultContext(
+                    token = dfe.token(),
+                    affiliationName = input.affiliationName,
+                    vaultName = input.vaultName
+                ),
+                newVaultName = input.newVaultName
+            ).let { Vault.create(it) }
+        }
 
     suspend fun deleteVault(input: DeleteVaultInput, dfe: DataFetchingEnvironment) =
         dfe.ifValidUserToken {
