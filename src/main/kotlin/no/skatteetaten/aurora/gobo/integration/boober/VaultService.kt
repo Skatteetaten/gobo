@@ -60,7 +60,6 @@ class VaultService(private val booberWebClient: BooberWebClient) {
             .response()
 
     suspend fun createVault(ctx: VaultContext, permissions: List<String>, secrets: List<Secret>): BooberVault {
-        checkIfVaultExists(affiliationName = ctx.affiliationName, vaultName = ctx.vaultName, ctx.token)
         return putVault(
             ctx.token,
             ctx.affiliationName,

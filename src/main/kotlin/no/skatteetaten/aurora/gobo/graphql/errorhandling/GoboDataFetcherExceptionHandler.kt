@@ -70,8 +70,7 @@ private fun DataFetcherExceptionHandlerParameters.handleGeneralDataFetcherExcept
 }
 
 private fun Throwable.isWebClientResponseWarnLoggable(booberUrl: String) = this is WebClientResponseException && (
-    isForbidden() || isNotFound() || isBooberBadRequest(booberUrl)
-    )
+    isForbidden() || isNotFound() || isBooberBadRequest(booberUrl))
 
 private fun Throwable.logTextRequest() = if (this is WebClientResponseException) {
     val referer = request?.headers?.getFirst(HttpHeaders.REFERER)?.let { "Referer=\"$it\"" } ?: ""
