@@ -125,7 +125,14 @@ class ApplicationService(@TargetService(ServiceTypes.MOKEY) val webClient: WebCl
     }
 
     private fun WebClient.ResponseSpec.handleHttpStatusErrors() =
-        onStatus({ it != HttpStatus.OK }) {
+        onStatus({ it == HttpStatus.NOT_FOUND }) {
+            Mono.error(
+                MokeyIntegrationException(
+                    "The requested resource was not found",
+                    it.statusCode()
+                )
+            )
+        }.onStatus({ it != HttpStatus.OK }) {
             Mono.error(
                 MokeyIntegrationException(
                     "Downstream request failed with ${it.statusCode().reasonPhrase}",

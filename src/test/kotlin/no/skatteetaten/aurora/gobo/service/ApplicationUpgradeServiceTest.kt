@@ -26,7 +26,6 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
-import org.springframework.http.HttpStatus
 import org.springframework.web.reactive.function.client.WebClient
 import uk.q3c.rest.hal.Links
 
@@ -115,7 +114,7 @@ class ApplicationUpgradeServiceTest {
         server.executeBlocking(404 to "Not found") {
             assertThat {
                 upgradeService.upgrade("token", "applicationDeploymentId", "version")
-            }.isNotNull().isFailure().isInstanceOf(MokeyIntegrationException::class).messageContains(HttpStatus.NOT_FOUND.reasonPhrase)
+            }.isNotNull().isFailure().isInstanceOf(MokeyIntegrationException::class).messageContains("not found")
         }
     }
 
