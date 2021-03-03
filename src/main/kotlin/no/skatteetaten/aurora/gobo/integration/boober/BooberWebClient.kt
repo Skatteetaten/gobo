@@ -15,7 +15,6 @@ import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.awaitBody
 import org.springframework.web.reactive.function.client.bodyToMono
-import reactor.core.publisher.Mono
 import java.net.URI
 
 val objectMapper: ObjectMapper = jacksonObjectMapper().registerModules(JavaTimeModule())
@@ -77,7 +76,7 @@ class BooberWebClient(
             .retrieve()
             .onStatus({ it != HttpStatus.OK }) {
                 it.bodyToMono<Response<*>>().flatMap { body ->
-                    Mono.error(BooberIntegrationException(body, it.statusCode()))
+                    BooberIntegrationException(body, it.statusCode()).toErrorMono()
                 }
             }.awaitBody()
     }

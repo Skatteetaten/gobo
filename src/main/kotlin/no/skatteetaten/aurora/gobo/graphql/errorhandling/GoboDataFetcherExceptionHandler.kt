@@ -49,7 +49,7 @@ private fun DataFetcherExceptionHandlerParameters.handleGeneralDataFetcherExcept
 
     val context = dataFetchingEnvironment.getContext<GoboGraphQLContext>()
     val source = if (exception is SourceSystemException) {
-        "source=\"${exception.sourceSystem}\""
+        """source="${exception.sourceSystem}" integrationResponse="${exception.integrationResponse}" """
     } else {
         ""
     }

@@ -9,6 +9,7 @@ class BooberIntegrationException(
     status: HttpStatus? = null
 ) : SourceSystemException(
     message = response.message,
+    integrationResponse = response.toString(),
     code = status?.reasonPhrase ?: "",
     sourceSystem = "boober"
 )

@@ -16,7 +16,6 @@ import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import org.springframework.web.reactive.function.client.bodyToMono
-import reactor.core.publisher.Mono
 
 private val logger = KotlinLogging.logger {}
 
@@ -126,18 +125,20 @@ class ApplicationService(@TargetService(ServiceTypes.MOKEY) val webClient: WebCl
 
     private fun WebClient.ResponseSpec.handleHttpStatusErrors() =
         onStatus({ it == HttpStatus.NOT_FOUND }) {
-            Mono.error(
+            it.bodyToMono<String>().flatMap { body ->
                 MokeyIntegrationException(
-                    "The requested resource was not found",
-                    it.statusCode()
-                )
-            )
+                    message = "The requested resource was not found",
+                    integrationResponse = body,
+                    status = it.statusCode()
+                ).toErrorMono()
+            }
         }.onStatus({ it != HttpStatus.OK }) {
-            Mono.error(
+            it.bodyToMono<String>().flatMap { body ->
                 MokeyIntegrationException(
-                    "Downstream request failed with ${it.statusCode().reasonPhrase}",
-                    it.statusCode()
-                )
-            )
+                    message = "Downstream request failed with ${it.statusCode().reasonPhrase}",
+                    integrationResponse = body,
+                    status = it.statusCode()
+                ).toErrorMono()
+            }
         }
 }
