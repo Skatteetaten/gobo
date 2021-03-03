@@ -9,7 +9,7 @@ class MokeyIntegrationException(
     status: HttpStatus? = null
 ) : SourceSystemException(
     message = message,
-    integrationResponse = integrationResponse,
+    integrationResponse = integrationResponse?.replace("\n", " "),
     code = status?.reasonPhrase ?: "",
     sourceSystem = "mokey"
 )
