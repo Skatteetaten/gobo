@@ -8,6 +8,8 @@ import no.skatteetaten.aurora.gobo.graphql.ApplicationRedeployException
 import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.ApplicationDeploymentRef
 import no.skatteetaten.aurora.gobo.integration.awaitWithRetry
 import no.skatteetaten.aurora.gobo.integration.boober.RedeployResponse
+import no.skatteetaten.aurora.gobo.integration.onStatusNotFound
+import no.skatteetaten.aurora.gobo.integration.onStatusNotOk
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
@@ -124,21 +126,17 @@ class ApplicationService(@TargetService(ServiceTypes.MOKEY) val webClient: WebCl
     }
 
     private fun WebClient.ResponseSpec.handleHttpStatusErrors() =
-        onStatus({ it == HttpStatus.NOT_FOUND }) {
-            it.bodyToMono<String>().flatMap { body ->
-                MokeyIntegrationException(
-                    message = "The requested resource was not found",
-                    integrationResponse = body,
-                    status = it.statusCode()
-                ).toErrorMono()
-            }
-        }.onStatus({ it != HttpStatus.OK }) {
-            it.bodyToMono<String>().flatMap { body ->
-                MokeyIntegrationException(
-                    message = "Downstream request failed with ${it.statusCode().reasonPhrase}",
-                    integrationResponse = body,
-                    status = it.statusCode()
-                ).toErrorMono()
-            }
+        onStatusNotFound { status, body ->
+            MokeyIntegrationException(
+                message = "The requested resource was not found",
+                integrationResponse = body,
+                status = status
+            )
+        }.onStatusNotOk { status, body ->
+            MokeyIntegrationException(
+                message = "Downstream request failed with ${status.reasonPhrase}",
+                integrationResponse = body,
+                status = status
+            )
         }
 }
