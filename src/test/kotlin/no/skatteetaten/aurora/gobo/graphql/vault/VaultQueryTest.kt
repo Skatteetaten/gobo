@@ -68,7 +68,12 @@ class VaultQueryTest : GraphQLTestWithDbhAndSkap() {
     fun `Query for single vault`() {
         coEvery { vaultService.getVault(any()) } returns vaultSimple
 
-        val variables = mapOf("affiliationNames" to listOf("aurora"), "vaultNames" to listOf("boober"))
+        val variables = mapOf(
+            "affiliationNames" to listOf("aurora"),
+            "vaultNames" to listOf("boober"),
+            "secretNames" to listOf("latest.properties")
+        )
+
         webTestClient.queryGraphQL(getVaultsQuery, variables, "test-token")
             .expectStatus().isOk
             .expectBody()
@@ -86,7 +91,8 @@ class VaultQueryTest : GraphQLTestWithDbhAndSkap() {
     fun `Query from list of vaults`() {
         coEvery { vaultService.getVault(any()) } returns vaultList.get(2)
 
-        val variables = mapOf("affiliationNames" to listOf("aurora"), "vaultNames" to listOf("boober", "rosita", "jenkins-gnupg"))
+        val variables =
+            mapOf("affiliationNames" to listOf("aurora"), "vaultNames" to listOf("boober", "rosita", "jenkins-gnupg"))
         webTestClient.queryGraphQL(getVaultsQuery, variables, "test-token")
             .expectStatus().isOk
             .expectBody()

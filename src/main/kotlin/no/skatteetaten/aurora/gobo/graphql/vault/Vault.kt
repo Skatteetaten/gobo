@@ -8,6 +8,13 @@ data class Vault(
     val permissions: List<String>?,
     val secrets: List<Secret>?
 ) {
+    fun secrets(names: List<String>?) =
+        if (names.isNullOrEmpty()) {
+            secrets
+        } else {
+            secrets?.filter { names.contains(it.name) }
+        }
+
     companion object {
         fun create(booberVault: BooberVault) = Vault(
             name = booberVault.name,
