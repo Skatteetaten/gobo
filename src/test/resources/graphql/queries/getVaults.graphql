@@ -1,4 +1,4 @@
-  query getVaults($affiliationNames:[String!]!, $vaultNames:[String!] ){
+  query getVaults($affiliationNames:[String!]!, $vaultNames:[String!], $secretNames:[String!]){
   affiliations(names: $affiliationNames)  {
     edges{
       node{
@@ -6,7 +6,7 @@
           name
           hasAccess
           permissions
-          secrets{
+          secrets(names: $secretNames) {
             name
             base64Content
           }
