@@ -87,7 +87,7 @@ class VaultService(private val booberWebClient: BooberWebClient) {
     }
 
     suspend fun deleteVault(ctx: VaultContext) {
-        val vault = getVault(ctx)
+        getVault(ctx)
         val url = "/v1/vault/${ctx.affiliationName}/${ctx.vaultName}"
         booberWebClient.delete<BooberVault>(
             url = url,
@@ -143,7 +143,7 @@ class VaultService(private val booberWebClient: BooberWebClient) {
             throw GoboException("The secret you try to rename from $secretName does not exist for the vault with name ${ctx.vaultName}.")
         }
         vault.findExistingSecret(newSecretName)?.let {
-            throw GoboException("The secret you try to rename to $secretName already exists for the vault with name ${ctx.vaultName}.")
+            throw GoboException("You can not rename $secretName to $newSecretName. The secret $newSecretName already exists.")
         }
 
         val updatedSecrets = vault.secrets?.get(secretName)?.let {
