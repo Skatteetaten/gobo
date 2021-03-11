@@ -5,15 +5,31 @@ import kotlinx.coroutines.reactive.awaitSingle
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.integration.boober.objectMapper
 import org.apache.commons.lang3.exception.ExceptionUtils
+import org.springframework.http.HttpStatus
 import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import org.springframework.web.reactive.function.client.bodyToMono
+import reactor.core.publisher.Mono
 import reactor.netty.http.client.PrematureCloseException
 import reactor.util.retry.Retry
 import java.time.Duration
 
 val webclientLogger = KotlinLogging.logger {}
+
+inline fun <reified T : Throwable> WebClient.ResponseSpec.onStatusNotFound(crossinline fn: (status: HttpStatus, body: String) -> T) =
+    this.onStatus({ it == HttpStatus.NOT_FOUND }) {
+        it.bodyToMono<String>().defaultIfEmpty("").flatMap { body ->
+            Mono.error(fn(it.statusCode(), body))
+        }
+    }
+
+inline fun <reified T : Throwable> WebClient.ResponseSpec.onStatusNotOk(crossinline fn: (status: HttpStatus, body: String) -> T) =
+    this.onStatus({ it != HttpStatus.OK }) {
+        it.bodyToMono<String>().defaultIfEmpty("").flatMap { body ->
+            Mono.error(fn(it.statusCode(), body))
+        }
+    }
 
 suspend inline fun <reified T : Any> WebClient.ResponseSpec.awaitWithRetry(
     min: Long = 100,

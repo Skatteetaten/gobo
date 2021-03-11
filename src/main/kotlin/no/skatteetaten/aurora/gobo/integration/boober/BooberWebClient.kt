@@ -3,35 +3,29 @@ package no.skatteetaten.aurora.gobo.integration.boober
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
-import java.net.URI
 import no.skatteetaten.aurora.gobo.integration.Response
-import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.WebClient
-import org.springframework.web.reactive.function.client.WebClientResponseException
 import org.springframework.web.reactive.function.client.awaitBody
+import org.springframework.web.reactive.function.client.bodyToMono
+import java.net.URI
 
 val objectMapper: ObjectMapper = jacksonObjectMapper().registerModules(JavaTimeModule())
 
 /**
- * Ignore success, do not throw SourceSystemException here if success = false
+ * Ignore success, do not throw BooberIntegrationException here if success = false
  */
 inline fun <reified T : Any> Response<T>.responsesIgnoreStatus() = this.copy(success = true).responses()
 
 inline fun <reified T : Any> Response<T>.responses(): List<T> = when {
-    !this.success -> throw SourceSystemException(
-        message = this.message,
-        errorMessage = this.items.toString(),
-        sourceSystem = "boober",
-        extensions = mapOf("message" to this.message, "errors" to this.items)
-    )
+    !this.success -> throw BooberIntegrationException(response = this)
     this.count == 0 -> emptyList()
     else -> this.items.map { item ->
         runCatching {
@@ -78,8 +72,13 @@ class BooberWebClient(
             } else {
                 it
             }
-        }.retrieve()
-            .awaitBody()
+        }
+            .retrieve()
+            .onStatus({ it != HttpStatus.OK }) {
+                it.bodyToMono<Response<*>>().flatMap { body ->
+                    BooberIntegrationException(body, it.statusCode()).toErrorMono()
+                }
+            }.awaitBody()
     }
 
     final suspend inline fun <reified T : Any> get(
@@ -143,26 +142,5 @@ class BooberWebClient(
             linkUri.query,
             linkUri.fragment
         ).toString()
-    }
-
-    fun handleBooberHttpError(it: Throwable): SourceSystemException {
-        return if (it is WebClientResponseException) {
-            val responseObj = objectMapper.readValue<Response<Any>>(it.responseBodyAsString)
-            val message = "message=${responseObj.message} items=${responseObj.items}"
-            SourceSystemException(
-                message = "Exception occurred in Boober integration.",
-                errorMessage = "Response $message",
-                code = it.statusCode.value().toString(),
-                sourceSystem = "boober",
-                extensions = mapOf("message" to responseObj.message, "errors" to responseObj.items)
-            )
-        } else {
-            SourceSystemException(
-                message = "Exception occurred in Boober integration.",
-                errorMessage = "Response ${it.message}",
-                code = "",
-                sourceSystem = "boober"
-            )
-        }
     }
 }

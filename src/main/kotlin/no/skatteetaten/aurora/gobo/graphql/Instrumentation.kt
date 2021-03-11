@@ -12,6 +12,7 @@ import no.skatteetaten.aurora.gobo.infrastructure.client.ClientService
 import no.skatteetaten.aurora.gobo.infrastructure.field.Field
 import no.skatteetaten.aurora.gobo.infrastructure.field.FieldClient
 import no.skatteetaten.aurora.gobo.infrastructure.field.FieldService
+import no.skatteetaten.aurora.gobo.removeNewLines
 import no.skatteetaten.aurora.webflux.AuroraRequestParser
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpRequest
@@ -21,10 +22,6 @@ import java.util.concurrent.atomic.LongAdder
 import javax.annotation.PreDestroy
 
 private val logger = KotlinLogging.logger { }
-
-fun String.removeNewLines() =
-    this.replace("\n", " ")
-        .replace(Regex("\\s+"), " ")
 
 private fun String.isNotIntrospectionQuery() = !startsWith("query IntrospectionQuery")
 

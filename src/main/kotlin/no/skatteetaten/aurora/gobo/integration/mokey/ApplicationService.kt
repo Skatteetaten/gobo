@@ -8,6 +8,8 @@ import no.skatteetaten.aurora.gobo.graphql.ApplicationRedeployException
 import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.ApplicationDeploymentRef
 import no.skatteetaten.aurora.gobo.integration.awaitWithRetry
 import no.skatteetaten.aurora.gobo.integration.boober.RedeployResponse
+import no.skatteetaten.aurora.gobo.integration.onStatusNotFound
+import no.skatteetaten.aurora.gobo.integration.onStatusNotOk
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
@@ -32,6 +34,7 @@ class ApplicationService(@TargetService(ServiceTypes.MOKEY) val webClient: WebCl
                 it.path("/api/application").queryParams(buildQueryParams(affiliations)).build()
             }
             .retrieve()
+            .handleHttpStatusErrors()
             .awaitWithRetry()
         return applications?.let { resources.filter { applications.contains(it.name) } } ?: resources
     }
@@ -41,6 +44,7 @@ class ApplicationService(@TargetService(ServiceTypes.MOKEY) val webClient: WebCl
             .get()
             .uri("/api/application/{id}", id)
             .retrieve()
+            .handleHttpStatusErrors()
             .awaitWithRetry()
     }
 
@@ -49,6 +53,7 @@ class ApplicationService(@TargetService(ServiceTypes.MOKEY) val webClient: WebCl
             .get()
             .uri("/api/applicationdeployment/{applicationDeploymentId}", applicationDeploymentId)
             .retrieve()
+            .handleHttpStatusErrors()
             .awaitWithRetry()
     }
 
@@ -58,6 +63,7 @@ class ApplicationService(@TargetService(ServiceTypes.MOKEY) val webClient: WebCl
             .uri("/api/applicationdeployment")
             .body(BodyInserters.fromValue(applicationDeploymentRefs))
             .retrieve()
+            .handleHttpStatusErrors()
             .awaitWithRetry()
     }
 
@@ -70,6 +76,7 @@ class ApplicationService(@TargetService(ServiceTypes.MOKEY) val webClient: WebCl
             .uri("/api/auth/applicationdeploymentdetails/{applicationDeploymentId}", applicationDeploymentId)
             .header(HttpHeaders.AUTHORIZATION, "Bearer $token")
             .retrieve()
+            .handleHttpStatusErrors()
             .awaitWithRetry()
     }
 
@@ -83,6 +90,7 @@ class ApplicationService(@TargetService(ServiceTypes.MOKEY) val webClient: WebCl
             .header(HttpHeaders.AUTHORIZATION, "Bearer $token")
             .body(BodyInserters.fromValue(databaseIds))
             .retrieve()
+            .handleHttpStatusErrors()
             .awaitWithRetry()
 
     private fun buildQueryParams(affiliations: List<String>): LinkedMultiValueMap<String, String> =
@@ -102,7 +110,7 @@ class ApplicationService(@TargetService(ServiceTypes.MOKEY) val webClient: WebCl
                 .retrieve()
                 .bodyToMono<Unit>()
                 .awaitFirstOrNull()
-        }.recover {
+        }.recover { // Code to handle migrations from old to new id
             if (redeployResponse != null && it is WebClientResponseException && it.statusCode == HttpStatus.BAD_REQUEST) {
                 logger.info("Refresh of applicationDeploymentId ${refreshParams.applicationDeploymentId} failed")
                 throw ApplicationRedeployException(
@@ -116,4 +124,19 @@ class ApplicationService(@TargetService(ServiceTypes.MOKEY) val webClient: WebCl
             throw it
         }.getOrThrow()
     }
+
+    private fun WebClient.ResponseSpec.handleHttpStatusErrors() =
+        onStatusNotFound { status, body ->
+            MokeyIntegrationException(
+                message = "The requested resource was not found",
+                integrationResponse = body,
+                status = status
+            )
+        }.onStatusNotOk { status, body ->
+            MokeyIntegrationException(
+                message = "Downstream request failed with ${status.reasonPhrase}",
+                integrationResponse = body,
+                status = status
+            )
+        }
 }

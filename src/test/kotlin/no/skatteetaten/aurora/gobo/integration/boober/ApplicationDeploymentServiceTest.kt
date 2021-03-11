@@ -50,10 +50,7 @@ class ApplicationDeploymentServiceTest {
                 applicationDeploymentService.deleteApplicationDeployment("token", input)
             }.isFailure().isInstanceOf(SourceSystemException::class).all {
                 messageContains("failure")
-                prop("errorMessage", SourceSystemException::errorMessage).all {
-                    contains("abc")
-                    contains("bcd")
-                }
+                prop("errorMessage", SourceSystemException::errorMessage).isEqualTo("failure")
             }
         }
         assertThat(requests.first()?.path).isEqualTo("/v1/applicationdeployment/delete")

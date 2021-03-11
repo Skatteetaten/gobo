@@ -4,6 +4,7 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFailure
 import assertk.assertions.isInstanceOf
+import assertk.assertions.messageContains
 import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.testObjectMapper
@@ -13,7 +14,6 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.springframework.web.reactive.function.client.WebClient
-import org.springframework.web.reactive.function.client.WebClientResponseException
 
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
 class BooberWebClientTest {
@@ -39,14 +39,16 @@ class BooberWebClientTest {
     @Test
     fun `Failure in boober response`() {
         server.executeBlocking(Response(success = false, message = "failure", items = listOf("a", "b"))) {
-            assertThat { client.get<String>(url, "test-token").response() }.isFailure().isInstanceOf(SourceSystemException::class)
+            assertThat { client.get<String>(url, "test-token").response() }.isFailure()
+                .isInstanceOf(SourceSystemException::class)
         }
     }
 
     @Test
     fun `Exception in boober response`() {
         server.executeBlocking(400 to Response(success = false, message = "failure", items = listOf("a", "b"))) {
-            assertThat { client.get<String>(url, "test-token") }.isFailure().isInstanceOf(WebClientResponseException::class)
+            assertThat { client.get<String>(url, "test-token") }.isFailure()
+                .isInstanceOf(BooberIntegrationException::class).messageContains("failure")
         }
     }
 
