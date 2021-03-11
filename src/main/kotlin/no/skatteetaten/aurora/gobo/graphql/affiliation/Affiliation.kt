@@ -8,6 +8,7 @@ import no.skatteetaten.aurora.gobo.graphql.application.Application
 import no.skatteetaten.aurora.gobo.graphql.auroraconfig.AuroraConfig
 import no.skatteetaten.aurora.gobo.graphql.auroraconfig.AuroraConfigKey
 import no.skatteetaten.aurora.gobo.graphql.database.DatabaseSchema
+import no.skatteetaten.aurora.gobo.graphql.errorhandling.GraphQLExceptionWrapper
 import no.skatteetaten.aurora.gobo.graphql.load
 import no.skatteetaten.aurora.gobo.graphql.loadBatchList
 import no.skatteetaten.aurora.gobo.graphql.loadMany
@@ -28,13 +29,29 @@ data class Affiliation(val name: String) {
     suspend fun databaseSchemas(dfe: DataFetchingEnvironment): List<DatabaseSchema> = dfe.loadMany(name)
 
     suspend fun websealStates(dfe: DataFetchingEnvironment): List<WebsealState> = dfe.loadMany(name)
-    suspend fun vaults(names: List<String>?, dfe: DataFetchingEnvironment): List<Vault> {
+    suspend fun vaults(names: List<String>?, dfe: DataFetchingEnvironment): DataFetcherResult<List<Vault>> {
+        dfe.checkValidUserToken()
         return if (names.isNullOrEmpty()) {
-            dfe.loadMany(name)
+            DataFetcherResult.newResult<List<Vault>>().data(dfe.loadMany(name)).build()
         } else {
-            names.map {
-                dfe.loadOrThrow(VaultKey(name, it)) // TODO: check boober result, should we return partial result
+            val values = names.map {
+                kotlin.runCatching {
+                    dfe.loadOrThrow<VaultKey, Vault>(VaultKey(name, it))
+                }.recoverCatching {
+                    it
+                }.getOrThrow()
+            }.groupBy {
+                when (it) {
+                    is Throwable -> "failure"
+                    else -> "success"
+                }
             }
+
+            val failure = values["failure"]?.let { it as List<Throwable> } ?: emptyList()
+            val success = values["success"]?.let { it as List<Vault> } ?: emptyList()
+
+            DataFetcherResult.newResult<List<Vault>>().data(success).errors(failure.map { GraphQLExceptionWrapper(it) })
+                .build()
         }
     }
 
