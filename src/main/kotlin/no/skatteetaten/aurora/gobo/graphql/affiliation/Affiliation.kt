@@ -8,11 +8,11 @@ import no.skatteetaten.aurora.gobo.graphql.application.Application
 import no.skatteetaten.aurora.gobo.graphql.auroraconfig.AuroraConfig
 import no.skatteetaten.aurora.gobo.graphql.auroraconfig.AuroraConfigKey
 import no.skatteetaten.aurora.gobo.graphql.database.DatabaseSchema
-import no.skatteetaten.aurora.gobo.graphql.errorhandling.GraphQLExceptionWrapper
 import no.skatteetaten.aurora.gobo.graphql.load
 import no.skatteetaten.aurora.gobo.graphql.loadBatchList
 import no.skatteetaten.aurora.gobo.graphql.loadMany
 import no.skatteetaten.aurora.gobo.graphql.loadOrThrow
+import no.skatteetaten.aurora.gobo.graphql.newDataFetcherResult
 import no.skatteetaten.aurora.gobo.graphql.vault.Vault
 import no.skatteetaten.aurora.gobo.graphql.vault.VaultKey
 import no.skatteetaten.aurora.gobo.graphql.webseal.WebsealState
@@ -32,28 +32,19 @@ data class Affiliation(val name: String) {
     suspend fun vaults(names: List<String>?, dfe: DataFetchingEnvironment): DataFetcherResult<List<Vault>> {
         dfe.checkValidUserToken()
         return if (names.isNullOrEmpty()) {
-            DataFetcherResult.newResult<List<Vault>>().data(dfe.loadMany(name)).build()
+            newDataFetcherResult(dfe.loadMany(name))
         } else {
             val values = names.map {
-                kotlin.runCatching {
-                    dfe.loadOrThrow<VaultKey, Vault>(VaultKey(name, it))
-                }.recoverCatching {
-                    it
-                }.getOrThrow()
-            }.groupBy {
-                when (it) {
-                    is Throwable -> "failure"
-                    else -> "success"
-                }
+                runCatching { dfe.loadOrThrow<VaultKey, Vault>(VaultKey(name, it)) }
+                    .recoverCatching { it }.getOrThrow()
             }
 
-            val failure = values["failure"]?.let { it as List<Throwable> } ?: emptyList()
-            val success = values["success"]?.let { it as List<Vault> } ?: emptyList()
-
-            DataFetcherResult.newResult<List<Vault>>().data(success).errors(failure.map { GraphQLExceptionWrapper(it) })
-                .build()
+            newDataFetcherResult(values.successes(), values.failures())
         }
     }
+
+    private fun List<Any>.successes() = this.filterIsInstance<Vault>()
+    private fun List<Any>.failures() = this.filterIsInstance<Throwable>()
 
     fun applications(dfe: DataFetchingEnvironment) = dfe.loadBatchList<String, Application>(name)
 }
