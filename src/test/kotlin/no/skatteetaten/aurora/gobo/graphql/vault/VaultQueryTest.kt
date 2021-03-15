@@ -8,14 +8,17 @@ import com.ninjasquad.springmockk.MockkBean
 import io.mockk.coEvery
 import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithDbhAndSkap
 import no.skatteetaten.aurora.gobo.graphql.affiliation.AffiliationQuery
+import no.skatteetaten.aurora.gobo.graphql.graphqlData
 import no.skatteetaten.aurora.gobo.graphql.graphqlDataWithPrefix
 import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
+import no.skatteetaten.aurora.gobo.graphql.graphqlErrorsFirst
 import no.skatteetaten.aurora.gobo.graphql.isFalse
 import no.skatteetaten.aurora.gobo.graphql.isTrue
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
 import no.skatteetaten.aurora.gobo.integration.boober.BooberVault
 import no.skatteetaten.aurora.gobo.integration.boober.VaultService
 import no.skatteetaten.aurora.gobo.service.AffiliationService
+import java.lang.RuntimeException
 
 @Import(
     AffiliationQuery::class,
@@ -89,7 +92,7 @@ class VaultQueryTest : GraphQLTestWithDbhAndSkap() {
 
     @Test
     fun `Query from list of vaults`() {
-        coEvery { vaultService.getVault(any()) } returns vaultList.get(2)
+        coEvery { vaultService.getVault(any()) } returns vaultList[2]
 
         val variables =
             mapOf("affiliationNames" to listOf("aurora"), "vaultNames" to listOf("boober", "rosita", "jenkins-gnupg"))
@@ -143,5 +146,19 @@ class VaultQueryTest : GraphQLTestWithDbhAndSkap() {
                 graphqlData("secrets[1].base64Content").isEqualTo("mQGNBF2yj5wBDADngY7jzndMFkyoMfzoB2p7ih")
             }
             .graphqlDoesNotContainErrors()
+    }
+
+    @Test
+    fun `Get vaults with partial result`() {
+        coEvery { vaultService.getVault(any()) } returns vaultList[0] andThenThrows RuntimeException("test exception")
+
+        val variables =
+            mapOf("affiliationNames" to listOf("aurora"), "vaultNames" to listOf("boober", "non-existing-vault"))
+
+        webTestClient.queryGraphQL(queryResource = getVaultsQuery, variables = variables, token = "test-token")
+            .expectStatus().isOk
+            .expectBody()
+            .graphqlData("affiliations.edges[0].node.vaults.length()").isEqualTo(1)
+            .graphqlErrorsFirst("message").isNotEmpty
     }
 }

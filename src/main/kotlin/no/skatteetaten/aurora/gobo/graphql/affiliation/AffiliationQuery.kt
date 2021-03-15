@@ -40,13 +40,14 @@ class AffiliationQuery(val affiliationService: AffiliationService) : Query {
         return AffiliationsConnection(affiliations)
     }
 
-    private suspend fun getAffiliations(checkForVisibility: Boolean, includeUndeployd: Boolean, dfe: DataFetchingEnvironment) =
-        if (checkForVisibility) {
-            affiliationService.getAllVisibleAffiliations(dfe.token())
-        } else if (includeUndeployd) {
-            affiliationService.getAllAffiliationNames()
-        } else {
-            // affiliationService.getAllAffiliations()
-            affiliationService.getAllDeployedAffiliations()
+    private suspend fun getAffiliations(
+        checkForVisibility: Boolean,
+        includeUndeployed: Boolean,
+        dfe: DataFetchingEnvironment
+    ) =
+        when {
+            checkForVisibility -> affiliationService.getAllVisibleAffiliations(dfe.token())
+            includeUndeployed -> affiliationService.getAllAffiliationNames()
+            else -> affiliationService.getAllDeployedAffiliations()
         }
 }

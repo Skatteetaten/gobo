@@ -12,6 +12,7 @@ import no.skatteetaten.aurora.gobo.graphql.load
 import no.skatteetaten.aurora.gobo.graphql.loadBatchList
 import no.skatteetaten.aurora.gobo.graphql.loadMany
 import no.skatteetaten.aurora.gobo.graphql.loadOrThrow
+import no.skatteetaten.aurora.gobo.graphql.newDataFetcherResult
 import no.skatteetaten.aurora.gobo.graphql.vault.Vault
 import no.skatteetaten.aurora.gobo.graphql.vault.VaultKey
 import no.skatteetaten.aurora.gobo.graphql.webseal.WebsealState
@@ -28,15 +29,22 @@ data class Affiliation(val name: String) {
     suspend fun databaseSchemas(dfe: DataFetchingEnvironment): List<DatabaseSchema> = dfe.loadMany(name)
 
     suspend fun websealStates(dfe: DataFetchingEnvironment): List<WebsealState> = dfe.loadMany(name)
-    suspend fun vaults(names: List<String>?, dfe: DataFetchingEnvironment): List<Vault> {
+    suspend fun vaults(names: List<String>?, dfe: DataFetchingEnvironment): DataFetcherResult<List<Vault>> {
+        dfe.checkValidUserToken()
         return if (names.isNullOrEmpty()) {
-            dfe.loadMany(name)
+            newDataFetcherResult(dfe.loadMany(name))
         } else {
-            names.map {
-                dfe.loadOrThrow(VaultKey(name, it)) // TODO: check boober result, should we return partial result
+            val values = names.map {
+                runCatching { dfe.loadOrThrow<VaultKey, Vault>(VaultKey(name, it)) }
+                    .recoverCatching { it }.getOrThrow()
             }
+
+            newDataFetcherResult(values.successes(), values.failures())
         }
     }
+
+    private fun List<Any>.successes() = this.filterIsInstance<Vault>()
+    private fun List<Any>.failures() = this.filterIsInstance<Throwable>()
 
     fun applications(dfe: DataFetchingEnvironment) = dfe.loadBatchList<String, Application>(name)
 }
