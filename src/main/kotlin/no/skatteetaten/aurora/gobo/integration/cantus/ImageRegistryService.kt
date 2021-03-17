@@ -102,6 +102,10 @@ class ImageRegistryService(
             }
             .bodyToMono<AuroraResponse<Any>>().map { response ->
                 response.run {
+                    if (failureCount > 0) {
+                        logger.warn("Failures from cantus response: $failure")
+                    }
+
                     AuroraResponse(
                         items = items.map { item ->
                             runCatching {
