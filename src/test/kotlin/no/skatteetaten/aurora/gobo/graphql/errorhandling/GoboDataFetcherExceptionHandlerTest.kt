@@ -10,6 +10,7 @@ import io.mockk.every
 import io.mockk.mockk
 import java.util.concurrent.CompletionException
 import no.skatteetaten.aurora.gobo.GoboException
+import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.graphql.GoboGraphQLContext
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.graphql.IntegrationDisabledException
@@ -65,7 +66,7 @@ class GoboDataFetcherExceptionHandlerTest {
         val handlerParameters = DataFetcherExceptionHandlerParameters
             .newExceptionParameters()
             .dataFetchingEnvironment(env)
-            .exception(SourceSystemException(message = "test exception", sourceSystem = "unit-test"))
+            .exception(SourceSystemException(message = "test exception", sourceSystem = ServiceTypes.MOKEY))
             .build()
 
         val exceptions = exceptionHandler.onException(handlerParameters)

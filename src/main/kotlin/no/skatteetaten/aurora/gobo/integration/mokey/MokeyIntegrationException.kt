@@ -1,5 +1,6 @@
 package no.skatteetaten.aurora.gobo.integration.mokey
 
+import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.removeNewLines
 import org.springframework.http.HttpStatus
@@ -12,5 +13,5 @@ class MokeyIntegrationException(
     message = message,
     integrationResponse = integrationResponse?.removeNewLines(),
     code = status?.reasonPhrase ?: "",
-    sourceSystem = "mokey"
+    sourceSystem = ServiceTypes.MOKEY
 )

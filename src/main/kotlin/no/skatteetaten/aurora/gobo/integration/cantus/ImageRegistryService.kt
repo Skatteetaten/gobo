@@ -1,13 +1,13 @@
 package no.skatteetaten.aurora.gobo.integration.cantus
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.convertValue
 import kotlinx.coroutines.reactive.awaitFirst
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
 import no.skatteetaten.aurora.gobo.graphql.imagerepository.ImageRepoDto
 import no.skatteetaten.aurora.gobo.graphql.imagerepository.ImageTag
+import no.skatteetaten.aurora.gobo.integration.onStatusNotOk
 import org.springframework.http.HttpHeaders
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.BodyInserters
@@ -92,23 +92,35 @@ class ImageRegistryService(
     private suspend inline fun <reified T : Any> WebClient.RequestHeadersSpec<*>.execute(token: String): AuroraResponse<T> =
         this.headers {
             it.set(HttpHeaders.AUTHORIZATION, "Bearer $token")
-        }.retrieve().bodyToMono<AuroraResponse<Any>>().map { response ->
-            response.run {
-                AuroraResponse(
-                    items = items.map { item ->
-                        runCatching {
-                            objectMapper.convertValue(item, T::class.java)
-                        }.onFailure {
-                            logger.error(it) { "Unable to parse response items from cantus: $item" }
-                        }.getOrThrow()
-                    },
-                    failure = failure,
-                    success = success,
-                    message = message,
-                    failureCount = failureCount,
-                    successCount = successCount,
-                    count = count
+        }.retrieve()
+            .onStatusNotOk { status, body ->
+                CantusIntegrationException(
+                    message = "Request failed when getting image data",
+                    integrationResponse = body,
+                    status = status
                 )
             }
-        }.awaitFirst()
+            .bodyToMono<AuroraResponse<Any>>().map { response ->
+                response.run {
+                    if (failureCount > 0) {
+                        logger.warn("Failures from cantus response: $failure")
+                    }
+
+                    AuroraResponse(
+                        items = items.map { item ->
+                            runCatching {
+                                objectMapper.convertValue(item, T::class.java)
+                            }.onFailure {
+                                logger.error(it) { "Unable to parse response items from cantus: $item" }
+                            }.getOrThrow()
+                        },
+                        failure = failure,
+                        success = success,
+                        message = message,
+                        failureCount = failureCount,
+                        successCount = successCount,
+                        count = count
+                    )
+                }
+            }.awaitFirst()
 }
