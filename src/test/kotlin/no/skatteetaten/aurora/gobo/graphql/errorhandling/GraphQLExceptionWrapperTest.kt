@@ -10,6 +10,7 @@ import graphql.execution.ExecutionPath
 import io.mockk.every
 import io.mockk.mockk
 import no.skatteetaten.aurora.gobo.GoboException
+import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.graphql.AccessDeniedException
 import no.skatteetaten.aurora.gobo.graphql.GoboGraphQLContext
@@ -50,7 +51,7 @@ class GraphQLExceptionWrapperTest {
                 cause = IllegalStateException(),
                 code = "INTERNAL_SERVER_ERROR",
                 errorMessage = "error message",
-                sourceSystem = "source"
+                sourceSystem = ServiceTypes.MOKEY
             )
         ).build()
 

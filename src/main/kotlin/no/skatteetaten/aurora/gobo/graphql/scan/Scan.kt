@@ -1,5 +1,6 @@
 package no.skatteetaten.aurora.gobo.graphql.scan
 
+import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.integration.unclematt.ProbeResult
 import no.skatteetaten.aurora.gobo.integration.unclematt.ProbeStatus
@@ -15,7 +16,7 @@ data class Scan(
     companion object {
         fun fromProbeResultList(probeResultList: List<ProbeResult>): Scan {
             if (probeResultList.isEmpty()) {
-                throw SourceSystemException(message = "Received empty result", sourceSystem = "unclematt")
+                throw SourceSystemException(message = "Received empty result", sourceSystem = ServiceTypes.UNCLEMATT)
             }
 
             val firstResult = probeResultList.first().result

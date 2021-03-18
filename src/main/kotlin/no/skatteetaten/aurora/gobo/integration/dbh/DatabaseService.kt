@@ -162,7 +162,7 @@ class DatabaseServiceReactive(
     private inline fun <reified T> onFailure(r: DbhResponse<*>): Mono<List<T>> =
         SourceSystemException(
             message = "status=${r.status} error=${(r.items.firstOrNull() ?: "") as String}",
-            sourceSystem = "dbh"
+            sourceSystem = ServiceTypes.DBH
         ).toMono()
 
     private inline fun <reified T> onSuccess(r: DbhResponse<*>): Mono<List<T>> =

@@ -4,7 +4,7 @@ import graphql.execution.DataFetcherResult
 import no.skatteetaten.aurora.gobo.MultipleKeysDataLoader
 import no.skatteetaten.aurora.gobo.graphql.GoboGraphQLContext
 import no.skatteetaten.aurora.gobo.graphql.errorhandling.GraphQLExceptionWrapper
-import no.skatteetaten.aurora.gobo.integration.SourceSystemException
+import no.skatteetaten.aurora.gobo.integration.cantus.CantusIntegrationException
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageRegistryService
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageRepoAndTags
 import org.springframework.stereotype.Component
@@ -35,7 +35,7 @@ class ImageMultipleKeysDataLoader(val imageRegistryService: ImageRegistryService
                     if (it.errorMessage.contains("application/vnd.docker.distribution.manifest.v1")) {
                         data(null)
                     } else {
-                        error(GraphQLExceptionWrapper(SourceSystemException(message = it.errorMessage, sourceSystem = "cantus")))
+                        error(GraphQLExceptionWrapper(CantusIntegrationException(message = it.errorMessage)))
                     }
                 }.build()
 
