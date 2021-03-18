@@ -8,13 +8,19 @@ import assertk.assertions.isInstanceOf
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import assertk.assertions.messageContains
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import no.skatteetaten.aurora.gobo.AuroraResponseBuilder
+import no.skatteetaten.aurora.gobo.ImageTagResourceBuilder
+import no.skatteetaten.aurora.gobo.graphql.imagerepository.ImageRepoDto
 import no.skatteetaten.aurora.gobo.graphql.imagerepository.ImageRepository
-import no.skatteetaten.aurora.gobo.testObjectMapper
+import no.skatteetaten.aurora.mockmvc.extensions.TestObjectMapperConfigurer
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.executeBlocking
-import okhttp3.mockwebserver.MockResponse
+import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.jsonResponse
 import okhttp3.mockwebserver.MockWebServer
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
@@ -29,19 +35,28 @@ class ImageRegistryServiceTest {
     private val imageRepo = ImageRepository.fromRepoString("docker.com/$imageRepoName").toImageRepo()
 
     private val token: String = "token"
+    private val objectMapper = jacksonObjectMapper().registerKotlinModule().registerModule(JavaTimeModule())
     private val imageRegistry = ImageRegistryService(
         WebClient.create(url.toString()),
-        jacksonObjectMapper()
+        objectMapper
     )
+
+    @BeforeEach
+    fun setUp() {
+        TestObjectMapperConfigurer.objectMapper = objectMapper
+    }
+
+    @AfterEach
+    fun tearDown() {
+        TestObjectMapperConfigurer.objectMapper = jacksonObjectMapper()
+    }
 
     @ParameterizedTest
     @ValueSource(ints = [400, 401, 403, 404, 418, 500, 501])
     fun `get tags given error from Cantus throw exception`(statusCode: Int) {
         val response: AuroraResponse<ImageTagResource> = AuroraResponseBuilder(status = statusCode, url = "").build()
-        val mockResponse = MockResponse()
-            .setBody(testObjectMapper().writeValueAsString(response))
+        val mockResponse = jsonResponse(response)
             .setResponseCode(statusCode)
-            .setHeader("Content-Type", "application/json")
 
         server.executeBlocking(mockResponse) {
             assertThat {
@@ -68,6 +83,24 @@ class ImageRegistryServiceTest {
             assertThat(tags.failureCount).isEqualTo(1)
             assertThat(tags.failure.first().url).isNotEmpty()
             assertThat(tags.failure.first().errorMessage).endsWith("status=404 message=Not Found")
+        }
+    }
+
+    @Test
+    fun `findImageTagDto returns partial ImageTagDto result from Cantus`() {
+        val partialResult =
+            AuroraResponse(
+                success = false,
+                items = listOf(ImageTagResourceBuilder().build()),
+                failure = listOf(CantusFailure("http://localhost", "something went wrong"))
+            )
+
+        server.executeBlocking(partialResult) {
+            val response =
+                imageRegistry.findImageTagDto(ImageRepoDto(null, "namespace", "name", null), "imageTag", token)
+            assertThat(response).isNotNull()
+            assertThat(response.imageTag).isEqualTo("imageTag")
+            assertThat(response.dockerDigest).isNotNull()
         }
     }
 }
