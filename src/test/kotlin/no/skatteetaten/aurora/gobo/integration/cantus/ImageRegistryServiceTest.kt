@@ -92,7 +92,10 @@ class ImageRegistryServiceTest {
             AuroraResponse(
                 success = false,
                 items = listOf(ImageTagResourceBuilder().build()),
-                failure = listOf(CantusFailure("http://localhost", "something went wrong"))
+                failure = listOf(
+                    CantusFailure("http://localhost", "something went wrong"),
+                    CantusFailure("http://localhost", "Only v2 manifest is supported.")
+                )
             )
 
         server.executeBlocking(partialResult) {

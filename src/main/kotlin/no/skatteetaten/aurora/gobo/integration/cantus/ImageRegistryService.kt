@@ -103,7 +103,20 @@ class ImageRegistryService(
             .bodyToMono<AuroraResponse<Any>>().map { response ->
                 response.run {
                     if (failureCount > 0) {
-                        logger.warn("Failures from cantus response: $failure")
+                        failure.partition {
+                            it.errorMessage.contains(
+                                "Only v2 manifest is supported",
+                                ignoreCase = true
+                            )
+                        }.let { groupedFailures ->
+                            groupedFailures.first.takeIf { it.isNotEmpty() }?.let {
+                                logger.debug { "Cantus unsupported manifest version: $it" }
+                            }
+
+                            groupedFailures.second.takeIf { it.isNotEmpty() }?.let {
+                                logger.warn("Failures from cantus response: $it")
+                            }
+                        }
                     }
 
                     AuroraResponse(
