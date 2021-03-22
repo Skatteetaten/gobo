@@ -7,7 +7,6 @@ import no.skatteetaten.aurora.gobo.RequiresDbh
 import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
 import no.skatteetaten.aurora.gobo.graphql.IntegrationDisabledException
-import no.skatteetaten.aurora.gobo.graphql.MissingLabelException
 import no.skatteetaten.aurora.gobo.graphql.database.ConnectionVerificationResponse
 import no.skatteetaten.aurora.gobo.graphql.database.JdbcUser
 import no.skatteetaten.aurora.gobo.integration.onStatusNotOk
@@ -168,7 +167,10 @@ class DatabaseServiceReactive(
         }
 
     private inline fun <reified T> onFailure(r: DbhResponse<*>): Mono<List<T>> =
-        DbhIntegrationException(message = "status=${r.status} error=${(r.items.firstOrNull() ?: "") as String}").toMono()
+        DbhIntegrationException(
+            message = "status=${r.status} error=${(r.items.firstOrNull() ?: "") as String}",
+            integrationResponse = r.toString()
+        ).toMono()
 
     private inline fun <reified T> onSuccess(r: DbhResponse<*>): Mono<List<T>> =
         r.items
