@@ -6,11 +6,11 @@ import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.RequiresDbh
 import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
-import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.graphql.IntegrationDisabledException
 import no.skatteetaten.aurora.gobo.graphql.MissingLabelException
 import no.skatteetaten.aurora.gobo.graphql.database.ConnectionVerificationResponse
 import no.skatteetaten.aurora.gobo.graphql.database.JdbcUser
+import no.skatteetaten.aurora.gobo.integration.onStatusNotOk
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.stereotype.Service
@@ -148,7 +148,15 @@ class DatabaseServiceReactive(
         retrieveItems<T>().first()
 
     private suspend inline fun <reified T> WebClient.RequestHeadersSpec<*>.retrieveItems(): List<T> =
-        this.retrieve().bodyToDbhResponse().items<T>().defaultIfEmpty(emptyList()).awaitFirst()!!
+        this.retrieve()
+            .onStatusNotOk { status, body ->
+                DbhIntegrationException(
+                    message = "Request failed for database resource",
+                    integrationResponse = body,
+                    status = status
+                )
+            }
+            .bodyToDbhResponse().items<T>().defaultIfEmpty(emptyList()).awaitFirst()!!
 
     private inline fun <reified T> Mono<DbhResponse<*>>.items(): Mono<List<T>> =
         this.flatMap {
@@ -160,10 +168,7 @@ class DatabaseServiceReactive(
         }
 
     private inline fun <reified T> onFailure(r: DbhResponse<*>): Mono<List<T>> =
-        SourceSystemException(
-            message = "status=${r.status} error=${(r.items.firstOrNull() ?: "") as String}",
-            sourceSystem = ServiceTypes.DBH
-        ).toMono()
+        DbhIntegrationException(message = "status=${r.status} error=${(r.items.firstOrNull() ?: "") as String}").toMono()
 
     private inline fun <reified T> onSuccess(r: DbhResponse<*>): Mono<List<T>> =
         r.items

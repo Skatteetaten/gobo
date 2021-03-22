@@ -14,6 +14,7 @@ import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import assertk.assertions.message
+import assertk.assertions.messageContains
 import assertk.assertions.support.expected
 import com.jayway.jsonpath.JsonPath
 import io.mockk.every
@@ -307,6 +308,16 @@ class DatabaseServiceTest {
 
         assertThat { runBlocking { serviceWithUnknownHost.getDatabaseSchema("abc123") } }
             .isNotNull().isFailure().isInstanceOf(WebClientRequestException::class)
+    }
+
+    @Test
+    fun `Throw DbhIntegrationException on 404 not found response`() {
+        server.executeBlocking(404 to DbhResponse.failed("Db not found")) {
+            assertThat { databaseService.getDatabaseSchema("123") }
+                .isFailure()
+                .isInstanceOf(DbhIntegrationException::class)
+                .messageContains("Request failed for database resource")
+        }
     }
 
     private fun Assert<List<RecordedRequest?>>.containsPath(endingWith: String) = given { requests ->
