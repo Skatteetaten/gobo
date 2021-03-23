@@ -9,6 +9,7 @@ import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactor.ReactorContext
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.graphql.errorhandling.isInvalidToken
+import no.skatteetaten.aurora.gobo.graphql.errorhandling.isNoSuchElementException
 import no.skatteetaten.aurora.webflux.AuroraRequestParser
 import org.springframework.http.HttpHeaders
 import org.springframework.http.server.reactive.ServerHttpRequest
@@ -29,8 +30,9 @@ class GoboGraphQLContext(
 ) : GraphQLContext {
     suspend fun securityContext(): SecurityContext = runCatching { securityContext.awaitFirst() }
         .recoverCatching {
-            if (!it.isInvalidToken()) {
-                logger.info(it) { "Unable to get the security context" }
+            when {
+                it.isNoSuchElementException() -> logger.info { "Unable to get the security context, ${it.message}" }
+                !it.isInvalidToken() -> logger.info(it) { "Unable to get the security context" }
             }
 
             throw AccessDeniedException("Invalid bearer token", it)

@@ -91,6 +91,7 @@ private fun Throwable.isAccessDenied() = this is AccessDeniedException
 private fun Throwable.isLoggableException() = this is ClassCastException
 fun Throwable.isInvalidToken() =
     ExceptionUtils.getRootCauseMessage(this)?.contains(other = "invalid bearer token", ignoreCase = true) ?: false
+fun Throwable.isNoSuchElementException() = this is NoSuchElementException
 
 private fun DataFetcherExceptionHandlerParameters.toExceptionWhileDataFetching(t: Throwable) =
     ExceptionWhileDataFetching(path, t, sourceLocation)
