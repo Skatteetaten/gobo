@@ -98,7 +98,7 @@ management:
     metrics:
         web:
             client:
-                max-uri-tags: 150
+                max-uri-tags: 200
 
 aurora:
     token:
