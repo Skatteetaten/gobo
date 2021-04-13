@@ -1,10 +1,21 @@
 package no.skatteetaten.aurora.gobo
 
-import io.fabric8.kubernetes.api.model.ObjectMeta
-import io.fabric8.openshift.api.model.User
-import java.time.Instant
+import no.skatteetaten.aurora.gobo.graphql.affiliation.Affiliation
+import no.skatteetaten.aurora.gobo.graphql.application.Certificate
+import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.ApplicationDeployment
+import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.ApplicationDeploymentRef
+import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.Status
+import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.Version
+import no.skatteetaten.aurora.gobo.graphql.auroraconfig.AuroraConfigFileResource
+import no.skatteetaten.aurora.gobo.graphql.database.JdbcUser
+import no.skatteetaten.aurora.gobo.graphql.imagerepository.ImageRepository
+import no.skatteetaten.aurora.gobo.graphql.imagerepository.ImageTag
+import no.skatteetaten.aurora.gobo.graphql.namespace.Namespace
+import no.skatteetaten.aurora.gobo.graphql.webseal.Acl
 import no.skatteetaten.aurora.gobo.integration.boober.ApplicationDeploymentFilterResource
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileType
+import no.skatteetaten.aurora.gobo.integration.boober.BooberVault
+import no.skatteetaten.aurora.gobo.integration.boober.MultiAffiliationResponse
 import no.skatteetaten.aurora.gobo.integration.cantus.AuroraResponse
 import no.skatteetaten.aurora.gobo.integration.cantus.CantusFailure
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageBuildTimeline
@@ -41,23 +52,12 @@ import no.skatteetaten.aurora.gobo.integration.skap.WebsealStateResource
 import no.skatteetaten.aurora.gobo.integration.unclematt.ProbeResult
 import no.skatteetaten.aurora.gobo.integration.unclematt.ProbeStatus
 import no.skatteetaten.aurora.gobo.integration.unclematt.Result
-import no.skatteetaten.aurora.gobo.graphql.affiliation.Affiliation
-import no.skatteetaten.aurora.gobo.graphql.application.Certificate
-import no.skatteetaten.aurora.gobo.graphql.webseal.Acl
-import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.ApplicationDeployment
-import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.Status
-import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.Version
-import no.skatteetaten.aurora.gobo.graphql.auroraconfig.AuroraConfigFileResource
-import no.skatteetaten.aurora.gobo.graphql.database.JdbcUser
-import no.skatteetaten.aurora.gobo.graphql.imagerepository.ImageRepository
-import no.skatteetaten.aurora.gobo.graphql.imagerepository.ImageTag
-import no.skatteetaten.aurora.gobo.graphql.namespace.Namespace
-import no.skatteetaten.aurora.gobo.integration.boober.BooberVault
 import org.intellij.lang.annotations.Language
 import org.springframework.http.HttpStatus
 import uk.q3c.rest.hal.HalLink
 import uk.q3c.rest.hal.HalResource
 import uk.q3c.rest.hal.Links
+import java.time.Instant
 
 val defaultInstant: Instant = Instant.parse("2018-01-01T00:00:01Z")
 
@@ -120,16 +120,18 @@ data class ApplicationDeploymentWithDbResourceBuilder(
 
 data class ApplicationDeploymentResourceBuilder(
     val affiliation: String = "paas",
+    val environment: String = "environment",
     val namespace: String = "namespace",
+    val name: String = "name",
     val id: String = "id",
     val msg: String = "foo"
 ) {
     fun build(): ApplicationDeploymentResource =
         ApplicationDeploymentResource(
             identifier = id,
-            name = "name",
+            name = name,
             affiliation = affiliation,
-            environment = "environment",
+            environment = environment,
             namespace = namespace,
             status = StatusResource("code", "", listOf(), listOf()),
             version = VersionResource("deployTag", "auroraVersion", "releaseTo"),
@@ -140,6 +142,19 @@ data class ApplicationDeploymentResourceBuilder(
             link("ApplicationDeploymentDetails", HalLink("http://ApplicationDeploymentDetails/1"))
             link("Application", HalLink("http://Application/1"))
         }
+}
+
+data class MultiAffiliationResponseBuilder(
+    private val environment: String = "utv",
+    private val application: String = "gobo",
+    private val errorMessage: String? = null
+) {
+    fun build() = MultiAffiliationResponse(
+        affiliation = "aurora",
+        applicationDeploymentRef = ApplicationDeploymentRef(environment, application),
+        errorMessage = errorMessage,
+        warningMessage = null
+    )
 }
 
 data class ApplicationResourceBuilder(
@@ -320,19 +335,6 @@ class AuroraConfigFileBuilder {
             type = AuroraConfigFileType.APP,
             contentHash = "12345"
         )
-}
-
-data class OpenShiftUserBuilder(val userName: String = "123456", val fullName: String = "Test Testesen") {
-
-    fun build(): User {
-        val objectMeta = ObjectMeta()
-        objectMeta.name = userName
-
-        val user = io.fabric8.openshift.api.model.User()
-        user.fullName = fullName
-        user.metadata = objectMeta
-        return user
-    }
 }
 
 data class ApplicationDeploymentFilterResourceBuilder(val affiliation: String = "aurora") {

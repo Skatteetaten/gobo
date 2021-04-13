@@ -27,14 +27,29 @@ inline fun <reified T : Any> Response<T>.responsesIgnoreStatus() = this.copy(suc
 inline fun <reified T : Any> Response<T>.responses(): List<T> = when {
     !this.success -> throw BooberIntegrationException(response = this)
     this.count == 0 -> emptyList()
-    else -> this.items.map { item ->
-        runCatching {
-            objectMapper.convertValue(item, T::class.java)
-        }.onFailure {
-            KotlinLogging.logger {}.error(it) { "Unable to parse response items from boober: $item" }
-        }.getOrThrow()
+    else -> parseResponseItems(items)
+}
+
+data class ResponsesAndErrors<T>(val items: List<T>, val errors: List<T>)
+
+inline fun <reified T : Any> Response<T>.responsesWithErrors(): ResponsesAndErrors<T> = when {
+    !this.success -> throw BooberIntegrationException(response = this)
+    this.count == 0 -> ResponsesAndErrors(emptyList(), emptyList())
+    else -> this.let {
+        val items = parseResponseItems(it.items)
+        val errors = parseResponseItems(it.errors)
+        ResponsesAndErrors(items, errors)
     }
 }
+
+inline fun <reified T : Any> parseResponseItems(items: List<T>?) =
+    items?.map { item ->
+        runCatching {
+            objectMapper.convertValue(item, T::class.java)
+        }.onFailure { e ->
+            KotlinLogging.logger {}.error(e) { "Unable to parse response items from boober: $item" }
+        }.getOrThrow()
+    } ?: emptyList<T>()
 
 inline fun <reified T : Any> Response<T>.response(): T = this.responses().first()
 

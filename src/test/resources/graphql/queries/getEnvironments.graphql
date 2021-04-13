@@ -1,0 +1,16 @@
+query getEnvironments($name: String!) {
+  environments(names: [$name]) {
+    name
+    affiliations {
+      name
+      applications {
+        name
+        status {
+          state
+          message
+          details
+        }
+      }
+    }
+  }
+}
