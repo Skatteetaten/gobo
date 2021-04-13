@@ -19,20 +19,25 @@ class EnvironmentQuery(
 
         val environments = names.flatMap { environmentService.getEnvironments(dfe.token(), it) }
         val applicationDeployments =
-            applicationService.getApplicationDeployment(environments.flatMap { it.applicationDeploymentRefs })
+            applicationService.getApplicationDeployment(environments.flatMap { it.getApplicationDeploymentRefs() })
 
         // TODO hent status fra Phil
 
-        return names.map { env ->
+        return names.map { name ->
             val affiliations = applicationDeployments
-                .filter { it.environment == env }
+                .filter { it.environment == name }
                 .groupBy { it.affiliation }
                 .map {
-                    val apps = it.value.map { ad -> EnvironmentApplication.create(ad) }
-                    EnvironmentAffiliation(it.key, apps)
+                    it.value.map { ad ->
+                        environments
+                            .filter { env -> env.affiliation == ad.affiliation }
+                            .flatMap { env -> env.deploymentRefs }
+                            .find { ref -> ref.environment == ad.environment && ref.application == ad.name }
+                            .let { deploymentRef -> EnvironmentApplication.create(ad, deploymentRef) }
+                    }.let { apps -> EnvironmentAffiliation(it.key, apps) }
                 }
 
-            Environment(env, affiliations)
+            Environment(name, affiliations)
         }
     }
 }

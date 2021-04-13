@@ -7,16 +7,23 @@ import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.ApplicationDepl
 import no.skatteetaten.aurora.gobo.graphql.auroraconfig.ApplicationDeploymentSpec
 import org.springframework.stereotype.Service
 
+data class EnvironmentDeploymentRef(val environment: String, val application: String, val autoDeploy: Boolean) {
+    companion object {
+    }
+}
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class MultiAffiliationEnvironment(
     val affiliation: String,
-    val applicationDeploymentRefs: List<ApplicationDeploymentRef>
-)
+    val deploymentRefs: List<EnvironmentDeploymentRef>
+) {
+    fun getApplicationDeploymentRefs() = deploymentRefs.map { ApplicationDeploymentRef(it.environment, it.application) }
+}
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class MultiAffiliationResponse(
     val affiliation: String,
-    val applicationDeploymentRef: ApplicationDeploymentRef?,
+    val applicationDeploymentRef: EnvironmentDeploymentRef?,
     val errorMessage: String?,
     val warningMessage: String?
 )
@@ -42,7 +49,7 @@ class EnvironmentService(private val booberWebClient: BooberWebClient) {
                         val responses = it.value
                         MultiAffiliationEnvironment(
                             affiliation = it.key,
-                            applicationDeploymentRefs = responses.mapNotNull { response ->
+                            deploymentRefs = responses.mapNotNull { response ->
                                 response.applicationDeploymentRef.also {
                                     if (!response.warningMessage.isNullOrEmpty()) {
                                         logger.warn { "Warning from multi-affiliation: ${response.warningMessage}" }

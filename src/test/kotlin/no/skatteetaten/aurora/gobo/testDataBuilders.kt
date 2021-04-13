@@ -3,7 +3,6 @@ package no.skatteetaten.aurora.gobo
 import no.skatteetaten.aurora.gobo.graphql.affiliation.Affiliation
 import no.skatteetaten.aurora.gobo.graphql.application.Certificate
 import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.ApplicationDeployment
-import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.ApplicationDeploymentRef
 import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.Status
 import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.Version
 import no.skatteetaten.aurora.gobo.graphql.auroraconfig.AuroraConfigFileResource
@@ -15,6 +14,7 @@ import no.skatteetaten.aurora.gobo.graphql.webseal.Acl
 import no.skatteetaten.aurora.gobo.integration.boober.ApplicationDeploymentFilterResource
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileType
 import no.skatteetaten.aurora.gobo.integration.boober.BooberVault
+import no.skatteetaten.aurora.gobo.integration.boober.EnvironmentDeploymentRef
 import no.skatteetaten.aurora.gobo.integration.boober.MultiAffiliationResponse
 import no.skatteetaten.aurora.gobo.integration.cantus.AuroraResponse
 import no.skatteetaten.aurora.gobo.integration.cantus.CantusFailure
@@ -151,7 +151,7 @@ data class MultiAffiliationResponseBuilder(
 ) {
     fun build() = MultiAffiliationResponse(
         affiliation = "aurora",
-        applicationDeploymentRef = ApplicationDeploymentRef(environment, application),
+        applicationDeploymentRef = EnvironmentDeploymentRef(environment, application, true),
         errorMessage = errorMessage,
         warningMessage = null
     )

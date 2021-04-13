@@ -1,5 +1,6 @@
 package no.skatteetaten.aurora.gobo.graphql.environment
 
+import no.skatteetaten.aurora.gobo.integration.boober.EnvironmentDeploymentRef
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentResource
 import no.skatteetaten.aurora.gobo.integration.mokey.StatusCheckResource
 
@@ -39,10 +40,12 @@ data class EnvironmentStatus(
 
 data class EnvironmentApplication(
     val name: String,
+    val autoDeploy: Boolean,
     val status: EnvironmentStatus
 ) {
     companion object {
-        fun create(ad: ApplicationDeploymentResource) = EnvironmentApplication(ad.name, EnvironmentStatus.create(ad))
+        fun create(ad: ApplicationDeploymentResource, deploymentRef: EnvironmentDeploymentRef?) =
+            EnvironmentApplication(ad.name, deploymentRef?.autoDeploy ?: false, EnvironmentStatus.create(ad))
     }
 }
 

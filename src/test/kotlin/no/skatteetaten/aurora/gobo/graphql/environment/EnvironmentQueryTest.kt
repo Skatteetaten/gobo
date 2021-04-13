@@ -4,11 +4,11 @@ import com.ninjasquad.springmockk.MockkBean
 import io.mockk.coEvery
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentResourceBuilder
 import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithDbhAndSkap
-import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.ApplicationDeploymentRef
 import no.skatteetaten.aurora.gobo.graphql.graphqlData
 import no.skatteetaten.aurora.gobo.graphql.graphqlDataWithPrefix
 import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
+import no.skatteetaten.aurora.gobo.integration.boober.EnvironmentDeploymentRef
 import no.skatteetaten.aurora.gobo.integration.boober.EnvironmentService
 import no.skatteetaten.aurora.gobo.integration.boober.MultiAffiliationEnvironment
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
@@ -33,7 +33,7 @@ class EnvironmentQueryTest : GraphQLTestWithDbhAndSkap() {
     fun `Get environments`() {
         coEvery {
             environmentService.getEnvironments(any(), any())
-        } returns listOf(MultiAffiliationEnvironment("aurora", listOf(ApplicationDeploymentRef("utv", "gobo"))))
+        } returns listOf(MultiAffiliationEnvironment("aurora", listOf(EnvironmentDeploymentRef("utv", "gobo", true))))
 
         coEvery { applicationService.getApplicationDeployment(applicationDeploymentRefs = any()) } returns listOf(
             ApplicationDeploymentResourceBuilder(affiliation = "aurora", environment = "utv", name = "gobo").build()

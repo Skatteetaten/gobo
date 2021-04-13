@@ -22,7 +22,7 @@ class EnvironmentServiceTest {
     fun `Get applicationDeploymentRefs for environment`() {
         val request = server.executeBlocking(Response(MultiAffiliationResponseBuilder().build())) {
             val envs = service.getEnvironments("test-token", "utv")
-            val ref = envs.first().applicationDeploymentRefs.first()
+            val ref = envs.first().deploymentRefs.first()
 
             assertThat(envs.first().affiliation).isEqualTo("aurora")
             assertThat(ref.application).isEqualTo("gobo")
