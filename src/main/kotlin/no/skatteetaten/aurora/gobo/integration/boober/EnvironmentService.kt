@@ -1,16 +1,11 @@
 package no.skatteetaten.aurora.gobo.integration.boober
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import com.fasterxml.jackson.databind.JsonNode
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.ApplicationDeploymentRef
-import no.skatteetaten.aurora.gobo.graphql.auroraconfig.ApplicationDeploymentSpec
 import org.springframework.stereotype.Service
 
-data class EnvironmentDeploymentRef(val environment: String, val application: String, val autoDeploy: Boolean) {
-    companion object {
-    }
-}
+data class EnvironmentDeploymentRef(val environment: String, val application: String, val autoDeploy: Boolean)
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class MultiAffiliationEnvironment(
@@ -52,6 +47,7 @@ class EnvironmentService(private val booberWebClient: BooberWebClient) {
                             deploymentRefs = responses.mapNotNull { response ->
                                 response.applicationDeploymentRef.also {
                                     if (!response.warningMessage.isNullOrEmpty()) {
+                                        // TODO only log message once, can potentially create a lot of identical log statements
                                         logger.warn { "Warning from multi-affiliation: ${response.warningMessage}" }
                                     }
                                 }
@@ -59,9 +55,4 @@ class EnvironmentService(private val booberWebClient: BooberWebClient) {
                         )
                     }
             }
-
-    suspend fun getApplicationDeploymentSpec(token: String, affiliation: String, environment: String) =
-        booberWebClient
-            .get<JsonNode>(url = "/v1/auroradeployspec/$affiliation/$environment/", token = token)
-            .responses().map { ApplicationDeploymentSpec(it) }
 }

@@ -37,7 +37,7 @@ class EnvironmentQuery(
                     )
                 }
 
-            // TODO filtrer på statusene fra Phil
+            // TODO filter of statuses from Phil
             // 1) hvis status fra Phil er failed, bruk denne 2) hvis status fra Phil er success, bruk status fra ApplicationDeployment (Mokey)
 
             Environment(name, affiliations)
