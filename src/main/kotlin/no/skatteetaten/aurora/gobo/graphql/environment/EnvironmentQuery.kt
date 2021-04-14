@@ -23,14 +23,14 @@ class EnvironmentQuery(
         val applicationDeployments =
             applicationService.getApplicationDeployment(environments.flatMap { it.getApplicationDeploymentRefs() })
 
-        // TODO hent status fra Phil
+        // TODO get status from Phil
 
         return names.map { name ->
             val affiliations = applicationDeployments
                 .filter { it.environment == name }
                 .groupBy { it.affiliation }
                 .map {
-                    buildResources(
+                    buildEnvResources(
                         affiliation = it.key,
                         applicationDeployments = it.value,
                         environments = environments
@@ -38,13 +38,14 @@ class EnvironmentQuery(
                 }
 
             // TODO filter of statuses from Phil
-            // 1) hvis status fra Phil er failed, bruk denne 2) hvis status fra Phil er success, bruk status fra ApplicationDeployment (Mokey)
+            // 1) If status from Phil is failed, use it
+            // 2) If status from Phil is success, use status from ApplicationDeployment (Mokey)
 
             Environment(name, affiliations)
         }
     }
 
-    private fun buildResources(
+    private fun buildEnvResources(
         affiliation: String,
         applicationDeployments: List<ApplicationDeploymentResource>,
         environments: List<MultiAffiliationEnvironment>
