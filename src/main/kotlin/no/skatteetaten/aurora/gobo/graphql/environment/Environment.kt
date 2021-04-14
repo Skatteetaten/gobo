@@ -1,5 +1,6 @@
 package no.skatteetaten.aurora.gobo.graphql.environment
 
+import com.expediagroup.graphql.annotations.GraphQLIgnore
 import no.skatteetaten.aurora.gobo.integration.boober.EnvironmentDeploymentRef
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentResource
 import no.skatteetaten.aurora.gobo.integration.mokey.StatusCheckResource
@@ -49,7 +50,20 @@ data class EnvironmentApplication(
     }
 }
 
-data class EnvironmentAffiliation(val name: String, val applications: List<EnvironmentApplication>)
+data class EnvironmentAffiliation(
+    val name: String,
+    @GraphQLIgnore
+    val applications: List<EnvironmentApplication>
+) {
+
+    fun applications(autoDeployOnly: Boolean?) =
+        if (autoDeployOnly == true) {
+            applications.filter { it.autoDeploy }
+        } else {
+            applications
+        }
+}
+
 data class Environment(val name: String, val affiliations: List<EnvironmentAffiliation>)
 
 private fun List<StatusCheckResource>.detailedStatusMessage() =

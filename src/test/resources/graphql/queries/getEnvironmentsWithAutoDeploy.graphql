@@ -1,0 +1,16 @@
+query getEnvironments($name: String!, $autoDeploy: Boolean!) {
+  environments(names: [$name]) {
+    name
+    affiliations {
+      name
+      applications(autoDeployOnly: $autoDeploy) {
+        name
+        status {
+          state
+          message
+          details
+        }
+      }
+    }
+  }
+}
