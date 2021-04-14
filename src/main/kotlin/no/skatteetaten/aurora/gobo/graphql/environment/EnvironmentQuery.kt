@@ -18,6 +18,7 @@ class EnvironmentQuery(
 
     suspend fun environments(names: List<String>, dfe: DataFetchingEnvironment): List<Environment> {
         dfe.checkValidUserToken()
+        // TODO "upgrade" token, check group, use "super" token for Boober requests
 
         val environments = names.flatMap { environmentService.getEnvironments(dfe.token(), it) }
         val applicationDeployments =
