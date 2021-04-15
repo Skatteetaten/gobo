@@ -63,7 +63,7 @@ class EnvironmentQueryTest : GraphQLTestWithDbhAndSkap() {
                 graphqlData("name").isEqualTo("aurora")
                 graphqlData("applications.length()").isEqualTo(2)
                 graphqlData("applications[0].name").isEqualTo("gobo")
-                graphqlData("applications[0].status.state").isEqualTo("FAILED")
+                graphqlData("applications[0].status.state").isEqualTo(EnvironmentStatusType.COMPLETED.name)
             }
             .graphqlDoesNotContainErrors()
     }

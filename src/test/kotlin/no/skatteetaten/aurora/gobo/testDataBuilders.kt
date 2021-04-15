@@ -124,6 +124,7 @@ data class ApplicationDeploymentResourceBuilder(
     val namespace: String = "namespace",
     val name: String = "name",
     val id: String = "id",
+    val status: String = "HEALTHY",
     val msg: String = "foo"
 ) {
     fun build(): ApplicationDeploymentResource =
@@ -133,7 +134,7 @@ data class ApplicationDeploymentResourceBuilder(
             affiliation = affiliation,
             environment = environment,
             namespace = namespace,
-            status = StatusResource("code", "", listOf(), listOf()),
+            status = StatusResource(status, "", listOf(), listOf()),
             version = VersionResource("deployTag", "auroraVersion", "releaseTo"),
             dockerImageRepo = "127.0.0.1:5000/aurora/whoami",
             time = Instant.EPOCH,
