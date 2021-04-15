@@ -6,6 +6,9 @@ import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentResour
 import no.skatteetaten.aurora.gobo.integration.mokey.StatusCheckResource
 
 enum class EnvironmentStatusType {
+    // TODO is this required after Phil is introduced?
+    NONE,
+
     /**
      * Aurora configuration has been applied by Boober, but no ApplicationDeployment is registered.
      */
@@ -28,7 +31,9 @@ data class EnvironmentStatus(
     val details: String? = null
 ) {
     companion object {
-        fun create(ad: ApplicationDeploymentResource) = when {
+        // TODO status from Phil must be added
+        fun create(ad: ApplicationDeploymentResource?) = when {
+            ad == null -> EnvironmentStatus(EnvironmentStatusType.NONE)
             ad.success() -> EnvironmentStatus(EnvironmentStatusType.COMPLETED)
             else -> EnvironmentStatus(
                 EnvironmentStatusType.FAILED,
@@ -45,8 +50,8 @@ data class EnvironmentApplication(
     val status: EnvironmentStatus
 ) {
     companion object {
-        fun create(ad: ApplicationDeploymentResource, deploymentRef: EnvironmentDeploymentRef?) =
-            EnvironmentApplication(ad.name, deploymentRef?.autoDeploy ?: false, EnvironmentStatus.create(ad))
+        fun create(name: String, ad: ApplicationDeploymentResource?, deploymentRef: EnvironmentDeploymentRef?) =
+            EnvironmentApplication(name, deploymentRef?.autoDeploy ?: false, EnvironmentStatus.create(ad))
     }
 }
 

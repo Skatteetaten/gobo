@@ -26,35 +26,38 @@ class EnvironmentQuery(
 
         // TODO get status from Phil
 
-        return names.map { name ->
-            val affiliations = applicationDeployments
-                .filter { it.environment == name }
-                .groupBy { it.affiliation }
-                .map {
-                    buildEnvResources(
-                        affiliation = it.key,
-                        applicationDeployments = it.value,
-                        environments = environments
-                    )
-                }
-
-            // TODO filter of statuses from Phil
-            // 1) If status from Phil is failed, use it
-            // 2) If status from Phil is success, use status from ApplicationDeployment (Mokey)
-
-            Environment(name, affiliations)
+        return names.map { envName ->
+            environments
+                .map { it.createEnvironmentAffiliation(envName, applicationDeployments) }
+                .let { Environment(envName, it) }
         }
     }
 
-    private fun buildEnvResources(
+    private fun MultiAffiliationEnvironment.createEnvironmentAffiliation(
+        envName: String,
+        applicationDeployments: List<ApplicationDeploymentResource>
+    ) = deploymentRefs.map { ref ->
+        val applicationDeployment = applicationDeployments.find(
+            affiliation = affiliation,
+            environment = envName,
+            application = ref.application
+        )
+
+        // TODO filter of statuses from Phil
+        // 1) If status from Phil is failed, use it
+        // 2) If status from Phil is success, use status from ApplicationDeployment (Mokey)
+
+        EnvironmentApplication.create(ref.application, applicationDeployment, ref)
+    }.let {
+        EnvironmentAffiliation(affiliation, it)
+    }
+
+    private fun List<ApplicationDeploymentResource>.find(
         affiliation: String,
-        applicationDeployments: List<ApplicationDeploymentResource>,
-        environments: List<MultiAffiliationEnvironment>
-    ) = applicationDeployments.map { ad ->
-        environments
-            .filter { env -> env.affiliation == ad.affiliation }
-            .flatMap { env -> env.deploymentRefs }
-            .find { ref -> ref.environment == ad.environment && ref.application == ad.name }
-            .let { deploymentRef -> EnvironmentApplication.create(ad, deploymentRef) }
-    }.let { apps -> EnvironmentAffiliation(affiliation, apps) }
+        environment: String,
+        application: String
+    ) =
+        this.find { ad ->
+            ad.affiliation == affiliation && ad.environment == environment && ad.name == application
+        }
 }
