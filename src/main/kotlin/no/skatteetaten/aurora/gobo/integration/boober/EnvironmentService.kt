@@ -33,7 +33,7 @@ class EnvironmentService(private val booberWebClient: BooberWebClient) {
             .get<MultiAffiliationResponse>(url = "/v2/search?environment=$environment", token = token)
             .responsesWithErrors()
             .let { responsesAndErrors ->
-                responsesAndErrors.errors.filter { it.errorMessage?.isNotEmpty() ?: false }.forEach { response ->
+                responsesAndErrors.errors.filterNot { it.errorMessage.isNullOrEmpty() }.forEach { response ->
                     logger.error { "Error from multi-affiliation: ${response.errorMessage}" }
                 }
 
