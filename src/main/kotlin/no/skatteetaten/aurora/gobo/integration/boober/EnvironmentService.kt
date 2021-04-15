@@ -48,7 +48,7 @@ class EnvironmentService(private val booberWebClient: BooberWebClient) {
                                 response.applicationDeploymentRef.also {
                                     if (!response.warningMessage.isNullOrEmpty()) {
                                         // TODO only log message once, can potentially create a lot of identical log statements
-                                        logger.warn { "Warning from multi-affiliation: ${response.warningMessage}" }
+                                        logger.warn { "Warning from multi-affiliation: application=${it?.application} ${response.warningMessage}" }
                                     }
                                 }
                             }
