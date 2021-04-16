@@ -5,6 +5,8 @@ import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.ApplicationDeploymentRef
 import org.springframework.stereotype.Service
 
+private val logger = KotlinLogging.logger { }
+
 data class EnvironmentDeploymentRef(val environment: String, val application: String, val autoDeploy: Boolean)
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -16,41 +18,45 @@ data class MultiAffiliationEnvironment(
 }
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class MultiAffiliationResponse(
+data class BooberEnvironmentResource(
     val affiliation: String,
     val applicationDeploymentRef: EnvironmentDeploymentRef?,
     val errorMessage: String?,
     val warningMessage: String?
-)
+) {
+    fun logError() {
+        logger.error { "Error from multi-affiliation: $errorMessage" }
+    }
 
-private val logger = KotlinLogging.logger { }
+    fun logWarning() {
+        if (!warningMessage.isNullOrEmpty()) {
+            logger.warn { "Warning from multi-affiliation: application=${applicationDeploymentRef?.application} $warningMessage" }
+        }
+    }
+}
 
 @Service
 class EnvironmentService(private val booberWebClient: BooberWebClient) {
 
     suspend fun getEnvironments(token: String, environment: String): List<MultiAffiliationEnvironment> =
         booberWebClient
-            .get<MultiAffiliationResponse>(url = "/v2/search?environment=$environment", token = token)
+            .get<BooberEnvironmentResource>(url = "/v2/search?environment=$environment", token = token)
             .responsesWithErrors()
-            .let { responsesAndErrors ->
-                responsesAndErrors.errors.filterNot { it.errorMessage.isNullOrEmpty() }.forEach { response ->
-                    logger.error { "Error from multi-affiliation: ${response.errorMessage}" }
-                }
-
-                responsesAndErrors.items.groupBy { it.affiliation }
-                    .map {
-                        val responses = it.value
-                        MultiAffiliationEnvironment(
-                            affiliation = it.key,
-                            deploymentRefs = responses.mapNotNull { response ->
-                                response.applicationDeploymentRef.also {
-                                    if (!response.warningMessage.isNullOrEmpty()) {
-                                        // TODO only log message once, can potentially create a lot of identical log statements
-                                        logger.warn { "Warning from multi-affiliation: application=${it?.application} ${response.warningMessage}" }
-                                    }
-                                }
-                            }
-                        )
-                    }
+            .let {
+                it.logErrors()
+                it.createMultiAffiliationEnvironments()
             }
+
+    private fun ResponsesAndErrors<BooberEnvironmentResource>.logErrors() =
+        errors.filterNot { it.errorMessage.isNullOrEmpty() }.forEach { it.logError() }
+
+    private fun ResponsesAndErrors<BooberEnvironmentResource>.createMultiAffiliationEnvironments() =
+        items.groupBy { it.affiliation }.map { resourcesByAffiliation ->
+            MultiAffiliationEnvironment(
+                affiliation = resourcesByAffiliation.key,
+                deploymentRefs = resourcesByAffiliation.value.mapNotNull { resource ->
+                    resource.applicationDeploymentRef.also { resource.logWarning() }
+                }
+            )
+        }
 }

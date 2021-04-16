@@ -15,7 +15,7 @@ import no.skatteetaten.aurora.gobo.integration.boober.ApplicationDeploymentFilte
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileType
 import no.skatteetaten.aurora.gobo.integration.boober.BooberVault
 import no.skatteetaten.aurora.gobo.integration.boober.EnvironmentDeploymentRef
-import no.skatteetaten.aurora.gobo.integration.boober.MultiAffiliationResponse
+import no.skatteetaten.aurora.gobo.integration.boober.BooberEnvironmentResource
 import no.skatteetaten.aurora.gobo.integration.cantus.AuroraResponse
 import no.skatteetaten.aurora.gobo.integration.cantus.CantusFailure
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageBuildTimeline
@@ -150,7 +150,7 @@ data class MultiAffiliationResponseBuilder(
     private val application: String = "gobo",
     private val errorMessage: String? = null
 ) {
-    fun build() = MultiAffiliationResponse(
+    fun build() = BooberEnvironmentResource(
         affiliation = "aurora",
         applicationDeploymentRef = EnvironmentDeploymentRef(environment, application, true),
         errorMessage = errorMessage,

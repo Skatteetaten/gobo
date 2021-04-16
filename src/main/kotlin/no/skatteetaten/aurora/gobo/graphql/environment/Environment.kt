@@ -17,7 +17,7 @@ enum class EnvironmentStatusType {
     APPLIED,
 
     /**
-     * Failed in either Boober/Phil or Mokey
+     * Failed in either Boober/Phil or Mokey for any application
      */
     FAILED,
 
