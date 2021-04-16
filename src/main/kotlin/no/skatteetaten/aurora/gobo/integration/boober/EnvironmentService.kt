@@ -25,14 +25,14 @@ data class BooberEnvironmentResource(
     val warningMessage: String?
 ) {
     fun logError() {
-        if (!errorMessage.isNullOrEmpty()) {
-            logger.error { "Error from multi-affiliation: $errorMessage" }
+        errorMessage?.let {
+            logger.error { "Error from multi-affiliation: $it" }
         }
     }
 
     fun logWarning() {
-        if (!warningMessage.isNullOrEmpty()) {
-            logger.warn { "Warning from multi-affiliation: application=${applicationDeploymentRef?.application} $warningMessage" }
+        warningMessage?.let {
+            logger.warn { "Warning from multi-affiliation: application=${applicationDeploymentRef?.application} $it" }
         }
     }
 }
