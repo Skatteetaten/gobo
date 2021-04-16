@@ -22,7 +22,7 @@ class EnvironmentQuery(
 
         val environments = names.flatMap { environmentService.getEnvironments(dfe.token(), it) }
         val applicationDeployments =
-            applicationService.getApplicationDeployment(environments.flatMap { it.getApplicationDeploymentRefs() })
+            applicationService.getApplicationDeployments(environments.flatMap { it.getApplicationDeploymentRefs() })
 
         // TODO get status from Phil
 

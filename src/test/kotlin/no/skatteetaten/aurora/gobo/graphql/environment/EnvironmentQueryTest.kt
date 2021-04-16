@@ -47,7 +47,7 @@ class EnvironmentQueryTest : GraphQLTestWithDbhAndSkap() {
             )
         )
 
-        coEvery { applicationService.getApplicationDeployment(applicationDeploymentRefs = any()) } returns listOf(
+        coEvery { applicationService.getApplicationDeployments(applicationDeploymentRefs = any()) } returns listOf(
             ApplicationDeploymentResourceBuilder(affiliation = "aurora", environment = "utv", name = "gobo").build(),
             ApplicationDeploymentResourceBuilder(affiliation = "aurora", environment = "utv", name = "boober").build()
         )

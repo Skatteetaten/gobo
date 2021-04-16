@@ -21,7 +21,7 @@ class ApplicationDeploymentQuery(
         }
 
     suspend fun applicationDeployments(applicationDeploymentRefs: List<ApplicationDeploymentRef>): List<ApplicationDeployment> {
-        return applicationService.getApplicationDeployment(applicationDeploymentRefs).map { resource ->
+        return applicationService.getApplicationDeployments(applicationDeploymentRefs).map { resource ->
             val imageRepo = resource.imageRepository()
             ApplicationDeployment.create(resource, imageRepo)
         }
