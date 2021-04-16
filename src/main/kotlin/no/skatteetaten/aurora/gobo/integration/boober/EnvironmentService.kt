@@ -25,7 +25,9 @@ data class BooberEnvironmentResource(
     val warningMessage: String?
 ) {
     fun logError() {
-        logger.error { "Error from multi-affiliation: $errorMessage" }
+        if (!errorMessage.isNullOrEmpty()) {
+            logger.error { "Error from multi-affiliation: $errorMessage" }
+        }
     }
 
     fun logWarning() {
@@ -44,13 +46,13 @@ class EnvironmentService(private val booberWebClient: BooberWebClient) {
             .responsesWithErrors()
             .let {
                 it.logErrors()
-                it.createMultiAffiliationEnvironments()
+                it.buildMultiAffiliationEnvironments()
             }
 
     private fun ResponsesAndErrors<BooberEnvironmentResource>.logErrors() =
-        errors.filterNot { it.errorMessage.isNullOrEmpty() }.forEach { it.logError() }
+        errors.forEach { it.logError() }
 
-    private fun ResponsesAndErrors<BooberEnvironmentResource>.createMultiAffiliationEnvironments() =
+    private fun ResponsesAndErrors<BooberEnvironmentResource>.buildMultiAffiliationEnvironments() =
         items.groupBy { it.affiliation }.map { resourcesByAffiliation ->
             MultiAffiliationEnvironment(
                 affiliation = resourcesByAffiliation.key,
