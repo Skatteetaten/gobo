@@ -56,7 +56,7 @@ class EnvironmentQuery(
         // 1) If status from Phil is failed, use it
         // 2) If status from Phil is success, use status from ApplicationDeployment (Mokey)
 
-        EnvironmentApplication.create(ref.application, applicationDeployment, ref)
+        Application.create(ref.application, applicationDeployment, ref)
     }.let {
         EnvironmentAffiliation(affiliation, it)
     }
