@@ -7,10 +7,11 @@ import org.springframework.stereotype.Service
 
 private val logger = KotlinLogging.logger { }
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class EnvironmentDeploymentRef(val environment: String, val application: String, val autoDeploy: Boolean)
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class MultiAffiliationEnvironment(
+data class EnvironmentResource(
     val affiliation: String,
     val deploymentRefs: List<EnvironmentDeploymentRef>
 ) {
@@ -40,7 +41,7 @@ data class BooberEnvironmentResource(
 @Service
 class EnvironmentService(private val booberWebClient: BooberWebClient) {
 
-    suspend fun getEnvironments(token: String, environment: String): List<MultiAffiliationEnvironment> =
+    suspend fun getEnvironments(token: String, environment: String): List<EnvironmentResource> =
         booberWebClient
             .get<BooberEnvironmentResource>(url = "/v2/search?environment=$environment", token = token)
             .responsesWithErrors()
@@ -54,7 +55,7 @@ class EnvironmentService(private val booberWebClient: BooberWebClient) {
 
     private fun ResponsesAndErrors<BooberEnvironmentResource>.buildMultiAffiliationEnvironments() =
         items.groupBy { it.affiliation }.map { resourcesByAffiliation ->
-            MultiAffiliationEnvironment(
+            EnvironmentResource(
                 affiliation = resourcesByAffiliation.key,
                 deploymentRefs = resourcesByAffiliation.value.mapNotNull { resource ->
                     resource.applicationDeploymentRef.also { resource.logWarning() }

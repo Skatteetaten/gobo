@@ -2,9 +2,10 @@ package no.skatteetaten.aurora.gobo.graphql.environment
 
 import com.expediagroup.graphql.spring.operations.Query
 import graphql.schema.DataFetchingEnvironment
+import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.ApplicationDeploymentRef
 import no.skatteetaten.aurora.gobo.graphql.token
 import no.skatteetaten.aurora.gobo.integration.boober.EnvironmentService
-import no.skatteetaten.aurora.gobo.integration.boober.MultiAffiliationEnvironment
+import no.skatteetaten.aurora.gobo.integration.boober.EnvironmentResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import no.skatteetaten.aurora.gobo.security.checkValidUserToken
@@ -21,19 +22,27 @@ class EnvironmentQuery(
         // TODO "upgrade" token, check group, use "super" token for Boober requests
 
         val environments = names.flatMap { environmentService.getEnvironments(dfe.token(), it) }
-        val applicationDeployments =
-            applicationService.getApplicationDeployments(environments.flatMap { it.getApplicationDeploymentRefs() })
 
         // TODO get status from Phil
-
         return names.map { envName ->
             environments
-                .map { it.createEnvironmentAffiliation(envName, applicationDeployments) }
+                .map {
+                    val applicationDeployments =
+                        getApplicationDeploymentsForEnv(refs = it.getApplicationDeploymentRefs(), envName = envName)
+                    it.createEnvironmentAffiliation(envName, applicationDeployments)
+                }
                 .let { Environment(envName, it) }
         }
     }
 
-    private fun MultiAffiliationEnvironment.createEnvironmentAffiliation(
+    private suspend fun getApplicationDeploymentsForEnv(
+        refs: List<ApplicationDeploymentRef>,
+        envName: String
+    ) = refs
+        .filter { it.environment == envName }
+        .let { applicationService.getApplicationDeployments(it) }
+
+    private fun EnvironmentResource.createEnvironmentAffiliation(
         envName: String,
         applicationDeployments: List<ApplicationDeploymentResource>
     ) = deploymentRefs.map { ref ->

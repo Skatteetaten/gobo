@@ -10,7 +10,7 @@ import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
 import no.skatteetaten.aurora.gobo.integration.boober.EnvironmentDeploymentRef
 import no.skatteetaten.aurora.gobo.integration.boober.EnvironmentService
-import no.skatteetaten.aurora.gobo.integration.boober.MultiAffiliationEnvironment
+import no.skatteetaten.aurora.gobo.integration.boober.EnvironmentResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -38,7 +38,7 @@ class EnvironmentQueryTest : GraphQLTestWithDbhAndSkap() {
         coEvery {
             environmentService.getEnvironments(any(), any())
         } returns listOf(
-            MultiAffiliationEnvironment(
+            EnvironmentResource(
                 "aurora",
                 listOf(
                     EnvironmentDeploymentRef("utv", "gobo", true),
