@@ -15,7 +15,11 @@ data class EnvironmentResource(
     val affiliation: String,
     val deploymentRefs: List<EnvironmentDeploymentRef>
 ) {
-    fun getApplicationDeploymentRefs() = deploymentRefs.map { ApplicationDeploymentRef(it.environment, it.application) }
+    fun containsEnvironment(envName: String) = deploymentRefs.any { it.environment == envName }
+
+    fun getApplicationDeploymentRefs(envName: String) = deploymentRefs
+        .map { ApplicationDeploymentRef(it.environment, it.application) }
+        .filter { it.environment == envName }
 }
 
 @JsonIgnoreProperties(ignoreUnknown = true)

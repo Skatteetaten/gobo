@@ -2,10 +2,13 @@ package no.skatteetaten.aurora.gobo.graphql.environment
 
 import com.expediagroup.graphql.spring.operations.Query
 import graphql.schema.DataFetchingEnvironment
-import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.ApplicationDeploymentRef
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import no.skatteetaten.aurora.gobo.graphql.token
-import no.skatteetaten.aurora.gobo.integration.boober.EnvironmentService
 import no.skatteetaten.aurora.gobo.integration.boober.EnvironmentResource
+import no.skatteetaten.aurora.gobo.integration.boober.EnvironmentService
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import no.skatteetaten.aurora.gobo.security.checkValidUserToken
@@ -26,21 +29,18 @@ class EnvironmentQuery(
         // TODO get status from Phil
         return names.map { envName ->
             environments
+                .filter { it.containsEnvironment(envName) }
                 .map {
-                    val applicationDeployments =
-                        getApplicationDeploymentsForEnv(refs = it.getApplicationDeploymentRefs(), envName = envName)
-                    it.createEnvironmentAffiliation(envName, applicationDeployments)
+                    GlobalScope.async(Dispatchers.IO) {
+                        val applicationDeployments =
+                            applicationService.getApplicationDeployments(it.getApplicationDeploymentRefs(envName))
+                        it.createEnvironmentAffiliation(envName, applicationDeployments)
+                    }
                 }
+                .awaitAll()
                 .let { Environment(envName, it) }
         }
     }
-
-    private suspend fun getApplicationDeploymentsForEnv(
-        refs: List<ApplicationDeploymentRef>,
-        envName: String
-    ) = refs
-        .filter { it.environment == envName }
-        .let { applicationService.getApplicationDeployments(it) }
 
     private fun EnvironmentResource.createEnvironmentAffiliation(
         envName: String,
@@ -56,7 +56,7 @@ class EnvironmentQuery(
         // 1) If status from Phil is failed, use it
         // 2) If status from Phil is success, use status from ApplicationDeployment (Mokey)
 
-        Application.create(ref.application, applicationDeployment, ref)
+        EnvironmentApplication.create(ref.application, applicationDeployment, ref)
     }.let {
         EnvironmentAffiliation(affiliation, it)
     }

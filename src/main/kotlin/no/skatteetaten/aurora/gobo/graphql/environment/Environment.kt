@@ -46,21 +46,21 @@ data class EnvironmentStatus(
     }
 }
 
-data class Application(
+data class EnvironmentApplication(
     val name: String,
     val autoDeploy: Boolean,
     val status: EnvironmentStatus
 ) {
     companion object {
         fun create(name: String, ad: ApplicationDeploymentResource?, deploymentRef: EnvironmentDeploymentRef?) =
-            Application(name, deploymentRef?.autoDeploy ?: false, EnvironmentStatus.create(ad))
+            EnvironmentApplication(name, deploymentRef?.autoDeploy ?: false, EnvironmentStatus.create(ad))
     }
 }
 
 data class EnvironmentAffiliation(
     val name: String,
     @GraphQLIgnore
-    val applications: List<Application>
+    val applications: List<EnvironmentApplication>
 ) {
 
     fun applications(autoDeployOnly: Boolean?) =
