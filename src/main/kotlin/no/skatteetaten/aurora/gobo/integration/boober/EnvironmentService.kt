@@ -17,6 +17,8 @@ data class EnvironmentResource(
 ) {
     fun containsEnvironment(envName: String) = deploymentRefs.any { it.environment == envName }
 
+    fun deploymentRefs(envName: String) = deploymentRefs.filter { it.environment == envName }
+
     fun getApplicationDeploymentRefs(envName: String) = deploymentRefs
         .map { ApplicationDeploymentRef(it.environment, it.application) }
         .filter { it.environment == envName }

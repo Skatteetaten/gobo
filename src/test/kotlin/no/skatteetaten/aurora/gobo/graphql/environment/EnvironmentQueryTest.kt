@@ -4,6 +4,7 @@ import com.ninjasquad.springmockk.MockkBean
 import io.mockk.coEvery
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentResourceBuilder
 import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithDbhAndSkap
+import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.ApplicationDeploymentRef
 import no.skatteetaten.aurora.gobo.graphql.graphqlData
 import no.skatteetaten.aurora.gobo.graphql.graphqlDataWithPrefix
 import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
@@ -36,26 +37,29 @@ class EnvironmentQueryTest : GraphQLTestWithDbhAndSkap() {
     @BeforeEach
     fun setUp() {
         coEvery {
-            environmentService.getEnvironments(any(), any())
-        } returns listOf(
-            EnvironmentResource(
-                "aurora",
-                listOf(
-                    EnvironmentDeploymentRef("utv", "gobo", true),
-                    EnvironmentDeploymentRef("utv", "boober", false)
-                )
-            )
-        )
+            environmentService.getEnvironments("test-token", "utv")
+        } returns createEnvironmentResources("utv", "gobo", "boober")
 
-        coEvery { applicationService.getApplicationDeployments(applicationDeploymentRefs = any()) } returns listOf(
-            ApplicationDeploymentResourceBuilder(affiliation = "aurora", environment = "utv", name = "gobo").build(),
-            ApplicationDeploymentResourceBuilder(affiliation = "aurora", environment = "utv", name = "boober").build()
-        )
+        coEvery {
+            environmentService.getEnvironments("test-token", "dev-utv")
+        } returns createEnvironmentResources("dev-utv", "mokey")
+
+        coEvery {
+            applicationService.getApplicationDeployments(
+                applicationDeploymentRefs = createApplicationDeploymentRefs("utv", "gobo", "boober")
+            )
+        } returns createApplicationDeployments("utv", "gobo", "boober")
+
+        coEvery {
+            applicationService.getApplicationDeployments(
+                applicationDeploymentRefs = createApplicationDeploymentRefs("dev-utv", "mokey")
+            )
+        } returns createApplicationDeployments("dev-utv", "mokey")
     }
 
     @Test
     fun `Get environments`() {
-        webTestClient.queryGraphQL(getEnvironmentsQuery, mapOf("name" to "utv"), "test-token")
+        webTestClient.queryGraphQL(getEnvironmentsQuery, mapOf("names" to listOf("utv", "dev-utv")), "test-token")
             .expectStatus().isOk
             .expectBody()
             .graphqlData("environments[0].name").isEqualTo("utv")
@@ -63,6 +67,13 @@ class EnvironmentQueryTest : GraphQLTestWithDbhAndSkap() {
                 graphqlData("name").isEqualTo("aurora")
                 graphqlData("applications.length()").isEqualTo(2)
                 graphqlData("applications[0].name").isEqualTo("gobo")
+                graphqlData("applications[0].status.state").isEqualTo(EnvironmentStatusType.COMPLETED.name)
+            }
+            .graphqlData("environments[1].name").isEqualTo("dev-utv")
+            .graphqlDataWithPrefix("environments[1].affiliations[0]") {
+                graphqlData("name").isEqualTo("aurora")
+                graphqlData("applications.length()").isEqualTo(1)
+                graphqlData("applications[0].name").isEqualTo("mokey")
                 graphqlData("applications[0].status.state").isEqualTo(EnvironmentStatusType.COMPLETED.name)
             }
             .graphqlDoesNotContainErrors()
@@ -79,9 +90,35 @@ class EnvironmentQueryTest : GraphQLTestWithDbhAndSkap() {
             .expectBody()
             .graphqlDataWithPrefix("environments[0].affiliations[0]") {
                 graphqlData("name").isEqualTo("aurora")
-                graphqlData("applications.length()").isEqualTo(1)
+                graphqlData("applications.length()").isEqualTo(2)
                 graphqlData("applications[0].name").isEqualTo("gobo")
             }
             .graphqlDoesNotContainErrors()
     }
+
+    private fun createEnvironmentResources(environment: String, vararg names: String) =
+        listOf(
+            EnvironmentResource(
+                "aurora",
+                names.map {
+                    EnvironmentDeploymentRef(
+                        environment = environment,
+                        application = it,
+                        autoDeploy = true
+                    )
+                }
+            )
+        )
+
+    private fun createApplicationDeployments(environment: String, vararg names: String) =
+        names.map {
+            ApplicationDeploymentResourceBuilder(
+                affiliation = "aurora",
+                environment = environment,
+                name = it
+            ).build()
+        }
+
+    private fun createApplicationDeploymentRefs(environment: String, vararg names: String) =
+        names.map { ApplicationDeploymentRef(environment, it) }
 }

@@ -30,10 +30,11 @@ class EnvironmentQuery(
         return names.map { envName ->
             environments
                 .filter { it.containsEnvironment(envName) }
+                .map { it.copy(deploymentRefs = it.deploymentRefs(envName)) }
                 .map {
                     GlobalScope.async(Dispatchers.IO) {
-                        val applicationDeployments =
-                            applicationService.getApplicationDeployments(it.getApplicationDeploymentRefs(envName))
+                        val refs = it.getApplicationDeploymentRefs(envName)
+                        val applicationDeployments = applicationService.getApplicationDeployments(refs)
                         it.createEnvironmentAffiliation(envName, applicationDeployments)
                     }
                 }

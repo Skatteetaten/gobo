@@ -1,5 +1,5 @@
-query getEnvironments($name: String!) {
-  environments(names: [$name]) {
+query getEnvironments($names: [String!]!) {
+  environments(names: $names) {
     name
     affiliations {
       name
