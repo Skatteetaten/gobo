@@ -1,6 +1,8 @@
 package no.skatteetaten.aurora.gobo.graphql.environment
 
 import com.expediagroup.graphql.annotations.GraphQLIgnore
+import graphql.schema.DataFetchingEnvironment
+import no.skatteetaten.aurora.gobo.graphql.loadBatch
 import no.skatteetaten.aurora.gobo.integration.boober.EnvironmentDeploymentRef
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentResource
 import no.skatteetaten.aurora.gobo.integration.mokey.StatusCheckResource
@@ -47,14 +49,22 @@ data class EnvironmentStatus(
 }
 
 data class EnvironmentApplication(
-    val name: String,
-    val autoDeploy: Boolean,
-    val status: EnvironmentStatus
+    /**
+     * Required to lookup status, but should not be exposed in the graphql schema
+     */
+    @GraphQLIgnore
+    val affiliation: String,
+    @GraphQLIgnore
+    private val deploymentRef: EnvironmentDeploymentRef,
 ) {
-    companion object {
-        fun create(name: String, ad: ApplicationDeploymentResource?, deploymentRef: EnvironmentDeploymentRef?) =
-            EnvironmentApplication(name, deploymentRef?.autoDeploy ?: false, EnvironmentStatus.create(ad))
-    }
+    @GraphQLIgnore
+    val environment = deploymentRef.environment
+
+    val name = deploymentRef.application
+    val autoDeploy = deploymentRef.autoDeploy
+
+    fun status(dfe: DataFetchingEnvironment) =
+        dfe.loadBatch<EnvironmentApplication, EnvironmentStatus>(this)
 }
 
 data class EnvironmentAffiliation(
