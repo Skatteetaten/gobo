@@ -1,6 +1,6 @@
 package no.skatteetaten.aurora.gobo.graphql.affiliation
 
-import com.expediagroup.graphql.annotations.GraphQLDescription
+import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
 import no.skatteetaten.aurora.gobo.graphql.GoboEdge
@@ -20,7 +20,7 @@ import no.skatteetaten.aurora.gobo.security.checkValidUserToken
 
 data class Affiliation(val name: String) {
 
-    suspend fun auroraConfig(refInput: String?, dfe: DataFetchingEnvironment): DataFetcherResult<AuroraConfig?> {
+    suspend fun auroraConfig(refInput: String? = null, dfe: DataFetchingEnvironment): DataFetcherResult<AuroraConfig?> {
         dfe.checkValidUserToken()
         return dfe.load(AuroraConfigKey(name = name, refInput = refInput ?: "master"))
     }
@@ -29,7 +29,7 @@ data class Affiliation(val name: String) {
     suspend fun databaseSchemas(dfe: DataFetchingEnvironment): List<DatabaseSchema> = dfe.loadMany(name)
 
     suspend fun websealStates(dfe: DataFetchingEnvironment): List<WebsealState> = dfe.loadMany(name)
-    suspend fun vaults(names: List<String>?, dfe: DataFetchingEnvironment): DataFetcherResult<List<Vault>> {
+    suspend fun vaults(names: List<String>? = null, dfe: DataFetchingEnvironment): DataFetcherResult<List<Vault>> {
         dfe.checkValidUserToken()
         return if (names.isNullOrEmpty()) {
             newDataFetcherResult(dfe.loadMany(name))

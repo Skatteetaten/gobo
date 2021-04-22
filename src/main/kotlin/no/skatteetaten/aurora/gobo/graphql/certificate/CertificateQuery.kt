@@ -1,6 +1,6 @@
 package no.skatteetaten.aurora.gobo.graphql.certificate
 
-import com.expediagroup.graphql.spring.operations.Query
+import com.expediagroup.graphql.server.operations.Query
 import graphql.schema.DataFetchingEnvironment
 import no.skatteetaten.aurora.gobo.integration.skap.CertificateService
 import no.skatteetaten.aurora.gobo.security.checkValidUserToken

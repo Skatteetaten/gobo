@@ -1,7 +1,7 @@
 package no.skatteetaten.aurora.gobo
 
-import com.expediagroup.graphql.hooks.SchemaGeneratorHooks
-import com.expediagroup.graphql.spring.GraphQLConfigurationProperties
+import com.expediagroup.graphql.generator.hooks.SchemaGeneratorHooks
+import com.expediagroup.graphql.server.spring.GraphQLConfigurationProperties
 import com.fasterxml.jackson.databind.JsonNode
 import graphql.schema.GraphQLScalarType
 import graphql.schema.GraphQLType

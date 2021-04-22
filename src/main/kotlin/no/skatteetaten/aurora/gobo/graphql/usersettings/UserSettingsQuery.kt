@@ -1,7 +1,7 @@
 package no.skatteetaten.aurora.gobo.graphql.usersettings
 
-import com.expediagroup.graphql.annotations.GraphQLDescription
-import com.expediagroup.graphql.spring.operations.Query
+import com.expediagroup.graphql.generator.annotations.GraphQLDescription
+import com.expediagroup.graphql.server.operations.Query
 import graphql.schema.DataFetchingEnvironment
 import no.skatteetaten.aurora.gobo.integration.boober.UserSettingsService
 import no.skatteetaten.aurora.gobo.graphql.token

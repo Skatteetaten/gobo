@@ -1,6 +1,6 @@
 package no.skatteetaten.aurora.gobo
 
-import com.expediagroup.graphql.spring.execution.DataLoaderRegistryFactory
+import com.expediagroup.graphql.server.execution.DataLoaderRegistryFactory
 import graphql.execution.DataFetcherResult
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import kotlinx.coroutines.GlobalScope

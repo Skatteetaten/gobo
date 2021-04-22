@@ -1,6 +1,6 @@
 package no.skatteetaten.aurora.gobo.graphql.auroraapimetadata
 
-import com.expediagroup.graphql.spring.operations.Query
+import com.expediagroup.graphql.server.operations.Query
 import graphql.schema.DataFetchingEnvironment
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraApiMetadataService
 import org.springframework.stereotype.Component

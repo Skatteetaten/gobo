@@ -1,6 +1,6 @@
 package no.skatteetaten.aurora.gobo.graphql.environment
 
-import com.expediagroup.graphql.annotations.GraphQLIgnore
+import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
 import graphql.schema.DataFetchingEnvironment
 import no.skatteetaten.aurora.gobo.graphql.loadBatch
 import no.skatteetaten.aurora.gobo.integration.boober.EnvironmentDeploymentRef
@@ -73,7 +73,7 @@ data class EnvironmentAffiliation(
     val applications: List<EnvironmentApplication>
 ) {
 
-    fun applications(autoDeployOnly: Boolean?) =
+    fun applications(autoDeployOnly: Boolean? = null) =
         if (autoDeployOnly == true) {
             applications.filter { it.autoDeploy }
         } else {

@@ -1,6 +1,6 @@
 package no.skatteetaten.aurora.gobo.graphql.webseal
 
-import com.expediagroup.graphql.annotations.GraphQLIgnore
+import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import no.skatteetaten.aurora.gobo.integration.skap.WebsealStateResource
 
@@ -20,7 +20,7 @@ data class WebsealState(
     val routeName: String
 ) {
 
-    fun junctions(propertyNames: List<String>?) = junctions.map { junction ->
+    fun junctions(propertyNames: List<String>? = null) = junctions.map { junction ->
         if (propertyNames == null) {
             junction
         } else {

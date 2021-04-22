@@ -1,6 +1,6 @@
 package no.skatteetaten.aurora.gobo.graphql.affiliation
 
-import com.expediagroup.graphql.spring.operations.Query
+import com.expediagroup.graphql.server.operations.Query
 import graphql.schema.DataFetchingEnvironment
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.graphql.GoboGraphQLContext
@@ -14,10 +14,10 @@ private val logger = KotlinLogging.logger { }
 class AffiliationQuery(val affiliationService: AffiliationService) : Query {
 
     suspend fun affiliations(
-        name: String?, // TODO: This query variable is deprecated, replaceWith names
-        names: List<String>?,
-        checkForVisibility: Boolean?,
-        includeUndeployed: Boolean?,
+        name: String? = null, // TODO: This query variable is deprecated, replaceWith names
+        names: List<String>? = null,
+        checkForVisibility: Boolean? = null,
+        includeUndeployed: Boolean? = null,
         dfe: DataFetchingEnvironment
     ): AffiliationsConnection {
 

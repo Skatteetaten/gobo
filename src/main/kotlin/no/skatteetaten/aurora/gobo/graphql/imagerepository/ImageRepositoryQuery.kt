@@ -1,6 +1,6 @@
 package no.skatteetaten.aurora.gobo.graphql.imagerepository
 
-import com.expediagroup.graphql.spring.operations.Query
+import com.expediagroup.graphql.server.operations.Query
 import graphql.schema.DataFetchingEnvironment
 import no.skatteetaten.aurora.gobo.GoboException
 import no.skatteetaten.aurora.gobo.security.checkValidUserToken

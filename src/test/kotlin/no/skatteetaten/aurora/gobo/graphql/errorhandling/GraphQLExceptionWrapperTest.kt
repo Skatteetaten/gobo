@@ -6,7 +6,7 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
 import graphql.ExceptionWhileDataFetching
 import graphql.execution.DataFetcherExceptionHandlerParameters
-import graphql.execution.ExecutionPath
+import graphql.execution.ResultPath
 import io.mockk.every
 import io.mockk.mockk
 import no.skatteetaten.aurora.gobo.GoboException
@@ -63,7 +63,7 @@ class GraphQLExceptionWrapperTest {
     @Test
     fun `Create new GraphQLExceptionWrapper with ExceptionWhileDataFetching`() {
         val exceptionWhileDataFetching =
-            ExceptionWhileDataFetching(ExecutionPath.rootPath(), AccessDeniedException("test exception"), null)
+            ExceptionWhileDataFetching(ResultPath.rootPath(), AccessDeniedException("test exception"), null)
 
         val exceptionWrapper = GraphQLExceptionWrapper(exceptionWhileDataFetching)
         assertThat(exceptionWrapper.message).isEqualTo("test exception")

@@ -1,6 +1,6 @@
 package no.skatteetaten.aurora.gobo.graphql.credentials
 
-import com.expediagroup.graphql.spring.operations.Mutation
+import com.expediagroup.graphql.server.operations.Mutation
 import com.fasterxml.jackson.annotation.JsonProperty
 import graphql.schema.DataFetchingEnvironment
 import mu.KotlinLogging

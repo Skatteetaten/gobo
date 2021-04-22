@@ -1,6 +1,6 @@
 package no.skatteetaten.aurora.gobo.graphql.database
 
-import com.expediagroup.graphql.spring.operations.Mutation
+import com.expediagroup.graphql.server.operations.Mutation
 import graphql.schema.DataFetchingEnvironment
 import no.skatteetaten.aurora.gobo.graphql.affiliation.Affiliation
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseService
