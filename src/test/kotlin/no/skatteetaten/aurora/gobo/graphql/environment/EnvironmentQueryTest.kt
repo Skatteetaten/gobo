@@ -4,7 +4,6 @@ import com.ninjasquad.springmockk.MockkBean
 import io.mockk.coEvery
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentResourceBuilder
 import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithDbhAndSkap
-import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.ApplicationDeploymentRef
 import no.skatteetaten.aurora.gobo.graphql.graphqlData
 import no.skatteetaten.aurora.gobo.graphql.graphqlDataWithPrefix
 import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
@@ -19,7 +18,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
 
-@Import(EnvironmentQuery::class)
+@Import(EnvironmentQuery::class, EnvironmentStatusBatchDataLoader::class)
 class EnvironmentQueryTest : GraphQLTestWithDbhAndSkap() {
 
     @Value("classpath:graphql/queries/getEnvironments.graphql")
@@ -27,6 +26,9 @@ class EnvironmentQueryTest : GraphQLTestWithDbhAndSkap() {
 
     @Value("classpath:graphql/queries/getEnvironmentsWithAutoDeploy.graphql")
     private lateinit var getEnvironmentsWithAutoDeployQuery: Resource
+
+    @Value("classpath:graphql/queries/getEnvironmentNames.graphql")
+    private lateinit var getEnvironmentNamesQuery: Resource
 
     @MockkBean
     private lateinit var applicationService: ApplicationService
@@ -45,16 +47,8 @@ class EnvironmentQueryTest : GraphQLTestWithDbhAndSkap() {
         } returns createEnvironmentResources("dev-utv", "mokey")
 
         coEvery {
-            applicationService.getApplicationDeployments(
-                applicationDeploymentRefs = createApplicationDeploymentRefs("utv", "gobo", "boober")
-            )
+            applicationService.getApplicationDeployments(applicationDeploymentRefs = any())
         } returns createApplicationDeployments("utv", "gobo", "boober")
-
-        coEvery {
-            applicationService.getApplicationDeployments(
-                applicationDeploymentRefs = createApplicationDeploymentRefs("dev-utv", "mokey")
-            )
-        } returns createApplicationDeployments("dev-utv", "mokey")
     }
 
     @Test
@@ -74,7 +68,7 @@ class EnvironmentQueryTest : GraphQLTestWithDbhAndSkap() {
                 graphqlData("name").isEqualTo("aurora")
                 graphqlData("applications.length()").isEqualTo(1)
                 graphqlData("applications[0].name").isEqualTo("mokey")
-                graphqlData("applications[0].status.state").isEqualTo(EnvironmentStatusType.COMPLETED.name)
+                graphqlData("applications[0].status.state").isEqualTo(EnvironmentStatusType.INACTIVE.name)
             }
             .graphqlDoesNotContainErrors()
     }
@@ -96,11 +90,27 @@ class EnvironmentQueryTest : GraphQLTestWithDbhAndSkap() {
             .graphqlDoesNotContainErrors()
     }
 
+    @Test
+    fun `Get environments name`() {
+        webTestClient.queryGraphQL(
+            getEnvironmentNamesQuery,
+            mapOf("name" to "utv"),
+            "test-token"
+        )
+            .expectStatus().isOk
+            .expectBody()
+            .graphqlDataWithPrefix("environments[0]") {
+                graphqlData("name").isEqualTo("utv")
+                graphqlData("affiliations[0].name").isEqualTo("aurora")
+                graphqlData("affiliations[0].applications.length()").isEqualTo(2)
+            }
+    }
+
     private fun createEnvironmentResources(environment: String, vararg names: String) =
         listOf(
             EnvironmentResource(
-                "aurora",
-                names.map {
+                affiliation = "aurora",
+                deploymentRefs = names.map {
                     EnvironmentDeploymentRef(
                         environment = environment,
                         application = it,
@@ -118,7 +128,4 @@ class EnvironmentQueryTest : GraphQLTestWithDbhAndSkap() {
                 name = it
             ).build()
         }
-
-    private fun createApplicationDeploymentRefs(environment: String, vararg names: String) =
-        names.map { ApplicationDeploymentRef(environment, it) }
 }
