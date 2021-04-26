@@ -9,7 +9,7 @@ import no.skatteetaten.aurora.gobo.graphql.auroraconfig.AuroraConfig
 import no.skatteetaten.aurora.gobo.graphql.auroraconfig.AuroraConfigKey
 import no.skatteetaten.aurora.gobo.graphql.database.DatabaseSchema
 import no.skatteetaten.aurora.gobo.graphql.load
-import no.skatteetaten.aurora.gobo.graphql.loadBatchList
+import no.skatteetaten.aurora.gobo.graphql.loadListValue
 import no.skatteetaten.aurora.gobo.graphql.loadMany
 import no.skatteetaten.aurora.gobo.graphql.loadOrThrow
 import no.skatteetaten.aurora.gobo.graphql.newDataFetcherResult
@@ -46,7 +46,7 @@ data class Affiliation(val name: String) {
     private fun List<Any>.successes() = this.filterIsInstance<Vault>()
     private fun List<Any>.failures() = this.filterIsInstance<Throwable>()
 
-    fun applications(dfe: DataFetchingEnvironment) = dfe.loadBatchList<String, Application>(name)
+    fun applications(dfe: DataFetchingEnvironment) = dfe.loadListValue<String, Application>(name)
 }
 
 data class AffiliationEdge(

@@ -1,6 +1,7 @@
 package no.skatteetaten.aurora.gobo
 
 import com.expediagroup.graphql.server.execution.DataLoaderRegistryFactory
+import com.expediagroup.graphql.server.execution.KotlinDataLoader
 import graphql.execution.DataFetcherResult
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import kotlinx.coroutines.GlobalScope
@@ -19,16 +20,32 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import java.util.concurrent.Executors
 
-interface KeysBatchDataLoader<K, V> {
-    suspend fun getByKeys(keys: Set<K>, context: GoboGraphQLContext): Map<K, V>
-}
-
+@Deprecated(message = "Old way of configuring dataloaders", replaceWith = ReplaceWith("GoboDataLoader"))
 interface KeyDataLoader<K, V> {
     suspend fun getByKey(key: K, context: GoboGraphQLContext): V
 }
 
+@Deprecated(message = "Old way of configuring dataloaders", replaceWith = ReplaceWith("GoboDataLoader"))
 interface MultipleKeysDataLoader<K, V> {
     suspend fun getByKeys(keys: Set<K>, ctx: GoboGraphQLContext): Map<K, DataFetcherResult<V>>
+}
+
+abstract class GoboDataLoader<K, V> : KotlinDataLoader<K, V> {
+
+    abstract suspend fun getByKeys(keys: Set<K>, ctx: GoboGraphQLContext): Map<K, V>
+
+    override val dataLoaderName: String
+        get() = this.javaClass.simpleName
+
+    override fun getDataLoader(): DataLoader<K, V> =
+        DataLoader.newMappedDataLoader(
+            { keys: Set<K>, env: BatchLoaderEnvironment ->
+                GlobalScope.async {
+                    getByKeys(keys, env.keyContexts.entries.first().value as GoboGraphQLContext)
+                }.asCompletableFuture()
+            },
+            DataLoaderOptions.newOptions().setCachingEnabled(false)
+        )
 }
 
 private val logger = KotlinLogging.logger { }
@@ -37,17 +54,12 @@ private val logger = KotlinLogging.logger { }
 class DataLoaderConfiguration(
     @Value("\${gobo.dataloader.thread-pool-size:4}") val threadPoolSize: Int,
     val keyLoaders: List<KeyDataLoader<*, *>>,
-    val multipleKeysDataLoaders: List<MultipleKeysDataLoader<*, *>>,
-    val keysBatchLoaders: List<KeysBatchDataLoader<*, *>>
+    val kotlinLoaders: List<KotlinDataLoader<*, *>>,
+    val multipleKeysDataLoaders: List<MultipleKeysDataLoader<*, *>>
 ) {
     @Bean
     fun dataLoaderRegistryFactory(): DataLoaderRegistryFactory {
         val coroutineDispatcher = Executors.newFixedThreadPool(threadPoolSize).asCoroutineDispatcher()
-
-        val kbl = keysBatchLoaders.map {
-            logger.debug("Registering KeysBatchDataLoader: ${it::class.simpleName}")
-            it::class.simpleName!! to batchDataLoader(coroutineDispatcher, it)
-        }.toMap()
 
         val kl = keyLoaders.map {
             logger.debug("Registering KeyDataLoader: ${it::class.simpleName}")
@@ -59,29 +71,15 @@ class DataLoaderConfiguration(
             it::class.simpleName!! to batchDataLoaderMappedMultiple(coroutineDispatcher, it)
         }.toMap()
 
-        val dataLoaders = kbl + kl + mkl
+        val dataLoaders = kl + mkl
+
         return object : DataLoaderRegistryFactory {
             override fun generate() = DataLoaderRegistry().apply {
                 dataLoaders.forEach { register(it.key, it.value) }
+                // TODO remove when the custom dataloader setup above can be removed, when all loaders are KotlinDataLoaders
+                kotlinLoaders.forEach { register(it.dataLoaderName, it.getDataLoader()) }
             }
         }
-    }
-
-    /**
-     * Use this if you have a service that can load multiple ids in one request.
-     */
-    private fun <K, V> batchDataLoader(
-        coroutineDispatcher: ExecutorCoroutineDispatcher,
-        dataLoader: KeysBatchDataLoader<K, V>
-    ): DataLoader<K, V> {
-        return DataLoader.newMappedDataLoader(
-            { keys: Set<K>, env: BatchLoaderEnvironment ->
-                GlobalScope.async(coroutineDispatcher) {
-                    dataLoader.getByKeys(keys, env.keyContexts.entries.first().value as GoboGraphQLContext)
-                }.asCompletableFuture()
-            },
-            DataLoaderOptions.newOptions().setCachingEnabled(false)
-        )
     }
 
     /**

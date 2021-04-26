@@ -2,7 +2,7 @@ package no.skatteetaten.aurora.gobo.graphql.environment
 
 import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
 import graphql.schema.DataFetchingEnvironment
-import no.skatteetaten.aurora.gobo.graphql.loadBatch
+import no.skatteetaten.aurora.gobo.graphql.loadValue
 import no.skatteetaten.aurora.gobo.integration.boober.EnvironmentDeploymentRef
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentResource
 import no.skatteetaten.aurora.gobo.integration.mokey.StatusCheckResource
@@ -64,7 +64,7 @@ data class EnvironmentApplication(
     val autoDeploy = deploymentRef.autoDeploy
 
     fun status(dfe: DataFetchingEnvironment) =
-        dfe.loadBatch<EnvironmentApplication, EnvironmentStatus>(this)
+        dfe.loadValue<EnvironmentApplication, EnvironmentStatus>(this)
 }
 
 data class EnvironmentAffiliation(

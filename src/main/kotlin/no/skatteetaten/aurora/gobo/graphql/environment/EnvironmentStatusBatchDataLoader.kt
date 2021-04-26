@@ -1,6 +1,6 @@
 package no.skatteetaten.aurora.gobo.graphql.environment
 
-import no.skatteetaten.aurora.gobo.KeysBatchDataLoader
+import no.skatteetaten.aurora.gobo.GoboDataLoader
 import no.skatteetaten.aurora.gobo.graphql.GoboGraphQLContext
 import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.ApplicationDeploymentRef
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component
 // 2) If status from Phil is success, use status from ApplicationDeployment (Mokey)
 @Component
 class EnvironmentStatusBatchDataLoader(private val applicationService: ApplicationService) :
-    KeysBatchDataLoader<EnvironmentApplication, EnvironmentStatus> {
+    GoboDataLoader<EnvironmentApplication, EnvironmentStatus>() {
 
     override suspend fun getByKeys(keys: Set<EnvironmentApplication>, context: GoboGraphQLContext):
         Map<EnvironmentApplication, EnvironmentStatus> {
