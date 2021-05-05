@@ -1,6 +1,6 @@
 package no.skatteetaten.aurora.gobo.graphql.environment
 
-import com.expediagroup.graphql.spring.operations.Query
+import com.expediagroup.graphql.server.operations.Query
 import graphql.schema.DataFetchingEnvironment
 import no.skatteetaten.aurora.gobo.graphql.token
 import no.skatteetaten.aurora.gobo.integration.boober.EnvironmentResource

@@ -15,8 +15,8 @@ import no.skatteetaten.aurora.gobo.infrastructure.field.FieldService
 import no.skatteetaten.aurora.gobo.removeNewLines
 import no.skatteetaten.aurora.webflux.AuroraRequestParser
 import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpRequest
 import org.springframework.stereotype.Component
+import org.springframework.web.reactive.function.server.ServerRequest
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.LongAdder
 import javax.annotation.PreDestroy
@@ -57,7 +57,7 @@ class GoboInstrumentation(
         executionInput?.let {
             val context = (executionInput.context as GoboGraphQLContext)
             val request = context.request
-            logger.debug { """Request hostName="${request.remoteAddress?.hostName}" """ }
+            logger.debug { """Request hostName="${request.remoteAddress().ifPresent { a -> a.hostName }}" """ }
 
             val queryText = it.query.removeNewLines().let { query ->
                 if (query.trimStart().startsWith("mutation")) {
@@ -148,8 +148,9 @@ class ClientUsage {
         }
 }
 
-fun HttpRequest?.klientid() =
-    this?.headers?.getFirst(AuroraRequestParser.KLIENTID_FIELD) ?: this?.headers?.getFirst(HttpHeaders.USER_AGENT)
+fun ServerRequest?.klientid() =
+    this?.headers()?.firstHeader(AuroraRequestParser.KLIENTID_FIELD) ?: this?.headers()
+        ?.firstHeader(HttpHeaders.USER_AGENT)
 
-fun HttpRequest?.korrelasjonsid() =
-    this?.headers?.getFirst(AuroraRequestParser.KORRELASJONSID_FIELD)
+fun ServerRequest?.korrelasjonsid() =
+    this?.headers()?.firstHeader(AuroraRequestParser.KORRELASJONSID_FIELD)

@@ -1,6 +1,6 @@
 package no.skatteetaten.aurora.gobo.graphql.imagerepository
 
-import com.expediagroup.graphql.annotations.GraphQLIgnore
+import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
 import java.time.Instant
@@ -78,10 +78,10 @@ data class ImageRepository(
     }
 
     suspend fun tags(
-        types: List<ImageTagType>?,
-        filter: String?,
+        types: List<ImageTagType>? = null,
+        filter: String? = null,
         first: Int,
-        after: String?,
+        after: String? = null,
         dfe: DataFetchingEnvironment
     ): DataFetcherResult<ImageTagsConnection> {
         val tagsDto = if (!isFullyQualified()) {

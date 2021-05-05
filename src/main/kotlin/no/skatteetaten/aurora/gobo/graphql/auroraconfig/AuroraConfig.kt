@@ -1,6 +1,6 @@
 package no.skatteetaten.aurora.gobo.graphql.auroraconfig
 
-import com.expediagroup.graphql.annotations.GraphQLIgnore
+import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
 import com.fasterxml.jackson.databind.JsonNode
 import com.jayway.jsonpath.JsonPath
 import graphql.schema.DataFetchingEnvironment
@@ -17,8 +17,8 @@ data class AuroraConfig(
 ) {
 
     suspend fun files(
-        types: List<AuroraConfigFileType>?,
-        fileNames: List<String>?,
+        types: List<AuroraConfigFileType>? = null,
+        fileNames: List<String>? = null,
         dfe: DataFetchingEnvironment
     ): List<AuroraConfigFileResource> {
         dfe.checkValidUserToken()

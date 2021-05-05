@@ -5,10 +5,10 @@ import no.skatteetaten.aurora.gobo.integration.boober.BooberVault
 data class Vault(
     val name: String,
     val hasAccess: Boolean,
-    val permissions: List<String>?,
-    val secrets: List<Secret>?
+    val permissions: List<String>? = null,
+    val secrets: List<Secret>? = null
 ) {
-    fun secrets(names: List<String>?) =
+    fun secrets(names: List<String>? = null) =
         if (names.isNullOrEmpty()) {
             secrets
         } else {

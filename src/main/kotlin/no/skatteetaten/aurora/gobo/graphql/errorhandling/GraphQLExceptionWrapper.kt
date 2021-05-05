@@ -4,7 +4,7 @@ import graphql.ErrorType
 import graphql.ExceptionWhileDataFetching
 import graphql.GraphQLError
 import graphql.execution.DataFetcherExceptionHandlerParameters
-import graphql.execution.ExecutionPath
+import graphql.execution.ResultPath
 import graphql.language.SourceLocation
 import no.skatteetaten.aurora.gobo.GoboException
 import no.skatteetaten.aurora.gobo.graphql.GoboGraphQLContext
@@ -20,22 +20,22 @@ class GraphQLExceptionWrapper private constructor(
     },
     private val cause: Throwable? = exception.cause,
     private val location: SourceLocation? = null,
-    private val executionPath: ExecutionPath? = null,
+    private val resultPath: ResultPath? = null,
     private val korrelasjonsId: String? = null
 ) : GraphQLError {
     constructor(handlerParameters: DataFetcherExceptionHandlerParameters) : this(
         exception = handlerParameters.exception,
         location = handlerParameters.sourceLocation,
-        executionPath = handlerParameters.path,
+        resultPath = handlerParameters.path,
         korrelasjonsId = handlerParameters.dataFetchingEnvironment.getContext<GoboGraphQLContext>()?.korrelasjonsid()
     )
 
     constructor(exceptionWhileDataFetching: ExceptionWhileDataFetching) : this(
         exception = exceptionWhileDataFetching.exception,
-        executionPath = exceptionWhileDataFetching.path?.let { ExecutionPath.fromList(it) }
+        resultPath = exceptionWhileDataFetching.path?.let { ResultPath.fromList(it) }
     )
 
-    constructor(exception: Throwable) : this(exception = exception, executionPath = null)
+    constructor(exception: Throwable) : this(exception = exception, resultPath = null)
 
     override fun getExtensions(): Map<String, Any?> =
         when (exception) {
@@ -64,5 +64,5 @@ class GraphQLExceptionWrapper private constructor(
 
     override fun getLocations() = location?.let { mutableListOf(it) } ?: mutableListOf()
 
-    override fun getPath() = executionPath?.toList()?.toMutableList() ?: mutableListOf()
+    override fun getPath() = resultPath?.toList()?.toMutableList() ?: mutableListOf()
 }

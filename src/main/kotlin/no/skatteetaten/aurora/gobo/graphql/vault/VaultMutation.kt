@@ -1,7 +1,7 @@
 package no.skatteetaten.aurora.gobo.graphql.vault
 
+import com.expediagroup.graphql.server.operations.Mutation
 import org.springframework.stereotype.Component
-import com.expediagroup.graphql.spring.operations.Mutation
 import graphql.schema.DataFetchingEnvironment
 import no.skatteetaten.aurora.gobo.graphql.token
 import no.skatteetaten.aurora.gobo.integration.boober.VaultContext

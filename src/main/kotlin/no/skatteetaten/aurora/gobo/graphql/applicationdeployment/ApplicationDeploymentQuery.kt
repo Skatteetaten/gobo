@@ -1,6 +1,6 @@
 package no.skatteetaten.aurora.gobo.graphql.applicationdeployment
 
-import com.expediagroup.graphql.spring.operations.Query
+import com.expediagroup.graphql.server.operations.Query
 import no.skatteetaten.aurora.gobo.graphql.application.Application
 import no.skatteetaten.aurora.gobo.graphql.application.DockerRegistryUtil
 import no.skatteetaten.aurora.gobo.graphql.application.createApplicationEdge

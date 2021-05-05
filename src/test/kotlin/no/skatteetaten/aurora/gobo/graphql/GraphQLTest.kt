@@ -1,7 +1,7 @@
 package no.skatteetaten.aurora.gobo.graphql
 
-import com.expediagroup.graphql.spring.GraphQLAutoConfiguration
-import com.expediagroup.graphql.spring.operations.Query
+import com.expediagroup.graphql.server.operations.Query
+import com.expediagroup.graphql.server.spring.GraphQLAutoConfiguration
 import com.ninjasquad.springmockk.MockkBean
 import no.skatteetaten.aurora.gobo.DataLoaderConfiguration
 import no.skatteetaten.aurora.gobo.GraphQLConfig
