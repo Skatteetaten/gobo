@@ -62,7 +62,7 @@ data class PodResource(
             )
     }
 
-    fun links(names: List<String>?): List<Link> {
+    fun links(names: List<String>? = null): List<Link> {
         return if (names == null) {
             links
         } else {

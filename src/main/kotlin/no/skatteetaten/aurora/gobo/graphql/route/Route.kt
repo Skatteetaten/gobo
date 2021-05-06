@@ -1,6 +1,6 @@
 package no.skatteetaten.aurora.gobo.graphql.route
 
-import com.expediagroup.graphql.annotations.GraphQLIgnore
+import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import no.skatteetaten.aurora.gobo.integration.skap.SkapJob

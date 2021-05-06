@@ -1,6 +1,6 @@
 package no.skatteetaten.aurora.gobo.graphql.database
 
-import com.expediagroup.graphql.spring.operations.Query
+import com.expediagroup.graphql.server.operations.Query
 import graphql.schema.DataFetchingEnvironment
 import no.skatteetaten.aurora.gobo.graphql.affiliation.Affiliation
 import no.skatteetaten.aurora.gobo.graphql.pageEdges
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component
 @Component
 class DatabaseSchemaQuery(val databaseService: DatabaseService) : Query {
 
-    suspend fun databaseInstances(affiliation: String?, dfe: DataFetchingEnvironment): List<DatabaseInstance> {
+    suspend fun databaseInstances(affiliation: String? = null, dfe: DataFetchingEnvironment): List<DatabaseInstance> {
         dfe.checkValidUserToken()
         return databaseService
             .getDatabaseInstances()
@@ -30,7 +30,7 @@ class DatabaseSchemaQuery(val databaseService: DatabaseService) : Query {
     suspend fun databaseSchemas(
         affiliations: List<String>,
         first: Int,
-        after: String?,
+        after: String? = null,
         dfe: DataFetchingEnvironment
     ): DatabaseSchemaConnection {
         dfe.checkValidUserToken()

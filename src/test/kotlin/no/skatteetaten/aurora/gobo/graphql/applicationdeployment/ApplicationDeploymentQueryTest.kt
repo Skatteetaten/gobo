@@ -114,7 +114,7 @@ class ApplicationDeploymentQueryTest : GraphQLTestWithDbhAndSkap() {
 
     @Test
     fun `Query for application deployment with ApplicationDeploymentRef`() {
-        coEvery { applicationService.getApplicationDeployment(any<List<ApplicationDeploymentRef>>()) } returns listOf(
+        coEvery { applicationService.getApplicationDeployments(any()) } returns listOf(
             ApplicationDeploymentResourceBuilder().build()
         )
 

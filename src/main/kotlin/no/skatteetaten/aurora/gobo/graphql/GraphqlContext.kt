@@ -1,8 +1,8 @@
 package no.skatteetaten.aurora.gobo.graphql
 
 import brave.baggage.BaggageField
-import com.expediagroup.graphql.execution.GraphQLContext
-import com.expediagroup.graphql.spring.execution.GraphQLContextFactory
+import com.expediagroup.graphql.server.spring.execution.SpringGraphQLContext
+import com.expediagroup.graphql.server.spring.execution.SpringGraphQLContextFactory
 import graphql.schema.DataFetchingEnvironment
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.reactive.awaitFirst
@@ -12,10 +12,9 @@ import no.skatteetaten.aurora.gobo.graphql.errorhandling.isInvalidToken
 import no.skatteetaten.aurora.gobo.graphql.errorhandling.isNoSuchElementException
 import no.skatteetaten.aurora.webflux.AuroraRequestParser
 import org.springframework.http.HttpHeaders
-import org.springframework.http.server.reactive.ServerHttpRequest
-import org.springframework.http.server.reactive.ServerHttpResponse
 import org.springframework.security.core.context.SecurityContext
 import org.springframework.stereotype.Component
+import org.springframework.web.reactive.function.server.ServerRequest
 import reactor.core.publisher.Mono
 import kotlin.coroutines.coroutineContext
 
@@ -23,11 +22,10 @@ fun DataFetchingEnvironment.token() = this.getContext<GoboGraphQLContext>().toke
 
 class GoboGraphQLContext(
     private val token: String?,
-    val request: ServerHttpRequest,
-    val response: ServerHttpResponse,
+    val request: ServerRequest,
     val securityContext: Mono<SecurityContext>,
     var query: String? = null
-) : GraphQLContext {
+) : SpringGraphQLContext(request = request) {
     suspend fun securityContext(): SecurityContext = runCatching { securityContext.awaitFirst() }
         .recoverCatching {
             when {
@@ -49,10 +47,10 @@ class GoboGraphQLContext(
 private val logger = KotlinLogging.logger {}
 
 @Component
-class GoboGraphQLContextFactory : GraphQLContextFactory<GoboGraphQLContext> {
+class GoboGraphQLContextFactory : SpringGraphQLContextFactory<GoboGraphQLContext>() {
 
     @ExperimentalCoroutinesApi
-    override suspend fun generateContext(request: ServerHttpRequest, response: ServerHttpResponse): GoboGraphQLContext {
+    override suspend fun generateContext(request: ServerRequest): GoboGraphQLContext? {
         request.logHeaders()
 
         val reactorContext =
@@ -63,16 +61,15 @@ class GoboGraphQLContextFactory : GraphQLContextFactory<GoboGraphQLContext> {
         )!!
 
         return GoboGraphQLContext(
-            token = request.headers.getFirst(HttpHeaders.AUTHORIZATION)?.removePrefix("Bearer "),
+            token = request.headers().firstHeader(HttpHeaders.AUTHORIZATION)?.removePrefix("Bearer "),
             request = request,
-            response = response,
             securityContext = securityContext
         )
     }
 
-    private fun ServerHttpRequest.logHeaders() {
+    private fun ServerRequest.logHeaders() {
         logger.debug {
-            val headers = this.headers.map {
+            val headers = headers().asHttpHeaders().map {
                 if (it.key == HttpHeaders.AUTHORIZATION) {
                     it.key
                 } else {

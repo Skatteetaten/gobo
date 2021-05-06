@@ -104,4 +104,4 @@ aurora:
     token:
         location: /u01/secrets/app/aurora-token/token
 
-logging.level.com.expediagroup.graphql.spring: WARN
+logging.level.com.expediagroup.graphql.server.spring: WARN

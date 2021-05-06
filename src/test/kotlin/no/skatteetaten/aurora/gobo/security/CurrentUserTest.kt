@@ -27,7 +27,6 @@ class CurrentUserTest {
         every { dfe.getContext<GoboGraphQLContext>() } returns GoboGraphQLContext(
             "token",
             mockk(),
-            mockk(),
             Mono.just(securityContext)
         )
     }

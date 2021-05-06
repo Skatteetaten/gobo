@@ -54,7 +54,7 @@ class ApplicationServiceTest : StrubrunnerRepoPropertiesEnabler() {
     @Test
     fun `Get application deployments for application deployment ref`() {
         val applicationDeployments = runBlocking {
-            applicationService.getApplicationDeployment(listOf(ApplicationDeploymentRef("utv", "gobo")))
+            applicationService.getApplicationDeployments(listOf(ApplicationDeploymentRef("utv", "gobo")))
         }
         assertThat(applicationDeployments).isNotNull()
     }

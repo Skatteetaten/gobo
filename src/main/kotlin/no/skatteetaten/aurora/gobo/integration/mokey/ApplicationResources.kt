@@ -139,6 +139,8 @@ data class ApplicationDeploymentResource(
         get() = findLink(APPLICATION_REL).idPart
 
     private val String.idPart: String get() = split("/").last()
+
+    fun success() = status.code == "HEALTHY"
 }
 
 @JsonIgnoreProperties(ignoreUnknown = true)
