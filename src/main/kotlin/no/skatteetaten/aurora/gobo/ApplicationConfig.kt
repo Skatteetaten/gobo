@@ -26,7 +26,6 @@ import reactor.kotlin.core.publisher.toMono
 import reactor.netty.http.client.HttpClient
 import reactor.netty.tcp.SslProvider
 import java.util.concurrent.TimeUnit
-import kotlin.math.min
 
 enum class ServiceTypes {
     MOKEY, BOOBER, UNCLEMATT, CANTUS, DBH, SKAP, HERKIMER, NAGHUB
@@ -144,13 +143,7 @@ class ApplicationConfig(
         this.defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .filter(
                 ExchangeFilterFunction.ofRequestProcessor {
-                    logger.debug {
-                        val bearer = it.headers()[HttpHeaders.AUTHORIZATION]?.firstOrNull()?.let { token ->
-                            val t = token.substring(0, min(token.length, 11)).replace("Bearer", "")
-                            "bearer=$t"
-                        } ?: ""
-                        "HttpRequest method=${it.method()} url=${it.url()} $bearer"
-                    }
+                    logger.debug { "HttpRequest method=${it.method()} url=${it.url()}" }
                     it.toMono()
                 }
             )
