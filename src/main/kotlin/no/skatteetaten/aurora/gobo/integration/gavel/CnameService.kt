@@ -7,6 +7,7 @@ import no.skatteetaten.aurora.gobo.graphql.IntegrationDisabledException
 import no.skatteetaten.aurora.gobo.graphql.cname.CnameInfo
 import no.skatteetaten.aurora.gobo.integration.awaitWithRetry
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
 
@@ -27,3 +28,7 @@ class CnameServiceReactive(@TargetService(ServiceTypes.GAVEL) val webClient: Web
             .retrieve()
             .awaitWithRetry()
 }
+
+@Service
+@ConditionalOnMissingBean(RequiresGavel::class)
+class CnameServiceDisabled : CnameService
