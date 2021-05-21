@@ -4,9 +4,9 @@ import com.fkorotkov.kubernetes.authentication.newTokenReview
 import com.fkorotkov.kubernetes.authentication.spec
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.graphql.AccessDeniedException
-import no.skatteetaten.aurora.kubernetes.ClientTypes
 import no.skatteetaten.aurora.kubernetes.KubernetesReactorClient
-import no.skatteetaten.aurora.kubernetes.TargetClient
+import no.skatteetaten.aurora.kubernetes.config.ClientTypes
+import no.skatteetaten.aurora.kubernetes.config.TargetClient
 import no.skatteetaten.aurora.kubernetes.errorMessage
 import org.springframework.http.HttpStatus
 import org.springframework.security.authentication.ReactiveAuthenticationManager
