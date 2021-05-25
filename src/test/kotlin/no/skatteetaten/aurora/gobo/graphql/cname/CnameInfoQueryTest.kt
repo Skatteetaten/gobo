@@ -4,6 +4,7 @@ import com.ninjasquad.springmockk.MockkBean
 import io.mockk.coEvery
 import no.skatteetaten.aurora.gobo.CnameInfoBuilder
 import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithDbhAndSkap
+import no.skatteetaten.aurora.gobo.graphql.graphqlDataWithPrefix
 import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
 import no.skatteetaten.aurora.gobo.integration.gavel.CnameService
@@ -35,6 +36,11 @@ class CnameInfoQueryTest : GraphQLTestWithDbhAndSkap() {
         webTestClient.queryGraphQL(getCnameInfoQuery)
             .expectStatus().isOk
             .expectBody()
+            .graphqlDataWithPrefix("cnameInfo[0]") {
+                graphqlData("status").isEqualTo("SUCCESS")
+                graphqlData("clusterId").isEqualTo("utv")
+                graphqlData("appName").isEqualTo("demo")
+            }
             .graphqlDoesNotContainErrors()
     }
 
@@ -43,6 +49,11 @@ class CnameInfoQueryTest : GraphQLTestWithDbhAndSkap() {
         webTestClient.queryGraphQL(getCnameInfoQueryWithAffiliation, mapOf("affiliation" to "aurora"))
             .expectStatus().isOk
             .expectBody()
+            .graphqlDataWithPrefix("cnameInfo[0]") {
+                graphqlData("status").isEqualTo("SUCCESS")
+                graphqlData("clusterId").isEqualTo("utv")
+                graphqlData("appName").isEqualTo("demo")
+            }
             .graphqlDoesNotContainErrors()
     }
 }

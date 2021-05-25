@@ -564,12 +564,12 @@ data class BooberVaultBuilder(
     )
 }
 
-class CnameInfoBuilder {
+data class CnameInfoBuilder(val namespace: String = "aurora-demo") {
     fun build() = CnameInfo(
         status = "SUCCESS",
         clusterId = "utv",
         appName = "demo",
-        namespace = "aurora-demo",
+        namespace = namespace,
         routeName = "demo",
         message = "",
         entry = CnameEntry(cname = "demo.localhost.no", host = "host1", ttl = 300)
