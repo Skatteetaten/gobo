@@ -6,6 +6,8 @@ import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.ApplicationDepl
 import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.Status
 import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.Version
 import no.skatteetaten.aurora.gobo.graphql.auroraconfig.AuroraConfigFileResource
+import no.skatteetaten.aurora.gobo.graphql.cname.CnameEntry
+import no.skatteetaten.aurora.gobo.graphql.cname.CnameInfo
 import no.skatteetaten.aurora.gobo.graphql.database.JdbcUser
 import no.skatteetaten.aurora.gobo.graphql.imagerepository.ImageRepository
 import no.skatteetaten.aurora.gobo.graphql.imagerepository.ImageTag
@@ -559,5 +561,17 @@ data class BooberVaultBuilder(
         hasAccess = true,
         permissions = permissions,
         secrets = secrets
+    )
+}
+
+data class CnameInfoBuilder(val namespace: String = "aurora-demo") {
+    fun build() = CnameInfo(
+        status = "SUCCESS",
+        clusterId = "utv",
+        appName = "demo",
+        namespace = namespace,
+        routeName = "demo",
+        message = "",
+        entry = CnameEntry(cname = "demo.localhost.no", host = "host1", ttl = 300)
     )
 }

@@ -1,0 +1,7 @@
+{
+  cnameInfo {
+    status
+    clusterId
+    appName
+  }
+}

@@ -28,7 +28,7 @@ import reactor.netty.tcp.SslProvider
 import java.util.concurrent.TimeUnit
 
 enum class ServiceTypes {
-    MOKEY, BOOBER, UNCLEMATT, CANTUS, DBH, SKAP, HERKIMER, NAGHUB, PHIL
+    MOKEY, BOOBER, UNCLEMATT, CANTUS, DBH, SKAP, HERKIMER, NAGHUB, GAVEL, PHIL
 }
 
 @Target(AnnotationTarget.TYPE, AnnotationTarget.FUNCTION, AnnotationTarget.FIELD, AnnotationTarget.VALUE_PARAMETER)
@@ -55,6 +55,11 @@ class RequiresHerkimer
 @Component
 @ConditionalOnProperty("integrations.naghub.url")
 class RequiresNagHub
+
+@Order(Ordered.HIGHEST_PRECEDENCE)
+@Component
+@ConditionalOnProperty("integrations.gavel.url")
+class RequiresGavel
 
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @Component
@@ -97,6 +102,17 @@ class ApplicationConfig(
     ): WebClient {
         logger.info("Configuring Cantus WebClient with base Url={}", cantusUrl)
         return builder.init().baseUrl(cantusUrl).build()
+    }
+
+    @ConditionalOnBean(RequiresGavel::class)
+    @Bean
+    @TargetService(ServiceTypes.GAVEL)
+    fun webClientGavel(
+        @Value("\${integrations.gavel.url}") gavelUrl: String,
+        builder: WebClient.Builder
+    ): WebClient {
+        logger.info("Configuring Gavel WebClient with base Url={}", gavelUrl)
+        return builder.init().baseUrl(gavelUrl).build()
     }
 
     @ConditionalOnBean(RequiresNagHub::class)

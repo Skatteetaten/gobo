@@ -11,9 +11,9 @@ import no.skatteetaten.aurora.gobo.infrastructure.field.FieldService
 import no.skatteetaten.aurora.gobo.security.GoboSecurityContextRepository
 import no.skatteetaten.aurora.gobo.security.OpenShiftAuthenticationManager
 import no.skatteetaten.aurora.gobo.security.WebSecurityConfig
-import no.skatteetaten.aurora.kubernetes.ClientTypes
 import no.skatteetaten.aurora.kubernetes.KubernetesReactorClient
-import no.skatteetaten.aurora.kubernetes.TargetClient
+import no.skatteetaten.aurora.kubernetes.config.ClientTypes
+import no.skatteetaten.aurora.kubernetes.config.TargetClient
 import org.junit.jupiter.api.BeforeEach
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest
