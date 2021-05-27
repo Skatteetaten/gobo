@@ -23,26 +23,19 @@ class PhilServiceReactive(
     @TargetService(ServiceTypes.PHIL) private val webClient: WebClient,
     val mapper: ObjectMapper
 ) : PhilService {
-    override suspend fun deployEnvironment(environment: String, token: String): PhilResult {
-        val response: List<Deployment>? =
-            webClient
-                .post()
-                .uri("/environments/$environment")
-                .header(HttpHeaders.AUTHORIZATION, token)
-                .retrieve()
-                .bodyToMono<List<Deployment>>()
-                .awaitFirstOrNull()
-        return PhilResult(true, response)
+    override suspend fun deployEnvironment(environment: String, token: String): List<DeploymentResource>? {
+        return webClient
+            .post()
+            .uri("/environments/$environment")
+            .header(HttpHeaders.AUTHORIZATION, token)
+            .retrieve()
+            .bodyToMono<List<DeploymentResource>>()
+            .awaitFirstOrNull()
     }
 }
 
-data class PhilResult(
-    val success: Boolean,
-    val deployments: List<Deployment>?
-)
-
 interface PhilService {
-    suspend fun deployEnvironment(environment: String, token: String): PhilResult =
+    suspend fun deployEnvironment(environment: String, token: String): List<DeploymentResource>? =
         integrationDisabled()
 
     private fun integrationDisabled(): Nothing =
@@ -53,15 +46,15 @@ interface PhilService {
 @ConditionalOnMissingBean(RequiresPhil::class)
 class PhilServiceDisabled : PhilService
 
-data class DeploymentRef(
+data class DeploymentRefResource(
     val cluster: String,
     val affiliation: String,
     val environment: String,
     val application: String
 )
 
-data class Deployment(
-    val deploymentRef: DeploymentRef,
+data class DeploymentResource(
+    val deploymentRef: DeploymentRefResource,
     val deployId: String = "",
     val timestamp: Date,
     val message: String,

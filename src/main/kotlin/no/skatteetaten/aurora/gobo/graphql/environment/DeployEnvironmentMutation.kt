@@ -4,7 +4,7 @@ import com.expediagroup.graphql.server.operations.Mutation
 import graphql.schema.DataFetchingEnvironment
 import java.util.Date
 import no.skatteetaten.aurora.gobo.graphql.token
-import no.skatteetaten.aurora.gobo.integration.phil.PhilResult
+import no.skatteetaten.aurora.gobo.integration.phil.DeploymentResource
 import no.skatteetaten.aurora.gobo.integration.phil.PhilService
 import org.springframework.stereotype.Component
 
@@ -16,13 +16,13 @@ class DeploymentEnvironmentMutation(
         input: DeploymentEnvironmentInput,
         dfe: DataFetchingEnvironment
     ): DeploymentEnvironmentResponse {
-        val philDeploymentResult = philService.deployEnvironment(input.environment, dfe.token())
-        return philDeploymentResult.toDeploymentEnvironmentResponse()
+        val deploymentResourceList = philService.deployEnvironment(input.environment, dfe.token())
+        return deploymentEnvironmentResponse(deploymentResourceList)
     }
 
-    private fun PhilResult.toDeploymentEnvironmentResponse(): DeploymentEnvironmentResponse {
-        val resultDeployments = if (deployments != null) {
-            deployments.map {
+    private fun deploymentEnvironmentResponse(deploymentResources: List<DeploymentResource>?): DeploymentEnvironmentResponse {
+        val resultDeployments = if (deploymentResources != null) {
+            deploymentResources.map {
                 Deployment(
                     deploymentRef = DeploymentRef(
                         it.deploymentRef.cluster,
@@ -38,7 +38,7 @@ class DeploymentEnvironmentMutation(
         } else {
             null
         }
-        return DeploymentEnvironmentResponse(success = success, deployments = resultDeployments)
+        return DeploymentEnvironmentResponse(success = true, deployments = resultDeployments)
     }
 }
 
