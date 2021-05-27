@@ -12,39 +12,30 @@ import org.springframework.stereotype.Component
 class DeploymentEnvironmentMutation(
     private val philService: PhilService,
 ) : Mutation {
+
     suspend fun deployEnvironment(
         input: DeploymentEnvironmentInput,
         dfe: DataFetchingEnvironment
-    ): DeploymentEnvironmentResponse {
-        val deploymentResourceList = philService.deployEnvironment(input.environment, dfe.token())
-        return deploymentResourceList.toDeploymentEnvironmentResponse()
-    }
+    ) = philService.deployEnvironment(input.environment, dfe.token())
+        .let { it.toDeploymentEnvironmentResponse() }
 
-    private fun List<DeploymentResource>?.toDeploymentEnvironmentResponse(): DeploymentEnvironmentResponse {
-        val resultDeployments = if (this != null) {
-            this.map {
-                Deployment(
-                    deploymentRef = DeploymentRef(
-                        it.deploymentRef.cluster,
-                        it.deploymentRef.affiliation,
-                        it.deploymentRef.environment,
-                        it.deploymentRef.application
-                    ),
-                    deployId = it.deployId,
-                    timestamp = it.timestamp,
-                    message = it.message
-                )
-            }
-        } else {
-            null
+    private fun List<DeploymentResource>?.toDeploymentEnvironmentResponse() =
+        this?.map {
+            Deployment(
+                deploymentRef = DeploymentRef(
+                    it.deploymentRef.cluster,
+                    it.deploymentRef.affiliation,
+                    it.deploymentRef.environment,
+                    it.deploymentRef.application
+                ),
+                deployId = it.deployId,
+                timestamp = it.timestamp,
+                message = it.message
+            )
         }
-        return DeploymentEnvironmentResponse(success = true, deployments = resultDeployments)
-    }
 }
 
 data class DeploymentEnvironmentInput(val environment: String)
-
-data class DeploymentEnvironmentResponse(val success: Boolean, val deployments: List<Deployment>?)
 
 data class DeploymentRef(
     val cluster: String,

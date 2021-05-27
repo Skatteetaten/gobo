@@ -3,7 +3,6 @@ package no.skatteetaten.aurora.gobo.integration.phil
 import com.fasterxml.jackson.databind.ObjectMapper
 import java.util.Date
 import kotlinx.coroutines.reactive.awaitFirstOrNull
-import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.RequiresPhil
 import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
@@ -14,8 +13,6 @@ import org.springframework.http.HttpHeaders
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.bodyToMono
-
-private val logger = KotlinLogging.logger {}
 
 @Service
 @ConditionalOnBean(RequiresPhil::class)
