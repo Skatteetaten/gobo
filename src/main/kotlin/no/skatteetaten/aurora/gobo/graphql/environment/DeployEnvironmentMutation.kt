@@ -17,12 +17,12 @@ class DeploymentEnvironmentMutation(
         dfe: DataFetchingEnvironment
     ): DeploymentEnvironmentResponse {
         val deploymentResourceList = philService.deployEnvironment(input.environment, dfe.token())
-        return deploymentEnvironmentResponse(deploymentResourceList)
+        return deploymentResourceList.toDeploymentEnvironmentResponse()
     }
 
-    private fun deploymentEnvironmentResponse(deploymentResources: List<DeploymentResource>?): DeploymentEnvironmentResponse {
-        val resultDeployments = if (deploymentResources != null) {
-            deploymentResources.map {
+    private fun List<DeploymentResource>?.toDeploymentEnvironmentResponse(): DeploymentEnvironmentResponse {
+        val resultDeployments = if (this != null) {
+            this.map {
                 Deployment(
                     deploymentRef = DeploymentRef(
                         it.deploymentRef.cluster,
