@@ -20,15 +20,14 @@ class PhilServiceReactive(
     @TargetService(ServiceTypes.PHIL) private val webClient: WebClient,
     val mapper: ObjectMapper
 ) : PhilService {
-    override suspend fun deployEnvironment(environment: String, token: String): List<DeploymentResource>? {
-        return webClient
+    override suspend fun deployEnvironment(environment: String, token: String) =
+        webClient
             .post()
             .uri("/environments/$environment")
             .header(HttpHeaders.AUTHORIZATION, token)
             .retrieve()
             .bodyToMono<List<DeploymentResource>>()
             .awaitFirstOrNull()
-    }
 }
 
 interface PhilService {
