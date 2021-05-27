@@ -24,7 +24,7 @@ class PhilServiceReactive(
         webClient
             .post()
             .uri("/environments/$environment")
-            .header(HttpHeaders.AUTHORIZATION, token)
+            .header(HttpHeaders.AUTHORIZATION, "Bearer $token")
             .retrieve()
             .bodyToMono<List<DeploymentResource>>()
             .awaitFirstOrNull()
