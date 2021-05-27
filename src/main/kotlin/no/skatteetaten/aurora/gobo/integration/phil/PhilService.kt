@@ -1,7 +1,6 @@
 package no.skatteetaten.aurora.gobo.integration.phil
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import java.io.Serializable
 import java.util.Date
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import mu.KotlinLogging
@@ -11,6 +10,7 @@ import no.skatteetaten.aurora.gobo.TargetService
 import no.skatteetaten.aurora.gobo.graphql.IntegrationDisabledException
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
+import org.springframework.http.HttpHeaders
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.bodyToMono
@@ -28,7 +28,7 @@ class PhilServiceReactive(
             webClient
                 .post()
                 .uri("/environments/$environment")
-                .header("Authorization", token)
+                .header(HttpHeaders.AUTHORIZATION, token)
                 .retrieve()
                 .bodyToMono<List<Deployment>>()
                 .awaitFirstOrNull()
@@ -58,8 +58,7 @@ data class DeploymentRef(
     val affiliation: String,
     val environment: String,
     val application: String
-) :
-    Serializable
+)
 
 data class Deployment(
     val deploymentRef: DeploymentRef,

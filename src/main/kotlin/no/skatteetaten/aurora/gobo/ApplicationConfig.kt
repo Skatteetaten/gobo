@@ -170,7 +170,6 @@ class ApplicationConfig(
         logger.info("Configuring Phil WebClient with base Url={}", philUrl)
         return builder.init()
             .baseUrl(philUrl)
-            .defaultHeader(HttpHeaders.AUTHORIZATION, "$HEADER_AURORA_TOKEN ${sharedSecretReader.secret}")
             .build()
     }
 
