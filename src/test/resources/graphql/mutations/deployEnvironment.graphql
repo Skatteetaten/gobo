@@ -1,0 +1,13 @@
+mutation deployEnvironment($input: DeploymentEnvironmentInput!) {
+  deployEnvironment(input: $input) {
+    deploymentRef {
+      cluster
+      affiliation
+      environment
+      application
+    }
+    deployId
+    timestamp
+    message
+  }
+}

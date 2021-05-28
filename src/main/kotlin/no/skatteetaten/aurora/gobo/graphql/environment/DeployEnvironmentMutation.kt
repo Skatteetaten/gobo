@@ -2,7 +2,7 @@ package no.skatteetaten.aurora.gobo.graphql.environment
 
 import com.expediagroup.graphql.server.operations.Mutation
 import graphql.schema.DataFetchingEnvironment
-import java.util.Date
+import java.time.Instant
 import no.skatteetaten.aurora.gobo.graphql.token
 import no.skatteetaten.aurora.gobo.integration.phil.DeploymentResource
 import no.skatteetaten.aurora.gobo.integration.phil.PhilService
@@ -33,7 +33,7 @@ class DeploymentEnvironmentMutation(
                     it.deploymentRef.application
                 ),
                 deployId = it.deployId,
-                timestamp = it.timestamp,
+                timestamp = it.timestamp.toInstant(),
                 message = it.message
             )
         }
@@ -51,6 +51,6 @@ data class DeploymentRef(
 data class Deployment(
     val deploymentRef: DeploymentRef,
     val deployId: String,
-    val timestamp: Date,
+    val timestamp: Instant,
     val message: String,
 )

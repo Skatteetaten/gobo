@@ -1,6 +1,5 @@
 package no.skatteetaten.aurora.gobo.integration.phil
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import java.util.Date
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import no.skatteetaten.aurora.gobo.RequiresPhil
@@ -18,8 +17,7 @@ import org.springframework.web.reactive.function.client.bodyToMono
 @Service
 @ConditionalOnBean(RequiresPhil::class)
 class PhilServiceReactive(
-    @TargetService(ServiceTypes.PHIL) private val webClient: WebClient,
-    val mapper: ObjectMapper
+    @TargetService(ServiceTypes.PHIL) private val webClient: WebClient
 ) : PhilService {
     override suspend fun deployEnvironment(environment: String, token: String) =
         webClient
