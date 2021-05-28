@@ -6,6 +6,7 @@ import java.util.Date
 import no.skatteetaten.aurora.gobo.graphql.token
 import no.skatteetaten.aurora.gobo.integration.phil.DeploymentResource
 import no.skatteetaten.aurora.gobo.integration.phil.PhilService
+import no.skatteetaten.aurora.gobo.security.checkValidUserToken
 import org.springframework.stereotype.Component
 
 @Component
@@ -16,8 +17,11 @@ class DeploymentEnvironmentMutation(
     suspend fun deployEnvironment(
         input: DeploymentEnvironmentInput,
         dfe: DataFetchingEnvironment
-    ) = philService.deployEnvironment(input.environment, dfe.token())
-        .let { it.toDeploymentEnvironmentResponse() }
+    ): List<Deployment>? {
+        dfe.checkValidUserToken()
+        return philService.deployEnvironment(input.environment, dfe.token())
+            .let { it.toDeploymentEnvironmentResponse() }
+    }
 
     private fun List<DeploymentResource>?.toDeploymentEnvironmentResponse() =
         this?.map {
@@ -46,7 +50,7 @@ data class DeploymentRef(
 
 data class Deployment(
     val deploymentRef: DeploymentRef,
-    val deployId: String = "",
+    val deployId: String,
     val timestamp: Date,
     val message: String,
 )

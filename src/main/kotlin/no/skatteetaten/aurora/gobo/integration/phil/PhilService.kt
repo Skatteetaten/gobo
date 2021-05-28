@@ -7,6 +7,7 @@ import no.skatteetaten.aurora.gobo.RequiresPhil
 import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
 import no.skatteetaten.aurora.gobo.graphql.IntegrationDisabledException
+import no.skatteetaten.aurora.gobo.integration.onStatusNotOk
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.http.HttpHeaders
@@ -26,6 +27,13 @@ class PhilServiceReactive(
             .uri("/environments/$environment")
             .header(HttpHeaders.AUTHORIZATION, "Bearer $token")
             .retrieve()
+            .onStatusNotOk { status, body ->
+                throw PhilIntegrationException(
+                    message = "Request failed when deploying environment",
+                    integrationResponse = body,
+                    status = status
+                )
+            }
             .bodyToMono<List<DeploymentResource>>()
             .awaitFirstOrNull()
 }
