@@ -60,6 +60,10 @@ import uk.q3c.rest.hal.HalLink
 import uk.q3c.rest.hal.HalResource
 import uk.q3c.rest.hal.Links
 import java.time.Instant
+import java.util.Date
+import no.skatteetaten.aurora.gobo.integration.phil.DeploymentRefResource
+import no.skatteetaten.aurora.gobo.integration.phil.DeploymentResource
+import no.skatteetaten.aurora.gobo.integration.phil.DeploymentStatus
 
 val defaultInstant: Instant = Instant.parse("2018-01-01T00:00:01Z")
 
@@ -573,5 +577,15 @@ data class CnameInfoBuilder(val namespace: String = "aurora-demo") {
         routeName = "demo",
         message = "",
         entry = CnameEntry(cname = "demo.localhost.no", host = "host1", ttl = 300)
+    )
+}
+
+class DeploymentResourceBuilder {
+    fun build() = DeploymentResource(
+        deploymentRef = DeploymentRefResource("utv", "aurora", "dev-utv", "gobo"),
+        deployId = "123",
+        timestamp = Date(),
+        message = "",
+        status = DeploymentStatus.SUCCESS
     )
 }

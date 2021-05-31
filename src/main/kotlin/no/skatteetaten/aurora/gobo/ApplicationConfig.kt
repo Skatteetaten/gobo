@@ -28,7 +28,7 @@ import reactor.netty.tcp.SslProvider
 import java.util.concurrent.TimeUnit
 
 enum class ServiceTypes {
-    MOKEY, BOOBER, UNCLEMATT, CANTUS, DBH, SKAP, HERKIMER, NAGHUB, GAVEL
+    MOKEY, BOOBER, UNCLEMATT, CANTUS, DBH, SKAP, HERKIMER, NAGHUB, GAVEL, PHIL
 }
 
 @Target(AnnotationTarget.TYPE, AnnotationTarget.FUNCTION, AnnotationTarget.FIELD, AnnotationTarget.VALUE_PARAMETER)
@@ -60,6 +60,11 @@ class RequiresNagHub
 @Component
 @ConditionalOnProperty("integrations.gavel.url")
 class RequiresGavel
+
+@Order(Ordered.HIGHEST_PRECEDENCE)
+@Component
+@ConditionalOnProperty("integrations.phil.url")
+class RequiresPhil
 
 private val logger = KotlinLogging.logger {}
 
@@ -154,6 +159,19 @@ class ApplicationConfig(
     fun webClientDbh(@Value("\${integrations.dbh.url}") dbhUrl: String, builder: WebClient.Builder) =
         builder.init().baseUrl(dbhUrl)
             .defaultHeader(HttpHeaders.AUTHORIZATION, "$HEADER_AURORA_TOKEN ${sharedSecretReader.secret}").build()
+
+    @ConditionalOnBean(RequiresPhil::class)
+    @Bean
+    @TargetService(ServiceTypes.PHIL)
+    fun webClientPhil(
+        @Value("\${integrations.phil.url}") philUrl: String,
+        builder: WebClient.Builder
+    ): WebClient {
+        logger.info("Configuring Phil WebClient with base Url={}", philUrl)
+        return builder.init()
+            .baseUrl(philUrl)
+            .build()
+    }
 
     fun WebClient.Builder.init() =
         this.defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
