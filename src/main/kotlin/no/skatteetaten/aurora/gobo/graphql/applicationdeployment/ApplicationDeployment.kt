@@ -106,3 +106,5 @@ data class ApplicationDeploymentVersionInput(val applicationDeploymentId: String
 data class ApplicationDeploymentIdInput(val applicationDeploymentId: String)
 
 data class DeleteApplicationDeploymentInput(val namespace: String, val name: String)
+
+data class DeleteApplicationDeploymentsInput(val applicationDeployments: List<ApplicationDeploymentRef>)

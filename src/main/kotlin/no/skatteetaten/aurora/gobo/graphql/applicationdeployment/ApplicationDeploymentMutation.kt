@@ -35,8 +35,15 @@ class ApplicationDeploymentMutation(
         return true
     }
 
+    @Deprecated(message = "use deleteApplicationDeployments instead")
     suspend fun deleteApplicationDeployment(input: DeleteApplicationDeploymentInput, dfe: DataFetchingEnvironment): Boolean {
         applicationDeploymentService.deleteApplicationDeployment(dfe.token(), input)
+        return true
+    }
+
+    // TODO: Redefine to include affiliation in some form
+    suspend fun deleteApplicationDeployments(input: DeleteApplicationDeploymentsInput, dfe: DataFetchingEnvironment): Boolean {
+        applicationDeploymentService.deleteApplicationDeployments(dfe.token(), input)
         return true
     }
 }

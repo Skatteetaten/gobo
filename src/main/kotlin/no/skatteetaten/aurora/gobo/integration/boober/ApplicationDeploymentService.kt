@@ -5,6 +5,7 @@ import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.ApplicationDeploymentRef
 import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.DeleteApplicationDeploymentInput
+import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.DeleteApplicationDeploymentsInput
 import no.skatteetaten.aurora.gobo.graphql.auroraconfig.ApplicationDeploymentSpec
 import org.springframework.stereotype.Service
 
@@ -20,6 +21,20 @@ class ApplicationDeploymentService(private val booberWebClient: BooberWebClient)
         val response = booberWebClient.post<JsonNode>(
             url = "/v1/applicationdeployment/delete",
             token = token,
+            body = mapOf("applicationRefs" to listOf(input))
+        ).responses()
+        logger.debug { "Response from boober delete application deployment: $response" }
+    }
+
+    suspend fun deleteApplicationDeployments(
+        token: String,
+        input: DeleteApplicationDeploymentsInput
+    ) {
+        val response = booberWebClient.post<JsonNode>(
+            url = "/v1/applicationdeployment/delete",
+            token = token,
+            // TODO: Map from DeleteApplicationDeploymentsInput to list of DeleteApplicationDeploymentInput
+            // (i.e. boober expects applicationRefs: List<ApplicationRef> where ApplicationRef(val namespace: String, val name: String)
             body = mapOf("applicationRefs" to listOf(input))
         ).responses()
         logger.debug { "Response from boober delete application deployment: $response" }
