@@ -18,25 +18,24 @@ class ApplicationDeploymentService(private val booberWebClient: BooberWebClient)
         token: String,
         input: DeleteApplicationDeploymentInput
     ) {
-        val response = booberWebClient.post<JsonNode>(
-            url = "/v1/applicationdeployment/delete",
-            token = token,
-            body = mapOf("applicationRefs" to listOf(input))
-        ).responses()
-        logger.debug { "Response from boober delete application deployment: $response" }
+        deleteApplicationDeployments(token, listOf(input))
     }
 
     suspend fun deleteApplicationDeployments(
         token: String,
         input: DeleteApplicationDeploymentsInput
     ) {
-        val response = booberWebClient.post<BooberDeleteResponse>(
+        deleteApplicationDeployments(token, input.toDeleteApplicationDeploymentInputList(token))
+    }
+
+    private suspend fun deleteApplicationDeployments(token: String, applicationRefs: List<DeleteApplicationDeploymentInput>) =
+        booberWebClient.post<BooberDeleteResponse>(
             url = "/v1/applicationdeployment/delete",
             token = token,
-            body = mapOf("applicationRefs" to input.toDeleteApplicationDeploymentInputList(token))
-        ).responses()
-        logger.debug { "Response from boober delete application deployment: $response" }
-    }
+            body = mapOf("applicationRefs" to applicationRefs)
+        ).responses().also {
+            logger.debug { "Response from boober delete application deployment: $it" }
+        }
 
     private suspend fun DeleteApplicationDeploymentsInput.toDeleteApplicationDeploymentInputList(token: String):
         List<DeleteApplicationDeploymentInput> = booberWebClient.post<BooberExistsResponse>(

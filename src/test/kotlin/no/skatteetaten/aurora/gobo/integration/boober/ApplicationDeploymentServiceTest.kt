@@ -31,7 +31,12 @@ class ApplicationDeploymentServiceTest {
 
     @Test
     fun `Delete application deployments success`() {
-        val requests = server.executeBlocking(Response(items = listOf("abc"))) {
+        val booberResponse = BooberDeleteResponse(
+            success = true,
+            reason = "abc",
+            applicationRef = BooberApplicationRef("namespace", "name")
+        )
+        val requests = server.executeBlocking(Response(items = listOf(booberResponse))) {
             applicationDeploymentService.deleteApplicationDeployment("token", input)
         }
         assertThat(requests.first()?.path).isEqualTo("/v1/applicationdeployment/delete")
