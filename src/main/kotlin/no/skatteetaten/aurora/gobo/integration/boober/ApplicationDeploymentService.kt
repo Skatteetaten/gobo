@@ -30,15 +30,21 @@ class ApplicationDeploymentService(private val booberWebClient: BooberWebClient)
         token: String,
         input: DeleteApplicationDeploymentsInput
     ) {
-        val response = booberWebClient.post<JsonNode>(
+        val response = booberWebClient.post<BooberDeleteResponse>(
             url = "/v1/applicationdeployment/delete",
             token = token,
-            // TODO: Map from DeleteApplicationDeploymentsInput to list of DeleteApplicationDeploymentInput
-            // (i.e. boober expects applicationRefs: List<ApplicationRef> where ApplicationRef(val namespace: String, val name: String)
-            body = mapOf("applicationRefs" to listOf(input))
+            body = mapOf("applicationRefs" to input.toDeleteApplicationDeploymentInputList(token))
         ).responses()
         logger.debug { "Response from boober delete application deployment: $response" }
     }
+
+    private suspend fun DeleteApplicationDeploymentsInput.toDeleteApplicationDeploymentInputList(token: String):
+        List<DeleteApplicationDeploymentInput> = booberWebClient.post<BooberExistsResponse>(
+            url = "/v1/applicationdeployment/{auroraConfigName}",
+            params = mapOf("auroraConfigName" to this.auroraConfigName),
+            body = mapOf("adr" to this.applicationDeployments),
+            token = token
+        ).responses().map { DeleteApplicationDeploymentInput(it.applicationRef.namespace, it.applicationRef.name) }
 
     suspend fun deploy(
         token: String,
@@ -101,3 +107,18 @@ data class AuroraConfigRefResource(
     val refName: String,
     val resolvedRef: String
 )
+
+data class BooberExistsResponse(
+    val applicationRef: BooberApplicationRef,
+    val exists: Boolean,
+    val success: Boolean,
+    val message: String
+)
+
+data class BooberDeleteResponse(
+    val applicationRef: BooberApplicationRef,
+    val success: Boolean,
+    val reason: String
+)
+
+data class BooberApplicationRef(val namespace: String, val name: String)

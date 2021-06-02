@@ -41,7 +41,7 @@ class ApplicationDeploymentMutation(
         return true
     }
 
-    // TODO: Redefine to include affiliation in some form
+    // TODO: Return result for every application, not only a singular Boolean (needs design)
     suspend fun deleteApplicationDeployments(input: DeleteApplicationDeploymentsInput, dfe: DataFetchingEnvironment): Boolean {
         applicationDeploymentService.deleteApplicationDeployments(dfe.token(), input)
         return true
