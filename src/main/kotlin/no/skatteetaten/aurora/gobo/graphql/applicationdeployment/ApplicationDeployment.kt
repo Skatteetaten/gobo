@@ -111,3 +111,9 @@ data class DeleteApplicationDeploymentsInput(
     val auroraConfigName: String,
     val applicationDeployments: List<ApplicationDeploymentRef>
 )
+
+data class DeleteApplicationDeploymentsResult(
+    val namespace: String,
+    val name: String,
+    val success: Boolean
+)

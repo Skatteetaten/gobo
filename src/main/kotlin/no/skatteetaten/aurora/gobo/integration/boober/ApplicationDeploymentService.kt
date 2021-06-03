@@ -24,9 +24,8 @@ class ApplicationDeploymentService(private val booberWebClient: BooberWebClient)
     suspend fun deleteApplicationDeployments(
         token: String,
         input: DeleteApplicationDeploymentsInput
-    ) {
+    ): List<BooberDeleteResponse> =
         deleteApplicationDeployments(token, input.toDeleteApplicationDeploymentInputList(token))
-    }
 
     private suspend fun deleteApplicationDeployments(token: String, applicationRefs: List<DeleteApplicationDeploymentInput>) =
         booberWebClient.post<BooberDeleteResponse>(

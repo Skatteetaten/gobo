@@ -1,9 +1,12 @@
 package no.skatteetaten.aurora.gobo.graphql.applicationdeployment
 
 import com.expediagroup.graphql.server.operations.Mutation
+import graphql.GraphqlErrorBuilder
+import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
 import no.skatteetaten.aurora.gobo.integration.boober.ApplicationDeploymentService
 import no.skatteetaten.aurora.gobo.graphql.token
+import no.skatteetaten.aurora.gobo.integration.boober.BooberDeleteResponse
 import no.skatteetaten.aurora.gobo.service.ApplicationUpgradeService
 import org.springframework.stereotype.Component
 
@@ -41,9 +44,34 @@ class ApplicationDeploymentMutation(
         return true
     }
 
-    // TODO: Return result for every application, not only a singular Boolean (needs design)
-    suspend fun deleteApplicationDeployments(input: DeleteApplicationDeploymentsInput, dfe: DataFetchingEnvironment): Boolean {
-        applicationDeploymentService.deleteApplicationDeployments(dfe.token(), input)
-        return true
+    suspend fun deleteApplicationDeployments(
+        input: DeleteApplicationDeploymentsInput,
+        dfe: DataFetchingEnvironment
+    ): DataFetcherResult<List<DeleteApplicationDeploymentsResult>> {
+        val response = applicationDeploymentService.deleteApplicationDeployments(dfe.token(), input)
+        return response.toDataFetcherResult()
     }
+
+    private suspend fun List<BooberDeleteResponse>.toDataFetcherResult(): DataFetcherResult<List<DeleteApplicationDeploymentsResult>> =
+        DataFetcherResult.newResult<List<DeleteApplicationDeploymentsResult>>()
+            .data(
+                this.filter { it.success }
+                    .map {
+                        DeleteApplicationDeploymentsResult(
+                            it.applicationRef.namespace,
+                            it.applicationRef.name,
+                            it.success
+                        )
+                    }
+            )
+            .errors(
+                this.filter { !it.success }
+                    .map {
+                        GraphqlErrorBuilder.newError()
+                            .message(it.reason)
+                            .extensions(mapOf("resultObject" to it))
+                            .build()
+                    }
+            )
+            .build()
 }
