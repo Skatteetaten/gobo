@@ -47,10 +47,9 @@ class ApplicationDeploymentMutation(
     suspend fun deleteApplicationDeployments(
         input: DeleteApplicationDeploymentsInput,
         dfe: DataFetchingEnvironment
-    ): DataFetcherResult<List<DeleteApplicationDeploymentsResult>> {
-        val response = applicationDeploymentService.deleteApplicationDeployments(dfe.token(), input)
-        return response.toDataFetcherResult()
-    }
+    ): DataFetcherResult<List<DeleteApplicationDeploymentsResult>> =
+        applicationDeploymentService.deleteApplicationDeployments(dfe.token(), input)
+            .toDataFetcherResult()
 
     private suspend fun List<BooberDeleteResponse>.toDataFetcherResult(): DataFetcherResult<List<DeleteApplicationDeploymentsResult>> =
         DataFetcherResult.newResult<List<DeleteApplicationDeploymentsResult>>()
