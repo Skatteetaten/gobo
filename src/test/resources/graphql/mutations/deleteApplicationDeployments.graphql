@@ -1,0 +1,7 @@
+mutation deleteApplicationDeployments($input: DeleteApplicationDeploymentsInput!) {
+    deleteApplicationDeployments(input: $input) {
+      namespace
+      name
+      success
+    }
+}
