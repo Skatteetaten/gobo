@@ -5,7 +5,6 @@ import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.ApplicationDeploymentRef
 import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.DeleteApplicationDeploymentInput
-import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.DeleteApplicationDeploymentsInput
 import no.skatteetaten.aurora.gobo.graphql.auroraconfig.ApplicationDeploymentSpec
 import org.springframework.stereotype.Service
 
@@ -19,13 +18,7 @@ class ApplicationDeploymentService(private val booberWebClient: BooberWebClient)
         input: DeleteApplicationDeploymentInput
     ) = deleteApplicationDeployments(token, listOf(input))
 
-    suspend fun deleteApplicationDeployments(
-        token: String,
-        input: DeleteApplicationDeploymentsInput
-    ): List<BooberDeleteResponse> =
-        deleteApplicationDeployments(token, input.toDeleteApplicationDeploymentInputList(token))
-
-    private suspend fun deleteApplicationDeployments(token: String, applicationRefs: List<DeleteApplicationDeploymentInput>) =
+    suspend fun deleteApplicationDeployments(token: String, applicationRefs: List<DeleteApplicationDeploymentInput>) =
         booberWebClient.post<BooberDeleteResponse>(
             url = "/v1/applicationdeployment/delete",
             token = token,
@@ -33,14 +26,6 @@ class ApplicationDeploymentService(private val booberWebClient: BooberWebClient)
         ).responses().also {
             logger.debug { "Response from boober delete application deployment: $it" }
         }
-
-    private suspend fun DeleteApplicationDeploymentsInput.toDeleteApplicationDeploymentInputList(token: String):
-        List<DeleteApplicationDeploymentInput> = booberWebClient.post<BooberExistsResponse>(
-            url = "/v1/applicationdeployment/{auroraConfigName}",
-            params = mapOf("auroraConfigName" to this.auroraConfigName),
-            body = mapOf("adr" to this.applicationDeployments),
-            token = token
-        ).responses().map { DeleteApplicationDeploymentInput(it.applicationRef.namespace, it.applicationRef.name) }
 
     suspend fun deploy(
         token: String,
