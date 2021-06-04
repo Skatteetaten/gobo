@@ -17,9 +17,7 @@ class ApplicationDeploymentService(private val booberWebClient: BooberWebClient)
     suspend fun deleteApplicationDeployment(
         token: String,
         input: DeleteApplicationDeploymentInput
-    ) {
-        deleteApplicationDeployments(token, listOf(input))
-    }
+    ) = deleteApplicationDeployments(token, listOf(input))
 
     suspend fun deleteApplicationDeployments(
         token: String,

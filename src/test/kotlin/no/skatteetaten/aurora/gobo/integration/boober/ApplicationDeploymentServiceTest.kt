@@ -3,10 +3,12 @@ package no.skatteetaten.aurora.gobo.integration.boober
 import assertk.all
 import assertk.assertThat
 import assertk.assertions.contains
+import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFailure
 import assertk.assertions.isInstanceOf
 import assertk.assertions.isNotNull
+import assertk.assertions.isTrue
 import assertk.assertions.messageContains
 import assertk.assertions.prop
 import no.skatteetaten.aurora.gobo.integration.Response
@@ -36,11 +38,13 @@ class ApplicationDeploymentServiceTest {
             reason = "abc",
             applicationRef = BooberApplicationRef("namespace", "name")
         )
-        val requests = server.executeBlocking(Response(items = listOf(booberResponse))) {
-            applicationDeploymentService.deleteApplicationDeployment("token", input)
-        }
-        assertThat(requests.first()?.path).isEqualTo("/v1/applicationdeployment/delete")
-        assertThat(requests.first()?.bodyAsString()).isNotNull().contains("applicationRefs")
+        val request = server.executeBlocking(Response(booberResponse)) {
+            val responses = applicationDeploymentService.deleteApplicationDeployment("token", input)
+            assertThat(responses).hasSize(1)
+            assertThat(responses.first().success).isTrue()
+        }.first()!!
+        assertThat(request.path).isEqualTo("/v1/applicationdeployment/delete")
+        assertThat(request.bodyAsString()).isNotNull().contains("applicationRefs")
     }
 
     @Test
