@@ -1,3 +1,3 @@
-mutation deleteApplicationDeployment($input: DeleteApplicationDeploymentInput!){
+mutation deleteApplicationDeployment($input: DeleteApplicationDeploymentInput!) {
     deleteApplicationDeployment(input: $input)
 }
