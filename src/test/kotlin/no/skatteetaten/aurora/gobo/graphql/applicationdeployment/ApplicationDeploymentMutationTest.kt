@@ -2,12 +2,19 @@ package no.skatteetaten.aurora.gobo.graphql.applicationdeployment
 
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.coEvery
+import java.time.Instant
 import no.skatteetaten.aurora.gobo.integration.boober.ApplicationDeploymentService
 import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithDbhAndSkap
 import no.skatteetaten.aurora.gobo.graphql.graphqlData
 import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.graphql.isTrue
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
+import no.skatteetaten.aurora.gobo.integration.boober.BooberApplicationRef
+import no.skatteetaten.aurora.gobo.integration.boober.BooberDeleteResponse
+import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentResource
+import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
+import no.skatteetaten.aurora.gobo.integration.mokey.StatusResource
+import no.skatteetaten.aurora.gobo.integration.mokey.VersionResource
 import no.skatteetaten.aurora.gobo.service.ApplicationUpgradeService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -32,16 +39,31 @@ class ApplicationDeploymentMutationTest : GraphQLTestWithDbhAndSkap() {
     @Value("classpath:graphql/mutations/deleteApplicationDeployment.graphql")
     private lateinit var deleteApplicationDeploymentMutation: Resource
 
+    @Value("classpath:graphql/mutations/deleteApplicationDeployments.graphql")
+    private lateinit var deleteApplicationDeploymentsMutation: Resource
+
     @MockkBean(relaxed = true)
     private lateinit var applicationUpgradeService: ApplicationUpgradeService
 
     @MockkBean(relaxed = true)
     private lateinit var applicationDeploymentService: ApplicationDeploymentService
 
+    @MockkBean(relaxed = true)
+    private lateinit var applicationService: ApplicationService
+
     @BeforeEach
     fun setUp() {
         coEvery { applicationUpgradeService.upgrade(any(), any(), any()) } returns "123"
         coEvery { applicationUpgradeService.deployCurrentVersion(any(), any()) } returns "123"
+        coEvery { applicationDeploymentService.deleteApplicationDeployments(any(), any()) } returns listOf(
+            BooberDeleteResponse(BooberApplicationRef("aurora-utv", "gobo"), true, "")
+        )
+        coEvery { applicationService.getApplicationDeployments(any()) } returns listOf(
+            ApplicationDeploymentResource(
+                "", "gobo", "aurora", "utv", "aurora-utv", StatusResource("ok", null, emptyList(), emptyList()),
+                VersionResource("", null, null), null, Instant.now(), null
+            )
+        )
     }
 
     @Test
@@ -111,6 +133,21 @@ class ApplicationDeploymentMutationTest : GraphQLTestWithDbhAndSkap() {
             .expectStatus().isOk
             .expectBody()
             .graphqlData("deleteApplicationDeployment").isTrue()
+            .graphqlDoesNotContainErrors()
+    }
+
+    @Test
+    fun `Delete application deployments`() {
+        val input =
+            DeleteApplicationDeploymentsInput(
+                "aurora",
+                listOf(ApplicationDeploymentRef("dev-utv", "gobo"))
+            )
+
+        webTestClient.queryGraphQL(deleteApplicationDeploymentsMutation, input, "test-token")
+            .expectStatus().isOk
+            .expectBody()
+            .graphqlData("deleteApplicationDeployments[0].namespace").isEqualTo("aurora-utv")
             .graphqlDoesNotContainErrors()
     }
 }

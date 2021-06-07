@@ -16,14 +16,16 @@ class ApplicationDeploymentService(private val booberWebClient: BooberWebClient)
     suspend fun deleteApplicationDeployment(
         token: String,
         input: DeleteApplicationDeploymentInput
-    ) {
-        val response = booberWebClient.post<JsonNode>(
+    ) = deleteApplicationDeployments(token, listOf(input))
+
+    suspend fun deleteApplicationDeployments(token: String, applicationRefs: List<DeleteApplicationDeploymentInput>) =
+        booberWebClient.post<BooberDeleteResponse>(
             url = "/v1/applicationdeployment/delete",
             token = token,
-            body = mapOf("applicationRefs" to listOf(input))
-        ).responses()
-        logger.debug { "Response from boober delete application deployment: $response" }
-    }
+            body = mapOf("applicationRefs" to applicationRefs)
+        ).responses().also {
+            logger.debug { "Response from boober delete application deployment: $it" }
+        }
 
     suspend fun deploy(
         token: String,
@@ -86,3 +88,18 @@ data class AuroraConfigRefResource(
     val refName: String,
     val resolvedRef: String
 )
+
+data class BooberExistsResponse(
+    val applicationRef: BooberApplicationRef,
+    val exists: Boolean,
+    val success: Boolean,
+    val message: String
+)
+
+data class BooberDeleteResponse(
+    val applicationRef: BooberApplicationRef,
+    val success: Boolean,
+    val reason: String
+)
+
+data class BooberApplicationRef(val namespace: String, val name: String)
