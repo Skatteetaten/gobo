@@ -16,7 +16,7 @@ class DeleteEnvironmentMutation(
     suspend fun deleteEnvironment(
         input: DeleteEnvironmentInput,
         dfe: DataFetchingEnvironment
-    ): List<DeleteEnvironmentResult>? {
+    ): List<DeleteEnvironmentResponse>? {
         dfe.checkValidUserToken()
         return philService.deleteEnvironment(input.environment, dfe.token())
             .let { it.toDeleteEnvironmentResult() }
@@ -24,7 +24,7 @@ class DeleteEnvironmentMutation(
 
     private fun List<DeletionResource>?.toDeleteEnvironmentResult() =
         this?.map {
-            DeleteEnvironmentResult(
+            DeleteEnvironmentResponse(
                 deploymentRef = DeploymentRef(
                     it.deploymentRef.cluster,
                     it.deploymentRef.affiliation,
@@ -40,7 +40,7 @@ class DeleteEnvironmentMutation(
 
 data class DeleteEnvironmentInput(val environment: String)
 
-data class DeleteEnvironmentResult(
+data class DeleteEnvironmentResponse(
     val deploymentRef: DeploymentRef,
     val timestamp: Instant,
     val message: String?,

@@ -10,7 +10,7 @@ import no.skatteetaten.aurora.gobo.security.checkValidUserToken
 import org.springframework.stereotype.Component
 
 @Component
-class DeploymentEnvironmentMutation(
+class DeployEnvironmentMutation(
     private val philService: PhilService,
 ) : Mutation {
 

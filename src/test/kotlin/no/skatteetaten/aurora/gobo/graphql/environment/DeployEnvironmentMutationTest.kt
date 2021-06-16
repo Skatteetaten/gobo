@@ -13,8 +13,8 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
 
-@Import(DeploymentEnvironmentMutation::class)
-class DeploymentEnvironmentMutationTest : GraphQLTestWithDbhAndSkap() {
+@Import(DeployEnvironmentMutation::class)
+class DeployEnvironmentMutationTest : GraphQLTestWithDbhAndSkap() {
     @Value("classpath:graphql/mutations/deployEnvironment.graphql")
     private lateinit var deployEnvironmentMutation: Resource
 
