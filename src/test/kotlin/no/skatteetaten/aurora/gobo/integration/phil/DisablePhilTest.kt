@@ -9,20 +9,20 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 
 @SpringBootTest(
-    classes = [RequiresPhil::class, PhilServiceReactive::class, PhilServiceDisabled::class],
+    classes = [RequiresPhil::class, EnvironmentServiceReactive::class, PhilDisabled::class],
     properties = ["integrations.phil.url=false"]
 )
-class DisablePhilServiceTest {
+class DisablePhilTest {
 
     @Autowired(required = false)
-    private var philService: PhilServiceReactive? = null
+    private var philEnvironmentService: EnvironmentServiceReactive? = null
 
     @Autowired(required = false)
-    private var philServiceDisabled: PhilServiceDisabled? = null
+    private var philServiceDisabled: PhilDisabled? = null
 
     @Test
     fun `Disable Phil given no url configured`() {
-        assertThat(philService).isNull()
+        assertThat(philEnvironmentService).isNull()
         assertThat(philServiceDisabled).isNotNull()
     }
 }

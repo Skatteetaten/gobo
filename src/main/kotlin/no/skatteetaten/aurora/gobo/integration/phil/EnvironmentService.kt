@@ -16,9 +16,9 @@ import org.springframework.web.reactive.function.client.bodyToMono
 
 @Service
 @ConditionalOnBean(RequiresPhil::class)
-class PhilServiceReactive(
+class EnvironmentServiceReactive(
     @TargetService(ServiceTypes.PHIL) private val webClient: WebClient
-) : PhilService {
+) : EnvironmentService {
     override suspend fun deployEnvironment(environment: String, token: String) =
         webClient
             .post()
@@ -52,7 +52,7 @@ class PhilServiceReactive(
             .awaitFirstOrNull()
 }
 
-interface PhilService {
+interface EnvironmentService {
     suspend fun deployEnvironment(environment: String, token: String): List<DeploymentResource>? =
         integrationDisabled()
 
@@ -65,7 +65,7 @@ interface PhilService {
 
 @Service
 @ConditionalOnMissingBean(RequiresPhil::class)
-class PhilServiceDisabled : PhilService
+class PhilDisabled : EnvironmentService
 
 data class DeploymentRefResource(
     val cluster: String,

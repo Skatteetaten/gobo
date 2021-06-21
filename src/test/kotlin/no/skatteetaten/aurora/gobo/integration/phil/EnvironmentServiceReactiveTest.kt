@@ -15,11 +15,11 @@ import org.junit.jupiter.api.Test
 import org.springframework.http.HttpHeaders
 import org.springframework.web.reactive.function.client.WebClient
 
-class PhilServiceReactiveTest {
+class EnvironmentServiceReactiveTest {
 
     private val server = MockWebServer()
 
-    private val service = PhilServiceReactive(WebClient.create(server.url))
+    private val service = EnvironmentServiceReactive(WebClient.create(server.url))
 
     @Test
     fun `Deploy environment`() {

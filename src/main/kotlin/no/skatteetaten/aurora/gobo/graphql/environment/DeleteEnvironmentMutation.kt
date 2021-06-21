@@ -5,20 +5,20 @@ import graphql.schema.DataFetchingEnvironment
 import java.time.Instant
 import no.skatteetaten.aurora.gobo.graphql.token
 import no.skatteetaten.aurora.gobo.integration.phil.DeletionResource
-import no.skatteetaten.aurora.gobo.integration.phil.PhilService
+import no.skatteetaten.aurora.gobo.integration.phil.EnvironmentService
 import no.skatteetaten.aurora.gobo.security.checkValidUserToken
 import org.springframework.stereotype.Component
 
 @Component
 class DeleteEnvironmentMutation(
-    private val philService: PhilService
+    private val environmentService: EnvironmentService
 ) : Mutation {
     suspend fun deleteEnvironment(
         input: DeleteEnvironmentInput,
         dfe: DataFetchingEnvironment
     ): List<DeleteEnvironmentResponse>? {
         dfe.checkValidUserToken()
-        return philService.deleteEnvironment(input.environment, dfe.token())
+        return environmentService.deleteEnvironment(input.environment, dfe.token())
             .let { it.toDeleteEnvironmentResult() }
     }
 

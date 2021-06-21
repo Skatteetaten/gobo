@@ -5,13 +5,13 @@ import graphql.schema.DataFetchingEnvironment
 import java.time.Instant
 import no.skatteetaten.aurora.gobo.graphql.token
 import no.skatteetaten.aurora.gobo.integration.phil.DeploymentResource
-import no.skatteetaten.aurora.gobo.integration.phil.PhilService
+import no.skatteetaten.aurora.gobo.integration.phil.EnvironmentService
 import no.skatteetaten.aurora.gobo.security.checkValidUserToken
 import org.springframework.stereotype.Component
 
 @Component
 class DeployEnvironmentMutation(
-    private val philService: PhilService,
+    private val environmentService: EnvironmentService,
 ) : Mutation {
 
     suspend fun deployEnvironment(
@@ -19,7 +19,7 @@ class DeployEnvironmentMutation(
         dfe: DataFetchingEnvironment
     ): List<Deployment>? {
         dfe.checkValidUserToken()
-        return philService.deployEnvironment(input.environment, dfe.token())
+        return environmentService.deployEnvironment(input.environment, dfe.token())
             .let { it.toDeploymentEnvironmentResponse() }
     }
 
