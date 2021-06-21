@@ -23,7 +23,7 @@ class DeleteEnvironmentMutationTest : GraphQLTestWithDbhAndSkap() {
     private lateinit var environmentService: EnvironmentService
 
     @Test
-    fun `Deploy environment`() {
+    fun `Delete environment`() {
         coEvery { environmentService.deleteEnvironment(any(), any()) } returns listOf(DeletionResourceBuilder().build())
 
         webTestClient.queryGraphQL(deleteEnvironmentMutation, DeleteEnvironmentInput("dev-utv"), "test-token")
