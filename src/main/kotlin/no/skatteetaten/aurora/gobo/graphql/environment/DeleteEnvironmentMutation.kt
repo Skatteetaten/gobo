@@ -4,53 +4,45 @@ import com.expediagroup.graphql.server.operations.Mutation
 import graphql.schema.DataFetchingEnvironment
 import java.time.Instant
 import no.skatteetaten.aurora.gobo.graphql.token
-import no.skatteetaten.aurora.gobo.integration.phil.DeploymentResource
+import no.skatteetaten.aurora.gobo.integration.phil.DeletionResource
 import no.skatteetaten.aurora.gobo.integration.phil.EnvironmentService
 import no.skatteetaten.aurora.gobo.security.checkValidUserToken
 import org.springframework.stereotype.Component
 
 @Component
-class DeployEnvironmentMutation(
-    private val environmentService: EnvironmentService,
+class DeleteEnvironmentMutation(
+    private val environmentService: EnvironmentService
 ) : Mutation {
-
-    suspend fun deployEnvironment(
-        input: DeploymentEnvironmentInput,
+    suspend fun deleteEnvironment(
+        input: DeleteEnvironmentInput,
         dfe: DataFetchingEnvironment
-    ): List<Deployment>? {
+    ): List<DeleteEnvironmentResponse>? {
         dfe.checkValidUserToken()
-        return environmentService.deployEnvironment(input.environment, dfe.token())
-            .let { it.toDeploymentEnvironmentResponse() }
+        return environmentService.deleteEnvironment(input.environment, dfe.token())
+            .let { it.toDeleteEnvironmentResult() }
     }
 
-    private fun List<DeploymentResource>?.toDeploymentEnvironmentResponse() =
+    private fun List<DeletionResource>?.toDeleteEnvironmentResult() =
         this?.map {
-            Deployment(
+            DeleteEnvironmentResponse(
                 deploymentRef = DeploymentRef(
                     it.deploymentRef.cluster,
                     it.deploymentRef.affiliation,
                     it.deploymentRef.environment,
                     it.deploymentRef.application
                 ),
-                deployId = it.deployId,
                 timestamp = it.timestamp.toInstant(),
-                message = it.message
+                message = it.message,
+                deleted = it.deleted
             )
         }
 }
 
-data class DeploymentEnvironmentInput(val environment: String)
+data class DeleteEnvironmentInput(val environment: String)
 
-data class DeploymentRef(
-    val cluster: String,
-    val affiliation: String,
-    val environment: String,
-    val application: String
-)
-
-data class Deployment(
+data class DeleteEnvironmentResponse(
     val deploymentRef: DeploymentRef,
-    val deployId: String,
     val timestamp: Instant,
-    val message: String,
+    val message: String?,
+    val deleted: Boolean
 )

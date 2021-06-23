@@ -16,9 +16,9 @@ import org.springframework.web.reactive.function.client.bodyToMono
 
 @Service
 @ConditionalOnBean(RequiresPhil::class)
-class PhilServiceReactive(
+class EnvironmentServiceReactive(
     @TargetService(ServiceTypes.PHIL) private val webClient: WebClient
-) : PhilService {
+) : EnvironmentService {
     override suspend fun deployEnvironment(environment: String, token: String) =
         webClient
             .post()
@@ -34,10 +34,29 @@ class PhilServiceReactive(
             }
             .bodyToMono<List<DeploymentResource>>()
             .awaitFirstOrNull()
+
+    override suspend fun deleteEnvironment(environment: String, token: String) =
+        webClient
+            .delete()
+            .uri("/environments/$environment")
+            .header(HttpHeaders.AUTHORIZATION, "Bearer $token")
+            .retrieve()
+            .onStatusNotOk { status, body ->
+                throw PhilIntegrationException(
+                    message = "Request failed when deploying environment",
+                    integrationResponse = body,
+                    status = status
+                )
+            }
+            .bodyToMono<List<DeletionResource>>()
+            .awaitFirstOrNull()
 }
 
-interface PhilService {
+interface EnvironmentService {
     suspend fun deployEnvironment(environment: String, token: String): List<DeploymentResource>? =
+        integrationDisabled()
+
+    suspend fun deleteEnvironment(environment: String, token: String): List<DeletionResource>? =
         integrationDisabled()
 
     private fun integrationDisabled(): Nothing =
@@ -46,7 +65,7 @@ interface PhilService {
 
 @Service
 @ConditionalOnMissingBean(RequiresPhil::class)
-class PhilServiceDisabled : PhilService
+class PhilDisabled : EnvironmentService
 
 data class DeploymentRefResource(
     val cluster: String,
@@ -67,3 +86,10 @@ enum class DeploymentStatus {
     SUCCESS,
     FAIL
 }
+
+data class DeletionResource(
+    val deploymentRef: DeploymentRefResource,
+    val timestamp: Date,
+    val message: String?,
+    val deleted: Boolean
+)

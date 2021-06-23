@@ -61,6 +61,7 @@ import uk.q3c.rest.hal.HalResource
 import uk.q3c.rest.hal.Links
 import java.time.Instant
 import java.util.Date
+import no.skatteetaten.aurora.gobo.integration.phil.DeletionResource
 import no.skatteetaten.aurora.gobo.integration.phil.DeploymentRefResource
 import no.skatteetaten.aurora.gobo.integration.phil.DeploymentResource
 import no.skatteetaten.aurora.gobo.integration.phil.DeploymentStatus
@@ -587,5 +588,14 @@ class DeploymentResourceBuilder {
         timestamp = Date(),
         message = "",
         status = DeploymentStatus.SUCCESS
+    )
+}
+
+class DeletionResourceBuilder {
+    fun build() = DeletionResource(
+        deploymentRef = DeploymentRefResource("utv", "aurora", "dev-utv", "gobo"),
+        timestamp = Date(),
+        message = "",
+        deleted = true
     )
 }

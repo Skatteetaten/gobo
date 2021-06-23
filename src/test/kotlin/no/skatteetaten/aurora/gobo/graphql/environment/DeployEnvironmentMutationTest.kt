@@ -7,23 +7,23 @@ import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithDbhAndSkap
 import no.skatteetaten.aurora.gobo.graphql.graphqlDataWithPrefix
 import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
-import no.skatteetaten.aurora.gobo.integration.phil.PhilService
+import no.skatteetaten.aurora.gobo.integration.phil.EnvironmentService
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
 
-@Import(DeploymentEnvironmentMutation::class)
-class DeploymentEnvironmentMutationTest : GraphQLTestWithDbhAndSkap() {
+@Import(DeployEnvironmentMutation::class)
+class DeployEnvironmentMutationTest : GraphQLTestWithDbhAndSkap() {
     @Value("classpath:graphql/mutations/deployEnvironment.graphql")
     private lateinit var deployEnvironmentMutation: Resource
 
     @MockkBean
-    private lateinit var philService: PhilService
+    private lateinit var environmentService: EnvironmentService
 
     @Test
     fun `Deploy environment`() {
-        coEvery { philService.deployEnvironment(any(), any()) } returns listOf(DeploymentResourceBuilder().build())
+        coEvery { environmentService.deployEnvironment(any(), any()) } returns listOf(DeploymentResourceBuilder().build())
 
         webTestClient.queryGraphQL(deployEnvironmentMutation, DeploymentEnvironmentInput("dev-utv"), "test-token")
             .expectStatus().isOk
