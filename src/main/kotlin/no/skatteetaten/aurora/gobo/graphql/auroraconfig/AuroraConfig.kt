@@ -44,6 +44,8 @@ data class AuroraConfig(
     }
 }
 
+data class ApplicationDeploymentSpecPermission(val role: String, val subjects: List<String>?)
+
 data class ApplicationDeploymentSpec(
     @GraphQLIgnore
     val rawJsonValueWithDefaults: JsonNode
@@ -60,6 +62,14 @@ data class ApplicationDeploymentSpec(
     val replicas = rawJsonValueWithDefaults.int("/replicas/value")
     val paused = rawJsonValueWithDefaults.boolean("/pause/value")
     val affiliation = rawJsonValueWithDefaults.text("/affiliation/value")
+    val permissions = rawJsonValueWithDefaults.let {
+        kotlin.runCatching {
+            JsonPath.read<Map<String, Map<String, String>>>(it.toString(), "\$.permissions").map { permission ->
+                val values = permission.value["value"]?.split(" ")
+                ApplicationDeploymentSpecPermission(permission.key, values)
+            }
+        }.getOrNull()
+    }
 
     private fun JsonNode.expression(path: String) =
         runCatching { JsonPath.read<List<String>>(this.toString(), path).first() }.getOrNull()
