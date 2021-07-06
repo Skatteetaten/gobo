@@ -9,6 +9,7 @@ import no.skatteetaten.aurora.gobo.graphql.applicationdeploymentdetails.Applicat
 import no.skatteetaten.aurora.gobo.graphql.imagerepository.ImageRepository
 import no.skatteetaten.aurora.gobo.graphql.imagerepository.ImageTag
 import no.skatteetaten.aurora.gobo.graphql.load
+import no.skatteetaten.aurora.gobo.graphql.loadValue
 import no.skatteetaten.aurora.gobo.graphql.namespace.Namespace
 import no.skatteetaten.aurora.gobo.graphql.route.Route
 import java.time.Instant
@@ -39,8 +40,8 @@ data class ApplicationDeployment(
     val imageRepository: ImageRepository?
 ) {
 
-    suspend fun details(dfe: DataFetchingEnvironment) =
-        dfe.load<String, ApplicationDeploymentDetails>(id)
+    fun details(dfe: DataFetchingEnvironment) =
+        dfe.loadValue<String, ApplicationDeploymentDetails>(id)
 
     suspend fun route(dfe: DataFetchingEnvironment) =
         dfe.load<ApplicationDeployment, Route>(this)

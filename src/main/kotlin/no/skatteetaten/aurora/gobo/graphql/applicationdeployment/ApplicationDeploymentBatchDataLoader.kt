@@ -14,12 +14,10 @@ class ApplicationDeploymentBatchDataLoader(private val applicationService: Appli
         context: GoboGraphQLContext
     ): Map<String, List<ApplicationDeployment>> {
         val resources = applicationService.getApplicationDeploymentsForDatabases(context.token(), databaseIds.toList())
-        return databaseIds.map { id ->
-            val ads = resources.filter { it.identifier == id }.flatMap {
+        return databaseIds.associateWith { id ->
+            resources.filter { it.identifier == id }.flatMap {
                 it.applicationDeployments.map { ad -> ApplicationDeployment.create(ad) }
             }
-
-            id to ads
-        }.toMap()
+        }
     }
 }

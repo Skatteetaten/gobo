@@ -6,7 +6,7 @@ import no.skatteetaten.aurora.gobo.ApplicationDeploymentDetailsBuilder
 import no.skatteetaten.aurora.gobo.ApplicationResourceBuilder
 import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithDbhAndSkap
 import no.skatteetaten.aurora.gobo.graphql.affiliation.AffiliationQuery
-import no.skatteetaten.aurora.gobo.graphql.applicationdeploymentdetails.ApplicationDeploymentDetailsDataLoader
+import no.skatteetaten.aurora.gobo.graphql.applicationdeploymentdetails.ApplicationDeploymentDetailsBatchDataLoader
 import no.skatteetaten.aurora.gobo.graphql.graphqlData
 import no.skatteetaten.aurora.gobo.graphql.graphqlDataWithPrefix
 import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
@@ -26,7 +26,7 @@ import org.springframework.core.io.Resource
     AffiliationQuery::class,
     ApplicationQuery::class,
     PermissionDataLoader::class,
-    ApplicationDeploymentDetailsDataLoader::class,
+    ApplicationDeploymentDetailsBatchDataLoader::class,
     ApplicationBatchDataLoader::class
 )
 class ApplicationQueryTest : GraphQLTestWithDbhAndSkap() {

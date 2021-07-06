@@ -1,7 +1,7 @@
 package no.skatteetaten.aurora.gobo.graphql.auroraapimetadata
 
 import graphql.schema.DataFetchingEnvironment
-import no.skatteetaten.aurora.gobo.graphql.loadOrThrow
+import no.skatteetaten.aurora.gobo.graphql.loadValue
 import no.skatteetaten.aurora.gobo.integration.boober.ConfigNames
 
 data class AuroraApiMetadata(
@@ -11,9 +11,8 @@ data class AuroraApiMetadata(
         "Please use affiliations instead",
         ReplaceWith("{affiliations(includeUndeployed: true){ edges { node { name }}}}")
     )
-    suspend fun configNames(dfe: DataFetchingEnvironment): List<String> {
-        return dfe.loadOrThrow<AuroraApiMetadata, ConfigNames>(this).names
-    }
+    fun configNames(dfe: DataFetchingEnvironment) =
+        dfe.loadValue<AuroraApiMetadata, List<String>>(key = this, loaderClass = ConfigNames::class)
 }
 
 data class ClientConfig(

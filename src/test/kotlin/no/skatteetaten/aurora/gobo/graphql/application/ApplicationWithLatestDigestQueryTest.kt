@@ -5,7 +5,7 @@ import io.mockk.coEvery
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentDetailsBuilder
 import no.skatteetaten.aurora.gobo.ApplicationResourceBuilder
 import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithDbhAndSkap
-import no.skatteetaten.aurora.gobo.graphql.applicationdeploymentdetails.ApplicationDeploymentDetailsDataLoader
+import no.skatteetaten.aurora.gobo.graphql.applicationdeploymentdetails.ApplicationDeploymentDetailsBatchDataLoader
 import no.skatteetaten.aurora.gobo.graphql.graphqlData
 import no.skatteetaten.aurora.gobo.graphql.graphqlDataWithPrefix
 import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
@@ -24,7 +24,7 @@ import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
 
 // TODO should return DeploymentSpecCurrent in ApplicationDeploymentDetailsBuilder
-@Import(ApplicationQuery::class, ApplicationDeploymentDetailsDataLoader::class, ImageTagDtoDataLoader::class)
+@Import(ApplicationQuery::class, ApplicationDeploymentDetailsBatchDataLoader::class, ImageTagDtoDataLoader::class)
 class ApplicationWithLatestDigestQueryTest : GraphQLTestWithDbhAndSkap() {
 
     @Value("classpath:graphql/queries/getApplicationsWithLatestDigest.graphql")

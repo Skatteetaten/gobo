@@ -6,14 +6,15 @@ import graphql.schema.DataFetchingEnvironment
 import kotlinx.coroutines.future.await
 import no.skatteetaten.aurora.gobo.graphql.errorhandling.GraphQLExceptionWrapper
 import java.util.concurrent.CompletableFuture
+import kotlin.reflect.KClass
 
-inline fun <Key, reified Value> DataFetchingEnvironment.loadValue(key: Key): CompletableFuture<Value> {
-    val loaderName = "${Value::class.simpleName}BatchDataLoader"
+inline fun <Key, reified Value> DataFetchingEnvironment.loadValue(key: Key, loaderClass: KClass<*> = Value::class): CompletableFuture<Value> {
+    val loaderName = "${loaderClass.simpleName}BatchDataLoader"
     return this.getValueFromDataLoader(loaderName, key)
 }
 
-inline fun <Key, reified Value> DataFetchingEnvironment.loadListValue(key: Key): CompletableFuture<List<Value>> {
-    val loaderName = "${Value::class.simpleName}BatchDataLoader"
+inline fun <Key, reified Value> DataFetchingEnvironment.loadListValue(key: Key, loaderClass: KClass<*> = Value::class): CompletableFuture<List<Value>> {
+    val loaderName = "${loaderClass.simpleName}BatchDataLoader"
     return this.getValueFromDataLoader(loaderName, key)
 }
 
