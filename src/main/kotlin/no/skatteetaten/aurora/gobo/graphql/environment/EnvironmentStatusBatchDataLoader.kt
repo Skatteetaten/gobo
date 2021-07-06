@@ -15,16 +15,16 @@ class EnvironmentStatusBatchDataLoader(private val applicationService: Applicati
 
     override suspend fun getByKeys(keys: Set<EnvironmentApplication>, context: GoboGraphQLContext):
         Map<EnvironmentApplication, EnvironmentStatus> {
-            val applicationDeployments = applicationService.getApplicationDeployments(
-                keys.map { ApplicationDeploymentRef(it.environment, it.name) }
-            )
+        val applicationDeployments = applicationService.getApplicationDeployments(
+            keys.map { ApplicationDeploymentRef(it.environment, it.name) }
+        )
 
-            return keys.map { app ->
-                val ad =
-                    applicationDeployments.find { ad ->
-                        ad.affiliation == app.affiliation && ad.environment == app.environment && ad.name == app.name
-                    }
-                app to EnvironmentStatus.create(ad)
-            }.toMap()
-        }
+        return keys.map { app ->
+            val ad =
+                applicationDeployments.find { ad ->
+                    ad.affiliation == app.affiliation && ad.environment == app.environment && ad.name == app.name
+                }
+            app to EnvironmentStatus.create(ad)
+        }.toMap()
+    }
 }
