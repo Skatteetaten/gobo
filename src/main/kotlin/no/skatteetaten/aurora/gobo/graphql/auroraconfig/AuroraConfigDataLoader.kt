@@ -1,7 +1,7 @@
 package no.skatteetaten.aurora.gobo.graphql.auroraconfig
 
+import no.skatteetaten.aurora.gobo.GoboDataLoader
 import org.springframework.stereotype.Component
-import no.skatteetaten.aurora.gobo.KeyDataLoader
 import no.skatteetaten.aurora.gobo.graphql.GoboGraphQLContext
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigService
 
@@ -11,10 +11,8 @@ data class AuroraConfigKey(
 )
 
 @Component
-class AuroraConfigDataLoader(private val auroraConfigService: AuroraConfigService) :
-    KeyDataLoader<AuroraConfigKey, AuroraConfig> {
-
-    override suspend fun getByKey(key: AuroraConfigKey, context: GoboGraphQLContext): AuroraConfig {
-        return auroraConfigService.getAuroraConfig(context.token(), key.name, key.refInput)
+class AuroraConfigBatchDataLoader(private val auroraConfigService: AuroraConfigService) : GoboDataLoader<AuroraConfigKey, AuroraConfig>() {
+    override suspend fun getByKeys(keys: Set<AuroraConfigKey>, ctx: GoboGraphQLContext): Map<AuroraConfigKey, AuroraConfig> {
+        return keys.associateWith { auroraConfigService.getAuroraConfig(ctx.token(), it.name, it.refInput) }
     }
 }

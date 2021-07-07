@@ -3,30 +3,32 @@ package no.skatteetaten.aurora.gobo.graphql.affiliation
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
+import kotlinx.coroutines.runBlocking
 import no.skatteetaten.aurora.gobo.graphql.GoboEdge
 import no.skatteetaten.aurora.gobo.graphql.application.Application
 import no.skatteetaten.aurora.gobo.graphql.auroraconfig.AuroraConfig
 import no.skatteetaten.aurora.gobo.graphql.auroraconfig.AuroraConfigKey
 import no.skatteetaten.aurora.gobo.graphql.database.DatabaseSchema
-import no.skatteetaten.aurora.gobo.graphql.load
 import no.skatteetaten.aurora.gobo.graphql.loadListValue
 import no.skatteetaten.aurora.gobo.graphql.loadMany
 import no.skatteetaten.aurora.gobo.graphql.loadOrThrow
+import no.skatteetaten.aurora.gobo.graphql.loadValue
 import no.skatteetaten.aurora.gobo.graphql.newDataFetcherResult
 import no.skatteetaten.aurora.gobo.graphql.vault.Vault
 import no.skatteetaten.aurora.gobo.graphql.vault.VaultKey
 import no.skatteetaten.aurora.gobo.graphql.webseal.WebsealState
 import no.skatteetaten.aurora.gobo.security.checkValidUserToken
+import java.util.concurrent.CompletableFuture
 
 data class Affiliation(val name: String) {
 
-    suspend fun auroraConfig(refInput: String? = null, dfe: DataFetchingEnvironment): DataFetcherResult<AuroraConfig?> {
-        dfe.checkValidUserToken()
-        return dfe.load(AuroraConfigKey(name = name, refInput = refInput ?: "master"))
+    fun auroraConfig(refInput: String? = null, dfe: DataFetchingEnvironment): CompletableFuture<AuroraConfig> {
+        runBlocking { dfe.checkValidUserToken() } // TODO @PreAuthorize?
+        return dfe.loadValue(AuroraConfigKey(name = name, refInput = refInput ?: "master"))
     }
 
     @GraphQLDescription("Get all database schemas for the given affiliation")
-    suspend fun databaseSchemas(dfe: DataFetchingEnvironment): List<DatabaseSchema> = dfe.loadMany(name)
+    fun databaseSchemas(dfe: DataFetchingEnvironment): CompletableFuture<List<DatabaseSchema>> = dfe.loadListValue(name)
 
     suspend fun websealStates(dfe: DataFetchingEnvironment): List<WebsealState> = dfe.loadMany(name)
     suspend fun vaults(names: List<String>? = null, dfe: DataFetchingEnvironment): DataFetcherResult<List<Vault>> {

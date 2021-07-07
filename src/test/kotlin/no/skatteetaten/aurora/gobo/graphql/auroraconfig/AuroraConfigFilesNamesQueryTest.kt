@@ -17,7 +17,7 @@ import no.skatteetaten.aurora.gobo.service.AffiliationService
 
 @Import(
     AffiliationQuery::class,
-    AuroraConfigDataLoader::class
+    AuroraConfigBatchDataLoader::class
 )
 class AuroraConfigFilesNamesQueryTest : GraphQLTestWithDbhAndSkap() {
 

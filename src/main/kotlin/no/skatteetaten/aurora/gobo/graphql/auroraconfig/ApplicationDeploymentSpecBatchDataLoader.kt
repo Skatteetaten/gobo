@@ -1,0 +1,28 @@
+package no.skatteetaten.aurora.gobo.graphql.auroraconfig
+
+import no.skatteetaten.aurora.gobo.GoboDataLoader
+import no.skatteetaten.aurora.gobo.integration.boober.ApplicationDeploymentService
+import no.skatteetaten.aurora.gobo.graphql.GoboGraphQLContext
+import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.ApplicationDeploymentRef
+import org.springframework.stereotype.Component
+
+data class AdSpecKey(
+    val configName: String,
+    val configRef: String,
+    val applicationDeploymentRef: List<ApplicationDeploymentRef>
+)
+
+@Component
+class ApplicationDeploymentSpecBatchDataLoader(private val applicationDeploymentService: ApplicationDeploymentService) :
+    GoboDataLoader<AdSpecKey, List<ApplicationDeploymentSpec>>() {
+    override suspend fun getByKeys(keys: Set<AdSpecKey>, ctx: GoboGraphQLContext): Map<AdSpecKey, List<ApplicationDeploymentSpec>> {
+        return keys.associateWith {
+            applicationDeploymentService.getSpec(
+                token = ctx.token(),
+                auroraConfigName = it.configName,
+                auroraConfigReference = it.configRef,
+                applicationDeploymentReferenceList = it.applicationDeploymentRef
+            )
+        }
+    }
+}

@@ -8,11 +8,19 @@ import no.skatteetaten.aurora.gobo.graphql.errorhandling.GraphQLExceptionWrapper
 import java.util.concurrent.CompletableFuture
 import kotlin.reflect.KClass
 
+/**
+ * Load single value for each key.
+ * The function calling this must not be suspended and should return the CompletableFuture.
+ */
 inline fun <Key, reified Value> DataFetchingEnvironment.loadValue(key: Key, loaderClass: KClass<*> = Value::class): CompletableFuture<Value> {
     val loaderName = "${loaderClass.simpleName}BatchDataLoader"
     return this.getValueFromDataLoader(loaderName, key)
 }
 
+/**
+ * Load list value for each key.
+ * The function calling this must not be suspended and should return the CompletableFuture.
+ */
 inline fun <Key, reified Value> DataFetchingEnvironment.loadListValue(key: Key, loaderClass: KClass<*> = Value::class): CompletableFuture<List<Value>> {
     val loaderName = "${loaderClass.simpleName}BatchDataLoader"
     return this.getValueFromDataLoader(loaderName, key)
