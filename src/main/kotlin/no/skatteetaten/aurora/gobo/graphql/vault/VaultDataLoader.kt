@@ -22,9 +22,9 @@ class VaultBatchDataLoader(private val vaultService: VaultService) :
     ): Map<VaultKey, DataFetcherResult<List<Vault>>> {
         return keys.associateWith { vaultKey ->
             when {
-                vaultKey.vaultNames.isNullOrEmpty() -> newDataFetcherResult(getAllVaults(ctx, vaultKey))
+                vaultKey.vaultNames.isNullOrEmpty() -> newDataFetcherResult(getAllVaults(ctx.token(), vaultKey.affiliationName))
                 else -> {
-                    val results = getNamedVaults(vaultKey.vaultNames, ctx, vaultKey)
+                    val results = getNamedVaults(ctx.token(), vaultKey.affiliationName, vaultKey.vaultNames)
                     val vaults = results.filterIsInstance<Vault>()
                     val errors = results.filterIsInstance<Throwable>()
                     newDataFetcherResult(vaults, errors)
@@ -33,25 +33,24 @@ class VaultBatchDataLoader(private val vaultService: VaultService) :
         }
     }
 
+    private suspend fun getAllVaults(
+        token: String,
+        affiliation: String
+    ) =
+        vaultService
+            .getVaults(token, affiliation)
+            .map { Vault.create(it) }
+
     private suspend fun getNamedVaults(
-        vaultNames: List<String>,
-        ctx: GoboGraphQLContext,
-        vaultKey: VaultKey
+        token: String,
+        affiliation: String,
+        vaultNames: List<String>
     ) = vaultNames.map {
         runCatching {
-            vaultService.getVault(VaultContext(ctx.token(), vaultKey.affiliationName, it)).let {
-                Vault.create(it)
-            }
+            vaultService.getVault(VaultContext(token, affiliation, it))
+                .let { Vault.create(it) }
         }.recoverCatching {
             it
         }.getOrThrow()
     }
-
-    private suspend fun getAllVaults(
-        ctx: GoboGraphQLContext,
-        vaultKey: VaultKey
-    ) =
-        vaultService
-            .getVaults(ctx.token(), vaultKey.affiliationName)
-            .map { Vault.create(it) }
 }
