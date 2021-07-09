@@ -2,7 +2,6 @@ package no.skatteetaten.aurora.gobo.graphql.auroraapimetadata
 
 import graphql.schema.DataFetchingEnvironment
 import no.skatteetaten.aurora.gobo.graphql.loadValue
-import no.skatteetaten.aurora.gobo.integration.boober.ConfigNames
 
 data class AuroraApiMetadata(
     val clientConfig: ClientConfig
@@ -12,7 +11,7 @@ data class AuroraApiMetadata(
         ReplaceWith("{affiliations(includeUndeployed: true){ edges { node { name }}}}")
     )
     fun configNames(dfe: DataFetchingEnvironment) =
-        dfe.loadValue<AuroraApiMetadata, List<String>>(key = this, loaderClass = ConfigNames::class)
+        dfe.loadValue<AuroraApiMetadata, List<String>>(key = this, loaderClass = ConfigNamesBatchDataLoader::class)
 }
 
 data class ClientConfig(

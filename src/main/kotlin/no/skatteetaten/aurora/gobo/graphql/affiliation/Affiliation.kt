@@ -11,10 +11,9 @@ import no.skatteetaten.aurora.gobo.graphql.auroraconfig.AuroraConfigKey
 import no.skatteetaten.aurora.gobo.graphql.database.DatabaseSchema
 import no.skatteetaten.aurora.gobo.graphql.loadListValue
 import no.skatteetaten.aurora.gobo.graphql.loadMany
-import no.skatteetaten.aurora.gobo.graphql.loadOrThrow
 import no.skatteetaten.aurora.gobo.graphql.loadValue
-import no.skatteetaten.aurora.gobo.graphql.newDataFetcherResult
 import no.skatteetaten.aurora.gobo.graphql.vault.Vault
+import no.skatteetaten.aurora.gobo.graphql.vault.VaultBatchDataLoader
 import no.skatteetaten.aurora.gobo.graphql.vault.VaultKey
 import no.skatteetaten.aurora.gobo.graphql.webseal.WebsealState
 import no.skatteetaten.aurora.gobo.security.checkValidUserToken
@@ -31,22 +30,17 @@ data class Affiliation(val name: String) {
     fun databaseSchemas(dfe: DataFetchingEnvironment): CompletableFuture<List<DatabaseSchema>> = dfe.loadListValue(name)
 
     suspend fun websealStates(dfe: DataFetchingEnvironment): List<WebsealState> = dfe.loadMany(name)
-    suspend fun vaults(names: List<String>? = null, dfe: DataFetchingEnvironment): DataFetcherResult<List<Vault>> {
-        dfe.checkValidUserToken()
-        return if (names.isNullOrEmpty()) {
-            newDataFetcherResult(dfe.loadMany(name))
-        } else {
-            val values = names.map {
-                runCatching { dfe.loadOrThrow<VaultKey, Vault>(VaultKey(name, it)) }
-                    .recoverCatching { it }.getOrThrow()
-            }
 
-            newDataFetcherResult(values.successes(), values.failures())
-        }
+    fun vaults(
+        names: List<String>? = null,
+        dfe: DataFetchingEnvironment
+    ): CompletableFuture<DataFetcherResult<List<Vault>>> {
+        runBlocking { dfe.checkValidUserToken() } // TODO @PreAuthorize?
+        return dfe.loadValue(
+            key = VaultKey(affiliationName = name, vaultNames = names),
+            loaderClass = VaultBatchDataLoader::class
+        )
     }
-
-    private fun List<Any>.successes() = this.filterIsInstance<Vault>()
-    private fun List<Any>.failures() = this.filterIsInstance<Throwable>()
 
     fun applications(dfe: DataFetchingEnvironment) = dfe.loadListValue<String, Application>(name)
 }

@@ -1,8 +1,9 @@
 package no.skatteetaten.aurora.gobo.graphql.gobo
 
 import graphql.schema.DataFetchingEnvironment
+import no.skatteetaten.aurora.gobo.graphql.loadListValue
 import no.skatteetaten.aurora.gobo.graphql.loadMany
-import no.skatteetaten.aurora.gobo.graphql.loadOrThrow
+import no.skatteetaten.aurora.gobo.graphql.loadValue
 import java.time.Instant
 
 data class GoboFieldUser(val name: String, val user: String)
@@ -13,11 +14,11 @@ data class GoboClient(val name: String, val count: Long)
 
 class GoboUsage {
 
-    suspend fun numberOfClients(dfe: DataFetchingEnvironment) =
-        dfe.loadOrThrow<GoboUsage, GoboClientCount>(this).numberOfClients
+    fun numberOfClients(dfe: DataFetchingEnvironment) =
+        dfe.loadValue<GoboUsage, Long>(key = this, loaderClass = GoboClientCountBatchDataLoader::class)
 
-    suspend fun numberOfFields(dfe: DataFetchingEnvironment) =
-        dfe.loadOrThrow<GoboUsage, GoboFieldCount>(this).numberOfFields
+    fun numberOfFields(dfe: DataFetchingEnvironment) =
+        dfe.loadValue<GoboUsage, Long>(key = this, loaderClass = GoboFieldCountBatchDataLoader::class)
 
     suspend fun usedFields(
         dfe: DataFetchingEnvironment,
@@ -32,8 +33,8 @@ class GoboUsage {
         }
     }
 
-    suspend fun clients(dfe: DataFetchingEnvironment, nameContains: String? = null) =
-        dfe.loadMany<String, GoboClient>(nameContains ?: "")
+    fun clients(dfe: DataFetchingEnvironment, nameContains: String? = null) =
+        dfe.loadListValue<String, GoboClient>(nameContains ?: "")
 }
 
 data class Gobo(val startTime: Instant, val usage: GoboUsage = GoboUsage())

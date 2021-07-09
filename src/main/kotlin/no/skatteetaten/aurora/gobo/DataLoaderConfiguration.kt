@@ -3,6 +3,7 @@ package no.skatteetaten.aurora.gobo
 import com.expediagroup.graphql.server.execution.DataLoaderRegistryFactory
 import com.expediagroup.graphql.server.execution.KotlinDataLoader
 import graphql.execution.DataFetcherResult
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.asCoroutineDispatcher
@@ -30,6 +31,8 @@ interface MultipleKeysDataLoader<K, V> {
     suspend fun getByKeys(keys: Set<K>, ctx: GoboGraphQLContext): Map<K, DataFetcherResult<V>>
 }
 
+private val coroutineDispatcher = Executors.newFixedThreadPool(4).asCoroutineDispatcher()
+
 abstract class GoboDataLoader<K, V> : KotlinDataLoader<K, V> {
 
     abstract suspend fun getByKeys(keys: Set<K>, ctx: GoboGraphQLContext): Map<K, V>
@@ -40,7 +43,8 @@ abstract class GoboDataLoader<K, V> : KotlinDataLoader<K, V> {
     override fun getDataLoader(): DataLoader<K, V> =
         DataLoader.newMappedDataLoader(
             { keys: Set<K>, env: BatchLoaderEnvironment ->
-                GlobalScope.async {
+                @OptIn(DelicateCoroutinesApi::class)
+                GlobalScope.async(coroutineDispatcher) {
                     getByKeys(keys, env.keyContexts.entries.first().value as GoboGraphQLContext)
                 }.asCompletableFuture()
             },

@@ -21,9 +21,9 @@ import org.springframework.core.io.Resource
 @Import(
     GoboQuery::class,
     GoboFieldUsageListDataLoader::class,
-    GoboClientListDataLoader::class,
-    GoboFieldCountDataLoader::class,
-    GoboClientCountDataLoader::class
+    GoboClientBatchDataLoader::class,
+    GoboFieldCountBatchDataLoader::class,
+    GoboClientCountBatchDataLoader::class
 )
 class GoboQueryTest : GraphQLTestWithDbhAndSkap() {
 

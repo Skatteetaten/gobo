@@ -12,18 +12,18 @@ import kotlin.reflect.KClass
  * Load single value for each key.
  * The function calling this must not be suspended and should return the CompletableFuture.
  */
-inline fun <Key, reified Value> DataFetchingEnvironment.loadValue(key: Key, loaderClass: KClass<*> = Value::class): CompletableFuture<Value> {
-    val loaderName = "${loaderClass.simpleName}BatchDataLoader"
-    return this.getValueFromDataLoader(loaderName, key)
+inline fun <Key, reified Value> DataFetchingEnvironment.loadValue(key: Key, loaderClass: KClass<*>? = null): CompletableFuture<Value> {
+    val name = loaderClass?.let { loaderClass.simpleName } ?: "${Value::class.simpleName}BatchDataLoader"
+    return this.getValueFromDataLoader(name, key)
 }
 
 /**
  * Load list value for each key.
  * The function calling this must not be suspended and should return the CompletableFuture.
  */
-inline fun <Key, reified Value> DataFetchingEnvironment.loadListValue(key: Key, loaderClass: KClass<*> = Value::class): CompletableFuture<List<Value>> {
-    val loaderName = "${loaderClass.simpleName}BatchDataLoader"
-    return this.getValueFromDataLoader(loaderName, key)
+inline fun <Key, reified Value> DataFetchingEnvironment.loadListValue(key: Key, loaderClass: KClass<*>? = null): CompletableFuture<List<Value>> {
+    val name = loaderClass?.let { loaderClass.simpleName } ?: "${Value::class.simpleName}BatchDataLoader"
+    return this.getValueFromDataLoader(name, key)
 }
 
 /**
