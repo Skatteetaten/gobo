@@ -43,7 +43,7 @@ private fun List<ImageRepoAndTags>.getTagCount() =
 @Import(
     ImageRepositoryQuery::class,
     TagsDtoDataLoader::class,
-    ImageDataLoader::class,
+    ImageBatchDataLoader::class,
     GuiUrlBatchDataLoader::class,
     ImageMultipleKeysDataLoader::class
 )
