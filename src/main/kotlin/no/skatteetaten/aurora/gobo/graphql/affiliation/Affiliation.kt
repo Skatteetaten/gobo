@@ -9,7 +9,6 @@ import no.skatteetaten.aurora.gobo.graphql.application.Application
 import no.skatteetaten.aurora.gobo.graphql.auroraconfig.AuroraConfig
 import no.skatteetaten.aurora.gobo.graphql.auroraconfig.AuroraConfigKey
 import no.skatteetaten.aurora.gobo.graphql.database.DatabaseSchema
-import no.skatteetaten.aurora.gobo.graphql.loadListValue
 import no.skatteetaten.aurora.gobo.graphql.loadMany
 import no.skatteetaten.aurora.gobo.graphql.loadValue
 import no.skatteetaten.aurora.gobo.graphql.vault.Vault
@@ -27,7 +26,7 @@ data class Affiliation(val name: String) {
     }
 
     @GraphQLDescription("Get all database schemas for the given affiliation")
-    fun databaseSchemas(dfe: DataFetchingEnvironment): CompletableFuture<List<DatabaseSchema>> = dfe.loadListValue(name)
+    fun databaseSchemas(dfe: DataFetchingEnvironment): CompletableFuture<List<DatabaseSchema>> = dfe.loadValue(name)
 
     suspend fun websealStates(dfe: DataFetchingEnvironment): List<WebsealState> = dfe.loadMany(name)
 
@@ -42,7 +41,7 @@ data class Affiliation(val name: String) {
         )
     }
 
-    fun applications(dfe: DataFetchingEnvironment) = dfe.loadListValue<String, Application>(name)
+    fun applications(dfe: DataFetchingEnvironment): CompletableFuture<List<Application>> = dfe.loadValue(name)
 }
 
 data class AffiliationEdge(

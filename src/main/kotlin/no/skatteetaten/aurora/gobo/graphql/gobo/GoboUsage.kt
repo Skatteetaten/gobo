@@ -1,10 +1,10 @@
 package no.skatteetaten.aurora.gobo.graphql.gobo
 
 import graphql.schema.DataFetchingEnvironment
-import no.skatteetaten.aurora.gobo.graphql.loadListValue
 import no.skatteetaten.aurora.gobo.graphql.loadMany
 import no.skatteetaten.aurora.gobo.graphql.loadValue
 import java.time.Instant
+import java.util.concurrent.CompletableFuture
 
 data class GoboFieldUser(val name: String, val user: String)
 
@@ -33,8 +33,8 @@ class GoboUsage {
         }
     }
 
-    fun clients(dfe: DataFetchingEnvironment, nameContains: String? = null) =
-        dfe.loadListValue<String, GoboClient>(nameContains ?: "")
+    fun clients(dfe: DataFetchingEnvironment, nameContains: String? = null): CompletableFuture<List<GoboClient>> =
+        dfe.loadValue(nameContains ?: "")
 }
 
 data class Gobo(val startTime: Instant, val usage: GoboUsage = GoboUsage())

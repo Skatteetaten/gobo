@@ -7,22 +7,23 @@ import kotlinx.coroutines.future.await
 import no.skatteetaten.aurora.gobo.graphql.errorhandling.GraphQLExceptionWrapper
 import java.util.concurrent.CompletableFuture
 import kotlin.reflect.KClass
+import kotlin.reflect.typeOf
 
 /**
  * Load single value for each key.
  * The function calling this must not be suspended and should return the CompletableFuture.
  */
-inline fun <Key, reified Value> DataFetchingEnvironment.loadValue(key: Key, loaderClass: KClass<*>? = null): CompletableFuture<Value> {
-    val name = loaderClass?.let { loaderClass.simpleName } ?: "${Value::class.simpleName}BatchDataLoader"
-    return this.getValueFromDataLoader(name, key)
-}
+@OptIn(ExperimentalStdlibApi::class)
+inline fun <Key, reified Value> DataFetchingEnvironment.loadValue(
+    key: Key,
+    loaderClass: KClass<*>? = null
+): CompletableFuture<Value> {
+    val resourceClass = when (Value::class) {
+        List::class -> typeOf<Value>().arguments.first().type.toString().substringAfterLast(".") // Gets the resource class name of the list type
+        else -> Value::class.simpleName // Returns the resource class name directly
+    }
 
-/**
- * Load list value for each key.
- * The function calling this must not be suspended and should return the CompletableFuture.
- */
-inline fun <Key, reified Value> DataFetchingEnvironment.loadListValue(key: Key, loaderClass: KClass<*>? = null): CompletableFuture<List<Value>> {
-    val name = loaderClass?.let { loaderClass.simpleName } ?: "${Value::class.simpleName}BatchDataLoader"
+    val name = loaderClass?.let { loaderClass.simpleName } ?: "${resourceClass}BatchDataLoader"
     return this.getValueFromDataLoader(name, key)
 }
 
@@ -30,7 +31,10 @@ inline fun <Key, reified Value> DataFetchingEnvironment.loadListValue(key: Key, 
  * Load a single key of type Key into a value of type Value using a dataloader named <Value>DataLoader
  * If the loading throws an error the entire query will fail
  */
-@Deprecated(message = "Do not use this function of loading data from dataloader", replaceWith = ReplaceWith("loadValue or loadListValue"))
+@Deprecated(
+    message = "Do not use this function of loading data from dataloader",
+    replaceWith = ReplaceWith("loadValue or loadListValue")
+)
 suspend inline fun <Key, reified Value> DataFetchingEnvironment.loadOrThrow(
     key: Key,
     loaderPrefix: String = Value::class.java.simpleName
@@ -51,7 +55,10 @@ suspend inline fun <Key, reified Value> DataFetchingEnvironment.loadOrThrow(
  * Load a single key of type Key into a value of type Value using a dataloader named <Value>DataLoader
  * If the loading throws an error the entire query will fail
  */
-@Deprecated(message = "Do not use this function of loading data from dataloader", replaceWith = ReplaceWith("loadValue or loadListValue"))
+@Deprecated(
+    message = "Do not use this function of loading data from dataloader",
+    replaceWith = ReplaceWith("loadValue or loadListValue")
+)
 suspend inline fun <Key, reified Value> DataFetchingEnvironment.load(
     key: Key,
     loaderPrefix: String = Value::class.java.simpleName
@@ -70,7 +77,10 @@ suspend inline fun <Key, reified Value> DataFetchingEnvironment.load(
  * Load a single key of type Key into a value of type Value using a dataloader named <Value>ListDataLoader
  * If the loading throws an error the entire query will fail
  */
-@Deprecated(message = "Do not use this function of loading data from dataloader", replaceWith = ReplaceWith("loadValue or loadListValue"))
+@Deprecated(
+    message = "Do not use this function of loading data from dataloader",
+    replaceWith = ReplaceWith("loadValue or loadListValue")
+)
 suspend inline fun <Key, reified Value> DataFetchingEnvironment.loadMany(key: Key): List<Value> {
     val loaderName = "${Value::class.java.simpleName}ListDataLoader"
     val loader = this.getDataLoader<Key, DataFetcherResult<List<Value>>>(loaderName)
@@ -88,7 +98,10 @@ suspend inline fun <Key, reified Value> DataFetchingEnvironment.loadMany(key: Ke
  * Load multiple keys of type Key into a Map grouped by the key and a value of type Value using a dataloader named <Value>MultipleKeysDataLoader
  * If the loading fails it will return a failed DataFetcherResult
  */
-@Deprecated(message = "Do not use this function of loading data from dataloader", replaceWith = ReplaceWith("loadValue or loadListValue"))
+@Deprecated(
+    message = "Do not use this function of loading data from dataloader",
+    replaceWith = ReplaceWith("loadValue or loadListValue")
+)
 suspend inline fun <Key, reified Value> DataFetchingEnvironment.loadMultipleKeys(keys: List<Key>): Map<Key, DataFetcherResult<Value>> {
     val loaderName = "${Value::class.java.simpleName}MultipleKeysDataLoader"
     val loader = this.getDataLoader<Key, DataFetcherResult<Value>>(loaderName)
