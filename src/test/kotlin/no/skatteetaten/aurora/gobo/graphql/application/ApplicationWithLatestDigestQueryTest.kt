@@ -11,7 +11,7 @@ import no.skatteetaten.aurora.gobo.graphql.graphqlDataWithPrefix
 import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.graphql.imagerepository.ImageRepoDto
 import no.skatteetaten.aurora.gobo.graphql.imagerepository.ImageTag
-import no.skatteetaten.aurora.gobo.graphql.imagerepository.ImageTagDtoDataLoader
+import no.skatteetaten.aurora.gobo.graphql.imagerepository.IsLatestDigestBatchDataLoader
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageRegistryService
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageTagDto
@@ -24,7 +24,7 @@ import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
 
 // TODO should return DeploymentSpecCurrent in ApplicationDeploymentDetailsBuilder
-@Import(ApplicationQuery::class, ApplicationDeploymentDetailsBatchDataLoader::class, ImageTagDtoDataLoader::class)
+@Import(ApplicationQuery::class, ApplicationDeploymentDetailsBatchDataLoader::class, IsLatestDigestBatchDataLoader::class)
 class ApplicationWithLatestDigestQueryTest : GraphQLTestWithDbhAndSkap() {
 
     @Value("classpath:graphql/queries/getApplicationsWithLatestDigest.graphql")
