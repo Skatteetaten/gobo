@@ -44,7 +44,7 @@ private fun List<ImageRepoAndTags>.getTagCount() =
     ImageRepositoryQuery::class,
     TagsDtoDataLoader::class,
     ImageDataLoader::class,
-    GuiUrlDataLoader::class,
+    GuiUrlBatchDataLoader::class,
     ImageMultipleKeysDataLoader::class
 )
 class ImageRepositoryQueryTest : GraphQLTestWithDbhAndSkap() {

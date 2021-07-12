@@ -14,7 +14,7 @@ import no.skatteetaten.aurora.gobo.graphql.GoboPageInfo
 import no.skatteetaten.aurora.gobo.graphql.GoboPagedEdges
 import no.skatteetaten.aurora.gobo.graphql.load
 import no.skatteetaten.aurora.gobo.graphql.loadMultipleKeys
-import no.skatteetaten.aurora.gobo.graphql.loadOrThrow
+import no.skatteetaten.aurora.gobo.graphql.loadValue
 import no.skatteetaten.aurora.gobo.graphql.pageEdges
 
 private val logger = KotlinLogging.logger {}
@@ -103,10 +103,8 @@ data class ImageRepository(
         .map { ImageTag(imageRepository = imageRepository, name = it.name) }
         .filter { types == null || it.type in types }
 
-    suspend fun guiUrl(dfe: DataFetchingEnvironment): String? {
-        val guiUrl: GuiUrl = dfe.loadOrThrow(this)
-        return guiUrl.url
-    }
+    fun guiUrl(dfe: DataFetchingEnvironment) =
+        dfe.loadValue<ImageRepository, String?>(key = this, loaderClass = GuiUrlBatchDataLoader::class)
 
     companion object {
         /**
