@@ -1,5 +1,6 @@
 package no.skatteetaten.aurora.gobo.graphql
 
+import com.expediagroup.graphql.server.exception.MissingDataLoaderException
 import com.expediagroup.graphql.server.extensions.getValueFromDataLoader
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
@@ -10,22 +11,34 @@ import kotlin.reflect.KClass
 import kotlin.reflect.typeOf
 
 /**
- * Load single value for each key.
+ * Load value(s) from the DataLoader for the key.
  * The function calling this must not be suspended and should return the CompletableFuture.
  */
-@OptIn(ExperimentalStdlibApi::class)
 inline fun <Key, reified Value> DataFetchingEnvironment.loadValue(
     key: Key,
     loaderClass: KClass<*>? = null
-): CompletableFuture<Value> {
-    val resourceClass = when (Value::class) {
-        List::class -> typeOf<Value>().arguments.first().type.toString().substringAfterLast(".") // Gets the resource class name of the list type
-        else -> Value::class.simpleName // Returns the resource class name directly
-    }
+): CompletableFuture<Value> = getValueFromDataLoader(getLoaderName<Value>(loaderClass), key)
 
-    val name = loaderClass?.let { loaderClass.simpleName } ?: "${resourceClass}BatchDataLoader"
-    return this.getValueFromDataLoader(name, key)
+inline fun <Key, reified Value> DataFetchingEnvironment.loadValue(
+    keys: List<Key>,
+    loaderClass: KClass<*>? = null
+): CompletableFuture<List<Value>> {
+    val name = getLoaderName<Value>(loaderClass)
+    val loader = getDataLoader<Key, Value>(name) ?: throw MissingDataLoaderException(name)
+    return loader.loadMany(keys, listOf(getContext()))
 }
+
+@OptIn(ExperimentalStdlibApi::class)
+inline fun <reified Value> getLoaderName(loaderClass: KClass<*>?) =
+    loaderClass?.let { loaderClass.simpleName }
+        ?: when (Value::class) {
+            // Gets the resource class name of the list type
+            List::class -> typeOf<Value>().arguments.first().type.toString().substringAfterLast(".")
+            // Returns the resource class name directly
+            else -> Value::class.simpleName!!
+        }.let {
+            "${it}BatchDataLoader"
+        }
 
 /**
  * Load a single key of type Key into a value of type Value using a dataloader named <Value>DataLoader

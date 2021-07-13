@@ -3,19 +3,19 @@ package no.skatteetaten.aurora.gobo.graphql.imagerepository
 import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
-import java.time.Instant
 import mu.KotlinLogging
-import no.skatteetaten.aurora.gobo.integration.cantus.ImageTagType
-import no.skatteetaten.aurora.gobo.integration.cantus.ImageTagType.Companion.typeOf
-import no.skatteetaten.aurora.gobo.integration.cantus.Tag
-import no.skatteetaten.aurora.gobo.integration.cantus.TagsDto
 import no.skatteetaten.aurora.gobo.graphql.GoboEdge
 import no.skatteetaten.aurora.gobo.graphql.GoboPageInfo
 import no.skatteetaten.aurora.gobo.graphql.GoboPagedEdges
 import no.skatteetaten.aurora.gobo.graphql.load
-import no.skatteetaten.aurora.gobo.graphql.loadMultipleKeys
 import no.skatteetaten.aurora.gobo.graphql.loadValue
 import no.skatteetaten.aurora.gobo.graphql.pageEdges
+import no.skatteetaten.aurora.gobo.integration.cantus.ImageTagType
+import no.skatteetaten.aurora.gobo.integration.cantus.ImageTagType.Companion.typeOf
+import no.skatteetaten.aurora.gobo.integration.cantus.Tag
+import no.skatteetaten.aurora.gobo.integration.cantus.TagsDto
+import java.time.Instant
+import java.util.concurrent.CompletableFuture
 
 private val logger = KotlinLogging.logger {}
 
@@ -57,24 +57,17 @@ data class ImageRepository(
     )
 
     // TODO should this be named tags? it returns a list
-    suspend fun tag(
+    fun tag(
         names: List<String>,
         dfe: DataFetchingEnvironment
-    ): List<ImageWithType?> {
+    ): CompletableFuture<List<ImageWithType?>> {
 
         if (!isFullyQualified()) {
-            return emptyList()
+            return CompletableFuture.completedFuture(emptyList())
         }
 
         val imageTags = names.map { ImageTag(this, it) }
-        val values = dfe.loadMultipleKeys<ImageTag, Image>(imageTags)
-        return values.map {
-            if (it.value.hasErrors()) {
-                null
-            } else {
-                ImageWithType(it.key.name, it.value.data)
-            }
-        }
+        return dfe.loadValue(keys = imageTags, loaderClass = MultipleImagesBatchDataLoader::class)
     }
 
     suspend fun tags(
