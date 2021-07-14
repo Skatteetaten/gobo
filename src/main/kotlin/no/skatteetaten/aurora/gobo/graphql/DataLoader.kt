@@ -32,7 +32,7 @@ inline fun <Key, reified Value> DataFetchingEnvironment.loadValue(
 inline fun <reified Value> getLoaderName(loaderClass: KClass<*>?) =
     loaderClass?.let { loaderClass.simpleName }
         ?: when (Value::class) {
-            // Gets the resource class name of the list type
+            // Gets the resource class name of the list type, such as List<DatabaseSchema>
             List::class -> typeOf<Value>().arguments.first().type.toString().substringAfterLast(".")
             // Returns the resource class name directly
             else -> Value::class.simpleName!!

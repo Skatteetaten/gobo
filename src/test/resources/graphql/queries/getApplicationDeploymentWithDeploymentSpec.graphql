@@ -1,0 +1,15 @@
+query getDeployment($id: String!) {
+  applicationDeployment(id: $id) {
+    id
+    name
+    details {
+      updatedBy
+      buildTime
+      deploymentSpecs {
+        current {
+          jsonRepresentation
+        }
+      }
+    }
+  }
+}

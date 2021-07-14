@@ -1,7 +1,7 @@
 package no.skatteetaten.aurora.gobo.graphql.applicationdeploymentdetails
 
 import graphql.schema.DataFetchingEnvironment
-import no.skatteetaten.aurora.gobo.graphql.loadOrThrow
+import no.skatteetaten.aurora.gobo.graphql.loadValue
 import java.net.URL
 import java.time.Instant
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentDetailsResource
@@ -9,6 +9,7 @@ import no.skatteetaten.aurora.gobo.integration.mokey.ManagementEndpointResponseR
 import no.skatteetaten.aurora.gobo.integration.mokey.PodResourceResource
 import no.skatteetaten.aurora.gobo.integration.mokey.optionalLink
 import no.skatteetaten.aurora.gobo.integration.mokey.toGoboLinks
+import java.util.concurrent.CompletableFuture
 
 data class GitInfo(
     val commitId: String?,
@@ -169,11 +170,11 @@ class DeploymentSpecs(
     val deploymentSpecCurrent: URL?,
     val deploymentSpecDeployed: URL?
 ) {
-    suspend fun current(dfe: DataFetchingEnvironment): DeploymentSpec? =
-        deploymentSpecCurrent?.let { dfe.loadOrThrow(it) }
+    fun current(dfe: DataFetchingEnvironment): CompletableFuture<DeploymentSpec?>? =
+        deploymentSpecCurrent?.let { dfe.loadValue(it) }
 
-    suspend fun deployed(dfe: DataFetchingEnvironment): DeploymentSpec? =
-        deploymentSpecDeployed?.let { dfe.loadOrThrow(it) }
+    fun deployed(dfe: DataFetchingEnvironment): CompletableFuture<DeploymentSpec?>? =
+        deploymentSpecDeployed?.let { dfe.loadValue(it) }
 }
 
 data class DeployDetails(
