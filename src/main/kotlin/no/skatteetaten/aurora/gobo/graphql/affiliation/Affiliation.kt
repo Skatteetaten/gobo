@@ -9,7 +9,6 @@ import no.skatteetaten.aurora.gobo.graphql.application.Application
 import no.skatteetaten.aurora.gobo.graphql.auroraconfig.AuroraConfig
 import no.skatteetaten.aurora.gobo.graphql.auroraconfig.AuroraConfigKey
 import no.skatteetaten.aurora.gobo.graphql.database.DatabaseSchema
-import no.skatteetaten.aurora.gobo.graphql.loadMany
 import no.skatteetaten.aurora.gobo.graphql.loadValue
 import no.skatteetaten.aurora.gobo.graphql.vault.Vault
 import no.skatteetaten.aurora.gobo.graphql.vault.VaultBatchDataLoader
@@ -28,7 +27,7 @@ data class Affiliation(val name: String) {
     @GraphQLDescription("Get all database schemas for the given affiliation")
     fun databaseSchemas(dfe: DataFetchingEnvironment): CompletableFuture<List<DatabaseSchema>> = dfe.loadValue(name)
 
-    suspend fun websealStates(dfe: DataFetchingEnvironment): List<WebsealState> = dfe.loadMany(name)
+    fun websealStates(dfe: DataFetchingEnvironment): CompletableFuture<List<WebsealState>> = dfe.loadValue(name)
 
     fun vaults(
         names: List<String>? = null,

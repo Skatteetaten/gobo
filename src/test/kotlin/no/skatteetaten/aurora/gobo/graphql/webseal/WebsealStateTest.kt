@@ -15,7 +15,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
 
-@Import(AffiliationQuery::class, WebsealStateListDataLoader::class)
+@Import(AffiliationQuery::class, WebsealStateBatchDataLoader::class)
 class WebsealStateTest : GraphQLTestWithDbhAndSkap() {
     @Value("classpath:graphql/queries/getWebsealStates.graphql")
     private lateinit var getWebsealStates: Resource
