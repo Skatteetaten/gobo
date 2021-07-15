@@ -14,7 +14,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
 
-@Import(UserFullNameDataLoader::class, CurrentUserQuery::class)
+@Import(UserFullNameBatchDataLoader::class, CurrentUserQuery::class)
 class CurrentUserQueryTest : GraphQLTestWithDbhAndSkap() {
 
     @Value("classpath:graphql/queries/getCurrentUser.graphql")
