@@ -10,7 +10,7 @@ import no.skatteetaten.aurora.gobo.graphql.applicationdeploymentdetails.Applicat
 import no.skatteetaten.aurora.gobo.graphql.graphqlData
 import no.skatteetaten.aurora.gobo.graphql.graphqlDataWithPrefix
 import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
-import no.skatteetaten.aurora.gobo.graphql.permission.PermissionDataLoader
+import no.skatteetaten.aurora.gobo.graphql.permission.PermissionBatchDataLoader
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
 import no.skatteetaten.aurora.gobo.service.AffiliationService
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
@@ -25,7 +25,7 @@ import org.springframework.core.io.Resource
 @Import(
     AffiliationQuery::class,
     ApplicationQuery::class,
-    PermissionDataLoader::class,
+    PermissionBatchDataLoader::class,
     ApplicationDeploymentDetailsBatchDataLoader::class,
     ApplicationBatchDataLoader::class
 )
