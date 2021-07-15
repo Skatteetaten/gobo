@@ -6,7 +6,7 @@ import no.skatteetaten.aurora.gobo.ApplicationDeploymentResourceBuilder
 import no.skatteetaten.aurora.gobo.graphql.application.ApplicationQuery
 import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.ApplicationDeploymentQuery
 import no.skatteetaten.aurora.gobo.graphql.imagerepository.ImageRepositoryQuery
-import no.skatteetaten.aurora.gobo.graphql.imagerepository.TagsDtoDataLoader
+import no.skatteetaten.aurora.gobo.graphql.imagerepository.ImageTagsBatchDataLoader
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageRegistryService
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import org.junit.jupiter.api.BeforeEach
@@ -19,7 +19,7 @@ import org.springframework.core.io.Resource
     ApplicationQuery::class,
     ApplicationDeploymentQuery::class,
     ImageRepositoryQuery::class,
-    TagsDtoDataLoader::class
+    ImageTagsBatchDataLoader::class
 )
 class ApplicationDeploymentsAndImagesQueryTest : GraphQLTestWithDbhAndSkap() {
     @Value("classpath:graphql/queries/getApplicationDeploymentsAndImages.graphql")
@@ -33,7 +33,7 @@ class ApplicationDeploymentsAndImagesQueryTest : GraphQLTestWithDbhAndSkap() {
 
     @BeforeEach
     fun setUp() {
-        coEvery { applicationService.getApplicationDeployment(any<String>()) } returns ApplicationDeploymentResourceBuilder().build()
+        coEvery { applicationService.getApplicationDeployment(any()) } returns ApplicationDeploymentResourceBuilder().build()
     }
 
     @Test

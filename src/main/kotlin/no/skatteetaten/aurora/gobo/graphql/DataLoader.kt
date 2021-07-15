@@ -139,3 +139,6 @@ fun DataFetcherResult<*>.exception(): Throwable? = if (hasErrors()) {
 
 fun <T> newDataFetcherResult(data: T, errors: List<Throwable> = emptyList()): DataFetcherResult<T> =
     DataFetcherResult.newResult<T>().data(data).errors(errors.map { GraphQLExceptionWrapper(it) }).build()
+
+fun <T> newDataFetcherResult(vararg errors: Throwable): DataFetcherResult<T> =
+    DataFetcherResult.newResult<T>().errors(errors.toList().map { GraphQLExceptionWrapper(it) }).build()

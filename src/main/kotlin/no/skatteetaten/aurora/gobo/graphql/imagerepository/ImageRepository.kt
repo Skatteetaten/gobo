@@ -7,13 +7,9 @@ import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.graphql.GoboEdge
 import no.skatteetaten.aurora.gobo.graphql.GoboPageInfo
 import no.skatteetaten.aurora.gobo.graphql.GoboPagedEdges
-import no.skatteetaten.aurora.gobo.graphql.load
 import no.skatteetaten.aurora.gobo.graphql.loadValue
-import no.skatteetaten.aurora.gobo.graphql.pageEdges
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageTagType
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageTagType.Companion.typeOf
-import no.skatteetaten.aurora.gobo.integration.cantus.Tag
-import no.skatteetaten.aurora.gobo.integration.cantus.TagsDto
 import java.time.Instant
 import java.util.concurrent.CompletableFuture
 
@@ -70,31 +66,15 @@ data class ImageRepository(
         return dfe.loadValue(keys = imageTags, loaderClass = MultipleImagesBatchDataLoader::class)
     }
 
-    suspend fun tags(
+    fun tags(
         types: List<ImageTagType>? = null,
         filter: String? = null,
         first: Int,
         after: String? = null,
         dfe: DataFetchingEnvironment
-    ): DataFetcherResult<ImageTagsConnection> {
-        val tagsDto = if (!isFullyQualified()) {
-            DataFetcherResult.newResult<TagsDto>().data(TagsDto(emptyList())).build()
-        } else {
-            dfe.load(toImageRepo(filter))
-        }
-
-        val tags = tagsDto.data?.tags ?: emptyList()
-        val imageTags = tags.toImageTags(this, types)
-        val allEdges = imageTags.map { ImageTagEdge(it) }
-        return DataFetcherResult.newResult<ImageTagsConnection>()
-            .data(ImageTagsConnection(pageEdges(allEdges, first, after)))
-            .errors(tagsDto.errors)
-            .build()
+    ): CompletableFuture<DataFetcherResult<ImageTagsConnection?>> {
+        return dfe.loadValue(key = ImageTagsKey(this, types, filter, first, after), loaderClass = ImageTagsBatchDataLoader::class)
     }
-
-    private fun List<Tag>.toImageTags(imageRepository: ImageRepository, types: List<ImageTagType>?) = this
-        .map { ImageTag(imageRepository = imageRepository, name = it.name) }
-        .filter { types == null || it.type in types }
 
     fun guiUrl(dfe: DataFetchingEnvironment) =
         dfe.loadValue<ImageRepository, String?>(key = this, loaderClass = GuiUrlBatchDataLoader::class)
