@@ -11,7 +11,7 @@ data class AuroraApiMetadata(
         ReplaceWith("{affiliations(includeUndeployed: true){ edges { node { name }}}}")
     )
     fun configNames(dfe: DataFetchingEnvironment) =
-        dfe.loadValue<AuroraApiMetadata, List<String>>(key = this, loaderClass = ConfigNamesBatchDataLoader::class)
+        dfe.loadValue<AuroraApiMetadata, List<String>>(key = this, loaderClass = ConfigNamesDataLoader::class)
 }
 
 data class ClientConfig(

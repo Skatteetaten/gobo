@@ -6,7 +6,7 @@ import no.skatteetaten.aurora.gobo.graphql.GoboGraphQLContext
 import org.springframework.stereotype.Component
 
 @Component
-class ApplicationDeploymentDetailsBatchDataLoader(
+class ApplicationDeploymentDetailsDataLoader(
     private val applicationService: ApplicationService
 ) : GoboDataLoader<String, ApplicationDeploymentDetails>() {
     override suspend fun getByKeys(keys: Set<String>, ctx: GoboGraphQLContext): Map<String, ApplicationDeploymentDetails> {

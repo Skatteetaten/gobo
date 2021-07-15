@@ -6,10 +6,9 @@ import graphql.schema.DataFetchingEnvironment
 import no.skatteetaten.aurora.gobo.graphql.loadValue
 import no.skatteetaten.aurora.gobo.security.currentUser
 import org.springframework.stereotype.Component
-import java.util.concurrent.CompletableFuture
 
 data class User(val id: String, val token: String = "", val groups: List<String> = emptyList()) {
-    fun name(dfe: DataFetchingEnvironment): CompletableFuture<String> = dfe.loadValue(key = token, loaderClass = UserFullNameBatchDataLoader::class)
+    fun name(dfe: DataFetchingEnvironment) = dfe.loadValue<String, String>(key = token, loaderClass = UserFullNameDataLoader::class)
 }
 
 @Component

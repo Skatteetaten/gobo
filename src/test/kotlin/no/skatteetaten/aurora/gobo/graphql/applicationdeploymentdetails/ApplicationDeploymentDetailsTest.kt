@@ -19,7 +19,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
 
-@Import(ApplicationQuery::class, ApplicationDeploymentDetailsBatchDataLoader::class)
+@Import(ApplicationQuery::class, ApplicationDeploymentDetailsDataLoader::class)
 class ApplicationDeploymentDetailsTest : GraphQLTestWithDbhAndSkap() {
 
     @Value("classpath:graphql/queries/getApplicationsWithPods.graphql")

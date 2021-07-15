@@ -63,7 +63,7 @@ data class ImageRepository(
         }
 
         val imageTags = names.map { ImageTag(this, it) }
-        return dfe.loadValue(keys = imageTags, loaderClass = MultipleImagesBatchDataLoader::class)
+        return dfe.loadValue(keys = imageTags, loaderClass = MultipleImagesDataLoader::class)
     }
 
     fun tags(
@@ -73,11 +73,11 @@ data class ImageRepository(
         after: String? = null,
         dfe: DataFetchingEnvironment
     ): CompletableFuture<DataFetcherResult<ImageTagsConnection?>> {
-        return dfe.loadValue(key = ImageTagsKey(this, types, filter, first, after), loaderClass = ImageTagsBatchDataLoader::class)
+        return dfe.loadValue(ImageTagsKey(this, types, filter, first, after))
     }
 
     fun guiUrl(dfe: DataFetchingEnvironment) =
-        dfe.loadValue<ImageRepository, String?>(key = this, loaderClass = GuiUrlBatchDataLoader::class)
+        dfe.loadValue<ImageRepository, String?>(key = this, loaderClass = GuiUrlDataLoader::class)
 
     companion object {
         /**
@@ -109,7 +109,7 @@ data class ImageTag(
 ) {
     val type: ImageTagType get() = typeOf(name)
 
-    fun image(dfe: DataFetchingEnvironment) = dfe.loadValue<ImageTag, DataFetcherResult<Image?>>(key = this, loaderClass = ImageBatchDataLoader::class)
+    fun image(dfe: DataFetchingEnvironment) = dfe.loadValue<ImageTag, DataFetcherResult<Image?>>(key = this, loaderClass = ImageDataLoader::class)
 
     companion object {
         fun fromTagString(tagString: String, lastDelimiter: String = ":"): ImageTag {

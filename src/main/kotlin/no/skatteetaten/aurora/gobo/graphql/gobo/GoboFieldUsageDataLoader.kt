@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component
 data class GoboFieldUsageKey(val nameContains: String?, val mostUsedOnly: Boolean)
 
 @Component
-class GoboFieldUsageBatchDataLoader(
+class GoboFieldUsageDataLoader(
     private val fieldService: FieldService
 ) : GoboDataLoader<GoboFieldUsageKey, List<GoboFieldUsage>>() {
     override suspend fun getByKeys(

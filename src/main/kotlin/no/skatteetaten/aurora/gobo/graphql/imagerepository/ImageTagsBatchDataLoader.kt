@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component
 data class ImageTagsKey(val imageRepository: ImageRepository, val types: List<ImageTagType>?, val filter: String?, val first: Int, val after: String?)
 
 @Component
-class ImageTagsBatchDataLoader(private val imageRegistryService: ImageRegistryService) : GoboDataLoader<ImageTagsKey, DataFetcherResult<ImageTagsConnection>>() {
+class ImageTagsConnectionDataLoader(private val imageRegistryService: ImageRegistryService) : GoboDataLoader<ImageTagsKey, DataFetcherResult<ImageTagsConnection>>() {
     override suspend fun getByKeys(keys: Set<ImageTagsKey>, ctx: GoboGraphQLContext): Map<ImageTagsKey, DataFetcherResult<ImageTagsConnection>> {
         return keys.associateWith { key ->
             runCatching {

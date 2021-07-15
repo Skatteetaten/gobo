@@ -11,7 +11,7 @@ import no.skatteetaten.aurora.gobo.graphql.auroraconfig.AuroraConfigKey
 import no.skatteetaten.aurora.gobo.graphql.database.DatabaseSchema
 import no.skatteetaten.aurora.gobo.graphql.loadValue
 import no.skatteetaten.aurora.gobo.graphql.vault.Vault
-import no.skatteetaten.aurora.gobo.graphql.vault.VaultBatchDataLoader
+import no.skatteetaten.aurora.gobo.graphql.vault.VaultDataLoader
 import no.skatteetaten.aurora.gobo.graphql.vault.VaultKey
 import no.skatteetaten.aurora.gobo.graphql.webseal.WebsealState
 import no.skatteetaten.aurora.gobo.security.checkValidUserToken
@@ -25,9 +25,9 @@ data class Affiliation(val name: String) {
     }
 
     @GraphQLDescription("Get all database schemas for the given affiliation")
-    fun databaseSchemas(dfe: DataFetchingEnvironment): CompletableFuture<List<DatabaseSchema>> = dfe.loadValue(name)
+    fun databaseSchemas(dfe: DataFetchingEnvironment) = dfe.loadValue<String, List<DatabaseSchema>>(name)
 
-    fun websealStates(dfe: DataFetchingEnvironment): CompletableFuture<List<WebsealState>> = dfe.loadValue(name)
+    fun websealStates(dfe: DataFetchingEnvironment) = dfe.loadValue<String, List<WebsealState>>(name)
 
     fun vaults(
         names: List<String>? = null,
@@ -36,11 +36,11 @@ data class Affiliation(val name: String) {
         runBlocking { dfe.checkValidUserToken() } // TODO @PreAuthorize?
         return dfe.loadValue(
             key = VaultKey(affiliationName = name, vaultNames = names),
-            loaderClass = VaultBatchDataLoader::class
+            loaderClass = VaultDataLoader::class
         )
     }
 
-    fun applications(dfe: DataFetchingEnvironment): CompletableFuture<List<Application>> = dfe.loadValue(name)
+    fun applications(dfe: DataFetchingEnvironment) = dfe.loadValue<String, List<Application>>(name)
 }
 
 data class AffiliationEdge(

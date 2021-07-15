@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component
 private val logger = KotlinLogging.logger {}
 
 @Component
-class PermissionBatchDataLoader(private val permissionService: PermissionService) : GoboDataLoader<Namespace, Permission>() {
+class PermissionDataLoader(private val permissionService: PermissionService) : GoboDataLoader<Namespace, Permission>() {
     override suspend fun getByKeys(keys: Set<Namespace>, ctx: GoboGraphQLContext): Map<Namespace, Permission> {
         return keys.associateWith {
             runCatching {

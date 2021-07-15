@@ -14,7 +14,7 @@ data class VaultKey(
 )
 
 @Component
-class VaultBatchDataLoader(private val vaultService: VaultService) :
+class VaultDataLoader(private val vaultService: VaultService) :
     GoboDataLoader<VaultKey, DataFetcherResult<List<Vault>>>() {
     override suspend fun getByKeys(
         keys: Set<VaultKey>,

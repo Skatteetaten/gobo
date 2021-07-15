@@ -14,10 +14,10 @@ data class GoboClient(val name: String, val count: Long)
 class GoboUsage {
 
     fun numberOfClients(dfe: DataFetchingEnvironment) =
-        dfe.loadValue<GoboUsage, Long>(key = this, loaderClass = GoboClientCountBatchDataLoader::class)
+        dfe.loadValue<GoboUsage, Long>(key = this, loaderClass = GoboClientCountDataLoader::class)
 
     fun numberOfFields(dfe: DataFetchingEnvironment) =
-        dfe.loadValue<GoboUsage, Long>(key = this, loaderClass = GoboFieldCountBatchDataLoader::class)
+        dfe.loadValue<GoboUsage, Long>(key = this, loaderClass = GoboFieldCountDataLoader::class)
 
     fun usedFields(
         dfe: DataFetchingEnvironment,

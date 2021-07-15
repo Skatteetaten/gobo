@@ -11,7 +11,7 @@ import no.skatteetaten.aurora.gobo.integration.cantus.ImageRepoAndTags
 import org.springframework.stereotype.Component
 
 @Component
-class MultipleImagesBatchDataLoader(private val imageRegistryService: ImageRegistryService) :
+class MultipleImagesDataLoader(private val imageRegistryService: ImageRegistryService) :
     GoboDataLoader<ImageTag, ImageWithType?>() {
     override suspend fun getByKeys(
         keys: Set<ImageTag>,

@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component
 data class IsLatestDigestKey(val digest: String?, val imageTag: ImageTag)
 
 @Component
-class IsLatestDigestBatchDataLoader(private val imageRegistryService: ImageRegistryService) : GoboDataLoader<IsLatestDigestKey, Boolean>() {
+class IsLatestDigestDataLoader(private val imageRegistryService: ImageRegistryService) : GoboDataLoader<IsLatestDigestKey, Boolean>() {
     override suspend fun getByKeys(keys: Set<IsLatestDigestKey>, ctx: GoboGraphQLContext): Map<IsLatestDigestKey, Boolean> {
         return keys.associateWith {
             val imageTag = it.imageTag

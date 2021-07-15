@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component
 private val logger = KotlinLogging.logger {}
 
 @Component
-class GuiUrlBatchDataLoader(private val aurora: AuroraIntegration) : GoboDataLoader<ImageRepository, String?>() {
+class GuiUrlDataLoader(private val aurora: AuroraIntegration) : GoboDataLoader<ImageRepository, String?>() {
     override suspend fun getByKeys(keys: Set<ImageRepository>, ctx: GoboGraphQLContext): Map<ImageRepository, String?> {
         return keys.associateWith { imageRepository ->
             logger.debug {

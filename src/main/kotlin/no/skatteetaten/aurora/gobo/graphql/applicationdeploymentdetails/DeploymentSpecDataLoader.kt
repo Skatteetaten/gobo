@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component
 import java.net.URL
 
 @Component
-class DeploymentSpecBatchDataLoader(private val booberWebClient: BooberWebClient) :
+class DeploymentSpecDataLoader(private val booberWebClient: BooberWebClient) :
     GoboDataLoader<URL, DeploymentSpec?>() {
     override suspend fun getByKeys(keys: Set<URL>, ctx: GoboGraphQLContext): Map<URL, DeploymentSpec?> {
         return keys.associateWith { url ->

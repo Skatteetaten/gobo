@@ -13,7 +13,7 @@ import no.skatteetaten.aurora.gobo.graphql.graphqlData
 import no.skatteetaten.aurora.gobo.graphql.graphqlDataWithPrefix
 import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.graphql.graphqlErrorsFirst
-import no.skatteetaten.aurora.gobo.graphql.imagerepository.ImageBatchDataLoader
+import no.skatteetaten.aurora.gobo.graphql.imagerepository.ImageDataLoader
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
 import no.skatteetaten.aurora.gobo.graphql.route.RouteDataLoader
 import no.skatteetaten.aurora.gobo.integration.cantus.AuroraResponse
@@ -27,7 +27,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
 
-@Import(ApplicationDeploymentQuery::class, ImageBatchDataLoader::class, RouteDataLoader::class)
+@Import(ApplicationDeploymentQuery::class, ImageDataLoader::class, RouteDataLoader::class)
 class ApplicationDeploymentQueryTest : GraphQLTestWithDbhAndSkap() {
 
     @Value("classpath:graphql/queries/getApplicationDeployment.graphql")

@@ -7,7 +7,7 @@ import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import org.springframework.stereotype.Component
 
 @Component
-class ApplicationBatchDataLoader(val applicationService: ApplicationService) :
+class ApplicationDataLoader(val applicationService: ApplicationService) :
     GoboDataLoader<String, List<Application>>() {
 
     override suspend fun getByKeys(affiliations: Set<String>, ctx: GoboGraphQLContext): Map<String, List<Application>> {

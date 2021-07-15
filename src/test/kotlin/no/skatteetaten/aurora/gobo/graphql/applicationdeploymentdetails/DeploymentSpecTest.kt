@@ -38,8 +38,8 @@ class DeploymentSpecTestConfig(val server: MockWebServer = MockWebServer()) {
     DeploymentSpecTestConfig::class,
     ApplicationQuery::class,
     ApplicationDeploymentQuery::class,
-    DeploymentSpecBatchDataLoader::class,
-    ApplicationDeploymentDetailsBatchDataLoader::class
+    DeploymentSpecDataLoader::class,
+    ApplicationDeploymentDetailsDataLoader::class
 )
 class DeploymentSpecTest : GraphQLTestWithDbhAndSkap() {
 

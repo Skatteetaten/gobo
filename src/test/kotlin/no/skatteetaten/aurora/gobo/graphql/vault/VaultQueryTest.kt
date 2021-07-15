@@ -22,7 +22,7 @@ import java.lang.RuntimeException
 
 @Import(
     AffiliationQuery::class,
-    VaultBatchDataLoader::class
+    VaultDataLoader::class
 )
 class VaultQueryTest : GraphQLTestWithDbhAndSkap() {
 

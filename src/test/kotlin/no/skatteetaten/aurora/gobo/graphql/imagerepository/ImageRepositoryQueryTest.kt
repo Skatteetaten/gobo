@@ -42,10 +42,10 @@ private fun List<ImageRepoAndTags>.getTagCount() =
 
 @Import(
     ImageRepositoryQuery::class,
-    ImageTagsBatchDataLoader::class,
-    ImageBatchDataLoader::class,
-    GuiUrlBatchDataLoader::class,
-    MultipleImagesBatchDataLoader::class
+    ImageTagsConnectionDataLoader::class,
+    ImageDataLoader::class,
+    GuiUrlDataLoader::class,
+    MultipleImagesDataLoader::class
 )
 class ImageRepositoryQueryTest : GraphQLTestWithDbhAndSkap() {
     @Value("classpath:graphql/queries/getImageRepositories.graphql")

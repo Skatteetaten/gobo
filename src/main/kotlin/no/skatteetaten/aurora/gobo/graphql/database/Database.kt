@@ -15,7 +15,6 @@ import no.skatteetaten.aurora.gobo.integration.dbh.SchemaDeletionRequest
 import no.skatteetaten.aurora.gobo.integration.dbh.SchemaRestorationRequest
 import no.skatteetaten.aurora.gobo.integration.dbh.SchemaUpdateRequest
 import java.time.Instant
-import java.util.concurrent.CompletableFuture
 
 data class Label(val key: String, val value: String)
 
@@ -95,7 +94,7 @@ data class DatabaseSchema(
             )
     }
 
-    fun applicationDeployments(dfe: DataFetchingEnvironment): CompletableFuture<List<ApplicationDeployment>> = dfe.loadValue(id)
+    fun applicationDeployments(dfe: DataFetchingEnvironment) = dfe.loadValue<String, List<ApplicationDeployment>>(id)
 }
 
 data class JdbcUser(

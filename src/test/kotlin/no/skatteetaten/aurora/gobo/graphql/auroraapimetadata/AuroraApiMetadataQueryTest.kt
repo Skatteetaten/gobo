@@ -14,7 +14,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
 
-@Import(AuroraApiMetadataQuery::class, ConfigNamesBatchDataLoader::class)
+@Import(AuroraApiMetadataQuery::class, ConfigNamesDataLoader::class)
 class AuroraApiMetadataQueryTest : GraphQLTestWithDbhAndSkap() {
 
     @Value("classpath:graphql/queries/getMetadata.graphql")

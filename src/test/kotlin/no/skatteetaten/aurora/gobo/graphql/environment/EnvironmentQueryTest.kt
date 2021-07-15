@@ -18,7 +18,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
 
-@Import(EnvironmentQuery::class, EnvironmentStatusBatchDataLoader::class)
+@Import(EnvironmentQuery::class, EnvironmentStatusDataLoader::class)
 class EnvironmentQueryTest : GraphQLTestWithDbhAndSkap() {
 
     @Value("classpath:graphql/queries/getEnvironments.graphql")

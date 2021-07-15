@@ -6,7 +6,7 @@ import no.skatteetaten.aurora.gobo.infrastructure.client.ClientService
 import org.springframework.stereotype.Component
 
 @Component
-class GoboClientBatchDataLoader(private val clientService: ClientService) : GoboDataLoader<String, List<GoboClient>>() {
+class GoboClientDataLoader(private val clientService: ClientService) : GoboDataLoader<String, List<GoboClient>>() {
     override suspend fun getByKeys(keys: Set<String>, ctx: GoboGraphQLContext): Map<String, List<GoboClient>> {
         return keys.associateWith { name ->
             val clients = if (name.isEmpty()) {

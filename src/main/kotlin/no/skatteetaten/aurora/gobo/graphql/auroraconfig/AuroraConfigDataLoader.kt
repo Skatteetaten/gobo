@@ -11,7 +11,7 @@ data class AuroraConfigKey(
 )
 
 @Component
-class AuroraConfigBatchDataLoader(private val auroraConfigService: AuroraConfigService) : GoboDataLoader<AuroraConfigKey, AuroraConfig>() {
+class AuroraConfigDataLoader(private val auroraConfigService: AuroraConfigService) : GoboDataLoader<AuroraConfigKey, AuroraConfig>() {
     override suspend fun getByKeys(keys: Set<AuroraConfigKey>, ctx: GoboGraphQLContext): Map<AuroraConfigKey, AuroraConfig> {
         return keys.associateWith { auroraConfigService.getAuroraConfig(ctx.token(), it.name, it.refInput) }
     }

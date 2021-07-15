@@ -1,5 +1,6 @@
 package no.skatteetaten.aurora.gobo.graphql.applicationdeployment
 
+import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationResource
@@ -8,7 +9,6 @@ import no.skatteetaten.aurora.gobo.graphql.affiliation.Affiliation
 import no.skatteetaten.aurora.gobo.graphql.applicationdeploymentdetails.ApplicationDeploymentDetails
 import no.skatteetaten.aurora.gobo.graphql.imagerepository.ImageRepository
 import no.skatteetaten.aurora.gobo.graphql.imagerepository.ImageTag
-import no.skatteetaten.aurora.gobo.graphql.load
 import no.skatteetaten.aurora.gobo.graphql.loadValue
 import no.skatteetaten.aurora.gobo.graphql.namespace.Namespace
 import no.skatteetaten.aurora.gobo.graphql.route.Route
@@ -43,8 +43,8 @@ data class ApplicationDeployment(
     fun details(dfe: DataFetchingEnvironment) =
         dfe.loadValue<String, ApplicationDeploymentDetails>(id)
 
-    suspend fun route(dfe: DataFetchingEnvironment) =
-        dfe.load<ApplicationDeployment, Route>(this)
+    fun route(dfe: DataFetchingEnvironment) =
+        dfe.loadValue<ApplicationDeployment, DataFetcherResult<Route?>>(this)
 
     companion object {
         fun create(deployment: ApplicationDeploymentResource) =

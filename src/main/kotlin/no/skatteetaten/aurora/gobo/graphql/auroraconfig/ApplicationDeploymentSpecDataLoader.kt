@@ -13,7 +13,7 @@ data class AdSpecKey(
 )
 
 @Component
-class ApplicationDeploymentSpecBatchDataLoader(private val applicationDeploymentService: ApplicationDeploymentService) :
+class ApplicationDeploymentSpecDataLoader(private val applicationDeploymentService: ApplicationDeploymentService) :
     GoboDataLoader<AdSpecKey, List<ApplicationDeploymentSpec>>() {
     override suspend fun getByKeys(keys: Set<AdSpecKey>, ctx: GoboGraphQLContext): Map<AdSpecKey, List<ApplicationDeploymentSpec>> {
         return keys.associateWith {
