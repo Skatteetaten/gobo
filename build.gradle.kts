@@ -1,7 +1,7 @@
 plugins {
-    kotlin("jvm") version "1.5.20"
+    kotlin("jvm") version "1.5.21"
     id("no.skatteetaten.gradle.aurora") version "4.3.8"
-    id("org.flywaydb.flyway") version "7.11.0"
+    id("org.flywaydb.flyway") version "7.11.2"
 }
 
 aurora {
@@ -19,7 +19,7 @@ aurora {
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.1")
 
     implementation("io.projectreactor.kotlin:reactor-kotlin-extensions:1.1.3")
     implementation("org.apache.commons:commons-text:1.9")
@@ -52,7 +52,7 @@ dependencies {
     testImplementation("no.skatteetaten.aurora:mockmvc-extensions-kotlin:1.1.6")
     testImplementation("com.ninja-squad:springmockk:3.0.1")
     testImplementation("org.junit-pioneer:junit-pioneer:1.4.2")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.5.0")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.5.1")
 }
 
 task<de.undercouch.gradle.tasks.download.Download>("download-playground") {
