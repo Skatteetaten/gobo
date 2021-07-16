@@ -54,7 +54,7 @@ class CredentialMutation(
             }
     }
 
-    private suspend fun NagHubResult.logOnFailure(host: String) {
+    private fun NagHubResult.logOnFailure(host: String) {
         if (!success) {
             logger.error {
                 "Could not send notification to mattermost for a registered postgres motel host=$host cluster=$cluster"
@@ -62,7 +62,7 @@ class CredentialMutation(
         }
     }
 
-    private suspend fun RegisterPostgresResult.toNotifyMessage(): List<DetailedMessage> {
+    private fun RegisterPostgresResult.toNotifyMessage(): List<DetailedMessage> {
         val notifyMessage =
             if (success) {
                 DetailedMessage(

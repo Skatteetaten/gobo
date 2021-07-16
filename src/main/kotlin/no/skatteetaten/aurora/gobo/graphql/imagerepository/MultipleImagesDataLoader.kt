@@ -44,10 +44,9 @@ class MultipleImagesDataLoader(private val imageRegistryService: ImageRegistrySe
         }
 
         return (successes + failures).mapValues {
-            if (it.value.hasErrors()) {
-                null
-            } else {
-                ImageWithType(it.key.name, it.value.data)
+            when {
+                it.value.hasErrors() -> null
+                else -> ImageWithType(it.key.name, it.value.data)
             }
         }
     }

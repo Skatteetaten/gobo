@@ -20,6 +20,8 @@ import kotlin.coroutines.coroutineContext
 
 fun DataFetchingEnvironment.token() = this.getContext<GoboGraphQLContext>().token()
 
+private val logger = KotlinLogging.logger {}
+
 class GoboGraphQLContext(
     private val token: String?,
     val request: ServerRequest,
@@ -43,8 +45,6 @@ class GoboGraphQLContext(
 
     fun klientid() = request.klientid()
 }
-
-private val logger = KotlinLogging.logger {}
 
 @Component
 class GoboGraphQLContextFactory : SpringGraphQLContextFactory<GoboGraphQLContext>() {

@@ -1,7 +1,6 @@
 package no.skatteetaten.aurora.gobo.graphql.auroraapimetadata
 
 import com.expediagroup.graphql.server.operations.Query
-import graphql.schema.DataFetchingEnvironment
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraApiMetadataService
 import org.springframework.stereotype.Component
 
@@ -10,7 +9,7 @@ class AuroraApiMetadataQuery(
     private val service: AuroraApiMetadataService
 ) : Query {
 
-    suspend fun auroraApiMetadata(dfe: DataFetchingEnvironment): AuroraApiMetadata {
+    suspend fun auroraApiMetadata(): AuroraApiMetadata {
         val clientConfig = service.getClientConfig()
         return AuroraApiMetadata(clientConfig)
     }

@@ -31,7 +31,7 @@ data class Scan(
         }
 
         private fun getAggregatedStatus(probeResultList: List<ProbeResult>): ScanStatus {
-            return if (probeResultList.all { it.result?.status?.equals(ProbeStatus.OPEN) ?: false }) {
+            return if (probeResultList.all { it.result?.status?.equals(ProbeStatus.OPEN) == true }) {
                 ScanStatus.OPEN
             } else {
                 ScanStatus.CLOSED
