@@ -17,14 +17,14 @@ import java.time.Duration
 
 val webclientLogger = KotlinLogging.logger {}
 
-inline fun <reified T : Throwable> WebClient.ResponseSpec.onStatusNotFound(crossinline fn: (status: HttpStatus, body: String) -> T) =
+inline fun <reified T : Throwable> WebClient.ResponseSpec.onStatusNotFound(crossinline fn: (status: HttpStatus, body: String) -> T): WebClient.ResponseSpec =
     this.onStatus({ it == HttpStatus.NOT_FOUND }) {
         it.bodyToMono<String>().defaultIfEmpty("").flatMap { body ->
             Mono.error(fn(it.statusCode(), body))
         }
     }
 
-inline fun <reified T : Throwable> WebClient.ResponseSpec.onStatusNotOk(crossinline fn: (status: HttpStatus, body: String) -> T) =
+inline fun <reified T : Throwable> WebClient.ResponseSpec.onStatusNotOk(crossinline fn: (status: HttpStatus, body: String) -> T): WebClient.ResponseSpec =
     this.onStatus({ it != HttpStatus.OK }) {
         it.bodyToMono<String>().defaultIfEmpty("").flatMap { body ->
             Mono.error(fn(it.statusCode(), body))
@@ -39,7 +39,10 @@ suspend inline fun <reified T : Any> WebClient.ResponseSpec.awaitWithRetry(
     .retryWhen(
         Retry.backoff(maxAttempts, Duration.ofMillis(min))
             .maxBackoff(Duration.ofMillis(max))
-            .filter { ExceptionUtils.throwableOfType(it, PrematureCloseException::class.java)?.let { true } ?: false }
+            .filter {
+                ExceptionUtils.throwableOfType(it, PrematureCloseException::class.java)?.let { true }
+                    ?: false
+            }
             .doBeforeRetry {
                 KotlinLogging.logger {}.debug {
                     val e = it.failure()
@@ -58,11 +61,11 @@ suspend inline fun <reified T : Any> WebClient.postOrNull(
     }.onFailure {
         val additionalErrorMessage = when (it) {
             is WebClientResponseException -> {
-                val body = runCatching {
+                val response = runCatching {
                     objectMapper.readValue<T>(it.responseBodyAsByteArray)
                 }.getOrNull() ?: "Could not read response body. Cause=${it.cause}"
 
-                "statusCode=${it.statusCode} response=$body"
+                "statusCode=${it.statusCode} response=$response"
             }
             else -> "unknown reason. Exception of type ${it::class.simpleName} with message=${it.message}"
         }

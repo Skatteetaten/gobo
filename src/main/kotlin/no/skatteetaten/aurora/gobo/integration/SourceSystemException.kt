@@ -13,5 +13,5 @@ open class SourceSystemException(
     val sourceSystem: ServiceTypes? = null,
     extensions: Map<String, Any> = emptyMap()
 ) : GoboException(message, cause, code, errorMessage, extensions) {
-    fun <T : Any> toErrorMono() = Mono.error<T>(this)
+    fun <T : Any> toErrorMono(): Mono<T> = Mono.error(this)
 }

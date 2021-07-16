@@ -16,16 +16,16 @@ enum class ImageTagType {
     companion object {
         fun typeOf(tag: String): ImageTagType {
             return when {
-                tag.toLowerCase() == "latest" -> LATEST
-                tag.toLowerCase().endsWith("-snapshot") -> SNAPSHOT
-                tag.toLowerCase().startsWith("snapshot-") -> ImageTagType.AURORA_SNAPSHOT_VERSION
+                tag.lowercase() == "latest" -> LATEST
+                tag.lowercase().endsWith("-snapshot") -> SNAPSHOT
+                tag.lowercase().startsWith("snapshot-") -> AURORA_SNAPSHOT_VERSION
                 // It is important that COMMIT_HASH is processed before MAJOR to avoid a hash like 1984012 to be
                 // considered a MAJOR version (although, technically it could be major version it is not very likely).
-                tag.matches(Regex("^[0-9abcdef]{7}$")) -> ImageTagType.COMMIT_HASH
-                tag.matches(Regex("^\\d+$")) -> ImageTagType.MAJOR
-                tag.matches(Regex("^\\d+\\.\\d+$")) -> ImageTagType.MINOR
-                tag.matches(Regex("^\\d+\\.\\d+\\.\\d+$")) -> ImageTagType.BUGFIX
-                else -> ImageTagType.AURORA_VERSION
+                tag.matches(Regex("^[0-9abcdef]{7}$")) -> COMMIT_HASH
+                tag.matches(Regex("^\\d+$")) -> MAJOR
+                tag.matches(Regex("^\\d+\\.\\d+$")) -> MINOR
+                tag.matches(Regex("^\\d+\\.\\d+\\.\\d+$")) -> BUGFIX
+                else -> AURORA_VERSION
             }
         }
     }
