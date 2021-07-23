@@ -3,10 +3,10 @@ package no.skatteetaten.aurora.gobo.security
 import graphql.schema.DataFetchingEnvironment
 import io.fabric8.kubernetes.api.model.authentication.TokenReview
 import mu.KotlinLogging
-import no.skatteetaten.aurora.gobo.graphql.AccessDeniedException
 import no.skatteetaten.aurora.gobo.graphql.GoboGraphQLContext
 import no.skatteetaten.aurora.gobo.graphql.token
 import no.skatteetaten.aurora.gobo.graphql.user.User
+import org.springframework.security.access.AccessDeniedException
 import org.springframework.security.authentication.AnonymousAuthenticationToken
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken

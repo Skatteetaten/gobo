@@ -12,9 +12,9 @@ import io.mockk.mockk
 import no.skatteetaten.aurora.gobo.GoboException
 import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
-import no.skatteetaten.aurora.gobo.graphql.AccessDeniedException
 import no.skatteetaten.aurora.gobo.graphql.GoboGraphQLContext
 import org.junit.jupiter.api.Test
+import org.springframework.security.access.AccessDeniedException
 
 class GraphQLExceptionWrapperTest {
     private val paramsBuilder = DataFetcherExceptionHandlerParameters
@@ -66,7 +66,6 @@ class GraphQLExceptionWrapperTest {
             ExceptionWhileDataFetching(ResultPath.rootPath(), AccessDeniedException("test exception"), null)
 
         val exceptionWrapper = GraphQLExceptionWrapper(exceptionWhileDataFetching)
-        assertThat(exceptionWrapper.message).isEqualTo("test exception")
-        assertThat(exceptionWrapper.extensions["errorMessage"]).isEqualTo("test exception")
+        assertThat(exceptionWrapper.message).isEqualTo("Access denied, missing/invalid token or the token does not have the required permissions")
     }
 }

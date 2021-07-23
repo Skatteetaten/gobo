@@ -27,11 +27,8 @@ dependencies {
     implementation("com.expediagroup:graphql-kotlin-spring-server:4.1.1")
     implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
 
-    // Postgres
     implementation("org.postgresql:postgresql")
-
     implementation("com.h2database:h2")
-
     implementation("org.flywaydb:flyway-core")
 
     implementation("uk.q3c.rest:hal-kotlin:0.5.4.0.db32476") {
@@ -43,6 +40,7 @@ dependencies {
     implementation("com.jayway.jsonpath:json-path:2.6.0")
     implementation("io.projectreactor.addons:reactor-extra:3.4.3")
     implementation("no.skatteetaten.aurora.kubernetes:kubernetes-reactor-coroutines-client:1.3.12")
+    implementation("no.skatteetaten.aurora.springboot:aurora-spring-security-starter:1.3.0")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")

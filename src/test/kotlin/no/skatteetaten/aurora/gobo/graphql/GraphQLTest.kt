@@ -7,12 +7,12 @@ import no.skatteetaten.aurora.gobo.GraphQLConfig
 import no.skatteetaten.aurora.gobo.graphql.errorhandling.GoboDataFetcherExceptionHandler
 import no.skatteetaten.aurora.gobo.infrastructure.client.ClientService
 import no.skatteetaten.aurora.gobo.infrastructure.field.FieldService
-import no.skatteetaten.aurora.gobo.security.GoboSecurityContextRepository
-import no.skatteetaten.aurora.gobo.security.OpenShiftAuthenticationManager
 import no.skatteetaten.aurora.gobo.security.WebSecurityConfig
 import no.skatteetaten.aurora.kubernetes.KubernetesReactorClient
 import no.skatteetaten.aurora.kubernetes.config.ClientTypes
 import no.skatteetaten.aurora.kubernetes.config.TargetClient
+import no.skatteetaten.aurora.springboot.AuroraSpringSecurityConfig
+import no.skatteetaten.aurora.springboot.AuroraTokenReview
 import org.junit.jupiter.api.BeforeEach
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest
@@ -34,8 +34,7 @@ class TestDummyQuery : Query {
 @WebFluxTest
 @Import(
     GraphQLConfig::class,
-    OpenShiftAuthenticationManager::class,
-    GoboSecurityContextRepository::class,
+    AuroraSpringSecurityConfig::class,
     GoboGraphQLContextFactory::class,
     GoboDataFetcherExceptionHandler::class,
     WebSecurityConfig::class,
@@ -56,6 +55,9 @@ abstract class GraphQLTestWithoutDbhAndSkap {
 
     @MockkBean(relaxed = true)
     private lateinit var clientService: ClientService
+
+    @MockkBean
+    private lateinit var auroraTokenReview: AuroraTokenReview
 
     @BeforeEach
     fun setUpAll() {
