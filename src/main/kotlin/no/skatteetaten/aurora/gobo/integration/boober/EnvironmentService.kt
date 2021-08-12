@@ -25,9 +25,13 @@ data class EnvironmentResource(
 }
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+data class BooberEnvironmentDeploymentRef(val environment: String, val application: String)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class BooberEnvironmentResource(
     val affiliation: String,
-    val applicationDeploymentRef: EnvironmentDeploymentRef?,
+    val autoDeploy: Boolean,
+    val applicationDeploymentRef: BooberEnvironmentDeploymentRef?,
     val errorMessage: String?,
     val warningMessage: String?
 ) {
@@ -64,7 +68,10 @@ class EnvironmentService(private val booberWebClient: BooberWebClient) {
             EnvironmentResource(
                 affiliation = resourcesByAffiliation.key,
                 deploymentRefs = resourcesByAffiliation.value.mapNotNull { resource ->
-                    resource.applicationDeploymentRef.also { resource.logWarning() }
+                    resource.logWarning()
+                    resource.applicationDeploymentRef?.let {
+                        EnvironmentDeploymentRef(it.environment, it.application, resource.autoDeploy)
+                    }
                 }
             )
         }
