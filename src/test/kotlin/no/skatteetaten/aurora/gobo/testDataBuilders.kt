@@ -15,8 +15,8 @@ import no.skatteetaten.aurora.gobo.graphql.namespace.Namespace
 import no.skatteetaten.aurora.gobo.graphql.webseal.Acl
 import no.skatteetaten.aurora.gobo.integration.boober.ApplicationDeploymentFilterResource
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileType
+import no.skatteetaten.aurora.gobo.integration.boober.BooberEnvironmentDeploymentRef
 import no.skatteetaten.aurora.gobo.integration.boober.BooberVault
-import no.skatteetaten.aurora.gobo.integration.boober.EnvironmentDeploymentRef
 import no.skatteetaten.aurora.gobo.integration.boober.BooberEnvironmentResource
 import no.skatteetaten.aurora.gobo.integration.cantus.AuroraResponse
 import no.skatteetaten.aurora.gobo.integration.cantus.CantusFailure
@@ -159,9 +159,10 @@ data class MultiAffiliationResponseBuilder(
 ) {
     fun build() = BooberEnvironmentResource(
         affiliation = "aurora",
-        applicationDeploymentRef = EnvironmentDeploymentRef(environment, application, true),
+        applicationDeploymentRef = BooberEnvironmentDeploymentRef(environment, application),
         errorMessage = errorMessage,
-        warningMessage = null
+        warningMessage = null,
+        autoDeploy = true
     )
 }
 
