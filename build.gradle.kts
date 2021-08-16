@@ -1,7 +1,7 @@
 plugins {
     kotlin("jvm") version "1.5.21"
-    id("no.skatteetaten.gradle.aurora") version "4.3.8"
-    id("org.flywaydb.flyway") version "7.11.2"
+    id("no.skatteetaten.gradle.aurora") version "4.3.13"
+    id("org.flywaydb.flyway") version "7.13.0"
 }
 
 aurora {
@@ -38,7 +38,7 @@ dependencies {
         exclude(group = "com.google.guava", module = "guava")
     }
 
-    implementation("io.fabric8:openshift-client:5.5.0")
+    implementation("io.fabric8:openshift-client:5.7.0")
     implementation("com.github.fge:json-patch:1.13")
     implementation("com.jayway.jsonpath:json-path:2.6.0")
     implementation("io.projectreactor.addons:reactor-extra:3.4.3")
