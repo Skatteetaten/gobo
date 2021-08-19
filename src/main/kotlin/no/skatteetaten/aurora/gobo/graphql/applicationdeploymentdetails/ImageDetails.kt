@@ -2,10 +2,12 @@ package no.skatteetaten.aurora.gobo.graphql.applicationdeploymentdetails
 
 import graphql.schema.DataFetchingEnvironment
 import mu.KotlinLogging
-import no.skatteetaten.aurora.gobo.integration.cantus.ImageTagDto
 import no.skatteetaten.aurora.gobo.graphql.imagerepository.ImageTag
-import no.skatteetaten.aurora.gobo.graphql.loadOrThrow
+import no.skatteetaten.aurora.gobo.graphql.imagerepository.IsLatestDigestDataLoader
+import no.skatteetaten.aurora.gobo.graphql.imagerepository.IsLatestDigestKey
+import no.skatteetaten.aurora.gobo.graphql.loadValue
 import java.time.Instant
+import java.util.concurrent.CompletableFuture
 
 private val logger = KotlinLogging.logger {}
 
@@ -15,10 +17,9 @@ data class ImageDetails(
     val dockerImageTagReference: String?
 ) {
 
-    suspend fun isLatestDigest(dfe: DataFetchingEnvironment): Boolean? =
+    fun isLatestDigest(dfe: DataFetchingEnvironment): CompletableFuture<Boolean>? =
         dockerImageTagReference?.let {
             logger.debug("Loading docker image tag reference for tag=$it")
-            val imageTagDto: ImageTagDto = dfe.loadOrThrow(ImageTag.fromTagString(it))
-            imageTagDto.dockerDigest == digest
+            dfe.loadValue(key = IsLatestDigestKey(digest, ImageTag.fromTagString(it)), loaderClass = IsLatestDigestDataLoader::class)
         }
 }

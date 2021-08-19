@@ -38,11 +38,14 @@ import no.skatteetaten.aurora.gobo.integration.containsAuroraTokens
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseServiceReactive.Companion.HEADER_COOLDOWN_DURATION_HOURS
 import no.skatteetaten.aurora.gobo.security.SharedSecretReader
 import no.skatteetaten.aurora.gobo.testObjectMapper
+import no.skatteetaten.aurora.mockmvc.extensions.TestObjectMapperConfigurer
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.bodyAsObject
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.bodyAsString
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.executeBlocking
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.RecordedRequest
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClientRequestException
@@ -56,6 +59,16 @@ class DatabaseServiceTest {
     private val webClient = ApplicationConfig(500, 500, 500, "", sharedSecretReader)
         .webClientDbh(server.url("/").toString(), WebClient.builder())
     private val databaseService = DatabaseServiceReactive(webClient, testObjectMapper())
+
+    @BeforeEach
+    fun setUp() {
+        TestObjectMapperConfigurer.objectMapper = testObjectMapper()
+    }
+
+    @AfterEach
+    fun tearDown() {
+        TestObjectMapperConfigurer.reset()
+    }
 
     @Test
     fun `Get database instances for affiliation`() {

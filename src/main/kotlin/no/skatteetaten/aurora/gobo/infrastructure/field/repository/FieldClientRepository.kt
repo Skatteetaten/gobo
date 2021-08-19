@@ -26,7 +26,7 @@ class FieldClientRepository(private val namedParameterJdbcTemplate: NamedParamet
 
     fun findByFieldName(fieldName: String): List<FieldClient> {
         val sql = "select name, count from field_client where field_name = :field_name"
-        return namedParameterJdbcTemplate.query<FieldClient>(sql, mapOf("field_name" to fieldName)) { rs, _ ->
+        return namedParameterJdbcTemplate.query(sql, mapOf("field_name" to fieldName)) { rs, _ ->
             FieldClient(rs.getName(), rs.getCount())
         }
     }

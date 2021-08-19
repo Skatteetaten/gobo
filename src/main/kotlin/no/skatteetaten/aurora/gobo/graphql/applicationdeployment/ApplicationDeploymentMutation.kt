@@ -59,7 +59,7 @@ class ApplicationDeploymentMutation(
         applicationService.getApplicationDeployments(this.applicationDeployments)
             .map { DeleteApplicationDeploymentInput(it.namespace, it.name) }
 
-    private suspend fun List<BooberDeleteResponse>.toDataFetcherResult() =
+    private fun List<BooberDeleteResponse>.toDataFetcherResult() =
         DataFetcherResult.newResult<List<DeleteApplicationDeploymentsResult>>()
             .data(
                 this.filter { it.success }

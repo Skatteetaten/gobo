@@ -1,9 +1,9 @@
 package no.skatteetaten.aurora.gobo.graphql.gobo
 
 import graphql.schema.DataFetchingEnvironment
-import no.skatteetaten.aurora.gobo.graphql.loadMany
-import no.skatteetaten.aurora.gobo.graphql.loadOrThrow
+import no.skatteetaten.aurora.gobo.graphql.loadValue
 import java.time.Instant
+import java.util.concurrent.CompletableFuture
 
 data class GoboFieldUser(val name: String, val user: String)
 
@@ -13,27 +13,20 @@ data class GoboClient(val name: String, val count: Long)
 
 class GoboUsage {
 
-    suspend fun numberOfClients(dfe: DataFetchingEnvironment) =
-        dfe.loadOrThrow<GoboUsage, GoboClientCount>(this).numberOfClients
+    fun numberOfClients(dfe: DataFetchingEnvironment) =
+        dfe.loadValue<GoboUsage, Long>(key = this, loaderClass = GoboClientCountDataLoader::class)
 
-    suspend fun numberOfFields(dfe: DataFetchingEnvironment) =
-        dfe.loadOrThrow<GoboUsage, GoboFieldCount>(this).numberOfFields
+    fun numberOfFields(dfe: DataFetchingEnvironment) =
+        dfe.loadValue<GoboUsage, Long>(key = this, loaderClass = GoboFieldCountDataLoader::class)
 
-    suspend fun usedFields(
+    fun usedFields(
         dfe: DataFetchingEnvironment,
         nameContains: String? = null,
         mostUsedOnly: Boolean? = null
-    ): List<GoboFieldUsage> {
-        val fields = dfe.loadMany<String, GoboFieldUsage>(nameContains ?: "")
-        return if (mostUsedOnly == true) {
-            fields.sortedByDescending { it.count }.take(5)
-        } else {
-            fields
-        }
-    }
+    ) = dfe.loadValue<GoboFieldUsageKey, List<GoboFieldUsage>>(GoboFieldUsageKey(nameContains, mostUsedOnly == true))
 
-    suspend fun clients(dfe: DataFetchingEnvironment, nameContains: String? = null) =
-        dfe.loadMany<String, GoboClient>(nameContains ?: "")
+    fun clients(dfe: DataFetchingEnvironment, nameContains: String? = null): CompletableFuture<List<GoboClient>> =
+        dfe.loadValue(nameContains ?: "")
 }
 
 data class Gobo(val startTime: Instant, val usage: GoboUsage = GoboUsage())

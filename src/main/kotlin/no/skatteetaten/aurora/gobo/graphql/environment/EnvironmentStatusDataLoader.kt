@@ -10,21 +10,21 @@ import org.springframework.stereotype.Component
 // 1) If status from Phil is failed, use it
 // 2) If status from Phil is success, use status from ApplicationDeployment (Mokey)
 @Component
-class EnvironmentStatusBatchDataLoader(private val applicationService: ApplicationService) :
+class EnvironmentStatusDataLoader(private val applicationService: ApplicationService) :
     GoboDataLoader<EnvironmentApplication, EnvironmentStatus>() {
 
     override suspend fun getByKeys(keys: Set<EnvironmentApplication>, context: GoboGraphQLContext):
         Map<EnvironmentApplication, EnvironmentStatus> {
-            val applicationDeployments = applicationService.getApplicationDeployments(
-                keys.map { ApplicationDeploymentRef(it.environment, it.name) }
-            )
+        val applicationDeployments = applicationService.getApplicationDeployments(
+            keys.map { ApplicationDeploymentRef(it.environment, it.name) }
+        )
 
-            return keys.map { app ->
-                val ad =
-                    applicationDeployments.find { ad ->
-                        ad.affiliation == app.affiliation && ad.environment == app.environment && ad.name == app.name
-                    }
-                app to EnvironmentStatus.create(ad)
-            }.toMap()
-        }
+        return keys.map { app ->
+            val ad =
+                applicationDeployments.find { ad ->
+                    ad.affiliation == app.affiliation && ad.environment == app.environment && ad.name == app.name
+                }
+            app to EnvironmentStatus.create(ad)
+        }.toMap()
+    }
 }

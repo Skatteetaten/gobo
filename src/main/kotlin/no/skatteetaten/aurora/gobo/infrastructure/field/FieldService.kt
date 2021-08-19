@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service
 @Service
 class FieldService(
     val fieldRepo: FieldRepository,
-    val fieldClientRepository: FieldClientRepository
+    private val fieldClientRepository: FieldClientRepository
 ) {
 
     fun addField(field: Field) {

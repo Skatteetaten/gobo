@@ -3,6 +3,14 @@ package no.skatteetaten.aurora.gobo.graphql.imagerepository
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.coEvery
 import no.skatteetaten.aurora.gobo.AuroraIntegration
+import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithDbhAndSkap
+import no.skatteetaten.aurora.gobo.graphql.graphqlDataWithPrefix
+import no.skatteetaten.aurora.gobo.graphql.graphqlDataWithPrefixAndIndex
+import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
+import no.skatteetaten.aurora.gobo.graphql.graphqlErrors
+import no.skatteetaten.aurora.gobo.graphql.graphqlErrorsFirst
+import no.skatteetaten.aurora.gobo.graphql.isTrue
+import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.integration.cantus.AuroraResponse
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageBuildTimeline
@@ -12,14 +20,6 @@ import no.skatteetaten.aurora.gobo.integration.cantus.ImageTagResource
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageTagType
 import no.skatteetaten.aurora.gobo.integration.cantus.Tag
 import no.skatteetaten.aurora.gobo.integration.cantus.TagsDto
-import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithDbhAndSkap
-import no.skatteetaten.aurora.gobo.graphql.graphqlDataWithPrefix
-import no.skatteetaten.aurora.gobo.graphql.graphqlDataWithPrefixAndIndex
-import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
-import no.skatteetaten.aurora.gobo.graphql.graphqlErrors
-import no.skatteetaten.aurora.gobo.graphql.graphqlErrorsFirst
-import no.skatteetaten.aurora.gobo.graphql.isTrue
-import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
@@ -42,10 +42,10 @@ private fun List<ImageRepoAndTags>.getTagCount() =
 
 @Import(
     ImageRepositoryQuery::class,
-    TagsDtoDataLoader::class,
+    ImageTagsConnectionDataLoader::class,
     ImageDataLoader::class,
     GuiUrlDataLoader::class,
-    ImageMultipleKeysDataLoader::class
+    MultipleImagesDataLoader::class
 )
 class ImageRepositoryQueryTest : GraphQLTestWithDbhAndSkap() {
     @Value("classpath:graphql/queries/getImageRepositories.graphql")

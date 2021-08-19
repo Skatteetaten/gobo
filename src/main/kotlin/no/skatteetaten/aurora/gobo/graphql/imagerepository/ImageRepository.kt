@@ -3,19 +3,15 @@ package no.skatteetaten.aurora.gobo.graphql.imagerepository
 import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
-import java.time.Instant
 import mu.KotlinLogging
-import no.skatteetaten.aurora.gobo.integration.cantus.ImageTagType
-import no.skatteetaten.aurora.gobo.integration.cantus.ImageTagType.Companion.typeOf
-import no.skatteetaten.aurora.gobo.integration.cantus.Tag
-import no.skatteetaten.aurora.gobo.integration.cantus.TagsDto
 import no.skatteetaten.aurora.gobo.graphql.GoboEdge
 import no.skatteetaten.aurora.gobo.graphql.GoboPageInfo
 import no.skatteetaten.aurora.gobo.graphql.GoboPagedEdges
-import no.skatteetaten.aurora.gobo.graphql.load
-import no.skatteetaten.aurora.gobo.graphql.loadMultipleKeys
-import no.skatteetaten.aurora.gobo.graphql.loadOrThrow
-import no.skatteetaten.aurora.gobo.graphql.pageEdges
+import no.skatteetaten.aurora.gobo.graphql.loadValue
+import no.skatteetaten.aurora.gobo.integration.cantus.ImageTagType
+import no.skatteetaten.aurora.gobo.integration.cantus.ImageTagType.Companion.typeOf
+import java.time.Instant
+import java.util.concurrent.CompletableFuture
 
 private val logger = KotlinLogging.logger {}
 
@@ -57,56 +53,31 @@ data class ImageRepository(
     )
 
     // TODO should this be named tags? it returns a list
-    suspend fun tag(
+    fun tag(
         names: List<String>,
         dfe: DataFetchingEnvironment
-    ): List<ImageWithType?> {
+    ): CompletableFuture<List<ImageWithType?>> {
 
         if (!isFullyQualified()) {
-            return emptyList()
+            return CompletableFuture.completedFuture(emptyList())
         }
 
         val imageTags = names.map { ImageTag(this, it) }
-        val values = dfe.loadMultipleKeys<ImageTag, Image>(imageTags)
-        return values.map {
-            if (it.value.hasErrors()) {
-                null
-            } else {
-                ImageWithType(it.key.name, it.value.data)
-            }
-        }
+        return dfe.loadValue(keys = imageTags, loaderClass = MultipleImagesDataLoader::class)
     }
 
-    suspend fun tags(
+    fun tags(
         types: List<ImageTagType>? = null,
         filter: String? = null,
         first: Int,
         after: String? = null,
         dfe: DataFetchingEnvironment
-    ): DataFetcherResult<ImageTagsConnection> {
-        val tagsDto = if (!isFullyQualified()) {
-            DataFetcherResult.newResult<TagsDto>().data(TagsDto(emptyList())).build()
-        } else {
-            dfe.load(toImageRepo(filter))
-        }
-
-        val tags = tagsDto.data?.tags ?: emptyList()
-        val imageTags = tags.toImageTags(this, types)
-        val allEdges = imageTags.map { ImageTagEdge(it) }
-        return DataFetcherResult.newResult<ImageTagsConnection>()
-            .data(ImageTagsConnection(pageEdges(allEdges, first, after)))
-            .errors(tagsDto.errors)
-            .build()
+    ): CompletableFuture<DataFetcherResult<ImageTagsConnection?>> {
+        return dfe.loadValue(ImageTagsKey(this, types, filter, first, after))
     }
 
-    private fun List<Tag>.toImageTags(imageRepository: ImageRepository, types: List<ImageTagType>?) = this
-        .map { ImageTag(imageRepository = imageRepository, name = it.name) }
-        .filter { types == null || it.type in types }
-
-    suspend fun guiUrl(dfe: DataFetchingEnvironment): String? {
-        val guiUrl: GuiUrl = dfe.loadOrThrow(this)
-        return guiUrl.url
-    }
+    fun guiUrl(dfe: DataFetchingEnvironment) =
+        dfe.loadValue<ImageRepository, String?>(key = this, loaderClass = GuiUrlDataLoader::class)
 
     companion object {
         /**
@@ -138,7 +109,7 @@ data class ImageTag(
 ) {
     val type: ImageTagType get() = typeOf(name)
 
-    suspend fun image(dfe: DataFetchingEnvironment) = dfe.load<ImageTag, Image?>(this)
+    fun image(dfe: DataFetchingEnvironment) = dfe.loadValue<ImageTag, DataFetcherResult<Image?>>(key = this, loaderClass = ImageDataLoader::class)
 
     companion object {
         fun fromTagString(tagString: String, lastDelimiter: String = ":"): ImageTag {

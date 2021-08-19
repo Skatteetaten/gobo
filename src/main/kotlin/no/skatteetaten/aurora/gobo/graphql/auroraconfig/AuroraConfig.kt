@@ -4,10 +4,12 @@ import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
 import com.fasterxml.jackson.databind.JsonNode
 import com.jayway.jsonpath.JsonPath
 import graphql.schema.DataFetchingEnvironment
+import kotlinx.coroutines.runBlocking
 import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.ApplicationDeploymentRef
-import no.skatteetaten.aurora.gobo.graphql.loadMany
+import no.skatteetaten.aurora.gobo.graphql.loadValue
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileType
 import no.skatteetaten.aurora.gobo.security.checkValidUserToken
+import java.util.concurrent.CompletableFuture
 
 data class AuroraConfig(
     val name: String,
@@ -29,12 +31,12 @@ data class AuroraConfig(
         }
     }
 
-    suspend fun applicationDeploymentSpec(
+    fun applicationDeploymentSpec(
         applicationDeploymentRefs: List<ApplicationDeploymentRef>,
         dfe: DataFetchingEnvironment
-    ): List<ApplicationDeploymentSpec> {
-        dfe.checkValidUserToken()
-        return dfe.loadMany(
+    ): CompletableFuture<List<ApplicationDeploymentSpec>> {
+        runBlocking { dfe.checkValidUserToken() } // TODO bør fikses med @PreAuthorize?
+        return dfe.loadValue(
             AdSpecKey(
                 name,
                 ref,

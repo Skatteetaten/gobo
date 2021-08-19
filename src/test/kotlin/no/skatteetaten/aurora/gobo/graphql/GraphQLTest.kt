@@ -3,7 +3,6 @@ package no.skatteetaten.aurora.gobo.graphql
 import com.expediagroup.graphql.server.operations.Query
 import com.expediagroup.graphql.server.spring.GraphQLAutoConfiguration
 import com.ninjasquad.springmockk.MockkBean
-import no.skatteetaten.aurora.gobo.DataLoaderConfiguration
 import no.skatteetaten.aurora.gobo.GraphQLConfig
 import no.skatteetaten.aurora.gobo.graphql.errorhandling.GoboDataFetcherExceptionHandler
 import no.skatteetaten.aurora.gobo.infrastructure.client.ClientService
@@ -35,7 +34,6 @@ class TestDummyQuery : Query {
 @WebFluxTest
 @Import(
     GraphQLConfig::class,
-    DataLoaderConfiguration::class,
     OpenShiftAuthenticationManager::class,
     GoboSecurityContextRepository::class,
     GoboGraphQLContextFactory::class,

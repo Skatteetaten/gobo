@@ -27,7 +27,7 @@ import org.springframework.core.io.Resource
     ApplicationQuery::class,
     PermissionDataLoader::class,
     ApplicationDeploymentDetailsDataLoader::class,
-    ApplicationBatchDataLoader::class
+    ApplicationDataLoader::class
 )
 class ApplicationQueryTest : GraphQLTestWithDbhAndSkap() {
 

@@ -18,7 +18,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
 
-@Import(AuroraConfigQuery::class, ApplicationDeploymentSpecListDataLoader::class)
+@Import(AuroraConfigQuery::class, ApplicationDeploymentSpecDataLoader::class)
 class AuroraConfigQueryTest : GraphQLTestWithDbhAndSkap() {
 
     @Value("classpath:graphql/queries/getFile.graphql")

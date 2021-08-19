@@ -20,8 +20,8 @@ import org.springframework.core.io.Resource
 
 @Import(
     GoboQuery::class,
-    GoboFieldUsageListDataLoader::class,
-    GoboClientListDataLoader::class,
+    GoboFieldUsageDataLoader::class,
+    GoboClientDataLoader::class,
     GoboFieldCountDataLoader::class,
     GoboClientCountDataLoader::class
 )
