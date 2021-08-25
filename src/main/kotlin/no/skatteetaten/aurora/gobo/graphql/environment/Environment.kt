@@ -38,12 +38,15 @@ data class EnvironmentStatus(
     companion object {
         // TODO status from Phil must be added
         fun create(ad: ApplicationDeploymentResource?) = when {
-            ad == null -> EnvironmentStatus(EnvironmentStatusType.INACTIVE)
-            ad.success() -> EnvironmentStatus(EnvironmentStatusType.COMPLETED, null, null, ad.identifier)
+            ad == null -> EnvironmentStatus(state = EnvironmentStatusType.INACTIVE)
+            ad.success() -> EnvironmentStatus(
+                state = EnvironmentStatusType.COMPLETED,
+                applicationDeploymentId = ad.identifier
+            )
             else -> EnvironmentStatus(
-                EnvironmentStatusType.FAILED,
-                "Application not deployed",
-                "${ad.status.code} - ${ad.status.reasons.detailedStatusMessage()}"
+                state = EnvironmentStatusType.FAILED,
+                message = "Application not deployed",
+                details = "${ad.status.code} - ${ad.status.reasons.detailedStatusMessage()}"
             )
         }
     }
