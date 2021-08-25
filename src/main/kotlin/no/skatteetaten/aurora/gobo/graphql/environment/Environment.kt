@@ -32,17 +32,21 @@ enum class EnvironmentStatusType {
 data class EnvironmentStatus(
     val state: EnvironmentStatusType,
     val message: String? = null,
-    val details: String? = null
+    val details: String? = null,
+    val applicationDeploymentId: String? = null
 ) {
     companion object {
         // TODO status from Phil must be added
         fun create(ad: ApplicationDeploymentResource?) = when {
-            ad == null -> EnvironmentStatus(EnvironmentStatusType.INACTIVE)
-            ad.success() -> EnvironmentStatus(EnvironmentStatusType.COMPLETED)
+            ad == null -> EnvironmentStatus(state = EnvironmentStatusType.INACTIVE)
+            ad.success() -> EnvironmentStatus(
+                state = EnvironmentStatusType.COMPLETED,
+                applicationDeploymentId = ad.identifier
+            )
             else -> EnvironmentStatus(
-                EnvironmentStatusType.FAILED,
-                "Application not deployed",
-                "${ad.status.code} - ${ad.status.reasons.detailedStatusMessage()}"
+                state = EnvironmentStatusType.FAILED,
+                message = "Application not deployed",
+                details = "${ad.status.code} - ${ad.status.reasons.detailedStatusMessage()}"
             )
         }
     }
