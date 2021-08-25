@@ -20,6 +20,14 @@ suspend fun DataFetchingEnvironment.checkValidUserToken() {
     getValidUser()
 }
 
+suspend fun DataFetchingEnvironment.checkIsUserAuthorized(allowedAdGroup: String) {
+    val user = this.getValidUser()
+
+    if (!user.groups.contains(allowedAdGroup)) {
+        throw AccessDeniedException("You do not have access to perform this operation")
+    }
+}
+
 suspend fun <T> DataFetchingEnvironment.ifValidUserToken(whenValidToken: suspend () -> T): T {
     getValidUser()
     return whenValidToken()

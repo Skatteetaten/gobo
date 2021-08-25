@@ -13,9 +13,9 @@ import no.skatteetaten.aurora.gobo.integration.naghub.DetailedMessage
 import no.skatteetaten.aurora.gobo.integration.naghub.NagHubColor
 import no.skatteetaten.aurora.gobo.integration.naghub.NagHubResult
 import no.skatteetaten.aurora.gobo.integration.naghub.NagHubService
+import no.skatteetaten.aurora.gobo.security.checkIsUserAuthorized
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
-import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Component
 
 private val logger = KotlinLogging.logger {}
@@ -31,12 +31,12 @@ class CredentialMutation(
     @Value("\${credentials.registerPostgres.allowedAdGroup}") val allowedAdGroup: String
 
 ) : Mutation {
-
-    @PreAuthorize("hasAuthority(@environment.getProperty('credentials.registerPostgres.allowedAdGroup'))")
     suspend fun registerPostgresMotelServer(
         input: PostgresMotelInput,
         dfe: DataFetchingEnvironment
     ): RegisterPostgresResult {
+        dfe.checkIsUserAuthorized(allowedAdGroup)
+
         val postgresInstance = input.toHerkimerPostgresInstance()
 
         return herkimerService.registerResourceAndClaim(

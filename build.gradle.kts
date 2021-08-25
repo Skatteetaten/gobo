@@ -1,30 +1,26 @@
 plugins {
     kotlin("jvm") version "1.5.21"
-    id("no.skatteetaten.gradle.aurora") version "4.3.11"
-    id("org.flywaydb.flyway") version "7.12.1"
+    id("no.skatteetaten.gradle.aurora") version "4.3.13"
+    id("org.flywaydb.flyway") version "7.14.0"
 }
 
 aurora {
-    useAuroraDefaults
-    useKotlin {
-        useKtLint
-    }
+    useKotlinDefaults
+    useSpringBootDefaults
+
     useSpringBoot {
         useWebFlux
         useCloudContract
-    }
-    features {
-        checkstylePlugin = false
     }
 }
 
 dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.1")
 
-    implementation("io.projectreactor.kotlin:reactor-kotlin-extensions:1.1.3")
+    implementation("io.projectreactor.kotlin:reactor-kotlin-extensions:1.1.4")
     implementation("org.apache.commons:commons-text:1.9")
     implementation("org.springframework.boot:spring-boot-starter-security")
-    implementation("com.expediagroup:graphql-kotlin-spring-server:4.1.1")
+    implementation("com.expediagroup:graphql-kotlin-spring-server:4.2.0")
     implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
 
     implementation("org.postgresql:postgresql")
@@ -35,19 +31,18 @@ dependencies {
         exclude(group = "com.google.guava", module = "guava")
     }
 
-    implementation("io.fabric8:openshift-client:5.6.0")
     implementation("com.github.fge:json-patch:1.13")
     implementation("com.jayway.jsonpath:json-path:2.6.0")
-    implementation("io.projectreactor.addons:reactor-extra:3.4.3")
+    implementation("io.projectreactor.addons:reactor-extra:3.4.4")
     implementation("no.skatteetaten.aurora.kubernetes:kubernetes-reactor-coroutines-client:1.3.12")
-    implementation("no.skatteetaten.aurora.springboot:aurora-spring-security-starter:1.3.0")
+    implementation("no.skatteetaten.aurora.springboot:aurora-spring-security-starter:1.4.0")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
     testImplementation("io.mockk:mockk:1.12.0")
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.24")
     testImplementation("io.projectreactor:reactor-test")
-    testImplementation("no.skatteetaten.aurora:mockmvc-extensions-kotlin:1.1.6")
+    testImplementation("no.skatteetaten.aurora:mockwebserver-extensions-kotlin:1.1.7")
     testImplementation("com.ninja-squad:springmockk:3.0.1")
     testImplementation("org.junit-pioneer:junit-pioneer:1.4.2")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.5.1")
