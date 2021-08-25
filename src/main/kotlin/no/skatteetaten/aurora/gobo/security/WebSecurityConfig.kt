@@ -22,7 +22,7 @@ class WebSecurityConfig(
         .logout().disable()
         .authenticationManager(authenticationManager)
         .securityContextRepository(securityContextRepository)
-        .authorizeExchange().pathMatchers("/playground").permitAll()
+        .authorizeExchange().pathMatchers("/playground", "/actuator", "/actuator/**").permitAll()
         .anyExchange().authenticated()
         .and()
         .build()
