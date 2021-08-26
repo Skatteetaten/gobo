@@ -40,11 +40,6 @@ class GoboGraphQLContext(
         }
         .getOrThrow()
 
-    // TODO holder denne sjekken på om tokenet er satt?
-    // AuthenticationManager skal ha blitt lastet hvis tokenet er satt
-    fun isAnonymous() = token == null
-    fun isNotAnonymous() = token != null && token.startsWith("Bearer ")
-
     fun token() = token ?: throw AccessDeniedException("Token is not set")
     fun korrelasjonsid() =
         request.korrelasjonsid() ?: BaggageField.getByName(AuroraRequestParser.KORRELASJONSID_FIELD)?.value ?: ""
