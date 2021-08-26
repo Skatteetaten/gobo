@@ -61,8 +61,3 @@ gobo:
 
 # logging.level.no.skatteetaten.aurora.gobo: DEBUG
 logging.level.no.skatteetaten.aurora.gobo.security: DEBUG
-logging.level.no.skatteetaten.aurora.springboot: DEBUG
-
-credentials:
-    registerPostgres:
-        allowedAdGroup: APP_PaaS_utv
