@@ -6,17 +6,21 @@ import graphql.GraphQLError
 import graphql.execution.DataFetcherExceptionHandlerParameters
 import graphql.execution.ResultPath
 import graphql.language.SourceLocation
+import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.GoboException
 import no.skatteetaten.aurora.gobo.graphql.GoboGraphQLContext
 import no.skatteetaten.aurora.webflux.AuroraRequestParser
+import org.springframework.security.access.AccessDeniedException
 import org.springframework.web.reactive.function.client.WebClientResponseException
+
+private val logger = KotlinLogging.logger { }
 
 class GraphQLExceptionWrapper private constructor(
     val exception: Throwable,
-    private val message: String? = if (exception is WebClientResponseException) {
-        "Downstream request failed with ${exception.statusCode.name}"
-    } else {
-        exception.message
+    private val message: String? = when (exception) {
+        is WebClientResponseException -> "Downstream request failed with ${exception.statusCode.name}"
+        is AccessDeniedException -> "Access denied, missing/invalid token or the token does not have the required permissions".also { logger.debug(exception) { "Access denied from Spring Security" } }
+        else -> exception.message
     },
     private val cause: Throwable? = exception.cause,
     private val location: SourceLocation? = null,

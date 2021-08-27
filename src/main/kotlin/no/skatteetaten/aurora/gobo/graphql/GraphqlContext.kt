@@ -12,6 +12,7 @@ import no.skatteetaten.aurora.gobo.graphql.errorhandling.isInvalidToken
 import no.skatteetaten.aurora.gobo.graphql.errorhandling.isNoSuchElementException
 import no.skatteetaten.aurora.webflux.AuroraRequestParser
 import org.springframework.http.HttpHeaders
+import org.springframework.security.access.AccessDeniedException
 import org.springframework.security.core.context.SecurityContext
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.server.ServerRequest

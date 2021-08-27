@@ -114,7 +114,7 @@ fun WebTestClient.BodyContentSpec.graphqlErrorsFirst(jsonPath: String) =
     graphqlJsonPath(jsonPath, "errors[0]")
 
 fun WebTestClient.BodyContentSpec.graphqlErrorsMissingToken() =
-    graphqlErrorsFirst("message").isEqualTo("Token is not set")
+    graphqlErrorsFirst("message").isEqualTo("Access denied, missing/invalid token or the token does not have the required permissions")
 
 fun WebTestClient.BodyContentSpec.graphqlErrorsFirstContainsMessage(message: String): WebTestClient.BodyContentSpec =
     this.graphqlErrorsFirst("message").contains(message)

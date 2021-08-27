@@ -36,9 +36,7 @@ import org.springframework.test.context.TestPropertySource
 
 class CredentialMutationTest {
 
-    @WithMockUser(
-        authorities = ["testAdGroup"]
-    )
+    @WithMockUser(authorities = ["testAdGroup"])
     @Nested
     inner class AuthorizedTokenCredentialMutation(
         @Value("\${openshift.cluster}") val cluster: String
@@ -108,16 +106,30 @@ class CredentialMutationTest {
                 token = "test-token"
             ).expectStatus().isOk
                 .expectBody()
-                .graphqlErrorsFirstContainsMessage("You do not have access")
+                .graphqlErrorsFirstContainsMessage("Access denied, missing/invalid token or the token does not have the required permissions")
         }
     }
 
-    @WithMockUser(
-        authorities = ["testAdGroup"]
-    )
-    @TestPropertySource(
-        properties = ["integrations.herkimer.url=false"]
-    )
+    @WithMockUser(authorities = ["wrongAdGroup"])
+    @Nested
+    inner class WrongAdGroupTokenCredentialMutation : CredentialMutationBaseTest() {
+        @MockkBean(relaxed = true)
+        private lateinit var herkimerService: HerkimerService
+
+        @Test
+        fun `Error when wrong ad group`() {
+            webTestClient.queryGraphQL(
+                queryResource = registerPostgresMotelMutation,
+                variables = registerPostgresVariables,
+                token = "test-token"
+            ).expectStatus().isOk
+                .expectBody()
+                .graphqlErrorsFirstContainsMessage("Access denied, missing/invalid token or the token does not have the required permissions")
+        }
+    }
+
+    @WithMockUser(authorities = ["testAdGroup"])
+    @TestPropertySource(properties = ["integrations.herkimer.url=false"])
     @Nested
     @Import(HerkimerServiceReactive::class, HerkimerServiceDisabled::class)
     inner class UnavailableHerkimerCredentialMutation : CredentialMutationBaseTest() {
@@ -134,17 +146,13 @@ class CredentialMutationTest {
         }
     }
 
-    @WithMockUser(
-        authorities = ["testAdGroup"]
-    )
-    @TestPropertySource(
-        properties = ["integrations.dbh.application.deployment.id=false"]
-    )
+    @WithMockUser(authorities = ["testAdGroup"])
+    @TestPropertySource(properties = ["integrations.dbh.application.deployment.id=false"])
     @Nested
     inner class DbhApplicationDeploymentIdNotSetCredentialMutation : CredentialMutationBaseTest() {
 
         @Test
-        fun `verify mutation is disabled when dbh adid is not present`() {
+        fun `verify mutation is disabled when dbh is not present`() {
             webTestClient.queryGraphQL(
                 queryResource = registerPostgresMotelMutation,
                 variables = registerPostgresVariables,

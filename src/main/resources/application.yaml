@@ -29,6 +29,8 @@ aurora:
             webclient:
                 interceptor:
                     enabled: true
+    security:
+        allow-anonymous: true
 
 management:
     endpoints:
