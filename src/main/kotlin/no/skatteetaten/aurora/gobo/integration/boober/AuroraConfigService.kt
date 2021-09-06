@@ -34,7 +34,7 @@ class AuroraConfigService(
         application: String
     ): List<AuroraConfigFileResource> {
         return booberWebClient
-            .get<List<AuroraConfigFileResource>>(
+            .get<AuroraConfigFileResource>(
                 url = "/v1/auroraconfig/{auroraConfigName}/files/{environment}/{application}",
                 token = token,
                 params = mapOf(
@@ -42,7 +42,7 @@ class AuroraConfigService(
                     "environment" to environment,
                     "application" to application
                 )
-            ).response()
+            ).responses()
     }
 
     suspend fun updateAuroraConfigFile(
