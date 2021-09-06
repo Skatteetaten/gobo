@@ -33,6 +33,23 @@ class AuroraConfigServiceTest {
     }
 
     @Test
+    fun `Get aurora config application files`() {
+        val response =
+            Response(
+                items = listOf(
+                    AuroraConfigFileResource("name", "contents", AuroraConfigFileType.APP, "hash")
+                )
+            )
+        val requests = server.executeBlocking(response) {
+            val auroraConfig =
+                auroraConfigService.getApplicationAuroraConfigFiles("token", "name", "env", "app")
+            assertThat(auroraConfig[0].name).isEqualTo("name")
+        }
+
+        assertThat(requests).hasSize(1)
+    }
+
+    @Test
     fun `Get aurora config failure`() {
         val response = Response(success = false, items = emptyList<AuroraConfig>())
         val requests = server.executeBlocking(response) {
