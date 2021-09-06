@@ -1,5 +1,5 @@
 query getWebsealStates($affiliation: String!) {
-    affiliations(name: $affiliation) {
+    affiliations(names: [$affiliation]) {
         edges {
             node {
                 websealStates {
