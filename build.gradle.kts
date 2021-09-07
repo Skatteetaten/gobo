@@ -1,7 +1,7 @@
 plugins {
-    kotlin("jvm") version "1.5.21"
+    kotlin("jvm") version "1.5.30"
     id("no.skatteetaten.gradle.aurora") version "4.3.13"
-    id("org.flywaydb.flyway") version "7.14.0"
+    id("org.flywaydb.flyway") version "7.14.1"
 }
 
 aurora {
@@ -15,7 +15,7 @@ aurora {
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
 
     implementation("io.projectreactor.kotlin:reactor-kotlin-extensions:1.1.4")
     implementation("org.apache.commons:commons-text:1.9")
@@ -35,7 +35,7 @@ dependencies {
     implementation("com.jayway.jsonpath:json-path:2.6.0")
     implementation("io.projectreactor.addons:reactor-extra:3.4.4")
     implementation("no.skatteetaten.aurora.kubernetes:kubernetes-reactor-coroutines-client:1.3.12")
-    implementation("no.skatteetaten.aurora.springboot:aurora-spring-security-starter:1.4.0")
+    implementation("no.skatteetaten.aurora.springboot:aurora-spring-security-starter:1.6.1")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
@@ -45,7 +45,7 @@ dependencies {
     testImplementation("no.skatteetaten.aurora:mockwebserver-extensions-kotlin:1.1.7")
     testImplementation("com.ninja-squad:springmockk:3.0.1")
     testImplementation("org.junit-pioneer:junit-pioneer:1.4.2")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.5.1")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.5.2")
 }
 
 task<de.undercouch.gradle.tasks.download.Download>("download-playground") {
