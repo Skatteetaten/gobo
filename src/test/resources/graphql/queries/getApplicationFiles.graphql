@@ -1,0 +1,8 @@
+query getApplicationFiles($name: String!, $environment: String!, $application: String!) {
+    applicationAuroraConfigFiles(name: $name, environment: $environment, application: $application) {
+        name
+        contents
+        contentHash
+        type
+    }
+}
