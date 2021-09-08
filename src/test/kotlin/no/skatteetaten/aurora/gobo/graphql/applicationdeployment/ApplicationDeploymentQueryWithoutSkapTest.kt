@@ -21,8 +21,15 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
+import no.skatteetaten.aurora.gobo.graphql.auroraconfig.AuroraConfigFileResourceDataLoader
+import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigService
 
-@Import(ApplicationDeploymentQuery::class, ImageDataLoader::class, RouteDataLoader::class)
+@Import(
+    ApplicationDeploymentQuery::class,
+    ImageDataLoader::class,
+    RouteDataLoader::class,
+    AuroraConfigFileResourceDataLoader::class
+)
 class ApplicationDeploymentQueryWithoutSkapTest : GraphQLTestWithoutDbhAndSkap() {
 
     @Value("classpath:graphql/queries/getApplicationDeployment.graphql")
@@ -38,6 +45,9 @@ class ApplicationDeploymentQueryWithoutSkapTest : GraphQLTestWithoutDbhAndSkap()
     private lateinit var databaseServiceReactive: DatabaseServiceReactive
 
     @MockkBean
+    private lateinit var auroraConfigService: AuroraConfigService
+
+    @MockkBean
     private lateinit var routeService: RouteService
 
     @BeforeEach
@@ -46,6 +56,8 @@ class ApplicationDeploymentQueryWithoutSkapTest : GraphQLTestWithoutDbhAndSkap()
             id = "123",
             msg = "Hei"
         ).build()
+
+        coEvery { auroraConfigService.getAuroraConfigFiles(any(), any(), any(), any()) } returns emptyList()
 
         coEvery {
             routeService.getSkapJobs(
@@ -70,6 +82,7 @@ class ApplicationDeploymentQueryWithoutSkapTest : GraphQLTestWithoutDbhAndSkap()
                 graphqlData("status.reasons").exists()
                 graphqlData("message").exists()
                 graphqlData("route.progressions").doesNotExist()
+                graphqlData("files").isEmpty
             }
             .graphqlErrorsFirst("message")
             .isEqualTo("Skap integration is disabled for this environment")

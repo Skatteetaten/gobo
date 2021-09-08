@@ -13,12 +13,4 @@ class AuroraConfigQuery(
 
     suspend fun auroraConfig(name: String, refInput: String? = null, dfe: DataFetchingEnvironment) =
         service.getAuroraConfig(dfe.token(), name, refInput ?: "master")
-
-    suspend fun applicationAuroraConfigFiles(
-        name: String,
-        environment: String,
-        application: String,
-        dfe: DataFetchingEnvironment
-    ) =
-        service.getApplicationAuroraConfigFiles(dfe.token(), name, environment, application)
 }

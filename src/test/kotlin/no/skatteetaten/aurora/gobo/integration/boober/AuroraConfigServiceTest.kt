@@ -48,7 +48,7 @@ class AuroraConfigServiceTest {
             Response(AuroraConfigFileResource("name", "contents", AuroraConfigFileType.APP, "hash"))
         val requests = server.executeBlocking(response) {
             val auroraConfig =
-                auroraConfigService.getApplicationAuroraConfigFiles("token", "name", "env", "app")
+                auroraConfigService.getAuroraConfigFiles("token", "name", "env", "app")
             assertThat(auroraConfig[0].name).isEqualTo("name")
         }
 

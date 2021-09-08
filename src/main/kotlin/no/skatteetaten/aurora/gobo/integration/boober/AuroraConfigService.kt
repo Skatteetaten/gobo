@@ -27,7 +27,7 @@ class AuroraConfigService(
             ).response()
     }
 
-    suspend fun getApplicationAuroraConfigFiles(
+    suspend fun getAuroraConfigFiles(
         token: String,
         auroraConfigName: String,
         environment: String,

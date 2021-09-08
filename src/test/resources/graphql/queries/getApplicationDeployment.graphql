@@ -40,5 +40,11 @@ query getApplicationDeployment($id: String!) {
          asmPolicy
        }
     }
+   files {
+        name
+        contents
+        contentHash
+        type
+    }
   }
 }
