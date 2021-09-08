@@ -1,6 +1,6 @@
 package no.skatteetaten.aurora.gobo.graphql.user
 
-import no.skatteetaten.aurora.gobo.GoboDataLoader
+import no.skatteetaten.aurora.gobo.graphql.GoboDataLoader
 import no.skatteetaten.aurora.gobo.graphql.GoboGraphQLContext
 import no.skatteetaten.aurora.gobo.security.UNKNOWN_USER_NAME
 import no.skatteetaten.aurora.kubernetes.KubernetesCoroutinesClient

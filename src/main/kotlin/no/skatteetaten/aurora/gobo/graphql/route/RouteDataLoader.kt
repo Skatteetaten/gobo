@@ -1,7 +1,7 @@
 package no.skatteetaten.aurora.gobo.graphql.route
 
 import graphql.execution.DataFetcherResult
-import no.skatteetaten.aurora.gobo.GoboDataLoader
+import no.skatteetaten.aurora.gobo.graphql.GoboDataLoader
 import no.skatteetaten.aurora.gobo.graphql.GoboGraphQLContext
 import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.ApplicationDeployment
 import no.skatteetaten.aurora.gobo.graphql.newDataFetcherResult
