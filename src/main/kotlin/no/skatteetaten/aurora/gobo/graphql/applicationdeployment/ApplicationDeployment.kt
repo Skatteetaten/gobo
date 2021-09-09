@@ -48,7 +48,7 @@ data class ApplicationDeployment(
         dfe.loadValue<ApplicationDeployment, DataFetcherResult<Route?>>(this)
 
     fun files(dfe: DataFetchingEnvironment) =
-        dfe.loadValue<ApplicationDeployment, List<AuroraConfigFileResource>>(this)
+        dfe.loadValue<String, List<AuroraConfigFileResource>>(id)
 
     companion object {
         fun create(deployment: ApplicationDeploymentResource) =

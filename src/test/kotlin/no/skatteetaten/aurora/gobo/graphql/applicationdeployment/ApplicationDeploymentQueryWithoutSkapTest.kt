@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
+import no.skatteetaten.aurora.gobo.ApplicationDeploymentDetailsBuilder
 import no.skatteetaten.aurora.gobo.graphql.auroraconfig.AuroraConfigFileResourceDataLoader
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigService
 
@@ -56,6 +57,13 @@ class ApplicationDeploymentQueryWithoutSkapTest : GraphQLTestWithoutDbhAndSkap()
             id = "123",
             msg = "Hei"
         ).build()
+
+        coEvery {
+            applicationService.getApplicationDeploymentDetails(
+                any(),
+                any()
+            )
+        } returns ApplicationDeploymentDetailsBuilder().build()
 
         coEvery { auroraConfigService.getAuroraConfigFiles(any(), any(), any(), any()) } returns emptyList()
 

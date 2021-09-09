@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
+import no.skatteetaten.aurora.gobo.ApplicationDeploymentDetailsBuilder
 import no.skatteetaten.aurora.gobo.graphql.auroraconfig.AuroraConfigFileResource
 import no.skatteetaten.aurora.gobo.graphql.auroraconfig.AuroraConfigFileResourceDataLoader
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileType
@@ -66,8 +67,18 @@ class ApplicationDeploymentQueryTest : GraphQLTestWithDbhAndSkap() {
 
         val websealjob = SkapJobForWebsealBuilder().build()
         val bigipJob = SkapJobForBigipBuilder().build()
+
+        coEvery {
+            applicationService.getApplicationDeploymentDetails(
+                any(),
+                any()
+            )
+        } returns ApplicationDeploymentDetailsBuilder().build()
+
         coEvery { routeService.getSkapJobs("namespace", "name-webseal") } returns listOf(websealjob)
+
         coEvery { routeService.getSkapJobs("namespace", "name-bigip") } returns listOf(bigipJob)
+
         coEvery { imageRegistryService.findTagsByName(any(), any()) } returns AuroraResponse(
             listOf(
                 ImageTagResourceBuilder().build()
