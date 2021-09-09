@@ -86,7 +86,7 @@ class DatabaseServiceReactive(
         val responses = input.map { request ->
             webClient
                 .patch()
-                .uri("/api/v1/restorableSchema/${request.id}")
+                .uri("/api/v1/restorableSchema/{id}", request.id)
                 .body(
                     BodyInserters.fromValue(
                         mapOf(

@@ -51,16 +51,13 @@ class ApplicationDeploymentService(private val booberWebClient: BooberWebClient)
         auroraConfigReference: String,
         applicationDeploymentReferenceList: List<ApplicationDeploymentRef>
     ): List<ApplicationDeploymentSpec> {
+        val adrs = applicationDeploymentReferenceList.joinToString {
+            "${it.environment}/${it.application}"
+        }
 
-        val requestParam = applicationDeploymentReferenceList.joinToString(
-            transform = { "adr=${it.environment}/${it.application}" },
-            separator = "&"
-        ) + "&reference={auroraConfigReference}"
-
-        val url = "/v1/auroradeployspec/{auroraConfig}?$requestParam"
         return booberWebClient.get<JsonNode>(
-            url = url,
-            params = mapOf("auroraConfig" to auroraConfigName, "auroraConfigReference" to auroraConfigReference),
+            url = "/v1/auroradeployspec/{auroraConfig}?adr={adr}&reference={auroraConfigReference}",
+            params = mapOf("auroraConfig" to auroraConfigName, "adr" to adrs, "auroraConfigReference" to auroraConfigReference),
             token = token
         ).responses().map {
             ApplicationDeploymentSpec(it)

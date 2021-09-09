@@ -79,14 +79,18 @@ class ImageRegistryService(
     }
 
     suspend fun findTagNamesInRepoOrderedByCreatedDateDesc(imageRepoDto: ImageRepoDto, token: String): TagsDto {
-        val filterQueryParam = imageRepoDto.filter?.let {
-            "&filter=$it"
-        } ?: ""
-        val resource = webClient.get().uri(
-            "/tags?repoUrl=${imageRepoDto.registry}/{namespace}/{imageTag}$filterQueryParam",
-            imageRepoDto.mappedTemplateVars
-        ).execute<TagResource>(token)
-        return TagsDto.toDto(resource)
+        val uri = "/tags?repoUrl={repoUrl}/{namespace}/{imageTag}"
+
+        val uriVariables =
+            mutableMapOf("repoUrl" to imageRepoDto.registry)
+                .also { it.putAll(imageRepoDto.mappedTemplateVars) }
+
+        val uriWithFilter = imageRepoDto.filter?.let {
+            uriVariables["filter"] = it
+            "$uri&filter={filter}"
+        } ?: uri
+
+        return webClient.get().uri(uriWithFilter, uriVariables).execute<TagResource>(token).let { TagsDto.toDto(it) }
     }
 
     private suspend inline fun <reified T : Any> WebClient.RequestHeadersSpec<*>.execute(token: String): AuroraResponse<T> =
