@@ -79,11 +79,10 @@ class ImageRegistryService(
     }
 
     suspend fun findTagNamesInRepoOrderedByCreatedDateDesc(imageRepoDto: ImageRepoDto, token: String): TagsDto {
-        val uri = "/tags?repoUrl={repoUrl}/{namespace}/{imageTag}"
+        val uri = "/tags?repoUrl={repoUrl}"
 
         val uriVariables =
-            mutableMapOf("repoUrl" to imageRepoDto.registry)
-                .also { it.putAll(imageRepoDto.mappedTemplateVars) }
+            mutableMapOf("repoUrl" to "${imageRepoDto.registry}/${imageRepoDto.mappedTemplateVars["namespace"]}/${imageRepoDto.mappedTemplateVars["imageTag"]}")
 
         val uriWithFilter = imageRepoDto.filter?.let {
             uriVariables["filter"] = it
