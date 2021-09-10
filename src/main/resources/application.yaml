@@ -96,12 +96,6 @@ spring:
         activate:
             on-profile: openshift
 
-management:
-    metrics:
-        web:
-            client:
-                max-uri-tags: 200
-
 aurora:
     token:
         location: /u01/secrets/app/aurora-token/token
