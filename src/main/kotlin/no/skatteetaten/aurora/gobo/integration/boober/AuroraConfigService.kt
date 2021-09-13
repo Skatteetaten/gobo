@@ -81,7 +81,8 @@ class AuroraConfigService(
     ): AuroraConfigFileResource {
         return booberWebClient.patch<AuroraConfigFileResource>(
             token = token,
-            url = auroraConfigFile.replace("{fileName}", applicationFile), // TODO placeholder cannot contain slash
+            url = auroraConfigFile,
+            params = mapOf("fileName" to applicationFile),
             body = createVersionPatch(version)
         ).response()
     }
