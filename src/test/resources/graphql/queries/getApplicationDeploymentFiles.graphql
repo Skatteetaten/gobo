@@ -1,0 +1,11 @@
+query getApplicationDeployment($id: String!) {
+  applicationDeployment(id: $id) {
+    id
+    files {
+      name
+      contents
+      contentHash
+      type
+    }
+  }
+}
