@@ -68,9 +68,9 @@ class AuroraConfigService(
     }
 
     suspend fun getApplicationFile(token: String, url: String): String {
-        val urlPattern = "(?<=/v1/auroraconfig/)(.+)(?=\\?reference=)".toRegex()
+        val urlPattern = "(?<=/v1/auroraconfig/)(.+)(?=(\\?|&)reference=)".toRegex()
         val auroraConfig = urlPattern.find(url)?.groupValues?.first() ?: ""
-        val reference = url.substringAfter("?reference=")
+        val reference = url.substringAfter("reference=")
         logger.debug { "getApplicationFile, url=$url auroraConfig=$auroraConfig reference=$reference" }
 
         return booberWebClient
