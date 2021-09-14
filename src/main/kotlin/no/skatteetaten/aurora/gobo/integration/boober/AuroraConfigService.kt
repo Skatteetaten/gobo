@@ -7,11 +7,14 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.fge.jackson.jsonpointer.JsonPointer
 import com.github.fge.jsonpatch.AddOperation
 import com.github.fge.jsonpatch.JsonPatch
+import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentDetailsResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentRefResource
 import no.skatteetaten.aurora.gobo.graphql.auroraconfig.AuroraConfig
 import no.skatteetaten.aurora.gobo.graphql.auroraconfig.AuroraConfigFileResource
 import org.springframework.stereotype.Service
+
+private val logger = KotlinLogging.logger { }
 
 @Service
 class AuroraConfigService(
@@ -68,6 +71,7 @@ class AuroraConfigService(
         val urlPattern = "(?<=/v1/auroraconfig/)(.+)(?=\\?reference=)".toRegex()
         val auroraConfig = urlPattern.find(url)?.groupValues?.first() ?: ""
         val reference = url.substringAfter("?reference=")
+        logger.debug { "getApplicationFile, url=$url auroraConfig=$auroraConfig reference=$reference" }
 
         return booberWebClient
             .get<AuroraConfigFileResource>(
