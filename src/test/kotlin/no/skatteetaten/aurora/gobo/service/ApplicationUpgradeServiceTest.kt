@@ -72,9 +72,9 @@ class ApplicationUpgradeServiceTest {
 
         assertThat(requests[0]?.path).isNotNull()
             .isEqualTo("/mokey/api/auth/applicationdeploymentdetails/applicationDeploymentId")
-        assertThat(requests[1]?.path).isNotNull().isEqualTo("/boober/FilesCurrent")
-        assertThat(requests[2]?.path).isNotNull().isEqualTo("/boober/AuroraConfigFileCurrent")
-        assertThat(requests[3]?.path).isNotNull().isEqualTo("/boober/Apply")
+        assertThat(requests[1]?.path).isNotNull().isEqualTo("/boober/v1/auroraconfig/FilesCurrent?reference=master")
+        assertThat(requests[2]?.path).isNotNull().isEqualTo("/boober/v1/auroraconfig/AuroraConfigFileCurrent")
+        assertThat(requests[3]?.path).isNotNull().isEqualTo("/boober/v1/auroraconfig/Apply")
         assertThat(requests[4]?.path).isNotNull().isEqualTo("/mokey/api/auth/refresh")
     }
 
@@ -106,7 +106,7 @@ class ApplicationUpgradeServiceTest {
 
         assertThat(requests[0]?.path).isNotNull()
             .isEqualTo("/mokey/api/auth/applicationdeploymentdetails/applicationDeploymentId")
-        assertThat(requests[1]?.path).isNotNull().isEqualTo("/boober/Apply")
+        assertThat(requests[1]?.path).isNotNull().isEqualTo("/boober/v1/auroraconfig/Apply")
     }
 
     @Test
@@ -121,9 +121,9 @@ class ApplicationUpgradeServiceTest {
     private fun applicationDeploymentDetailsResponse() =
         ApplicationDeploymentDetailsBuilder(
             resourceLinks = Links().apply {
-                add("FilesCurrent", "${url}boober/FilesCurrent")
-                add("AuroraConfigFileCurrent", "${url}boober/AuroraConfigFileCurrent")
-                add("Apply", "${url}boober/Apply")
+                add("FilesCurrent", "${url}boober/v1/auroraconfig/FilesCurrent?reference=master")
+                add("AuroraConfigFileCurrent", "${url}boober/v1/auroraconfig/AuroraConfigFileCurrent")
+                add("Apply", "${url}boober/v1/auroraconfig/Apply")
             }
         ).build()
 

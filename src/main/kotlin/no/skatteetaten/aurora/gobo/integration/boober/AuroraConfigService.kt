@@ -64,9 +64,17 @@ class AuroraConfigService(
         ).response()
     }
 
-    suspend fun getApplicationFile(token: String, it: String): String {
+    suspend fun getApplicationFile(token: String, url: String): String {
+        val urlPattern = "(?<=/v1/auroraconfig/)(.+)(?=\\?reference=)".toRegex()
+        val auroraConfig = urlPattern.find(url)?.groupValues?.first() ?: ""
+        val reference = url.substringAfter("?reference=")
+
         return booberWebClient
-            .get<AuroraConfigFileResource>(token = token, url = it)
+            .get<AuroraConfigFileResource>(
+                token = token,
+                url = "/v1/auroraconfig/{auroraConfig}?reference={reference}",
+                params = mapOf("auroraConfig" to auroraConfig, "reference" to reference)
+            )
             .responses()
             .filter { it.type == AuroraConfigFileType.APP }
             .map { it.name }
@@ -79,10 +87,16 @@ class AuroraConfigService(
         auroraConfigFile: String,
         applicationFile: String
     ): AuroraConfigFileResource {
+        val params = if (auroraConfigFile.contains(other = "fileName", ignoreCase = true)) {
+            mapOf("fileName" to applicationFile)
+        } else {
+            emptyMap()
+        }
+
         return booberWebClient.patch<AuroraConfigFileResource>(
             token = token,
             url = auroraConfigFile,
-            params = mapOf("fileName" to applicationFile),
+            params = params,
             body = createVersionPatch(version)
         ).response()
     }
