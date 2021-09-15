@@ -104,17 +104,11 @@ class AuroraConfigService(
         auroraConfigFile: String,
         applicationFile: String
     ): AuroraConfigFileResource {
-        val params = if (auroraConfigFile.contains("fileName")) {
-            mapOf("fileName" to applicationFile)
-        } else {
-            emptyMap()
-        }
-        logger.debug { "patch, url=$auroraConfigFile params=$params" }
+        logger.debug { "patch, url=$auroraConfigFile applicationFile=$applicationFile" }
 
         return booberWebClient.patch<AuroraConfigFileResource>(
             token = token,
-            url = auroraConfigFile,
-            params = params,
+            url = auroraConfigFile.replace("{fileName}", applicationFile),
             body = createVersionPatch(version)
         ).response()
     }

@@ -339,7 +339,7 @@ class AuroraConfigFileBuilder {
 
     fun build() =
         AuroraConfigFileResource(
-            name = "name",
+            name = "test/gobo.yaml",
             contents = "contents",
             type = AuroraConfigFileType.APP,
             contentHash = "12345"

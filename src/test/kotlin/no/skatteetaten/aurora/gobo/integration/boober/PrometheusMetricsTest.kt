@@ -91,6 +91,6 @@ class PrometheusMetricsTest {
             .block()
 
         assertThat(result).isNotNull().contains("/v2/auroraconfig/{auroraConfig}?reference={reference}")
-        assertThat(result).isNotNull().contains("/v1/{fileName}")
+        assertThat(result).isNotNull().contains("/v1/app")
     }
 }

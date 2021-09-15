@@ -148,14 +148,11 @@ class BooberWebClient(
 
         val linkHost = UriComponentsBuilder.fromHttpUrl(link).build().host!!
         val booberUri = UriComponentsBuilder.fromHttpUrl(booberUrl ?: linkHost).build()
-        val linkUri = UriComponentsBuilder
+        return UriComponentsBuilder
             .fromHttpUrl(link)
-
             .host(booberUri.host)
             .port(booberUri.port)
             .build(false)
             .toUriString()
-
-        return linkUri
     }
 }
