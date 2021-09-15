@@ -15,6 +15,7 @@ import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.awaitBody
 import org.springframework.web.reactive.function.client.bodyToMono
+import org.springframework.web.util.UriComponentsBuilder
 import java.net.URI
 
 val objectMapper: ObjectMapper = jacksonObjectMapper().registerModules(JavaTimeModule())
@@ -147,7 +148,7 @@ class BooberWebClient(
         }
 
         val booberUri = URI(booberUrl!!)
-        val linkUri = URI(link)
+        val linkUri = UriComponentsBuilder.fromHttpUrl(link).build()
         return URI(
             booberUri.scheme,
             linkUri.userInfo,

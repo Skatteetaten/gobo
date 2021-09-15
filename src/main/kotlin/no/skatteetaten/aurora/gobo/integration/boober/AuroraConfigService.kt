@@ -104,7 +104,7 @@ class AuroraConfigService(
         auroraConfigFile: String,
         applicationFile: String
     ): AuroraConfigFileResource {
-        val params = if (auroraConfigFile.contains(other = "fileName", ignoreCase = true)) {
+        val params = if (auroraConfigFile.contains("fileName")) {
             mapOf("fileName" to applicationFile)
         } else {
             emptyMap()
