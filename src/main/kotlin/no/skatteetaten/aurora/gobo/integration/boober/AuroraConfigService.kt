@@ -109,6 +109,7 @@ class AuroraConfigService(
         } else {
             emptyMap()
         }
+        logger.debug { "patch, url=$auroraConfigFile params=$params" }
 
         return booberWebClient.patch<AuroraConfigFileResource>(
             token = token,
