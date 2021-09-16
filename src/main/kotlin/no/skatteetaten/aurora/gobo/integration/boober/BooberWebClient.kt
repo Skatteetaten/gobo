@@ -64,8 +64,8 @@ class BooberWebClient(
     @Value("\${boober.metrics.enabled:}") val metricsEnabled: Boolean? = false
 ) {
 
-    val client = when {
-        metricsEnabled == true -> webClient
+    val client = when (metricsEnabled) {
+        true -> webClient
         else -> {
             webClient.mutate().filters { filters ->
                 filters.find {
