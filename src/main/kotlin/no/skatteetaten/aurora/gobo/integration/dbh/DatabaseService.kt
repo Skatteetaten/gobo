@@ -39,9 +39,7 @@ class DatabaseServiceReactive(
 
     override suspend fun getDatabaseSchemas(affiliation: String): List<DatabaseSchemaResource> = webClient
         .get()
-        .uri {
-            it.path("/api/v1/schema/").queryParam("labels", "affiliation=$affiliation").build()
-        }
+        .uri("/api/v1/schema/?labels={labels}", "affiliation=$affiliation")
         .retrieveItems()
 
     override suspend fun getDatabaseSchema(id: String): DatabaseSchemaResource = webClient
@@ -52,9 +50,7 @@ class DatabaseServiceReactive(
     override suspend fun getRestorableDatabaseSchemas(affiliation: String): List<RestorableDatabaseSchemaResource> =
         webClient
             .get()
-            .uri {
-                it.path("/api/v1/restorableSchema/").queryParam("labels", "affiliation=$affiliation").build()
-            }
+            .uri("/api/v1/restorableSchema/?labels={labels}", "affiliation=$affiliation")
             .retrieveItems()
 
     override suspend fun updateDatabaseSchema(input: SchemaUpdateRequest): DatabaseSchemaResource = webClient
