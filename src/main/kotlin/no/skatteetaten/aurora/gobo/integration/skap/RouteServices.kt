@@ -21,9 +21,7 @@ class RouteServiceReactive(
     override suspend fun getSkapJobs(namespace: String, name: String): List<SkapJob> =
         webClient
             .get()
-            .uri {
-                it.path("/job/list").queryParam("namespace", namespace).queryParam("name", name).build()
-            }
+            .uri("/job/list?namespace={namespace}&name={name}", namespace, name)
             .header(HttpHeaders.AUTHORIZATION, "$HEADER_AURORA_TOKEN ${sharedSecretReader.secret}")
             .retrieve()
             .awaitBody()

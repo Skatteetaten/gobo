@@ -7,11 +7,17 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.fge.jackson.jsonpointer.JsonPointer
 import com.github.fge.jsonpatch.AddOperation
 import com.github.fge.jsonpatch.JsonPatch
+import mu.KotlinLogging
+import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentDetailsResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentRefResource
 import no.skatteetaten.aurora.gobo.graphql.auroraconfig.AuroraConfig
 import no.skatteetaten.aurora.gobo.graphql.auroraconfig.AuroraConfigFileResource
+import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import org.springframework.stereotype.Service
+import org.springframework.web.util.UriComponentsBuilder
+
+private val logger = KotlinLogging.logger { }
 
 @Service
 class AuroraConfigService(
@@ -64,9 +70,28 @@ class AuroraConfigService(
         ).response()
     }
 
-    suspend fun getApplicationFile(token: String, it: String): String {
+    suspend fun getApplicationFile(token: String, url: String): String {
+        val auroraConfig = "(?<=/auroraconfig/)(.+)(?=(\\?))".toRegex().find(url)?.value
+            ?: throw SourceSystemException(
+                message = "Unable to lookup application file, could not find affiliation",
+                integrationResponse = "Could not find auroraconfig in url from mokey, url:$url",
+                sourceSystem = ServiceTypes.BOOBER
+            )
+
+        val queryParams = UriComponentsBuilder.fromHttpUrl(url).build().queryParams.toSingleValueMap()
+        val queryParamsString = queryParams.keys.joinToString(separator = "") {
+            "$it={$it}&"
+        }.removeSuffix("&")
+
+        val urlTemplate = "/v1/auroraconfig/{auroraConfig}?$queryParamsString"
+        logger.debug { "getApplicationFile, url=$url urlTemplate=$urlTemplate" }
+
         return booberWebClient
-            .get<AuroraConfigFileResource>(token = token, url = it)
+            .get<AuroraConfigFileResource>(
+                token = token,
+                url = urlTemplate,
+                params = queryParams.apply { put("auroraConfig", auroraConfig) }
+            )
             .responses()
             .filter { it.type == AuroraConfigFileType.APP }
             .map { it.name }
@@ -79,9 +104,11 @@ class AuroraConfigService(
         auroraConfigFile: String,
         applicationFile: String
     ): AuroraConfigFileResource {
+        logger.debug { "patch, url=$auroraConfigFile applicationFile=$applicationFile" }
+
         return booberWebClient.patch<AuroraConfigFileResource>(
             token = token,
-            url = auroraConfigFile.replace("{fileName}", applicationFile), // TODO placeholder cannot contain slash
+            url = auroraConfigFile.replace("{fileName}", applicationFile),
             body = createVersionPatch(version)
         ).response()
     }

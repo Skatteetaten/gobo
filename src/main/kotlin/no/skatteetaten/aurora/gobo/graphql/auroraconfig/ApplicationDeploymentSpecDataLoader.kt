@@ -1,6 +1,6 @@
 package no.skatteetaten.aurora.gobo.graphql.auroraconfig
 
-import no.skatteetaten.aurora.gobo.GoboDataLoader
+import no.skatteetaten.aurora.gobo.graphql.GoboDataLoader
 import no.skatteetaten.aurora.gobo.integration.boober.ApplicationDeploymentService
 import no.skatteetaten.aurora.gobo.graphql.GoboGraphQLContext
 import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.ApplicationDeploymentRef

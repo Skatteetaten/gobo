@@ -1,6 +1,6 @@
 package no.skatteetaten.aurora.gobo.graphql.webseal
 
-import no.skatteetaten.aurora.gobo.GoboDataLoader
+import no.skatteetaten.aurora.gobo.graphql.GoboDataLoader
 import no.skatteetaten.aurora.gobo.graphql.GoboGraphQLContext
 import no.skatteetaten.aurora.gobo.service.WebsealAffiliationService
 import org.springframework.stereotype.Component

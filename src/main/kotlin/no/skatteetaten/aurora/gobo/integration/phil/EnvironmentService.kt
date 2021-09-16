@@ -22,7 +22,7 @@ class EnvironmentServiceReactive(
     override suspend fun deployEnvironment(environment: String, token: String) =
         webClient
             .post()
-            .uri("/environments/$environment")
+            .uri("/environments/{environment}", environment)
             .header(HttpHeaders.AUTHORIZATION, "Bearer $token")
             .retrieve()
             .onStatusNotOk { status, body ->
@@ -38,7 +38,7 @@ class EnvironmentServiceReactive(
     override suspend fun deleteEnvironment(environment: String, token: String) =
         webClient
             .delete()
-            .uri("/environments/$environment")
+            .uri("/environments/{environment}", environment)
             .header(HttpHeaders.AUTHORIZATION, "Bearer $token")
             .retrieve()
             .onStatusNotOk { status, body ->

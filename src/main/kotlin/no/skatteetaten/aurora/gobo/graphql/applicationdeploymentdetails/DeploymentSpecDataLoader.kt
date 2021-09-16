@@ -1,7 +1,7 @@
 package no.skatteetaten.aurora.gobo.graphql.applicationdeploymentdetails
 
 import com.fasterxml.jackson.databind.JsonNode
-import no.skatteetaten.aurora.gobo.GoboDataLoader
+import no.skatteetaten.aurora.gobo.graphql.GoboDataLoader
 import no.skatteetaten.aurora.gobo.graphql.GoboGraphQLContext
 import no.skatteetaten.aurora.gobo.integration.boober.BooberWebClient
 import no.skatteetaten.aurora.gobo.integration.boober.response

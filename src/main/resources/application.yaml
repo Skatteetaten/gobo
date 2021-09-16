@@ -89,18 +89,15 @@ logging:
             hibernate: WARN
             springframework: WARN
             apache: WARN
+boober:
+    metrics:
+        enabled: false
 
 ---
 spring:
     config:
         activate:
             on-profile: openshift
-
-management:
-    metrics:
-        web:
-            client:
-                max-uri-tags: 200
 
 aurora:
     token:

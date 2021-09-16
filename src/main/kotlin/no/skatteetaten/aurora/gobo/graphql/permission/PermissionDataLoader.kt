@@ -1,7 +1,7 @@
 package no.skatteetaten.aurora.gobo.graphql.permission
 
 import mu.KotlinLogging
-import no.skatteetaten.aurora.gobo.GoboDataLoader
+import no.skatteetaten.aurora.gobo.graphql.GoboDataLoader
 import no.skatteetaten.aurora.gobo.graphql.GoboGraphQLContext
 import no.skatteetaten.aurora.gobo.graphql.namespace.Namespace
 import no.skatteetaten.aurora.gobo.integration.mokey.PermissionService

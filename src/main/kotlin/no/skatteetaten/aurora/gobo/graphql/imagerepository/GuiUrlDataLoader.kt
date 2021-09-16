@@ -2,7 +2,7 @@ package no.skatteetaten.aurora.gobo.graphql.imagerepository
 
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.AuroraIntegration
-import no.skatteetaten.aurora.gobo.GoboDataLoader
+import no.skatteetaten.aurora.gobo.graphql.GoboDataLoader
 import no.skatteetaten.aurora.gobo.graphql.GoboGraphQLContext
 import org.apache.commons.text.StringSubstitutor
 import org.springframework.stereotype.Component

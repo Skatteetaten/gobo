@@ -28,11 +28,10 @@ class ApplicationService(@TargetService(ServiceTypes.MOKEY) val webClient: WebCl
         affiliations: List<String>,
         applications: List<String>? = null
     ): List<ApplicationResource> {
+
         val resources: List<ApplicationResource> = webClient
             .get()
-            .uri {
-                it.path("/api/application").queryParams(buildQueryParams(affiliations)).build()
-            }
+            .uri("/api/application?affiliation={affiliations}", affiliations.joinToString())
             .retrieve()
             .handleHttpStatusErrors()
             .awaitWithRetry()

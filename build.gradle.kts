@@ -1,7 +1,7 @@
 plugins {
     kotlin("jvm") version "1.5.30"
     id("no.skatteetaten.gradle.aurora") version "4.3.13"
-    id("org.flywaydb.flyway") version "7.14.1"
+    id("org.flywaydb.flyway") version "7.15.0"
 }
 
 aurora {
@@ -40,9 +40,11 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
     testImplementation("io.mockk:mockk:1.12.0")
-    testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.24")
+    testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.25")
     testImplementation("io.projectreactor:reactor-test")
-    testImplementation("no.skatteetaten.aurora:mockwebserver-extensions-kotlin:1.1.7")
+    testImplementation("no.skatteetaten.aurora:mockwebserver-extensions-kotlin:1.1.7") {
+        exclude(group = "no.skatteetaten.aurora.springboot", module = "aurora-spring-boot-mvc-starter")
+    }
     testImplementation("com.ninja-squad:springmockk:3.0.1")
     testImplementation("org.junit-pioneer:junit-pioneer:1.4.2")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.5.2")

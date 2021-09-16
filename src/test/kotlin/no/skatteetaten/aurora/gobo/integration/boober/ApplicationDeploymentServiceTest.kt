@@ -67,11 +67,13 @@ class ApplicationDeploymentServiceTest {
 
     @Test
     fun `Get application deployment spec`() {
-        val ref = ApplicationDeploymentRef("utv", "gobo")
+        val ref1 = ApplicationDeploymentRef("utv", "gobo")
+        val ref2 = ApplicationDeploymentRef("utv", "boober")
         val response = Response(items = emptyList<String>())
         val request = server.executeBlocking(response) {
-            applicationDeploymentService.getSpec("token", "auroraConfigName", "auroraConfigReference", listOf(ref))
+            applicationDeploymentService.getSpec("token", "aurora", "master", listOf(ref1, ref2))
         }.first()!!
-        assertThat(request.path).contains("utv/gobo")
+        assertThat(request.path).contains("utv%2Fgobo")
+        assertThat(request.path).contains("utv%2Fboober")
     }
 }

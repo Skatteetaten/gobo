@@ -1,6 +1,6 @@
 package no.skatteetaten.aurora.gobo.graphql.applicationdeploymentdetails
 
-import no.skatteetaten.aurora.gobo.GoboDataLoader
+import no.skatteetaten.aurora.gobo.graphql.GoboDataLoader
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import no.skatteetaten.aurora.gobo.graphql.GoboGraphQLContext
 import org.springframework.stereotype.Component
