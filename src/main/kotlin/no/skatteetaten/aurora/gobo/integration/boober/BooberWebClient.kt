@@ -68,10 +68,10 @@ class BooberWebClient(
         metricsEnabled -> webClient
         else -> {
             webClient.mutate().filters { filters ->
-                filters.forEach {
-                    when (it) {
-                        is MetricsWebClientFilterFunction -> filters.remove(it)
-                    }
+                filters.find {
+                    it is MetricsWebClientFilterFunction
+                }?.let {
+                    filters.remove(it)
                 }
             }.build()
         }
