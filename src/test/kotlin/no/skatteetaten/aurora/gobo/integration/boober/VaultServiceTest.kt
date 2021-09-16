@@ -36,7 +36,7 @@ class VaultServiceTest {
     private val server = MockWebServer()
     private val url = server.url("/")
 
-    private val vaultService = VaultService(BooberWebClient(url.toString(), WebClient.create(), testObjectMapper()))
+    private val vaultService = VaultService(BooberWebClient(url.toString(), false, WebClient.create(), testObjectMapper()))
 
     @AfterEach
     fun tearDown() {

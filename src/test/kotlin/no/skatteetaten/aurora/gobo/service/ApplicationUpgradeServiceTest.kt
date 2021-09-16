@@ -40,6 +40,7 @@ class ApplicationUpgradeServiceTest {
         AuroraConfigService(
             BooberWebClient(
                 "${url}boober",
+                false,
                 config.webClientBoober(WebClient.builder()),
                 testObjectMapper()
             )

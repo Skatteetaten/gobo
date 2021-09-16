@@ -16,7 +16,7 @@ import org.springframework.web.reactive.function.client.WebClient
 class EnvironmentServiceTest {
 
     private val server = MockWebServer()
-    private val service = EnvironmentService(BooberWebClient(server.url, WebClient.create(), jacksonObjectMapper()))
+    private val service = EnvironmentService(BooberWebClient(server.url, false, WebClient.create(), jacksonObjectMapper()))
 
     @Test
     fun `Get applicationDeploymentRefs for environment`() {

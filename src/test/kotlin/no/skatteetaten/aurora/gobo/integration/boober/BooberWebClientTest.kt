@@ -19,7 +19,7 @@ import org.springframework.web.reactive.function.client.WebClient
 class BooberWebClientTest {
     private val server = MockWebServer()
     private val url = server.url("/").toString()
-    private val client = BooberWebClient(url, WebClient.create(), testObjectMapper())
+    private val client = BooberWebClient(url, false, WebClient.create(), testObjectMapper())
 
     @AfterEach
     fun tearDown() {

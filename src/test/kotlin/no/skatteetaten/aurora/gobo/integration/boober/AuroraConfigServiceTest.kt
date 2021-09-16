@@ -19,7 +19,7 @@ class AuroraConfigServiceTest {
 
     private val server = MockWebServer()
     private val auroraConfigService =
-        AuroraConfigService(BooberWebClient(server.url, WebClient.create(), jacksonObjectMapper()))
+        AuroraConfigService(BooberWebClient(server.url, false, WebClient.create(), jacksonObjectMapper()))
 
     @Test
     fun `Get aurora config`() {

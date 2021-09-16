@@ -8,6 +8,7 @@ import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
 import no.skatteetaten.aurora.gobo.integration.Response
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.actuate.metrics.web.reactive.client.MetricsWebClientFilterFunction
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
@@ -58,9 +59,23 @@ inline fun <reified T : Any> Response<T>.responseOrNull(): T? = this.responses()
 @Service
 class BooberWebClient(
     @Value("\${integrations.boober.url:}") val booberUrl: String?,
-    @TargetService(ServiceTypes.BOOBER) val webClient: WebClient,
+    @Value("\${boober.metrics.enabled:true}") val metricsEnabled: Boolean,
+    @TargetService(ServiceTypes.BOOBER) private val webClient: WebClient,
     val objectMapper: ObjectMapper
 ) {
+
+    val client = when {
+        metricsEnabled -> webClient
+        else -> {
+            webClient.mutate().filters { filters ->
+                filters.forEach {
+                    when (it) {
+                        is MetricsWebClientFilterFunction -> filters.remove(it)
+                    }
+                }
+            }.build()
+        }
+    }
 
     fun WebClient.RequestHeadersUriSpec<*>.booberUrl(
         url: String,
@@ -102,7 +117,7 @@ class BooberWebClient(
         etag: String? = null,
         params: Map<String, String> = emptyMap()
     ) =
-        webClient.get().booberUrl(url, params).execute<T>(token = token, etag = etag)
+        client.get().booberUrl(url, params).execute<T>(token = token, etag = etag)
 
     final suspend inline fun <reified T : Any> patch(
         url: String,
@@ -110,7 +125,7 @@ class BooberWebClient(
         token: String? = null,
         params: Map<String, String> = emptyMap()
     ) =
-        webClient.patch().booberUrl(url, params).body(BodyInserters.fromValue(body)).execute<T>(token)
+        client.patch().booberUrl(url, params).body(BodyInserters.fromValue(body)).execute<T>(token)
 
     final suspend inline fun <reified T : Any> put(
         url: String,
@@ -119,7 +134,7 @@ class BooberWebClient(
         etag: String? = null,
         params: Map<String, String> = emptyMap()
     ) =
-        webClient.put().booberUrl(url, params).body(BodyInserters.fromValue(body))
+        client.put().booberUrl(url, params).body(BodyInserters.fromValue(body))
             .execute<T>(token = token, etag = etag)
 
     final suspend inline fun <reified T : Any> post(
@@ -128,14 +143,14 @@ class BooberWebClient(
         token: String? = null,
         params: Map<String, String> = emptyMap()
     ) =
-        webClient.post().booberUrl(url, params).body(BodyInserters.fromValue(body)).execute<T>(token)
+        client.post().booberUrl(url, params).body(BodyInserters.fromValue(body)).execute<T>(token)
 
     final suspend inline fun <reified T : Any> delete(
         url: String,
         token: String? = null,
         params: Map<String, String> = emptyMap()
     ) =
-        webClient.delete().booberUrl(url, params).execute<T>(token)
+        client.delete().booberUrl(url, params).execute<T>(token)
 
     fun getBooberUrl(link: String): String {
         if (booberUrl.isNullOrEmpty()) {
