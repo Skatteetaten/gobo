@@ -39,12 +39,9 @@ import org.springframework.web.reactive.function.client.bodyToMono
     ]
 )
 @SpringBootTest(
-    classes = [
-        PrometheusMetricsTest.TestConfig::class,
-        AuroraConfigService::class,
-        BooberWebClient::class
-    ],
-    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
+    classes = [ PrometheusMetricsTest.TestConfig::class, AuroraConfigService::class, BooberWebClient::class ],
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+    properties = ["boober.metrics.enabled=true"]
 )
 class PrometheusMetricsTest {
 
@@ -53,14 +50,15 @@ class PrometheusMetricsTest {
 
     companion object {
         val server = MockWebServer()
-
         var port: String = SocketUtils.findAvailableTcpPort().toString()
 
         @JvmStatic
         @DynamicPropertySource
         fun testProperties(registry: DynamicPropertyRegistry) {
-            registry.add("integrations.boober.url", server::url)
-            registry.add("management.server.port", port::toString)
+            registry.apply {
+                add("integrations.boober.url", server::url)
+                add("management.server.port", port::toString)
+            }
         }
     }
 
