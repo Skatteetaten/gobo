@@ -19,7 +19,7 @@ class MokeyAffiliationServiceNetworkTest {
     private val server = MockWebServer()
     private val affiliationService = AffiliationService(
         WebClient.create(server.url("/").toString()),
-        BooberWebClient(booberUrl = "/", metricsEnabled = false, webClient = WebClient.create(), objectMapper = ObjectMapper())
+        BooberWebClient(booberUrl = "/", webClient = WebClient.create(), objectMapper = ObjectMapper())
     )
 
     @Test

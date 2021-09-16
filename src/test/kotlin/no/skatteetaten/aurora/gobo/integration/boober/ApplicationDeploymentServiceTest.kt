@@ -28,7 +28,7 @@ class ApplicationDeploymentServiceTest {
     private val url = server.url("/")
 
     private val applicationDeploymentService =
-        ApplicationDeploymentService(BooberWebClient(url.toString(), false, WebClient.create(), testObjectMapper()))
+        ApplicationDeploymentService(BooberWebClient(url.toString(), WebClient.create(), testObjectMapper()))
     private val input = DeleteApplicationDeploymentInput("namespace", "name")
 
     @Test

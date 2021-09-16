@@ -31,7 +31,7 @@ import uk.q3c.rest.hal.Links
 @TestConfiguration
 class DeploymentSpecTestConfig(val server: MockWebServer = MockWebServer()) {
     @Bean
-    fun booberWebClient() = BooberWebClient("", true, WebClient.create(server.url), jacksonObjectMapper())
+    fun booberWebClient() = BooberWebClient("", WebClient.create(server.url), jacksonObjectMapper())
 }
 
 @Import(

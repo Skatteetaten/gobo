@@ -16,7 +16,7 @@ class AuroraApiMetadataServiceTest {
 
     private val server = MockWebServer()
     private val auroraApiMetadataService =
-        AuroraApiMetadataService(BooberWebClient(server.url, false, WebClient.create(), jacksonObjectMapper()))
+        AuroraApiMetadataService(BooberWebClient(server.url, WebClient.create(), jacksonObjectMapper()))
 
     @Test
     fun `Get client config`() {

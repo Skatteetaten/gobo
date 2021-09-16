@@ -59,13 +59,13 @@ inline fun <reified T : Any> Response<T>.responseOrNull(): T? = this.responses()
 @Service
 class BooberWebClient(
     @Value("\${integrations.boober.url:}") val booberUrl: String?,
-    @Value("\${boober.metrics.enabled:true}") val metricsEnabled: Boolean,
     @TargetService(ServiceTypes.BOOBER) private val webClient: WebClient,
-    val objectMapper: ObjectMapper
+    val objectMapper: ObjectMapper,
+    @Value("\${boober.metrics.enabled:}") val metricsEnabled: Boolean? = false
 ) {
 
     val client = when {
-        metricsEnabled -> webClient
+        metricsEnabled == true -> webClient
         else -> {
             webClient.mutate().filters { filters ->
                 filters.find {

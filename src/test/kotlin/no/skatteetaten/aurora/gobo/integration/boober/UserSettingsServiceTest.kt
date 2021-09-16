@@ -19,7 +19,7 @@ class UserSettingsServiceTest {
     private val url = server.url("/")
 
     private val applicationDeploymentFilterService =
-        UserSettingsService(BooberWebClient(url.toString(), false, WebClient.create(), testObjectMapper()))
+        UserSettingsService(BooberWebClient(url.toString(), WebClient.create(), testObjectMapper()))
     private val filter = ApplicationDeploymentFilterResource(
         name = "my filter",
         affiliation = "aurora",

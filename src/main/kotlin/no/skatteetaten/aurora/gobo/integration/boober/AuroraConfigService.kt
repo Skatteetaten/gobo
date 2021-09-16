@@ -71,7 +71,7 @@ class AuroraConfigService(
     }
 
     suspend fun getApplicationFile(token: String, url: String): String {
-        val auroraConfig = "(?<=/v1/auroraconfig/)(.+)(?=(\\?))".toRegex().find(url)?.value
+        val auroraConfig = "(?<=/auroraconfig/)(.+)(?=(\\?))".toRegex().find(url)?.value
             ?: throw SourceSystemException(
                 message = "Unable to lookup application file, could not find affiliation",
                 integrationResponse = "Could not find auroraconfig in url from mokey, url:$url",
