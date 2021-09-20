@@ -14,6 +14,7 @@ import no.skatteetaten.aurora.gobo.infrastructure.field.FieldClient
 import no.skatteetaten.aurora.gobo.infrastructure.field.FieldService
 import no.skatteetaten.aurora.gobo.removeNewLines
 import no.skatteetaten.aurora.webflux.AuroraRequestParser
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.server.ServerRequest
@@ -28,7 +29,8 @@ private fun String.isNotIntrospectionQuery() = !startsWith("query IntrospectionQ
 @Component
 class GoboInstrumentation(
     private val fieldService: FieldService,
-    private val clientService: ClientService
+    private val clientService: ClientService,
+    @Value("\${gobo.graphql.logqueries:}") private val logQueries: Boolean? = false
 ) : SimpleInstrumentation() {
     val fieldUsage = FieldUsage()
     val clientUsage = ClientUsage()
@@ -66,8 +68,8 @@ class GoboInstrumentation(
             }
 
             context.query = queryText
-            if (queryText.isNotIntrospectionQuery()) {
-                logger.debug { queryText }
+            if (logQueries == true && queryText.isNotIntrospectionQuery()) {
+                logger.info { queryText }
             }
         }
 
