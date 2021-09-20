@@ -56,9 +56,6 @@ class GoboInstrumentation(
     ): ExecutionInput {
         executionInput?.let {
             val context = (executionInput.context as GoboGraphQLContext)
-            val request = context.request
-            logger.debug { """Request hostName="${request.remoteAddress().ifPresent { a -> a.hostName }}" """ }
-
             val queryText = it.query.removeNewLines().let { query ->
                 if (query.trimStart().startsWith("mutation")) {
                     """mutation="$query" - variable-keys=${it.variables.keys}"""
