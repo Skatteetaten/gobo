@@ -67,10 +67,7 @@ class GoboInstrumentation(
 
             context.query = queryText
             if (queryText.isNotIntrospectionQuery()) {
-                val klientid = context.request.klientid()
-                val korrelasjonsid = context.request.korrelasjonsid()
-
-                logger.debug { "KlientId=$klientid KorrelasjonsId=$korrelasjonsid $queryText" }
+                logger.debug { queryText }
             }
         }
 
