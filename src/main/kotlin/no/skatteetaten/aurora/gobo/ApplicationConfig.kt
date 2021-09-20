@@ -10,6 +10,7 @@ import no.skatteetaten.aurora.gobo.integration.skap.HEADER_AURORA_TOKEN
 import no.skatteetaten.aurora.gobo.security.SharedSecretReader
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.actuate.trace.http.InMemoryHttpTraceRepository
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
@@ -76,6 +77,13 @@ class ApplicationConfig(
     @Value("\${spring.application.name}") val applicationName: String,
     private val sharedSecretReader: SharedSecretReader
 ) {
+
+    @Bean
+    @ConditionalOnProperty(value = ["management.endpoint.httptrace.enabled"], havingValue = "true")
+    fun inMemoryHttpTraceRepository(): InMemoryHttpTraceRepository {
+        logger.info("In-memory HTTP trace repository enabled")
+        return InMemoryHttpTraceRepository()
+    }
 
     @Bean
     @TargetService(ServiceTypes.MOKEY)
