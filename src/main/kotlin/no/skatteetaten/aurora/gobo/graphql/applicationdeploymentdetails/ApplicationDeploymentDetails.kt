@@ -10,6 +10,7 @@ import no.skatteetaten.aurora.gobo.integration.mokey.PodResourceResource
 import no.skatteetaten.aurora.gobo.integration.mokey.optionalLink
 import no.skatteetaten.aurora.gobo.integration.mokey.toGoboLinks
 import java.util.concurrent.CompletableFuture
+import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.AuroraConfigRef
 
 data class GitInfo(
     val commitId: String?,
@@ -118,6 +119,13 @@ class Link(val name: String, val url: URL) {
     }
 }
 
+data class ApplicationDeploymentRef(val environment: String, val application: String)
+
+data class ApplicationDeploymentCommand(
+    val applicationDeploymentRef: ApplicationDeploymentRef,
+    val auroraConfig: AuroraConfigRef
+)
+
 data class ApplicationDeploymentDetails(
     val updatedBy: String?,
     val buildTime: Instant?,
@@ -127,8 +135,10 @@ data class ApplicationDeploymentDetails(
     val podResources: List<PodResource>,
     val deploymentSpecs: DeploymentSpecs,
     val deployDetails: DeployDetails?,
-    val serviceLinks: List<Link>
+    val serviceLinks: List<Link>,
+    val applicationDeploymentCommand: ApplicationDeploymentCommand
 ) {
+
     companion object {
         fun create(resource: ApplicationDeploymentDetailsResource): ApplicationDeploymentDetails {
             return ApplicationDeploymentDetails(
@@ -158,7 +168,18 @@ data class ApplicationDeploymentDetails(
                         paused = it.paused
                     )
                 },
-                serviceLinks = resource.serviceLinks.toGoboLinks()
+                serviceLinks = resource.serviceLinks.toGoboLinks(),
+                applicationDeploymentCommand = ApplicationDeploymentCommand(
+                    applicationDeploymentRef = ApplicationDeploymentRef(
+                        application = resource.applicationDeploymentCommand.applicationDeploymentRef.application,
+                        environment = resource.applicationDeploymentCommand.applicationDeploymentRef.environment
+                    ),
+                    auroraConfig = AuroraConfigRef(
+                        name = resource.applicationDeploymentCommand.auroraConfig.name,
+                        gitReference = resource.applicationDeploymentCommand.auroraConfig.refName,
+                        commitId = resource.applicationDeploymentCommand.auroraConfig.refName
+                    ),
+                )
             )
         }
     }

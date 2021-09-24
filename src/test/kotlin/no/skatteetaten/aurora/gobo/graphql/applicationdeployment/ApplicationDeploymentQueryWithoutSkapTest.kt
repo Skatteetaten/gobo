@@ -21,8 +21,13 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
+import no.skatteetaten.aurora.gobo.ApplicationDeploymentDetailsBuilder
 
-@Import(ApplicationDeploymentQuery::class, ImageDataLoader::class, RouteDataLoader::class)
+@Import(
+    ApplicationDeploymentQuery::class,
+    ImageDataLoader::class,
+    RouteDataLoader::class
+)
 class ApplicationDeploymentQueryWithoutSkapTest : GraphQLTestWithoutDbhAndSkap() {
 
     @Value("classpath:graphql/queries/getApplicationDeployment.graphql")
@@ -46,6 +51,13 @@ class ApplicationDeploymentQueryWithoutSkapTest : GraphQLTestWithoutDbhAndSkap()
             id = "123",
             msg = "Hei"
         ).build()
+
+        coEvery {
+            applicationService.getApplicationDeploymentDetails(
+                any(),
+                any()
+            )
+        } returns ApplicationDeploymentDetailsBuilder().build()
 
         coEvery {
             routeService.getSkapJobs(
