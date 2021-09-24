@@ -75,8 +75,8 @@ class GoboInstrumentation(
                     cache.add(request.klientid(), request.korrelasjonsid(), queryText)
                 }
 
-                when (logQueries) {
-                    true -> logger.info { queryText }
+                if (logQueries == true) {
+                    logger.info { queryText }
                 }
             }
         }
