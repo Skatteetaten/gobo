@@ -13,6 +13,7 @@ import no.skatteetaten.aurora.gobo.graphql.loadValue
 import no.skatteetaten.aurora.gobo.graphql.namespace.Namespace
 import no.skatteetaten.aurora.gobo.graphql.route.Route
 import java.time.Instant
+import no.skatteetaten.aurora.gobo.graphql.auroraconfig.AuroraConfigFileResource
 
 data class StatusCheck(val name: String, val description: String, val failLevel: String, val hasFailed: Boolean)
 
@@ -45,6 +46,9 @@ data class ApplicationDeployment(
 
     fun route(dfe: DataFetchingEnvironment) =
         dfe.loadValue<ApplicationDeployment, DataFetcherResult<Route?>>(this)
+
+    fun files(dfe: DataFetchingEnvironment) =
+        dfe.loadValue<String, List<AuroraConfigFileResource>>(id)
 
     companion object {
         fun create(deployment: ApplicationDeploymentResource) =

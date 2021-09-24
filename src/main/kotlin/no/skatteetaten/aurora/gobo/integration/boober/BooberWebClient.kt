@@ -48,7 +48,7 @@ inline fun <reified T : Any> parseResponseItems(items: List<T>?) =
         runCatching {
             objectMapper.convertValue(item, T::class.java)
         }.onFailure { e ->
-            KotlinLogging.logger {}.error(e) { "Unable to parse response items from boober: $item" }
+            KotlinLogging.logger {}.error(e) { "Unable to parse response items from boober:$item as object of type:${T::class.simpleName}" }
         }.getOrThrow()
     } ?: emptyList<T>()
 

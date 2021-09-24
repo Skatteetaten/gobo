@@ -26,8 +26,18 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
+import no.skatteetaten.aurora.gobo.ApplicationDeploymentDetailsBuilder
+import no.skatteetaten.aurora.gobo.graphql.auroraconfig.AuroraConfigFileResource
+import no.skatteetaten.aurora.gobo.graphql.auroraconfig.AuroraConfigFileResourceDataLoader
+import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileType
+import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigService
 
-@Import(ApplicationDeploymentQuery::class, ImageDataLoader::class, RouteDataLoader::class)
+@Import(
+    ApplicationDeploymentQuery::class,
+    ImageDataLoader::class,
+    RouteDataLoader::class,
+    AuroraConfigFileResourceDataLoader::class
+)
 class ApplicationDeploymentQueryTest : GraphQLTestWithDbhAndSkap() {
 
     @Value("classpath:graphql/queries/getApplicationDeployment.graphql")
@@ -36,11 +46,17 @@ class ApplicationDeploymentQueryTest : GraphQLTestWithDbhAndSkap() {
     @Value("classpath:graphql/queries/getApplicationDeploymentsWithRef.graphql")
     private lateinit var getApplicationsWithRefQuery: Resource
 
+    @Value("classpath:graphql/queries/getApplicationDeploymentFiles.graphql")
+    private lateinit var getApplicationsFilesQuery: Resource
+
     @MockkBean
     private lateinit var applicationService: ApplicationService
 
     @MockkBean
     private lateinit var routeService: RouteService
+
+    @MockkBean
+    private lateinit var auroraConfigService: AuroraConfigService
 
     @MockkBean
     private lateinit var imageRegistryService: ImageRegistryService
@@ -54,12 +70,27 @@ class ApplicationDeploymentQueryTest : GraphQLTestWithDbhAndSkap() {
 
         val websealjob = SkapJobForWebsealBuilder().build()
         val bigipJob = SkapJobForBigipBuilder().build()
+
+        coEvery {
+            applicationService.getApplicationDeploymentDetails(
+                any(),
+                any()
+            )
+        } returns ApplicationDeploymentDetailsBuilder().build()
+
         coEvery { routeService.getSkapJobs("namespace", "name-webseal") } returns listOf(websealjob)
+
         coEvery { routeService.getSkapJobs("namespace", "name-bigip") } returns listOf(bigipJob)
+
         coEvery { imageRegistryService.findTagsByName(any(), any()) } returns AuroraResponse(
             listOf(
                 ImageTagResourceBuilder().build()
             )
+        )
+
+        coEvery { auroraConfigService.getAuroraConfigFiles(any(), any(), any(), any()) } returns listOf(
+            AuroraConfigFileResource("about.json", """{ "foo" : "bar" }""", AuroraConfigFileType.GLOBAL, "123"),
+            AuroraConfigFileResource("utv/foo.json", """{ "foo" : "bar" }""", AuroraConfigFileType.APP, "321")
         )
     }
 
@@ -83,6 +114,22 @@ class ApplicationDeploymentQueryTest : GraphQLTestWithDbhAndSkap() {
                 graphqlData("route.websealJobs[0].host").isEqualTo("testing.test.no")
                 graphqlData("route.bigipJobs[0].id").isEqualTo("465774")
                 graphqlData("route.bigipJobs[0].asmPolicy").isEqualTo("testing-get")
+            }
+            .graphqlDoesNotContainErrors()
+    }
+
+    @Test
+    fun `Query for application deployment files`() {
+        val variables = mapOf("id" to "123")
+        webTestClient.queryGraphQL(getApplicationsFilesQuery, variables, "test-token")
+            .expectStatus().isOk
+            .expectBody()
+            .graphqlDataWithPrefix("applicationDeployment") {
+                graphqlData("id").isEqualTo("123")
+                graphqlData("files[0].name").isEqualTo("about.json")
+                graphqlData("files[0].contents").isEqualTo("""{ "foo" : "bar" }""")
+                graphqlData("files[1].name").isEqualTo("utv/foo.json")
+                graphqlData("files[1].contents").isEqualTo("""{ "foo" : "bar" }""")
             }
             .graphqlDoesNotContainErrors()
     }
