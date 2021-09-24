@@ -30,6 +30,7 @@ private fun String.isNotIntrospectionQuery() = !startsWith("query IntrospectionQ
 class GoboInstrumentation(
     private val fieldService: FieldService,
     private val clientService: ClientService,
+    private val queryCache: QueryCache? = null,
     @Value("\${gobo.graphql.logqueries:}") private val logQueries: Boolean? = false
 ) : SimpleInstrumentation() {
     val fieldUsage = FieldUsage()
@@ -68,8 +69,15 @@ class GoboInstrumentation(
             }
 
             context.query = queryText
-            if (logQueries == true && queryText.isNotIntrospectionQuery()) {
-                logger.info { queryText }
+            if (queryText.isNotIntrospectionQuery()) {
+                queryCache?.let { cache ->
+                    val request = context.request
+                    cache.add(request.klientid(), request.korrelasjonsid(), queryText)
+                }
+
+                when (logQueries) {
+                    true -> logger.info { queryText }
+                }
             }
         }
 

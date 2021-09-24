@@ -1,7 +1,8 @@
 plugins {
-    kotlin("jvm") version "1.5.30"
+    kotlin("jvm") version "1.5.31"
     id("no.skatteetaten.gradle.aurora") version "4.3.13"
     id("org.flywaydb.flyway") version "7.15.0"
+    id("io.gatling.gradle") version "3.6.1"
 }
 
 aurora {
@@ -22,6 +23,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("com.expediagroup:graphql-kotlin-spring-server:4.2.0")
     implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
+    implementation("org.apache.commons:commons-collections4:4.4")
 
     implementation("org.postgresql:postgresql")
     implementation("com.h2database:h2")
