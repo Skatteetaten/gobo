@@ -14,6 +14,7 @@ import no.skatteetaten.aurora.gobo.infrastructure.field.FieldClient
 import no.skatteetaten.aurora.gobo.infrastructure.field.FieldService
 import no.skatteetaten.aurora.gobo.removeNewLines
 import no.skatteetaten.aurora.webflux.AuroraRequestParser
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.server.ServerRequest
@@ -28,7 +29,9 @@ private fun String.isNotIntrospectionQuery() = !startsWith("query IntrospectionQ
 @Component
 class GoboInstrumentation(
     private val fieldService: FieldService,
-    private val clientService: ClientService
+    private val clientService: ClientService,
+    private val queryCache: QueryCache? = null,
+    @Value("\${gobo.graphql.logqueries:}") private val logQueries: Boolean? = false
 ) : SimpleInstrumentation() {
     val fieldUsage = FieldUsage()
     val clientUsage = ClientUsage()
@@ -56,9 +59,6 @@ class GoboInstrumentation(
     ): ExecutionInput {
         executionInput?.let {
             val context = (executionInput.context as GoboGraphQLContext)
-            val request = context.request
-            logger.debug { """Request hostName="${request.remoteAddress().ifPresent { a -> a.hostName }}" """ }
-
             val queryText = it.query.removeNewLines().let { query ->
                 if (query.trimStart().startsWith("mutation")) {
                     """mutation="$query" - variable-keys=${it.variables.keys}"""
@@ -70,7 +70,14 @@ class GoboInstrumentation(
 
             context.query = queryText
             if (queryText.isNotIntrospectionQuery()) {
-                logger.debug(queryText)
+                queryCache?.let { cache ->
+                    val request = context.request
+                    cache.add(request.klientid(), request.korrelasjonsid(), queryText)
+                }
+
+                if (logQueries == true) {
+                    logger.info { queryText }
+                }
             }
         }
 

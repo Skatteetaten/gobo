@@ -1,0 +1,4 @@
+{
+  "operationName": "getUserAndAffiliations",
+  "query": "query getUserAndAffiliations { currentUser { name id } affiliations(checkForVisibility: true) { edges { node { name } }}}"
+}

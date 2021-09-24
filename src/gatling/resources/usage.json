@@ -1,0 +1,5 @@
+{
+  "operationName": null,
+  "variables": {},
+  "query": "{ gobo { startTime usage { clients { name count } usedFields { name count clients { name } } }}}"
+}
