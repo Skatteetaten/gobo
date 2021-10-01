@@ -588,7 +588,7 @@ class DeploymentResourceBuilder {
         deployId = "123",
         timestamp = Date(),
         message = "",
-        status = DeploymentStatus.SUCCESS
+        status = DeploymentStatus.APPLIED
     )
 }
 

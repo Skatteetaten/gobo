@@ -9,14 +9,18 @@ import no.skatteetaten.aurora.gobo.graphql.graphqlDataWithPrefix
 import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
 import no.skatteetaten.aurora.gobo.integration.boober.EnvironmentDeploymentRef
-import no.skatteetaten.aurora.gobo.integration.boober.EnvironmentService
 import no.skatteetaten.aurora.gobo.integration.boober.EnvironmentResource
+import no.skatteetaten.aurora.gobo.integration.boober.EnvironmentService
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
+import no.skatteetaten.aurora.gobo.integration.phil.DeploymentRefResource
+import no.skatteetaten.aurora.gobo.integration.phil.DeploymentResource
+import no.skatteetaten.aurora.gobo.integration.phil.DeploymentStatus.APPLIED
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
+import java.util.Date
 
 @Import(EnvironmentQuery::class, EnvironmentStatusDataLoader::class)
 class EnvironmentQueryTest : GraphQLTestWithDbhAndSkap() {
@@ -36,6 +40,9 @@ class EnvironmentQueryTest : GraphQLTestWithDbhAndSkap() {
     @MockkBean
     private lateinit var environmentService: EnvironmentService
 
+    @MockkBean
+    private lateinit var environmentsService: no.skatteetaten.aurora.gobo.integration.phil.EnvironmentService
+
     @BeforeEach
     fun setUp() {
         coEvery {
@@ -49,6 +56,22 @@ class EnvironmentQueryTest : GraphQLTestWithDbhAndSkap() {
         coEvery {
             applicationService.getApplicationDeployments(applicationDeploymentRefs = any())
         } returns createApplicationDeployments("utv", "gobo", "boober")
+
+        coEvery {
+            environmentsService.getDeploymentStatus(any(), any())
+        } returns listOf(
+            DeploymentResource(
+                deploymentRef = DeploymentRefResource(
+                    cluster = "utv",
+                    environment = "utv",
+                    affiliation = "aurora",
+                    application = "gobo"
+                ),
+                status = APPLIED,
+                message = "test",
+                timestamp = Date()
+            )
+        )
     }
 
     @Test
