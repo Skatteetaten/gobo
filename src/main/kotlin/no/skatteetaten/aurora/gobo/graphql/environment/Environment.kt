@@ -81,7 +81,7 @@ data class EnvironmentStatus(
             )
             else -> EnvironmentStatus(
                 state = EnvironmentStatusType.FAILED,
-                message = "Application failed deployment",
+                message = "Unexpected status during application deployment",
                 details = "${ad.status.code} - ${ad.status.reasons.detailedStatusMessage()}"
             )
         }

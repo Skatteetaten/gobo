@@ -3,6 +3,7 @@ package no.skatteetaten.aurora.gobo.graphql.environment
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.coEvery
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentResourceBuilder
+import no.skatteetaten.aurora.gobo.DeploymentResourceBuilder
 import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithDbhAndSkap
 import no.skatteetaten.aurora.gobo.graphql.graphqlData
 import no.skatteetaten.aurora.gobo.graphql.graphqlDataWithPrefix
@@ -12,17 +13,13 @@ import no.skatteetaten.aurora.gobo.integration.boober.EnvironmentDeploymentRef
 import no.skatteetaten.aurora.gobo.integration.boober.EnvironmentResource
 import no.skatteetaten.aurora.gobo.integration.boober.EnvironmentService
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
-import no.skatteetaten.aurora.gobo.integration.phil.DeploymentRefResource
-import no.skatteetaten.aurora.gobo.integration.phil.DeploymentResource
-import no.skatteetaten.aurora.gobo.integration.phil.DeploymentStatus.APPLIED
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
-import java.util.Date
 
-@Import(EnvironmentQuery::class, EnvironmentStatusDataLoader::class)
+@Import(EnvironmentQuery::class, EnvironmentStatusDataLoader::class, Environments::class)
 class EnvironmentQueryTest : GraphQLTestWithDbhAndSkap() {
 
     @Value("classpath:graphql/queries/getEnvironments.graphql")
@@ -54,23 +51,13 @@ class EnvironmentQueryTest : GraphQLTestWithDbhAndSkap() {
         } returns createEnvironmentResources("dev-utv", "mokey")
 
         coEvery {
-            applicationService.getApplicationDeployments(applicationDeploymentRefs = any())
+            applicationService.getApplicationDeployments(applicationDeploymentRefs = any(), any())
         } returns createApplicationDeployments("utv", "gobo", "boober")
 
         coEvery {
             environmentsService.getDeploymentStatus(any(), any())
         } returns listOf(
-            DeploymentResource(
-                deploymentRef = DeploymentRefResource(
-                    cluster = "utv",
-                    environment = "utv",
-                    affiliation = "aurora",
-                    application = "gobo"
-                ),
-                status = APPLIED,
-                message = "test",
-                timestamp = Date()
-            )
+            DeploymentResourceBuilder().build("utv")
         )
     }
 
