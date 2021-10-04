@@ -7,19 +7,31 @@ import no.skatteetaten.aurora.gobo.integration.boober.EnvironmentResource
 import no.skatteetaten.aurora.gobo.integration.boober.EnvironmentService
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import no.skatteetaten.aurora.gobo.security.checkValidUserToken
+import no.skatteetaten.aurora.gobo.security.getValidUser
+import no.skatteetaten.aurora.springboot.OpenShiftTokenIssuer
+import org.springframework.http.HttpStatus.UNAUTHORIZED
 import org.springframework.stereotype.Component
+import org.springframework.web.server.ResponseStatusException
+
+const val adminGroup = "APP_kryssaffiliation_admin_utv"
+const val clientGroup = "APP_kryssaffiliation_client_utv"
 
 @Component
 class EnvironmentQuery(
     val applicationService: ApplicationService,
-    val environmentService: EnvironmentService
+    val environmentService: EnvironmentService,
+    val openShiftTokenIssuer: OpenShiftTokenIssuer,
 ) : Query {
-
     suspend fun environments(names: List<String>, dfe: DataFetchingEnvironment): List<Environment> {
         dfe.checkValidUserToken()
-        // TODO "upgrade" token, check group, use "super" token for Boober requests
 
-        val environments = names.flatMap { environmentService.getEnvironments(dfe.token(), it) }
+        val user = dfe.getValidUser()
+        val token = when {
+            user.groups.admin() -> user.token
+            user.groups.client() -> openShiftTokenIssuer.getToken()
+            else -> throw ResponseStatusException(UNAUTHORIZED)
+        }
+        val environments = names.flatMap { environmentService.getEnvironments(token, it) }
 
         // TODO get status from Phil
         return names.map { envName ->
@@ -37,4 +49,7 @@ class EnvironmentQuery(
         }.let {
             EnvironmentAffiliation(affiliation, it)
         }
+
+    private fun List<String>.client(): Boolean = any { it == clientGroup }
+    private fun List<String>.admin(): Boolean = any { it == adminGroup }
 }
