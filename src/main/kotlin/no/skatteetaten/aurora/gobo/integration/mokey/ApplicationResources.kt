@@ -144,6 +144,7 @@ data class ApplicationDeploymentResource(
     fun success() = status.code == "HEALTHY" || status.code == "OBSERVE"
     fun inactive() = status.code == "OFF"
     fun inProgress() = !success() && !failed()
+    fun unknown() = !failed() && !success() && !inactive()
 }
 
 @JsonIgnoreProperties(ignoreUnknown = true)

@@ -74,16 +74,17 @@ data class EnvironmentStatus(
                 state = EnvironmentStatusType.COMPLETED,
                 applicationDeploymentId = ad.identifier,
             )
+            ad.unknown() -> EnvironmentStatus(
+                state = EnvironmentStatusType.FAILED,
+                message = "Unexpected status during application deployment",
+                details = "${ad.status.code} - ${ad.status.reasons.detailedStatusMessage()}"
+            )
             ad.inProgress() -> EnvironmentStatus(
                 state = EnvironmentStatusType.APPLIED,
                 applicationDeploymentId = ad.identifier,
                 message = "Application is deploying...",
             )
-            else -> EnvironmentStatus(
-                state = EnvironmentStatusType.FAILED,
-                message = "Unexpected status during application deployment",
-                details = "${ad.status.code} - ${ad.status.reasons.detailedStatusMessage()}"
-            )
+            else -> throw IllegalStateException("This state should not be possible.")
         }
     }
 }

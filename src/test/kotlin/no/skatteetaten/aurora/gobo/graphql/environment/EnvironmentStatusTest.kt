@@ -14,9 +14,30 @@ class EnvironmentStatusTest {
     }
 
     @Test
+    fun `Create environment status for ApplicationDeployment with observe status`() {
+        val ad = ApplicationDeploymentResourceBuilder(status = "OBSERVE").build()
+        val status = EnvironmentStatus.create(ad)
+        assertThat(status.state).isEqualTo(EnvironmentStatusType.COMPLETED)
+    }
+
+    @Test
+    fun `Create environment status for ApplicationDeployment with off status`() {
+        val ad = ApplicationDeploymentResourceBuilder(status = "OFF").build()
+        val status = EnvironmentStatus.create(ad)
+        assertThat(status.state).isEqualTo(EnvironmentStatusType.INACTIVE)
+    }
+
+    @Test
     fun `Create environment status for ApplicationDeployment with health status`() {
         val ad = ApplicationDeploymentResourceBuilder().build()
         val status = EnvironmentStatus.create(ad)
         assertThat(status.state).isEqualTo(EnvironmentStatusType.COMPLETED)
+    }
+
+    @Test
+    fun `Create environment status for ApplicationDeployment with unknown status`() {
+        val ad = ApplicationDeploymentResourceBuilder(status = "SOME_BOGUS_STATE").build()
+        val status = EnvironmentStatus.create(ad)
+        assertThat(status.state).isEqualTo(EnvironmentStatusType.FAILED)
     }
 }
