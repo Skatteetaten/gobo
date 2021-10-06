@@ -26,6 +26,8 @@ integrations:
         url: http://localhost:6569
     herkimer:
         url: http://localhost:6570
+    phil:
+        url: http://localhost:6571
     docker:
         cluster:
             url: docker-registry.default.svc:5000

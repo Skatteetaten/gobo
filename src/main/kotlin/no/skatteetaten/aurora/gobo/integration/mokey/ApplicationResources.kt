@@ -140,7 +140,11 @@ data class ApplicationDeploymentResource(
 
     private val String.idPart: String get() = split("/").last()
 
-    fun success() = status.code == "HEALTHY"
+    fun failed() = status.code == "DOWN"
+    fun success() = status.code == "HEALTHY" || status.code == "OBSERVE"
+    fun inactive() = status.code == "OFF"
+    fun inProgress() = !success() && !failed()
+    fun unknown() = !failed() && !success() && !inactive()
 }
 
 @JsonIgnoreProperties(ignoreUnknown = true)

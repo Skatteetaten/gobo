@@ -14,14 +14,18 @@ class EnvironmentQuery(
     val applicationService: ApplicationService,
     val environmentService: EnvironmentService
 ) : Query {
-
-    suspend fun environments(names: List<String>, dfe: DataFetchingEnvironment): List<Environment> {
+    suspend fun environments(
+        names: List<String>,
+        dfe: DataFetchingEnvironment
+    ): List<Environment> {
         dfe.checkValidUserToken()
         // TODO "upgrade" token, check group, use "super" token for Boober requests
+        // 1. If Token not client or admin, refuse
+        // 2. If only client, upgrade to gobo admin token for requests
+        // 3. If admin, pass through
 
         val environments = names.flatMap { environmentService.getEnvironments(dfe.token(), it) }
 
-        // TODO get status from Phil
         return names.map { envName ->
             environments
                 .filter { it.containsEnvironment(envName) }
@@ -31,10 +35,9 @@ class EnvironmentQuery(
         }
     }
 
-    private fun EnvironmentResource.createEnvironmentAffiliation() =
-        deploymentRefs.map { ref ->
-            EnvironmentApplication(affiliation, ref)
-        }.let {
-            EnvironmentAffiliation(affiliation, it)
-        }
+    private fun EnvironmentResource.createEnvironmentAffiliation() = deploymentRefs.map { ref ->
+        EnvironmentApplication(affiliation, ref)
+    }.let {
+        EnvironmentAffiliation(affiliation, it)
+    }
 }

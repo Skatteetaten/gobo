@@ -6,12 +6,21 @@ import no.skatteetaten.aurora.gobo.graphql.loadValue
 import no.skatteetaten.aurora.gobo.integration.boober.EnvironmentDeploymentRef
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentResource
 import no.skatteetaten.aurora.gobo.integration.mokey.StatusCheckResource
+import no.skatteetaten.aurora.gobo.integration.phil.DeploymentResource
+import no.skatteetaten.aurora.gobo.integration.phil.DeploymentStatus.APPLIED
+import no.skatteetaten.aurora.gobo.integration.phil.DeploymentStatus.FAILED
+import no.skatteetaten.aurora.gobo.integration.phil.DeploymentStatus.REQUESTED
 
 enum class EnvironmentStatusType {
     /**
      * No status from Phil or Mokey
      */
     INACTIVE,
+
+    /**
+     * Aurora configuration has been requested from Phil by Boober, but is not yet applied.
+     */
+    REQUESTED,
 
     /**
      * Aurora configuration has been applied by Boober, but no ApplicationDeployment is registered.
@@ -36,18 +45,46 @@ data class EnvironmentStatus(
     val applicationDeploymentId: String? = null
 ) {
     companion object {
-        // TODO status from Phil must be added
-        fun create(ad: ApplicationDeploymentResource?) = when {
-            ad == null -> EnvironmentStatus(state = EnvironmentStatusType.INACTIVE)
+        fun create(deployment: DeploymentResource) = when (deployment.status) {
+            REQUESTED -> EnvironmentStatus(
+                state = EnvironmentStatusType.REQUESTED,
+                message = deployment.message,
+            )
+            APPLIED -> EnvironmentStatus(
+                state = EnvironmentStatusType.APPLIED,
+                message = deployment.message,
+                details = deployment.deployId,
+            )
+            FAILED -> EnvironmentStatus(
+                state = EnvironmentStatusType.FAILED,
+                message = deployment.message,
+                details = deployment.deployId,
+            )
+        }
+        fun create(ad: ApplicationDeploymentResource) = when {
+            ad.inactive() -> EnvironmentStatus(
+                state = EnvironmentStatusType.INACTIVE,
+                message = "Application is inactive..."
+            )
+            ad.failed() -> EnvironmentStatus(
+                state = EnvironmentStatusType.FAILED,
+                message = "Application failed deployment",
+            )
             ad.success() -> EnvironmentStatus(
                 state = EnvironmentStatusType.COMPLETED,
-                applicationDeploymentId = ad.identifier
+                applicationDeploymentId = ad.identifier,
             )
-            else -> EnvironmentStatus(
+            ad.unknown() -> EnvironmentStatus(
                 state = EnvironmentStatusType.FAILED,
-                message = "Application not deployed",
+                message = "Unexpected status during application deployment",
                 details = "${ad.status.code} - ${ad.status.reasons.detailedStatusMessage()}"
             )
+            ad.inProgress() -> EnvironmentStatus(
+                state = EnvironmentStatusType.APPLIED,
+                applicationDeploymentId = ad.identifier,
+                message = "Application is deploying...",
+            )
+            else -> throw IllegalStateException("This state should not be possible.")
         }
     }
 }
@@ -67,8 +104,7 @@ data class EnvironmentApplication(
     val name = deploymentRef.application
     val autoDeploy = deploymentRef.autoDeploy
 
-    fun status(dfe: DataFetchingEnvironment) =
-        dfe.loadValue<EnvironmentApplication, EnvironmentStatus>(this)
+    fun status(dfe: DataFetchingEnvironment) = dfe.loadValue<EnvironmentApplication, EnvironmentStatus>(this)
 }
 
 data class EnvironmentAffiliation(

@@ -1,29 +1,49 @@
 package no.skatteetaten.aurora.gobo.integration.phil
 
-import java.util.Date
-import kotlinx.coroutines.reactive.awaitFirstOrNull
+import kotlinx.coroutines.reactor.awaitFirst
+import kotlinx.coroutines.reactor.awaitFirstOrNull
 import no.skatteetaten.aurora.gobo.RequiresPhil
-import no.skatteetaten.aurora.gobo.ServiceTypes
+import no.skatteetaten.aurora.gobo.ServiceTypes.PHIL
 import no.skatteetaten.aurora.gobo.TargetService
 import no.skatteetaten.aurora.gobo.graphql.IntegrationDisabledException
 import no.skatteetaten.aurora.gobo.integration.onStatusNotOk
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
-import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpHeaders.AUTHORIZATION
 import org.springframework.stereotype.Service
+import org.springframework.web.reactive.function.BodyInserters.fromValue
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.bodyToMono
+import java.util.Date
 
 @Service
 @ConditionalOnBean(RequiresPhil::class)
-class EnvironmentServiceReactive(
-    @TargetService(ServiceTypes.PHIL) private val webClient: WebClient
-) : EnvironmentService {
+class EnvironmentServiceReactive(@TargetService(PHIL) private val webClient: WebClient) : EnvironmentService {
+    override suspend fun getDeploymentStatus(
+        deploymentRefs: List<DeploymentRefInput>,
+        token: String
+    ): List<DeploymentResource> =
+        webClient
+            .post()
+            .uri("/deployments/status")
+            .header(AUTHORIZATION, "Bearer $token")
+            .body(fromValue(deploymentRefs))
+            .retrieve()
+            .onStatusNotOk { status, body ->
+                throw PhilIntegrationException(
+                    message = "Request failed when retreiving deployment statuses",
+                    integrationResponse = body,
+                    status = status
+                )
+            }
+            .bodyToMono<List<DeploymentResource>>()
+            .awaitFirst()
+
     override suspend fun deployEnvironment(environment: String, token: String) =
         webClient
             .post()
             .uri("/environments/{environment}", environment)
-            .header(HttpHeaders.AUTHORIZATION, "Bearer $token")
+            .header(AUTHORIZATION, "Bearer $token")
             .retrieve()
             .onStatusNotOk { status, body ->
                 throw PhilIntegrationException(
@@ -39,7 +59,7 @@ class EnvironmentServiceReactive(
         webClient
             .delete()
             .uri("/environments/{environment}", environment)
-            .header(HttpHeaders.AUTHORIZATION, "Bearer $token")
+            .header(AUTHORIZATION, "Bearer $token")
             .retrieve()
             .onStatusNotOk { status, body ->
                 throw PhilIntegrationException(
@@ -53,6 +73,11 @@ class EnvironmentServiceReactive(
 }
 
 interface EnvironmentService {
+    suspend fun getDeploymentStatus(
+        deploymentRefs: List<DeploymentRefInput>,
+        token: String
+    ): List<DeploymentResource> = integrationDisabled()
+
     suspend fun deployEnvironment(environment: String, token: String): List<DeploymentResource>? =
         integrationDisabled()
 
@@ -74,6 +99,12 @@ data class DeploymentRefResource(
     val application: String
 )
 
+data class DeploymentRefInput(
+    val affiliation: String,
+    val environment: String,
+    val application: String
+)
+
 data class DeploymentResource(
     val deploymentRef: DeploymentRefResource,
     val deployId: String = "",
@@ -83,8 +114,9 @@ data class DeploymentResource(
 )
 
 enum class DeploymentStatus {
-    SUCCESS,
-    FAIL
+    REQUESTED,
+    APPLIED,
+    FAILED
 }
 
 data class DeletionResource(
