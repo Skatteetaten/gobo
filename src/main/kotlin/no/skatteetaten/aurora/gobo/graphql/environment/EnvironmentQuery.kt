@@ -22,7 +22,10 @@ class EnvironmentQuery(
     val environmentService: EnvironmentService,
     val openShiftTokenIssuer: OpenShiftTokenIssuer,
 ) : Query {
-    suspend fun environments(names: List<String>, dfe: DataFetchingEnvironment): List<Environment> {
+    suspend fun environments(
+        names: List<String>,
+        dfe: DataFetchingEnvironment
+    ): List<Environment> {
         dfe.checkValidUserToken()
 
         val user = dfe.getValidUser()
@@ -33,7 +36,6 @@ class EnvironmentQuery(
         }
         val environments = names.flatMap { environmentService.getEnvironments(token, it) }
 
-        // TODO get status from Phil
         return names.map { envName ->
             environments
                 .filter { it.containsEnvironment(envName) }
@@ -43,13 +45,12 @@ class EnvironmentQuery(
         }
     }
 
-    private fun EnvironmentResource.createEnvironmentAffiliation() =
-        deploymentRefs.map { ref ->
-            EnvironmentApplication(affiliation, ref)
-        }.let {
-            EnvironmentAffiliation(affiliation, it)
-        }
-
     private fun List<String>.client(): Boolean = any { it == clientGroup }
     private fun List<String>.admin(): Boolean = any { it == adminGroup }
+
+    private fun EnvironmentResource.createEnvironmentAffiliation() = deploymentRefs.map { ref ->
+        EnvironmentApplication(affiliation, ref)
+    }.let {
+        EnvironmentAffiliation(affiliation, it)
+    }
 }

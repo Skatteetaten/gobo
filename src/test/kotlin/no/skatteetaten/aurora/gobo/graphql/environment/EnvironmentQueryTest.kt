@@ -4,14 +4,15 @@ import com.ninjasquad.springmockk.MockkBean
 import io.mockk.coEvery
 import io.mockk.coVerify
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentResourceBuilder
+import no.skatteetaten.aurora.gobo.DeploymentResourceBuilder
 import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithDbhAndSkap
 import no.skatteetaten.aurora.gobo.graphql.graphqlData
 import no.skatteetaten.aurora.gobo.graphql.graphqlDataWithPrefix
 import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
 import no.skatteetaten.aurora.gobo.integration.boober.EnvironmentDeploymentRef
-import no.skatteetaten.aurora.gobo.integration.boober.EnvironmentService
 import no.skatteetaten.aurora.gobo.integration.boober.EnvironmentResource
+import no.skatteetaten.aurora.gobo.integration.boober.EnvironmentService
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import no.skatteetaten.aurora.springboot.OpenShiftTokenIssuer
 import org.junit.jupiter.api.BeforeEach
@@ -21,7 +22,7 @@ import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
 import org.springframework.security.test.context.support.WithMockUser
 
-@Import(EnvironmentQuery::class, EnvironmentStatusDataLoader::class)
+@Import(EnvironmentQuery::class, EnvironmentStatusDataLoader::class, Environments::class)
 class EnvironmentQueryTest : GraphQLTestWithDbhAndSkap() {
 
     @Value("classpath:graphql/queries/getEnvironments.graphql")
@@ -41,6 +42,9 @@ class EnvironmentQueryTest : GraphQLTestWithDbhAndSkap() {
 
     @MockkBean
     private lateinit var openShiftTokenIssuer: OpenShiftTokenIssuer
+  
+    @MockkBean
+    private lateinit var environmentsService: no.skatteetaten.aurora.gobo.integration.phil.EnvironmentService
 
     @BeforeEach
     fun setUp() {
@@ -53,8 +57,14 @@ class EnvironmentQueryTest : GraphQLTestWithDbhAndSkap() {
         } returns createEnvironmentResources("dev-utv", "mokey")
 
         coEvery {
-            applicationService.getApplicationDeployments(applicationDeploymentRefs = any())
+            applicationService.getApplicationDeployments(applicationDeploymentRefs = any(), any())
         } returns createApplicationDeployments("utv", "gobo", "boober")
+
+        coEvery {
+            environmentsService.getDeploymentStatus(any(), any())
+        } returns listOf(
+            DeploymentResourceBuilder().build("utv")
+        )
     }
 
     @WithMockUser(authorities = [clientGroup])

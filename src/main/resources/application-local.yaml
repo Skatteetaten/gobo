@@ -5,6 +5,8 @@ integrations:
         url: http://mokey-aurora.utv.paas.skead.no
     cantus:
         url: https://cantus-aurora.utv.paas.skead.no
+    phil:
+        url: https://phil-aurora.utv.paas.skead.no
     skap:
         url: http://localhost:9090
     docker:

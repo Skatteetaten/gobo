@@ -47,6 +47,8 @@ integrations:
         url: http://unclematt-aurora-daemons.utv.paas.skead.no
     cantus:
         url: http://cantus
+    phil:
+        url: http://phil
     docker:
         cluster:
             url: docker-registry.default.svc:5000
