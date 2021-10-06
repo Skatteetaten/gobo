@@ -63,3 +63,9 @@ gobo:
 
 # logging.level.no.skatteetaten.aurora.gobo: DEBUG
 logging.level.no.skatteetaten.aurora.gobo.security: DEBUG
+
+aurora:
+    openshift:
+        admin:
+            username: username
+            password: password

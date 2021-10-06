@@ -104,5 +104,9 @@ spring:
 aurora:
     token:
         location: /u01/secrets/app/aurora-token/token
+    openshift:
+        admin:
+            username: ${GOBO_OPENSHIFT_ADMIN_USERNAME:-user}
+            password: ${GOBO_OPENSHIFT_ADMIN_PASSWORD:-password}
 
 logging.level.com.expediagroup.graphql.server.spring: WARN
