@@ -3,7 +3,6 @@ package no.skatteetaten.aurora.gobo.graphql.auroraconfig
 import com.expediagroup.graphql.server.operations.Mutation
 import graphql.schema.DataFetchingEnvironment
 import no.skatteetaten.aurora.gobo.graphql.token
-import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigService
 import no.skatteetaten.aurora.gobo.security.checkValidUserToken
 import org.springframework.stereotype.Component
@@ -17,22 +16,15 @@ class AuroraConfigMutation(
         dfe: DataFetchingEnvironment
     ): AuroraConfigFileValidationResponse {
         dfe.checkValidUserToken()
-        return try {
-            val result = service.updateAuroraConfigFile(
-                dfe.token(),
-                input.auroraConfigName,
-                input.auroraConfigReference ?: "master",
-                input.fileName,
-                input.contents,
-                input.existingHash
-            )
-            AuroraConfigFileValidationResponse(message = "OK", success = true, file = result)
-        } catch (e: SourceSystemException) {
-            AuroraConfigFileValidationResponse(
-                message = e.message,
-                success = false
-            )
-        }
+        val result = service.updateAuroraConfigFile(
+            dfe.token(),
+            input.auroraConfigName,
+            input.auroraConfigReference ?: "master",
+            input.fileName,
+            input.contents,
+            input.existingHash
+        )
+        return AuroraConfigFileValidationResponse(message = "OK", success = true, file = result)
     }
 
     suspend fun createAuroraConfigFile(
@@ -40,20 +32,13 @@ class AuroraConfigMutation(
         dfe: DataFetchingEnvironment
     ): AuroraConfigFileValidationResponse {
         dfe.checkValidUserToken()
-        return try {
-            val result = service.addAuroraConfigFile(
-                dfe.token(),
-                input.auroraConfigName,
-                input.auroraConfigReference ?: "master",
-                input.fileName,
-                input.contents
-            )
-            AuroraConfigFileValidationResponse(message = "OK", success = true, file = result)
-        } catch (e: SourceSystemException) {
-            AuroraConfigFileValidationResponse(
-                message = e.message,
-                success = false
-            )
-        }
+        val result = service.addAuroraConfigFile(
+            dfe.token(),
+            input.auroraConfigName,
+            input.auroraConfigReference ?: "master",
+            input.fileName,
+            input.contents
+        )
+        return AuroraConfigFileValidationResponse(message = "OK", success = true, file = result)
     }
 }
