@@ -585,7 +585,6 @@ data class CnameInfoBuilder(val namespace: String = "aurora-demo") {
 class DeploymentResourceBuilder {
     fun build(environment: String = "dev-utv") = DeploymentResource(
         deploymentRef = DeploymentRefResource("utv", "aurora", environment, "gobo"),
-        deployId = "123",
         timestamp = Date(),
         message = "",
         status = DeploymentStatus.APPLIED
