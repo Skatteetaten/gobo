@@ -107,7 +107,7 @@ data class DeploymentRefInput(
 
 data class DeploymentResource(
     val deploymentRef: DeploymentRefResource,
-    val deployId: String = "",
+    val deployId: String? = null,
     val timestamp: Date,
     val message: String,
     val status: DeploymentStatus

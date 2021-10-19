@@ -50,7 +50,7 @@ data class DeploymentRef(
 
 data class Deployment(
     val deploymentRef: DeploymentRef,
-    val deployId: String,
+    val deployId: String? = null,
     val timestamp: Instant,
     val message: String,
 )

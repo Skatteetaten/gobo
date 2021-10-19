@@ -7,6 +7,7 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isFailure
 import assertk.assertions.isInstanceOf
 import assertk.assertions.isNotNull
+import assertk.assertions.isNull
 import no.skatteetaten.aurora.gobo.DeletionResourceBuilder
 import no.skatteetaten.aurora.gobo.DeploymentResourceBuilder
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.executeBlocking
@@ -27,7 +28,7 @@ class EnvironmentServiceReactiveTest {
         val request = server.executeBlocking(listOf(DeploymentResourceBuilder().build())) {
             val deployments = service.deployEnvironment("dev-utv", "test-token")
             assertThat(deployments).isNotNull().hasSize(1)
-            assertThat(deployments?.first()?.deployId).isEqualTo("123")
+            assertThat(deployments?.first()?.deployId).isNull()
         }.first()!!
 
         assertThat(request.path).contains("/environments")

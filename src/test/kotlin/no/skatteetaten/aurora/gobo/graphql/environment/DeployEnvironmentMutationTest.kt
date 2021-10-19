@@ -29,7 +29,6 @@ class DeployEnvironmentMutationTest : GraphQLTestWithDbhAndSkap() {
             .expectStatus().isOk
             .expectBody()
             .graphqlDataWithPrefix("deployEnvironment.[0]") {
-                graphqlData("deployId").isEqualTo("123")
                 graphqlData("deploymentRef.cluster").isEqualTo("utv")
                 graphqlData("deploymentRef.affiliation").isEqualTo("aurora")
                 graphqlData("deploymentRef.environment").isEqualTo("dev-utv")

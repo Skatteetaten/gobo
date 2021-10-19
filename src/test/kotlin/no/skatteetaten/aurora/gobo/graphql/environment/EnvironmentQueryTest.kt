@@ -42,7 +42,7 @@ class EnvironmentQueryTest : GraphQLTestWithDbhAndSkap() {
 
     @MockkBean
     private lateinit var openShiftTokenIssuer: OpenShiftTokenIssuer
-  
+
     @MockkBean
     private lateinit var environmentsService: no.skatteetaten.aurora.gobo.integration.phil.EnvironmentService
 
