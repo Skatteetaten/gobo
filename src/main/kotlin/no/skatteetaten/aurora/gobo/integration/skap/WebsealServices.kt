@@ -1,5 +1,6 @@
 package no.skatteetaten.aurora.gobo.integration.skap
 
+import org.springframework.beans.factory.annotation.Value
 import no.skatteetaten.aurora.gobo.RequiresSkap
 import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
@@ -16,13 +17,14 @@ import org.springframework.web.reactive.function.client.awaitBody
 @ConditionalOnBean(RequiresSkap::class)
 class WebsealServiceReactive(
     private val sharedSecretReader: SharedSecretReader,
-    @TargetService(ServiceTypes.SKAP) private val webClient: WebClient
+    @TargetService(ServiceTypes.SKAP) private val webClient: WebClient,
+    @Value("\${openshift.cluster}") val cluster: String,
 ) : WebsealService {
 
     override suspend fun getStates(): List<WebsealStateResource> =
         webClient
             .get()
-            .uri("/webseal/v3")
+            .uri("/webseal/v3?clusterId={cluster}", cluster)
             .header(HttpHeaders.AUTHORIZATION, "$HEADER_AURORA_TOKEN ${sharedSecretReader.secret}")
             .retrieve()
             .awaitBody()
