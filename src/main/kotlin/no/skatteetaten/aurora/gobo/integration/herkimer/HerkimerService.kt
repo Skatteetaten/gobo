@@ -124,7 +124,7 @@ data class ResourceClaimPayload(
 )
 
 enum class ResourceKind {
-    PostgresDatabaseInstance
+    PostgresDatabaseInstance, StorageGridTenant
 }
 
 data class AuroraResponse<Item, Error>(

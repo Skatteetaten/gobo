@@ -10,12 +10,20 @@ credentials:
     registerPostgres:
         notificationChannel: testchannel
         allowedAdGroup: testAdGroup
+    registerStorageGrid:
+        notificationChannel: testchannel
+        allowedAdGroup: testAdGroup
 
 integrations:
     dbh:
         application:
             deployment:
                 id: 1235
+    storagegrid:
+        operator:
+            application:
+                deployment:
+                    id: 2345
     mokey:
         url: http://localhost:6565
     unclematt:
@@ -74,7 +82,7 @@ aurora:
                     enabled: true
 
 openshift:
-    cluster: http://localhost
+    cluster: testcluster
 
 graphql:
     packages: "no.skatteetaten.aurora.gobo.graphql"

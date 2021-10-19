@@ -1,0 +1,6 @@
+mutation registerStorageGridTenant($input: StorageGridTenantInput!) {
+    registerStorageGridTenant(input: $input) {
+      message
+      success
+    }
+}
