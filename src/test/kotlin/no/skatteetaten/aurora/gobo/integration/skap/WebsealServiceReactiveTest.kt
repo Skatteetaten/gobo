@@ -17,7 +17,8 @@ class WebsealServiceReactiveTest {
     private val sharedSecretReader = mockk<SharedSecretReader> {
         every { secret } returns "test-token"
     }
-    private val websealService = WebsealServiceReactive(sharedSecretReader, WebClient.create(server.url("/").toString()))
+    private val websealService =
+        WebsealServiceReactive(sharedSecretReader, WebClient.create(server.url("/").toString()), "utv")
 
     @Test
     fun `Get WebSEAL state`() {
