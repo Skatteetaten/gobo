@@ -26,6 +26,9 @@ data class Status(
 
 data class Version(val deployTag: ImageTag, val auroraVersion: String?, val releaseTo: String?)
 
+// Key to ToxiProxy dataloader
+data class ToxiProxyId(val namespace: Namespace, val appName: String)
+
 data class ApplicationDeployment(
     val id: String,
     val name: String,
@@ -49,6 +52,14 @@ data class ApplicationDeployment(
 
     fun files(dfe: DataFetchingEnvironment) =
         dfe.loadValue<String, List<AuroraConfigFileResource>>(id)
+
+    // Dataloader steps:
+    /*
+    1. Hent podnavn fra mokey, bruk getApplicationDeploymentDetails (send inn id)
+    2. Filtrer ut podnavn som ender på "toxiproxy-sidecar"
+    3. gjøre proxy kall mot kubernetes
+     */
+    fun toxics(dfe: DataFetchingEnvironment) = dfe.loadValue<ToxiProxyId, List<Toxic>>(ToxiProxyId(namespace, name))
 
     companion object {
         fun create(deployment: ApplicationDeploymentResource) =

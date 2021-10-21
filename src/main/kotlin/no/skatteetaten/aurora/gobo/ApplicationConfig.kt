@@ -200,7 +200,7 @@ class ApplicationConfig(
                             connection.addHandlerLast(ReadTimeoutHandler(readTimeout, TimeUnit.MILLISECONDS))
                             connection.addHandlerLast(WriteTimeoutHandler(writeTimeout, TimeUnit.MILLISECONDS))
                         }
-                }
+                }.metrics(true) { _ -> "" }
 
         if (ssl) {
             val sslProvider = SslProvider.builder().sslContext(
