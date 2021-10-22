@@ -47,7 +47,10 @@ class EnvironmentStatusDataLoader(
                 )
                 APPLIED -> when (val adState = ad?.status()) {
                     null -> deployStatus
-                    else -> adState
+                    else -> when (adState.state) {
+                        INACTIVE -> deployStatus
+                        else -> adState
+                    }
                 }
                 else -> deployStatus
             }
