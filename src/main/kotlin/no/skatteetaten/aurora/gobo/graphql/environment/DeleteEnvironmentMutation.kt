@@ -16,26 +16,30 @@ class DeleteEnvironmentMutation(
     suspend fun deleteEnvironment(
         input: DeleteEnvironmentInput,
         dfe: DataFetchingEnvironment
-    ): List<DeleteEnvironmentResponse>? {
+    ): List<DeleteEnvironmentResponse> {
         dfe.checkValidUserToken()
-        return environmentService.deleteEnvironment(input.environment, dfe.token())
-            .let { it.toDeleteEnvironmentResult() }
+
+        return environmentService.deleteEnvironment(
+            input.environment,
+            dfe.token()
+        ).let {
+            it.toDeleteEnvironmentResult()
+        } ?: emptyList()
     }
 
-    private fun List<DeletionResource>?.toDeleteEnvironmentResult() =
-        this?.map {
-            DeleteEnvironmentResponse(
-                deploymentRef = DeploymentRef(
-                    it.deploymentRef.cluster,
-                    it.deploymentRef.affiliation,
-                    it.deploymentRef.environment,
-                    it.deploymentRef.application
-                ),
-                timestamp = it.timestamp.toInstant(),
-                message = it.message,
-                deleted = it.deleted
-            )
-        }
+    private fun List<DeletionResource>?.toDeleteEnvironmentResult() = this?.map {
+        DeleteEnvironmentResponse(
+            deploymentRef = DeploymentRef(
+                it.deploymentRef.cluster,
+                it.deploymentRef.affiliation,
+                it.deploymentRef.environment,
+                it.deploymentRef.application
+            ),
+            timestamp = it.timestamp.toInstant(),
+            message = it.message,
+            deleted = it.deleted,
+        )
+    }
 }
 
 data class DeleteEnvironmentInput(val environment: String)
