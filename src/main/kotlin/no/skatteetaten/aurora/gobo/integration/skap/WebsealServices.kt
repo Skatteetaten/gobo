@@ -24,11 +24,13 @@ class WebsealServiceReactive(
     override suspend fun getStates(): List<WebsealStateResource> {
         val clustersToExclude = listOf("utv", "test", "prod")
 
-        return webClient
-            .get()
-            .uri("/webseal/v3") {
-                if (!clustersToExclude.contains(cluster)) it.queryParam("clusterId", cluster).build() else it.build()
-            }
+        val request = if (clustersToExclude.contains(cluster)) {
+            webClient.get().uri("/webseal/v3")
+        } else {
+            webClient.get().uri("/webseal/v3?clusterId={cluster}", cluster)
+        }
+
+        return request
             .header(HttpHeaders.AUTHORIZATION, "$HEADER_AURORA_TOKEN ${sharedSecretReader.secret}")
             .retrieve()
             .awaitBody()
