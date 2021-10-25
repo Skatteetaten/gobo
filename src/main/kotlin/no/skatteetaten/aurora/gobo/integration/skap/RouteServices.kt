@@ -1,5 +1,6 @@
 package no.skatteetaten.aurora.gobo.integration.skap
 
+import org.springframework.beans.factory.annotation.Value
 import no.skatteetaten.aurora.gobo.RequiresSkap
 import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
@@ -16,12 +17,13 @@ import org.springframework.web.reactive.function.client.awaitBody
 @ConditionalOnBean(RequiresSkap::class)
 class RouteServiceReactive(
     private val sharedSecretReader: SharedSecretReader,
-    @TargetService(ServiceTypes.SKAP) private val webClient: WebClient
+    @TargetService(ServiceTypes.SKAP) private val webClient: WebClient,
+    @Value("\${openshift.cluster}") val cluster: String,
 ) : RouteService {
     override suspend fun getSkapJobs(namespace: String, name: String): List<SkapJob> =
         webClient
             .get()
-            .uri("/job/list?namespace={namespace}&name={name}", namespace, name)
+            .uri("/job/list?namespace={namespace}&name={name}&clusterId={cluster}", namespace, name, cluster)
             .header(HttpHeaders.AUTHORIZATION, "$HEADER_AURORA_TOKEN ${sharedSecretReader.secret}")
             .retrieve()
             .awaitBody()
