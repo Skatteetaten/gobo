@@ -21,13 +21,24 @@ class WebsealServiceReactive(
     @Value("\${openshift.cluster}") val cluster: String,
 ) : WebsealService {
 
-    override suspend fun getStates(): List<WebsealStateResource> =
-        webClient
+    override suspend fun getStates(): List<WebsealStateResource> {
+        val clustersToExclude = listOf("utv", "test", "prod")
+
+        if (clustersToExclude.contains(cluster)) {
+            return webClient
+                .get()
+                .uri("/webseal/v3")
+                .header(HttpHeaders.AUTHORIZATION, "$HEADER_AURORA_TOKEN ${sharedSecretReader.secret}")
+                .retrieve()
+                .awaitBody()
+        }
+        return webClient
             .get()
             .uri("/webseal/v3?clusterId={cluster}", cluster)
             .header(HttpHeaders.AUTHORIZATION, "$HEADER_AURORA_TOKEN ${sharedSecretReader.secret}")
             .retrieve()
             .awaitBody()
+    }
 }
 
 interface WebsealService {
