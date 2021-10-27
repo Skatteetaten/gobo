@@ -9,11 +9,11 @@ import com.github.fge.jsonpatch.AddOperation
 import com.github.fge.jsonpatch.JsonPatch
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.ServiceTypes
-import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentDetailsResource
-import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentRefResource
 import no.skatteetaten.aurora.gobo.graphql.auroraconfig.AuroraConfig
 import no.skatteetaten.aurora.gobo.graphql.auroraconfig.AuroraConfigFileResource
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
+import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentDetailsResource
+import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentRefResource
 import org.springframework.stereotype.Service
 import org.springframework.web.util.UriComponentsBuilder
 

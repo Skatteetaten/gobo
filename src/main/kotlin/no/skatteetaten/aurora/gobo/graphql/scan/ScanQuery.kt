@@ -1,8 +1,8 @@
 package no.skatteetaten.aurora.gobo.graphql.scan
 
 import com.expediagroup.graphql.server.operations.Query
-import no.skatteetaten.aurora.gobo.integration.unclematt.ProbeService
 import no.skatteetaten.aurora.gobo.graphql.scan.Scan.Companion.fromProbeResultList
+import no.skatteetaten.aurora.gobo.integration.unclematt.ProbeService
 import org.springframework.stereotype.Component
 
 @Component

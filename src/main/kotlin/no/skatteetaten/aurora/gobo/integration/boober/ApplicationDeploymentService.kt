@@ -2,10 +2,10 @@ package no.skatteetaten.aurora.gobo.integration.boober
 
 import com.fasterxml.jackson.databind.JsonNode
 import mu.KotlinLogging
-import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.ApplicationDeploymentRef
 import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.DeleteApplicationDeploymentInput
 import no.skatteetaten.aurora.gobo.graphql.auroraconfig.ApplicationDeploymentSpec
+import no.skatteetaten.aurora.gobo.integration.Response
 import org.springframework.stereotype.Service
 
 private val logger = KotlinLogging.logger { }

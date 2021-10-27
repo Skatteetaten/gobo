@@ -1,12 +1,12 @@
 package no.skatteetaten.aurora.gobo.graphql.vault
 
 import com.expediagroup.graphql.server.operations.Mutation
-import org.springframework.stereotype.Component
 import graphql.schema.DataFetchingEnvironment
 import no.skatteetaten.aurora.gobo.graphql.token
 import no.skatteetaten.aurora.gobo.integration.boober.VaultContext
 import no.skatteetaten.aurora.gobo.integration.boober.VaultService
 import no.skatteetaten.aurora.gobo.security.ifValidUserToken
+import org.springframework.stereotype.Component
 
 @Component
 class VaultMutation(val vaultService: VaultService) : Mutation {

@@ -3,9 +3,9 @@ package no.skatteetaten.aurora.gobo.integration.dbh
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNull
-import java.time.Instant
 import no.skatteetaten.aurora.gobo.DatabaseSchemaResourceBuilder
 import org.junit.jupiter.api.Test
+import java.time.Instant
 
 class DatabaseResourceTest {
 

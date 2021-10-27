@@ -1,12 +1,12 @@
 package no.skatteetaten.aurora.gobo.graphql.application
 
-import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationResource
 import no.skatteetaten.aurora.gobo.graphql.GoboEdge
 import no.skatteetaten.aurora.gobo.graphql.GoboPageInfo
 import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.ApplicationDeployment
 import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.ApplicationDeploymentBuilder
 import no.skatteetaten.aurora.gobo.graphql.createPageInfo
 import no.skatteetaten.aurora.gobo.graphql.imagerepository.ImageRepository
+import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationResource
 import java.time.Instant
 
 data class Certificate(

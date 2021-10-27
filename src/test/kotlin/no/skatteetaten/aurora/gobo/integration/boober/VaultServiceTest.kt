@@ -1,17 +1,18 @@
 package no.skatteetaten.aurora.gobo.integration.boober
 
-import javax.management.Query.isInstanceOf
 import assertk.Assert
-import assertk.assertions.isInstanceOf
-import org.junit.jupiter.api.Test
-import org.springframework.web.reactive.function.client.WebClient
+import assertk.all
 import assertk.assertThat
 import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
+import assertk.assertions.isFailure
+import assertk.assertions.isInstanceOf
 import assertk.assertions.isNotNull
 import assertk.assertions.isTrue
+import assertk.assertions.messageContains
 import assertk.assertions.support.expected
 import no.skatteetaten.aurora.gobo.BooberVaultBuilder
+import no.skatteetaten.aurora.gobo.GoboException
 import no.skatteetaten.aurora.gobo.graphql.vault.Secret
 import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.testObjectMapper
@@ -20,12 +21,9 @@ import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.executeBlocking
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.RecordedRequest
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
-import assertk.all
-import assertk.assertions.isFailure
-import assertk.assertions.messageContains
-import no.skatteetaten.aurora.gobo.GoboException
-import no.skatteetaten.aurora.gobo.graphql.token
+import org.springframework.web.reactive.function.client.WebClient
 
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
 class VaultServiceTest {

@@ -2,13 +2,12 @@ package no.skatteetaten.aurora.gobo.graphql.applicationdeployment
 
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.coEvery
-import java.time.Instant
-import no.skatteetaten.aurora.gobo.integration.boober.ApplicationDeploymentService
 import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithDbhAndSkap
 import no.skatteetaten.aurora.gobo.graphql.graphqlData
 import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.graphql.isTrue
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
+import no.skatteetaten.aurora.gobo.integration.boober.ApplicationDeploymentService
 import no.skatteetaten.aurora.gobo.integration.boober.BooberApplicationRef
 import no.skatteetaten.aurora.gobo.integration.boober.BooberDeleteResponse
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentResource
@@ -21,6 +20,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
+import java.time.Instant
 
 @Import(ApplicationDeploymentMutation::class)
 class ApplicationDeploymentMutationTest : GraphQLTestWithDbhAndSkap() {

@@ -1,9 +1,9 @@
 package no.skatteetaten.aurora.gobo.graphql.auroraconfig
 
 import no.skatteetaten.aurora.gobo.graphql.GoboDataLoader
-import org.springframework.stereotype.Component
 import no.skatteetaten.aurora.gobo.graphql.GoboGraphQLContext
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigService
+import org.springframework.stereotype.Component
 
 data class AuroraConfigKey(
     val name: String,
