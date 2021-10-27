@@ -11,8 +11,8 @@ import io.mockk.every
 import io.mockk.mockk
 import no.skatteetaten.aurora.gobo.GoboException
 import no.skatteetaten.aurora.gobo.ServiceTypes
-import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.graphql.GoboGraphQLContext
+import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import org.junit.jupiter.api.Test
 import org.springframework.security.access.AccessDeniedException
 

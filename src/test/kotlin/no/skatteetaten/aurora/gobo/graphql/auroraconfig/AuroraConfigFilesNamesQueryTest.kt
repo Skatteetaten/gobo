@@ -1,9 +1,5 @@
 package no.skatteetaten.aurora.gobo.graphql.auroraconfig
 
-import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Value
-import org.springframework.context.annotation.Import
-import org.springframework.core.io.Resource
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.coEvery
 import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithDbhAndSkap
@@ -14,6 +10,10 @@ import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileType
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigService
 import no.skatteetaten.aurora.gobo.service.AffiliationService
+import org.junit.jupiter.api.Test
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.context.annotation.Import
+import org.springframework.core.io.Resource
 
 @Import(
     AffiliationQuery::class,

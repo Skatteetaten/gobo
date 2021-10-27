@@ -1,9 +1,5 @@
 package no.skatteetaten.aurora.gobo.graphql.vault
 
-import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Value
-import org.springframework.context.annotation.Import
-import org.springframework.core.io.Resource
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.coEvery
 import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithDbhAndSkap
@@ -18,7 +14,10 @@ import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
 import no.skatteetaten.aurora.gobo.integration.boober.BooberVault
 import no.skatteetaten.aurora.gobo.integration.boober.VaultService
 import no.skatteetaten.aurora.gobo.service.AffiliationService
-import java.lang.RuntimeException
+import org.junit.jupiter.api.Test
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.context.annotation.Import
+import org.springframework.core.io.Resource
 
 @Import(
     AffiliationQuery::class,

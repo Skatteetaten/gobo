@@ -4,10 +4,6 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.coEvery
-import no.skatteetaten.aurora.gobo.integration.Response
-import no.skatteetaten.aurora.gobo.integration.boober.ApplicationDeploymentService
-import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigRefResource
-import no.skatteetaten.aurora.gobo.integration.boober.DeployResource
 import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithDbhAndSkap
 import no.skatteetaten.aurora.gobo.graphql.graphqlData
 import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
@@ -15,6 +11,10 @@ import no.skatteetaten.aurora.gobo.graphql.graphqlErrorsMissingToken
 import no.skatteetaten.aurora.gobo.graphql.isFalse
 import no.skatteetaten.aurora.gobo.graphql.isTrue
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
+import no.skatteetaten.aurora.gobo.integration.Response
+import no.skatteetaten.aurora.gobo.integration.boober.ApplicationDeploymentService
+import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigRefResource
+import no.skatteetaten.aurora.gobo.integration.boober.DeployResource
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value

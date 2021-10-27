@@ -7,9 +7,9 @@ import assertk.assertions.isNotNull
 import assertk.assertions.message
 import graphql.language.IntValue
 import graphql.language.StringValue
+import org.junit.jupiter.api.Test
 import java.math.BigInteger
 import java.net.URL
-import org.junit.jupiter.api.Test
 
 class UrlScalarTest {
     private val url = URL("http://localhost")

@@ -1,16 +1,16 @@
 package no.skatteetaten.aurora.gobo.graphql.applicationdeploymentdetails
 
 import graphql.schema.DataFetchingEnvironment
+import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.AuroraConfigRef
 import no.skatteetaten.aurora.gobo.graphql.loadValue
-import java.net.URL
-import java.time.Instant
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentDetailsResource
 import no.skatteetaten.aurora.gobo.integration.mokey.ManagementEndpointResponseResource
 import no.skatteetaten.aurora.gobo.integration.mokey.PodResourceResource
 import no.skatteetaten.aurora.gobo.integration.mokey.optionalLink
 import no.skatteetaten.aurora.gobo.integration.mokey.toGoboLinks
+import java.net.URL
+import java.time.Instant
 import java.util.concurrent.CompletableFuture
-import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.AuroraConfigRef
 
 data class GitInfo(
     val commitId: String?,
@@ -38,7 +38,7 @@ data class PodResource(
     val containers: List<Container>,
     val status: String = phase,
     val ready: Boolean = containers.all { it.ready },
-    val restartCount: Int = containers.sumBy { it.restartCount }
+    val restartCount: Int = containers.sumOf { it.restartCount }
 ) {
     companion object {
         fun create(resource: PodResourceResource) =

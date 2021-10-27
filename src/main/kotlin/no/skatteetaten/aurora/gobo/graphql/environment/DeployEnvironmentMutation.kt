@@ -2,12 +2,12 @@ package no.skatteetaten.aurora.gobo.graphql.environment
 
 import com.expediagroup.graphql.server.operations.Mutation
 import graphql.schema.DataFetchingEnvironment
-import java.time.Instant
 import no.skatteetaten.aurora.gobo.graphql.token
 import no.skatteetaten.aurora.gobo.integration.phil.DeploymentResource
 import no.skatteetaten.aurora.gobo.integration.phil.EnvironmentService
 import no.skatteetaten.aurora.gobo.security.checkValidUserToken
 import org.springframework.stereotype.Component
+import java.time.Instant
 
 @Component
 class DeployEnvironmentMutation(

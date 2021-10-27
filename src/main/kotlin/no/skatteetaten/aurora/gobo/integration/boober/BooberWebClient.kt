@@ -63,7 +63,7 @@ class BooberWebClient(
     val objectMapper: ObjectMapper,
     @Value("\${boober.metrics.enabled:}") val metricsEnabled: Boolean? = false
 ) {
-
+    @Suppress("LeakingThis")
     val client = when (metricsEnabled) {
         true -> webClient
         else -> {

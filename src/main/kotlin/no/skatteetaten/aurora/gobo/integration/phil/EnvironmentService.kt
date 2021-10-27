@@ -1,7 +1,7 @@
 package no.skatteetaten.aurora.gobo.integration.phil
 
-import kotlinx.coroutines.reactor.awaitFirst
-import kotlinx.coroutines.reactor.awaitFirstOrNull
+import kotlinx.coroutines.reactor.awaitSingle
+import kotlinx.coroutines.reactor.awaitSingleOrNull
 import no.skatteetaten.aurora.gobo.RequiresPhil
 import no.skatteetaten.aurora.gobo.ServiceTypes.PHIL
 import no.skatteetaten.aurora.gobo.TargetService
@@ -37,7 +37,7 @@ class EnvironmentServiceReactive(@TargetService(PHIL) private val webClient: Web
                 )
             }
             .bodyToMono<List<DeploymentResource>>()
-            .awaitFirst()
+            .awaitSingle()
 
     override suspend fun deployEnvironment(environment: String, token: String) =
         webClient
@@ -53,7 +53,7 @@ class EnvironmentServiceReactive(@TargetService(PHIL) private val webClient: Web
                 )
             }
             .bodyToMono<List<DeploymentResource>>()
-            .awaitFirstOrNull()
+            .awaitSingleOrNull()
 
     override suspend fun deleteEnvironment(environment: String, token: String) =
         webClient
@@ -69,7 +69,7 @@ class EnvironmentServiceReactive(@TargetService(PHIL) private val webClient: Web
                 )
             }
             .bodyToMono<List<DeletionResource>>()
-            .awaitFirstOrNull()
+            .awaitSingleOrNull()
 }
 
 interface EnvironmentService {

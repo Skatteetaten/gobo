@@ -8,12 +8,11 @@ import java.net.MalformedURLException
 import java.net.URL
 
 object UrlScalar : Coercing<URL, String> {
+    override fun serialize(input: Any) = (input as URL).toString()
 
-    override fun serialize(input: Any?) = (input as URL).toString()
+    override fun parseValue(input: Any): URL = parseLiteral(input)
 
-    override fun parseValue(input: Any?): URL = parseLiteral(input)
-
-    override fun parseLiteral(input: Any?): URL {
+    override fun parseLiteral(input: Any): URL {
         if (input !is StringValue) throw CoercingSerializeException("Invalid value '$input' for URL")
 
         return try {

@@ -1,10 +1,10 @@
 package no.skatteetaten.aurora.gobo.security
 
-import java.io.File
-import java.io.IOException
 import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
+import java.io.File
+import java.io.IOException
 
 private val logger = KotlinLogging.logger {}
 

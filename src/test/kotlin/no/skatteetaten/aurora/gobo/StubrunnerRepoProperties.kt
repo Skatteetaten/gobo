@@ -1,9 +1,6 @@
 package no.skatteetaten.aurora.gobo
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import java.io.File
-import javax.xml.parsers.DocumentBuilderFactory
-import javax.xml.xpath.XPathFactory
 import mu.KotlinLogging
 import org.junit.jupiter.api.BeforeEach
 import org.springframework.test.context.DynamicPropertyRegistry
@@ -11,6 +8,9 @@ import org.springframework.test.context.DynamicPropertySource
 import org.w3c.dom.Document
 import reactor.core.publisher.Hooks
 import reactor.core.scheduler.Schedulers
+import java.io.File
+import javax.xml.parsers.DocumentBuilderFactory
+import javax.xml.xpath.XPathFactory
 
 const val stubrunnerUsername = "stubrunner.username"
 const val stubrunnerPassword = "stubrunner.password"
