@@ -14,6 +14,9 @@ import no.skatteetaten.aurora.gobo.graphql.namespace.Namespace
 import no.skatteetaten.aurora.gobo.graphql.route.Route
 import java.time.Instant
 import no.skatteetaten.aurora.gobo.graphql.auroraconfig.AuroraConfigFileResource
+import no.skatteetaten.aurora.gobo.graphql.toxiproxy.ToxiProxyDataLoader
+import no.skatteetaten.aurora.gobo.graphql.toxiproxy.ToxiProxyId
+import no.skatteetaten.aurora.gobo.graphql.toxiproxy.ToxicProxy
 
 data class StatusCheck(val name: String, val description: String, val failLevel: String, val hasFailed: Boolean)
 
@@ -25,9 +28,6 @@ data class Status(
 )
 
 data class Version(val deployTag: ImageTag, val auroraVersion: String?, val releaseTo: String?)
-
-// Key to ToxiProxy dataloader
-data class ToxiProxyId(val namespace: Namespace, val appName: String)
 
 data class ApplicationDeployment(
     val id: String,
@@ -53,13 +53,7 @@ data class ApplicationDeployment(
     fun files(dfe: DataFetchingEnvironment) =
         dfe.loadValue<String, List<AuroraConfigFileResource>>(id)
 
-    // Dataloader steps:
-    /*
-    1. Hent podnavn fra mokey, bruk getApplicationDeploymentDetails (send inn id)
-    2. Filtrer ut podnavn som ender på "toxiproxy-sidecar"
-    3. gjøre proxy kall mot kubernetes
-     */
-    fun toxics(dfe: DataFetchingEnvironment) = dfe.loadValue<ToxiProxyId, List<Toxic>>(ToxiProxyId(namespace, name))
+    fun toxiProxy(dfe: DataFetchingEnvironment) = dfe.loadValue<ToxiProxyId, List<ToxicProxy>>(ToxiProxyId(id, affiliation.name), ToxiProxyDataLoader::class)
 
     companion object {
         fun create(deployment: ApplicationDeploymentResource) =

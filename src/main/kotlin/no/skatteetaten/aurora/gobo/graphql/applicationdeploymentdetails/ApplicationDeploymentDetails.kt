@@ -24,15 +24,13 @@ data class Container(
     val image: String,
     val restartCount: Int = 0,
     val ready: Boolean = false,
-        @GraphQLIgnore
-        val affiliation: String = "",
-        @GraphQLIgnore
-        val environment: String = "",
-        @GraphQLIgnore
-        val podName: String = "",
-) {
-    fun toxics(dfe: DataFetchingEnvironment) = dfe.lo
-}
+    @GraphQLIgnore
+    val affiliation: String = "",
+    @GraphQLIgnore
+    val environment: String = "",
+    @GraphQLIgnore
+    val podName: String = "",
+)
 
 data class PodResource(
     val name: String,
