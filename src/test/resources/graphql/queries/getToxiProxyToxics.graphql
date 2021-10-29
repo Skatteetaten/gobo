@@ -1,0 +1,24 @@
+query getToxiProxyToxics($environment: String!) {
+}
+  toxics(id: $id) {
+    podName
+           toxics {
+               name
+               type
+               attributes {
+                  key
+                  value
+               }
+            }
+
+
+
+    toxics {
+        type
+        toxicName
+        toxicAttributes {
+            attrName //latency, jitter
+            attrValue
+        }
+    }
+}
