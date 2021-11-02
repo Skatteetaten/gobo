@@ -2,14 +2,19 @@ query getApplicationDeployment($id: String!) {
   applicationDeployment(id: $id) {
     environment
     name
-    toxics {
-       name
-       type
-       attributes {
-          key
-          value
-       }
+    toxiProxy{
+        name
+        listen
+        upstream
+        enabled
+        toxics {
+           name
+           type
+           attributes {
+              key
+              value
+           }
+        }
     }
-
   }
 }

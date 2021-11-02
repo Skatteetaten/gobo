@@ -53,7 +53,8 @@ data class ApplicationDeployment(
     fun files(dfe: DataFetchingEnvironment) =
         dfe.loadValue<String, List<AuroraConfigFileResource>>(id)
 
-    fun toxiProxy(dfe: DataFetchingEnvironment) = dfe.loadValue<ToxiProxyId, List<ToxicProxy>>(ToxiProxyId(id, affiliation.name), ToxiProxyDataLoader::class)
+    fun toxiProxy(dfe: DataFetchingEnvironment) =
+        dfe.loadValue<ToxiProxyId, List<ToxicProxy>>(ToxiProxyId(id, affiliation.name), ToxiProxyDataLoader::class)
 
     companion object {
         fun create(deployment: ApplicationDeploymentResource) =

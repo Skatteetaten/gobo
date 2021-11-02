@@ -1,6 +1,7 @@
 package no.skatteetaten.aurora.gobo.graphql.toxiproxy
 
 import com.ninjasquad.springmockk.MockkBean
+import io.fabric8.openshift.api.model.User
 import io.mockk.coEvery
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentResourceBuilder
 import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithDbhAndSkap
@@ -8,6 +9,8 @@ import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.ApplicationDepl
 import no.skatteetaten.aurora.gobo.graphql.printResult
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
+import no.skatteetaten.aurora.kubernetes.KubernetesCoroutinesClient
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Import
@@ -22,11 +25,16 @@ class ToxicProxyQueryTest : GraphQLTestWithDbhAndSkap() {
     @Value("classpath:graphql/queries/getApplicationDeploymentWithToxics.graphql")
     private lateinit var getApplicationDeploymentWithToxicsQuery: Resource
 
-//    @MockkBean
-    // private lateinit var affiliationService: AffiliationService
-
     @MockkBean
     private lateinit var applicationService: ApplicationService
+
+    @MockkBean(relaxed = true)
+    private lateinit var kubernetesClient: KubernetesCoroutinesClient
+
+    @BeforeEach
+    fun setUp() {
+        coEvery { kubernetesClient.currentUser(any()) } returns User()
+    }
 
     @Test
     fun `Query for applications with toxics`() {
