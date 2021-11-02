@@ -37,16 +37,18 @@ class AuroraConfigService(
         token: String,
         auroraConfigName: String,
         environment: String,
-        application: String
+        application: String,
+        gitReference: String
     ): List<AuroraConfigFileResource> {
         return booberWebClient
             .get<AuroraConfigFileResource>(
-                url = "/v1/auroraconfig/{auroraConfigName}/files/{environment}/{application}",
+                url = "/v1/auroraconfig/{auroraConfigName}/files/{environment}/{application}?reference={gitReference}",
                 token = token,
                 params = mapOf(
                     "auroraConfigName" to auroraConfigName,
                     "environment" to environment,
-                    "application" to application
+                    "application" to application,
+                    "gitReference" to gitReference
                 )
             ).responses()
     }

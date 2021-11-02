@@ -26,7 +26,8 @@ class AuroraConfigFileResourceDataLoader(
                 token = ctx.token(),
                 details.applicationDeploymentCommand.auroraConfig.name,
                 details.applicationDeploymentCommand.applicationDeploymentRef.environment,
-                details.applicationDeploymentCommand.applicationDeploymentRef.application
+                details.applicationDeploymentCommand.applicationDeploymentRef.application,
+                details.applicationDeploymentCommand.auroraConfig.gitReference
             )
         }
     }

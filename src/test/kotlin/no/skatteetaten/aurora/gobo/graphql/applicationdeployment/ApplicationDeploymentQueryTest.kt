@@ -88,7 +88,7 @@ class ApplicationDeploymentQueryTest : GraphQLTestWithDbhAndSkap() {
             )
         )
 
-        coEvery { auroraConfigService.getAuroraConfigFiles(any(), any(), any(), any()) } returns listOf(
+        coEvery { auroraConfigService.getAuroraConfigFiles(any(), any(), any(), any(), any()) } returns listOf(
             AuroraConfigFileResource("about.json", """{ "foo" : "bar" }""", AuroraConfigFileType.GLOBAL, "123"),
             AuroraConfigFileResource("utv/foo.json", """{ "foo" : "bar" }""", AuroraConfigFileType.APP, "321")
         )
