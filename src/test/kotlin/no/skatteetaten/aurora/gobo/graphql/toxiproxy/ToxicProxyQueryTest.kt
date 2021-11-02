@@ -3,6 +3,7 @@ package no.skatteetaten.aurora.gobo.graphql.toxiproxy
 import com.ninjasquad.springmockk.MockkBean
 import io.fabric8.openshift.api.model.User
 import io.mockk.coEvery
+import no.skatteetaten.aurora.gobo.ApplicationDeploymentDetailsBuilder
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentResourceBuilder
 import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithDbhAndSkap
 import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.ApplicationDeploymentQuery
@@ -34,6 +35,10 @@ class ToxicProxyQueryTest : GraphQLTestWithDbhAndSkap() {
     @BeforeEach
     fun setUp() {
         coEvery { kubernetesClient.currentUser(any()) } returns User()
+
+        coEvery {
+            applicationService.getApplicationDeploymentDetails(any(), any())
+        } returns ApplicationDeploymentDetailsBuilder().build()
     }
 
     @Test
