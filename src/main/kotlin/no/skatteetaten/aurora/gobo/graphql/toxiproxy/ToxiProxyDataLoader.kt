@@ -64,7 +64,7 @@ class ToxiProxyDataLoader(
 
 data class ToxiProxyId(val applicationDeploymentId: String, val affiliation: String)
 
-data class ToxicProxy(val name: String, val listen: String, val upstream: String, val enabled: Boolean, val toxics: String)
+data class ToxicProxy(val name: String, val listen: String, val upstream: String, val enabled: Boolean, val toxics: List<Toxic>)
 
 data class Toxic(
     val name: String,
