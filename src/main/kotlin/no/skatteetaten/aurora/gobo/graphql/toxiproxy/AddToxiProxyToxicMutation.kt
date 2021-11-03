@@ -46,5 +46,5 @@ data class ToxiProxyToxicRef(
 )
 data class AddToxiProxyToxicsInput(
     val podName: String,
-    val toxic: ToxicProxy
+    val toxic: ToxiProxy
 )

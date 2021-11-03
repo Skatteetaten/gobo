@@ -16,7 +16,7 @@ import java.time.Instant
 import no.skatteetaten.aurora.gobo.graphql.auroraconfig.AuroraConfigFileResource
 import no.skatteetaten.aurora.gobo.graphql.toxiproxy.ToxiProxyDataLoader
 import no.skatteetaten.aurora.gobo.graphql.toxiproxy.ToxiProxyId
-import no.skatteetaten.aurora.gobo.graphql.toxiproxy.ToxicProxy
+import no.skatteetaten.aurora.gobo.graphql.toxiproxy.ToxiProxy
 
 data class StatusCheck(val name: String, val description: String, val failLevel: String, val hasFailed: Boolean)
 
@@ -54,7 +54,7 @@ data class ApplicationDeployment(
         dfe.loadValue<String, List<AuroraConfigFileResource>>(id)
 
     fun toxiProxy(dfe: DataFetchingEnvironment) =
-        dfe.loadValue<ToxiProxyId, List<ToxicProxy>>(ToxiProxyId(id, affiliation.name), ToxiProxyDataLoader::class)
+        dfe.loadValue<ToxiProxyId, List<ToxiProxy>>(ToxiProxyId(id, affiliation.name), ToxiProxyDataLoader::class)
 
     companion object {
         fun create(deployment: ApplicationDeploymentResource) =

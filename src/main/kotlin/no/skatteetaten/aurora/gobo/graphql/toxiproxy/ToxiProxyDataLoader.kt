@@ -1,6 +1,7 @@
 package no.skatteetaten.aurora.gobo.graphql.toxiproxy
 
 import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.module.kotlin.convertValue
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
@@ -16,7 +17,7 @@ import org.springframework.stereotype.Component
 class ToxiProxyDataLoader(
     private val applicationService: ApplicationService,
     private val kubernetesClient: KubernetesCoroutinesClient
-) : GoboDataLoader<ToxiProxyId, List<ToxicProxy>>() {
+) : GoboDataLoader<ToxiProxyId, List<ToxiProxy>>() {
 
     // Dataloader steps:
     /*
@@ -25,7 +26,7 @@ class ToxiProxyDataLoader(
     3. gjøre proxy kall mot kubernetes
      */
 
-    override suspend fun getByKeys(keys: Set<ToxiProxyId>, ctx: GoboGraphQLContext): Map<ToxiProxyId, List<ToxicProxy>> {
+    override suspend fun getByKeys(keys: Set<ToxiProxyId>, ctx: GoboGraphQLContext): Map<ToxiProxyId, List<ToxiProxy>> {
         return keys.associateWith { id ->
             val applicationDeploymentDetails = applicationService.getApplicationDeploymentDetails(ctx.token(), id.applicationDeploymentId)
             applicationDeploymentDetails.podResources.flatMap { pod ->
@@ -53,7 +54,8 @@ class ToxiProxyDataLoader(
                     }
 
                     val json = kubernetesClient.proxyGet<JsonNode>(pod = pod, port = 8474, path = "proxies", token = ctx.token())
-                    jacksonObjectMapper().convertValue<ToxicProxy>(json.at("/app"))
+                    val toxiProxy = jacksonObjectMapper().convertValue<ToxiProxy>(json.at("/app"))
+                    toxiProxy.copy(podName = podName)
                 }.map {
                     it
                 }
@@ -64,23 +66,23 @@ class ToxiProxyDataLoader(
 
 data class ToxiProxyId(val applicationDeploymentId: String, val affiliation: String)
 
-data class ToxicProxy(val name: String, val listen: String, val upstream: String, val enabled: Boolean, val toxics: List<Toxic>)
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class ToxiProxy(val name: String, val listen: String, val upstream: String, val enabled: Boolean, val toxics: List<Toxic>, val podName: String = "")
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class Toxic(
     val name: String,
     val type: String,
     val stream: String,
-    val toxicity: Boolean,
-    @GraphQLIgnore val attributes: JsonNode
+    val toxicity: Int,
+    @GraphQLIgnore
+    val attributes: JsonNode
 ) {
     fun attributes(): List<ToxicAttribute> {
         print("Nå er vi i attributes...")
-        if (attributes.elements().hasNext()) { // && next().fieldNames().hasNext()) {
-            val e = attributes.elements().next().fieldNames().next()
-            print(e)
-        }
-        return emptyList()
+        return jacksonObjectMapper().convertValue<Map<String, String>>(attributes).map { ToxicAttribute(it.key, it.value) }
     }
 }
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class ToxicAttribute(val key: String, val value: String)
