@@ -79,7 +79,6 @@ data class Toxic(
     val attributes: JsonNode
 ) {
     fun attributes(): List<ToxicAttribute> {
-        print("Nå er vi i attributes...")
         return jacksonObjectMapper().convertValue<Map<String, String>>(attributes).map { ToxicAttribute(it.key, it.value) }
     }
 }

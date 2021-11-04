@@ -297,6 +297,99 @@ data class ApplicationDeploymentDetailsBuilder(
         }
 }
 
+data class ApplicationDeploymentDetailsResourceBuilder(
+    val resourceLinks: Links = Links(),
+    val pause: Boolean = false
+) {
+
+    fun build() =
+        ApplicationDeploymentDetailsResource(
+            updatedBy = "linus",
+            buildTime = Instant.now(),
+            gitInfo = GitInfoResource("123abc", Instant.now()),
+            imageDetails = ImageDetailsResource(
+                imageBuildTime = defaultInstant,
+                dockerImageReference = "docker.registry/group/name@sha256:123",
+                dockerImageTagReference = "docker.registry/group/name:2"
+            ),
+            deployDetails = DeployDetailsResource(
+                targetReplicas = 1,
+                availableReplicas = 1,
+                deployment = "deployment-1",
+                phase = "Complete",
+                deployTag = "foobar",
+                paused = pause
+            ),
+            databases = listOf("123"),
+            podResources = listOf(
+                PodResourceResource(
+                    name = "name",
+                    phase = "status",
+                    deployTag = "tag",
+                    latestDeployTag = true,
+                    replicaName = "deployment-1",
+                    latestReplicaName = true,
+                    containers = listOf(
+                        ContainerResource(
+                            name = "name-java",
+                            image = "docker-registry/group/name@sha256:hash",
+                            state = "running",
+                            restartCount = 1,
+                            ready = true
+                        ),
+                        ContainerResource(
+                            name = "name-foo-toxiproxy-sidecar",
+                            image = "docker-registry/group/name@sha256:hash",
+                            state = "running",
+                            restartCount = 2,
+                            ready = false
+                        )
+                    ),
+                    managementResponses = ManagementResponsesResource(
+                        links = ManagementEndpointResponseResource(
+                            hasResponse = true,
+                            textResponse = linksResponseJson,
+                            httpCode = 200,
+                            createdAt = defaultInstant,
+                            url = "http://localhost/discovery"
+                        ),
+                        health = ManagementEndpointResponseResource(
+                            hasResponse = true,
+                            textResponse = healthResponseJson,
+                            httpCode = 200,
+                            createdAt = defaultInstant,
+                            url = "http://localhost/health"
+                        ),
+                        info = ManagementEndpointResponseResource(
+                            hasResponse = true,
+                            textResponse = infoResponseJson,
+                            httpCode = 200,
+                            createdAt = defaultInstant,
+                            url = "http://localhost/info"
+                        ),
+                        env = ManagementEndpointResponseResource(
+                            hasResponse = true,
+                            textResponse = envResponseJson,
+                            httpCode = 200,
+                            createdAt = defaultInstant,
+                            url = "http://localhost/env"
+                        )
+                    )
+
+                )
+            ),
+            applicationDeploymentCommand = ApplicationDeploymentCommandResource(
+                emptyMap(),
+                ApplicationDeploymentRefResource("environment", "application"),
+                AuroraConfigRefResource("name", "refName")
+            ),
+            serviceLinks = Links().apply { add("metrics", "http://metrics") }
+        ).apply {
+            self("http://ApplicationDeploymentDetails/1")
+            addAll(resourceLinks)
+        }
+}
+
 class ProbeResultListBuilder {
     fun build() = listOf(
         ProbeResult(
@@ -600,5 +693,3 @@ class DeletionResourceBuilder {
         deleted = true
     )
 }
-
-

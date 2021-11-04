@@ -1,20 +1,22 @@
 query getApplicationDeployment($id: String!) {
   applicationDeployment(id: $id) {
-    environment
-    name
-    toxiProxy{
+    toxiProxy {
+      podName
+      name
+      listen
+      upstream
+      enabled
+      toxics {
         name
-        listen
-        upstream
-        enabled
-        toxics {
-           name
-           type
-           attributes {
-              key
-              value
-           }
+        type
+        stream
+        toxicity
+        attributes{
+          key
+          value
         }
+      }
     }
   }
+
 }
