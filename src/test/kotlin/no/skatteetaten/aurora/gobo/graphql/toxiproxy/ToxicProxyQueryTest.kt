@@ -4,6 +4,7 @@ import com.ninjasquad.springmockk.MockkBean
 import io.fabric8.openshift.api.model.User
 import io.mockk.coEvery
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentDetailsResourceBuilder
+import no.skatteetaten.aurora.gobo.ApplicationDeploymentResourceBuilder
 import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithDbhAndSkap
 import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.ApplicationDeploymentQuery
 import no.skatteetaten.aurora.gobo.graphql.printResult
@@ -38,6 +39,10 @@ class ToxicProxyQueryTest : GraphQLTestWithDbhAndSkap() {
 
     @Test
     fun `Query for applications with toxics`() {
+
+        coEvery {
+            applicationService.getApplicationDeployment(any())
+        } returns ApplicationDeploymentResourceBuilder().build()
 
         coEvery {
             applicationService.getApplicationDeploymentDetails(any(), any())
