@@ -40,7 +40,7 @@ class ToxicProxyQueryTest : GraphQLTestWithDbhAndSkap() {
     @TestConfiguration
     class TestConfig {
         @Bean
-        fun mockWebServer() = MockWebServer()
+        fun server() = MockWebServer()
 
         @Bean
         fun kubernetesCoroutinesClient(server: MockWebServer): KubernetesCoroutinesClient {
@@ -59,7 +59,14 @@ class ToxicProxyQueryTest : GraphQLTestWithDbhAndSkap() {
             applicationService.getApplicationDeploymentDetails(any(), any())
         } returns ApplicationDeploymentDetailsResourceBuilder().build()
 
-        server.execute(""" {} """) { // TODO sett inn json response fra toxiproxy her
+        val proxyGetResponse = """ {
+                "cluster" : {"value" : "myCluster"},  
+                "envName" : {"value" : "env"},  
+                "name"    : {"value" : "myName"},  
+                "version" : {"value" : "1.0"}
+            } """
+
+        server.execute(proxyGetResponse) { // TODO sett inn json response fra toxiproxy her
             webTestClient.queryGraphQL(getApplicationDeploymentWithToxicsQuery, variables = mapOf("id" to "abc"), token = "test-token")
                 .expectStatus().isOk
                 .expectBody()
