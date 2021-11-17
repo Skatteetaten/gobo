@@ -1,42 +1,28 @@
 package no.skatteetaten.aurora.gobo.integration.toxiproxy
 
-import no.skatteetaten.aurora.gobo.ServiceTypes
-import no.skatteetaten.aurora.gobo.TargetService
-import no.skatteetaten.aurora.gobo.graphql.IntegrationDisabledException
-import no.skatteetaten.aurora.gobo.integration.phil.DeploymentResource
 import org.springframework.stereotype.Service
-import org.springframework.web.reactive.function.client.WebClient
-
-class ToxiProxyService
+import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.ApplicationDeploymentRef
+import no.skatteetaten.aurora.gobo.graphql.toxiproxy.AddToxiProxyInput
+import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
+import no.skatteetaten.aurora.kubernetes.KubernetesCoroutinesClient
 
 @Service
-class ToxiProxyToxicServiceReactive(
-    @TargetService(ServiceTypes.BOOBER) private val webClient: WebClient
-) : ToxiProxyToxicService
+class ToxiProxyToxicService(
+    private val applicationService: ApplicationService,
+    private val kubernetesClient: KubernetesCoroutinesClient) {
 
-/*
-    override suspend fun addToxiProxyToxic(environment: String, token: String) =
-        webClient
-            .post()
-            .uri("/environments/{environment}", environment)
-            .header(HttpHeaders.AUTHORIZATION, "Bearer $token")
-            .retrieve()
-            .onStatusNotOk { status, body ->
-                throw PhilIntegrationException(
-                    message = "Request failed when deploying environment",
-                    integrationResponse = body,
-                    status = status
-                )
-            }
-            .bodyToMono<List<DeploymentResource>>()
-            .awaitFirstOrNull()
+    suspend fun addToxiProxyToxic(toxiProxyToxicCtx: ToxiProxyToxicContext, toxic: AddToxiProxyInput) {
+
+        print("input is: " + toxiProxyToxicCtx.affiliationName + " " + toxiProxyToxicCtx.environmentName + " " + toxiProxyToxicCtx.applicationName)
+        val applicationDeployments = applicationService.getApplicationDeployments {
+            mapOf(ApplicationDeploymentRef(toxiProxyToxicCtx.environmentName, toxiProxyToxicCtx.applicationName)
+            )
+        }
+        // innhold se:  suspend fun addAuroraConfigFile(
+    }
+
+    private fun mapOf(pair: ApplicationDeploymentRef) {
+    }
 }
-*/
 
-interface ToxiProxyToxicService {
-    suspend fun deployEnvironment(environment: String, token: String): List<DeploymentResource>? =
-        integrationDisabled()
-
-    private fun integrationDisabled(): Nothing =
-        throw IntegrationDisabledException("Integration is disabled for this environment")
-}
+data class ToxiProxyToxicContext(val token: String, val affiliationName: String, val environmentName: String, val applicationName: String)

@@ -4,28 +4,39 @@ import com.expediagroup.graphql.server.operations.Mutation
 import no.skatteetaten.aurora.gobo.integration.toxiproxy.ToxiProxyToxicService
 import org.springframework.stereotype.Component
 import graphql.schema.DataFetchingEnvironment
-import no.skatteetaten.aurora.gobo.security.checkValidUserToken
+import no.skatteetaten.aurora.gobo.graphql.token
+import no.skatteetaten.aurora.gobo.integration.toxiproxy.ToxiProxyToxicContext
+import no.skatteetaten.aurora.gobo.security.ifValidUserToken
+
+// import graphql.schema.DataFetchingEnvironment
+// import no.skatteetaten.aurora.gobo.security.checkValidUserToken
 
 @Component
-class AddToxiProxyToxicMutation(
-    private val toxiProxyToxicService: ToxiProxyToxicService
-) : Mutation {
+class AddToxiProxyToxicMutation(val toxiProxyToxicService: ToxiProxyToxicService) : Mutation {
 
     suspend fun addToxiProxyToxic(
         input: AddToxiProxyToxicsInput,
         dfe: DataFetchingEnvironment
-    ) {
-        dfe.checkValidUserToken()
-        print("er i add toxic prixy")
-        return
-//        environmentService.deployEnvironment(input.environment, dfe.token())
-//            .let { it.toDeploymentEnvironmentResponse() }
+    ): String {
+        dfe.ifValidUserToken {
+            toxiProxyToxicService.addToxiProxyToxic(
+                toxiProxyToxicCtx = ToxiProxyToxicContext(
+                    token = dfe.token(),
+                    affiliationName = input.affiliation,
+                    environmentName = input.environment,
+                    applicationName = input.application,
+                ),
+                toxic = input.toxic
+            )
+        }
+        return ""
     }
 //
 //     private fun List<DeploymentResource>?.toDeploymentEnvironmentResponse() =
 //         this?.map {
 //             Deployment(
 //                 deploymentRef = DeploymentRef(
+//                     it.deploymentRef.cluster,
 //                     it.deploymentRef.cluster,
 //                     it.deploymentRef.affiliation,
 //                     it.deploymentRef.environment,

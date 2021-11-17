@@ -36,7 +36,7 @@ dependencies {
     implementation("com.github.fge:json-patch:1.13")
     implementation("com.jayway.jsonpath:json-path:2.6.0")
     implementation("io.projectreactor.addons:reactor-extra:3.4.4")
-    implementation("no.skatteetaten.aurora.kubernetes:kubernetes-reactor-coroutines-client:1.3.21")
+    implementation("no.skatteetaten.aurora.kubernetes:kubernetes-reactor-coroutines-client:1.3.12")
     implementation("no.skatteetaten.aurora.springboot:aurora-spring-security-starter:1.6.1")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
