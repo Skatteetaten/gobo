@@ -24,9 +24,6 @@ import java.time.Instant
 
 @Import(ApplicationDeploymentMutation::class)
 class ApplicationDeploymentMutationTest : GraphQLTestWithDbhAndSkap() {
-    @Value("classpath:graphql/mutations/redeployWithVersion.graphql")
-    private lateinit var redeployWithVersionMutation: Resource
-
     @Value("classpath:graphql/mutations/redeployWithCurrentVersion.graphql")
     private lateinit var redeployWithCurrentVersionMutation: Resource
 
