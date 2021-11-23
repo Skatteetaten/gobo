@@ -36,22 +36,30 @@ class StorageGridCredentialMutation(
         // Sjekk om dette er god nok sikkerhet
         dfe.checkIsUserAuthorized(allowedAdGroup)
 
-        val storageGridTenant = input.toHerkimerStorageGridTenant(cluster)
+        val tenantName = "${input.businessGroup}-$cluster"
 
         return herkimerService.registerResourceAndClaim(
-            RegisterResourceAndClaimCommand(
-                ownerId = storagegridOperatorAdId,
-                credentials = storageGridTenant.credentials,
-                resourceName = storageGridTenant.tenantName,
-                claimName = "ADMIN",
-                resourceKind = ResourceKind.StorageGridTenant
-            )
-        ).toRegisterStorageGridTenantResult(storageGridTenant.tenantName)
+            createRegisterResourceAndClaimCommand(input, tenantName)
+        ).toRegisterStorageGridTenantResult(tenantName)
             .also {
                 if (notificationChannel.isNotEmpty())
-                    nagHubService.sendMessage(notificationChannel, it.toNotifyMessage(storageGridTenant.tenantName))
-                        ?.logOnFailure(storageGridTenant.tenantName)
+                    nagHubService.sendMessage(notificationChannel, it.toNotifyMessage(tenantName))
+                        ?.logOnFailure(tenantName)
             }
+    }
+
+    private fun createRegisterResourceAndClaimCommand(input: StorageGridTenantInput, tenantName: String): RegisterResourceAndClaimCommand {
+        return RegisterResourceAndClaimCommand(
+            ownerId = storagegridOperatorAdId,
+            credentials = StorageGridTenantAdminCredentials(
+                accountId = input.accountId,
+                username = input.username,
+                password = input.password
+            ),
+            resourceName = tenantName,
+            claimName = "ADMIN",
+            resourceKind = ResourceKind.StorageGridTenant
+        )
     }
 
     private fun RegisterStorageGridTenantResult.toNotifyMessage(tenantName: String): List<DetailedMessage> {
@@ -79,20 +87,6 @@ class StorageGridCredentialMutation(
     }
 }
 
-private fun StorageGridTenantInput.toHerkimerStorageGridTenant(cluster: String) =
-    HerkimerStorageGridTenant(
-        credentials = StorageGridTenantAdminCredentials(
-            accountId = accountId,
-            username = username,
-            password = password
-        ),
-        tenantName = generateTenantName(cluster)
-    )
-
-private fun StorageGridTenantInput.generateTenantName(cluster: String): String {
-    return "$businessGroup-$cluster"
-}
-
 private fun HerkimerResult.toRegisterStorageGridTenantResult(tenantName: String): RegisterStorageGridTenantResult {
     val message =
         if (success) "StorageGrid tenant tenantName=$tenantName has been successfully registered in the Aurora Platform."
@@ -114,11 +108,6 @@ data class StorageGridTenantInput(
 data class RegisterStorageGridTenantResult(
     val message: String,
     val success: Boolean
-)
-
-data class HerkimerStorageGridTenant(
-    val credentials: StorageGridTenantAdminCredentials,
-    val tenantName: String
 )
 
 data class StorageGridTenantAdminCredentials(
