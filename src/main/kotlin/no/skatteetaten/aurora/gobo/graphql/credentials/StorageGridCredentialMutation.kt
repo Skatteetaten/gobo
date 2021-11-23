@@ -33,7 +33,6 @@ class StorageGridCredentialMutation(
         input: StorageGridTenantInput,
         dfe: DataFetchingEnvironment
     ): RegisterStorageGridTenantResult {
-        // Sjekk om dette er god nok sikkerhet
         dfe.checkIsUserAuthorized(allowedAdGroup)
 
         val tenantName = "${input.businessGroup}-$cluster"
