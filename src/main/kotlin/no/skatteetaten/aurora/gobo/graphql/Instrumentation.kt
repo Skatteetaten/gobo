@@ -124,10 +124,12 @@ class GoboInstrumentation(
         return super.beginExecuteOperation(parameters)
     }
 
+
+
     override fun instrumentExecutionResult(executionResult: ExecutionResult?, parameters: InstrumentationExecutionParameters?): CompletableFuture<ExecutionResult> {
         parameters?.graphQLContext?.let {
             if (logOperationEnd == true) {
-                logger.info { """Completed ${it.operationType} ${it.operationName} in ${System.currentTimeMillis() - it.startTime}ms""" }
+                logger.info { """Completed ${it.operationType} ${it.operationName} in ${System.currentTimeMillis() - it.startTime}ms, number of errors ${executionResult?.errors?.size}""" }
             }
         }
 
