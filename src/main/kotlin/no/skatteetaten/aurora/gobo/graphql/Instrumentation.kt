@@ -48,7 +48,7 @@ class GoboInstrumentation(
         val numOfFields = fieldUsage.fields.entries.count { it.value.sum() > 0 }
         val numOfClients = clientUsage.clients.entries.count { it.value.sum() > 0 }
         if (numOfFields > 0 || numOfClients > 0) {
-            logger.info("Updating $numOfFields fields and $numOfClients clients")
+            logger.debug("Updating $numOfFields fields and $numOfClients clients")
         }
 
         fieldUsage.getAndResetFieldUsage().forEach {
@@ -118,7 +118,7 @@ class GoboInstrumentation(
             context.addStartTime()
 
             if (logOperationStart == true && context.operationName.isNotIntrospectionQuery()) {
-                logger.info { """Starting type=${context.operationType} name=${context.operationName} at ${LocalDateTime.now()}, klientid=${context.klientid}""" }
+                logger.info { """Starting type=${context.operationType} name=${context.operationName} at ${LocalDateTime.now()}, klientid="${context.klientid}"""" }
             }
         }
         return super.beginExecuteOperation(parameters)
@@ -127,7 +127,7 @@ class GoboInstrumentation(
     override fun instrumentExecutionResult(executionResult: ExecutionResult?, parameters: InstrumentationExecutionParameters?): CompletableFuture<ExecutionResult> {
         parameters?.graphQLContext?.let {
             if (logOperationEnd == true && it.operationName.isNotIntrospectionQuery()) {
-                logger.info { """Completed type=${it.operationType} name=${it.operationName} in ${System.currentTimeMillis() - it.startTime}ms, klientid=${it.klientid}, number of errors ${executionResult?.errors?.size}""" }
+                logger.info { """Completed type=${it.operationType} name=${it.operationName} in ${System.currentTimeMillis() - it.startTime}ms, klientid="${it.klientid}", number of errors ${executionResult?.errors?.size}""" }
             }
         }
 
