@@ -1,10 +1,7 @@
 package no.skatteetaten.aurora.gobo
 
-import io.netty.channel.ChannelOption
 import io.netty.handler.ssl.SslContextBuilder
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory
-import io.netty.handler.timeout.ReadTimeoutHandler
-import io.netty.handler.timeout.WriteTimeoutHandler
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.integration.skap.HEADER_AURORA_TOKEN
 import no.skatteetaten.aurora.gobo.security.SharedSecretReader
@@ -26,7 +23,7 @@ import org.springframework.web.reactive.function.client.WebClient
 import reactor.kotlin.core.publisher.toMono
 import reactor.netty.http.client.HttpClient
 import reactor.netty.tcp.SslProvider
-import java.util.concurrent.TimeUnit
+import java.time.Duration
 
 enum class ServiceTypes {
     MOKEY, BOOBER, UNCLEMATT, CANTUS, DBH, SKAP, HERKIMER, NAGHUB, GAVEL, PHIL
@@ -71,9 +68,7 @@ private val logger = KotlinLogging.logger {}
 
 @Configuration
 class ApplicationConfig(
-    @Value("\${gobo.webclient.read-timeout:30000}") val readTimeout: Long,
-    @Value("\${gobo.webclient.write-timeout:30000}") val writeTimeout: Long,
-    @Value("\${gobo.webclient.connection-timeout:30000}") val connectionTimeout: Int,
+    @Value("\${gobo.webclient.response-timeout:60000}") val responseTimeout: Long,
     @Value("\${spring.application.name}") val applicationName: String,
     private val sharedSecretReader: SharedSecretReader
 ) {
@@ -192,15 +187,9 @@ class ApplicationConfig(
             .clientConnector(clientConnector())
 
     private fun clientConnector(ssl: Boolean = false): ReactorClientHttpConnector {
-        val httpClient =
-            HttpClient.create().compress(true)
-                .tcpConfiguration {
-                    it.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectionTimeout)
-                        .doOnConnected { connection ->
-                            connection.addHandlerLast(ReadTimeoutHandler(readTimeout, TimeUnit.MILLISECONDS))
-                            connection.addHandlerLast(WriteTimeoutHandler(writeTimeout, TimeUnit.MILLISECONDS))
-                        }
-                }
+        val httpClient = HttpClient.create()
+            .compress(true)
+            .responseTimeout(Duration.ofMillis(responseTimeout))
 
         if (ssl) {
             val sslProvider = SslProvider.builder().sslContext(
