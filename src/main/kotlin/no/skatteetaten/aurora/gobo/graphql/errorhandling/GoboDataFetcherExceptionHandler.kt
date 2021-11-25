@@ -5,8 +5,10 @@ import graphql.execution.DataFetcherExceptionHandler
 import graphql.execution.DataFetcherExceptionHandlerParameters
 import graphql.execution.DataFetcherExceptionHandlerResult
 import mu.KotlinLogging
-import no.skatteetaten.aurora.gobo.graphql.GoboGraphQLContext
 import no.skatteetaten.aurora.gobo.graphql.IntegrationDisabledException
+import no.skatteetaten.aurora.gobo.graphql.klientid
+import no.skatteetaten.aurora.gobo.graphql.korrelasjonsid
+import no.skatteetaten.aurora.gobo.graphql.query
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.removeNewLines
 import org.apache.commons.lang3.exception.ExceptionUtils
@@ -47,7 +49,6 @@ private fun DataFetcherExceptionHandlerParameters.handleGeneralDataFetcherExcept
     val exception = this.exception
     val exceptionName = this::class.simpleName
 
-    val context = dataFetchingEnvironment.getContext<GoboGraphQLContext>()
     val source = if (exception is SourceSystemException) {
         """source="${exception.sourceSystem}" integrationResponse="${exception.integrationResponse?.take(5000)}" """
     } else {
@@ -55,7 +56,7 @@ private fun DataFetcherExceptionHandlerParameters.handleGeneralDataFetcherExcept
     }
 
     val logText =
-        """Exception while fetching data, exception="$exception" Korrelasjonsid="${context.korrelasjonsid()}" Klientid="${context.klientid()}" message="$exceptionName" path="$path" ${context.query} $source ${exception.logTextRequest()}"""
+        """Exception while fetching data, exception="$exception" Korrelasjonsid="${dataFetchingEnvironment.korrelasjonsid}" Klientid="${dataFetchingEnvironment.klientid}" message="$exceptionName" path="$path" ${dataFetchingEnvironment.query} $source ${exception.logTextRequest()}"""
     if (exception.isWebClientResponseWarnLoggable(booberUrl) || exception.isAccessDenied() || exception.isInvalidToken()) {
         logger.warn(logText)
     } else {
@@ -91,6 +92,7 @@ private fun Throwable.isAccessDenied() = this is AccessDeniedException
 private fun Throwable.isLoggableException() = this is ClassCastException
 fun Throwable.isInvalidToken() =
     ExceptionUtils.getRootCauseMessage(this)?.contains(other = "invalid bearer token", ignoreCase = true) ?: false
+
 fun Throwable.isNoSuchElementException() = this is NoSuchElementException
 
 private fun DataFetcherExceptionHandlerParameters.toExceptionWhileDataFetching(t: Throwable) =

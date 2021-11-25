@@ -35,7 +35,7 @@ class AffiliationQuery(val affiliationService: AffiliationService) : Query {
         dfe: DataFetchingEnvironment
     ) =
         when {
-            checkForVisibility -> affiliationService.getAllVisibleAffiliations(dfe.token())
+            checkForVisibility -> affiliationService.getAllVisibleAffiliations(dfe.token)
             includeUndeployed -> affiliationService.getAllAffiliationNames()
             else -> affiliationService.getAllDeployedAffiliations()
         }

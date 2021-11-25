@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component
 class UserSettingsQuery(private val userSettingsService: UserSettingsService) : Query {
     @GraphQLDescription("Get user settings")
     suspend fun userSettings(dfe: DataFetchingEnvironment): UserSettings {
-        val settings = userSettingsService.getUserSettings(dfe.token())
+        val settings = userSettingsService.getUserSettings(dfe.token)
         return UserSettings(settings)
     }
 }

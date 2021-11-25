@@ -15,7 +15,7 @@ class VaultMutation(val vaultService: VaultService) : Mutation {
         dfe.ifValidUserToken {
             vaultService.createVault(
                 ctx = VaultContext(
-                    token = dfe.token(),
+                    token = dfe.token,
                     affiliationName = input.affiliationName,
                     vaultName = input.vaultName
                 ),
@@ -28,7 +28,7 @@ class VaultMutation(val vaultService: VaultService) : Mutation {
         dfe.ifValidUserToken {
             vaultService.renameVault(
                 oldVaultCtx = VaultContext(
-                    token = dfe.token(),
+                    token = dfe.token,
                     affiliationName = input.affiliationName,
                     vaultName = input.vaultName
                 ),
@@ -38,14 +38,14 @@ class VaultMutation(val vaultService: VaultService) : Mutation {
 
     suspend fun deleteVault(input: DeleteVaultInput, dfe: DataFetchingEnvironment) =
         dfe.ifValidUserToken {
-            vaultService.deleteVault(VaultContext(dfe.token(), input.affiliationName, input.vaultName))
+            vaultService.deleteVault(VaultContext(dfe.token, input.affiliationName, input.vaultName))
             DeleteVaultResponse(input.affiliationName, input.vaultName)
         }
 
     suspend fun addVaultPermissions(input: AddVaultPermissionsInput, dfe: DataFetchingEnvironment) =
         dfe.ifValidUserToken {
             vaultService.addVaultPermissions(
-                ctx = VaultContext(dfe.token(), input.affiliationName, input.vaultName),
+                ctx = VaultContext(dfe.token, input.affiliationName, input.vaultName),
                 permissions = input.permissions
             ).let { Vault.create(it) }
         }
@@ -53,7 +53,7 @@ class VaultMutation(val vaultService: VaultService) : Mutation {
     suspend fun removeVaultPermissions(input: RemoveVaultPermissionsInput, dfe: DataFetchingEnvironment) =
         dfe.ifValidUserToken {
             vaultService.removeVaultPermissions(
-                ctx = VaultContext(dfe.token(), input.affiliationName, input.vaultName),
+                ctx = VaultContext(dfe.token, input.affiliationName, input.vaultName),
                 permissions = input.permissions
             ).let { Vault.create(it) }
         }
@@ -61,7 +61,7 @@ class VaultMutation(val vaultService: VaultService) : Mutation {
     suspend fun addVaultSecrets(input: AddVaultSecretsInput, dfe: DataFetchingEnvironment) =
         dfe.ifValidUserToken {
             vaultService.addVaultSecrets(
-                ctx = VaultContext(dfe.token(), input.affiliationName, input.vaultName),
+                ctx = VaultContext(dfe.token, input.affiliationName, input.vaultName),
                 secrets = input.secrets
             ).let { Vault.create(it) }
         }
@@ -69,7 +69,7 @@ class VaultMutation(val vaultService: VaultService) : Mutation {
     suspend fun removeVaultSecrets(input: RemoveVaultSecretsInput, dfe: DataFetchingEnvironment) =
         dfe.ifValidUserToken {
             vaultService.removeVaultSecrets(
-                ctx = VaultContext(dfe.token(), input.affiliationName, input.vaultName),
+                ctx = VaultContext(dfe.token, input.affiliationName, input.vaultName),
                 secretNames = input.secretNames
             ).let { Vault.create(it) }
         }
@@ -77,7 +77,7 @@ class VaultMutation(val vaultService: VaultService) : Mutation {
     suspend fun renameVaultSecret(input: RenameVaultSecretInput, dfe: DataFetchingEnvironment) =
         dfe.ifValidUserToken {
             vaultService.renameVaultSecret(
-                ctx = VaultContext(dfe.token(), input.affiliationName, input.vaultName),
+                ctx = VaultContext(dfe.token, input.affiliationName, input.vaultName),
                 secretName = input.secretName,
                 newSecretName = input.newSecretName
             ).let { Vault.create(it) }
@@ -86,7 +86,7 @@ class VaultMutation(val vaultService: VaultService) : Mutation {
     suspend fun updateVaultSecret(input: UpdateVaultSecretInput, dfe: DataFetchingEnvironment) =
         dfe.ifValidUserToken {
             vaultService.updateVaultSecret(
-                ctx = VaultContext(dfe.token(), input.affiliationName, input.vaultName),
+                ctx = VaultContext(dfe.token, input.affiliationName, input.vaultName),
                 secretName = input.secretName,
                 content = input.base64Content
             ).let { Vault.create(it) }

@@ -2,12 +2,12 @@ package no.skatteetaten.aurora.gobo.security
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import graphql.GraphQLContext
 import graphql.schema.DataFetchingEnvironment
 import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
-import no.skatteetaten.aurora.gobo.graphql.GoboGraphQLContext
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -24,11 +24,7 @@ class CurrentUserTest {
 
     @BeforeEach
     fun setUp() {
-        every { dfe.getContext<GoboGraphQLContext>() } returns GoboGraphQLContext(
-            "token",
-            mockk(),
-            Mono.just(securityContext)
-        )
+        every { dfe.graphQlContext } returns GraphQLContext.newContext().putAll(mapOf("token" to "token", "securityContext" to Mono.just(securityContext))).build()
     }
 
     @AfterEach

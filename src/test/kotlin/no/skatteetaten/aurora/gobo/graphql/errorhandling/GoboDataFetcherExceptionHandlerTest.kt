@@ -10,8 +10,10 @@ import io.mockk.every
 import io.mockk.mockk
 import no.skatteetaten.aurora.gobo.GoboException
 import no.skatteetaten.aurora.gobo.ServiceTypes
-import no.skatteetaten.aurora.gobo.graphql.GoboGraphQLContext
 import no.skatteetaten.aurora.gobo.graphql.IntegrationDisabledException
+import no.skatteetaten.aurora.gobo.graphql.klientid
+import no.skatteetaten.aurora.gobo.graphql.korrelasjonsid
+import no.skatteetaten.aurora.gobo.graphql.query
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CompletionException
@@ -19,7 +21,9 @@ import java.util.concurrent.CompletionException
 class GoboDataFetcherExceptionHandlerTest {
     private val exceptionHandler = GoboDataFetcherExceptionHandler("http://boober")
     private val env = mockk<DataFetchingEnvironment>(relaxed = true) {
-        every { getContext<GoboGraphQLContext>() } returns mockk(relaxed = true)
+        every { korrelasjonsid } returns "abc123"
+        every { klientid } returns "test-client"
+        every { query } returns "{ }"
     }
 
     @Test

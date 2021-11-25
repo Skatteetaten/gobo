@@ -21,7 +21,7 @@ class DeleteEnvironmentMutation(
 
         return environmentService.deleteEnvironment(
             input.environment,
-            dfe.token()
+            dfe.token
         ).let {
             it.toDeleteEnvironmentResult()
         } ?: emptyList()

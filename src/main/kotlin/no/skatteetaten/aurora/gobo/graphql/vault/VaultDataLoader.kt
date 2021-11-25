@@ -1,9 +1,10 @@
 package no.skatteetaten.aurora.gobo.graphql.vault
 
+import graphql.GraphQLContext
 import graphql.execution.DataFetcherResult
 import no.skatteetaten.aurora.gobo.graphql.GoboDataLoader
-import no.skatteetaten.aurora.gobo.graphql.GoboGraphQLContext
 import no.skatteetaten.aurora.gobo.graphql.newDataFetcherResult
+import no.skatteetaten.aurora.gobo.graphql.token
 import no.skatteetaten.aurora.gobo.integration.boober.VaultContext
 import no.skatteetaten.aurora.gobo.integration.boober.VaultService
 import org.springframework.stereotype.Component
@@ -18,13 +19,13 @@ class VaultDataLoader(private val vaultService: VaultService) :
     GoboDataLoader<VaultKey, DataFetcherResult<List<Vault>>>() {
     override suspend fun getByKeys(
         keys: Set<VaultKey>,
-        ctx: GoboGraphQLContext
+        ctx: GraphQLContext
     ): Map<VaultKey, DataFetcherResult<List<Vault>>> {
         return keys.associateWith { vaultKey ->
             when {
-                vaultKey.vaultNames.isNullOrEmpty() -> newDataFetcherResult(getAllVaults(ctx.token(), vaultKey.affiliationName))
+                vaultKey.vaultNames.isNullOrEmpty() -> newDataFetcherResult(getAllVaults(ctx.token, vaultKey.affiliationName))
                 else -> {
-                    val results = getNamedVaults(ctx.token(), vaultKey.affiliationName, vaultKey.vaultNames)
+                    val results = getNamedVaults(ctx.token, vaultKey.affiliationName, vaultKey.vaultNames)
                     val vaults = results.filterIsInstance<Vault>()
                     val errors = results.filterIsInstance<Throwable>()
                     newDataFetcherResult(vaults, errors)

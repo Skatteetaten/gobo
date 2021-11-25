@@ -12,5 +12,5 @@ class AuroraConfigQuery(
 ) : Query {
 
     suspend fun auroraConfig(name: String, refInput: String? = null, dfe: DataFetchingEnvironment) =
-        service.getAuroraConfig(dfe.token(), name, refInput ?: "master")
+        service.getAuroraConfig(dfe.token, name, refInput ?: "master")
 }
