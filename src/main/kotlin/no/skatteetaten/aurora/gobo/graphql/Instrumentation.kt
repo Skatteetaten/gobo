@@ -29,7 +29,7 @@ import javax.annotation.PreDestroy
 
 private val logger = KotlinLogging.logger { }
 
-private fun String.isNotIntrospectionQuery() = !startsWith("query IntrospectionQuery")
+private fun String.isNotIntrospectionQuery() = !contains("IntrospectionQuery")
 
 @Component
 class GoboInstrumentation(
@@ -117,19 +117,17 @@ class GoboInstrumentation(
             context.putOperationName(it.name)
             context.addStartTime()
 
-            if (logOperationStart == true) {
-                logger.info { """Starting ${context.operationType} ${context.operationName} at ${LocalDateTime.now()}""" }
+            if (logOperationStart == true && context.operationName.isNotIntrospectionQuery()) {
+                logger.info { """Starting type=${context.operationType} name=${context.operationName} at ${LocalDateTime.now()}, klientid=${context.klientid}""" }
             }
         }
         return super.beginExecuteOperation(parameters)
     }
 
-
-
     override fun instrumentExecutionResult(executionResult: ExecutionResult?, parameters: InstrumentationExecutionParameters?): CompletableFuture<ExecutionResult> {
         parameters?.graphQLContext?.let {
-            if (logOperationEnd == true) {
-                logger.info { """Completed ${it.operationType} ${it.operationName} in ${System.currentTimeMillis() - it.startTime}ms, number of errors ${executionResult?.errors?.size}""" }
+            if (logOperationEnd == true && it.operationName.isNotIntrospectionQuery()) {
+                logger.info { """Completed type=${it.operationType} name=${it.operationName} in ${System.currentTimeMillis() - it.startTime}ms, klientid=${it.klientid}, number of errors ${executionResult?.errors?.size}""" }
             }
         }
 
