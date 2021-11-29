@@ -2,11 +2,6 @@ package no.skatteetaten.aurora.gobo.integration.boober
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.node.TextNode
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.github.fge.jackson.jsonpointer.JsonPointer
-import com.github.fge.jsonpatch.AddOperation
-import com.github.fge.jsonpatch.JsonPatch
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.graphql.auroraconfig.AuroraConfig
@@ -116,26 +111,6 @@ class AuroraConfigService(
             .filter { it.type == AuroraConfigFileType.APP }
             .map { it.name }
             .first()
-    }
-
-    suspend fun patch(
-        token: String,
-        version: String,
-        auroraConfigFile: String,
-        applicationFile: String
-    ): AuroraConfigFileResource {
-        logger.debug { "patch, url=$auroraConfigFile applicationFile=$applicationFile" }
-
-        return booberWebClient.patch<AuroraConfigFileResource>(
-            token = token,
-            url = auroraConfigFile.replace("{fileName}", applicationFile),
-            body = createVersionPatch(version)
-        ).response()
-    }
-
-    private fun createVersionPatch(version: String): Map<String, String> {
-        val jsonPatch = JsonPatch(listOf(AddOperation(JsonPointer("/version"), TextNode(version))))
-        return mapOf("content" to jacksonObjectMapper().writeValueAsString(jsonPatch))
     }
 
     suspend fun redeploy(

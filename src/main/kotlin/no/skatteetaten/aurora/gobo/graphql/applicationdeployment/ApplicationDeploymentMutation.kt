@@ -20,11 +20,6 @@ class ApplicationDeploymentMutation(
     private val applicationService: ApplicationService
 ) : Mutation {
 
-    suspend fun redeployWithVersion(input: ApplicationDeploymentVersionInput, dfe: DataFetchingEnvironment): DeployResponse {
-        val id = applicationUpgradeService.upgrade(dfe.token, input.applicationDeploymentId, input.version)
-        return DeployResponse(id)
-    }
-
     suspend fun redeployWithCurrentVersion(input: ApplicationDeploymentIdInput, dfe: DataFetchingEnvironment): DeployResponse {
         val id = applicationUpgradeService.deployCurrentVersion(dfe.token, input.applicationDeploymentId)
         return DeployResponse(id)

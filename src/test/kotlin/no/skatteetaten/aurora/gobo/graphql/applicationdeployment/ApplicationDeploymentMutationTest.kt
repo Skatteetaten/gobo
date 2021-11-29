@@ -24,9 +24,6 @@ import java.time.Instant
 
 @Import(ApplicationDeploymentMutation::class)
 class ApplicationDeploymentMutationTest : GraphQLTestWithDbhAndSkap() {
-    @Value("classpath:graphql/mutations/redeployWithVersion.graphql")
-    private lateinit var redeployWithVersionMutation: Resource
-
     @Value("classpath:graphql/mutations/redeployWithCurrentVersion.graphql")
     private lateinit var redeployWithCurrentVersionMutation: Resource
 
@@ -53,7 +50,6 @@ class ApplicationDeploymentMutationTest : GraphQLTestWithDbhAndSkap() {
 
     @BeforeEach
     fun setUp() {
-        coEvery { applicationUpgradeService.upgrade(any(), any(), any()) } returns "123"
         coEvery { applicationUpgradeService.deployCurrentVersion(any(), any()) } returns "123"
         coEvery { applicationDeploymentService.deleteApplicationDeployments(any(), any()) } returns listOf(
             BooberDeleteResponse(BooberApplicationRef("aurora-utv", "gobo"), true, "")
@@ -64,19 +60,6 @@ class ApplicationDeploymentMutationTest : GraphQLTestWithDbhAndSkap() {
                 VersionResource("", null, null), null, Instant.now(), null
             )
         )
-    }
-
-    @Test
-    fun `Mutate application deployment version`() {
-        val variables = mapOf(
-            "input" to mapOf(
-                "applicationDeploymentId" to "123",
-                "version" to "1"
-            )
-        )
-        webTestClient.queryGraphQL(redeployWithVersionMutation, variables, "test-token").expectBody()
-            .graphqlData("redeployWithVersion.applicationDeploymentId").isEqualTo("123")
-            .graphqlDoesNotContainErrors()
     }
 
     @Test
