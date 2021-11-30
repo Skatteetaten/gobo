@@ -3,6 +3,10 @@ package no.skatteetaten.aurora.gobo.graphql.toxiproxy
 import com.expediagroup.graphql.server.operations.Mutation
 import no.skatteetaten.aurora.gobo.integration.toxiproxy.ToxiProxyToxicService
 import org.springframework.stereotype.Component
+import com.fasterxml.jackson.core.JsonGenerator
+import com.fasterxml.jackson.databind.SerializerProvider
+import com.fasterxml.jackson.databind.annotation.JsonSerialize
+import com.fasterxml.jackson.databind.ser.std.StdSerializer
 import graphql.schema.DataFetchingEnvironment
 import no.skatteetaten.aurora.gobo.graphql.token
 import no.skatteetaten.aurora.gobo.integration.toxiproxy.ToxiProxyToxicContext
@@ -26,45 +30,41 @@ class AddToxiProxyToxicMutation(val toxiProxyToxicService: ToxiProxyToxicService
                     environmentName = input.environment,
                     applicationName = input.application,
                 ),
-                toxic = input.toxic
+                toxiProxyInput = input.toxiProxy
             )
         }
         return ""
     }
-//
-//     private fun List<DeploymentResource>?.toDeploymentEnvironmentResponse() =
-//         this?.map {
-//             Deployment(
-//                 deploymentRef = DeploymentRef(
-//                     it.deploymentRef.cluster,
-//                     it.deploymentRef.cluster,
-//                     it.deploymentRef.affiliation,
-//                     it.deploymentRef.environment,
-//                     it.deploymentRef.application
-//                 ),
-//                 deployId = it.deployId,
-//                 timestamp = it.timestamp.toInstant(),
-//                 message = it.message
-//             )
-//         }
-// }
 }
 
 data class AddToxiProxyToxicsInput(
     val affiliation: String,
     val environment: String,
     val application: String,
-    val toxic: AddToxiProxyInput,
+    val toxiProxy: AddToxiProxyInput,
 )
 
 data class AddToxiProxyInput(val name: String, val listen: String, val upstream: String, val enabled: Boolean, val toxics: List<AddToxicInput>)
 
 data class AddToxicInput(
-    val toxicName: String,
+    val name: String,
     val type: String,
     val stream: String,
     val toxicity: Int,
     val attributes: List<AddToxicAttributeInput>
 )
 
+@JsonSerialize(using = ToxicAttributeSerializer::class)
 data class AddToxicAttributeInput(val key: String, val value: String)
+
+class ToxicAttributeSerializer : StdSerializer<AddToxicAttributeInput>(AddToxicAttributeInput::class.java) {
+    override fun serialize(input: AddToxicAttributeInput?, json: JsonGenerator?, serializer: SerializerProvider?) {
+        if (input != null) {
+            json?.let {
+                it.writeStartObject()
+                it.writeStringField(input.key, input.value)
+                it.writeEndObject()
+            }
+        }
+    }
+}

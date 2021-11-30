@@ -56,7 +56,7 @@ class ApplicationService(@TargetService(ServiceTypes.MOKEY) val webClient: WebCl
             .awaitWithRetry()
     }
 
-    suspend fun getApplicationDeployments(applicationDeploymentRefs: () -> ????): List<ApplicationDeploymentResource> {
+    suspend fun getApplicationDeployments(applicationDeploymentRefs: List<ApplicationDeploymentRef>): List<ApplicationDeploymentResource> {
         return webClient
             .post()
             .uri("/api/applicationdeployment")
