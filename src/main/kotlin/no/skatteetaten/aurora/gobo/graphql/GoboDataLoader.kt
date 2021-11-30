@@ -24,9 +24,12 @@ abstract class GoboDataLoader<K, V> : KotlinDataLoader<K, V> {
             { keys: Set<K>, env: BatchLoaderEnvironment ->
                 @OptIn(DelicateCoroutinesApi::class)
                 GlobalScope.async(Dispatchers.IO) {
-                    getByKeys(keys, (env.keyContexts.entries.first().value as GoboGraphQLContext).context)
+                    getByKeys(keys, env.graphqlContext)
                 }.asCompletableFuture()
             },
             DataLoaderOptions.newOptions().setCachingEnabled(false)
         )
 }
+
+private val BatchLoaderEnvironment.graphqlContext
+    get() = (keyContexts.entries.first().value as GoboGraphQLContext).context

@@ -24,19 +24,21 @@ class GoboGraphQLContextFactory : SpringGraphQLContextFactory<SpringGraphQLConte
     override suspend fun generateContextMap(request: ServerRequest): Map<*, Any>? {
         request.logHeaders()
 
-        val reactorContext =
-            coroutineContext[ReactorContext]?.context ?: throw RuntimeException("Reactor Context unavailable")
-        val securityContext = reactorContext.getOrDefault<Mono<SecurityContext>>(
-            SecurityContext::class.java,
-            Mono.error(AccessDeniedException("Security Context unavailable"))
-        )!!
-
         return mapOf(
             "token" to (request.headers().firstHeader(HttpHeaders.AUTHORIZATION)?.removePrefix("Bearer ") ?: ""),
-            "securityContext" to securityContext,
+            "securityContext" to getSecurityContext(),
             "request" to request,
             "startTime" to LocalDateTime.now()
         )
+    }
+
+    private suspend fun getSecurityContext(): Mono<SecurityContext> {
+        val reactorContext =
+            coroutineContext[ReactorContext]?.context ?: throw RuntimeException("Reactor Context unavailable")
+        return reactorContext.getOrDefault<Mono<SecurityContext>>(
+            SecurityContext::class.java,
+            Mono.error(AccessDeniedException("Security Context unavailable"))
+        )!!
     }
 
     override suspend fun generateContext(request: ServerRequest) = GoboGraphQLContext(

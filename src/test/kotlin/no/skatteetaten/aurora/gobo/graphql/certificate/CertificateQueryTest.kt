@@ -4,7 +4,8 @@ import com.ninjasquad.springmockk.MockkBean
 import io.mockk.coEvery
 import no.skatteetaten.aurora.gobo.CertificateResourceBuilder
 import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithDbhAndSkap
-import no.skatteetaten.aurora.gobo.graphql.printResult
+import no.skatteetaten.aurora.gobo.graphql.graphqlData
+import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
 import no.skatteetaten.aurora.gobo.integration.skap.CertificateService
 import org.junit.jupiter.api.Test
@@ -30,12 +31,8 @@ class CertificateQueryTest : GraphQLTestWithDbhAndSkap() {
         webTestClient.queryGraphQL(queryResource = getCertificates, token = "test-token")
             .expectStatus().isOk
             .expectBody()
-            .printResult()
-                /*
             .graphqlData("certificates.totalCount").isEqualTo(2)
             .graphqlData("certificates.edges[0].cursor").isNotEmpty
             .graphqlDoesNotContainErrors()
-            
-                 */
     }
 }

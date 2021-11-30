@@ -1,7 +1,6 @@
 plugins {
     kotlin("jvm") version "1.5.31"
     id("no.skatteetaten.gradle.aurora") version "4.4.2"
-    id("org.flywaydb.flyway") version "8.0.5"
     id("io.gatling.gradle") version "3.7.1"
 }
 
