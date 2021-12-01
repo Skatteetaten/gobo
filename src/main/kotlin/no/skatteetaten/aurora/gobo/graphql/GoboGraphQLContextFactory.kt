@@ -15,21 +15,27 @@ import java.time.LocalDateTime
 import kotlin.coroutines.coroutineContext
 
 class GoboGraphQLContext(val context: GraphQLContext, request: ServerRequest) : SpringGraphQLContext(request)
+private class ContextMap(val toMap: MutableMap<String, Any> = mutableMapOf()) {
+    var token: String by toMap
+    var securityContext: Mono<SecurityContext> by toMap
+    var request: ServerRequest by toMap
+    var startTime: LocalDateTime by toMap
+}
 
 private val logger = KotlinLogging.logger {}
 
 @Component
 class GoboGraphQLContextFactory : SpringGraphQLContextFactory<SpringGraphQLContext>() {
 
-    override suspend fun generateContextMap(request: ServerRequest): Map<*, Any> {
-        request.logHeaders()
+    override suspend fun generateContextMap(serverRequest: ServerRequest): Map<*, Any> {
+        serverRequest.logHeaders()
 
-        return mapOf(
-            "token" to (request.headers().firstHeader(HttpHeaders.AUTHORIZATION)?.removePrefix("Bearer ") ?: ""),
-            "securityContext" to getSecurityContext(),
-            "request" to request,
-            "startTime" to LocalDateTime.now()
-        )
+        return ContextMap().apply {
+            token = (serverRequest.headers().firstHeader(HttpHeaders.AUTHORIZATION)?.removePrefix("Bearer ") ?: "")
+            securityContext = getSecurityContext()
+            request = serverRequest
+            startTime = LocalDateTime.now()
+        }.toMap
     }
 
     private suspend fun getSecurityContext(): Mono<SecurityContext> {

@@ -9,6 +9,7 @@ import no.skatteetaten.aurora.gobo.StrubrunnerRepoPropertiesEnabler
 import no.skatteetaten.aurora.gobo.graphql.PROFILE_WITH_DBH_AND_SKAP
 import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.ApplicationDeploymentRef
 import no.skatteetaten.aurora.gobo.security.SharedSecretReader
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.web.reactive.function.client.WebClientAutoConfiguration
@@ -17,6 +18,7 @@ import org.springframework.cloud.contract.stubrunner.spring.AutoConfigureStubRun
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
 
+@Disabled("Mokey stub test not working since mokey was rewritten to webflux")
 @DirtiesContext
 @ActiveProfiles(PROFILE_WITH_DBH_AND_SKAP)
 @SpringBootTest(
