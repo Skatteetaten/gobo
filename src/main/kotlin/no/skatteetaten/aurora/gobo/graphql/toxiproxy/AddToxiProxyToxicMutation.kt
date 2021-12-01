@@ -64,7 +64,10 @@ class ToxicAttributeSerializer : StdSerializer<AddToxicAttributeInput>(AddToxicA
                 it.writeStartObject()
                 it.writeStringField(input.key, input.value)
                 it.writeEndObject()
+
+                print("Setter attributer..")
             }
+            print("In ToxicAttributeSerializer: " + json)
         }
     }
 }
