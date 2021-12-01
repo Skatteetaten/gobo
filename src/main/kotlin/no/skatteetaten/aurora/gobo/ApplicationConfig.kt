@@ -1,5 +1,6 @@
 package no.skatteetaten.aurora.gobo
 
+import io.netty.channel.ChannelOption
 import io.netty.handler.ssl.SslContextBuilder
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory
 import mu.KotlinLogging
@@ -68,6 +69,7 @@ private val logger = KotlinLogging.logger {}
 
 @Configuration
 class ApplicationConfig(
+    @Value("\${gobo.webclient.connection-timeout:15000}") val connectionTimeout: Int,
     @Value("\${gobo.webclient.response-timeout:60000}") val responseTimeout: Long,
     @Value("\${spring.application.name}") val applicationName: String,
     private val sharedSecretReader: SharedSecretReader
@@ -189,15 +191,14 @@ class ApplicationConfig(
     private fun clientConnector(ssl: Boolean = false): ReactorClientHttpConnector {
         val httpClient = HttpClient.create()
             .compress(true)
+            .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectionTimeout)
             .responseTimeout(Duration.ofMillis(responseTimeout))
 
         if (ssl) {
             val sslProvider = SslProvider.builder().sslContext(
                 SslContextBuilder.forClient().trustManager(InsecureTrustManagerFactory.INSTANCE)
             ).defaultConfiguration(SslProvider.DefaultConfigurationType.NONE).build()
-            httpClient.tcpConfiguration {
-                it.secure(sslProvider)
-            }
+            httpClient.secure(sslProvider)
         }
 
         return ReactorClientHttpConnector(httpClient)

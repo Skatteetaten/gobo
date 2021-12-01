@@ -112,13 +112,15 @@ class GoboInstrumentation(
             ?: throw IllegalStateException("No GraphQL context registered")
 
         parameters.executionContext?.operationDefinition?.let {
-            context.putQuery(parameters.executionContext.executionInput.query)
-            context.putOperationType(it.operation?.name)
-            context.putOperationName(it.name)
-            context.addStartTime()
+            context.apply {
+                putQuery(parameters.executionContext.executionInput.query)
+                putOperationType(it.operation?.name)
+                putOperationName(it.name)
+                addStartTime()
 
-            if (logOperationStart == true && context.operationName.isNotIntrospectionQuery()) {
-                logger.info { """Starting type=${context.operationType} name=${context.operationName} at ${LocalDateTime.now()}, klientid="${context.klientid}"""" }
+                if (logOperationStart == true && operationName.isNotIntrospectionQuery()) {
+                    logger.info { """Starting type=$operationType name=$operationName at ${LocalDateTime.now()}, klientid="$klientid"""" }
+                }
             }
         }
         return super.beginExecuteOperation(parameters)
@@ -127,7 +129,8 @@ class GoboInstrumentation(
     override fun instrumentExecutionResult(executionResult: ExecutionResult?, parameters: InstrumentationExecutionParameters?): CompletableFuture<ExecutionResult> {
         parameters?.graphQLContext?.let {
             if (logOperationEnd == true && it.operationName.isNotIntrospectionQuery()) {
-                logger.info { """Completed type=${it.operationType} name=${it.operationName} in ${System.currentTimeMillis() - it.startTime}ms, klientid="${it.klientid}", number of errors ${executionResult?.errors?.size}""" }
+                val hostString = it.request.remoteAddress().get().hostString
+                logger.info { """Completed type=${it.operationType} name=${it.operationName} in ${System.currentTimeMillis() - it.startTime}ms, klientid="${it.klientid}" hostString="$hostString", number of errors ${executionResult?.errors?.size}""" }
             }
         }
 

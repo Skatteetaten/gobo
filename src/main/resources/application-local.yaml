@@ -58,6 +58,10 @@ kubernetes:
     url: https://utv-master.paas.skead.no:8443
 
 gobo:
+    graphql:
+        log:
+            operationend: true
+            operationstart: true
     graphqlUsage:
         cron: "*/60 * * * * *" # every 60 seconds
 

@@ -21,7 +21,7 @@ private val logger = KotlinLogging.logger {}
 @Component
 class GoboGraphQLContextFactory : SpringGraphQLContextFactory<SpringGraphQLContext>() {
 
-    override suspend fun generateContextMap(request: ServerRequest): Map<*, Any>? {
+    override suspend fun generateContextMap(request: ServerRequest): Map<*, Any> {
         request.logHeaders()
 
         return mapOf(
