@@ -19,7 +19,7 @@ class TestDynamicPropertyRegistry : DynamicPropertyRegistry {
 class StubrunnerRepoPropertiesTest {
 
     @Test
-    fun `Populate stubrunner properties from maven settings`() {
+    fun `Populate stubrunner properties from init gradle`() {
         val registry = TestDynamicPropertyRegistry()
         StubrunnerRepoProperties(registry).populate()
 
