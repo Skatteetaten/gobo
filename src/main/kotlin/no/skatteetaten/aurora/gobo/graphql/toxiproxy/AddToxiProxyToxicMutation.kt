@@ -44,8 +44,9 @@ data class AddToxiProxyToxicsInput(
     val toxiProxy: AddToxiProxyInput,
 )
 
-data class AddToxiProxyInput(val name: String, val listen: String, val upstream: String, val enabled: Boolean, val toxics: List<AddToxicInput>)
+data class AddToxiProxyInput(val name: String, val listen: String, val upstream: String, val enabled: Boolean, val toxics: AddToxicInput)
 
+@JsonSerialize(using = AddToxicInputSerializer::class)
 data class AddToxicInput(
     val name: String,
     val type: String,
@@ -54,15 +55,28 @@ data class AddToxicInput(
     val attributes: List<AddToxicAttributeInput>
 )
 
-@JsonSerialize(using = ToxicAttributeSerializer::class)
 data class AddToxicAttributeInput(val key: String, val value: String)
 
-class ToxicAttributeSerializer : StdSerializer<AddToxicAttributeInput>(AddToxicAttributeInput::class.java) {
-    override fun serialize(input: AddToxicAttributeInput?, json: JsonGenerator?, serializer: SerializerProvider?) {
+class AddToxicInputSerializer : StdSerializer<AddToxicInput>(AddToxicInput::class.java) {
+    override fun serialize(input: AddToxicInput?, json: JsonGenerator?, serializer: SerializerProvider?) {
         if (input != null) {
             json?.let {
                 it.writeStartObject()
-                it.writeStringField(input.key, input.value)
+                it.writeStringField("name", input.name)
+                it.writeStringField("type", input.type)
+                it.writeStringField("stream", input.stream)
+                it.writeNumberField("toxicity", input.toxicity)
+
+                it.writeObjectFieldStart("attributes")
+
+                input.attributes.forEach { attribute ->
+                    attribute.value.toIntOrNull()?.let { num ->
+                        it.writeNumberField(attribute.key, num)
+                    } ?: it.writeStringField(attribute.key, attribute.value)
+                }
+
+                it.writeEndObject()
+
                 it.writeEndObject()
 
                 print("Setter attributer..")
@@ -71,3 +85,4 @@ class ToxicAttributeSerializer : StdSerializer<AddToxicAttributeInput>(AddToxicA
         }
     }
 }
+
