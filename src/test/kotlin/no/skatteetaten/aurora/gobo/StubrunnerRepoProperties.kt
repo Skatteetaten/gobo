@@ -42,26 +42,36 @@ class StubrunnerRepoProperties(private val registry: DynamicPropertyRegistry) {
 
     fun populate(
         jenkinsNexusJson: String = "/var/lib/jenkins/.custom/nexus/nexus.json",
-        localMavenSettings: String = "${System.getProperty("user.home")}/.m2/settings.xml"
+        localGradleSettings: String = "${System.getProperty("user.home")}/.gradle/init.gradle",
+        localMavenSettings: String = "${System.getProperty("user.home")}/.m2/settings.xml",
     ) {
-        if (isJenkins()) {
-            logger.info("Reading stubrunner properties from nexus config in jenkins")
-            val document = jacksonObjectMapper().readTree(File(jenkinsNexusJson))
-            registry.add(stubrunnerUsername) { document.get("username").textValue() }
-            registry.add(stubrunnerPassword) { document.get("password").textValue() }
-            registry.add(stubrunnerRepoUrl) {
-                val url = document.get("nexusUrl").textValue()
-                "$url/repository/maven-intern"
+        when {
+            isJenkins() -> jacksonObjectMapper().readTree(File(jenkinsNexusJson)).let {
+                logger.info("Reading stubrunner properties from nexus config in jenkins")
+                registry.add(stubrunnerUsername) { it.get("username").textValue() }
+                registry.add(stubrunnerPassword) { it.get("password").textValue() }
+                registry.add(stubrunnerRepoUrl) {
+                    val url = it.get("nexusUrl").textValue()
+                    "$url/repository/maven-intern"
+                }
             }
-        } else {
-            logger.info("Reading stubrunner properties from maven settings.xml")
-            val document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(File(localMavenSettings))
-            val credentialsQuery = "/settings/servers/server/id[contains(text(), 'nexus')]/following-sibling::"
-            registry.add(stubrunnerUsername) { document.xpath(credentialsQuery + "username") }
-            registry.add(stubrunnerPassword) { document.xpath(credentialsQuery + "password") }
-            registry.add(stubrunnerRepoUrl) { document.xpath("/settings/mirrors/mirror/id[contains(text(), 'nexus')]/following-sibling::url") }
+            File(localGradleSettings).isFile -> File(localGradleSettings).readText().let {
+                logger.info("Reading stubrunner properties from init.gradle")
+                registry.add(stubrunnerUsername) { it.substringAfter("username").removeAfterNewLine() }
+                registry.add(stubrunnerPassword) { it.substringAfter("password").removeAfterNewLine() }
+                registry.add(stubrunnerRepoUrl) { it.substringAfter("url").removeAfterNewLine() }
+            }
+            else -> DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(File(localMavenSettings)).let {
+                logger.info("Reading stubrunner properties from maven settings.xml")
+                val credentialsQuery = "/settings/servers/server/id[contains(text(), 'nexus')]/following-sibling::"
+                registry.add(stubrunnerUsername) { it.xpath(credentialsQuery + "username") }
+                registry.add(stubrunnerPassword) { it.xpath(credentialsQuery + "password") }
+                registry.add(stubrunnerRepoUrl) { it.xpath("/settings/mirrors/mirror/id[contains(text(), 'nexus')]/following-sibling::url") }
+            }
         }
     }
+
+    private fun String.removeAfterNewLine() = split("\n").first().trim().removeSurrounding("\"")
 
     private fun isJenkins() =
         !System.getenv("CI").isNullOrEmpty() || !System.getenv("JENKINS_HOME").isNullOrEmpty()
