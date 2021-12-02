@@ -18,14 +18,15 @@ import org.springframework.cloud.contract.stubrunner.spring.AutoConfigureStubRun
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
 
-@Disabled("Mokey stub test not working since mokey was rewritten to webflux")
 @DirtiesContext
 @ActiveProfiles(PROFILE_WITH_DBH_AND_SKAP)
 @SpringBootTest(
     classes = [WebClientAutoConfiguration::class, ApplicationConfig::class, SharedSecretReader::class, ApplicationService::class],
     webEnvironment = SpringBootTest.WebEnvironment.NONE
 )
-@AutoConfigureStubRunner(ids = ["no.skatteetaten.aurora:mokey:+:stubs:6565"])
+// TODO points to a specific version due to issues with stubs and webflux in mokey.
+//  Must be fixed with an update to the contract tests in mokey
+@AutoConfigureStubRunner(ids = ["no.skatteetaten.aurora:mokey:3.3.4:stubs:6565"])
 class ApplicationServiceTest : StrubrunnerRepoPropertiesEnabler() {
 
     @Autowired
