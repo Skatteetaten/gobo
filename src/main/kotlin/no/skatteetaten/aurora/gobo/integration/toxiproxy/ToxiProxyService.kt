@@ -48,6 +48,9 @@ class ToxiProxyToxicService(
                             name = podName
                         }
                     }
+                    val s = jacksonObjectMapper().writeValueAsString(toxiProxyInput.toxics)
+                    print("Verdi på toxic: " + s)
+
                     runCatching {
                         val json = kubernetesClient.proxyPost<JsonNode>(
                             pod = pod,

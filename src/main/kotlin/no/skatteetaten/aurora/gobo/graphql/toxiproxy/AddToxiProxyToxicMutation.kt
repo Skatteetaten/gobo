@@ -85,4 +85,3 @@ class AddToxicInputSerializer : StdSerializer<AddToxicInput>(AddToxicInput::clas
         }
     }
 }
-
