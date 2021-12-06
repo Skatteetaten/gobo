@@ -44,7 +44,7 @@ data class AddToxiProxyToxicsInput(
     val toxiProxy: AddToxiProxyInput,
 )
 
-data class AddToxiProxyInput(val name: String, val listen: String, val upstream: String, val enabled: Boolean, val toxics: AddToxicInput)
+data class AddToxiProxyInput(val name: String, val toxics: AddToxicInput)
 
 @JsonSerialize(using = AddToxicInputSerializer::class)
 data class AddToxicInput(

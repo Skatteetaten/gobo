@@ -35,10 +35,8 @@ class ToxiProxyToxicService(
                 }
                 pods.map {
                     val podName = it.name
-                    val toxiProxyContainer = it.containers.find { item -> item.name.endsWith("-toxiproxy-sidecar") }
                     val deploymentRef =
                         applicationDeploymentDetails.applicationDeploymentCommand.applicationDeploymentRef
-                    val application = deploymentRef.application
                     val environment = deploymentRef.environment
                     val affiliation = resource.affiliation
 
@@ -55,8 +53,6 @@ class ToxiProxyToxicService(
                         val json = kubernetesClient.proxyPost<JsonNode>(
                             pod = pod,
                             port = 8474,
-                            // path = "/proxies",
-                            // path = "/proxies/${toxiProxyContainer?.name}/toxics",
                             path = "/proxies/${toxiProxyInput.name}/toxics",
                             body = toxiProxyInput.toxics,
                             token = toxiProxyToxicCtx.token
@@ -70,11 +66,6 @@ class ToxiProxyToxicService(
             }
         }
     }
-/*
-    private fun toJsonNode(toxics: List<AddToxicInput>) = jacksonObjectMapper().writeValueAsString(toxics?. {  item ->
-        jacksonObjectMapper().writeValueAsString(item)
-    })
-*/
 
     private fun toJsonNode(toxics: AddToxiProxyInput) = jacksonObjectMapper().writeValueAsString(toxics.toxics)
 }
