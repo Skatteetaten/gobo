@@ -28,6 +28,7 @@ import org.springframework.util.SocketUtils
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.bodyToMono
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import kotlinx.coroutines.delay
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentDetailsBuilder
 
 @AutoConfigureMetrics
@@ -84,6 +85,7 @@ class PrometheusMetricsTest {
                 ApplicationDeploymentDetailsBuilder().build(),
                 "http://localhost:$port/boober/v1/auroraconfig/Apply"
             )
+            delay(100)
         }
 
         val result = WebClient.create("http://localhost:$port")
