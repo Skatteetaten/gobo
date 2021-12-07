@@ -12,19 +12,13 @@ import no.skatteetaten.aurora.gobo.graphql.GoboGraphQLContext
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import no.skatteetaten.aurora.kubernetes.KubernetesCoroutinesClient
 import org.springframework.stereotype.Component
+import no.skatteetaten.aurora.gobo.integration.toxiproxy.AddKubeToxicOp
 
 @Component
 class ToxiProxyDataLoader(
     private val applicationService: ApplicationService,
     private val kubernetesClient: KubernetesCoroutinesClient
 ) : GoboDataLoader<ToxiProxyId, List<ToxiProxy>>() {
-
-    // Dataloader steps:
-    /*
-    1. Hent podnavn fra mokey, bruk getApplicationDeploymentDetails (send inn id)
-    2. Filtrer ut podnavn som ender på "toxiproxy-sidecar"
-    3. gjøre proxy kall mot kubernetes
-     */
 
     override suspend fun getByKeys(keys: Set<ToxiProxyId>, ctx: GoboGraphQLContext): Map<ToxiProxyId, List<ToxiProxy>> {
         return keys.associateWith { id ->
@@ -52,9 +46,7 @@ class ToxiProxyDataLoader(
                             name = podName
                         }
                     }
-
                     val json = kubernetesClient.proxyGet<JsonNode>(pod = pod, port = 8474, path = "proxies", token = ctx.token())
-//                     print(json)
                     val toxiProxy = jacksonObjectMapper().convertValue<ToxiProxy>(json.at("/app"))
                     toxiProxy.copy(podName = podName)
                 }.map {
