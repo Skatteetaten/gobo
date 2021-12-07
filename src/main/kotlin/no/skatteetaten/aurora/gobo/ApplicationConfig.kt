@@ -1,7 +1,6 @@
 package no.skatteetaten.aurora.gobo
 
 import io.netty.channel.ChannelOption
-import io.netty.handler.ssl.SslContextBuilder
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.integration.skap.HEADER_AURORA_TOKEN
@@ -23,6 +22,7 @@ import org.springframework.web.reactive.function.client.ExchangeFilterFunction
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.kotlin.core.publisher.toMono
 import reactor.netty.http.client.HttpClient
+import reactor.netty.tcp.DefaultSslContextSpec
 import reactor.netty.tcp.SslProvider
 import java.time.Duration
 
@@ -196,8 +196,9 @@ class ApplicationConfig(
 
         if (ssl) {
             val sslProvider = SslProvider.builder().sslContext(
-                SslContextBuilder.forClient().trustManager(InsecureTrustManagerFactory.INSTANCE)
-            ).defaultConfiguration(SslProvider.DefaultConfigurationType.NONE).build()
+                DefaultSslContextSpec.forClient()
+                    .configure { it.trustManager(InsecureTrustManagerFactory.INSTANCE) }
+            ).build()
             httpClient.secure(sslProvider)
         }
 
