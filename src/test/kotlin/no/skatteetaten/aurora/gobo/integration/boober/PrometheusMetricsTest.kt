@@ -29,20 +29,22 @@ import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.bodyToMono
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentDetailsBuilder
+import no.skatteetaten.aurora.gobo.DisableIfJenkins
 
+@DisableIfJenkins
 @AutoConfigureMetrics
 @EnableAutoConfiguration(
-        exclude = [
-            GraphQLAutoConfiguration::class,
-            AuroraSpringSecurityConfig::class,
-            ReactiveSecurityAutoConfiguration::class,
-            ReactiveManagementWebSecurityAutoConfiguration::class
-        ]
+    exclude = [
+        GraphQLAutoConfiguration::class,
+        AuroraSpringSecurityConfig::class,
+        ReactiveSecurityAutoConfiguration::class,
+        ReactiveManagementWebSecurityAutoConfiguration::class
+    ]
 )
 @SpringBootTest(
-        classes = [PrometheusMetricsTest.TestConfig::class, AuroraConfigService::class, BooberWebClient::class],
-        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-        properties = ["boober.metrics.enabled=true"]
+    classes = [PrometheusMetricsTest.TestConfig::class, AuroraConfigService::class, BooberWebClient::class],
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+    properties = ["boober.metrics.enabled=true"]
 )
 class PrometheusMetricsTest {
 
@@ -77,28 +79,26 @@ class PrometheusMetricsTest {
     fun `WebClient metrics from prometheus`() {
         val response1 = Response(AuroraConfig("aurora", "master", "master", emptyList()))
         val response2 = Response(redeployResponse())
-        repeat(100) {
-            server.executeBlocking(response1, response2) {
-                auroraConfigService.getAuroraConfig(token = "token", auroraConfig = "aurora", reference = "master")
-                auroraConfigService.redeploy(
-                        token = "token",
-                        ApplicationDeploymentDetailsBuilder().build(),
-                        "http://localhost:$port/boober/v1/auroraconfig/Apply"
-                )
-            }
+        server.executeBlocking(response1, response2) {
+            auroraConfigService.getAuroraConfig(token = "token", auroraConfig = "aurora", reference = "master")
+            auroraConfigService.redeploy(
+                token = "token",
+                ApplicationDeploymentDetailsBuilder().build(),
+                "http://localhost:$port/boober/v1/auroraconfig/Apply"
+            )
         }
 
         val result = WebClient.create("http://localhost:$port")
-                .get()
-                .uri("/actuator/prometheus")
-                .retrieve()
-                .bodyToMono<String>()
-                .block()
+            .get()
+            .uri("/actuator/prometheus")
+            .retrieve()
+            .bodyToMono<String>()
+            .block()
 
         assertThat(result).isNotNull().contains("/v2/auroraconfig/{auroraConfig}?reference={reference}")
         assertThat(result).isNotNull().contains("/v1/auroraconfig/Apply")
     }
 
     private fun redeployResponse() =
-            Response(jacksonObjectMapper().readTree("""{ "applicationDeploymentId": "123" }"""))
+        Response(jacksonObjectMapper().readTree("""{ "applicationDeploymentId": "123" }"""))
 }
