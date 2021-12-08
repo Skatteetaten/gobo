@@ -24,9 +24,9 @@ class ToxiProxyToxicMutation(
 ) : Mutation {
 
     suspend fun addToxiProxyToxic(
-        input: ToxiProxyToxicsMutationInput,
+        input: AddToxiProxyToxicsInput,
         dfe: DataFetchingEnvironment
-    ): String {
+    ) {
         dfe.ifValidUserToken {
             val toxiProxyToxicCtx = ToxiProxyToxicContext(
                 token = dfe.token(),
@@ -36,15 +36,15 @@ class ToxiProxyToxicMutation(
                 toxiProxyListenPort = toxiProxyListenPort
             )
             val addKubeClientOp = AddKubeToxicOp(toxiProxyToxicCtx, input.toxiProxy, kubernetesClient)
-            toxiProxyToxicService.manageToxiProxyToxic(toxiProxyToxicCtx, toxiProxyInput = input.toxiProxy, addKubeClientOp)
+            toxiProxyToxicService.manageToxiProxyToxic(toxiProxyToxicCtx, addKubeClientOp)
         }
-        return ""  //TODO: spørsmål Hvorfor får jeg feil om jeg definerer at metoden skal være Unit/void?
+        return // TODO: spørsmål Hvorfor får jeg feil om jeg definerer at metoden skal være Unit/void?
     }
 
     suspend fun deleteToxiProxyToxic(
-        input: ToxiProxyToxicsMutationInput,
+        input: DeleteToxiProxyToxicsInput,
         dfe: DataFetchingEnvironment
-    ): String {
+    ) {
         dfe.ifValidUserToken {
             val toxiProxyToxicCtx = ToxiProxyToxicContext(
                 token = dfe.token(),
@@ -53,18 +53,26 @@ class ToxiProxyToxicMutation(
                 applicationName = input.application,
                 toxiProxyListenPort = toxiProxyListenPort
             )
-            val deleteKubeClientOp = DeleteKubeToxicOp(toxiProxyToxicCtx, input.toxiProxy, kubernetesClient)
-            toxiProxyToxicService.manageToxiProxyToxic(toxiProxyToxicCtx, toxiProxyInput = input.toxiProxy, deleteKubeClientOp)
+            val deleteKubeClientOp = DeleteKubeToxicOp(toxiProxyToxicCtx, input, kubernetesClient)
+            toxiProxyToxicService.manageToxiProxyToxic(toxiProxyToxicCtx, deleteKubeClientOp)
         }
-        return ""
+        return
     }
 }
 
-data class ToxiProxyToxicsMutationInput(
+data class AddToxiProxyToxicsInput(
     val affiliation: String,
     val environment: String,
     val application: String,
     val toxiProxy: ToxiProxyInput,
+)
+
+data class DeleteToxiProxyToxicsInput(
+    val affiliation: String,
+    val environment: String,
+    val application: String,
+    val toxiProxyName: String,
+    val toxicName: String,
 )
 
 data class ToxiProxyInput(val name: String, val toxics: ToxicInput)

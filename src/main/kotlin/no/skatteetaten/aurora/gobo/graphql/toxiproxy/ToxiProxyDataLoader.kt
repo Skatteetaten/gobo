@@ -12,7 +12,6 @@ import no.skatteetaten.aurora.gobo.graphql.GoboGraphQLContext
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import no.skatteetaten.aurora.kubernetes.KubernetesCoroutinesClient
 import org.springframework.stereotype.Component
-import no.skatteetaten.aurora.gobo.integration.toxiproxy.AddKubeToxicOp
 
 @Component
 class ToxiProxyDataLoader(

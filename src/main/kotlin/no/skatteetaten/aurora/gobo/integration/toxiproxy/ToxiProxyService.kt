@@ -1,27 +1,26 @@
 package no.skatteetaten.aurora.gobo.integration.toxiproxy
 
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fkorotkov.kubernetes.metadata
 import com.fkorotkov.kubernetes.newPod
 import io.fabric8.kubernetes.api.model.Pod
 import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.ApplicationDeploymentRef
+import no.skatteetaten.aurora.gobo.graphql.toxiproxy.DeleteToxiProxyToxicsInput
 import no.skatteetaten.aurora.gobo.graphql.toxiproxy.ToxiProxyInput
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import no.skatteetaten.aurora.kubernetes.KubernetesCoroutinesClient
 
 @Service
 class ToxiProxyToxicService(
-    private val applicationService: ApplicationService,
-    private val kubernetesClient: KubernetesCoroutinesClient
+    private val applicationService: ApplicationService
 ) {
 
-    suspend fun manageToxiProxyToxic(toxiProxyToxicCtx: ToxiProxyToxicContext, toxiProxyInput: ToxiProxyInput, clientOp: KubernetesClientOp) {
+    suspend fun manageToxiProxyToxic(toxiProxyToxicCtx: ToxiProxyToxicContext, clientOp: KubernetesClientOp) {
         applicationService.getApplicationDeployments(
-            listOf(ApplicationDeploymentRef(toxiProxyToxicCtx.environmentName, toxiProxyToxicCtx.applicationName))).map { resource ->
-                val applicationDeploymentDetails =
+            listOf(ApplicationDeploymentRef(toxiProxyToxicCtx.environmentName, toxiProxyToxicCtx.applicationName))
+        ).map { resource ->
+            val applicationDeploymentDetails =
                 applicationService.getApplicationDeploymentDetails(toxiProxyToxicCtx.token, resource.identifier)
             applicationDeploymentDetails.podResources.flatMap { pod ->
                 val pods = pod.containers.mapNotNull { container ->
@@ -76,13 +75,13 @@ class AddKubeToxicOp(val ctx: ToxiProxyToxicContext, val toxiProxyInput: ToxiPro
         return json
     }
 }
-class DeleteKubeToxicOp(val ctx: ToxiProxyToxicContext, val toxiProxyInput: ToxiProxyInput, val kubernetesClient: KubernetesCoroutinesClient) : KubernetesClientOp() {
+class DeleteKubeToxicOp(val ctx: ToxiProxyToxicContext, val toxiProxyInput: DeleteToxiProxyToxicsInput, val kubernetesClient: KubernetesCoroutinesClient) : KubernetesClientOp() {
 
     override suspend fun callOp(pod: Pod): JsonNode? {
         val json = kubernetesClient.proxyDelete<JsonNode>(
             pod = pod,
             port = ctx.toxiProxyListenPort,
-            path = "/proxies/${toxiProxyInput.name}/toxics/${toxiProxyInput.toxics.name}",
+            path = "/proxies/${toxiProxyInput.toxiProxyName}/toxics/${toxiProxyInput.toxicName}",
             token = ctx.token
         )
         return json
