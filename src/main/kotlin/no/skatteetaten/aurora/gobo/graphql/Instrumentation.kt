@@ -130,7 +130,7 @@ class GoboInstrumentation(
         parameters?.graphQLContext?.let {
             if (logOperationEnd == true && it.operationName.isNotIntrospectionQuery()) {
                 val hostString = it.request.remoteAddress().get().hostString
-                logger.info { """Completed type=${it.operationType} name=${it.operationName} in ${System.currentTimeMillis() - it.startTime}ms, klientid="${it.klientid}" hostString="$hostString", number of errors ${executionResult?.errors?.size}""" }
+                logger.info { """Completed type=${it.operationType} name=${it.operationName} in ${System.currentTimeMillis() - it.startTime}ms, korrelasjonsid=${it.korrelasjonsid} klientid="${it.klientid}" hostString="$hostString", number of errors ${executionResult?.errors?.size}""" }
             }
         }
 
