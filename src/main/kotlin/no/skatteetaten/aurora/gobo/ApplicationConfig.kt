@@ -22,6 +22,7 @@ import org.springframework.web.reactive.function.client.ExchangeFilterFunction
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.kotlin.core.publisher.toMono
 import reactor.netty.http.client.HttpClient
+import reactor.netty.resources.ConnectionProvider
 import reactor.netty.tcp.DefaultSslContextSpec
 import reactor.netty.tcp.SslProvider
 import java.time.Duration
@@ -189,7 +190,9 @@ class ApplicationConfig(
             .clientConnector(clientConnector())
 
     private fun clientConnector(ssl: Boolean = false): ReactorClientHttpConnector {
-        val httpClient = HttpClient.create()
+        val httpClient = HttpClient.create(
+            ConnectionProvider.builder("gobo-connection-provider").metrics(true).build()
+        )
             .compress(true)
             .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectionTimeout)
             .responseTimeout(Duration.ofMillis(responseTimeout))
