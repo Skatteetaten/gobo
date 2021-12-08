@@ -52,7 +52,10 @@ class GraphQLConfig(
     @Bean
     fun hooks() = GoboSchemaGeneratorHooks()
 
-    @Scheduled(cron = "\${gobo.graphqlUsage.cron:0 15 1 * * ?}")
+    /**
+     * Wait 5 minutes for initial update, then wait 60 minutes between updates (can be configured)
+     */
+    @Scheduled(initialDelay = 300000, fixedDelayString = "\${gobo.graphqlUsage.fixedDelay:3600000}")
     fun updateGraphqlUsage() {
         logger.info { "Running scheduled job to update usage data at ${LocalDateTime.now()}" }
         goboInstrumentation.update()

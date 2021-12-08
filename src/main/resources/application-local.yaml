@@ -63,7 +63,7 @@ gobo:
             operationend: true
             operationstart: true
     graphqlUsage:
-        cron: "*/60 * * * * *" # every 60 seconds
+        fixedDelay: 60000 # every 60 seconds
 
 # logging.level.no.skatteetaten.aurora.gobo: DEBUG
 logging.level.no.skatteetaten.aurora.gobo.security: DEBUG
