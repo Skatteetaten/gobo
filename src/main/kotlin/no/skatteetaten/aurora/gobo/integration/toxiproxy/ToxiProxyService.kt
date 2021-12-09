@@ -44,7 +44,7 @@ class ToxiProxyToxicService(
                         }
                     }
                     runCatching {
-                        clientOp.callOp(pod)
+                        val json = clientOp.callOp(pod)
                     }.recoverCatching {
                     }.getOrThrow()
                 }.map {

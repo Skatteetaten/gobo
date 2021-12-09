@@ -28,7 +28,7 @@ import org.springframework.core.io.Resource
 )
 class ToxicProxyQueryTest : GraphQLTestWithDbhAndSkap() {
 
-    @Value("classpath:graphql/queries/getApplicationDeploymentWithToxics.graphql")
+    @Value("classpath:graphql/queries/getToxiProxyToxics.graphql")
     private lateinit var getApplicationDeploymentWithToxicsQuery: Resource
 
     @MockkBean

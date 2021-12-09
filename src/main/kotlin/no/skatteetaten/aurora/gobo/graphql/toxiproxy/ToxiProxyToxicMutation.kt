@@ -20,13 +20,13 @@ import no.skatteetaten.aurora.kubernetes.KubernetesCoroutinesClient
 class ToxiProxyToxicMutation(
     val toxiProxyToxicService: ToxiProxyToxicService,
     val kubernetesClient: KubernetesCoroutinesClient,
-    @Value("\${gobo.graphql.toxiproxylistenport:}") private val toxiProxyListenPort: Int = 8474
+    @Value("\${gobo.graphql.toxiproxylistenport:8474}") private val toxiProxyListenPort: Int
 ) : Mutation {
 
     suspend fun addToxiProxyToxic(
         input: AddToxiProxyToxicsInput,
         dfe: DataFetchingEnvironment
-    ) {
+    ): String {
         dfe.ifValidUserToken {
             val toxiProxyToxicCtx = ToxiProxyToxicContext(
                 token = dfe.token(),
@@ -38,13 +38,13 @@ class ToxiProxyToxicMutation(
             val addKubeClientOp = AddKubeToxicOp(toxiProxyToxicCtx, input.toxiProxy, kubernetesClient)
             toxiProxyToxicService.manageToxiProxyToxic(toxiProxyToxicCtx, addKubeClientOp)
         }
-        return // TODO: spørsmål Hvorfor får jeg feil om jeg definerer at metoden skal være Unit/void?
+        return "" // TODO: spørsmål Hvorfor får jeg feil om jeg definerer at metoden skal være Unit/void?
     }
 
     suspend fun deleteToxiProxyToxic(
         input: DeleteToxiProxyToxicsInput,
         dfe: DataFetchingEnvironment
-    ) {
+    ): String {
         dfe.ifValidUserToken {
             val toxiProxyToxicCtx = ToxiProxyToxicContext(
                 token = dfe.token(),
@@ -56,7 +56,7 @@ class ToxiProxyToxicMutation(
             val deleteKubeClientOp = DeleteKubeToxicOp(toxiProxyToxicCtx, input, kubernetesClient)
             toxiProxyToxicService.manageToxiProxyToxic(toxiProxyToxicCtx, deleteKubeClientOp)
         }
-        return
+        return ""
     }
 }
 
