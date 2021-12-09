@@ -20,7 +20,9 @@ import org.springframework.test.annotation.DirtiesContext
     webEnvironment = SpringBootTest.WebEnvironment.NONE,
     classes = [TestConfig::class, ApplicationConfig::class, ImageRegistryService::class, SharedSecretReader::class]
 )
-@AutoConfigureStubRunner(ids = ["no.skatteetaten.aurora:cantus:+:stubs:6568"])
+// TODO points to a specific version due to issues with stubs and webflux in cantus.
+//  Must be fixed with an update to the contract tests in cantus.
+@AutoConfigureStubRunner(ids = ["no.skatteetaten.aurora:cantus:1.10.9:stubs:6568"])
 class ImageRegistryServiceContractTest : StrubrunnerRepoPropertiesEnabler() {
 
     @Autowired

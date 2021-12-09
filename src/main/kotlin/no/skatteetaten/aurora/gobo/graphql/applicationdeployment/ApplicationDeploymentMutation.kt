@@ -21,23 +21,23 @@ class ApplicationDeploymentMutation(
 ) : Mutation {
 
     suspend fun redeployWithCurrentVersion(input: ApplicationDeploymentIdInput, dfe: DataFetchingEnvironment): DeployResponse {
-        val id = applicationUpgradeService.deployCurrentVersion(dfe.token(), input.applicationDeploymentId)
+        val id = applicationUpgradeService.deployCurrentVersion(dfe.token, input.applicationDeploymentId)
         return DeployResponse(id)
     }
 
     suspend fun refreshApplicationDeployment(input: RefreshByApplicationDeploymentIdInput, dfe: DataFetchingEnvironment): Boolean {
-        applicationUpgradeService.refreshApplicationDeployment(dfe.token(), input.applicationDeploymentId)
+        applicationUpgradeService.refreshApplicationDeployment(dfe.token, input.applicationDeploymentId)
         return true
     }
 
     suspend fun refreshApplicationDeployments(input: RefreshByAffiliationsInput, dfe: DataFetchingEnvironment): Boolean {
-        applicationUpgradeService.refreshApplicationDeployments(dfe.token(), input.affiliations)
+        applicationUpgradeService.refreshApplicationDeployments(dfe.token, input.affiliations)
         return true
     }
 
     @Deprecated(message = "use deleteApplicationDeployments instead")
     suspend fun deleteApplicationDeployment(input: DeleteApplicationDeploymentInput, dfe: DataFetchingEnvironment): Boolean {
-        applicationDeploymentService.deleteApplicationDeployment(dfe.token(), input)
+        applicationDeploymentService.deleteApplicationDeployment(dfe.token, input)
         return true
     }
 
@@ -46,7 +46,7 @@ class ApplicationDeploymentMutation(
         dfe: DataFetchingEnvironment
     ): DataFetcherResult<List<DeleteApplicationDeploymentsResult>> =
         applicationDeploymentService.deleteApplicationDeployments(
-            dfe.token(),
+            dfe.token,
             input.toDeleteApplicationDeploymentInputList()
         ).toDataFetcherResult()
 

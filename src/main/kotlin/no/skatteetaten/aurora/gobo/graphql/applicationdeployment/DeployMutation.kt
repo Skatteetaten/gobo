@@ -32,7 +32,7 @@ class DeployMutation(
 
         val booberResponse =
             applicationDeploymentService.deploy(
-                dfe.token(),
+                dfe.token,
                 input.auroraConfigName,
                 input.auroraConfigReference,
                 payload

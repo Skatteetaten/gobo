@@ -23,7 +23,9 @@ import org.springframework.test.context.ActiveProfiles
     classes = [WebClientAutoConfiguration::class, ApplicationConfig::class, SharedSecretReader::class, ApplicationService::class],
     webEnvironment = SpringBootTest.WebEnvironment.NONE
 )
-@AutoConfigureStubRunner(ids = ["no.skatteetaten.aurora:mokey:+:stubs:6565"])
+// TODO points to a specific version due to issues with stubs and webflux in mokey.
+//  Must be fixed with an update to the contract tests in mokey
+@AutoConfigureStubRunner(ids = ["no.skatteetaten.aurora:mokey:3.3.4:stubs:6565"])
 class ApplicationServiceTest : StrubrunnerRepoPropertiesEnabler() {
 
     @Autowired

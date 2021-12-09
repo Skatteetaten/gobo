@@ -19,7 +19,7 @@ class DeployEnvironmentMutation(
         dfe: DataFetchingEnvironment
     ): List<Deployment>? {
         dfe.checkValidUserToken()
-        return environmentService.deployEnvironment(input.environment, dfe.token())
+        return environmentService.deployEnvironment(input.environment, dfe.token)
             .let { it.toDeploymentEnvironmentResponse() }
     }
 

@@ -1,7 +1,7 @@
 package no.skatteetaten.aurora.gobo.graphql
 
-import com.expediagroup.graphql.server.exception.MissingDataLoaderException
 import com.expediagroup.graphql.server.extensions.getValueFromDataLoader
+import com.expediagroup.graphql.server.extensions.getValuesFromDataLoader
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
 import no.skatteetaten.aurora.gobo.graphql.errorhandling.GraphQLExceptionWrapper
@@ -21,11 +21,7 @@ inline fun <Key, reified Value> DataFetchingEnvironment.loadValue(
 inline fun <Key, reified Value> DataFetchingEnvironment.loadValue(
     keys: List<Key>,
     loaderClass: KClass<*>? = null
-): CompletableFuture<List<Value>> {
-    val name = getLoaderName<Value>(loaderClass)
-    val loader = getDataLoader<Key, Value>(name) ?: throw MissingDataLoaderException(name)
-    return loader.loadMany(keys, listOf(getContext()))
-}
+): CompletableFuture<List<Value>> = getValuesFromDataLoader(getLoaderName<Value>(loaderClass), keys)
 
 @OptIn(ExperimentalStdlibApi::class)
 inline fun <reified Value> getLoaderName(loaderClass: KClass<*>?) =

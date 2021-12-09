@@ -1,7 +1,7 @@
 package no.skatteetaten.aurora.gobo.graphql.gobo
 
+import graphql.GraphQLContext
 import no.skatteetaten.aurora.gobo.graphql.GoboDataLoader
-import no.skatteetaten.aurora.gobo.graphql.GoboGraphQLContext
 import no.skatteetaten.aurora.gobo.infrastructure.field.FieldService
 import org.springframework.stereotype.Component
 
@@ -13,7 +13,7 @@ class GoboFieldUsageDataLoader(
 ) : GoboDataLoader<GoboFieldUsageKey, List<GoboFieldUsage>>() {
     override suspend fun getByKeys(
         keys: Set<GoboFieldUsageKey>,
-        ctx: GoboGraphQLContext
+        ctx: GraphQLContext
     ): Map<GoboFieldUsageKey, List<GoboFieldUsage>> {
         return keys.associateWith { key ->
             val fields = when {

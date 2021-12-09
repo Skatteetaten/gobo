@@ -17,7 +17,7 @@ class AuroraConfigMutation(
     ): AuroraConfigFileValidationResponse {
         dfe.checkValidUserToken()
         val result = service.updateAuroraConfigFile(
-            dfe.token(),
+            dfe.token,
             input.auroraConfigName,
             input.auroraConfigReference ?: "master",
             input.fileName,
@@ -33,7 +33,7 @@ class AuroraConfigMutation(
     ): AuroraConfigFileValidationResponse {
         dfe.checkValidUserToken()
         val result = service.addAuroraConfigFile(
-            dfe.token(),
+            dfe.token,
             input.auroraConfigName,
             input.auroraConfigReference ?: "master",
             input.fileName,

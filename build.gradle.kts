@@ -1,8 +1,7 @@
 plugins {
     kotlin("jvm") version "1.5.31"
-    id("no.skatteetaten.gradle.aurora") version "4.3.20"
-    id("org.flywaydb.flyway") version "8.0.2"
-    id("io.gatling.gradle") version "3.6.1"
+    id("no.skatteetaten.gradle.aurora") version "4.4.5"
+    id("io.gatling.gradle") version "3.7.2"
 }
 
 aurora {
@@ -21,7 +20,7 @@ dependencies {
     implementation("io.projectreactor.kotlin:reactor-kotlin-extensions:1.1.5")
     implementation("org.apache.commons:commons-text:1.9")
     implementation("org.springframework.boot:spring-boot-starter-security")
-    implementation("com.expediagroup:graphql-kotlin-spring-server:5.1.1")
+    implementation("com.expediagroup:graphql-kotlin-spring-server:5.3.0")
     implementation("com.graphql-java:graphql-java-extended-scalars:17.0")
     implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
     implementation("org.apache.commons:commons-collections4:4.4")
@@ -38,18 +37,18 @@ dependencies {
     implementation("com.jayway.jsonpath:json-path:2.6.0")
     implementation("io.projectreactor.addons:reactor-extra:3.4.5")
     implementation("no.skatteetaten.aurora.kubernetes:kubernetes-reactor-coroutines-client:1.3.12")
-    implementation("no.skatteetaten.aurora.springboot:aurora-spring-security-starter:1.6.2")
+    implementation("no.skatteetaten.aurora.springboot:aurora-spring-security-starter:1.6.3")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
-    testImplementation("io.mockk:mockk:1.12.0")
+    testImplementation("io.mockk:mockk:1.12.1")
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.25")
     testImplementation("io.projectreactor:reactor-test")
-    testImplementation("no.skatteetaten.aurora:mockwebserver-extensions-kotlin:1.1.8") {
+    testImplementation("no.skatteetaten.aurora:mockwebserver-extensions-kotlin:1.2.0") {
         exclude(group = "no.skatteetaten.aurora.springboot", module = "aurora-spring-boot-mvc-starter")
     }
     testImplementation("com.ninja-squad:springmockk:3.0.1")
-    testImplementation("org.junit-pioneer:junit-pioneer:1.4.2")
+    testImplementation("org.junit-pioneer:junit-pioneer:1.5.0")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.5.2")
 }
 

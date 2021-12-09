@@ -3,7 +3,7 @@ package no.skatteetaten.aurora.gobo.security
 import graphql.schema.DataFetchingEnvironment
 import io.fabric8.kubernetes.api.model.authentication.TokenReview
 import mu.KotlinLogging
-import no.skatteetaten.aurora.gobo.graphql.GoboGraphQLContext
+import no.skatteetaten.aurora.gobo.graphql.awaitSecurityContext
 import no.skatteetaten.aurora.gobo.graphql.token
 import no.skatteetaten.aurora.gobo.graphql.user.User
 import org.springframework.security.access.AccessDeniedException
@@ -34,14 +34,14 @@ suspend fun <T> DataFetchingEnvironment.ifValidUserToken(whenValidToken: suspend
 }
 
 suspend fun DataFetchingEnvironment.getValidUser(): User {
-    token()
+    token
     return currentUser().also {
         if (it == ANONYMOUS_USER) throw AccessDeniedException("Valid authentication token required")
     }
 }
 
 suspend fun DataFetchingEnvironment.currentUser() =
-    this.getContext<GoboGraphQLContext>().securityContext().authentication?.let {
+    graphQlContext.awaitSecurityContext().authentication?.let {
         if (!it.isAuthenticated) ANONYMOUS_USER
         when (it) {
             is PreAuthenticatedAuthenticationToken, is UsernamePasswordAuthenticationToken -> it.principal.getUser(it.credentials.toString())

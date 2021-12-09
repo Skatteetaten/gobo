@@ -1,15 +1,13 @@
 package no.skatteetaten.aurora.gobo.graphql.environment
 
-import mu.KotlinLogging
+import graphql.GraphQLContext
 import no.skatteetaten.aurora.gobo.graphql.GoboDataLoader
-import no.skatteetaten.aurora.gobo.graphql.GoboGraphQLContext
 import no.skatteetaten.aurora.gobo.graphql.environment.EnvironmentStatusType.APPLIED
 import no.skatteetaten.aurora.gobo.graphql.environment.EnvironmentStatusType.INACTIVE
+import no.skatteetaten.aurora.gobo.graphql.token
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentResource
 import no.skatteetaten.aurora.gobo.integration.phil.DeploymentResource
 import org.springframework.stereotype.Component
-
-private val logger = KotlinLogging.logger {}
 
 @Component
 class EnvironmentStatusDataLoader(
@@ -17,9 +15,9 @@ class EnvironmentStatusDataLoader(
 ) : GoboDataLoader<EnvironmentApplication, EnvironmentStatus>() {
     override suspend fun getByKeys(
         keys: Set<EnvironmentApplication>,
-        context: GoboGraphQLContext
+        context: GraphQLContext
     ): Map<EnvironmentApplication, EnvironmentStatus> {
-        val (requested, applied) = environments.fetchDeploymentStatus(keys, context.token())
+        val (requested, applied) = environments.fetchDeploymentStatus(keys, context.token)
         val applicationDeployments = environments.fetchApplicationStatus(applied)
 
         return keys

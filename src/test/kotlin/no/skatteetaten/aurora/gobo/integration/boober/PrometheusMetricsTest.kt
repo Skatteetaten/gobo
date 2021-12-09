@@ -29,7 +29,9 @@ import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.bodyToMono
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentDetailsBuilder
+import no.skatteetaten.aurora.gobo.DisableIfJenkins
 
+@DisableIfJenkins
 @AutoConfigureMetrics
 @EnableAutoConfiguration(
     exclude = [
@@ -98,5 +100,5 @@ class PrometheusMetricsTest {
     }
 
     private fun redeployResponse() =
-        Response(items = listOf(jacksonObjectMapper().readTree("""{ "applicationDeploymentId": "123" }""")))
+        Response(jacksonObjectMapper().readTree("""{ "applicationDeploymentId": "123" }"""))
 }
