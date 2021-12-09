@@ -1,4 +1,4 @@
-query getApplicationDeployment($id: String!) {
+query getApplicationDeploymentWithToxics($id: String!) {
   applicationDeployment(id: $id) {
     toxiProxy {
       podName
@@ -18,5 +18,4 @@ query getApplicationDeployment($id: String!) {
       }
     }
   }
-
 }

@@ -26,7 +26,7 @@ class ToxiProxyToxicMutation(
     suspend fun addToxiProxyToxic(
         input: AddToxiProxyToxicsInput,
         dfe: DataFetchingEnvironment
-    ): String {
+    ): ToxiProxyToxicsResponse {
         dfe.ifValidUserToken {
             val toxiProxyToxicCtx = ToxiProxyToxicContext(
                 token = dfe.token(),
@@ -38,13 +38,13 @@ class ToxiProxyToxicMutation(
             val addKubeClientOp = AddKubeToxicOp(toxiProxyToxicCtx, input.toxiProxy, kubernetesClient)
             toxiProxyToxicService.manageToxiProxyToxic(toxiProxyToxicCtx, addKubeClientOp)
         }
-        return "" // TODO: spørsmål Hvorfor får jeg feil om jeg definerer at metoden skal være Unit/void?
+        return ToxiProxyToxicsResponse(input.toxiProxy.name, input.toxiProxy.toxics.name)
     }
 
     suspend fun deleteToxiProxyToxic(
         input: DeleteToxiProxyToxicsInput,
         dfe: DataFetchingEnvironment
-    ): String {
+    ): ToxiProxyToxicsResponse {
         dfe.ifValidUserToken {
             val toxiProxyToxicCtx = ToxiProxyToxicContext(
                 token = dfe.token(),
@@ -54,11 +54,13 @@ class ToxiProxyToxicMutation(
                 toxiProxyListenPort = toxiProxyListenPort
             )
             val deleteKubeClientOp = DeleteKubeToxicOp(toxiProxyToxicCtx, input, kubernetesClient)
-            toxiProxyToxicService.manageToxiProxyToxic(toxiProxyToxicCtx, deleteKubeClientOp)
+            toxiProxyToxicService.manageToxiProxyToxic(toxiProxyToxicCtx, deleteKubeClientOp) // TODO: response
         }
-        return ""
+        return ToxiProxyToxicsResponse(input.toxiProxyName, input.toxicName)
     }
 }
+
+data class ToxiProxyToxicsResponse(val toxiProxyName: String, val toxicName: String)
 
 data class AddToxiProxyToxicsInput(
     val affiliation: String,
