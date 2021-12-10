@@ -1,12 +1,6 @@
-mutation addToxiProxyToxic($input: AddToxiProxyToxicInput!) {
+mutation addToxiProxyToxic($input: AddToxiProxyToxicsInput!) {
   addToxiProxyToxic(input: $input) {
-    podName
-    toxics {
-        type
-        toxicName
-        toxicAttributes {
-            attrName //latency, jitter
-            attrValue
-        }
-    }
+      toxiProxyName,
+      toxicName
+  }
 }

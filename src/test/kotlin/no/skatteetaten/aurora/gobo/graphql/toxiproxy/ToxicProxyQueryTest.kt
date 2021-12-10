@@ -83,7 +83,7 @@ class ToxicProxyQueryTest : GraphQLTestWithDbhAndSkap() {
             }
         """.trimIndent()
 
-        server.execute(proxyGetResponse) { // TODO sett inn json response fra toxiproxy her
+        server.execute(proxyGetResponse) {
             webTestClient.queryGraphQL(getApplicationDeploymentWithToxicsQuery, variables = mapOf("id" to "abc"), token = "test-token")
                 .expectStatus().isOk
                 .expectBody()

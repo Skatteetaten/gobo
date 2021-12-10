@@ -30,7 +30,7 @@ import no.skatteetaten.aurora.gobo.service.AffiliationService
     ],
     webEnvironment = SpringBootTest.WebEnvironment.NONE
 )
-@AutoConfigureStubRunner(ids = ["no.skatteetaten.aurora:mokey:+:stubs:6565"])
+@AutoConfigureStubRunner(ids = ["no.skatteetaten.aurora:mokey:3.3.4:stubs:6565"])
 class MokeyAffiliationServiceTest : StrubrunnerRepoPropertiesEnabler() {
 
     @MockkBean

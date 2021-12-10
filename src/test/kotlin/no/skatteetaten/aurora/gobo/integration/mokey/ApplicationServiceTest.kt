@@ -23,7 +23,7 @@ import org.springframework.test.context.ActiveProfiles
     classes = [WebClientAutoConfiguration::class, ApplicationConfig::class, SharedSecretReader::class, ApplicationService::class],
     webEnvironment = SpringBootTest.WebEnvironment.NONE
 )
-@AutoConfigureStubRunner(ids = ["no.skatteetaten.aurora:mokey:+:stubs:6565"])
+@AutoConfigureStubRunner(ids = ["no.skatteetaten.aurora:mokey:3.3.4:stubs:6565"])
 class ApplicationServiceTest : StrubrunnerRepoPropertiesEnabler() {
 
     @Autowired
