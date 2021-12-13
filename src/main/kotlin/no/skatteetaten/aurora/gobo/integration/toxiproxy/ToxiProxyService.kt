@@ -1,13 +1,17 @@
 package no.skatteetaten.aurora.gobo.integration.toxiproxy
 
 import org.springframework.stereotype.Service
+import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.SerializerProvider
+import com.fasterxml.jackson.databind.ser.std.StdSerializer
 import com.fkorotkov.kubernetes.metadata
 import com.fkorotkov.kubernetes.newPod
 import io.fabric8.kubernetes.api.model.Pod
 import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.ApplicationDeploymentRef
 import no.skatteetaten.aurora.gobo.graphql.toxiproxy.DeleteToxiProxyToxicsInput
 import no.skatteetaten.aurora.gobo.graphql.toxiproxy.ToxiProxyInput
+import no.skatteetaten.aurora.gobo.graphql.toxiproxy.ToxicInput
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import no.skatteetaten.aurora.kubernetes.KubernetesCoroutinesClient
 
@@ -43,12 +47,7 @@ class ToxiProxyToxicService(
                             name = podName
                         }
                     }
-                    runCatching {
-                        val json = clientOp.callOp(pod)
-                    }.recoverCatching {
-                    }.getOrThrow()
-                }.map {
-                    it
+                    val json = clientOp.callOp(pod)
                 }
             }
         }
@@ -56,6 +55,29 @@ class ToxiProxyToxicService(
 }
 
 data class ToxiProxyToxicContext(val token: String, val affiliationName: String, val environmentName: String, val applicationName: String, val toxiProxyListenPort: Int = 8474)
+
+class ToxicInputSerializer : StdSerializer<ToxicInput>(ToxicInput::class.java) {
+    override fun serialize(input: ToxicInput?, json: JsonGenerator?, serializer: SerializerProvider?) {
+        if (input != null) {
+            json?.let {
+                it.writeStartObject()
+                it.writeStringField("name", input.name)
+                it.writeStringField("type", input.type)
+                it.writeStringField("stream", input.stream)
+                it.writeNumberField("toxicity", input.toxicity)
+                it.writeObjectFieldStart("attributes")
+                input.attributes.forEach { attribute ->
+                    attribute.value.toIntOrNull()?.let { num ->
+                        it.writeNumberField(attribute.key, num)
+                    } ?: it.writeStringField(attribute.key, attribute.value)
+                }
+
+                it.writeEndObject()
+                it.writeEndObject()
+            }
+        }
+    }
+}
 
 open class KubernetesClientOp {
     open suspend fun callOp(pod: Pod): JsonNode? {

@@ -35,17 +35,16 @@ class ToxiProxyDataLoader(
                 pods.map {
                     val podName = it.name
                     val deploymentRef = applicationDeploymentDetails.applicationDeploymentCommand.applicationDeploymentRef
-                    val application = deploymentRef.application
                     val environment = deploymentRef.environment
                     val affiliation = id.affiliation
 
-                    val pod = newPod {
+                    val podInput = newPod {
                         metadata {
                             namespace = "$affiliation-$environment"
                             name = podName
                         }
                     }
-                    val json = kubernetesClient.proxyGet<JsonNode>(pod = pod, port = 8474, path = "proxies", token = ctx.token())
+                    val json = kubernetesClient.proxyGet<JsonNode>(pod = podInput, port = 8474, path = "proxies", token = ctx.token())
                     val toxiProxy = jacksonObjectMapper().convertValue<ToxiProxy>(json.at("/app"))
                     toxiProxy.copy(podName = podName)
                 }.map {

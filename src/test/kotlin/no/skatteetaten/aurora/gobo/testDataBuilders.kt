@@ -236,22 +236,7 @@ data class ApplicationDeploymentDetailsBuilder(
                     latestDeployTag = true,
                     replicaName = "deployment-1",
                     latestReplicaName = true,
-                    containers = listOf(
-                        ContainerResource(
-                            name = "name-java",
-                            image = "docker-registry/group/name@sha256:hash",
-                            state = "running",
-                            restartCount = 1,
-                            ready = true
-                        ),
-                        ContainerResource(
-                            name = "name-foo",
-                            image = "docker-registry/group/name@sha256:hash",
-                            state = "running",
-                            restartCount = 2,
-                            ready = false
-                        )
-                    ),
+                    containers = ContainerResourceListBuilder().build(),
                     managementResponses = ManagementResponsesResource(
                         links = ManagementEndpointResponseResource(
                             hasResponse = true,
@@ -329,22 +314,7 @@ data class ApplicationDeploymentDetailsResourceBuilder(
                     latestDeployTag = true,
                     replicaName = "deployment-1",
                     latestReplicaName = true,
-                    containers = listOf(
-                        ContainerResource(
-                            name = "name-java",
-                            image = "docker-registry/group/name@sha256:hash",
-                            state = "running",
-                            restartCount = 1,
-                            ready = true
-                        ),
-                        ContainerResource(
-                            name = "name-foo-toxiproxy-sidecar",
-                            image = "docker-registry/group/name@sha256:hash",
-                            state = "running",
-                            restartCount = 2,
-                            ready = false
-                        )
-                    ),
+                    containers = ContainerResourceListBuilder().build(),
                     managementResponses = ManagementResponsesResource(
                         links = ManagementEndpointResponseResource(
                             hasResponse = true,
@@ -388,6 +358,32 @@ data class ApplicationDeploymentDetailsResourceBuilder(
             self("http://ApplicationDeploymentDetails/1")
             addAll(resourceLinks)
         }
+}
+
+class ContainerResourceListBuilder {
+    fun build() = listOf(
+        ContainerResource(
+            name = "name-java",
+            image = "docker-registry/group/name@sha256:hash",
+            state = "running",
+            restartCount = 1,
+            ready = true
+        ),
+        ContainerResource(
+            name = "name-foo-toxiproxy-sidecar",
+            image = "docker-registry/group/name@sha256:hash",
+            state = "running",
+            restartCount = 2,
+            ready = false
+        ),
+        ContainerResource(
+            name = "name-foo",
+            image = "docker-registry/group/name@sha256:hash",
+            state = "running",
+            restartCount = 2,
+            ready = false
+        )
+    )
 }
 
 class ProbeResultListBuilder {
