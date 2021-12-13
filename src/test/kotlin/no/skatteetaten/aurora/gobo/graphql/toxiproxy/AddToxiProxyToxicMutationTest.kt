@@ -1,71 +1,28 @@
 package no.skatteetaten.aurora.gobo.graphql.toxiproxy
 
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.BeforeEach
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.boot.test.context.TestConfiguration
-import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Import
 import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithDbhAndSkap
 import org.springframework.core.io.Resource
 import com.ninjasquad.springmockk.MockkBean
-import io.mockk.coEvery
-import no.skatteetaten.aurora.gobo.ApplicationDeploymentDetailsResourceBuilder
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentResourceBuilder
-import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.ApplicationDeploymentQuery
 import no.skatteetaten.aurora.gobo.graphql.printResult
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
-import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import no.skatteetaten.aurora.gobo.integration.toxiproxy.ToxiProxyToxicService
 import no.skatteetaten.aurora.kubernetes.KubernetesCoroutinesClient
-import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.execute
-import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.url
-import okhttp3.mockwebserver.MockWebServer
 
-@Import(
-    ApplicationDeploymentQuery::class,
-    ToxiProxyToxicService::class,
-    ToxiProxyToxicMutation::class,
-    AddToxiProxyToxicMutationTest.TestConfig::class
-)
+@Import(ToxiProxyToxicMutation::class)
 class AddToxiProxyToxicMutationTest : GraphQLTestWithDbhAndSkap() {
 
     @Value("classpath:graphql/mutations/addToxiProxyToxic.graphql")
     private lateinit var addToxiProxyToxicMutation: Resource
 
     @MockkBean
-    private lateinit var applicationService: ApplicationService
+    private lateinit var kubernetesCoroutinesClient: KubernetesCoroutinesClient
 
-    @Autowired
-    private lateinit var server: MockWebServer
-
-    @TestConfiguration
-    class TestConfig {
-        @Bean
-        fun server() = MockWebServer()
-
-        @Bean
-        fun kubernetesCoroutinesClient(server: MockWebServer): KubernetesCoroutinesClient {
-            return KubernetesCoroutinesClient(server.url, "test-token")
-        }
-    }
-
-    @BeforeEach
-    fun setUp() {
-        coEvery { applicationService.getApplicationDeployment(any()) } returns ApplicationDeploymentResourceBuilder(
-            id = "123",
-            msg = "Hei"
-        ).build()
-
-        coEvery {
-            applicationService.getApplicationDeployments(applicationDeploymentRefs = any())
-        } returns createApplicationDeployments("utv", "gobo", "boober")
-
-        coEvery {
-            applicationService.getApplicationDeploymentDetails(any(), any())
-        } returns ApplicationDeploymentDetailsResourceBuilder().build()
-    }
+    @MockkBean(relaxed = true)
+    private lateinit var toxiProxyService: ToxiProxyToxicService
 
     @Test
     fun `add toxic on existing toxi-proxy`() {
@@ -77,25 +34,23 @@ class AddToxiProxyToxicMutationTest : GraphQLTestWithDbhAndSkap() {
             }
         """.trimIndent()
 
-        server.execute(proxyPostResponse) {
-            val addToxiProxyToxicsInput = getToxiProxyToxicsInput()
+        val addToxiProxyToxicsInput = getToxiProxyToxicsInput()
 
-            webTestClient.queryGraphQL(addToxiProxyToxicMutation, addToxiProxyToxicsInput, "test-token")
-                .expectStatus().isOk
-                .expectBody()
-                .printResult()
+        webTestClient.queryGraphQL(addToxiProxyToxicMutation, addToxiProxyToxicsInput, "test-token")
+            .expectStatus().isOk
+            .expectBody()
+            .printResult()
 
-            // .graph
-            //     graphqlData("deployId").isEqualTo("123")
-            //     graphqlData("deploymentRef.cluster").isEqualTo("utv")
-            //     graphqlData("deploymentRef.affiliation").isEqualTo("aurora")
-            //     graphqlData("deploymentRef.environment").isEqualTo("dev-utv")
-            //     graphqlData("deploymentRef.application").isEqualTo("gobo")
-            //     graphqlData("timestamp").isNotEmpty
-            //     graphqlData("message").isEmpty
-            // }
-            // .graphqlDoesNotContainErrors()
-        }
+        // .graph
+        //     graphqlData("deployId").isEqualTo("123")
+        //     graphqlData("deploymentRef.cluster").isEqualTo("utv")
+        //     graphqlData("deploymentRef.affiliation").isEqualTo("aurora")
+        //     graphqlData("deploymentRef.environment").isEqualTo("dev-utv")
+        //     graphqlData("deploymentRef.application").isEqualTo("gobo")
+        //     graphqlData("timestamp").isNotEmpty
+        //     graphqlData("message").isEmpty
+        // }
+        // .graphqlDoesNotContainErrors()
     }
 
     private fun getToxiProxyToxicsInput(): AddToxiProxyToxicsInput {
