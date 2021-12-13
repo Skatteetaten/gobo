@@ -5,7 +5,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.TestConfiguration
-import org.springframework.cloud.contract.stubrunner.spring.AutoConfigureStubRunner
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Import
 import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithDbhAndSkap
@@ -24,14 +23,10 @@ import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.execute
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.url
 import okhttp3.mockwebserver.MockWebServer
 
-@AutoConfigureStubRunner(ids = ["no.skatteetaten.aurora:mokey:3.3.4:stubs:6565"])
 @Import(
     ApplicationDeploymentQuery::class,
     ToxiProxyToxicService::class,
     ToxiProxyToxicMutation::class,
-    AddToxiProxyToxicsInput::class,
-    ToxiProxyInput::class,
-    ToxicInput::class,
     AddToxiProxyToxicMutationTest.TestConfig::class
 )
 class AddToxiProxyToxicMutationTest : GraphQLTestWithDbhAndSkap() {
@@ -64,6 +59,10 @@ class AddToxiProxyToxicMutationTest : GraphQLTestWithDbhAndSkap() {
         ).build()
 
         coEvery {
+            applicationService.getApplicationDeployments(applicationDeploymentRefs = any())
+        } returns createApplicationDeployments("utv", "gobo", "boober")
+
+        coEvery {
             applicationService.getApplicationDeploymentDetails(any(), any())
         } returns ApplicationDeploymentDetailsResourceBuilder().build()
     }
@@ -79,18 +78,7 @@ class AddToxiProxyToxicMutationTest : GraphQLTestWithDbhAndSkap() {
         """.trimIndent()
 
         server.execute(proxyPostResponse) {
-            val attr = listOf(
-                ToxicAttributeInput("key", "latency"),
-                ToxicAttributeInput("value", "1234")
-            )
-            val toxics = ToxicInput(name = "latency_downstream", type = "latency", stream = "downstream", toxicity = 1, attributes = attr)
-            val toxiProxyInput = ToxiProxyInput(name = "test_toxiProxy", toxics = toxics)
-            val addToxiProxyToxicsInput = AddToxiProxyToxicsInput(
-                affiliation = "test_aff",
-                environment = "test_env",
-                application = "test_app",
-                toxiProxy = toxiProxyInput
-            )
+            val addToxiProxyToxicsInput = getToxiProxyToxicsInput()
 
             webTestClient.queryGraphQL(addToxiProxyToxicMutation, addToxiProxyToxicsInput, "test-token")
                 .expectStatus().isOk
@@ -109,4 +97,35 @@ class AddToxiProxyToxicMutationTest : GraphQLTestWithDbhAndSkap() {
             // .graphqlDoesNotContainErrors()
         }
     }
+
+    private fun getToxiProxyToxicsInput(): AddToxiProxyToxicsInput {
+        val attr = listOf(
+            ToxicAttributeInput("key", "latency"),
+            ToxicAttributeInput("value", "1234")
+        )
+        val toxics = ToxicInput(
+            name = "latency_downstream",
+            type = "latency",
+            stream = "downstream",
+            toxicity = 1,
+            attributes = attr
+        )
+        val toxiProxyInput = ToxiProxyInput(name = "test_toxiProxy", toxics = toxics)
+        val addToxiProxyToxicsInput = AddToxiProxyToxicsInput(
+            affiliation = "test_aff",
+            environment = "test_env",
+            application = "test_app",
+            toxiProxy = toxiProxyInput
+        )
+        return addToxiProxyToxicsInput
+    }
+
+    private fun createApplicationDeployments(environment: String, vararg names: String) =
+        names.map {
+            ApplicationDeploymentResourceBuilder(
+                affiliation = "aurora",
+                environment = environment,
+                name = it
+            ).build()
+        }
 }
