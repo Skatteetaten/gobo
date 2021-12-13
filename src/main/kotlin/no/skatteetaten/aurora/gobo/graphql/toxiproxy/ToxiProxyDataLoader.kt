@@ -47,8 +47,6 @@ class ToxiProxyDataLoader(
                     val json = kubernetesClient.proxyGet<JsonNode>(pod = podInput, port = 8474, path = "proxies", token = ctx.token())
                     val toxiProxy = jacksonObjectMapper().convertValue<ToxiProxy>(json.at("/app"))
                     toxiProxy.copy(podName = podName)
-                }.map {
-                    it
                 }
             }
         }
