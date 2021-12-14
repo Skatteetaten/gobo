@@ -30,20 +30,29 @@ class ToxiProxyToxicService(
             val applicationDeploymentDetails =
                 applicationService.getApplicationDeploymentDetails(toxiProxyToxicCtx.token, resource.identifier)
             applicationDeploymentDetails.podResources.flatMap { pod ->
-                pod.containers
-                    .filter { container -> container.name.endsWith("-toxiproxy-sidecar") }
-                    .map {
-                        val deploymentRef =
-                            applicationDeploymentDetails.applicationDeploymentCommand.applicationDeploymentRef
-                        val newPod = newPod {
-                            metadata {
-                                namespace = "${resource.affiliation}-${deploymentRef.environment}"
-                                name = it.name
-                            }
-                        }
-                        val jsonResponse = clientOp.callOp(newPod)
-                        logger.debug { "json response from kubernetes client: $jsonResponse" }
+                val pods = pod.containers.mapNotNull { container ->
+                    if (container.name.endsWith("-toxiproxy-sidecar")) {
+                        pod
+                    } else {
+                        null
                     }
+                }
+                pods.map {
+                    val podName = it.name
+                    val deploymentRef =
+                        applicationDeploymentDetails.applicationDeploymentCommand.applicationDeploymentRef
+                    val environment = deploymentRef.environment
+                    val affiliation = resource.affiliation
+
+                    val pod = newPod {
+                        metadata {
+                            namespace = "$affiliation-$environment"
+                            name = podName
+                        }
+                    }
+                    val json = clientOp.callOp(pod)
+                    logger.debug { "json response from kubernetes client: $json" }
+                }
             }
         }
     }
@@ -82,13 +91,19 @@ open class KubernetesClientOp {
 class AddKubeToxicOp(val ctx: ToxiProxyToxicContext, val toxiProxyInput: ToxiProxyInput, val kubernetesClient: KubernetesCoroutinesClient) : KubernetesClientOp() {
 
     override suspend fun callOp(pod: Pod): JsonNode? {
-        val json = kubernetesClient.proxyPost<JsonNode>(
-            pod = pod,
-            port = ctx.toxiProxyListenPort,
-            path = "/proxies/${toxiProxyInput.name}/toxics",
-            body = toxiProxyInput.toxics,
-            token = ctx.token
-        )
+        val json = kotlin.runCatching {
+            kubernetesClient.proxyPost<JsonNode>(
+                pod = pod,
+                port = ctx.toxiProxyListenPort,
+                path = "/proxies/${toxiProxyInput.name}/toxics",
+                body = toxiProxyInput.toxics,
+                token = ctx.token
+            )
+        }.onFailure {
+            logger.info {
+                it
+            }
+        }.getOrThrow()
         return json
     }
 }
