@@ -8,12 +8,15 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer
 import com.fkorotkov.kubernetes.metadata
 import com.fkorotkov.kubernetes.newPod
 import io.fabric8.kubernetes.api.model.Pod
+import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.ApplicationDeploymentRef
 import no.skatteetaten.aurora.gobo.graphql.toxiproxy.DeleteToxiProxyToxicsInput
 import no.skatteetaten.aurora.gobo.graphql.toxiproxy.ToxiProxyInput
 import no.skatteetaten.aurora.gobo.graphql.toxiproxy.ToxicInput
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import no.skatteetaten.aurora.kubernetes.KubernetesCoroutinesClient
+
+private val logger = KotlinLogging.logger {}
 
 @Service
 class ToxiProxyToxicService(
@@ -27,28 +30,20 @@ class ToxiProxyToxicService(
             val applicationDeploymentDetails =
                 applicationService.getApplicationDeploymentDetails(toxiProxyToxicCtx.token, resource.identifier)
             applicationDeploymentDetails.podResources.flatMap { pod ->
-                val pods = pod.containers.mapNotNull { container ->
-                    if (container.name.endsWith("-toxiproxy-sidecar")) {
-                        pod
-                    } else {
-                        null
-                    }
-                }
-                pods.map {
-                    val podName = it.name
-                    val deploymentRef =
-                        applicationDeploymentDetails.applicationDeploymentCommand.applicationDeploymentRef
-                    val environment = deploymentRef.environment
-                    val affiliation = resource.affiliation
-
-                    val pod = newPod {
-                        metadata {
-                            namespace = "$affiliation-$environment"
-                            name = podName
+                pod.containers
+                    .filter { container -> container.name.endsWith("-toxiproxy-sidecar") }
+                    .map {
+                        val deploymentRef =
+                            applicationDeploymentDetails.applicationDeploymentCommand.applicationDeploymentRef
+                        val newPod = newPod {
+                            metadata {
+                                namespace = "${resource.affiliation}-${deploymentRef.environment}"
+                                name = it.name
+                            }
                         }
+                        val jsonResponse = clientOp.callOp(newPod)
+                        logger.debug { "json response from kubernetes client: $jsonResponse" }
                     }
-                    val json = clientOp.callOp(pod)
-                }
             }
         }
     }
