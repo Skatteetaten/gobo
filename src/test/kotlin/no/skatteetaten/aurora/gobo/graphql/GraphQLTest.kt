@@ -3,6 +3,7 @@ package no.skatteetaten.aurora.gobo.graphql
 import com.expediagroup.graphql.server.operations.Query
 import com.expediagroup.graphql.server.spring.GraphQLAutoConfiguration
 import com.ninjasquad.springmockk.MockkBean
+import io.micrometer.core.instrument.MeterRegistry
 import no.skatteetaten.aurora.gobo.GraphQLConfig
 import no.skatteetaten.aurora.gobo.graphql.errorhandling.GoboDataFetcherExceptionHandler
 import no.skatteetaten.aurora.gobo.infrastructure.client.ClientService
@@ -54,6 +55,9 @@ abstract class GraphQLTestWithoutDbhAndSkap {
 
     @MockkBean(relaxed = true)
     private lateinit var clientService: ClientService
+
+    @MockkBean(relaxed = true)
+    private lateinit var meterRegistry: MeterRegistry
 
     @BeforeEach
     fun setUpAll() {

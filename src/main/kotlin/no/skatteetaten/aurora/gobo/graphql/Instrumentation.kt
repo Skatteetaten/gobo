@@ -8,6 +8,9 @@ import graphql.execution.instrumentation.SimpleInstrumentation
 import graphql.execution.instrumentation.parameters.InstrumentationExecuteOperationParameters
 import graphql.execution.instrumentation.parameters.InstrumentationExecutionParameters
 import graphql.language.SelectionSet
+import io.micrometer.core.instrument.MeterRegistry
+import io.micrometer.core.instrument.Tag
+import io.micrometer.core.instrument.Timer
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.graphql.gobo.GoboFieldUser
 import no.skatteetaten.aurora.gobo.infrastructure.client.Client
@@ -21,6 +24,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.server.ServerRequest
+import java.time.Duration
 import java.time.LocalDateTime
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
@@ -35,6 +39,7 @@ private fun String.isNotIntrospectionQuery() = !contains("IntrospectionQuery")
 class GoboInstrumentation(
     private val fieldService: FieldService,
     private val clientService: ClientService,
+    private val meterRegistry: MeterRegistry,
     private val queryCache: QueryCache? = null,
     @Value("\${gobo.graphql.log.queries:}") private val logQueries: Boolean? = false,
     @Value("\${gobo.graphql.log.operationstart:}") private val logOperationStart: Boolean? = false,
@@ -130,7 +135,17 @@ class GoboInstrumentation(
         parameters?.graphQLContext?.let {
             if (logOperationEnd == true && it.operationName.isNotIntrospectionQuery()) {
                 val hostString = it.request.remoteAddress().get().hostString
-                logger.info { """Completed type=${it.operationType} name=${it.operationName} timeUsed=${System.currentTimeMillis() - it.startTime}ms, Korrelasjonsid=${it.korrelasjonsid} Klientid="${it.klientid}" hostString="$hostString", number of errors ${executionResult?.errors?.size}""" }
+                val timeUsed = System.currentTimeMillis() - it.startTime
+
+                it.operationNameOrNull?.let { operationName ->
+                    Timer.builder("graphql_operationTimer")
+                        .tags(listOf(Tag.of("operationName", operationName)))
+                        .description("Time used for graphql operation")
+                        .register(meterRegistry)
+                        .record(Duration.ofMillis(timeUsed))
+                }
+
+                logger.info { """Completed type=${it.operationType} name=${it.operationName} timeUsed=${timeUsed}ms, Korrelasjonsid=${it.korrelasjonsid} Klientid="${it.klientid}" hostString="$hostString", number of errors ${executionResult?.errors?.size}""" }
             }
         }
 
