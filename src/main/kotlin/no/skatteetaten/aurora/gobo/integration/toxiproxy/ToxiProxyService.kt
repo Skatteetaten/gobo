@@ -29,28 +29,17 @@ class ToxiProxyToxicService(
         ).map { resource ->
             val applicationDeploymentDetails =
                 applicationService.getApplicationDeploymentDetails(toxiProxyToxicCtx.token, resource.identifier)
-            applicationDeploymentDetails.podResources.flatMap { pod ->
-                val pods = pod.containers.mapNotNull { container ->
-                    if (container.name.endsWith("-toxiproxy-sidecar")) {
-                        pod
-                    } else {
-                        null
-                    }
-                }
-                pods.map {
-                    val podName = it.name
+            applicationDeploymentDetails.podResources.forEach {
+                if(it.hasToxiProxySidecar()) {
                     val deploymentRef =
-                        applicationDeploymentDetails.applicationDeploymentCommand.applicationDeploymentRef
-                    val environment = deploymentRef.environment
-                    val affiliation = resource.affiliation
-
-                    val pod = newPod {
+                            applicationDeploymentDetails.applicationDeploymentCommand.applicationDeploymentRef
+                    val newPod = newPod {
                         metadata {
-                            namespace = "$affiliation-$environment"
-                            name = podName
+                            namespace = "${resource.affiliation}-${deploymentRef.environment}"
+                            name = it.name
                         }
                     }
-                    val json = clientOp.callOp(pod)
+                    val json = clientOp.callOp(newPod)
                     logger.debug { "json response from kubernetes client: $json" }
                 }
             }
