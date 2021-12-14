@@ -2,13 +2,12 @@ package no.skatteetaten.aurora.gobo.graphql.applicationdeployment
 
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.coEvery
-import java.time.Instant
-import no.skatteetaten.aurora.gobo.integration.boober.ApplicationDeploymentService
 import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithDbhAndSkap
 import no.skatteetaten.aurora.gobo.graphql.graphqlData
 import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.graphql.isTrue
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
+import no.skatteetaten.aurora.gobo.integration.boober.ApplicationDeploymentService
 import no.skatteetaten.aurora.gobo.integration.boober.BooberApplicationRef
 import no.skatteetaten.aurora.gobo.integration.boober.BooberDeleteResponse
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentResource
@@ -21,12 +20,10 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
+import java.time.Instant
 
 @Import(ApplicationDeploymentMutation::class)
 class ApplicationDeploymentMutationTest : GraphQLTestWithDbhAndSkap() {
-    @Value("classpath:graphql/mutations/redeployWithVersion.graphql")
-    private lateinit var redeployWithVersionMutation: Resource
-
     @Value("classpath:graphql/mutations/redeployWithCurrentVersion.graphql")
     private lateinit var redeployWithCurrentVersionMutation: Resource
 
@@ -53,7 +50,6 @@ class ApplicationDeploymentMutationTest : GraphQLTestWithDbhAndSkap() {
 
     @BeforeEach
     fun setUp() {
-        coEvery { applicationUpgradeService.upgrade(any(), any(), any()) } returns "123"
         coEvery { applicationUpgradeService.deployCurrentVersion(any(), any()) } returns "123"
         coEvery { applicationDeploymentService.deleteApplicationDeployments(any(), any()) } returns listOf(
             BooberDeleteResponse(BooberApplicationRef("aurora-utv", "gobo"), true, "")
@@ -64,19 +60,6 @@ class ApplicationDeploymentMutationTest : GraphQLTestWithDbhAndSkap() {
                 VersionResource("", null, null), null, Instant.now(), null
             )
         )
-    }
-
-    @Test
-    fun `Mutate application deployment version`() {
-        val variables = mapOf(
-            "input" to mapOf(
-                "applicationDeploymentId" to "123",
-                "version" to "1"
-            )
-        )
-        webTestClient.queryGraphQL(redeployWithVersionMutation, variables, "test-token").expectBody()
-            .graphqlData("redeployWithVersion.applicationDeploymentId").isEqualTo("123")
-            .graphqlDoesNotContainErrors()
     }
 
     @Test

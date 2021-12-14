@@ -3,6 +3,9 @@ package no.skatteetaten.aurora.gobo.integration.mokey
 import assertk.assertThat
 import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
+import com.fasterxml.jackson.databind.ObjectMapper
+import no.skatteetaten.aurora.gobo.integration.boober.BooberWebClient
+import no.skatteetaten.aurora.gobo.service.AffiliationService
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.executeBlocking
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.jsonResponse
 import okhttp3.mockwebserver.MockResponse
@@ -10,9 +13,6 @@ import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.SocketPolicy
 import org.junit.jupiter.api.Test
 import org.springframework.web.reactive.function.client.WebClient
-import com.fasterxml.jackson.databind.ObjectMapper
-import no.skatteetaten.aurora.gobo.integration.boober.BooberWebClient
-import no.skatteetaten.aurora.gobo.service.AffiliationService
 
 class MokeyAffiliationServiceNetworkTest {
 

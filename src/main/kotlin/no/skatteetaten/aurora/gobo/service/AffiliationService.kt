@@ -3,11 +3,11 @@ package no.skatteetaten.aurora.gobo.service
 import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
 import no.skatteetaten.aurora.gobo.integration.awaitWithRetry
+import no.skatteetaten.aurora.gobo.integration.boober.BooberWebClient
+import no.skatteetaten.aurora.gobo.integration.boober.responses
 import org.springframework.http.HttpHeaders
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
-import no.skatteetaten.aurora.gobo.integration.boober.BooberWebClient
-import no.skatteetaten.aurora.gobo.integration.boober.responses
 
 @Service
 class AffiliationService(

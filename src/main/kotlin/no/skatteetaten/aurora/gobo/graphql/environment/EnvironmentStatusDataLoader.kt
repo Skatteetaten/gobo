@@ -1,30 +1,51 @@
 package no.skatteetaten.aurora.gobo.graphql.environment
 
+import graphql.GraphQLContext
 import no.skatteetaten.aurora.gobo.graphql.GoboDataLoader
-import no.skatteetaten.aurora.gobo.graphql.GoboGraphQLContext
-import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.ApplicationDeploymentRef
-import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
+import no.skatteetaten.aurora.gobo.graphql.environment.EnvironmentStatusType.APPLIED
+import no.skatteetaten.aurora.gobo.graphql.environment.EnvironmentStatusType.INACTIVE
+import no.skatteetaten.aurora.gobo.graphql.token
+import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentResource
+import no.skatteetaten.aurora.gobo.integration.phil.DeploymentResource
 import org.springframework.stereotype.Component
 
-// TODO filter of statuses from Phil
-// 1) If status from Phil is failed, use it
-// 2) If status from Phil is success, use status from ApplicationDeployment (Mokey)
 @Component
-class EnvironmentStatusDataLoader(private val applicationService: ApplicationService) :
-    GoboDataLoader<EnvironmentApplication, EnvironmentStatus>() {
+class EnvironmentStatusDataLoader(
+    private val environments: Environments
+) : GoboDataLoader<EnvironmentApplication, EnvironmentStatus>() {
+    override suspend fun getByKeys(
+        keys: Set<EnvironmentApplication>,
+        context: GraphQLContext
+    ): Map<EnvironmentApplication, EnvironmentStatus> {
+        val (requested, applied) = environments.fetchDeploymentStatus(keys, context.token)
+        val applicationDeployments = environments.fetchApplicationStatus(applied)
 
-    override suspend fun getByKeys(keys: Set<EnvironmentApplication>, context: GoboGraphQLContext):
-        Map<EnvironmentApplication, EnvironmentStatus> {
-        val applicationDeployments = applicationService.getApplicationDeployments(
-            keys.map { ApplicationDeploymentRef(it.environment, it.name) }
-        )
-
-        return keys.map { app ->
-            val ad =
-                applicationDeployments.find { ad ->
-                    ad.affiliation == app.affiliation && ad.environment == app.environment && ad.name == app.name
-                }
-            app to EnvironmentStatus.create(ad)
-        }.toMap()
+        return keys
+            .map(environments.findDeploymentFromPhil(requested, applied))
+            .associate(aggregatedApplicationStatus(applicationDeployments))
     }
+
+    private fun aggregatedApplicationStatus(
+        applicationDeployments: List<ApplicationDeploymentResource>
+    ): (Pair<EnvironmentApplication, DeploymentResource?>) -> Pair<EnvironmentApplication, EnvironmentStatus> =
+        { (app, deployment) ->
+            val ad = applicationDeployments.find(app.findRunningApplication())
+            val deployStatus = deployment?.status()
+
+            app to when (deployStatus?.state) {
+                null -> EnvironmentStatus(
+                    state = INACTIVE,
+                    message = "This application is inactive",
+                    details = "Not found in Phil or Mokey"
+                )
+                APPLIED -> when (val adState = ad?.status()) {
+                    null -> deployStatus
+                    else -> when (adState.state) {
+                        INACTIVE -> deployStatus
+                        else -> adState
+                    }
+                }
+                else -> deployStatus
+            }
+        }
 }

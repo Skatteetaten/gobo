@@ -12,10 +12,10 @@ import no.skatteetaten.aurora.gobo.graphql.graphqlDataWithPrefix
 import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.graphql.permission.PermissionDataLoader
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
-import no.skatteetaten.aurora.gobo.service.AffiliationService
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import no.skatteetaten.aurora.gobo.integration.mokey.AuroraNamespacePermissions
 import no.skatteetaten.aurora.gobo.integration.mokey.PermissionService
+import no.skatteetaten.aurora.gobo.service.AffiliationService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value

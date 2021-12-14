@@ -4,10 +4,10 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import graphql.language.IntValue
 import graphql.language.StringValue
+import org.junit.jupiter.api.Test
 import java.math.BigInteger
 import java.time.LocalDateTime
 import java.time.ZoneOffset
-import org.junit.jupiter.api.Test
 
 class InstantScalarTest {
 

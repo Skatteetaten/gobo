@@ -56,10 +56,18 @@ class ApplicationService(@TargetService(ServiceTypes.MOKEY) val webClient: WebCl
             .awaitWithRetry()
     }
 
-    suspend fun getApplicationDeployments(applicationDeploymentRefs: List<ApplicationDeploymentRef>): List<ApplicationDeploymentResource> {
+    suspend fun getApplicationDeployments(
+        applicationDeploymentRefs: List<ApplicationDeploymentRef>,
+        cached: Boolean = true,
+    ): List<ApplicationDeploymentResource> {
         return webClient
             .post()
-            .uri("/api/applicationdeployment")
+            .uri {
+                it
+                    .path("/api/applicationdeployment")
+                    .queryParam("cached", cached)
+                    .build()
+            }
             .body(BodyInserters.fromValue(applicationDeploymentRefs))
             .retrieve()
             .handleHttpStatusErrors()

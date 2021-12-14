@@ -1,8 +1,7 @@
 plugins {
     kotlin("jvm") version "1.5.31"
-    id("no.skatteetaten.gradle.aurora") version "4.3.13"
-    id("org.flywaydb.flyway") version "7.15.0"
-    id("io.gatling.gradle") version "3.6.1"
+    id("no.skatteetaten.gradle.aurora") version "4.4.5"
+    id("io.gatling.gradle") version "3.7.2"
 }
 
 aurora {
@@ -18,10 +17,11 @@ aurora {
 dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
 
-    implementation("io.projectreactor.kotlin:reactor-kotlin-extensions:1.1.4")
+    implementation("io.projectreactor.kotlin:reactor-kotlin-extensions:1.1.5")
     implementation("org.apache.commons:commons-text:1.9")
     implementation("org.springframework.boot:spring-boot-starter-security")
-    implementation("com.expediagroup:graphql-kotlin-spring-server:4.2.0")
+    implementation("com.expediagroup:graphql-kotlin-spring-server:5.3.0")
+    implementation("com.graphql-java:graphql-java-extended-scalars:17.0")
     implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
     implementation("org.apache.commons:commons-collections4:4.4")
 
@@ -44,7 +44,7 @@ dependencies {
     testImplementation("io.mockk:mockk:1.12.0")
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.25")
     testImplementation("io.projectreactor:reactor-test")
-    testImplementation("no.skatteetaten.aurora:mockwebserver-extensions-kotlin:1.1.8") {
+    testImplementation("no.skatteetaten.aurora:mockwebserver-extensions-kotlin:1.2.0") {
         exclude(group = "no.skatteetaten.aurora.springboot", module = "aurora-spring-boot-mvc-starter")
     }
     testImplementation("com.ninja-squad:springmockk:3.0.1")
@@ -64,4 +64,7 @@ task<de.undercouch.gradle.tasks.download.Download>("download-playground") {
     )
     dest("src/main/resources/static/playground/")
     onlyIfModified(true)
+}
+repositories {
+    mavenCentral()
 }

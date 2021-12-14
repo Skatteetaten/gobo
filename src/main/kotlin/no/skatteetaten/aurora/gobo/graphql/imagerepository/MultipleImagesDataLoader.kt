@@ -1,10 +1,11 @@
 package no.skatteetaten.aurora.gobo.graphql.imagerepository
 
+import graphql.GraphQLContext
 import graphql.execution.DataFetcherResult
 import no.skatteetaten.aurora.gobo.graphql.GoboDataLoader
-import no.skatteetaten.aurora.gobo.graphql.GoboGraphQLContext
 import no.skatteetaten.aurora.gobo.graphql.errorhandling.GraphQLExceptionWrapper
 import no.skatteetaten.aurora.gobo.graphql.newDataFetcherResult
+import no.skatteetaten.aurora.gobo.graphql.token
 import no.skatteetaten.aurora.gobo.integration.cantus.CantusIntegrationException
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageRegistryService
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageRepoAndTags
@@ -15,12 +16,12 @@ class MultipleImagesDataLoader(private val imageRegistryService: ImageRegistrySe
     GoboDataLoader<ImageTag, ImageWithType?>() {
     override suspend fun getByKeys(
         keys: Set<ImageTag>,
-        ctx: GoboGraphQLContext
+        ctx: GraphQLContext
     ): Map<ImageTag, ImageWithType?> {
         val imageReposAndTags = ImageRepoAndTags.fromImageTags(keys)
         val auroraResponse = imageRegistryService.findTagsByName(
             imageReposAndTags = imageReposAndTags,
-            token = ctx.token()
+            token = ctx.token
         )
 
         val successes = auroraResponse.items.associate { imageTagResource ->

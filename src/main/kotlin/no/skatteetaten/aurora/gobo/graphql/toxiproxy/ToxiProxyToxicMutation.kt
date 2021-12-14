@@ -27,7 +27,7 @@ class ToxiProxyToxicMutation(
     ): ToxiProxyToxicsResponse {
         dfe.ifValidUserToken {
             val toxiProxyToxicCtx = ToxiProxyToxicContext(
-                token = dfe.token(),
+                token = dfe.token,
                 affiliationName = input.affiliation,
                 environmentName = input.environment,
                 applicationName = input.application,
@@ -45,7 +45,7 @@ class ToxiProxyToxicMutation(
     ): ToxiProxyToxicsResponse {
         dfe.ifValidUserToken {
             val toxiProxyToxicCtx = ToxiProxyToxicContext(
-                token = dfe.token(),
+                token = dfe.token,
                 affiliationName = input.affiliation,
                 environmentName = input.environment,
                 applicationName = input.application,

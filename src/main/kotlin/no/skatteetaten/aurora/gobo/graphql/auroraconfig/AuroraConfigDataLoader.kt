@@ -1,9 +1,10 @@
 package no.skatteetaten.aurora.gobo.graphql.auroraconfig
 
+import graphql.GraphQLContext
 import no.skatteetaten.aurora.gobo.graphql.GoboDataLoader
-import org.springframework.stereotype.Component
-import no.skatteetaten.aurora.gobo.graphql.GoboGraphQLContext
+import no.skatteetaten.aurora.gobo.graphql.token
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigService
+import org.springframework.stereotype.Component
 
 data class AuroraConfigKey(
     val name: String,
@@ -12,7 +13,7 @@ data class AuroraConfigKey(
 
 @Component
 class AuroraConfigDataLoader(private val auroraConfigService: AuroraConfigService) : GoboDataLoader<AuroraConfigKey, AuroraConfig>() {
-    override suspend fun getByKeys(keys: Set<AuroraConfigKey>, ctx: GoboGraphQLContext): Map<AuroraConfigKey, AuroraConfig> {
-        return keys.associateWith { auroraConfigService.getAuroraConfig(ctx.token(), it.name, it.refInput) }
+    override suspend fun getByKeys(keys: Set<AuroraConfigKey>, ctx: GraphQLContext): Map<AuroraConfigKey, AuroraConfig> {
+        return keys.associateWith { auroraConfigService.getAuroraConfig(ctx.token, it.name, it.refInput) }
     }
 }

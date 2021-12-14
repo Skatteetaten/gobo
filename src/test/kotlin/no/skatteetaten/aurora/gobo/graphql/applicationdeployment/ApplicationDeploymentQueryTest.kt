@@ -3,12 +3,15 @@ package no.skatteetaten.aurora.gobo.graphql.applicationdeployment
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.clearMocks
 import io.mockk.coEvery
+import no.skatteetaten.aurora.gobo.ApplicationDeploymentDetailsBuilder
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentResourceBuilder
 import no.skatteetaten.aurora.gobo.ImageTagResourceBuilder
 import no.skatteetaten.aurora.gobo.SkapJobForBigipBuilder
 import no.skatteetaten.aurora.gobo.SkapJobForWebsealBuilder
 import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithDbhAndSkap
 import no.skatteetaten.aurora.gobo.graphql.IntegrationDisabledException
+import no.skatteetaten.aurora.gobo.graphql.auroraconfig.AuroraConfigFileResource
+import no.skatteetaten.aurora.gobo.graphql.auroraconfig.AuroraConfigFileResourceDataLoader
 import no.skatteetaten.aurora.gobo.graphql.graphqlData
 import no.skatteetaten.aurora.gobo.graphql.graphqlDataWithPrefix
 import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
@@ -16,6 +19,8 @@ import no.skatteetaten.aurora.gobo.graphql.graphqlErrorsFirst
 import no.skatteetaten.aurora.gobo.graphql.imagerepository.ImageDataLoader
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
 import no.skatteetaten.aurora.gobo.graphql.route.RouteDataLoader
+import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileType
+import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigService
 import no.skatteetaten.aurora.gobo.integration.cantus.AuroraResponse
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageRegistryService
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
@@ -26,11 +31,6 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
-import no.skatteetaten.aurora.gobo.ApplicationDeploymentDetailsBuilder
-import no.skatteetaten.aurora.gobo.graphql.auroraconfig.AuroraConfigFileResource
-import no.skatteetaten.aurora.gobo.graphql.auroraconfig.AuroraConfigFileResourceDataLoader
-import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileType
-import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigService
 
 @Import(
     ApplicationDeploymentQuery::class,
@@ -63,7 +63,7 @@ class ApplicationDeploymentQueryTest : GraphQLTestWithDbhAndSkap() {
 
     @BeforeEach
     fun setUp() {
-        coEvery { applicationService.getApplicationDeployment(any<String>()) } returns ApplicationDeploymentResourceBuilder(
+        coEvery { applicationService.getApplicationDeployment(any()) } returns ApplicationDeploymentResourceBuilder(
             id = "123",
             msg = "Hei"
         ).build()
@@ -88,7 +88,7 @@ class ApplicationDeploymentQueryTest : GraphQLTestWithDbhAndSkap() {
             )
         )
 
-        coEvery { auroraConfigService.getAuroraConfigFiles(any(), any(), any(), any()) } returns listOf(
+        coEvery { auroraConfigService.getAuroraConfigFiles(any(), any(), any(), any(), any()) } returns listOf(
             AuroraConfigFileResource("about.json", """{ "foo" : "bar" }""", AuroraConfigFileType.GLOBAL, "123"),
             AuroraConfigFileResource("utv/foo.json", """{ "foo" : "bar" }""", AuroraConfigFileType.APP, "321")
         )

@@ -3,9 +3,9 @@ package no.skatteetaten.aurora.gobo.integration.boober
 import assertk.assertThat
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
-import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.graphql.usersettings.ApplicationDeploymentFilter
 import no.skatteetaten.aurora.gobo.graphql.usersettings.UserSettingsInput
+import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.testObjectMapper
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.executeBlocking
 import okhttp3.mockwebserver.MockWebServer

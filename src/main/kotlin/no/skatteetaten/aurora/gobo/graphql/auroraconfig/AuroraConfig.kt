@@ -50,18 +50,18 @@ data class ApplicationDeploymentSpec(
     @GraphQLIgnore
     val rawJsonValueWithDefaults: JsonNode
 ) {
-    val cluster = rawJsonValueWithDefaults.text("/cluster/value")
-    val envName = rawJsonValueWithDefaults.text("/envName/value")
+    val cluster: String? = rawJsonValueWithDefaults.text("/cluster/value")
+    val envName: String? = rawJsonValueWithDefaults.text("/envName/value")
     val environment = rawJsonValueWithDefaults.expression("\$.envName.sources[?(@.name=='folderName')].value")
-    val name = rawJsonValueWithDefaults.text("/name/value")
-    val version = rawJsonValueWithDefaults.text("/version/value")
+    val name: String? = rawJsonValueWithDefaults.text("/name/value")
+    val version: String? = rawJsonValueWithDefaults.text("/version/value")
     val releaseTo = rawJsonValueWithDefaults.optionalText("/releaseTo/value")
-    val application = rawJsonValueWithDefaults.text("/name/value")
-    val type = rawJsonValueWithDefaults.text("/type/value")
-    val deployStrategy = rawJsonValueWithDefaults.text("/deployStrategy/type/value")
+    val application: String? = rawJsonValueWithDefaults.text("/name/value")
+    val type: String? = rawJsonValueWithDefaults.text("/type/value")
+    val deployStrategy: String? = rawJsonValueWithDefaults.text("/deployStrategy/type/value")
     val replicas = rawJsonValueWithDefaults.int("/replicas/value")
     val paused = rawJsonValueWithDefaults.boolean("/pause/value")
-    val affiliation = rawJsonValueWithDefaults.text("/affiliation/value")
+    val affiliation: String? = rawJsonValueWithDefaults.text("/affiliation/value")
 
     private fun JsonNode.expression(path: String) =
         runCatching { JsonPath.read<List<String>>(this.toString(), path).first() }.getOrNull()

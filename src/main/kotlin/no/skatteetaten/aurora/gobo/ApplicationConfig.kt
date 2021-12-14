@@ -1,10 +1,7 @@
 package no.skatteetaten.aurora.gobo
 
 import io.netty.channel.ChannelOption
-import io.netty.handler.ssl.SslContextBuilder
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory
-import io.netty.handler.timeout.ReadTimeoutHandler
-import io.netty.handler.timeout.WriteTimeoutHandler
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.integration.skap.HEADER_AURORA_TOKEN
 import no.skatteetaten.aurora.gobo.security.SharedSecretReader
@@ -25,8 +22,10 @@ import org.springframework.web.reactive.function.client.ExchangeFilterFunction
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.kotlin.core.publisher.toMono
 import reactor.netty.http.client.HttpClient
+import reactor.netty.resources.ConnectionProvider
+import reactor.netty.tcp.DefaultSslContextSpec
 import reactor.netty.tcp.SslProvider
-import java.util.concurrent.TimeUnit
+import java.time.Duration
 
 enum class ServiceTypes {
     MOKEY, BOOBER, UNCLEMATT, CANTUS, DBH, SKAP, HERKIMER, NAGHUB, GAVEL, PHIL
@@ -71,9 +70,8 @@ private val logger = KotlinLogging.logger {}
 
 @Configuration
 class ApplicationConfig(
-    @Value("\${gobo.webclient.read-timeout:30000}") val readTimeout: Long,
-    @Value("\${gobo.webclient.write-timeout:30000}") val writeTimeout: Long,
-    @Value("\${gobo.webclient.connection-timeout:30000}") val connectionTimeout: Int,
+    @Value("\${gobo.webclient.connection-timeout:15000}") val connectionTimeout: Int,
+    @Value("\${gobo.webclient.response-timeout:60000}") val responseTimeout: Long,
     @Value("\${spring.application.name}") val applicationName: String,
     private val sharedSecretReader: SharedSecretReader
 ) {
@@ -192,23 +190,19 @@ class ApplicationConfig(
             .clientConnector(clientConnector())
 
     private fun clientConnector(ssl: Boolean = false): ReactorClientHttpConnector {
-        val httpClient =
-            HttpClient.create().compress(true)
-                .tcpConfiguration {
-                    it.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectionTimeout)
-                        .doOnConnected { connection ->
-                            connection.addHandlerLast(ReadTimeoutHandler(readTimeout, TimeUnit.MILLISECONDS))
-                            connection.addHandlerLast(WriteTimeoutHandler(writeTimeout, TimeUnit.MILLISECONDS))
-                        }
-                }.metrics(true) { _ -> "" }
+        val httpClient = HttpClient.create(
+            ConnectionProvider.builder("gobo-connection-provider").metrics(true).build()
+        )
+            .compress(true)
+            .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectionTimeout)
+            .responseTimeout(Duration.ofMillis(responseTimeout))
 
         if (ssl) {
             val sslProvider = SslProvider.builder().sslContext(
-                SslContextBuilder.forClient().trustManager(InsecureTrustManagerFactory.INSTANCE)
-            ).defaultConfiguration(SslProvider.DefaultConfigurationType.NONE).build()
-            httpClient.tcpConfiguration {
-                it.secure(sslProvider)
-            }
+                DefaultSslContextSpec.forClient()
+                    .configure { it.trustManager(InsecureTrustManagerFactory.INSTANCE) }
+            ).build()
+            httpClient.secure(sslProvider)
         }
 
         return ReactorClientHttpConnector(httpClient)

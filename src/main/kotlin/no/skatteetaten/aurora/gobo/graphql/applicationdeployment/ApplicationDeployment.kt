@@ -2,21 +2,21 @@ package no.skatteetaten.aurora.gobo.graphql.applicationdeployment
 
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
-import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentResource
-import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationResource
-import no.skatteetaten.aurora.gobo.integration.mokey.StatusCheckResource
 import no.skatteetaten.aurora.gobo.graphql.affiliation.Affiliation
 import no.skatteetaten.aurora.gobo.graphql.applicationdeploymentdetails.ApplicationDeploymentDetails
+import no.skatteetaten.aurora.gobo.graphql.auroraconfig.AuroraConfigFileResource
 import no.skatteetaten.aurora.gobo.graphql.imagerepository.ImageRepository
 import no.skatteetaten.aurora.gobo.graphql.imagerepository.ImageTag
 import no.skatteetaten.aurora.gobo.graphql.loadValue
 import no.skatteetaten.aurora.gobo.graphql.namespace.Namespace
 import no.skatteetaten.aurora.gobo.graphql.route.Route
+import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentResource
+import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationResource
+import no.skatteetaten.aurora.gobo.integration.mokey.StatusCheckResource
 import java.time.Instant
-import no.skatteetaten.aurora.gobo.graphql.auroraconfig.AuroraConfigFileResource
+import no.skatteetaten.aurora.gobo.graphql.toxiproxy.ToxiProxy
 import no.skatteetaten.aurora.gobo.graphql.toxiproxy.ToxiProxyDataLoader
 import no.skatteetaten.aurora.gobo.graphql.toxiproxy.ToxiProxyId
-import no.skatteetaten.aurora.gobo.graphql.toxiproxy.ToxiProxy
 
 data class StatusCheck(val name: String, val description: String, val failLevel: String, val hasFailed: Boolean)
 

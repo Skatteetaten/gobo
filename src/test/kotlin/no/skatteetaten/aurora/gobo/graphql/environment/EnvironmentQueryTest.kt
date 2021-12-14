@@ -2,23 +2,27 @@ package no.skatteetaten.aurora.gobo.graphql.environment
 
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.coEvery
+import io.mockk.coVerify
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentResourceBuilder
+import no.skatteetaten.aurora.gobo.DeploymentResourceBuilder
 import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithDbhAndSkap
 import no.skatteetaten.aurora.gobo.graphql.graphqlData
 import no.skatteetaten.aurora.gobo.graphql.graphqlDataWithPrefix
 import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
 import no.skatteetaten.aurora.gobo.integration.boober.EnvironmentDeploymentRef
-import no.skatteetaten.aurora.gobo.integration.boober.EnvironmentService
 import no.skatteetaten.aurora.gobo.integration.boober.EnvironmentResource
+import no.skatteetaten.aurora.gobo.integration.boober.EnvironmentService
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
+import no.skatteetaten.aurora.springboot.OpenShiftTokenIssuer
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
+import org.springframework.security.test.context.support.WithMockUser
 
-@Import(EnvironmentQuery::class, EnvironmentStatusDataLoader::class)
+@Import(EnvironmentQuery::class, EnvironmentStatusDataLoader::class, Environments::class)
 class EnvironmentQueryTest : GraphQLTestWithDbhAndSkap() {
 
     @Value("classpath:graphql/queries/getEnvironments.graphql")
@@ -36,23 +40,40 @@ class EnvironmentQueryTest : GraphQLTestWithDbhAndSkap() {
     @MockkBean
     private lateinit var environmentService: EnvironmentService
 
+    @MockkBean
+    private lateinit var openShiftTokenIssuer: OpenShiftTokenIssuer
+
+    @MockkBean
+    private lateinit var environmentsService: no.skatteetaten.aurora.gobo.integration.phil.EnvironmentService
+
     @BeforeEach
     fun setUp() {
         coEvery {
-            environmentService.getEnvironments("test-token", "utv")
+            environmentService.getEnvironments(any(), "utv")
         } returns createEnvironmentResources("utv", "gobo", "boober")
 
         coEvery {
-            environmentService.getEnvironments("test-token", "dev-utv")
+            environmentService.getEnvironments(any(), "dev-utv")
         } returns createEnvironmentResources("dev-utv", "mokey")
 
         coEvery {
-            applicationService.getApplicationDeployments(applicationDeploymentRefs = any())
+            applicationService.getApplicationDeployments(applicationDeploymentRefs = any(), any())
         } returns createApplicationDeployments("utv", "gobo", "boober")
+
+        coEvery {
+            environmentsService.getDeploymentStatus(any(), any())
+        } returns listOf(
+            DeploymentResourceBuilder().build("utv")
+        )
     }
 
+    @WithMockUser(authorities = [clientGroup])
     @Test
     fun `Get environments`() {
+        coEvery {
+            openShiftTokenIssuer.getToken()
+        } returns "token"
+
         webTestClient.queryGraphQL(getEnvironmentsQuery, mapOf("names" to listOf("utv", "dev-utv")), "test-token")
             .expectStatus().isOk
             .expectBody()
@@ -71,8 +92,11 @@ class EnvironmentQueryTest : GraphQLTestWithDbhAndSkap() {
                 graphqlData("applications[0].status.state").isEqualTo(EnvironmentStatusType.INACTIVE.name)
             }
             .graphqlDoesNotContainErrors()
+
+        coVerify(exactly = 1) { openShiftTokenIssuer.getToken() }
     }
 
+    @WithMockUser(authorities = [adminGroup])
     @Test
     fun `Get environments with autoDeploy`() {
         webTestClient.queryGraphQL(
@@ -88,8 +112,11 @@ class EnvironmentQueryTest : GraphQLTestWithDbhAndSkap() {
                 graphqlData("applications[0].name").isEqualTo("gobo")
             }
             .graphqlDoesNotContainErrors()
+
+        coVerify(exactly = 0) { openShiftTokenIssuer.getToken() }
     }
 
+    @WithMockUser(authorities = [adminGroup])
     @Test
     fun `Get environments name`() {
         webTestClient.queryGraphQL(
@@ -104,6 +131,8 @@ class EnvironmentQueryTest : GraphQLTestWithDbhAndSkap() {
                 graphqlData("affiliations[0].name").isEqualTo("aurora")
                 graphqlData("affiliations[0].applications.length()").isEqualTo(2)
             }
+
+        coVerify(exactly = 0) { openShiftTokenIssuer.getToken() }
     }
 
     private fun createEnvironmentResources(environment: String, vararg names: String) =

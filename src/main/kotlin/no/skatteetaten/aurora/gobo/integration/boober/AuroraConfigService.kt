@@ -2,18 +2,13 @@ package no.skatteetaten.aurora.gobo.integration.boober
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.node.TextNode
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.github.fge.jackson.jsonpointer.JsonPointer
-import com.github.fge.jsonpatch.AddOperation
-import com.github.fge.jsonpatch.JsonPatch
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.ServiceTypes
-import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentDetailsResource
-import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentRefResource
 import no.skatteetaten.aurora.gobo.graphql.auroraconfig.AuroraConfig
 import no.skatteetaten.aurora.gobo.graphql.auroraconfig.AuroraConfigFileResource
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
+import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentDetailsResource
+import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentRefResource
 import org.springframework.stereotype.Service
 import org.springframework.web.util.UriComponentsBuilder
 
@@ -37,16 +32,18 @@ class AuroraConfigService(
         token: String,
         auroraConfigName: String,
         environment: String,
-        application: String
+        application: String,
+        gitReference: String
     ): List<AuroraConfigFileResource> {
         return booberWebClient
             .get<AuroraConfigFileResource>(
-                url = "/v1/auroraconfig/{auroraConfigName}/files/{environment}/{application}",
+                url = "/v1/auroraconfig/{auroraConfigName}/files/{environment}/{application}?reference={gitReference}",
                 token = token,
                 params = mapOf(
                     "auroraConfigName" to auroraConfigName,
                     "environment" to environment,
-                    "application" to application
+                    "application" to application,
+                    "gitReference" to gitReference
                 )
             ).responses()
     }
@@ -114,26 +111,6 @@ class AuroraConfigService(
             .filter { it.type == AuroraConfigFileType.APP }
             .map { it.name }
             .first()
-    }
-
-    suspend fun patch(
-        token: String,
-        version: String,
-        auroraConfigFile: String,
-        applicationFile: String
-    ): AuroraConfigFileResource {
-        logger.debug { "patch, url=$auroraConfigFile applicationFile=$applicationFile" }
-
-        return booberWebClient.patch<AuroraConfigFileResource>(
-            token = token,
-            url = auroraConfigFile.replace("{fileName}", applicationFile),
-            body = createVersionPatch(version)
-        ).response()
-    }
-
-    private fun createVersionPatch(version: String): Map<String, String> {
-        val jsonPatch = JsonPatch(listOf(AddOperation(JsonPointer("/version"), TextNode(version))))
-        return mapOf("content" to jacksonObjectMapper().writeValueAsString(jsonPatch))
     }
 
     suspend fun redeploy(

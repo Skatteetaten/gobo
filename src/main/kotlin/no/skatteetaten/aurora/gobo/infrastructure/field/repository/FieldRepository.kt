@@ -1,8 +1,8 @@
 package no.skatteetaten.aurora.gobo.infrastructure.field.repository
 
 import mu.KotlinLogging
-import no.skatteetaten.aurora.gobo.infrastructure.field.FieldClient
 import no.skatteetaten.aurora.gobo.infrastructure.field.Field
+import no.skatteetaten.aurora.gobo.infrastructure.field.FieldClient
 import org.springframework.jdbc.core.ResultSetExtractor
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository

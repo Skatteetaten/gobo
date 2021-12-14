@@ -5,6 +5,8 @@ integrations:
         url: http://mokey-aurora.utv.paas.skead.no
     cantus:
         url: https://cantus-aurora.utv.paas.skead.no
+    phil:
+        url: https://phil-aurora.utv.paas.skead.no
     skap:
         url: http://localhost:9090
     docker:
@@ -56,9 +58,18 @@ kubernetes:
     url: https://utv-master.paas.skead.no:8443
 
 gobo:
+    graphql:
+        log:
+            operationend: true
+            operationstart: true
     graphqlUsage:
-        cron: "*/60 * * * * *" # every 60 seconds
+        fixedDelay: 60000 # every 60 seconds
 
 # logging.level.no.skatteetaten.aurora.gobo: DEBUG
 logging.level.no.skatteetaten.aurora.gobo.security: DEBUG
-logging.level.no.skatteetaten.aurora.kubernetes: DEBUG
+
+aurora:
+    openshift:
+        admin:
+            username: username
+            password: password

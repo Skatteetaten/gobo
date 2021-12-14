@@ -2,15 +2,15 @@ package no.skatteetaten.aurora.gobo.graphql.gobo
 
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
-import no.skatteetaten.aurora.gobo.infrastructure.client.Client
-import no.skatteetaten.aurora.gobo.infrastructure.field.FieldClient
-import no.skatteetaten.aurora.gobo.infrastructure.field.Field
 import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithDbhAndSkap
 import no.skatteetaten.aurora.gobo.graphql.graphqlData
 import no.skatteetaten.aurora.gobo.graphql.graphqlDataWithPrefix
 import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
+import no.skatteetaten.aurora.gobo.infrastructure.client.Client
 import no.skatteetaten.aurora.gobo.infrastructure.client.ClientService
+import no.skatteetaten.aurora.gobo.infrastructure.field.Field
+import no.skatteetaten.aurora.gobo.infrastructure.field.FieldClient
 import no.skatteetaten.aurora.gobo.infrastructure.field.FieldService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

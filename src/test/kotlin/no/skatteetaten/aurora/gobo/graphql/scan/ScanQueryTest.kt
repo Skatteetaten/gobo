@@ -3,11 +3,11 @@ package no.skatteetaten.aurora.gobo.graphql.scan
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.coEvery
 import no.skatteetaten.aurora.gobo.ProbeResultListBuilder
-import no.skatteetaten.aurora.gobo.integration.unclematt.ProbeService
 import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithDbhAndSkap
 import no.skatteetaten.aurora.gobo.graphql.graphqlDataWithPrefix
 import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
+import no.skatteetaten.aurora.gobo.integration.unclematt.ProbeService
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Import

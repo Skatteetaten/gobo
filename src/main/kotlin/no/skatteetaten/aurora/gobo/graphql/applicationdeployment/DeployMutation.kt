@@ -3,12 +3,12 @@ package no.skatteetaten.aurora.gobo.graphql.applicationdeployment
 import com.expediagroup.graphql.server.operations.Mutation
 import com.fasterxml.jackson.databind.JsonNode
 import graphql.schema.DataFetchingEnvironment
-import no.skatteetaten.aurora.gobo.integration.boober.ApplicationDeploymentService
-import no.skatteetaten.aurora.gobo.integration.boober.ApplyPayload
-import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentRefResource
 import no.skatteetaten.aurora.gobo.graphql.auroraconfig.ApplicationDeploymentSpec
 import no.skatteetaten.aurora.gobo.graphql.token
+import no.skatteetaten.aurora.gobo.integration.boober.ApplicationDeploymentService
+import no.skatteetaten.aurora.gobo.integration.boober.ApplyPayload
 import no.skatteetaten.aurora.gobo.integration.boober.responsesIgnoreStatus
+import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentRefResource
 import no.skatteetaten.aurora.gobo.security.checkValidUserToken
 import org.springframework.stereotype.Component
 
@@ -32,7 +32,7 @@ class DeployMutation(
 
         val booberResponse =
             applicationDeploymentService.deploy(
-                dfe.token(),
+                dfe.token,
                 input.auroraConfigName,
                 input.auroraConfigReference,
                 payload

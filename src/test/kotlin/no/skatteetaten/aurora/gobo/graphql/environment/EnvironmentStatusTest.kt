@@ -6,18 +6,25 @@ import no.skatteetaten.aurora.gobo.ApplicationDeploymentResourceBuilder
 import org.junit.jupiter.api.Test
 
 class EnvironmentStatusTest {
-
     @Test
-    fun `Create environment status for ApplicationDeployment with null value`() {
-        val status = EnvironmentStatus.create(null)
-        assertThat(status.state).isEqualTo(EnvironmentStatusType.INACTIVE)
+    fun `Create environment status for ApplicationDeployment with failed status`() {
+        val ad = ApplicationDeploymentResourceBuilder(status = "DOWN").build()
+        val status = EnvironmentStatus.create(ad)
+        assertThat(status.state).isEqualTo(EnvironmentStatusType.FAILED)
     }
 
     @Test
-    fun `Create environment status for ApplicationDeployment with failed status`() {
-        val ad = ApplicationDeploymentResourceBuilder(status = "FAILED").build()
+    fun `Create environment status for ApplicationDeployment with observe status`() {
+        val ad = ApplicationDeploymentResourceBuilder(status = "OBSERVE").build()
         val status = EnvironmentStatus.create(ad)
-        assertThat(status.state).isEqualTo(EnvironmentStatusType.FAILED)
+        assertThat(status.state).isEqualTo(EnvironmentStatusType.COMPLETED)
+    }
+
+    @Test
+    fun `Create environment status for ApplicationDeployment with off status`() {
+        val ad = ApplicationDeploymentResourceBuilder(status = "OFF").build()
+        val status = EnvironmentStatus.create(ad)
+        assertThat(status.state).isEqualTo(EnvironmentStatusType.INACTIVE)
     }
 
     @Test
@@ -25,5 +32,12 @@ class EnvironmentStatusTest {
         val ad = ApplicationDeploymentResourceBuilder().build()
         val status = EnvironmentStatus.create(ad)
         assertThat(status.state).isEqualTo(EnvironmentStatusType.COMPLETED)
+    }
+
+    @Test
+    fun `Create environment status for ApplicationDeployment with unknown status`() {
+        val ad = ApplicationDeploymentResourceBuilder(status = "SOME_BOGUS_STATE").build()
+        val status = EnvironmentStatus.create(ad)
+        assertThat(status.state).isEqualTo(EnvironmentStatusType.FAILED)
     }
 }

@@ -1,9 +1,9 @@
 package no.skatteetaten.aurora.gobo.integration.boober
 
-import org.springframework.stereotype.Service
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.GoboException
 import no.skatteetaten.aurora.gobo.graphql.vault.Secret
+import org.springframework.stereotype.Service
 
 data class BooberVaultInput(
     val name: String,

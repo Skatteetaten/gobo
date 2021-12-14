@@ -20,7 +20,8 @@ class RouteServiceTest {
     }
     private val jobService = RouteServiceReactive(
         sharedSecretReader,
-        WebClient.create(server.url("/").toString())
+        WebClient.create(server.url("/").toString()),
+        "utv"
     )
 
     @Test

@@ -2,12 +2,12 @@ package no.skatteetaten.aurora.gobo.graphql.environment
 
 import com.expediagroup.graphql.server.operations.Mutation
 import graphql.schema.DataFetchingEnvironment
-import java.time.Instant
 import no.skatteetaten.aurora.gobo.graphql.token
 import no.skatteetaten.aurora.gobo.integration.phil.DeletionResource
 import no.skatteetaten.aurora.gobo.integration.phil.EnvironmentService
 import no.skatteetaten.aurora.gobo.security.checkValidUserToken
 import org.springframework.stereotype.Component
+import java.time.Instant
 
 @Component
 class DeleteEnvironmentMutation(
@@ -16,26 +16,30 @@ class DeleteEnvironmentMutation(
     suspend fun deleteEnvironment(
         input: DeleteEnvironmentInput,
         dfe: DataFetchingEnvironment
-    ): List<DeleteEnvironmentResponse>? {
+    ): List<DeleteEnvironmentResponse> {
         dfe.checkValidUserToken()
-        return environmentService.deleteEnvironment(input.environment, dfe.token())
-            .let { it.toDeleteEnvironmentResult() }
+
+        return environmentService.deleteEnvironment(
+            input.environment,
+            dfe.token
+        ).let {
+            it.toDeleteEnvironmentResult()
+        } ?: emptyList()
     }
 
-    private fun List<DeletionResource>?.toDeleteEnvironmentResult() =
-        this?.map {
-            DeleteEnvironmentResponse(
-                deploymentRef = DeploymentRef(
-                    it.deploymentRef.cluster,
-                    it.deploymentRef.affiliation,
-                    it.deploymentRef.environment,
-                    it.deploymentRef.application
-                ),
-                timestamp = it.timestamp.toInstant(),
-                message = it.message,
-                deleted = it.deleted
-            )
-        }
+    private fun List<DeletionResource>?.toDeleteEnvironmentResult() = this?.map {
+        DeleteEnvironmentResponse(
+            deploymentRef = DeploymentRef(
+                it.deploymentRef.cluster,
+                it.deploymentRef.affiliation,
+                it.deploymentRef.environment,
+                it.deploymentRef.application
+            ),
+            timestamp = it.timestamp.toInstant(),
+            message = it.message,
+            deleted = it.deleted,
+        )
+    }
 }
 
 data class DeleteEnvironmentInput(val environment: String)

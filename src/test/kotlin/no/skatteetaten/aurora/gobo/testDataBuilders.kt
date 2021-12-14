@@ -16,8 +16,8 @@ import no.skatteetaten.aurora.gobo.graphql.webseal.Acl
 import no.skatteetaten.aurora.gobo.integration.boober.ApplicationDeploymentFilterResource
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileType
 import no.skatteetaten.aurora.gobo.integration.boober.BooberEnvironmentDeploymentRef
-import no.skatteetaten.aurora.gobo.integration.boober.BooberVault
 import no.skatteetaten.aurora.gobo.integration.boober.BooberEnvironmentResource
+import no.skatteetaten.aurora.gobo.integration.boober.BooberVault
 import no.skatteetaten.aurora.gobo.integration.cantus.AuroraResponse
 import no.skatteetaten.aurora.gobo.integration.cantus.CantusFailure
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageBuildTimeline
@@ -49,6 +49,10 @@ import no.skatteetaten.aurora.gobo.integration.mokey.PodResourceResource
 import no.skatteetaten.aurora.gobo.integration.mokey.StatusResource
 import no.skatteetaten.aurora.gobo.integration.mokey.VersionResource
 import no.skatteetaten.aurora.gobo.integration.mokey.addAll
+import no.skatteetaten.aurora.gobo.integration.phil.DeletionResource
+import no.skatteetaten.aurora.gobo.integration.phil.DeploymentRefResource
+import no.skatteetaten.aurora.gobo.integration.phil.DeploymentResource
+import no.skatteetaten.aurora.gobo.integration.phil.DeploymentStatus
 import no.skatteetaten.aurora.gobo.integration.skap.SkapJob
 import no.skatteetaten.aurora.gobo.integration.skap.WebsealStateResource
 import no.skatteetaten.aurora.gobo.integration.unclematt.ProbeResult
@@ -61,10 +65,6 @@ import uk.q3c.rest.hal.HalResource
 import uk.q3c.rest.hal.Links
 import java.time.Instant
 import java.util.Date
-import no.skatteetaten.aurora.gobo.integration.phil.DeletionResource
-import no.skatteetaten.aurora.gobo.integration.phil.DeploymentRefResource
-import no.skatteetaten.aurora.gobo.integration.phil.DeploymentResource
-import no.skatteetaten.aurora.gobo.integration.phil.DeploymentStatus
 
 val defaultInstant: Instant = Instant.parse("2018-01-01T00:00:01Z")
 
@@ -672,12 +672,11 @@ data class CnameInfoBuilder(val namespace: String = "aurora-demo") {
 }
 
 class DeploymentResourceBuilder {
-    fun build() = DeploymentResource(
-        deploymentRef = DeploymentRefResource("utv", "aurora", "dev-utv", "gobo"),
-        deployId = "123",
+    fun build(environment: String = "dev-utv") = DeploymentResource(
+        deploymentRef = DeploymentRefResource("utv", "aurora", environment, "gobo"),
         timestamp = Date(),
         message = "",
-        status = DeploymentStatus.SUCCESS
+        status = DeploymentStatus.APPLIED
     )
 }
 

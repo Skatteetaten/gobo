@@ -1,5 +1,0 @@
-mutation redeployWithVersion($input: ApplicationDeploymentVersionInput!) {
-    redeployWithVersion(input: $input) {
-      applicationDeploymentId
-    }
-}

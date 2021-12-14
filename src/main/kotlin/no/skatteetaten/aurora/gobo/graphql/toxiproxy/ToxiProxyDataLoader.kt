@@ -8,10 +8,11 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fkorotkov.kubernetes.metadata
 import com.fkorotkov.kubernetes.newPod
 import no.skatteetaten.aurora.gobo.graphql.GoboDataLoader
-import no.skatteetaten.aurora.gobo.graphql.GoboGraphQLContext
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import no.skatteetaten.aurora.kubernetes.KubernetesCoroutinesClient
 import org.springframework.stereotype.Component
+import graphql.GraphQLContext
+import no.skatteetaten.aurora.gobo.graphql.token
 
 @Component
 class ToxiProxyDataLoader(
@@ -19,9 +20,9 @@ class ToxiProxyDataLoader(
     private val kubernetesClient: KubernetesCoroutinesClient
 ) : GoboDataLoader<ToxiProxyId, List<ToxiProxy>>() {
 
-    override suspend fun getByKeys(keys: Set<ToxiProxyId>, ctx: GoboGraphQLContext): Map<ToxiProxyId, List<ToxiProxy>> {
+    override suspend fun getByKeys(keys: Set<ToxiProxyId>, ctx: GraphQLContext): Map<ToxiProxyId, List<ToxiProxy>> {
         return keys.associateWith { id ->
-            val applicationDeploymentDetails = applicationService.getApplicationDeploymentDetails(ctx.token(), id.applicationDeploymentId)
+            val applicationDeploymentDetails = applicationService.getApplicationDeploymentDetails(ctx.token, id.applicationDeploymentId)
             applicationDeploymentDetails.podResources.flatMap { pod ->
                 val pods = pod.containers.mapNotNull {
                     container ->
@@ -44,7 +45,7 @@ class ToxiProxyDataLoader(
                             name = podName
                         }
                     }
-                    val json = kubernetesClient.proxyGet<JsonNode>(pod = podInput, port = 8474, path = "proxies", token = ctx.token())
+                    val json = kubernetesClient.proxyGet<JsonNode>(pod = podInput, port = 8474, path = "proxies", token = ctx.token)
                     val toxiProxy = jacksonObjectMapper().convertValue<ToxiProxy>(json.at("/app"))
                     toxiProxy.copy(podName = podName)
                 }

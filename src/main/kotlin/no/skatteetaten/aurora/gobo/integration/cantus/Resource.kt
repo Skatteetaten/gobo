@@ -1,7 +1,7 @@
 package no.skatteetaten.aurora.gobo.integration.cantus
 
-import java.time.Instant
 import uk.q3c.rest.hal.HalResource
+import java.time.Instant
 
 data class TagResource(val name: String, val type: ImageTagType = ImageTagType.typeOf(name)) : HalResource()
 

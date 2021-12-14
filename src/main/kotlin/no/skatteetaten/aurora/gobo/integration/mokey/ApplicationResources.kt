@@ -1,9 +1,9 @@
 package no.skatteetaten.aurora.gobo.integration.mokey
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import java.time.Instant
 import uk.q3c.rest.hal.HalResource
 import uk.q3c.rest.hal.Links
+import java.time.Instant
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class StatusCheckResource(val name: String, val description: String, val failLevel: String, val hasFailed: Boolean)
@@ -133,6 +133,7 @@ data class ApplicationDeploymentResource(
     val message: String?
 ) : HalResource() {
 
+    @Suppress("PrivatePropertyName")
     private val APPLICATION_REL = "Application"
 
     val applicationId: String
@@ -140,7 +141,11 @@ data class ApplicationDeploymentResource(
 
     private val String.idPart: String get() = split("/").last()
 
-    fun success() = status.code == "HEALTHY"
+    fun failed() = status.code == "DOWN"
+    fun success() = status.code == "HEALTHY" || status.code == "OBSERVE"
+    fun inactive() = status.code == "OFF"
+    fun inProgress() = !success() && !failed()
+    fun unknown() = !failed() && !success() && !inactive()
 }
 
 @JsonIgnoreProperties(ignoreUnknown = true)

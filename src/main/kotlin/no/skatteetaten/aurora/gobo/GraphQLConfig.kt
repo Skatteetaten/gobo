@@ -9,6 +9,7 @@ import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.graphql.GoboInstrumentation
 import no.skatteetaten.aurora.gobo.graphql.scalars.InstantScalar
 import no.skatteetaten.aurora.gobo.graphql.scalars.JsonNodeScalar
+import no.skatteetaten.aurora.gobo.graphql.scalars.KotlinLongScalar
 import no.skatteetaten.aurora.gobo.graphql.scalars.UrlScalar
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
@@ -51,7 +52,10 @@ class GraphQLConfig(
     @Bean
     fun hooks() = GoboSchemaGeneratorHooks()
 
-    @Scheduled(cron = "\${gobo.graphqlUsage.cron:0 15 1 * * ?}")
+    /**
+     * Wait 5 minutes for initial update, then wait 60 minutes between updates (can be configured)
+     */
+    @Scheduled(initialDelay = 300000, fixedDelayString = "\${gobo.graphqlUsage.fixedDelay:3600000}")
     fun updateGraphqlUsage() {
         logger.info { "Running scheduled job to update usage data at ${LocalDateTime.now()}" }
         goboInstrumentation.update()
@@ -61,6 +65,7 @@ class GraphQLConfig(
 class GoboSchemaGeneratorHooks : SchemaGeneratorHooks {
 
     override fun willGenerateGraphQLType(type: KType): GraphQLType? = when (type.classifier) {
+        Long::class -> longType
         Instant::class -> instantType
         URL::class -> urlType
         JsonNode::class -> jsonNodeType
@@ -71,6 +76,12 @@ class GoboSchemaGeneratorHooks : SchemaGeneratorHooks {
         .name("Instant")
         .description("A type representing java.time.Instant")
         .coercing(InstantScalar)
+        .build()
+
+    private val longType = GraphQLScalarType.newScalar()
+        .name("Long")
+        .description("A type representing kotlin.Long")
+        .coercing(KotlinLongScalar)
         .build()
 
     private val jsonNodeType = GraphQLScalarType.newScalar()

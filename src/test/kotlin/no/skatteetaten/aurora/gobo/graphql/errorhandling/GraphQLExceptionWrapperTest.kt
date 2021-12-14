@@ -11,8 +11,8 @@ import io.mockk.every
 import io.mockk.mockk
 import no.skatteetaten.aurora.gobo.GoboException
 import no.skatteetaten.aurora.gobo.ServiceTypes
+import no.skatteetaten.aurora.gobo.graphql.korrelasjonsid
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
-import no.skatteetaten.aurora.gobo.graphql.GoboGraphQLContext
 import org.junit.jupiter.api.Test
 import org.springframework.security.access.AccessDeniedException
 
@@ -21,7 +21,7 @@ class GraphQLExceptionWrapperTest {
         .newExceptionParameters()
         .dataFetchingEnvironment(
             mockk(relaxed = true) {
-                every { getContext<GoboGraphQLContext>() } returns mockk(relaxed = true)
+                every { korrelasjonsid } returns "abc123"
             }
         )
 

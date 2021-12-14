@@ -1,8 +1,11 @@
 package no.skatteetaten.aurora.gobo.graphql
 
 import graphql.ExecutionInput
+import graphql.ExecutionResult
 import graphql.execution.ExecutionContext
+import graphql.execution.instrumentation.InstrumentationContext
 import graphql.execution.instrumentation.SimpleInstrumentation
+import graphql.execution.instrumentation.parameters.InstrumentationExecuteOperationParameters
 import graphql.execution.instrumentation.parameters.InstrumentationExecutionParameters
 import graphql.language.SelectionSet
 import mu.KotlinLogging
@@ -18,20 +21,24 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.server.ServerRequest
+import java.time.LocalDateTime
+import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.LongAdder
 import javax.annotation.PreDestroy
 
 private val logger = KotlinLogging.logger { }
 
-private fun String.isNotIntrospectionQuery() = !startsWith("query IntrospectionQuery")
+private fun String.isNotIntrospectionQuery() = !contains("IntrospectionQuery")
 
 @Component
 class GoboInstrumentation(
     private val fieldService: FieldService,
     private val clientService: ClientService,
     private val queryCache: QueryCache? = null,
-    @Value("\${gobo.graphql.logqueries:}") private val logQueries: Boolean? = false
+    @Value("\${gobo.graphql.log.queries:}") private val logQueries: Boolean? = false,
+    @Value("\${gobo.graphql.log.operationstart:}") private val logOperationStart: Boolean? = false,
+    @Value("\${gobo.graphql.log.operationend:}") private val logOperationEnd: Boolean? = false,
 ) : SimpleInstrumentation() {
     val fieldUsage = FieldUsage()
     val clientUsage = ClientUsage()
@@ -41,7 +48,7 @@ class GoboInstrumentation(
         val numOfFields = fieldUsage.fields.entries.count { it.value.sum() > 0 }
         val numOfClients = clientUsage.clients.entries.count { it.value.sum() > 0 }
         if (numOfFields > 0 || numOfClients > 0) {
-            logger.info("Updating $numOfFields fields and $numOfClients clients")
+            logger.debug("Updating $numOfFields fields and $numOfClients clients")
         }
 
         fieldUsage.getAndResetFieldUsage().forEach {
@@ -58,7 +65,7 @@ class GoboInstrumentation(
         parameters: InstrumentationExecutionParameters?
     ): ExecutionInput {
         executionInput?.let {
-            val context = (executionInput.context as GoboGraphQLContext)
+            val context = executionInput.graphQLContext
             val queryText = it.query.removeNewLines().let { query ->
                 if (query.trimStart().startsWith("mutation")) {
                     """mutation="$query" - variable-keys=${it.variables.keys}"""
@@ -68,7 +75,6 @@ class GoboInstrumentation(
                 }
             }
 
-            context.query = queryText
             if (queryText.isNotIntrospectionQuery()) {
                 queryCache?.let { cache ->
                     val request = context.request
@@ -100,6 +106,36 @@ class GoboInstrumentation(
         val selection = this.selections?.first()
         return !(selection is graphql.language.Field && selection.name.startsWith("__schema"))
     }
+
+    override fun beginExecuteOperation(parameters: InstrumentationExecuteOperationParameters?): InstrumentationContext<ExecutionResult> {
+        val context = parameters?.executionContext?.graphQLContext
+            ?: throw IllegalStateException("No GraphQL context registered")
+
+        parameters.executionContext?.operationDefinition?.let {
+            context.apply {
+                putQuery(parameters.executionContext.executionInput.query)
+                putOperationType(it.operation?.name)
+                putOperationName(it.name)
+                addStartTime()
+
+                if (logOperationStart == true && operationName.isNotIntrospectionQuery()) {
+                    logger.info { "Starting type=$operationType name=$operationName at ${LocalDateTime.now()}" }
+                }
+            }
+        }
+        return super.beginExecuteOperation(parameters)
+    }
+
+    override fun instrumentExecutionResult(executionResult: ExecutionResult?, parameters: InstrumentationExecutionParameters?): CompletableFuture<ExecutionResult> {
+        parameters?.graphQLContext?.let {
+            if (logOperationEnd == true && it.operationName.isNotIntrospectionQuery()) {
+                val hostString = it.request.remoteAddress().get().hostString
+                logger.info { """Completed type=${it.operationType} name=${it.operationName} timeUsed=${System.currentTimeMillis() - it.startTime}ms, Korrelasjonsid=${it.korrelasjonsid} Klientid="${it.klientid}" hostString="$hostString", number of errors ${executionResult?.errors?.size}""" }
+            }
+        }
+
+        return super.instrumentExecutionResult(executionResult, parameters)
+    }
 }
 
 class FieldUsage {
@@ -112,7 +148,7 @@ class FieldUsage {
         selectionSet?.selections?.map {
             if (it is graphql.language.Field) {
                 val fullName = if (parent == null) it.name else "$parent.${it.name}"
-                val clientId: String? = executionContext?.getContext<GoboGraphQLContext>()?.request?.klientid()
+                val clientId: String? = executionContext?.graphQLContext?.klientid
                 _fields.computeIfAbsent(fullName) { LongAdder() }.increment()
                 clientId?.let { it1 -> GoboFieldUser(fullName, it1) }
                     ?.let { it2 -> _fieldUsers.computeIfAbsent(it2) { LongAdder() }.increment() }
@@ -138,7 +174,7 @@ class ClientUsage {
 
     fun update(executionContext: ExecutionContext?) {
         try {
-            executionContext?.getContext<GoboGraphQLContext>()?.request?.klientid()?.let {
+            executionContext?.graphQLContext?.klientid?.let {
                 clients.computeIfAbsent(it) { LongAdder() }.increment()
             }
         } catch (e: Throwable) {

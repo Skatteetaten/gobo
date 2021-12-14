@@ -1,7 +1,8 @@
 package no.skatteetaten.aurora.gobo.graphql.applicationdeployment
 
+import graphql.GraphQLContext
 import no.skatteetaten.aurora.gobo.graphql.GoboDataLoader
-import no.skatteetaten.aurora.gobo.graphql.GoboGraphQLContext
+import no.skatteetaten.aurora.gobo.graphql.token
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import org.springframework.stereotype.Component
 
@@ -11,9 +12,9 @@ class ApplicationDeploymentDataLoader(private val applicationService: Applicatio
 
     override suspend fun getByKeys(
         databaseIds: Set<String>,
-        context: GoboGraphQLContext
+        context: GraphQLContext
     ): Map<String, List<ApplicationDeployment>> {
-        val resources = applicationService.getApplicationDeploymentsForDatabases(context.token(), databaseIds.toList())
+        val resources = applicationService.getApplicationDeploymentsForDatabases(context.token, databaseIds.toList())
         return databaseIds.associateWith { id ->
             resources.filter { it.identifier == id }.flatMap {
                 it.applicationDeployments.map { ad -> ApplicationDeployment.create(ad) }

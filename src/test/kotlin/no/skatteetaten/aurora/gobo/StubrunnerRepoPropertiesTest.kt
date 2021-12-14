@@ -3,10 +3,10 @@ package no.skatteetaten.aurora.gobo
 import assertk.Assert
 import assertk.assertThat
 import assertk.assertions.support.expected
-import java.util.function.Supplier
 import org.junit.jupiter.api.Test
 import org.junitpioneer.jupiter.SetEnvironmentVariable
 import org.springframework.test.context.DynamicPropertyRegistry
+import java.util.function.Supplier
 
 class TestDynamicPropertyRegistry : DynamicPropertyRegistry {
     val properties: MutableMap<String, String> = mutableMapOf()
@@ -19,7 +19,7 @@ class TestDynamicPropertyRegistry : DynamicPropertyRegistry {
 class StubrunnerRepoPropertiesTest {
 
     @Test
-    fun `Populate stubrunner properties from maven settings`() {
+    fun `Populate stubrunner properties from local config`() {
         val registry = TestDynamicPropertyRegistry()
         StubrunnerRepoProperties(registry).populate()
 

@@ -2,6 +2,7 @@ package no.skatteetaten.aurora.gobo.graphql.applicationdeployment
 
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.coEvery
+import no.skatteetaten.aurora.gobo.ApplicationDeploymentDetailsBuilder
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentResourceBuilder
 import no.skatteetaten.aurora.gobo.ImageTagResourceBuilder
 import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithoutDbhAndSkap
@@ -21,7 +22,6 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
-import no.skatteetaten.aurora.gobo.ApplicationDeploymentDetailsBuilder
 
 @Import(
     ApplicationDeploymentQuery::class,
@@ -47,7 +47,7 @@ class ApplicationDeploymentQueryWithoutSkapTest : GraphQLTestWithoutDbhAndSkap()
 
     @BeforeEach
     fun setUp() {
-        coEvery { applicationService.getApplicationDeployment(any<String>()) } returns ApplicationDeploymentResourceBuilder(
+        coEvery { applicationService.getApplicationDeployment(any()) } returns ApplicationDeploymentResourceBuilder(
             id = "123",
             msg = "Hei"
         ).build()

@@ -7,7 +7,6 @@ import com.expediagroup.graphql.server.spring.GraphQLAutoConfiguration
 import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
 import no.skatteetaten.aurora.gobo.graphql.auroraconfig.AuroraConfig
-import no.skatteetaten.aurora.gobo.graphql.auroraconfig.AuroraConfigFileResource
 import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.testObjectMapper
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.executeBlocking
@@ -28,7 +27,11 @@ import org.springframework.test.context.DynamicPropertySource
 import org.springframework.util.SocketUtils
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.bodyToMono
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import no.skatteetaten.aurora.gobo.ApplicationDeploymentDetailsBuilder
+import no.skatteetaten.aurora.gobo.DisableIfJenkins
 
+@DisableIfJenkins
 @AutoConfigureMetrics
 @EnableAutoConfiguration(
     exclude = [
@@ -39,7 +42,7 @@ import org.springframework.web.reactive.function.client.bodyToMono
     ]
 )
 @SpringBootTest(
-    classes = [ PrometheusMetricsTest.TestConfig::class, AuroraConfigService::class, BooberWebClient::class ],
+    classes = [PrometheusMetricsTest.TestConfig::class, AuroraConfigService::class, BooberWebClient::class],
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     properties = ["boober.metrics.enabled=true"]
 )
@@ -75,10 +78,14 @@ class PrometheusMetricsTest {
     @Test
     fun `WebClient metrics from prometheus`() {
         val response1 = Response(AuroraConfig("aurora", "master", "master", emptyList()))
-        val response2 = Response(AuroraConfigFileResource("name", "", AuroraConfigFileType.APP, ""))
+        val response2 = Response(redeployResponse())
         server.executeBlocking(response1, response2) {
             auroraConfigService.getAuroraConfig(token = "token", auroraConfig = "aurora", reference = "master")
-            auroraConfigService.patch(token = "token", version = "1", auroraConfigFile = "/v1/{fileName}", applicationFile = "app")
+            auroraConfigService.redeploy(
+                token = "token",
+                ApplicationDeploymentDetailsBuilder().build(),
+                "http://localhost:$port/boober/v1/auroraconfig/Apply"
+            )
         }
 
         val result = WebClient.create("http://localhost:$port")
@@ -89,6 +96,9 @@ class PrometheusMetricsTest {
             .block()
 
         assertThat(result).isNotNull().contains("/v2/auroraconfig/{auroraConfig}?reference={reference}")
-        assertThat(result).isNotNull().contains("/v1/app")
+        assertThat(result).isNotNull().contains("/v1/auroraconfig/Apply")
     }
+
+    private fun redeployResponse() =
+        Response(jacksonObjectMapper().readTree("""{ "applicationDeploymentId": "123" }"""))
 }

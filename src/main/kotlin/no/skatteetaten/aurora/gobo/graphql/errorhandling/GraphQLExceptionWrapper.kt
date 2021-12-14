@@ -8,7 +8,7 @@ import graphql.execution.ResultPath
 import graphql.language.SourceLocation
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.GoboException
-import no.skatteetaten.aurora.gobo.graphql.GoboGraphQLContext
+import no.skatteetaten.aurora.gobo.graphql.korrelasjonsid
 import no.skatteetaten.aurora.webflux.AuroraRequestParser
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.web.reactive.function.client.WebClientResponseException
@@ -31,7 +31,7 @@ class GraphQLExceptionWrapper private constructor(
         exception = handlerParameters.exception,
         location = handlerParameters.sourceLocation,
         resultPath = handlerParameters.path,
-        korrelasjonsId = handlerParameters.dataFetchingEnvironment.getContext<GoboGraphQLContext>()?.korrelasjonsid()
+        korrelasjonsId = handlerParameters.dataFetchingEnvironment.korrelasjonsid
     )
 
     constructor(exceptionWhileDataFetching: ExceptionWhileDataFetching) : this(

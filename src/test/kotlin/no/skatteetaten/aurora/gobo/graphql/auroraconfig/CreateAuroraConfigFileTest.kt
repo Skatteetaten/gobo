@@ -2,12 +2,12 @@ package no.skatteetaten.aurora.gobo.graphql.auroraconfig
 
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.coEvery
-import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileType.DEFAULT
-import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigService
 import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithDbhAndSkap
 import no.skatteetaten.aurora.gobo.graphql.graphqlDataWithPrefix
 import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
+import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileType.DEFAULT
+import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value

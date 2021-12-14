@@ -1,7 +1,7 @@
 package no.skatteetaten.aurora.gobo.security
 
 import graphql.schema.DataFetchingEnvironment
-import no.skatteetaten.aurora.gobo.graphql.GoboGraphQLContext
+import no.skatteetaten.aurora.gobo.graphql.securityContext
 import no.skatteetaten.aurora.springboot.AuroraAuthenticationToken
 import no.skatteetaten.aurora.springboot.anonymousAuthenticationToken
 import org.springframework.stereotype.Component
@@ -13,12 +13,12 @@ import org.springframework.stereotype.Component
 class GoboExpressions {
 
     fun isAnonymousUser(dfe: DataFetchingEnvironment) =
-        dfe.getContext<GoboGraphQLContext>().securityContext.map {
+        dfe.graphQlContext.securityContext.map {
             (it.authentication as AuroraAuthenticationToken) == anonymousAuthenticationToken
         }
 
     fun isNotAnonymousUser(dfe: DataFetchingEnvironment) =
-        dfe.getContext<GoboGraphQLContext>().securityContext.map {
+        dfe.graphQlContext.securityContext.map {
             (it.authentication as AuroraAuthenticationToken) != anonymousAuthenticationToken
         }
 }
