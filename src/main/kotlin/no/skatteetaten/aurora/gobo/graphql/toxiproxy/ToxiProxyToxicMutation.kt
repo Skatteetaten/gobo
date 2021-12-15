@@ -7,8 +7,8 @@ import org.springframework.stereotype.Component
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import graphql.schema.DataFetchingEnvironment
 import no.skatteetaten.aurora.gobo.graphql.token
-import no.skatteetaten.aurora.gobo.integration.toxiproxy.AddKubeToxicOp
-import no.skatteetaten.aurora.gobo.integration.toxiproxy.DeleteKubeToxicOp
+import no.skatteetaten.aurora.gobo.integration.toxiproxy.AddToxicKubeClient
+import no.skatteetaten.aurora.gobo.integration.toxiproxy.DeleteToxicKubeClient
 import no.skatteetaten.aurora.gobo.integration.toxiproxy.ToxiProxyToxicContext
 import no.skatteetaten.aurora.gobo.integration.toxiproxy.ToxicInputSerializer
 import no.skatteetaten.aurora.gobo.security.ifValidUserToken
@@ -33,7 +33,7 @@ class ToxiProxyToxicMutation(
                 applicationName = input.application,
                 toxiProxyListenPort = toxiProxyListenPort
             )
-            val addKubeClientOp = AddKubeToxicOp(toxiProxyToxicCtx, input.toxiProxy, kubernetesClient)
+            val addKubeClientOp = AddToxicKubeClient(toxiProxyToxicCtx, input.toxiProxy, kubernetesClient)
             toxiProxyToxicService.manageToxiProxyToxic(toxiProxyToxicCtx, addKubeClientOp)
         }
         return ToxiProxyToxicsResponse(input.toxiProxy.name, input.toxiProxy.toxics.name)
@@ -51,8 +51,8 @@ class ToxiProxyToxicMutation(
                 applicationName = input.application,
                 toxiProxyListenPort = toxiProxyListenPort
             )
-            val deleteKubeClientOp = DeleteKubeToxicOp(toxiProxyToxicCtx, input, kubernetesClient)
-            toxiProxyToxicService.manageToxiProxyToxic(toxiProxyToxicCtx, deleteKubeClientOp) // TODO: response
+            val deleteKubeClientOp = DeleteToxicKubeClient(toxiProxyToxicCtx, input, kubernetesClient)
+            toxiProxyToxicService.manageToxiProxyToxic(toxiProxyToxicCtx, deleteKubeClientOp)
         }
         return ToxiProxyToxicsResponse(input.toxiProxyName, input.toxicName)
     }
@@ -80,7 +80,7 @@ data class ToxiProxyInput(val name: String, val toxics: ToxicInput)
 @JsonSerialize(using = ToxicInputSerializer::class)
 data class ToxicInput(
     val name: String,
-    val type: String, // TODO: Kun name bør være mandatory, resten optional ?
+    val type: String,
     val stream: String,
     val toxicity: Int,
     val attributes: List<ToxicAttributeInput>

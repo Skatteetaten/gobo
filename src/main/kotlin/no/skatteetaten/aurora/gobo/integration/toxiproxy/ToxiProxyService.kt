@@ -9,6 +9,7 @@ import com.fkorotkov.kubernetes.metadata
 import com.fkorotkov.kubernetes.newPod
 import io.fabric8.kubernetes.api.model.Pod
 import mu.KotlinLogging
+import no.skatteetaten.aurora.gobo.GoboException
 import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.ApplicationDeploymentRef
 import no.skatteetaten.aurora.gobo.graphql.toxiproxy.DeleteToxiProxyToxicsInput
 import no.skatteetaten.aurora.gobo.graphql.toxiproxy.ToxiProxyInput
@@ -23,24 +24,30 @@ class ToxiProxyToxicService(
     private val applicationService: ApplicationService
 ) {
 
-    suspend fun manageToxiProxyToxic(toxiProxyToxicCtx: ToxiProxyToxicContext, clientOp: KubernetesClientOp) {
+    suspend fun manageToxiProxyToxic(toxiProxyToxicCtx: ToxiProxyToxicContext, kubeClient: KubernetesClientProxy) {
         applicationService.getApplicationDeployments(
             listOf(ApplicationDeploymentRef(toxiProxyToxicCtx.environmentName, toxiProxyToxicCtx.applicationName))
         ).map { resource ->
             val applicationDeploymentDetails =
                 applicationService.getApplicationDeploymentDetails(toxiProxyToxicCtx.token, resource.identifier)
             applicationDeploymentDetails.podResources.forEach { pod ->
-                if(pod.hasToxiProxySidecar()) {
+                if (pod.hasToxiProxySidecar()) {
                     val environment =
-                            applicationDeploymentDetails.applicationDeploymentCommand.applicationDeploymentRef.environment
+                        applicationDeploymentDetails.applicationDeploymentCommand.applicationDeploymentRef.environment
                     val p = newPod {
                         metadata {
                             namespace = "${resource.affiliation}-$environment"
                             name = pod.name
                         }
                     }
-                    val json = clientOp.callOp(p)
-                    logger.debug { "json response from kubernetes client: $json" }
+                    runCatching {
+                        val jsonResponse = kubeClient.callOp(p)
+                        logger.debug { "Kubernetes client response: $jsonResponse" }
+                        if (jsonResponse?.isFailure == true) throw GoboException("Kubernetes client response is empty")
+                    }.onFailure { error: Throwable ->
+                        logger.error { "Call to kubernetes client failed: ${error.message} " }
+                        throw GoboException("Kubernetes client operation failed on toxoProxy ${kubeClient.toxiProxyName()} ${error.message}")
+                    }
                 }
             }
         }
@@ -64,7 +71,6 @@ class ToxicInputSerializer : StdSerializer<ToxicInput>(ToxicInput::class.java) {
                         it.writeNumberField(attribute.key, num)
                     } ?: it.writeStringField(attribute.key, attribute.value)
                 }
-
                 it.writeEndObject()
                 it.writeEndObject()
             }
@@ -72,14 +78,13 @@ class ToxicInputSerializer : StdSerializer<ToxicInput>(ToxicInput::class.java) {
     }
 }
 
-open class KubernetesClientOp {
-    open suspend fun callOp(pod: Pod): JsonNode? {
-        return null
-    }
+abstract class KubernetesClientProxy {
+    abstract suspend fun callOp(pod: Pod): Result<JsonNode?>
+    open fun toxiProxyName() = ""
 }
-class AddKubeToxicOp(val ctx: ToxiProxyToxicContext, val toxiProxyInput: ToxiProxyInput, val kubernetesClient: KubernetesCoroutinesClient) : KubernetesClientOp() {
+class AddToxicKubeClient(val ctx: ToxiProxyToxicContext, val toxiProxyInput: ToxiProxyInput, val kubernetesClient: KubernetesCoroutinesClient) : KubernetesClientProxy() {
 
-    override suspend fun callOp(pod: Pod): JsonNode? {
+    override suspend fun callOp(pod: Pod): Result<JsonNode?> {
         val json = kotlin.runCatching {
             kubernetesClient.proxyPost<JsonNode>(
                 pod = pod,
@@ -88,23 +93,32 @@ class AddKubeToxicOp(val ctx: ToxiProxyToxicContext, val toxiProxyInput: ToxiPro
                 body = toxiProxyInput.toxics,
                 token = ctx.token
             )
-        }.onFailure {
-            logger.info {
-                it
-            }
-        }.getOrThrow()
+        }.onFailure { error: Throwable ->
+            val msg = "Kubernetes client failed to add toxic for toxiproxy: ${toxiProxyInput.name} ${error.message} "
+            logger.error { msg }
+            throw GoboException(msg)
+        }
         return json
     }
+    override fun toxiProxyName() = toxiProxyInput.name
 }
-class DeleteKubeToxicOp(val ctx: ToxiProxyToxicContext, val toxiProxyInput: DeleteToxiProxyToxicsInput, val kubernetesClient: KubernetesCoroutinesClient) : KubernetesClientOp() {
+class DeleteToxicKubeClient(val ctx: ToxiProxyToxicContext, val toxiProxyInput: DeleteToxiProxyToxicsInput, val kubernetesClient: KubernetesCoroutinesClient) : KubernetesClientProxy() {
 
-    override suspend fun callOp(pod: Pod): JsonNode? {
-        val json = kubernetesClient.proxyDelete<JsonNode>(
-            pod = pod,
-            port = ctx.toxiProxyListenPort,
-            path = "/proxies/${toxiProxyInput.toxiProxyName}/toxics/${toxiProxyInput.toxicName}",
-            token = ctx.token
-        )
+    override suspend fun callOp(pod: Pod): Result<JsonNode?> {
+        val json = kotlin.runCatching {
+            kubernetesClient.proxyDelete<JsonNode>(
+                pod = pod,
+                port = ctx.toxiProxyListenPort,
+                path = "/proxies/${toxiProxyInput.toxiProxyName}/toxics/${toxiProxyInput.toxicName}",
+                token = ctx.token
+            )
+        }.onFailure { error: Throwable ->
+            val msg = "Kubernetes client failed to add toxic for toxiproxy: ${toxiProxyInput.toxiProxyName} ${error.message} "
+            logger.error { msg }
+            throw GoboException(msg)
+        }
         return json
     }
+
+    override fun toxiProxyName() = toxiProxyInput.toxiProxyName
 }

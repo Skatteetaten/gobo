@@ -43,7 +43,7 @@ class PodResourceResource(
 
 ) : HalResource() {
     fun hasToxiProxySidecar() =
-            containers.any { it.name.endsWith("-toxiproxy-sidecar") }
+        containers.any { it.name.endsWith("-toxiproxy-sidecar") }
 }
 
 @JsonIgnoreProperties(ignoreUnknown = true)
