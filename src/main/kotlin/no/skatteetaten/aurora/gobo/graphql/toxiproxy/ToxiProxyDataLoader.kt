@@ -23,31 +23,20 @@ class ToxiProxyDataLoader(
     override suspend fun getByKeys(keys: Set<ToxiProxyId>, ctx: GraphQLContext): Map<ToxiProxyId, List<ToxiProxy>> {
         return keys.associateWith { id ->
             val applicationDeploymentDetails = applicationService.getApplicationDeploymentDetails(ctx.token, id.applicationDeploymentId)
-            applicationDeploymentDetails.podResources.flatMap { pod ->
-                val pods = pod.containers.mapNotNull {
-                    container ->
-                    if (container.name.endsWith("-toxiproxy-sidecar")) {
-                        pod
-                    } else {
-                        null
-                    }
-                }
-
-                pods.map {
-                    val podName = it.name
+            applicationDeploymentDetails.podResources.mapNotNull { pod ->
+                if (pod.hasToxiProxySidecar()) {
                     val deploymentRef = applicationDeploymentDetails.applicationDeploymentCommand.applicationDeploymentRef
-                    val environment = deploymentRef.environment
-                    val affiliation = id.affiliation
-
                     val podInput = newPod {
                         metadata {
-                            namespace = "$affiliation-$environment"
-                            name = podName
+                            namespace = "${id.affiliation}-${deploymentRef.environment}"
+                            name = pod.name
                         }
                     }
                     val json = kubernetesClient.proxyGet<JsonNode>(pod = podInput, port = 8474, path = "proxies", token = ctx.token)
                     val toxiProxy = jacksonObjectMapper().convertValue<ToxiProxy>(json.at("/app"))
-                    toxiProxy.copy(podName = podName)
+                    toxiProxy.copy(podName = pod.name)
+                } else {
+                    null
                 }
             }
         }
