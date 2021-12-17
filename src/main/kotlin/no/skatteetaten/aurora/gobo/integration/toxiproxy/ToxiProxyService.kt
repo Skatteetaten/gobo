@@ -1,6 +1,7 @@
 package no.skatteetaten.aurora.gobo.integration.toxiproxy
 
 import org.springframework.stereotype.Service
+import org.springframework.web.reactive.function.client.WebClientResponseException
 import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.SerializerProvider
@@ -9,7 +10,6 @@ import com.fkorotkov.kubernetes.metadata
 import com.fkorotkov.kubernetes.newPod
 import io.fabric8.kubernetes.api.model.Pod
 import mu.KotlinLogging
-import no.skatteetaten.aurora.gobo.GoboException
 import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.ApplicationDeploymentRef
 import no.skatteetaten.aurora.gobo.graphql.toxiproxy.DeleteToxiProxyToxicsInput
 import no.skatteetaten.aurora.gobo.graphql.toxiproxy.ToxiProxyInput
@@ -43,10 +43,15 @@ class ToxiProxyToxicService(
                     runCatching {
                         val jsonResponse = kubeClient.callOp(p)
                         logger.debug { "Kubernetes client response: $jsonResponse" }
-                        if (jsonResponse?.isFailure == true) throw GoboException("Kubernetes client response is empty")
                     }.onFailure { error: Throwable ->
-                        logger.error { "Call to kubernetes client failed: ${error.message} " }
-                        throw GoboException("Kubernetes client operation failed on toxoProxy ${kubeClient.toxiProxyName()} ${error.message}")
+                        logger.error(error) { "Call to kubernetes client failed: ${error.message} " }
+
+                        when (error) {
+                            is WebClientResponseException -> {
+                                throw ToxiProxyIntegrationException(message = "ToxiProxy '${kubeClient.toxiProxyName()}' failed with status ${error.statusCode}", status = error.statusCode)
+                            }
+                            else -> throw ToxiProxyIntegrationException("ToxiProxy '${kubeClient.toxiProxyName()}' failed")
+                        }
                     }
                 }
             }
@@ -79,43 +84,31 @@ class ToxicInputSerializer : StdSerializer<ToxicInput>(ToxicInput::class.java) {
 }
 
 abstract class KubernetesClientProxy {
-    abstract suspend fun callOp(pod: Pod): Result<JsonNode?>
+    abstract suspend fun callOp(pod: Pod): JsonNode?
     open fun toxiProxyName() = ""
 }
 class AddToxicKubeClient(val ctx: ToxiProxyToxicContext, val toxiProxyInput: ToxiProxyInput, val kubernetesClient: KubernetesCoroutinesClient) : KubernetesClientProxy() {
 
-    override suspend fun callOp(pod: Pod): Result<JsonNode?> {
-        val json = kotlin.runCatching {
-            kubernetesClient.proxyPost<JsonNode>(
-                pod = pod,
-                port = ctx.toxiProxyListenPort,
-                path = "/proxies/${toxiProxyInput.name}/toxics",
-                body = toxiProxyInput.toxics,
-                token = ctx.token
-            )
-        }.onFailure { error: Throwable ->
-            logger.error { "${error.message}" }
-            throw GoboException("${error.message}")
-        }
-        return json
+    override suspend fun callOp(pod: Pod): JsonNode? {
+        return kubernetesClient.proxyPost(
+            pod = pod,
+            port = ctx.toxiProxyListenPort,
+            path = "/proxies/${toxiProxyInput.name}/toxics",
+            body = toxiProxyInput.toxics,
+            token = ctx.token
+        )
     }
     override fun toxiProxyName() = toxiProxyInput.name
 }
 class DeleteToxicKubeClient(val ctx: ToxiProxyToxicContext, val toxiProxyInput: DeleteToxiProxyToxicsInput, val kubernetesClient: KubernetesCoroutinesClient) : KubernetesClientProxy() {
 
-    override suspend fun callOp(pod: Pod): Result<JsonNode?> {
-        val json = kotlin.runCatching {
-            kubernetesClient.proxyDelete<JsonNode>(
-                pod = pod,
-                port = ctx.toxiProxyListenPort,
-                path = "/proxies/${toxiProxyInput.toxiProxyName}/toxics/${toxiProxyInput.toxicName}",
-                token = ctx.token
-            )
-        }.onFailure { error: Throwable ->
-            logger.error { "${error.message}" }
-            throw GoboException("${error.message}")
-        }
-        return json
+    override suspend fun callOp(pod: Pod): JsonNode? {
+        return kubernetesClient.proxyDelete(
+            pod = pod,
+            port = ctx.toxiProxyListenPort,
+            path = "/proxies/${toxiProxyInput.toxiProxyName}/toxics/${toxiProxyInput.toxicName}",
+            token = ctx.token
+        )
     }
 
     override fun toxiProxyName() = toxiProxyInput.toxiProxyName

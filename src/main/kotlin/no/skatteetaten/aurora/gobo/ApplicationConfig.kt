@@ -28,7 +28,7 @@ import reactor.netty.tcp.SslProvider
 import java.time.Duration
 
 enum class ServiceTypes {
-    MOKEY, BOOBER, UNCLEMATT, CANTUS, DBH, SKAP, HERKIMER, NAGHUB, GAVEL, PHIL
+    MOKEY, BOOBER, UNCLEMATT, CANTUS, DBH, SKAP, HERKIMER, NAGHUB, GAVEL, PHIL, TOXI_PROXY
 }
 
 @Target(AnnotationTarget.TYPE, AnnotationTarget.FUNCTION, AnnotationTarget.FIELD, AnnotationTarget.VALUE_PARAMETER)
