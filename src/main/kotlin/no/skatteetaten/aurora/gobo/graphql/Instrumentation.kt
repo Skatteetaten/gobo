@@ -141,6 +141,7 @@ class GoboInstrumentation(
                     Timer.builder("graphql_operationTimer")
                         .tags(listOf(Tag.of("operationName", operationName)))
                         .description("Time used for graphql operation")
+                        .publishPercentileHistogram()
                         .register(meterRegistry)
                         .record(Duration.ofMillis(timeUsed))
                 }
