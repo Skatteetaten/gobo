@@ -94,9 +94,8 @@ class AddToxicKubeClient(val ctx: ToxiProxyToxicContext, val toxiProxyInput: Tox
                 token = ctx.token
             )
         }.onFailure { error: Throwable ->
-            val msg = "Kubernetes client failed to add toxic for toxiproxy: ${toxiProxyInput.name} ${error.message} "
-            logger.error { msg }
-            throw GoboException(msg)
+            logger.error { "${error.message}" }
+            throw GoboException("${error.message}")
         }
         return json
     }
@@ -113,9 +112,8 @@ class DeleteToxicKubeClient(val ctx: ToxiProxyToxicContext, val toxiProxyInput: 
                 token = ctx.token
             )
         }.onFailure { error: Throwable ->
-            val msg = "Kubernetes client failed to add toxic for toxiproxy: ${toxiProxyInput.toxiProxyName} ${error.message} "
-            logger.error { msg }
-            throw GoboException(msg)
+            logger.error { "${error.message}" }
+            throw GoboException("${error.message}")
         }
         return json
     }

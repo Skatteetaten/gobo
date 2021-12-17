@@ -12,7 +12,11 @@ import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import no.skatteetaten.aurora.kubernetes.KubernetesCoroutinesClient
 import org.springframework.stereotype.Component
 import graphql.GraphQLContext
+import mu.KotlinLogging
+import no.skatteetaten.aurora.gobo.GoboException
 import no.skatteetaten.aurora.gobo.graphql.token
+
+val logger = KotlinLogging.logger {}
 
 @Component
 class ToxiProxyDataLoader(
@@ -32,9 +36,15 @@ class ToxiProxyDataLoader(
                             name = pod.name
                         }
                     }
-                    val json = kubernetesClient.proxyGet<JsonNode>(pod = podInput, port = 8474, path = "proxies", token = ctx.token)
-                    val toxiProxy = jacksonObjectMapper().convertValue<ToxiProxy>(json.at("/app"))
-                    toxiProxy.copy(podName = pod.name)
+                    val json = kotlin.runCatching {
+                        kubernetesClient.proxyGet<JsonNode>(pod = podInput, port = 8474, path = "proxies", token = ctx.token)
+                    }.onFailure { error: Throwable ->
+                        val msg = "Kubernetes client failed to obtain toxiproxy info: ${error.message} "
+                        logger.error { msg }
+                        throw GoboException(msg)
+                    }
+                    val toxiProxy = json.getOrNull()?.let { jacksonObjectMapper().convertValue<ToxiProxy>(it.at("/app")) }
+                    toxiProxy?.copy(podName = pod.name)
                 } else {
                     null
                 }
