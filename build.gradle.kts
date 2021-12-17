@@ -35,20 +35,20 @@ dependencies {
 
     implementation("com.github.fge:json-patch:1.13")
     implementation("com.jayway.jsonpath:json-path:2.6.0")
-    implementation("io.projectreactor.addons:reactor-extra:3.4.4")
+    implementation("io.projectreactor.addons:reactor-extra:3.4.5")
     implementation("no.skatteetaten.aurora.kubernetes:kubernetes-reactor-coroutines-client:1.3.21")
-    implementation("no.skatteetaten.aurora.springboot:aurora-spring-security-starter:1.6.1")
+    implementation("no.skatteetaten.aurora.springboot:aurora-spring-security-starter:1.6.3")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
-    testImplementation("io.mockk:mockk:1.12.0")
+    testImplementation("io.mockk:mockk:1.12.1")
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.25")
     testImplementation("io.projectreactor:reactor-test")
     testImplementation("no.skatteetaten.aurora:mockwebserver-extensions-kotlin:1.2.0") {
         exclude(group = "no.skatteetaten.aurora.springboot", module = "aurora-spring-boot-mvc-starter")
     }
     testImplementation("com.ninja-squad:springmockk:3.0.1")
-    testImplementation("org.junit-pioneer:junit-pioneer:1.4.2")
+    testImplementation("org.junit-pioneer:junit-pioneer:1.5.0")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.5.2")
 }
 

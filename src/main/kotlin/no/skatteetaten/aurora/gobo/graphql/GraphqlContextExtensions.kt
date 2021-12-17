@@ -56,7 +56,9 @@ val GraphQLContext.startTime: Long
  * If no operation name is defined, use the first resource in the query.
  */
 val GraphQLContext.operationName: String
-    get() = getOrDefault<String?>("operationName", null) ?: query.removePrefix("{").substringBefore("{").removeNewLines()
+    get() = operationNameOrNull ?: query.removePrefix("{").substringBefore("{").removeNewLines()
+val GraphQLContext.operationNameOrNull: String?
+    get() = getOrDefault<String?>("operationName", null)
 fun GraphQLContext.putOperationName(operationName: String?) {
     operationName?.let { put("operationName", it) }
 }

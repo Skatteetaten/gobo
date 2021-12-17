@@ -10,6 +10,7 @@ import graphql.execution.ExecutionId
 import graphql.language.Field
 import graphql.language.OperationDefinition
 import graphql.language.SelectionSet
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import io.mockk.every
 import io.mockk.mockk
 import no.skatteetaten.aurora.gobo.infrastructure.client.ClientService
@@ -25,7 +26,7 @@ class GoboInstrumentationTest {
     private val clientService = mockk<ClientService> {
         every { getAllClients() } returns emptyList()
     }
-    private val goboInstrumentation = GoboInstrumentation(fieldService, clientService)
+    private val goboInstrumentation = GoboInstrumentation(fieldService, clientService, SimpleMeterRegistry())
 
     @Test
     fun `Find field names from ExecutionContext`() {
