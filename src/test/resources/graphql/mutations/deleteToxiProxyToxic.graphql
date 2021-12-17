@@ -1,0 +1,6 @@
+mutation deleteToxiProxyToxic($input: DeleteToxiProxyToxicsInput!) {
+  deleteToxiProxyToxic(input: $input){
+    toxiProxyName,
+    toxicName
+  }
+}

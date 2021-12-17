@@ -1,5 +1,6 @@
 package no.skatteetaten.aurora.gobo.graphql.applicationdeploymentdetails
 
+import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
 import graphql.schema.DataFetchingEnvironment
 import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.AuroraConfigRef
 import no.skatteetaten.aurora.gobo.graphql.loadValue
@@ -22,7 +23,13 @@ data class Container(
     val state: String,
     val image: String,
     val restartCount: Int = 0,
-    val ready: Boolean = false
+    val ready: Boolean = false,
+    @GraphQLIgnore
+    val affiliation: String = "",
+    @GraphQLIgnore
+    val environment: String = "",
+    @GraphQLIgnore
+    val podName: String = "",
 )
 
 data class PodResource(
@@ -59,7 +66,7 @@ data class PodResource(
                 deployTag = resource.deployTag,
                 latestDeployTag = resource.latestDeployTag,
                 containers = resource.containers.map {
-                    Container(it.name, it.state, it.image, it.restartCount, it.ready)
+                    Container(it.name, it.state, it.image, it.restartCount, it.ready, podName = resource.name)
                 }
             )
     }

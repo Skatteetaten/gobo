@@ -51,8 +51,8 @@ class ApplicationDeploymentDetailsTest : GraphQLTestWithDbhAndSkap() {
                 graphqlData("podResources[0].phase").isEqualTo("status")
                 graphqlData("podResources[0].ready").isFalse()
                 graphqlData("podResources[0].startTime").hasJsonPath()
-                graphqlData("podResources[0].restartCount").isEqualTo(3)
-                graphqlData("podResources[0].containers.length()").isEqualTo(2)
+                graphqlData("podResources[0].restartCount").isEqualTo(5)
+                graphqlData("podResources[0].containers.length()").isEqualTo(3)
                 graphqlData("podResources[0].containers[0].restartCount").isEqualTo(1)
                 graphqlData("podResources[0].containers[1].restartCount").isEqualTo(2)
 

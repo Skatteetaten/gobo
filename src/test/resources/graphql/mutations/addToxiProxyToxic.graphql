@@ -1,0 +1,6 @@
+mutation addToxiProxyToxic($input: AddToxiProxyToxicsInput!) {
+  addToxiProxyToxic(input: $input) {
+      toxiProxyName,
+      toxicName
+  }
+}

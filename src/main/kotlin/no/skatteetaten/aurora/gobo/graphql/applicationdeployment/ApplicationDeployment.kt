@@ -14,6 +14,9 @@ import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationDeploymentResour
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationResource
 import no.skatteetaten.aurora.gobo.integration.mokey.StatusCheckResource
 import java.time.Instant
+import no.skatteetaten.aurora.gobo.graphql.toxiproxy.ToxiProxy
+import no.skatteetaten.aurora.gobo.graphql.toxiproxy.ToxiProxyDataLoader
+import no.skatteetaten.aurora.gobo.graphql.toxiproxy.ToxiProxyId
 
 data class StatusCheck(val name: String, val description: String, val failLevel: String, val hasFailed: Boolean)
 
@@ -49,6 +52,9 @@ data class ApplicationDeployment(
 
     fun files(dfe: DataFetchingEnvironment) =
         dfe.loadValue<String, List<AuroraConfigFileResource>>(id)
+
+    fun toxiProxy(dfe: DataFetchingEnvironment) =
+        dfe.loadValue<ToxiProxyId, List<ToxiProxy>>(ToxiProxyId(id, affiliation.name), ToxiProxyDataLoader::class)
 
     companion object {
         fun create(deployment: ApplicationDeploymentResource) =
@@ -107,6 +113,7 @@ class ApplicationDeploymentBuilder {
 data class RefreshByAffiliationsInput(val affiliations: List<String>)
 data class RefreshByApplicationDeploymentIdInput(val applicationDeploymentId: String)
 
+data class ApplicationDeploymentVersionInput(val applicationDeploymentId: String, val version: String)
 data class ApplicationDeploymentIdInput(val applicationDeploymentId: String)
 
 data class DeleteApplicationDeploymentInput(val namespace: String, val name: String)

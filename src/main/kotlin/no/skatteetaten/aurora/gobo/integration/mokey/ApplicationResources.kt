@@ -41,7 +41,10 @@ class PodResourceResource(
     val deployTag: String?,
     val latestDeployTag: Boolean
 
-) : HalResource()
+) : HalResource() {
+    fun hasToxiProxySidecar() =
+        containers.any { it.name.endsWith("-toxiproxy-sidecar") }
+}
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class DeployDetailsResource(
