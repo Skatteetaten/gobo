@@ -40,7 +40,6 @@ class ToxiProxyDataLoader(
                     val json = kotlin.runCatching {
                         kubernetesClient.proxyGet<JsonNode>(pod = podInput, port = 8474, path = "proxies", token = ctx.token)
                     }.onFailure { error: Throwable ->
-                        val msg = "Kubernetes client failed to obtain toxiproxy info: ${error.message} "
                         when (error) {
                             is WebClientResponseException -> {
                                 throw ToxiProxyIntegrationException(message = "ToxiProxy '${pod.name}' failed with status ${error.statusCode}", status = error.statusCode)
