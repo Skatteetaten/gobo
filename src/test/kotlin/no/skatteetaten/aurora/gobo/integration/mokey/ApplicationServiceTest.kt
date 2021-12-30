@@ -23,9 +23,7 @@ import org.springframework.test.context.ActiveProfiles
     classes = [WebClientAutoConfiguration::class, ApplicationConfig::class, SharedSecretReader::class, ApplicationService::class],
     webEnvironment = SpringBootTest.WebEnvironment.NONE
 )
-// TODO points to a specific version due to issues with stubs and webflux in mokey.
-//  Must be fixed with an update to the contract tests in mokey
-@AutoConfigureStubRunner(ids = ["no.skatteetaten.aurora:mokey:3.3.4:stubs:6565"])
+@AutoConfigureStubRunner(ids = ["no.skatteetaten.aurora:mokey:+:stubs:6565"])
 class ApplicationServiceTest : StrubrunnerRepoPropertiesEnabler() {
 
     @Autowired
@@ -40,7 +38,7 @@ class ApplicationServiceTest : StrubrunnerRepoPropertiesEnabler() {
     @Test
     fun `Get application deployment details for affiliation`() {
         val details = runBlocking {
-            applicationService.getApplicationDeploymentDetails("paas", "foo")
+            applicationService.getApplicationDeploymentDetails("paas", "123")
         }
         assertThat(details).isNotNull()
     }
@@ -56,7 +54,7 @@ class ApplicationServiceTest : StrubrunnerRepoPropertiesEnabler() {
     @Test
     fun `Get application deployments for application deployment ref`() {
         val applicationDeployments = runBlocking {
-            applicationService.getApplicationDeployments(listOf(ApplicationDeploymentRef("utv", "gobo")))
+            applicationService.getApplicationDeployments(listOf(ApplicationDeploymentRef("environment", "application")))
         }
         assertThat(applicationDeployments).isNotNull()
     }

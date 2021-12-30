@@ -146,7 +146,7 @@ class GoboInstrumentation(
                         .record(Duration.ofMillis(timeUsed))
                 }
 
-                logger.info { """Completed type=${it.operationType} name=${it.operationName} timeUsed=${timeUsed}ms, Korrelasjonsid=${it.korrelasjonsid} Klientid="${it.klientid}" hostString="$hostString", number of errors ${executionResult?.errors?.size}""" }
+                logger.info { """Completed type=${it.operationType} name=${it.operationName} timeUsed=$timeUsed Korrelasjonsid=${it.korrelasjonsid} Klientid="${it.klientid}" hostString="$hostString", number of errors ${executionResult?.errors?.size}""" }
             }
         }
 
