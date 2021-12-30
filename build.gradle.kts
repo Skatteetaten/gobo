@@ -33,7 +33,6 @@ dependencies {
         exclude(group = "com.google.guava", module = "guava")
     }
 
-    implementation("com.github.fge:json-patch:1.13")
     implementation("com.jayway.jsonpath:json-path:2.6.0")
     implementation("io.projectreactor.addons:reactor-extra:3.4.6")
     implementation("no.skatteetaten.aurora.kubernetes:kubernetes-reactor-coroutines-client:1.3.21")
