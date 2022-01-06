@@ -13,22 +13,26 @@ import no.skatteetaten.aurora.kubernetes.KubernetesCoroutinesClient
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import graphql.GraphQLContext
+import graphql.execution.DataFetcherResult
 import mu.KotlinLogging
+import no.skatteetaten.aurora.gobo.graphql.newDataFetcherResult
 import no.skatteetaten.aurora.gobo.graphql.token
 import no.skatteetaten.aurora.gobo.integration.toxiproxy.ToxiProxyIntegrationException
 
 val logger = KotlinLogging.logger {}
 
+private data class ToxiProxyResponse(val proxies: List<ToxiProxy>, val errors: List<ToxiProxyIntegrationException>)
+
 @Component
 class ToxiProxyDataLoader(
     private val applicationService: ApplicationService,
     private val kubernetesClient: KubernetesCoroutinesClient
-) : GoboDataLoader<ToxiProxyId, List<ToxiProxy>>() {
+) : GoboDataLoader<ToxiProxyId, DataFetcherResult<List<ToxiProxy>>>() {
 
-    override suspend fun getByKeys(keys: Set<ToxiProxyId>, ctx: GraphQLContext): Map<ToxiProxyId, List<ToxiProxy>> {
+    override suspend fun getByKeys(keys: Set<ToxiProxyId>, ctx: GraphQLContext): Map<ToxiProxyId, DataFetcherResult<List<ToxiProxy>>> {
         return keys.associateWith { id ->
             val applicationDeploymentDetails = applicationService.getApplicationDeploymentDetails(ctx.token, id.applicationDeploymentId)
-            applicationDeploymentDetails.podResources.mapNotNull { pod ->
+            val responses = applicationDeploymentDetails.podResources.mapNotNull { pod ->
                 if (pod.hasToxiProxySidecar()) {
                     val deploymentRef = applicationDeploymentDetails.applicationDeploymentCommand.applicationDeploymentRef
                     val podInput = newPod {
@@ -37,22 +41,25 @@ class ToxiProxyDataLoader(
                             name = pod.name
                         }
                     }
-                    val json = kotlin.runCatching {
-                        kubernetesClient.proxyGet<JsonNode>(pod = podInput, port = 8474, path = "proxies", token = ctx.token)
-                    }.onFailure { error: Throwable ->
+                    runCatching {
+                        val json = kubernetesClient.proxyGet<JsonNode>(pod = podInput, port = 8474, path = "proxies", token = ctx.token)
+                        val toxiProxy = json.let { jacksonObjectMapper().convertValue<ToxiProxy>(it.at("/app")) }
+                        toxiProxy.copy(podName = pod.name)
+                    }.recoverCatching { error: Throwable ->
                         when (error) {
                             is WebClientResponseException -> {
-                                throw ToxiProxyIntegrationException(message = "ToxiProxy '${pod.name}' failed with status ${error.statusCode}", status = error.statusCode)
+                                ToxiProxyIntegrationException(message = "ToxiProxy '${pod.name}' failed with status ${error.statusCode}", status = error.statusCode)
                             }
-                            else -> throw ToxiProxyIntegrationException("ToxiProxy '${pod.name}' failed")
+                            else -> ToxiProxyIntegrationException("ToxiProxy '${pod.name}' failed")
                         }
-                    }
-                    val toxiProxy = json.getOrNull()?.let { jacksonObjectMapper().convertValue<ToxiProxy>(it.at("/app")) }
-                    toxiProxy?.copy(podName = pod.name)
+                    }.getOrThrow()
                 } else {
                     null
                 }
             }
+            val toxiProxies = responses.filterIsInstance<ToxiProxy>()
+            val toxiProxiesFailures = responses.filterIsInstance<ToxiProxyIntegrationException>()
+            newDataFetcherResult(toxiProxies, toxiProxiesFailures)
         }
     }
 }

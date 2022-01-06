@@ -2,7 +2,7 @@ integrations:
     boober:
         url: https://boober-aup.apps.utv04.paas.skead.no/
     mokey:
-        url: http://mokey-aup.apps.utv04.paas.skead.no
+        url: http://localhost:9999
     cantus:
         url: https://cantus-aup.apps.utv04.paas.skead.no
     skap:
