@@ -38,6 +38,8 @@ Quickly deploy to test environment (fish shell):
 
 To enable tracing: `gobo.graphql.tracing-enabled=true`
 
+## Gradle bootRun
+Enables port-forwarding of mokey.
 
 ## Contract tests
 
