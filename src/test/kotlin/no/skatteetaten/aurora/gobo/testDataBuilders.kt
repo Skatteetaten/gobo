@@ -169,16 +169,14 @@ data class MultiAffiliationResponseBuilder(
 data class ApplicationResourceBuilder(
     val name: String = "name",
     val affiliation: String = "paas",
-    val namespace: String = "namespace"
+    val namespace: String = "namespace",
+    val applicationDeployments: List<ApplicationDeploymentResource> = listOf(ApplicationDeploymentResourceBuilder(affiliation = affiliation, namespace = namespace).build())
 ) {
-
     fun build(): ApplicationResource =
         ApplicationResource(
             identifier = "id",
             name = name,
-            applicationDeployments = listOf(
-                ApplicationDeploymentResourceBuilder(affiliation = affiliation, namespace = namespace).build()
-            )
+            applicationDeployments = applicationDeployments
         )
 }
 

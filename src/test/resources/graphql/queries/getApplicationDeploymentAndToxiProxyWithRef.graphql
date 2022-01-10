@@ -1,0 +1,18 @@
+{
+  affiliations(names: ["aup"]) {
+    edges {
+      node {
+        name
+        applications {
+          applicationDeployments(applicationDeploymentRefs: [{ application: "gobo", environment: "utv" }]) {
+            environment
+            name
+            toxiProxy {
+              name
+            }
+          }
+        }
+      }
+    }
+  }
+}

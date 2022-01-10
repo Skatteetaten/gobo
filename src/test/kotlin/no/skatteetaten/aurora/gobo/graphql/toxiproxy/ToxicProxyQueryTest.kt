@@ -4,8 +4,12 @@ import com.ninjasquad.springmockk.MockkBean
 import io.mockk.coEvery
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentDetailsResourceBuilder
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentResourceBuilder
+import no.skatteetaten.aurora.gobo.ApplicationResourceBuilder
 import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithDbhAndSkap
+import no.skatteetaten.aurora.gobo.graphql.affiliation.AffiliationQuery
+import no.skatteetaten.aurora.gobo.graphql.application.ApplicationDataLoader
 import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.ApplicationDeploymentQuery
+import no.skatteetaten.aurora.gobo.graphql.graphqlData
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import no.skatteetaten.aurora.kubernetes.KubernetesCoroutinesClient
@@ -20,8 +24,12 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
 import no.skatteetaten.aurora.gobo.graphql.graphqlDataWithPrefix
+import no.skatteetaten.aurora.gobo.graphql.printResult
+import no.skatteetaten.aurora.gobo.service.AffiliationService
 
 @Import(
+    AffiliationQuery::class,
+    ApplicationDataLoader::class,
     ApplicationDeploymentQuery::class,
     ToxiProxyDataLoader::class,
     ToxicProxyQueryTest.TestConfig::class
@@ -31,36 +39,19 @@ class ToxicProxyQueryTest : GraphQLTestWithDbhAndSkap() {
     @Value("classpath:graphql/queries/getApplicationDeploymentWithToxics.graphql")
     private lateinit var getApplicationDeploymentWithToxicsQuery: Resource
 
+    @Value("classpath:graphql/queries/getApplicationDeploymentAndToxiProxyWithRef.graphql")
+    private lateinit var getApplicationDeploymentAndToxiProxyWithRef: Resource
+
     @MockkBean
     private lateinit var applicationService: ApplicationService
+
+    @MockkBean
+    private lateinit var affiliationService: AffiliationService
 
     @Autowired
     private lateinit var server: MockWebServer
 
-    @TestConfiguration
-    class TestConfig {
-        @Bean
-        fun server() = MockWebServer()
-
-        @Bean
-        fun kubernetesCoroutinesClient(server: MockWebServer): KubernetesCoroutinesClient {
-            return KubernetesCoroutinesClient(server.url, "test-token")
-        }
-    }
-
-    @Test
-    fun `Query for applications with toxics`() {
-
-        coEvery { applicationService.getApplicationDeployment(any<String>()) } returns ApplicationDeploymentResourceBuilder(
-            id = "123",
-            msg = "Hei"
-        ).build()
-
-        coEvery {
-            applicationService.getApplicationDeploymentDetails(any(), any())
-        } returns ApplicationDeploymentDetailsResourceBuilder().build()
-
-        val proxyGetResponse = """ 
+    private val proxyGetResponse = """ 
             {
               "app": {
                 "name": "app",
@@ -81,10 +72,36 @@ class ToxicProxyQueryTest : GraphQLTestWithDbhAndSkap() {
                 ]
               }
             }
-        """.trimIndent()
+    """.trimIndent()
+
+    @TestConfiguration
+    class TestConfig {
+        @Bean
+        fun server() = MockWebServer()
+
+        @Bean
+        fun kubernetesCoroutinesClient(server: MockWebServer): KubernetesCoroutinesClient {
+            return KubernetesCoroutinesClient(server.url, "test-token")
+        }
+    }
+
+    @Test
+    fun `Query for applications with toxics`() {
+        coEvery { applicationService.getApplicationDeployment(any()) } returns ApplicationDeploymentResourceBuilder(
+            id = "123",
+            msg = "Hei"
+        ).build()
+
+        coEvery {
+            applicationService.getApplicationDeploymentDetails(any(), any())
+        } returns ApplicationDeploymentDetailsResourceBuilder().build()
 
         server.execute(proxyGetResponse) {
-            webTestClient.queryGraphQL(getApplicationDeploymentWithToxicsQuery, variables = mapOf("id" to "abc"), token = "test-token")
+            webTestClient.queryGraphQL(
+                getApplicationDeploymentWithToxicsQuery,
+                variables = mapOf("id" to "abc"),
+                token = "test-token"
+            )
                 .expectStatus().isOk
                 .expectBody()
                 // .printResult()
@@ -103,6 +120,36 @@ class ToxicProxyQueryTest : GraphQLTestWithDbhAndSkap() {
                     graphqlData("[0].toxics[0].attributes[1].key").isEqualTo("jitter")
                     graphqlData("[0].toxics[0].attributes[1].value").isEqualTo("455")
                 }
+        }
+    }
+
+    @Test
+    fun `Query for applications and toxics with refs`() {
+        coEvery { applicationService.getApplications(any(), any()) } returns
+            listOf(
+                ApplicationResourceBuilder(
+                    affiliation = "aup",
+                    applicationDeployments =
+                    listOf(
+                        ApplicationDeploymentResourceBuilder(affiliation = "aup", environment = "utv", name = "gobo").build(),
+                        ApplicationDeploymentResourceBuilder(affiliation = "aup", environment = "test", name = "boober").build()
+                    )
+                ).build()
+            )
+        coEvery { applicationService.getApplicationDeploymentDetails(any(), any()) } returns ApplicationDeploymentDetailsResourceBuilder().build()
+
+        server.execute(proxyGetResponse) {
+            webTestClient.queryGraphQL(getApplicationDeploymentAndToxiProxyWithRef, token = "test-token")
+                .expectStatus().isOk
+                .expectBody()
+                .printResult()
+                    /*
+                .graphqlDataWithPrefix("$.affiliations.edges[0].node") {
+                    graphqlData("name").isEqualTo("aup")
+                    graphqlData("applications[0].applicationDeployments.length()").isEqualTo(1)
+                }
+                
+                     */
         }
     }
 }

@@ -1,9 +1,11 @@
 package no.skatteetaten.aurora.gobo.graphql.application
 
+import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
 import no.skatteetaten.aurora.gobo.graphql.GoboEdge
 import no.skatteetaten.aurora.gobo.graphql.GoboPageInfo
 import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.ApplicationDeployment
 import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.ApplicationDeploymentBuilder
+import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.ApplicationDeploymentRef
 import no.skatteetaten.aurora.gobo.graphql.createPageInfo
 import no.skatteetaten.aurora.gobo.graphql.imagerepository.ImageRepository
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationResource
@@ -20,8 +22,14 @@ data class Certificate(
 data class Application(
     val id: String,
     val name: String,
+    @GraphQLIgnore
     val applicationDeployments: List<ApplicationDeployment>
 ) {
+    fun applicationDeployments(applicationDeploymentRefs: List<ApplicationDeploymentRef>?) =
+        applicationDeploymentRefs?.mapNotNull { ref ->
+            applicationDeployments.find { it.environment == ref.environment && it.name == ref.application }
+        } ?: applicationDeployments
+
     fun imageRepository() =
         this.applicationDeployments.asSequence()
             .mapNotNull { it.dockerImageRepo }
