@@ -57,9 +57,10 @@ class ToxiProxyDataLoader(
                     null
                 }
             }
-            val toxiProxies = responses.filterIsInstance<ToxiProxy>()
-            val toxiProxiesFailures = responses.filterIsInstance<ToxiProxyIntegrationException>()
-            newDataFetcherResult(toxiProxies, toxiProxiesFailures)
+
+            val successes = responses.filterIsInstance<ToxiProxy>()
+            val failures = responses.filterIsInstance<ToxiProxyIntegrationException>()
+            newDataFetcherResult(successes, failures)
         }
     }
 }
