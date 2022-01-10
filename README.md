@@ -8,47 +8,16 @@ The component is named after Gobo from the TV-show Fraggle Rock (https://muppet.
 
 ## Development
 
-### Setup
- 
-In order to use this project you must set repositories in your `~/.gradle/init.gradle` file
- 
-     allprojects {
-         ext.repos= {
-             mavenCentral()
-             jcenter()
-         }
-         repositories repos
-         buildscript {
-          repositories repos
-         }
-     }
+## Running gobo locally
+Use `./gradlew bootRun`, this will automatically port-forward a connection to mokey. This is required to run gobo on your local machine.
 
-We use a local repository for distributionUrl in our gradle-wrapper.properties, you need to change it to a public repo in order to use the gradlew command. `../gradle/wrapper/gradle-wrapper.properties`
-
-    <...>
-    distributionUrl=https\://services.gradle.org/distributions/gradle-<version>-bin.zip
-    <...>
-
-Quickly deploy to test environment (fish shell):
-
-    ./gradlew clean build -x test;
-    oc start-build gobo --from-file=(ls build/distributions/gobo-*-Leveransepakke.zip) --wait -n paas-mokey
-
-## GraphQL tracing
-
-To enable tracing: `gobo.graphql.tracing-enabled=true`
-
-## Gradle bootRun
-Enables port-forwarding of mokey.
+For details on the port-forwarding, see script `mokey-port-forward.sh`.
 
 ## Contract tests
-
-To run contract tests against a snapshot stub-jar file, set `gobo.stub.repository: snapshots` in `application.yaml`.
-
+To run contract tests against a snapshot stub-jar file, set `gobo.stub.repository: snapshots` in `src/test/resources/application.yaml`.
 
 ## Download static playground files from graphql-kotlin
 The playground files must be included to run the gobo-playground application in the browser in offline environment. 
 This apply for running in secure environment e.g. test environment within Skatteetaten.
 
-To download static playground files from graphql-kotlin, run command:
-./gradlew download-playground
+To download static playground files from graphql-kotlin, run command: `./gradlew download-playground`

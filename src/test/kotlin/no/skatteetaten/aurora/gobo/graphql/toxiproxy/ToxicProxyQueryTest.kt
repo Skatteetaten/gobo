@@ -52,7 +52,7 @@ class ToxicProxyQueryTest : GraphQLTestWithDbhAndSkap() {
     @Test
     fun `Query for applications with toxics`() {
 
-        coEvery { applicationService.getApplicationDeployment(any<String>()) } returns ApplicationDeploymentResourceBuilder(
+        coEvery { applicationService.getApplicationDeployment(any()) } returns ApplicationDeploymentResourceBuilder(
             id = "123",
             msg = "Hei"
         ).build()
@@ -110,7 +110,7 @@ class ToxicProxyQueryTest : GraphQLTestWithDbhAndSkap() {
     @Test
     fun `Query for applications for toxics returning error`() {
 
-        coEvery { applicationService.getApplicationDeployment(any<String>()) } returns ApplicationDeploymentResourceBuilder(
+        coEvery { applicationService.getApplicationDeployment(any()) } returns ApplicationDeploymentResourceBuilder(
             id = "123",
             msg = "Hei"
         ).build()
