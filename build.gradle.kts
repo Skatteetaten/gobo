@@ -2,6 +2,7 @@ plugins {
     kotlin("jvm") version "1.6.10"
     id("no.skatteetaten.gradle.aurora") version "4.4.9"
     id("io.gatling.gradle") version "3.7.3"
+    id("com.github.psxpaul.execfork") version "0.1.15"
 }
 
 aurora {
@@ -66,4 +67,15 @@ task<de.undercouch.gradle.tasks.download.Download>("download-playground") {
 }
 repositories {
     mavenCentral()
+}
+
+task<com.github.psxpaul.task.ExecFork>("port-forward-mokey") {
+    executable = "./mokey-port-forward.sh"
+}
+
+tasks {
+    named<org.springframework.boot.gradle.tasks.run.BootRun>("bootRun") {
+        args("--spring.profiles.active=local-ocp04")
+        dependsOn("port-forward-mokey")
+    }
 }

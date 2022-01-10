@@ -20,6 +20,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
 import no.skatteetaten.aurora.gobo.graphql.graphqlDataWithPrefix
+import no.skatteetaten.aurora.gobo.graphql.graphqlErrorsFirst
 
 @Import(
     ApplicationDeploymentQuery::class,
@@ -51,7 +52,7 @@ class ToxicProxyQueryTest : GraphQLTestWithDbhAndSkap() {
     @Test
     fun `Query for applications with toxics`() {
 
-        coEvery { applicationService.getApplicationDeployment(any<String>()) } returns ApplicationDeploymentResourceBuilder(
+        coEvery { applicationService.getApplicationDeployment(any()) } returns ApplicationDeploymentResourceBuilder(
             id = "123",
             msg = "Hei"
         ).build()
@@ -103,6 +104,37 @@ class ToxicProxyQueryTest : GraphQLTestWithDbhAndSkap() {
                     graphqlData("[0].toxics[0].attributes[1].key").isEqualTo("jitter")
                     graphqlData("[0].toxics[0].attributes[1].value").isEqualTo("455")
                 }
+        }
+    }
+
+    @Test
+    fun `Query for applications for toxics returning error`() {
+
+        coEvery { applicationService.getApplicationDeployment(any()) } returns ApplicationDeploymentResourceBuilder(
+            id = "123",
+            msg = "Hei"
+        ).build()
+
+        coEvery {
+            applicationService.getApplicationDeploymentDetails(any(), any())
+        } returns ApplicationDeploymentDetailsResourceBuilder().build()
+
+        val proxyGetErrorResponse = """ 
+            {
+             "errors": [
+                {
+                  "message": "ToxiProxy 'name' failed"
+                }
+             ]
+            }
+        """.trimIndent()
+
+        server.execute(proxyGetErrorResponse) {
+            webTestClient.queryGraphQL(getApplicationDeploymentWithToxicsQuery, variables = mapOf("id" to "abc"), token = "test-token")
+                .expectStatus().isOk
+                .expectBody()
+                .graphqlErrorsFirst("message")
+                .isEqualTo("ToxiProxy 'name' failed")
         }
     }
 }
