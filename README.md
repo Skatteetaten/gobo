@@ -10,6 +10,7 @@ The component is named after Gobo from the TV-show Fraggle Rock (https://muppet.
 
 ## Running gobo locally
 Use `./gradlew bootRun`, this will automatically port-forward a connection to mokey. This is required to run gobo on your local machine.
+Remember to login to `oc` to get a valid token before starting gobo.
 
 For details on the port-forwarding, see script `mokey-port-forward.sh`.
 
