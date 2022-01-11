@@ -16,6 +16,8 @@ aurora {
 }
 
 dependencies {
+    implementation("io.kubernetes:client-java:14.0.0")
+
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0")
 
     implementation("io.projectreactor.kotlin:reactor-kotlin-extensions:1.1.5")
