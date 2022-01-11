@@ -16,8 +16,6 @@ aurora {
 }
 
 dependencies {
-    implementation("io.kubernetes:client-java:14.0.0")
-
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0")
 
     implementation("io.projectreactor.kotlin:reactor-kotlin-extensions:1.1.5")
@@ -52,6 +50,8 @@ dependencies {
     testImplementation("com.ninja-squad:springmockk:3.1.0")
     testImplementation("org.junit-pioneer:junit-pioneer:1.5.0")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.0")
+
+    implementation("io.kubernetes:client-java:14.0.0")
 }
 
 task<de.undercouch.gradle.tasks.download.Download>("download-playground") {

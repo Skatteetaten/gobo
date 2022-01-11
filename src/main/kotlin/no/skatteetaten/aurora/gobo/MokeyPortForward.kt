@@ -9,6 +9,7 @@ import io.kubernetes.client.util.Streams
 import mu.KotlinLogging
 import no.skatteetaten.aurora.kubernetes.KubernetesReactorClient
 import no.skatteetaten.aurora.kubernetes.config.kubernetesToken
+import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Component
 import java.lang.IllegalStateException
 import java.net.ServerSocket
@@ -17,6 +18,7 @@ import kotlin.concurrent.thread
 
 private val logger = KotlinLogging.logger {}
 
+@Profile("local-ocp04")
 @Component
 class MokeyPortForward(val kubernetesClient: KubernetesReactorClient) {
 
