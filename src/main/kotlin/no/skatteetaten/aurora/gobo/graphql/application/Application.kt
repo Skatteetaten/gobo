@@ -25,7 +25,7 @@ data class Application(
     @GraphQLIgnore
     val applicationDeployments: List<ApplicationDeployment>
 ) {
-    fun applicationDeployments(applicationDeploymentRefs: List<ApplicationDeploymentRef>?) =
+    fun applicationDeployments(applicationDeploymentRefs: List<ApplicationDeploymentRef>? = null) =
         applicationDeploymentRefs?.mapNotNull { ref ->
             applicationDeployments.find { it.environment == ref.environment && it.name == ref.application }
         } ?: applicationDeployments

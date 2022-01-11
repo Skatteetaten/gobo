@@ -5,14 +5,24 @@ import io.mockk.coEvery
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentDetailsResourceBuilder
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentResourceBuilder
 import no.skatteetaten.aurora.gobo.ApplicationResourceBuilder
+import no.skatteetaten.aurora.gobo.ContainerResourceListBuilder
 import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithDbhAndSkap
+import no.skatteetaten.aurora.gobo.graphql.affiliation.AffiliationQuery
+import no.skatteetaten.aurora.gobo.graphql.application.ApplicationDataLoader
 import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.ApplicationDeploymentQuery
+import no.skatteetaten.aurora.gobo.graphql.graphqlData
+import no.skatteetaten.aurora.gobo.graphql.graphqlDataWithPrefix
+import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
+import no.skatteetaten.aurora.gobo.graphql.graphqlErrorsFirst
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
+import no.skatteetaten.aurora.gobo.integration.mokey.PodResourceResource
+import no.skatteetaten.aurora.gobo.service.AffiliationService
 import no.skatteetaten.aurora.kubernetes.KubernetesCoroutinesClient
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.execute
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.url
 import okhttp3.mockwebserver.MockWebServer
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
@@ -20,20 +30,15 @@ import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
-import no.skatteetaten.aurora.gobo.graphql.graphqlDataWithPrefix
-import no.skatteetaten.aurora.gobo.graphql.printResult
-import no.skatteetaten.aurora.gobo.graphql.printResult
-import no.skatteetaten.aurora.gobo.service.AffiliationService
-import no.skatteetaten.aurora.gobo.graphql.graphqlErrorsFirst
 
 @Import(
     AffiliationQuery::class,
     ApplicationDataLoader::class,
     ApplicationDeploymentQuery::class,
     ToxiProxyDataLoader::class,
-    ToxicProxyQueryTest.TestConfig::class
+    ToxiProxyQueryTest.TestConfig::class
 )
-class ToxicProxyQueryTest : GraphQLTestWithDbhAndSkap() {
+class ToxiProxyQueryTest : GraphQLTestWithDbhAndSkap() {
 
     @Value("classpath:graphql/queries/getApplicationDeploymentWithToxics.graphql")
     private lateinit var getApplicationDeploymentWithToxicsQuery: Resource
@@ -73,6 +78,16 @@ class ToxicProxyQueryTest : GraphQLTestWithDbhAndSkap() {
             }
     """.trimIndent()
 
+    private val proxyGetErrorResponse = """ 
+            {
+             "errors": [
+                {
+                  "message": "ToxiProxy 'name' failed"
+                }
+             ]
+            }
+    """.trimIndent()
+
     @TestConfiguration
     class TestConfig {
         @Bean
@@ -84,46 +99,22 @@ class ToxicProxyQueryTest : GraphQLTestWithDbhAndSkap() {
         }
     }
 
-    @Test
-    fun `Query for applications with toxics`() {
-
+    @BeforeEach
+    fun setUp() {
         coEvery { applicationService.getApplicationDeployment(any()) } returns ApplicationDeploymentResourceBuilder(
             id = "123",
             msg = "Hei"
         ).build()
+    }
 
-        coEvery {
-            applicationService.getApplicationDeploymentDetails(any(), any())
-        } returns ApplicationDeploymentDetailsResourceBuilder().build()
-
-        val proxyGetResponse = """ 
-            {
-              "app": {
-                "name": "app",
-                "listen": "[::]:8090",
-                "upstream": "0.0.0.0:8080",
-                "enabled": true,
-                "toxics": [
-                  {
-                    "attributes": {
-                      "latency": 855,
-                      "jitter": 455
-                    },
-                    "name": "latency_downstream_6",
-                    "type": "latency",
-                    "stream": "downstream",
-                    "toxicity": 1
-                  }
-                ]
-              }
-            }
-        """.trimIndent()
+    @Test
+    fun `Query for applications with toxics`() {
+        coEvery { applicationService.getApplicationDeploymentDetails(any(), any()) } returns ApplicationDeploymentDetailsResourceBuilder().build()
 
         server.execute(proxyGetResponse) {
             webTestClient.queryGraphQL(getApplicationDeploymentWithToxicsQuery, variables = mapOf("id" to "abc"), token = "test-token")
                 .expectStatus().isOk
                 .expectBody()
-                // .printResult()
                 .graphqlDataWithPrefix("applicationDeployment.toxiProxy") {
                     graphqlData("[0].podName").isEqualTo("name")
                     graphqlData("[0].name").isEqualTo("app")
@@ -139,67 +130,57 @@ class ToxicProxyQueryTest : GraphQLTestWithDbhAndSkap() {
                     graphqlData("[0].toxics[0].attributes[1].key").isEqualTo("jitter")
                     graphqlData("[0].toxics[0].attributes[1].value").isEqualTo("455")
                 }
+                .graphqlDoesNotContainErrors()
         }
     }
 
     @Test
-    fun `Query for applications for toxics returning error`() {
+    fun `Query for applications for toxics returning partial result`() {
+        val podResource = PodResourceResource(
+            name = "name",
+            phase = "status",
+            deployTag = "tag",
+            latestDeployTag = true,
+            replicaName = "deployment-1",
+            latestReplicaName = true,
+            containers = ContainerResourceListBuilder().build(),
+            managementResponses = null
+        )
+        val appDetails = ApplicationDeploymentDetailsResourceBuilder().build().copy(podResources = listOf(podResource, podResource))
+        coEvery { applicationService.getApplicationDeploymentDetails(any(), any()) } returns appDetails
 
-        coEvery { applicationService.getApplicationDeployment(any()) } returns ApplicationDeploymentResourceBuilder(
-            id = "123",
-            msg = "Hei"
-        ).build()
-
-        coEvery {
-            applicationService.getApplicationDeploymentDetails(any(), any())
-        } returns ApplicationDeploymentDetailsResourceBuilder().build()
-
-        val proxyGetErrorResponse = """ 
-            {
-             "errors": [
-                {
-                  "message": "ToxiProxy 'name' failed"
-                }
-             ]
-            }
-        """.trimIndent()
-
-        server.execute(proxyGetErrorResponse) {
+        server.execute(proxyGetResponse, proxyGetErrorResponse) {
             webTestClient.queryGraphQL(getApplicationDeploymentWithToxicsQuery, variables = mapOf("id" to "abc"), token = "test-token")
                 .expectStatus().isOk
                 .expectBody()
-                .graphqlErrorsFirst("message")
-                .isEqualTo("ToxiProxy 'name' failed")
+                .graphqlData("applicationDeployment.toxiProxy[0].podName").isEqualTo("name")
+                .graphqlErrorsFirst("message").isEqualTo("ToxiProxy 'name' failed")
         }
     }
 
     @Test
     fun `Query for applications and toxics with refs`() {
         coEvery { applicationService.getApplications(any(), any()) } returns
-                listOf(
-                    ApplicationResourceBuilder(
-                        affiliation = "aup",
-                        applicationDeployments =
-                        listOf(
-                            ApplicationDeploymentResourceBuilder(affiliation = "aup", environment = "utv", name = "gobo").build(),
-                            ApplicationDeploymentResourceBuilder(affiliation = "aup", environment = "test", name = "boober").build()
-                        )
-                    ).build()
-                )
+            listOf(
+                ApplicationResourceBuilder(
+                    affiliation = "aup",
+                    applicationDeployments =
+                    listOf(
+                        ApplicationDeploymentResourceBuilder(affiliation = "aup", environment = "utv", name = "gobo").build(),
+                        ApplicationDeploymentResourceBuilder(affiliation = "aup", environment = "test", name = "boober").build()
+                    )
+                ).build()
+            )
         coEvery { applicationService.getApplicationDeploymentDetails(any(), any()) } returns ApplicationDeploymentDetailsResourceBuilder().build()
 
         server.execute(proxyGetResponse) {
             webTestClient.queryGraphQL(getApplicationDeploymentAndToxiProxyWithRef, token = "test-token")
                 .expectStatus().isOk
                 .expectBody()
-                .printResult()
-            /*
-        .graphqlDataWithPrefix("$.affiliations.edges[0].node") {
-            graphqlData("name").isEqualTo("aup")
-            graphqlData("applications[0].applicationDeployments.length()").isEqualTo(1)
-        }
-
-             */
+                .graphqlDataWithPrefix("affiliations.edges[0].node") {
+                    graphqlData("name").isEqualTo("aup")
+                    graphqlData("applications[0].applicationDeployments.length()").isEqualTo(1)
+                }
         }
     }
 }
