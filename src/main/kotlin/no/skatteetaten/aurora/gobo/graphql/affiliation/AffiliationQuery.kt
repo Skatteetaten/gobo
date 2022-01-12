@@ -2,12 +2,9 @@ package no.skatteetaten.aurora.gobo.graphql.affiliation
 
 import com.expediagroup.graphql.server.operations.Query
 import graphql.schema.DataFetchingEnvironment
-import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.graphql.token
 import no.skatteetaten.aurora.gobo.service.AffiliationService
 import org.springframework.stereotype.Component
-
-private val logger = KotlinLogging.logger { }
 
 @Component
 class AffiliationQuery(val affiliationService: AffiliationService) : Query {

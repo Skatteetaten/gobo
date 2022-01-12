@@ -1,7 +1,7 @@
 plugins {
     kotlin("jvm") version "1.6.10"
     id("no.skatteetaten.gradle.aurora") version "4.4.9"
-    id("io.gatling.gradle") version "3.7.3"
+    id("io.gatling.gradle") version "3.7.3.1"
     id("com.github.psxpaul.execfork") version "0.1.15"
 }
 
@@ -37,11 +37,11 @@ dependencies {
     implementation("com.jayway.jsonpath:json-path:2.6.0")
     implementation("io.projectreactor.addons:reactor-extra:3.4.6")
     implementation("no.skatteetaten.aurora.kubernetes:kubernetes-reactor-coroutines-client:1.3.21")
-    implementation("no.skatteetaten.aurora.springboot:aurora-spring-security-starter:1.6.3")
+    implementation("no.skatteetaten.aurora.springboot:aurora-spring-security-starter:1.7.0")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
-    testImplementation("io.mockk:mockk:1.12.1")
+    testImplementation("io.mockk:mockk:1.12.2")
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.25")
     testImplementation("io.projectreactor:reactor-test")
     testImplementation("no.skatteetaten.aurora:mockwebserver-extensions-kotlin:1.2.0") {
@@ -49,7 +49,7 @@ dependencies {
     }
     testImplementation("com.ninja-squad:springmockk:3.1.0")
     testImplementation("org.junit-pioneer:junit-pioneer:1.5.0")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.5.2")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.0")
 }
 
 task<de.undercouch.gradle.tasks.download.Download>("download-playground") {
