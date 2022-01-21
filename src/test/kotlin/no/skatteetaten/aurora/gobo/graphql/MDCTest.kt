@@ -31,12 +31,12 @@ class MDCDataLoader : GoboDataLoader<String, String>() {
 class MDCTest : GraphQLTestWithoutDbhAndSkap() {
 
     @Value("classpath:graphql/queries/mdc.graphql")
-    private lateinit var mdcAndTraceQuery: Resource
+    private lateinit var mdcQuery: Resource
 
     @Test
     fun `Korrelasjonsid is set in dataloader context`() {
         webTestClient
-            .queryGraphQL(mdcAndTraceQuery)
+            .queryGraphQL(mdcQuery)
             .expectBody()
             .graphqlData("mdc").isEqualTo("123")
             .graphqlDoesNotContainErrors()
