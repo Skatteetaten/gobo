@@ -4,6 +4,8 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.ninjasquad.springmockk.MockkBean
 import no.skatteetaten.aurora.gobo.ApplicationConfig
 import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
@@ -36,6 +38,9 @@ import org.springframework.web.reactive.function.client.bodyToMono
 class DefaultHeadersTest {
 
     private val server = MockWebServer()
+
+    @MockkBean
+    private lateinit var objectMapper: ObjectMapper
 
     @Autowired
     @TargetService(ServiceTypes.MOKEY)

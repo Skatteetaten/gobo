@@ -3,6 +3,8 @@ package no.skatteetaten.aurora.gobo
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import mu.KotlinLogging
 import org.junit.jupiter.api.BeforeEach
+import org.springframework.boot.test.context.TestConfiguration
+import org.springframework.context.annotation.Bean
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
 import org.w3c.dom.Document
@@ -17,6 +19,12 @@ const val stubrunnerPassword = "stubrunner.password"
 const val stubrunnerRepoUrl = "stubrunner.repositoryRoot"
 
 abstract class StrubrunnerRepoPropertiesEnabler {
+
+    @TestConfiguration
+    class TestConfig {
+        @Bean
+        fun objectMapper() = jacksonObjectMapper()
+    }
 
     // Spring cloud sleuth does not clean up its hooks when the spring context shuts down
     // https://github.com/spring-cloud/spring-cloud-sleuth/issues/1712

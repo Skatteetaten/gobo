@@ -23,6 +23,7 @@ import org.springframework.test.context.ActiveProfiles
 @ActiveProfiles(PROFILE_WITH_DBH_AND_SKAP)
 @SpringBootTest(
     classes = [
+        StrubrunnerRepoPropertiesEnabler.TestConfig::class,
         WebClientAutoConfiguration::class,
         ApplicationConfig::class,
         SharedSecretReader::class,
