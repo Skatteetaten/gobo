@@ -20,7 +20,13 @@ import org.springframework.test.context.ActiveProfiles
 @DirtiesContext
 @ActiveProfiles(PROFILE_WITH_DBH_AND_SKAP)
 @SpringBootTest(
-    classes = [WebClientAutoConfiguration::class, ApplicationConfig::class, SharedSecretReader::class, ApplicationService::class],
+    classes = [
+        StrubrunnerRepoPropertiesEnabler.TestConfig::class,
+        WebClientAutoConfiguration::class,
+        ApplicationConfig::class,
+        SharedSecretReader::class,
+        ApplicationService::class
+    ],
     webEnvironment = SpringBootTest.WebEnvironment.NONE
 )
 @AutoConfigureStubRunner(ids = ["no.skatteetaten.aurora:mokey:+:stubs:6565"])

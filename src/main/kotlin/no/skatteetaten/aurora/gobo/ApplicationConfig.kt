@@ -1,8 +1,10 @@
 package no.skatteetaten.aurora.gobo
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import io.netty.channel.ChannelOption
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory
 import mu.KotlinLogging
+import no.skatteetaten.aurora.gobo.graphql.GoboSpringKotlinDataFetcherFactoryProvider
 import no.skatteetaten.aurora.gobo.integration.skap.HEADER_AURORA_TOKEN
 import no.skatteetaten.aurora.gobo.security.SharedSecretReader
 import org.springframework.beans.factory.annotation.Qualifier
@@ -10,8 +12,10 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.actuate.trace.http.InMemoryHttpTraceRepository
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Primary
 import org.springframework.core.Ordered
 import org.springframework.core.annotation.Order
 import org.springframework.http.HttpHeaders
@@ -207,4 +211,9 @@ class ApplicationConfig(
 
         return ReactorClientHttpConnector(httpClient)
     }
+
+    @Bean
+    @Primary
+    fun simpleKotlinDataFetcherFactoryProvider(objectMapper: ObjectMapper, applicationContext: ApplicationContext) =
+        GoboSpringKotlinDataFetcherFactoryProvider(objectMapper, applicationContext)
 }
