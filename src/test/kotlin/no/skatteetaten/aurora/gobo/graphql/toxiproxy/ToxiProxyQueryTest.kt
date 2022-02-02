@@ -74,6 +74,20 @@ class ToxiProxyQueryTest : GraphQLTestWithDbhAndSkap() {
                     "toxicity": 1
                   }
                 ]
+              },
+              "endpoint_TEST_ADDRESS": {
+                "name": "endpoint_TEST_ADDRESS",
+                "listen": "[::]:18000",
+                "upstream": "test.no:80",
+                "enabled": true,
+                "toxics": []
+              },
+              "testproxy": {
+                "name": "testproxy",
+                "listen": "[::]:18001",
+                "upstream": "enannentest.no:443",
+                "enabled": true,
+                "toxics": []
               }
             }
     """.trimIndent()
@@ -130,6 +144,7 @@ class ToxiProxyQueryTest : GraphQLTestWithDbhAndSkap() {
                     graphqlData("[0].toxics[0].attributes[1].key").isEqualTo("jitter")
                     graphqlData("[0].toxics[0].attributes[1].value").isEqualTo("455")
                 }
+                .graphqlData("applicationDeployment.toxiProxy.length()").isEqualTo(3)
                 .graphqlDoesNotContainErrors()
         }
     }
