@@ -24,7 +24,7 @@ class ToxiProxyToxicService(
     private val applicationService: ApplicationService
 ) {
 
-    suspend fun manageToxiProxyToxic(toxiProxyToxicCtx: ToxiProxyToxicContext, kubeClient: KubernetesClientProxy) {
+    suspend fun manageToxiProxy(toxiProxyToxicCtx: ToxiProxyToxicContext, kubeClient: KubernetesClientProxy) {
         applicationService.getApplicationDeployments(
             listOf(ApplicationDeploymentRef(toxiProxyToxicCtx.environmentName, toxiProxyToxicCtx.applicationName))
         ).map { resource ->
@@ -112,4 +112,19 @@ class DeleteToxicKubeClient(val ctx: ToxiProxyToxicContext, val toxiProxyInput: 
     }
 
     override fun toxiProxyName() = toxiProxyInput.toxiProxyName
+}
+
+class UpdateToxiProxyKubeClient(val ctx: ToxiProxyToxicContext, val toxiProxyInput: ToxiProxyInput, val kubernetesClient: KubernetesCoroutinesClient) : KubernetesClientProxy() {
+
+    override suspend fun callOp(pod: Pod): JsonNode? {
+        return kubernetesClient.proxyPost(
+            pod = pod,
+            port = ctx.toxiProxyListenPort,
+            path = "/proxies/${toxiProxyInput.name}",
+            body = toxiProxyInput,
+            token = ctx.token
+        )
+    }
+
+    override fun toxiProxyName() = toxiProxyInput.name
 }

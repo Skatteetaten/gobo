@@ -63,7 +63,7 @@ class AddToxiProxyToxicMutationTest : GraphQLTestWithDbhAndSkap() {
             .graphqlDoesNotContainErrors()
     }
 
-    private fun getAddToxiProxyToxicsInput(): AddToxiProxyToxicsInput {
+    private fun getAddToxiProxyToxicsInput(): AddOrUpdateToxiProxyInput {
         val attr = listOf(
             ToxicAttributeInput("key", "latency"),
             ToxicAttributeInput("value", "1234")
@@ -76,7 +76,7 @@ class AddToxiProxyToxicMutationTest : GraphQLTestWithDbhAndSkap() {
             attributes = attr
         )
         val toxiProxyInput = ToxiProxyInput(name = TOXY_PROXY_NAME, toxics = toxics)
-        val addToxiProxyToxicsInput = AddToxiProxyToxicsInput(
+        val addToxiProxyToxicsInput = AddOrUpdateToxiProxyInput(
             affiliation = "test_aff",
             environment = "test_env",
             application = "test_app",

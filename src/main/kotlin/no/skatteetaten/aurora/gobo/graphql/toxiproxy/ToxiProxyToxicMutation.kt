@@ -11,6 +11,7 @@ import no.skatteetaten.aurora.gobo.integration.toxiproxy.AddToxicKubeClient
 import no.skatteetaten.aurora.gobo.integration.toxiproxy.DeleteToxicKubeClient
 import no.skatteetaten.aurora.gobo.integration.toxiproxy.ToxiProxyToxicContext
 import no.skatteetaten.aurora.gobo.integration.toxiproxy.ToxicInputSerializer
+import no.skatteetaten.aurora.gobo.integration.toxiproxy.UpdateToxiProxyKubeClient
 import no.skatteetaten.aurora.gobo.security.ifValidUserToken
 import no.skatteetaten.aurora.kubernetes.KubernetesCoroutinesClient
 
@@ -22,7 +23,7 @@ class ToxiProxyToxicMutation(
 ) : Mutation {
 
     suspend fun addToxiProxyToxic(
-        input: AddToxiProxyToxicsInput,
+        input: AddOrUpdateToxiProxyInput,
         dfe: DataFetchingEnvironment
     ): ToxiProxyToxicsResponse {
         dfe.ifValidUserToken {
@@ -34,7 +35,25 @@ class ToxiProxyToxicMutation(
                 toxiProxyListenPort = toxiProxyListenPort
             )
             val addKubeClientOp = AddToxicKubeClient(toxiProxyToxicCtx, input.toxiProxy, kubernetesClient)
-            toxiProxyToxicService.manageToxiProxyToxic(toxiProxyToxicCtx, addKubeClientOp)
+            toxiProxyToxicService.manageToxiProxy(toxiProxyToxicCtx, addKubeClientOp)
+        }
+        return ToxiProxyToxicsResponse(input.toxiProxy.name, input.toxiProxy.toxics.name)
+    }
+
+    suspend fun updateToxiProxy(
+        input: AddOrUpdateToxiProxyInput,
+        dfe: DataFetchingEnvironment
+    ): ToxiProxyToxicsResponse {
+        dfe.ifValidUserToken {
+            val toxiProxyToxicCtx = ToxiProxyToxicContext(
+                token = dfe.token,
+                affiliationName = input.affiliation,
+                environmentName = input.environment,
+                applicationName = input.application,
+                toxiProxyListenPort = toxiProxyListenPort
+            )
+            val clientOp = UpdateToxiProxyKubeClient(toxiProxyToxicCtx, input.toxiProxy, kubernetesClient)
+            toxiProxyToxicService.manageToxiProxy(toxiProxyToxicCtx, clientOp)
         }
         return ToxiProxyToxicsResponse(input.toxiProxy.name, input.toxiProxy.toxics.name)
     }
@@ -52,7 +71,7 @@ class ToxiProxyToxicMutation(
                 toxiProxyListenPort = toxiProxyListenPort
             )
             val deleteKubeClientOp = DeleteToxicKubeClient(toxiProxyToxicCtx, input, kubernetesClient)
-            toxiProxyToxicService.manageToxiProxyToxic(toxiProxyToxicCtx, deleteKubeClientOp)
+            toxiProxyToxicService.manageToxiProxy(toxiProxyToxicCtx, deleteKubeClientOp)
         }
         return ToxiProxyToxicsResponse(input.toxiProxyName, input.toxicName)
     }
@@ -60,7 +79,7 @@ class ToxiProxyToxicMutation(
 
 data class ToxiProxyToxicsResponse(val toxiProxyName: String, val toxicName: String)
 
-data class AddToxiProxyToxicsInput(
+data class AddOrUpdateToxiProxyInput(
     val affiliation: String,
     val environment: String,
     val application: String,
@@ -75,7 +94,36 @@ data class DeleteToxiProxyToxicsInput(
     val toxicName: String,
 )
 
-data class ToxiProxyInput(val name: String, val toxics: ToxicInput)
+data class UpdateToxiProxyInput(
+    val affiliation: String,
+    val environment: String,
+    val application: String,
+    val toxiProxyName: String,
+    val toxicName: String,
+    val listen: String?,
+    val upstream: String?,
+    val enabled: Boolean?
+)
+
+
+
+/*
+
+data class UpdateToxiProxyInput(
+    val affiliation: String,
+    val environment: String,
+    val application: String,
+    val toxiProxy: ToxiProxyInput,
+)
+*/
+
+data class ToxiProxyInput(
+    val name: String,
+    val listen: String?,
+    val upstream: String?,
+    val enabled: Boolean?,
+    val toxics: ToxicInput
+)
 
 @JsonSerialize(using = ToxicInputSerializer::class)
 data class ToxicInput(
