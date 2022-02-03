@@ -43,8 +43,10 @@ class ToxiProxyDataLoader(
                     }
                     runCatching {
                         val json = kubernetesClient.proxyGet<JsonNode>(pod = podInput, port = 8474, path = "proxies", token = ctx.token)
-                        val toxiProxy = json.let { jacksonObjectMapper().convertValue<ToxiProxy>(it.at("/app")) }
-                        toxiProxy.copy(podName = pod.name)
+                        json.map {
+                            val toxiProxy = jacksonObjectMapper().convertValue<ToxiProxy>(it)
+                            toxiProxy.copy(podName = pod.name)
+                        }
                     }.recoverCatching { error: Throwable ->
                         when (error) {
                             is WebClientResponseException -> {
@@ -58,7 +60,7 @@ class ToxiProxyDataLoader(
                 }
             }
 
-            val successes = responses.filterIsInstance<ToxiProxy>()
+            val successes = responses.filterIsInstance<List <ToxiProxy>>().flatten()
             val failures = responses.filterIsInstance<ToxiProxyIntegrationException>()
             newDataFetcherResult(successes, failures)
         }

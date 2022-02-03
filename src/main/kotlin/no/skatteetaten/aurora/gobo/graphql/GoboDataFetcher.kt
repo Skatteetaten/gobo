@@ -45,7 +45,6 @@ class GoboSpringKotlinDataFetcherFactoryProvider(
         DataFetcherFactory { GoboDataFetcher(target, kFunction, objectMapper, applicationContext) }
 }
 
-
 // Code taken from SpringDataFetcher in graphql-kotlin
 class GoboDataFetcher(
     target: Any?,
