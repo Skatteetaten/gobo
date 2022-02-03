@@ -7,6 +7,7 @@ import graphql.schema.GraphQLScalarType
 import graphql.schema.GraphQLType
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.graphql.GoboInstrumentation
+import no.skatteetaten.aurora.gobo.graphql.QueryReporter
 import no.skatteetaten.aurora.gobo.graphql.scalars.InstantScalar
 import no.skatteetaten.aurora.gobo.graphql.scalars.JsonNodeScalar
 import no.skatteetaten.aurora.gobo.graphql.scalars.KotlinLongScalar
@@ -33,7 +34,8 @@ private val logger = KotlinLogging.logger { }
 class GraphQLConfig(
     private val config: GraphQLConfigurationProperties,
     @Value("classpath:/playground/gobo-graphql-playground.html") private val playgroundHtml: Resource,
-    private val goboInstrumentation: GoboInstrumentation
+    private val goboInstrumentation: GoboInstrumentation,
+    private val queryReporter: QueryReporter
 ) {
     private val body = playgroundHtml.inputStream.bufferedReader().use { reader ->
         reader.readText()
@@ -59,6 +61,11 @@ class GraphQLConfig(
     fun updateGraphqlUsage() {
         logger.info { "Running scheduled job to update usage data at ${LocalDateTime.now()}" }
         goboInstrumentation.update()
+    }
+
+    @Scheduled(initialDelay = 300000, fixedDelay = 300000)
+    fun reportUnfinishedQueries() {
+        queryReporter.reportUnfinished()
     }
 }
 

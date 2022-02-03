@@ -41,9 +41,10 @@ class GoboInstrumentation(
     private val clientService: ClientService,
     private val meterRegistry: MeterRegistry,
     private val queryCache: QueryCache? = null,
+    private val queryReporter: QueryReporter? = null,
     @Value("\${gobo.graphql.log.queries:}") private val logQueries: Boolean? = false,
-    @Value("\${gobo.graphql.log.operationstart:}") private val logOperationStart: Boolean? = false,
-    @Value("\${gobo.graphql.log.operationend:}") private val logOperationEnd: Boolean? = false,
+    @Value("\${gobo.graphql.log.operationstart:}") private val logOperationStart: Boolean? = true,
+    @Value("\${gobo.graphql.log.operationend:}") private val logOperationEnd: Boolean? = true,
 ) : SimpleInstrumentation() {
     val fieldUsage = FieldUsage()
     val clientUsage = ClientUsage()
@@ -126,6 +127,10 @@ class GoboInstrumentation(
                 if (logOperationStart == true && operationName.isNotIntrospectionQuery()) {
                     logger.info { "Starting type=$operationType name=$operationName at ${LocalDateTime.now()}" }
                 }
+
+                if (operationName.isNotIntrospectionQuery() && context.korrelasjonsid.isNotEmpty()) {
+                    queryReporter?.add(context.korrelasjonsid, context.klientid, operationName, context.query)
+                }
             }
         }
         return super.beginExecuteOperation(parameters)
@@ -147,6 +152,10 @@ class GoboInstrumentation(
                 }
 
                 logger.info { """Completed type=${it.operationType} name=${it.operationName} timeUsed=$timeUsed hostString="$hostString", number of errors ${executionResult?.errors?.size}""" }
+            }
+
+            if (it.operationName.isNotIntrospectionQuery() && it.korrelasjonsid.isNotEmpty()) {
+                queryReporter?.remove(it.korrelasjonsid)
             }
         }
 

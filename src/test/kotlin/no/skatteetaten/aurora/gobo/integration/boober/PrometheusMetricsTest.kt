@@ -30,6 +30,9 @@ import org.springframework.web.reactive.function.client.bodyToMono
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentDetailsBuilder
 import no.skatteetaten.aurora.gobo.DisableIfJenkins
+import org.springframework.http.client.reactive.ReactorClientHttpConnector
+import reactor.netty.http.client.HttpClient
+import reactor.netty.resources.ConnectionProvider
 
 @DisableIfJenkins
 @AutoConfigureMetrics
@@ -88,12 +91,18 @@ class PrometheusMetricsTest {
             )
         }
 
-        val result = WebClient.create("http://localhost:$port")
+        val result = WebClient
+            .builder()
+            .clientConnector(ReactorClientHttpConnector(HttpClient.create(ConnectionProvider.builder("blabla").metrics(true).build())))
+            .baseUrl("http://localhost:$port")
+            .build()
             .get()
             .uri("/actuator/prometheus")
             .retrieve()
             .bodyToMono<String>()
             .block()
+
+        println(result)
 
         assertThat(result).isNotNull().contains("/v2/auroraconfig/{auroraConfig}?reference={reference}")
         assertThat(result).isNotNull().contains("/v1/auroraconfig/Apply")
