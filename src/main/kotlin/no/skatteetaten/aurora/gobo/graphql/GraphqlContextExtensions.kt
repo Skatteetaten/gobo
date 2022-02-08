@@ -72,7 +72,7 @@ fun GraphQLContext.putOperationType(operationType: String?) {
 val DataFetchingEnvironment.query: String
     get() = graphQlContext.query
 val GraphQLContext.query: String
-    get() = get("query")
+    get() = getOrDefault("query", "")
 fun GraphQLContext.putQuery(query: String) {
     put("query", query.removeNewLines())
 }

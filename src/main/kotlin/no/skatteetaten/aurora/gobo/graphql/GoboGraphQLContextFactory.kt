@@ -11,7 +11,6 @@ import org.springframework.security.core.context.SecurityContext
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.server.ServerRequest
 import reactor.core.publisher.Mono
-import java.time.LocalDateTime
 import kotlin.coroutines.coroutineContext
 
 class GoboGraphQLContext(val context: GraphQLContext, request: ServerRequest) : SpringGraphQLContext(request)
@@ -19,7 +18,7 @@ private class ContextMap(val toMap: MutableMap<String, Any> = mutableMapOf()) {
     var token: String by toMap
     var securityContext: Mono<SecurityContext> by toMap
     var request: ServerRequest by toMap
-    var startTime: LocalDateTime by toMap
+    var startTime: Long by toMap
 }
 
 private val logger = KotlinLogging.logger {}
@@ -34,7 +33,7 @@ class GoboGraphQLContextFactory : SpringGraphQLContextFactory<SpringGraphQLConte
             token = (serverRequest.headers().firstHeader(HttpHeaders.AUTHORIZATION)?.removePrefix("Bearer ") ?: "")
             securityContext = getSecurityContext()
             request = serverRequest
-            startTime = LocalDateTime.now()
+            startTime = System.currentTimeMillis()
         }.toMap
     }
 

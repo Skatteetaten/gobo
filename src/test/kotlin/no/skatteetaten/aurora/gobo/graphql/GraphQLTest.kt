@@ -40,7 +40,8 @@ class TestDummyQuery : Query {
     WebSecurityConfig::class,
     GraphQLAutoConfiguration::class,
     GoboInstrumentation::class,
-    TestDummyQuery::class
+    TestDummyQuery::class,
+    QueryReporter::class
 )
 abstract class GraphQLTestWithoutDbhAndSkap {
     @Autowired
