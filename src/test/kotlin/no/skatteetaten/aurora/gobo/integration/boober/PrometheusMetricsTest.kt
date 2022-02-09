@@ -4,6 +4,9 @@ import assertk.assertThat
 import assertk.assertions.contains
 import assertk.assertions.isNotNull
 import com.expediagroup.graphql.server.spring.GraphQLAutoConfiguration
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import no.skatteetaten.aurora.gobo.ApplicationDeploymentDetailsBuilder
+import no.skatteetaten.aurora.gobo.DisableIfJenkins
 import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
 import no.skatteetaten.aurora.gobo.graphql.auroraconfig.AuroraConfig
@@ -27,9 +30,6 @@ import org.springframework.test.context.DynamicPropertySource
 import org.springframework.util.SocketUtils
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.bodyToMono
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import no.skatteetaten.aurora.gobo.ApplicationDeploymentDetailsBuilder
-import no.skatteetaten.aurora.gobo.DisableIfJenkins
 
 @DisableIfJenkins
 @AutoConfigureMetrics
@@ -88,12 +88,17 @@ class PrometheusMetricsTest {
             )
         }
 
-        val result = WebClient.create("http://localhost:$port")
+        val result = WebClient
+            .builder()
+            .baseUrl("http://localhost:$port")
+            .build()
             .get()
             .uri("/actuator/prometheus")
             .retrieve()
             .bodyToMono<String>()
             .block()
+
+        println(result)
 
         assertThat(result).isNotNull().contains("/v2/auroraconfig/{auroraConfig}?reference={reference}")
         assertThat(result).isNotNull().contains("/v1/auroraconfig/Apply")

@@ -26,7 +26,7 @@ class GoboInstrumentationTest {
     private val clientService = mockk<ClientService> {
         every { getAllClients() } returns emptyList()
     }
-    private val goboInstrumentation = GoboInstrumentation(fieldService, clientService, SimpleMeterRegistry())
+    private val goboInstrumentation = GoboInstrumentation(fieldService, clientService, SimpleMeterRegistry(), mockk(relaxed = true))
 
     @Test
     fun `Find field names from ExecutionContext`() {

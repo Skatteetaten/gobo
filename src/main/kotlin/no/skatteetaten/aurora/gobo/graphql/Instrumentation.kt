@@ -40,10 +40,10 @@ class GoboInstrumentation(
     private val fieldService: FieldService,
     private val clientService: ClientService,
     private val meterRegistry: MeterRegistry,
-    private val queryCache: QueryCache? = null,
+    private val queryReporter: QueryReporter,
     @Value("\${gobo.graphql.log.queries:}") private val logQueries: Boolean? = false,
-    @Value("\${gobo.graphql.log.operationstart:}") private val logOperationStart: Boolean? = false,
-    @Value("\${gobo.graphql.log.operationend:}") private val logOperationEnd: Boolean? = false,
+    @Value("\${gobo.graphql.log.operationstart:}") private val logOperationStart: Boolean? = true,
+    @Value("\${gobo.graphql.log.operationend:}") private val logOperationEnd: Boolean? = true,
 ) : SimpleInstrumentation() {
     val fieldUsage = FieldUsage()
     val clientUsage = ClientUsage()
@@ -80,15 +80,8 @@ class GoboInstrumentation(
                 }
             }
 
-            if (queryText.isNotIntrospectionQuery()) {
-                queryCache?.let { cache ->
-                    val request = context.request
-                    cache.add(request.klientid(), request.korrelasjonsid(), queryText)
-                }
-
-                if (logQueries == true) {
-                    logger.info { queryText }
-                }
+            if (queryText.isNotIntrospectionQuery() && logQueries == true) {
+                logger.info { queryText }
             }
         }
 
@@ -123,30 +116,41 @@ class GoboInstrumentation(
                 putOperationName(it.name)
                 addStartTime()
 
-                if (logOperationStart == true && operationName.isNotIntrospectionQuery()) {
-                    logger.info { "Starting type=$operationType name=$operationName at ${LocalDateTime.now()}" }
+                if (operationName.isNotIntrospectionQuery()) {
+                    queryReporter.add(context.korrelasjonsid, context.klientid, operationName, context.query)
+
+                    if (logOperationStart == true) {
+                        logger.info { "Starting type=$operationType name=$operationName at ${LocalDateTime.now()}" }
+                    }
                 }
             }
         }
         return super.beginExecuteOperation(parameters)
     }
 
-    override fun instrumentExecutionResult(executionResult: ExecutionResult?, parameters: InstrumentationExecutionParameters?): CompletableFuture<ExecutionResult> {
+    override fun instrumentExecutionResult(
+        executionResult: ExecutionResult?,
+        parameters: InstrumentationExecutionParameters?
+    ): CompletableFuture<ExecutionResult> {
         parameters?.graphQLContext?.let {
-            if (logOperationEnd == true && it.operationName.isNotIntrospectionQuery()) {
-                val hostString = it.request.remoteAddress().get().hostString
-                val timeUsed = System.currentTimeMillis() - it.startTime
+            if (it.operationName.isNotIntrospectionQuery()) {
+                queryReporter.remove(it.korrelasjonsid)
 
-                it.operationNameOrNull?.let { operationName ->
-                    Timer.builder("graphql_operationTimer")
-                        .tags(listOf(Tag.of("operationName", operationName)))
-                        .description("Time used for graphql operation")
-                        .publishPercentileHistogram()
-                        .register(meterRegistry)
-                        .record(Duration.ofMillis(timeUsed))
+                if (logOperationEnd == true) {
+                    val hostString = it.request.hostString()
+                    val timeUsed = System.currentTimeMillis() - it.startTime
+
+                    it.operationNameOrNull?.let { operationName ->
+                        Timer.builder("graphql_operationTimer")
+                            .tags(listOf(Tag.of("operationName", operationName)))
+                            .description("Time used for graphql operation")
+                            .publishPercentileHistogram()
+                            .register(meterRegistry)
+                            .record(Duration.ofMillis(timeUsed))
+                    }
+
+                    logger.info { """Completed type=${it.operationType} name=${it.operationName} timeUsed=$timeUsed hostString="$hostString", number of errors ${executionResult?.errors?.size}""" }
                 }
-
-                logger.info { """Completed type=${it.operationType} name=${it.operationName} timeUsed=$timeUsed hostString="$hostString", number of errors ${executionResult?.errors?.size}""" }
             }
         }
 
@@ -213,3 +217,10 @@ fun ServerRequest?.klientid() =
 
 fun ServerRequest?.korrelasjonsid() =
     this?.headers()?.firstHeader(AuroraRequestParser.KORRELASJONSID_FIELD)
+
+fun ServerRequest?.hostString() = this?.remoteAddress()?.let {
+    when {
+        it.isPresent -> it.get().hostString
+        else -> ""
+    }
+} ?: ""
