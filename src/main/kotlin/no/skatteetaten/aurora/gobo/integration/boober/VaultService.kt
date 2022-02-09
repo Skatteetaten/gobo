@@ -21,7 +21,7 @@ data class BooberVault(
         inputPermissions.filter { permissions?.contains(it) ?: false }.takeIf { it.isNotEmpty() }
 
     fun findMissingPermissions(inputPermissions: List<String>) =
-        (inputPermissions - (permissions ?: emptyList())).takeIf { it.isNotEmpty() }
+        (inputPermissions - (permissions ?: emptyList()).toSet()).takeIf { it.isNotEmpty() }
 
     fun findExistingSecret(secretName: String) =
         secrets?.takeIf { it.containsKey(secretName) }?.let { secretName }
@@ -33,7 +33,7 @@ data class BooberVault(
         secrets?.takeIf { !it.containsKey(secretName) }?.let { secretName }
 
     fun findMissingSecrets(inputSecrets: List<String>) =
-        (inputSecrets - (secrets?.keys ?: emptySet())).takeIf { it.isNotEmpty() }
+        (inputSecrets - (secrets?.keys ?: emptySet()).toSet()).takeIf { it.isNotEmpty() }
 
     fun toInput() = BooberVaultInput(name = name, permissions = permissions, secrets = secrets)
 }

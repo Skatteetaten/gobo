@@ -4,6 +4,9 @@ import assertk.assertThat
 import assertk.assertions.contains
 import assertk.assertions.isNotNull
 import com.expediagroup.graphql.server.spring.GraphQLAutoConfiguration
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import no.skatteetaten.aurora.gobo.ApplicationDeploymentDetailsBuilder
+import no.skatteetaten.aurora.gobo.DisableIfJenkins
 import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
 import no.skatteetaten.aurora.gobo.graphql.auroraconfig.AuroraConfig
@@ -27,12 +30,6 @@ import org.springframework.test.context.DynamicPropertySource
 import org.springframework.util.SocketUtils
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.bodyToMono
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import no.skatteetaten.aurora.gobo.ApplicationDeploymentDetailsBuilder
-import no.skatteetaten.aurora.gobo.DisableIfJenkins
-import org.springframework.http.client.reactive.ReactorClientHttpConnector
-import reactor.netty.http.client.HttpClient
-import reactor.netty.resources.ConnectionProvider
 
 @DisableIfJenkins
 @AutoConfigureMetrics
@@ -93,7 +90,6 @@ class PrometheusMetricsTest {
 
         val result = WebClient
             .builder()
-            .clientConnector(ReactorClientHttpConnector(HttpClient.create(ConnectionProvider.builder("blabla").metrics(true).build())))
             .baseUrl("http://localhost:$port")
             .build()
             .get()

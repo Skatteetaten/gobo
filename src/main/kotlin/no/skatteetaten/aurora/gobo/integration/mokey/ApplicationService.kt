@@ -13,7 +13,6 @@ import no.skatteetaten.aurora.gobo.integration.onStatusNotOk
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
-import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClientResponseException
@@ -99,9 +98,6 @@ class ApplicationService(@TargetService(ServiceTypes.MOKEY) val webClient: WebCl
             .retrieve()
             .handleHttpStatusErrors()
             .awaitWithRetry()
-
-    private fun buildQueryParams(affiliations: List<String>): LinkedMultiValueMap<String, String> =
-        LinkedMultiValueMap<String, String>().apply { addAll("affiliation", affiliations) }
 
     suspend fun refreshApplicationDeployment(
         token: String,
