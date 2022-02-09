@@ -1,6 +1,6 @@
 plugins {
     kotlin("jvm") version "1.6.10"
-    id("no.skatteetaten.gradle.aurora") version "4.4.9"
+    id("no.skatteetaten.gradle.aurora") version "4.4.10"
     id("io.gatling.gradle") version "3.7.4"
     id("com.github.psxpaul.execfork") version "0.1.15"
 }
@@ -35,9 +35,9 @@ dependencies {
         exclude(group = "com.google.guava", module = "guava")
     }
 
-    implementation("com.jayway.jsonpath:json-path:2.6.0")
+    implementation("com.jayway.jsonpath:json-path:2.7.0")
     implementation("io.projectreactor.addons:reactor-extra:3.4.6")
-    implementation("no.skatteetaten.aurora.kubernetes:kubernetes-reactor-coroutines-client:1.3.21")
+    implementation("no.skatteetaten.aurora.kubernetes:kubernetes-reactor-coroutines-client:1.3.22")
     implementation("no.skatteetaten.aurora.springboot:aurora-spring-security-starter:1.7.0")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
