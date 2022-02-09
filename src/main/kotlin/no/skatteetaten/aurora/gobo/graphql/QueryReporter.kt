@@ -33,8 +33,8 @@ class QueryReporter(val reportAfterMillis: Long = 300000) {
     fun reportUnfinished() =
         queries.values.toList()
             .filter {
-                val fiveMinutesAgo = LocalDateTime.now().minus(Duration.ofMillis(reportAfterMillis))
-                it.started.isBefore(fiveMinutesAgo)
+                val configuredPointInTime = LocalDateTime.now().minus(Duration.ofMillis(reportAfterMillis))
+                it.started.isBefore(configuredPointInTime)
             }
             .let {
                 it.forEach { query ->
