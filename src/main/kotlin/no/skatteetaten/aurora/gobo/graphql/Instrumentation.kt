@@ -116,12 +116,12 @@ class GoboInstrumentation(
                 putOperationName(it.name)
                 addStartTime()
 
-                if (logOperationStart == true && operationName.isNotIntrospectionQuery()) {
-                    logger.info { "Starting type=$operationType name=$operationName at ${LocalDateTime.now()}" }
-                }
-
-                if (operationName.isNotIntrospectionQuery() && context.korrelasjonsid.isNotEmpty()) {
+                if (operationName.isNotIntrospectionQuery()) {
                     queryReporter.add(context.korrelasjonsid, context.klientid, operationName, context.query)
+
+                    if (logOperationStart == true) {
+                        logger.info { "Starting type=$operationType name=$operationName at ${LocalDateTime.now()}" }
+                    }
                 }
             }
         }
@@ -133,24 +133,24 @@ class GoboInstrumentation(
         parameters: InstrumentationExecutionParameters?
     ): CompletableFuture<ExecutionResult> {
         parameters?.graphQLContext?.let {
-            if (logOperationEnd == true && it.operationName.isNotIntrospectionQuery()) {
-                val hostString = it.request.hostString()
-                val timeUsed = System.currentTimeMillis() - it.startTime
-
-                it.operationNameOrNull?.let { operationName ->
-                    Timer.builder("graphql_operationTimer")
-                        .tags(listOf(Tag.of("operationName", operationName)))
-                        .description("Time used for graphql operation")
-                        .publishPercentileHistogram()
-                        .register(meterRegistry)
-                        .record(Duration.ofMillis(timeUsed))
-                }
-
-                logger.info { """Completed type=${it.operationType} name=${it.operationName} timeUsed=$timeUsed hostString="$hostString", number of errors ${executionResult?.errors?.size}""" }
-            }
-
-            if (it.operationName.isNotIntrospectionQuery() && it.korrelasjonsid.isNotEmpty()) {
+            if (it.operationName.isNotIntrospectionQuery()) {
                 queryReporter.remove(it.korrelasjonsid)
+
+                if (logOperationEnd == true) {
+                    val hostString = it.request.hostString()
+                    val timeUsed = System.currentTimeMillis() - it.startTime
+
+                    it.operationNameOrNull?.let { operationName ->
+                        Timer.builder("graphql_operationTimer")
+                            .tags(listOf(Tag.of("operationName", operationName)))
+                            .description("Time used for graphql operation")
+                            .publishPercentileHistogram()
+                            .register(meterRegistry)
+                            .record(Duration.ofMillis(timeUsed))
+                    }
+
+                    logger.info { """Completed type=${it.operationType} name=${it.operationName} timeUsed=$timeUsed hostString="$hostString", number of errors ${executionResult?.errors?.size}""" }
+                }
             }
         }
 

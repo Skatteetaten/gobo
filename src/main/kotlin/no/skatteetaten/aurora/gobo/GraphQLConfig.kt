@@ -61,10 +61,6 @@ class GraphQLConfig(
     fun updateGraphqlUsage() {
         logger.info { "Running scheduled job to update usage data at ${LocalDateTime.now()}" }
         goboInstrumentation.update()
-    }
-
-    @Scheduled(initialDelay = 300000, fixedDelay = 300000)
-    fun reportUnfinishedQueries() {
         queryReporter.reportUnfinished()
     }
 }

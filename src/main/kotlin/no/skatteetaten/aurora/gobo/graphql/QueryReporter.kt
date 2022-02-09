@@ -21,7 +21,9 @@ class QueryReporter(val reportAfterMillis: Long = 300000) {
     private val queries = ConcurrentHashMap<String, QueryOperation>()
 
     fun add(korrelasjonsid: String, klientid: String?, name: String, query: String) {
-        queries[korrelasjonsid] = QueryOperation(korrelasjonsid, name, klientid, query, LocalDateTime.now())
+        if (korrelasjonsid.isNotEmpty()) {
+            queries[korrelasjonsid] = QueryOperation(korrelasjonsid, name, klientid, query, LocalDateTime.now())
+        }
     }
 
     fun remove(korrelasjonsid: String) {
