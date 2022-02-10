@@ -23,7 +23,7 @@ class ToxiProxyToxicMutation(
 ) : Mutation {
 
     suspend fun addToxiProxyToxic(
-        input: AddOrUpdateToxiProxyInput,
+        input: AddToxiProxyInput,
         dfe: DataFetchingEnvironment
     ): ToxiProxyToxicsResponse {
         dfe.ifValidUserToken {
@@ -37,13 +37,13 @@ class ToxiProxyToxicMutation(
             val addKubeClientOp = AddToxicKubeClient(toxiProxyToxicCtx, input.toxiProxy, kubernetesClient)
             toxiProxyToxicService.manageToxiProxy(toxiProxyToxicCtx, addKubeClientOp)
         }
-        return ToxiProxyToxicsResponse(input.toxiProxy.name, input.toxiProxy.toxics.name)
+        return ToxiProxyToxicsResponse(input.toxiProxy.name, input.toxiProxy.toxics?.name ?: "")
     }
 
     suspend fun updateToxiProxy(
-        input: AddOrUpdateToxiProxyInput,
+        input: UpdateToxiProxyInput,
         dfe: DataFetchingEnvironment
-    ): ToxiProxyToxicsResponse {
+    ): ToxiProxyResponse {
         dfe.ifValidUserToken {
             val toxiProxyToxicCtx = ToxiProxyToxicContext(
                 token = dfe.token,
@@ -55,7 +55,7 @@ class ToxiProxyToxicMutation(
             val clientOp = UpdateToxiProxyKubeClient(toxiProxyToxicCtx, input.toxiProxy, kubernetesClient)
             toxiProxyToxicService.manageToxiProxy(toxiProxyToxicCtx, clientOp)
         }
-        return ToxiProxyToxicsResponse(input.toxiProxy.name, input.toxiProxy.toxics.name)
+        return ToxiProxyResponse(input.toxiProxy.name)
     }
 
     suspend fun deleteToxiProxyToxic(
@@ -78,8 +78,9 @@ class ToxiProxyToxicMutation(
 }
 
 data class ToxiProxyToxicsResponse(val toxiProxyName: String, val toxicName: String)
+data class ToxiProxyResponse(val toxiProxyName: String)
 
-data class AddOrUpdateToxiProxyInput(
+data class AddToxiProxyInput(
     val affiliation: String,
     val environment: String,
     val application: String,
@@ -98,32 +99,17 @@ data class UpdateToxiProxyInput(
     val affiliation: String,
     val environment: String,
     val application: String,
-    val toxiProxyName: String,
-    val toxicName: String,
-    val listen: String?,
-    val upstream: String?,
-    val enabled: Boolean?
+    val toxiProxy: ToxiProxyUpdate,
 )
 
-
-
-/*
-
-data class UpdateToxiProxyInput(
-    val affiliation: String,
-    val environment: String,
-    val application: String,
-    val toxiProxy: ToxiProxyInput,
-)
-*/
-
-data class ToxiProxyInput(
+data class ToxiProxyUpdate(
     val name: String,
     val listen: String?,
     val upstream: String?,
     val enabled: Boolean?,
-    val toxics: ToxicInput
 )
+
+data class ToxiProxyInput(val name: String, val toxics: ToxicInput)
 
 @JsonSerialize(using = ToxicInputSerializer::class)
 data class ToxicInput(

@@ -13,6 +13,7 @@ import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.ApplicationDeploymentRef
 import no.skatteetaten.aurora.gobo.graphql.toxiproxy.DeleteToxiProxyToxicsInput
 import no.skatteetaten.aurora.gobo.graphql.toxiproxy.ToxiProxyInput
+import no.skatteetaten.aurora.gobo.graphql.toxiproxy.ToxiProxyUpdate
 import no.skatteetaten.aurora.gobo.graphql.toxiproxy.ToxicInput
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import no.skatteetaten.aurora.kubernetes.KubernetesCoroutinesClient
@@ -90,13 +91,15 @@ abstract class KubernetesClientProxy {
 class AddToxicKubeClient(val ctx: ToxiProxyToxicContext, val toxiProxyInput: ToxiProxyInput, val kubernetesClient: KubernetesCoroutinesClient) : KubernetesClientProxy() {
 
     override suspend fun callOp(pod: Pod): JsonNode? {
-        return kubernetesClient.proxyPost(
-            pod = pod,
-            port = ctx.toxiProxyListenPort,
-            path = "/proxies/${toxiProxyInput.name}/toxics",
-            body = toxiProxyInput.toxics,
-            token = ctx.token
-        )
+        return toxiProxyInput.toxics?.let {
+            kubernetesClient.proxyPost(
+                pod = pod,
+                port = ctx.toxiProxyListenPort,
+                path = "/proxies/${toxiProxyInput.name}/toxics",
+                body = it,
+                token = ctx.token
+            )
+        }
     }
     override fun toxiProxyName() = toxiProxyInput.name
 }
@@ -114,7 +117,7 @@ class DeleteToxicKubeClient(val ctx: ToxiProxyToxicContext, val toxiProxyInput: 
     override fun toxiProxyName() = toxiProxyInput.toxiProxyName
 }
 
-class UpdateToxiProxyKubeClient(val ctx: ToxiProxyToxicContext, val toxiProxyInput: ToxiProxyInput, val kubernetesClient: KubernetesCoroutinesClient) : KubernetesClientProxy() {
+class UpdateToxiProxyKubeClient(val ctx: ToxiProxyToxicContext, val toxiProxyInput: ToxiProxyUpdate, val kubernetesClient: KubernetesCoroutinesClient) : KubernetesClientProxy() {
 
     override suspend fun callOp(pod: Pod): JsonNode? {
         return kubernetesClient.proxyPost(
