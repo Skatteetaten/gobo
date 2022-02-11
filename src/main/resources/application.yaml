@@ -36,7 +36,15 @@ management:
     endpoints:
         web:
             exposure:
-                include: info,health,prometheus,env,loggers
+                include: info,health,prometheus,env,loggers,metrics
+    metrics:
+        distribution:
+            minimum-expected-value:
+                "http.client.requests": "100"
+                "http.server.requests": "100"
+            maximum-expected-value:
+                "http.client.requests": "30000"
+                "http.server.requests": "30000"
 
 integrations:
     mokey:
