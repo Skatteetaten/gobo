@@ -6,7 +6,6 @@ import org.springframework.context.annotation.Import
 import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithDbhAndSkap
 import org.springframework.core.io.Resource
 import com.ninjasquad.springmockk.MockkBean
-import no.skatteetaten.aurora.gobo.ApplicationDeploymentResourceBuilder
 import no.skatteetaten.aurora.gobo.graphql.graphqlDataWithPrefix
 import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
@@ -15,12 +14,18 @@ import no.skatteetaten.aurora.kubernetes.KubernetesCoroutinesClient
 
 const val TOXY_PROXY_NAME = "test_toxiProxy"
 const val TOXIC_NAME = "latency_downstream"
+const val TOXIC_PROXY_LISTEN = "\"[::]:8090\""
+const val TOXIC_PROXY_UPSTREAM = "\"0.0.0.0:8080\""
+const val TOXIC_PROXY_ENABLED = true
 
 @Import(ToxiProxyToxicMutation::class)
-class AddToxiProxyToxicMutationTest : GraphQLTestWithDbhAndSkap() {
+class ToxiProxyToxicMutationTest : GraphQLTestWithDbhAndSkap() {
 
     @Value("classpath:graphql/mutations/addToxiProxyToxic.graphql")
     private lateinit var addToxiProxyToxicMutation: Resource
+
+    @Value("classpath:graphql/mutations/updateToxiProxy.graphql")
+    private lateinit var updateToxiProxyMutation: Resource
 
     @Value("classpath:graphql/mutations/deleteToxiProxyToxic.graphql")
     private lateinit var deleteToxiProxyToxicMutation: Resource
@@ -39,10 +44,23 @@ class AddToxiProxyToxicMutationTest : GraphQLTestWithDbhAndSkap() {
         webTestClient.queryGraphQL(addToxiProxyToxicMutation, addToxiProxyToxicsInput, "test-token")
             .expectStatus().isOk
             .expectBody()
-            // .printResult()
             .graphqlDataWithPrefix("addToxiProxyToxic") {
                 graphqlData("toxiProxyName").isEqualTo(TOXY_PROXY_NAME)
                 graphqlData("toxicName").isEqualTo(TOXIC_NAME)
+            }
+            .graphqlDoesNotContainErrors()
+    }
+
+    @Test
+    fun `update toxic on toxi-proxy`() {
+
+        val updateToxiProxyToxicsInput = getUpdateToxiProxyInput()
+
+        webTestClient.queryGraphQL(updateToxiProxyMutation, updateToxiProxyToxicsInput, "test-token")
+            .expectStatus().isOk
+            .expectBody()
+            .graphqlDataWithPrefix("updateToxiProxy") {
+                graphqlData("toxiProxyName").isEqualTo(TOXY_PROXY_NAME)
             }
             .graphqlDoesNotContainErrors()
     }
@@ -55,7 +73,6 @@ class AddToxiProxyToxicMutationTest : GraphQLTestWithDbhAndSkap() {
         webTestClient.queryGraphQL(deleteToxiProxyToxicMutation, deleteToxiProxyToxicsInput, "test-token")
             .expectStatus().isOk
             .expectBody()
-            // .printResult()
             .graphqlDataWithPrefix("deleteToxiProxyToxic") {
                 graphqlData("toxiProxyName").isEqualTo(TOXY_PROXY_NAME)
                 graphqlData("toxicName").isEqualTo(TOXIC_NAME)
@@ -63,7 +80,7 @@ class AddToxiProxyToxicMutationTest : GraphQLTestWithDbhAndSkap() {
             .graphqlDoesNotContainErrors()
     }
 
-    private fun getAddToxiProxyToxicsInput(): AddToxiProxyToxicsInput {
+    private fun getAddToxiProxyToxicsInput(): AddToxiProxyInput {
         val attr = listOf(
             ToxicAttributeInput("key", "latency"),
             ToxicAttributeInput("value", "1234")
@@ -76,13 +93,29 @@ class AddToxiProxyToxicMutationTest : GraphQLTestWithDbhAndSkap() {
             attributes = attr
         )
         val toxiProxyInput = ToxiProxyInput(name = TOXY_PROXY_NAME, toxics = toxics)
-        val addToxiProxyToxicsInput = AddToxiProxyToxicsInput(
+        val addToxiProxyToxicsInput = AddToxiProxyInput(
             affiliation = "test_aff",
             environment = "test_env",
             application = "test_app",
             toxiProxy = toxiProxyInput
         )
         return addToxiProxyToxicsInput
+    }
+
+    private fun getUpdateToxiProxyInput(): UpdateToxiProxyInput {
+        val toxiProxyInput = ToxiProxyUpdate(
+            name = TOXY_PROXY_NAME,
+            listen = TOXIC_PROXY_LISTEN,
+            upstream = TOXIC_PROXY_UPSTREAM,
+            enabled = TOXIC_PROXY_ENABLED
+        )
+        val updateToxiProxyToxicsInput = UpdateToxiProxyInput(
+            affiliation = "test_aff",
+            environment = "test_env",
+            application = "test_app",
+            toxiProxy = toxiProxyInput
+        )
+        return updateToxiProxyToxicsInput
     }
 
     private fun getDeleteToxiProxyToxicsInput(): DeleteToxiProxyToxicsInput {
@@ -95,13 +128,4 @@ class AddToxiProxyToxicMutationTest : GraphQLTestWithDbhAndSkap() {
         )
         return deleteToxiProxyToxicsInput
     }
-
-    private fun createApplicationDeployments(environment: String, vararg names: String) =
-        names.map {
-            ApplicationDeploymentResourceBuilder(
-                affiliation = "aurora",
-                environment = environment,
-                name = it
-            ).build()
-        }
 }

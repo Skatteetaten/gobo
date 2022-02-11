@@ -1,0 +1,5 @@
+mutation updateToxiProxy($input: UpdateToxiProxyInput!) {
+  updateToxiProxy(input: $input) {
+    toxiProxyName
+  }
+}
