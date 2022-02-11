@@ -6,7 +6,6 @@ import org.springframework.context.annotation.Import
 import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithDbhAndSkap
 import org.springframework.core.io.Resource
 import com.ninjasquad.springmockk.MockkBean
-import no.skatteetaten.aurora.gobo.ApplicationDeploymentResourceBuilder
 import no.skatteetaten.aurora.gobo.graphql.graphqlDataWithPrefix
 import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
@@ -20,7 +19,7 @@ const val TOXIC_PROXY_UPSTREAM = "\"0.0.0.0:8080\""
 const val TOXIC_PROXY_ENABLED = true
 
 @Import(ToxiProxyToxicMutation::class)
-class AddToxiProxyToxicMutationTest : GraphQLTestWithDbhAndSkap() {
+class ToxiProxyToxicMutationTest : GraphQLTestWithDbhAndSkap() {
 
     @Value("classpath:graphql/mutations/addToxiProxyToxic.graphql")
     private lateinit var addToxiProxyToxicMutation: Resource
@@ -129,5 +128,4 @@ class AddToxiProxyToxicMutationTest : GraphQLTestWithDbhAndSkap() {
         )
         return deleteToxiProxyToxicsInput
     }
-
 }
