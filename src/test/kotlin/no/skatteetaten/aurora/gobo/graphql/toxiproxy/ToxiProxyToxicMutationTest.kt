@@ -45,7 +45,6 @@ class AddToxiProxyToxicMutationTest : GraphQLTestWithDbhAndSkap() {
         webTestClient.queryGraphQL(addToxiProxyToxicMutation, addToxiProxyToxicsInput, "test-token")
             .expectStatus().isOk
             .expectBody()
-            // .printResult()
             .graphqlDataWithPrefix("addToxiProxyToxic") {
                 graphqlData("toxiProxyName").isEqualTo(TOXY_PROXY_NAME)
                 graphqlData("toxicName").isEqualTo(TOXIC_NAME)
@@ -61,7 +60,6 @@ class AddToxiProxyToxicMutationTest : GraphQLTestWithDbhAndSkap() {
         webTestClient.queryGraphQL(updateToxiProxyMutation, updateToxiProxyToxicsInput, "test-token")
             .expectStatus().isOk
             .expectBody()
-            //     .printResult()
             .graphqlDataWithPrefix("updateToxiProxy") {
                 graphqlData("toxiProxyName").isEqualTo(TOXY_PROXY_NAME)
             }
@@ -76,7 +74,6 @@ class AddToxiProxyToxicMutationTest : GraphQLTestWithDbhAndSkap() {
         webTestClient.queryGraphQL(deleteToxiProxyToxicMutation, deleteToxiProxyToxicsInput, "test-token")
             .expectStatus().isOk
             .expectBody()
-            // .printResult()
             .graphqlDataWithPrefix("deleteToxiProxyToxic") {
                 graphqlData("toxiProxyName").isEqualTo(TOXY_PROXY_NAME)
                 graphqlData("toxicName").isEqualTo(TOXIC_NAME)
@@ -133,12 +130,4 @@ class AddToxiProxyToxicMutationTest : GraphQLTestWithDbhAndSkap() {
         return deleteToxiProxyToxicsInput
     }
 
-    private fun createApplicationDeployments(environment: String, vararg names: String) =
-        names.map {
-            ApplicationDeploymentResourceBuilder(
-                affiliation = "aurora",
-                environment = environment,
-                name = it
-            ).build()
-        }
 }

@@ -21,8 +21,6 @@ import no.skatteetaten.aurora.gobo.integration.toxiproxy.ToxiProxyIntegrationExc
 
 val logger = KotlinLogging.logger {}
 
-// private data class ToxiProxyResponse(val proxies: List<ToxiProxy>, val errors: List<ToxiProxyIntegrationException>)
-
 @Component
 class ToxiProxyDataLoader(
     private val applicationService: ApplicationService,
