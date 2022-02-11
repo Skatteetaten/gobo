@@ -1,6 +1,6 @@
-mutation addToxiProxyToxic($input: AddToxiProxyToxicsInput!) {
+mutation addToxiProxyToxic($input: AddToxiProxyInput!) {
   addToxiProxyToxic(input: $input) {
-      toxiProxyName,
-      toxicName
+    toxiProxyName
+    toxicName
   }
 }
