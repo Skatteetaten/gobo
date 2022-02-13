@@ -1,4 +1,4 @@
-mutation addToxiProxyToxic($input: AddToxiProxyInput!) {
+mutation addToxiProxyToxic($input: AddOrUpdateToxiProxyInput!) {
   addToxiProxyToxic(input: $input) {
     toxiProxyName
     toxicName

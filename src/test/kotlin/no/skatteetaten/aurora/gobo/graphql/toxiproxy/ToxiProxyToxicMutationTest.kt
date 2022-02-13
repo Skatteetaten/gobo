@@ -24,6 +24,9 @@ class ToxiProxyToxicMutationTest : GraphQLTestWithDbhAndSkap() {
     @Value("classpath:graphql/mutations/addToxiProxyToxic.graphql")
     private lateinit var addToxiProxyToxicMutation: Resource
 
+    @Value("classpath:graphql/mutations/updateToxiProxyToxic.graphql")
+    private lateinit var updateToxiProxyToxicMutation: Resource
+
     @Value("classpath:graphql/mutations/updateToxiProxy.graphql")
     private lateinit var updateToxiProxyMutation: Resource
 
@@ -39,7 +42,7 @@ class ToxiProxyToxicMutationTest : GraphQLTestWithDbhAndSkap() {
     @Test
     fun `add toxic on existing toxi-proxy`() {
 
-        val addToxiProxyToxicsInput = getAddToxiProxyToxicsInput()
+        val addToxiProxyToxicsInput = getAddOrUpdateToxiProxyToxicsInput()
 
         webTestClient.queryGraphQL(addToxiProxyToxicMutation, addToxiProxyToxicsInput, "test-token")
             .expectStatus().isOk
@@ -52,7 +55,22 @@ class ToxiProxyToxicMutationTest : GraphQLTestWithDbhAndSkap() {
     }
 
     @Test
-    fun `update toxic on toxi-proxy`() {
+    fun `update existing toxic`() {
+
+        val updateToxiProxyToxicsInput = getAddOrUpdateToxiProxyToxicsInput()
+
+        webTestClient.queryGraphQL(updateToxiProxyToxicMutation, updateToxiProxyToxicsInput, "test-token")
+            .expectStatus().isOk
+            .expectBody()
+            .graphqlDataWithPrefix("updateToxiProxyToxic") {
+                graphqlData("toxiProxyName").isEqualTo(TOXY_PROXY_NAME)
+                graphqlData("toxicName").isEqualTo(TOXIC_NAME)
+            }
+            .graphqlDoesNotContainErrors()
+    }
+
+    @Test
+    fun `update field on toxi-proxy`() {
 
         val updateToxiProxyToxicsInput = getUpdateToxiProxyInput()
 
@@ -80,7 +98,7 @@ class ToxiProxyToxicMutationTest : GraphQLTestWithDbhAndSkap() {
             .graphqlDoesNotContainErrors()
     }
 
-    private fun getAddToxiProxyToxicsInput(): AddToxiProxyInput {
+    private fun getAddOrUpdateToxiProxyToxicsInput(): AddOrUpdateToxiProxyInput {
         val attr = listOf(
             ToxicAttributeInput("key", "latency"),
             ToxicAttributeInput("value", "1234")
@@ -93,7 +111,7 @@ class ToxiProxyToxicMutationTest : GraphQLTestWithDbhAndSkap() {
             attributes = attr
         )
         val toxiProxyInput = ToxiProxyInput(name = TOXY_PROXY_NAME, toxics = toxics)
-        val addToxiProxyToxicsInput = AddToxiProxyInput(
+        val addToxiProxyToxicsInput = AddOrUpdateToxiProxyInput(
             affiliation = "test_aff",
             environment = "test_env",
             application = "test_app",

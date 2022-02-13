@@ -12,6 +12,7 @@ import no.skatteetaten.aurora.gobo.integration.toxiproxy.DeleteToxicKubeClient
 import no.skatteetaten.aurora.gobo.integration.toxiproxy.ToxiProxyToxicContext
 import no.skatteetaten.aurora.gobo.integration.toxiproxy.ToxicInputSerializer
 import no.skatteetaten.aurora.gobo.integration.toxiproxy.UpdateToxiProxyKubeClient
+import no.skatteetaten.aurora.gobo.integration.toxiproxy.UpdateToxicKubeClient
 import no.skatteetaten.aurora.gobo.security.ifValidUserToken
 import no.skatteetaten.aurora.kubernetes.KubernetesCoroutinesClient
 
@@ -23,7 +24,7 @@ class ToxiProxyToxicMutation(
 ) : Mutation {
 
     suspend fun addToxiProxyToxic(
-        input: AddToxiProxyInput,
+        input: AddOrUpdateToxiProxyInput,
         dfe: DataFetchingEnvironment
     ): ToxiProxyToxicsResponse {
         dfe.ifValidUserToken {
@@ -58,6 +59,24 @@ class ToxiProxyToxicMutation(
         return ToxiProxyResponse(input.toxiProxy.name)
     }
 
+    suspend fun updateToxiProxyToxic(
+        input: AddOrUpdateToxiProxyInput,
+        dfe: DataFetchingEnvironment
+    ): ToxiProxyToxicsResponse {
+        dfe.ifValidUserToken {
+            val toxiProxyToxicCtx = ToxiProxyToxicContext(
+                token = dfe.token,
+                affiliationName = input.affiliation,
+                environmentName = input.environment,
+                applicationName = input.application,
+                toxiProxyListenPort = toxiProxyListenPort
+            )
+            val addKubeClientOp = UpdateToxicKubeClient(toxiProxyToxicCtx, input.toxiProxy, kubernetesClient)
+            toxiProxyToxicService.manageToxiProxy(toxiProxyToxicCtx, addKubeClientOp)
+        }
+        return ToxiProxyToxicsResponse(input.toxiProxy.name, input.toxiProxy.toxics?.name ?: "")
+    }
+
     suspend fun deleteToxiProxyToxic(
         input: DeleteToxiProxyToxicsInput,
         dfe: DataFetchingEnvironment
@@ -80,7 +99,7 @@ class ToxiProxyToxicMutation(
 data class ToxiProxyToxicsResponse(val toxiProxyName: String, val toxicName: String)
 data class ToxiProxyResponse(val toxiProxyName: String)
 
-data class AddToxiProxyInput(
+data class AddOrUpdateToxiProxyInput(
     val affiliation: String,
     val environment: String,
     val application: String,
