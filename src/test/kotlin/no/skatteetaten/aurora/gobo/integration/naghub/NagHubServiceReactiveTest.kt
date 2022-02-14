@@ -21,7 +21,7 @@ class NagHubServiceReactiveTest {
     private val sharedSecretReader = mockk<SharedSecretReader> {
         every { secret } returns "abc"
     }
-    private val webClient = ApplicationConfig(500, 1500, "", sharedSecretReader)
+    private val webClient = ApplicationConfig(500, 1500, 300000, "", sharedSecretReader)
         .webClientNagHub(server.url("/").toString(), WebClient.builder())
     private val nagHubService = NagHubServiceReactive(webClient)
 

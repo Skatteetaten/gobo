@@ -76,7 +76,7 @@ private val logger = KotlinLogging.logger {}
 class ApplicationConfig(
     @Value("\${gobo.webclient.connection-timeout:15000}") val connectionTimeout: Int,
     @Value("\${gobo.webclient.response-timeout:60000}") val responseTimeout: Long,
-    @Value("\${gobo.webclient.maxLifeTime:300000") val maxLifeTime: Long,
+    @Value("\${gobo.webclient.maxLifeTime:300000}") val maxLifeTime: Long,
     @Value("\${spring.application.name}") val applicationName: String,
     private val sharedSecretReader: SharedSecretReader
 ) {
