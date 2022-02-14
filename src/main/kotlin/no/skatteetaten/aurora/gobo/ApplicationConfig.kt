@@ -76,6 +76,7 @@ private val logger = KotlinLogging.logger {}
 class ApplicationConfig(
     @Value("\${gobo.webclient.connection-timeout:15000}") val connectionTimeout: Int,
     @Value("\${gobo.webclient.response-timeout:60000}") val responseTimeout: Long,
+    @Value("\${gobo.webclient.maxLifeTime:300000") val maxLifeTime: Long,
     @Value("\${spring.application.name}") val applicationName: String,
     private val sharedSecretReader: SharedSecretReader
 ) {
@@ -195,7 +196,11 @@ class ApplicationConfig(
 
     private fun clientConnector(ssl: Boolean = false): ReactorClientHttpConnector {
         val httpClient = HttpClient.create(
-            ConnectionProvider.builder("gobo-connection-provider").metrics(true).build()
+            ConnectionProvider
+                .builder("gobo-connection-provider")
+                .metrics(true)
+                .maxLifeTime(Duration.ofMillis(maxLifeTime))
+                .build()
         )
             .compress(true)
             .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectionTimeout)
