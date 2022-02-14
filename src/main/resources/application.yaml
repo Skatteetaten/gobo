@@ -46,6 +46,10 @@ management:
                 "http.client.requests": "30000"
                 "http.server.requests": "30000"
 
+kubernetes:
+    webclient:
+        maxLifeTime: 300000
+
 integrations:
     mokey:
         url: http://mokey

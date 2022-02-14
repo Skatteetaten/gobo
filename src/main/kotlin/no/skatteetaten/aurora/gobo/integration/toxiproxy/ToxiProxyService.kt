@@ -103,6 +103,23 @@ class AddToxicKubeClient(val ctx: ToxiProxyToxicContext, val toxiProxyInput: Tox
     }
     override fun toxiProxyName() = toxiProxyInput.name
 }
+
+class UpdateToxicKubeClient(val ctx: ToxiProxyToxicContext, val toxiProxyInput: ToxiProxyInput, val kubernetesClient: KubernetesCoroutinesClient) : KubernetesClientProxy() {
+
+    override suspend fun callOp(pod: Pod): JsonNode? {
+        return toxiProxyInput.toxics?.let {
+            kubernetesClient.proxyPost(
+                pod = pod,
+                port = ctx.toxiProxyListenPort,
+                path = "/proxies/${toxiProxyInput.name}/toxics/${toxiProxyInput.toxics.name}",
+                body = it,
+                token = ctx.token
+            )
+        }
+    }
+    override fun toxiProxyName() = toxiProxyInput.name
+}
+
 class DeleteToxicKubeClient(val ctx: ToxiProxyToxicContext, val toxiProxyInput: DeleteToxiProxyToxicsInput, val kubernetesClient: KubernetesCoroutinesClient) : KubernetesClientProxy() {
 
     override suspend fun callOp(pod: Pod): JsonNode? {
