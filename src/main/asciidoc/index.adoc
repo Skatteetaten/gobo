@@ -5,6 +5,8 @@ Get affiliations
 
 == Test
 
+link:toxiproxy.html[ToxiProxy]
+
 Eksempel input:
 ```
 {
