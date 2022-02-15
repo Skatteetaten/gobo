@@ -1,4 +1,5 @@
 # Aurora API
+:source-highlighter: highlight.js
 :toc:
 
 Get affiliations
@@ -8,7 +9,7 @@ Get affiliations
 link:toxiproxy.html[ToxiProxy]
 
 Eksempel input:
-```
+[source,json]
 {
   "input": {
     "affiliationName": "aurora",
@@ -19,8 +20,11 @@ Eksempel input:
     }
   }
 }
-```
 
-```
+[source,graphql]
 include::queries/getAffiliation.graphql[]
-```
+
+[source,json]
+{
+  "test": "test"
+}
