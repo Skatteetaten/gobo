@@ -3,10 +3,8 @@
 :source-highlighter: highlight.js
 :toc:
 
-Get affiliations
 
-== Test
-
+== Toxi-proxy and toxics queries and mutations
 link:toxiproxy.html[ToxiProxy]
 
 Eksempel input:

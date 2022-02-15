@@ -1,3 +1,48 @@
 # ToxiProxy
 :!revnumber:
 :source-highlighter: highlight.js
+
+
+== Get affiliations, including toxi-proxy and toxics.
+[source,graphql]
+include::queries/getApplicationDeploymentWithToxics.graphql[]
+
+== Get affiliations, specific affiliation/application/environment - combo
+[source,graphql]
+include::queries/getApplicationDeploymentAndToxiProxyWithRef.graphql[]
+
+== Add toxic to an existing toxi-proxy
+[source,graphql]
+include::mutations/addToxiProxyToxic.graphql[]
+
+sample query variables:
+[source,json]
+{
+  "input": {
+    "affiliation": "aup",
+    "environment": "k17633-test2",
+    "application": "whoami",
+    "toxiProxy":
+      {
+        "name": "test",
+        "toxics":
+          {
+            "name": "latency_downstream_2",
+            "type": "latency",
+            "stream": "downstream",
+            "toxicity": 1,
+						"attributes": [
+              {
+                "key": "latency",
+                "value": 855
+              },
+              {
+                "key": "jitter",
+                "value": 455
+              }
+            ]
+          }
+      }
+  }
+}
+
