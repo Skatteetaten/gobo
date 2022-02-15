@@ -3,6 +3,7 @@ plugins {
     id("no.skatteetaten.gradle.aurora") version "4.4.10"
     id("io.gatling.gradle") version "3.7.4"
     id("com.github.psxpaul.execfork") version "0.1.15"
+    id("org.asciidoctor.jvm.convert") version "3.3.2"
 }
 
 aurora {
@@ -75,8 +76,24 @@ task<com.github.psxpaul.task.ExecFork>("port-forward-mokey") {
 }
 
 tasks {
+    named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
+        dependsOn("copyDocs")
+    }
+
     named<org.springframework.boot.gradle.tasks.run.BootRun>("bootRun") {
         args("--spring.profiles.active=local-ocp04")
         dependsOn("port-forward-mokey")
     }
+
+    named<org.asciidoctor.gradle.jvm.AsciidoctorTask>("asciidoctor") {
+        sourceDir("src/main/asciidoc")
+        setBaseDir("src/test/resources/graphql")
+        logDocuments = true
+    }
+}
+
+task("copyDocs", type = Copy::class) {
+    dependsOn("asciidoctor")
+    from("$buildDir/asciidoc")
+    into("$buildDir/resources/main/static/doc")
 }

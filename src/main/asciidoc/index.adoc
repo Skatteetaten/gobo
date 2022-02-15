@@ -1,0 +1,7 @@
+# Aurora API
+
+Get affiliations
+
+```
+include::queries/getAffiliation.graphql[]
+```
