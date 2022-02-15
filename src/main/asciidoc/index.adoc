@@ -1,4 +1,5 @@
 # Aurora API
+:!revnumber:
 :source-highlighter: highlight.js
 :toc:
 
