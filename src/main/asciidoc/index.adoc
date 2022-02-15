@@ -2,6 +2,22 @@
 
 Get affiliations
 
+== Test
+
+Eksempel input:
+```
+{
+  "input": {
+    "affiliationName": "aurora",
+    "vaultName": "jarle-test2",
+    "secrets": {
+      "name": "latest.properties",
+      "base64Content": ""
+    }
+  }
+}
+```
+
 ```
 include::queries/getAffiliation.graphql[]
 ```

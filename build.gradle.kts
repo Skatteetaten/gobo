@@ -95,5 +95,5 @@ tasks {
 task("copyDocs", type = Copy::class) {
     dependsOn("asciidoctor")
     from("$buildDir/asciidoc")
-    into("$buildDir/resources/main/static/doc")
+    into("$buildDir/resources/main/static/auroraapi")
 }
