@@ -37,7 +37,7 @@ dependencies {
 
     implementation("com.jayway.jsonpath:json-path:2.7.0")
     implementation("io.projectreactor.addons:reactor-extra:3.4.6")
-    implementation("no.skatteetaten.aurora.kubernetes:kubernetes-reactor-coroutines-client:1.3.24")
+    implementation("no.skatteetaten.aurora.kubernetes:kubernetes-reactor-coroutines-client:1.3.25")
     implementation("no.skatteetaten.aurora.springboot:aurora-spring-security-starter:1.7.0")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
