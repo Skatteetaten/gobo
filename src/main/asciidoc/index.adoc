@@ -1,4 +1,5 @@
 # Aurora API
+:toc:
 
 Get affiliations
 
