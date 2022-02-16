@@ -1,4 +1,4 @@
-# ToxiProxy
+# Toxi-proxy and toxics queries and mutations
 :!revnumber:
 :source-highlighter: highlight.js
 
@@ -15,30 +15,30 @@ include::queries/getApplicationDeploymentAndToxiProxyWithRef.graphql[]
 [source,graphql]
 include::mutations/addToxiProxyToxic.graphql[]
 
-sample query variables:
+sample query variables (i.e. AddOrUpdateToxiProxyInput):
 [source,json]
 {
   "input": {
-    "affiliation": "aup",
-    "environment": "k17633-test2",
-    "application": "whoami",
+    "affiliation": "my_aff",
+    "environment": "my_env",
+    "application": "my_app",
     "toxiProxy":
       {
         "name": "test",
         "toxics":
           {
-            "name": "latency_downstream_2",
+            "name": "latency_downstream_1",
             "type": "latency",
             "stream": "downstream",
             "toxicity": 1,
 						"attributes": [
               {
                 "key": "latency",
-                "value": 855
+                "value": 1234
               },
               {
                 "key": "jitter",
-                "value": 455
+                "value": 300
               }
             ]
           }
@@ -46,3 +46,4 @@ sample query variables:
   }
 }
 
+link:index.html[Back]

@@ -1,24 +1,17 @@
 # Aurora API
 :!revnumber:
 :source-highlighter: highlight.js
-:toc:
+Table of contents:
 
 
-== Toxi-proxy and toxics queries and mutations
-link:toxiproxy.html[ToxiProxy]
+. link:toxiproxy.html[Toxi-proxy and toxics queries and mutations]
 
-Eksempel input:
+When using the queries and mutations, you need to specify the Authorization tag :
 [source,json]
 {
-  "input": {
-    "affiliationName": "aurora",
-    "vaultName": "jarle-test2",
-    "secrets": {
-      "name": "latest.properties",
-      "base64Content": ""
-    }
-  }
+  "Authorization": "Bearer <bearer-tag>"
 }
+(The bearer-tag is obtained through doing an oc login on the desired cluster, plus command: oc whoami -t)
 
 [source,graphql]
 include::queries/getAffiliation.graphql[]
