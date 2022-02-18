@@ -81,6 +81,11 @@ class ApplicationConfig(
     private val sharedSecretReader: SharedSecretReader
 ) {
 
+    private val connectionProviders = mutableListOf<ConnectionProvider>()
+
+    @Bean
+    fun connectionProviders() = connectionProviders
+
     @Bean
     @ConditionalOnProperty(value = ["management.endpoint.httptrace.enabled"], havingValue = "true")
     fun inMemoryHttpTraceRepository(): InMemoryHttpTraceRepository {
@@ -200,7 +205,12 @@ class ApplicationConfig(
                 .builder("gobo-connection-provider")
                 .metrics(true)
                 .maxLifeTime(Duration.ofMillis(maxLifeTime))
-                .build()
+                .maxIdleTime(Duration.ofMillis(maxLifeTime / 2))
+                .evictInBackground(Duration.ofMillis(maxLifeTime * 2))
+                .disposeTimeout(Duration.ofSeconds(10))
+                .build().also {
+                    connectionProviders.add(it)
+                }
         )
             .compress(true)
             .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectionTimeout)
