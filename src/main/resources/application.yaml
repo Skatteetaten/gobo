@@ -48,6 +48,7 @@ management:
 
 kubernetes:
     webclient:
+        metrics: true
         maxLifeTime: 300000
 
 integrations:
