@@ -1,6 +1,6 @@
 plugins {
     kotlin("jvm") version "1.6.10"
-    id("no.skatteetaten.gradle.aurora") version "4.4.10"
+    id("no.skatteetaten.gradle.aurora") version "4.4.12"
     id("io.gatling.gradle") version "3.7.4"
     id("com.github.psxpaul.execfork") version "0.1.15"
 }
@@ -49,7 +49,7 @@ dependencies {
         exclude(group = "no.skatteetaten.aurora.springboot", module = "aurora-spring-boot-mvc-starter")
     }
     testImplementation("com.ninja-squad:springmockk:3.1.0")
-    testImplementation("org.junit-pioneer:junit-pioneer:1.5.0")
+    testImplementation("org.junit-pioneer:junit-pioneer:1.6.0")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.0")
 }
 
