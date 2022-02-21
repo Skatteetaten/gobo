@@ -1,22 +1,15 @@
 # Aurora API
 :!revnumber:
 :source-highlighter: highlight.js
-Table of contents:
+Innhold:
 
 
-. link:toxiproxy.html[Toxi-proxy and toxics queries and mutations]
+. link:toxiproxy.html[Toxi-proxy og toxics spørringer og mutasjoner]
 
-When using the queries and mutations, you need to specify the Authorization tag :
+
+For å bruke spørringer og mutasjoner, må en spesifisere Authorization element:
 [source,json]
 {
   "Authorization": "Bearer <bearer-tag>"
 }
-(The bearer-tag is obtained through doing an oc login on the desired cluster, plus command: oc whoami -t)
-
-[source,graphql]
-include::queries/getAffiliation.graphql[]
-
-[source,json]
-{
-  "test": "test"
-}
+Verdien til "bearer-tag" oppnås ved å logge på gitt server (oc login), etterfulgt av kommandoen: oc whoami -t.

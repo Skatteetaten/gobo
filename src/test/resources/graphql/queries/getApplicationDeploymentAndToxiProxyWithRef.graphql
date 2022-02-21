@@ -1,14 +1,28 @@
 {
-  affiliations(names: ["aup"]) {
+  affiliations(names: ["my_aff"]) {
     edges {
       node {
         name
         applications {
-          applicationDeployments(applicationDeploymentRefs: [{ application: "gobo", environment: "utv" }]) {
+          applicationDeployments(applicationDeploymentRefs:{environment: "my_env",application: "my_app" })  {
             environment
             name
             toxiProxy {
+              podName
               name
+              listen
+              upstream
+              enabled
+              toxics {
+                name
+                type
+                stream
+                toxicity
+                attributes {
+                  key
+                  value
+                }
+              }
             }
           }
         }

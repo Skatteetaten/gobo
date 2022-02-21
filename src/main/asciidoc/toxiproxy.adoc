@@ -1,21 +1,25 @@
-# Toxi-proxy and toxics queries and mutations
+# Toxi-proxy og toxic-er spørringer og mutasjoner
 :!revnumber:
 :source-highlighter: highlight.js
 
 
-== Get affiliations, including toxi-proxy and toxics.
+== Spørring for å hente affiliations, inklusiv toxi-proxy og toxic-er.
 [source,graphql]
 include::queries/getApplicationDeploymentWithToxics.graphql[]
 
-== Get affiliations, specific affiliation/application/environment - combo
+**Eksempel:** Spørring for å hente toxi-proxy og toxic-er for en affiliation.
+[source,graphql]
+include::queries/getApplicationDeploymentAndToxiProxyWithAff.graphql[]
+
+**Eksempel:** Spørring for å hente toxi-proxy og toxic-er for en spesifikk affiliation/application/environment.
 [source,graphql]
 include::queries/getApplicationDeploymentAndToxiProxyWithRef.graphql[]
 
-== Add toxic to an existing toxi-proxy
+== Mutasjon for å legge til toxic til en eksisterende toxi-proxy
 [source,graphql]
 include::mutations/addToxiProxyToxic.graphql[]
 
-sample query variables (i.e. AddOrUpdateToxiProxyInput):
+**Eksempel:** Input til mutasjon (query variable AddOrUpdateToxiProxyInput):
 [source,json]
 {
   "input": {
@@ -43,6 +47,78 @@ sample query variables (i.e. AddOrUpdateToxiProxyInput):
             ]
           }
       }
+  }
+}
+
+== Mutasjon for å oppdatere en eksisterende toxic
+[source,graphql]
+include::mutations/updateToxiProxyToxic.graphql[]
+
+**Eksempel:** Input til mutasjon (query variable AddOrUpdateToxiProxyInput):
+[source,json]
+{
+  "input": {
+    "affiliation": "my_aff",
+    "environment": "my_env",
+    "application": "my_app",
+    "toxiProxy":
+      {
+        "name": "serverAndPortProxy",
+        "toxics":
+          {
+            "name": "latency_downstream",
+            "type": "latency",
+            "stream": "downstream",
+            "toxicity": 1,
+						"attributes": [
+              {
+                "key": "latency",
+                "value": 145
+              },
+              {
+                "key": "jitter",
+                "value": 135
+              }
+            ]
+          }
+      }
+  }
+}
+
+
+== Mutasjon for å oppdatere en toxi-proxy
+[source,graphql]
+include::mutations/updateToxiProxy.graphql[]
+
+**Eksempel:** Input til mutasjon (query variable UpdateToxiProxyInput):
+[source,json]
+{
+  "input": {
+    "affiliation": "my_aff",
+    "environment": "my_env",
+    "application": "my_app",
+    "toxiProxy":
+      {
+        "name": "test",
+        "listen": "[::]:8091",
+ 				"enabled":true
+      }
+   }
+}
+
+== Mutasjon for å slette en toxic
+[source,graphql]
+include::mutations/deleteToxiProxyToxic.graphql[]
+
+**Eksempel:** Input til mutasjon (query variable DeleteToxiProxyToxicsInput):
+[source,json]
+{
+  "input": {
+    "affiliation": "my_aff",
+    "environment": "my_env",
+    "application": "my_app",
+    "toxiProxyName": "my_proxy",
+    "toxicName": "latency_downstream"
   }
 }
 
