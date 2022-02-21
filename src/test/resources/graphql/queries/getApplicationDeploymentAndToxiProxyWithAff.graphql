@@ -1,0 +1,32 @@
+{
+  affiliations(names: ["my_aff"]) {
+    edges {
+      node {
+        name
+        applications {
+          applicationDeployments {
+            environment
+            name
+            toxiProxy {
+              podName
+              name
+              listen
+              upstream
+              enabled
+              toxics {
+                name
+                type
+                stream
+                toxicity
+                attributes {
+                  key
+                  value
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
