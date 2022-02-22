@@ -1,6 +1,7 @@
 # Toxi-proxy og toxic-er spørringer og mutasjoner
 :!revnumber:
 :source-highlighter: highlight.js
+:toc:
 
 
 == Spørring for å hente affiliations, inklusiv toxi-proxy og toxic-er.

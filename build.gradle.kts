@@ -77,7 +77,7 @@ task<com.github.psxpaul.task.ExecFork>("port-forward-mokey") {
 
 tasks {
     named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
-        dependsOn("copyDocs")
+        mustRunAfter("copyDocs")
     }
 
     named<org.springframework.boot.gradle.tasks.run.BootRun>("bootRun") {
@@ -93,7 +93,7 @@ tasks {
 }
 
 task("copyDocs", type = Copy::class) {
-    dependsOn("asciidoctor")
+    mustRunAfter("asciidoctor")
     from("$buildDir/asciidoc")
     into("$buildDir/resources/main/static/auroraapi")
 }
