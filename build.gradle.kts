@@ -73,18 +73,11 @@ repositories {
     mavenCentral()
 }
 
-task<com.github.psxpaul.task.ExecFork>("port-forward-mokey") {
-    executable = "./mokey-port-forward.sh"
-}
+
 
 tasks {
     named<KotlinCompile>("compileTestKotlin") {
         dependsOn("copyDocs")
-    }
-
-    named<org.springframework.boot.gradle.tasks.run.BootRun>("bootRun") {
-        args("--spring.profiles.active=local-ocp04")
-        dependsOn("port-forward-mokey")
     }
 
     named<org.asciidoctor.gradle.jvm.AsciidoctorTask>("asciidoctor") {
@@ -92,10 +85,19 @@ tasks {
         setBaseDir("src/test/resources/graphql")
         logDocuments = true
     }
+
+    named<org.springframework.boot.gradle.tasks.run.BootRun>("bootRun") {
+        args("--spring.profiles.active=local-ocp04")
+        dependsOn("port-forward-mokey")
+    }
 }
 
 task("copyDocs", type = Copy::class) {
     mustRunAfter("asciidoctor")
     from("$buildDir/asciidoc")
     into("$buildDir/resources/main/static/auroraapi")
+}
+
+task<com.github.psxpaul.task.ExecFork>("port-forward-mokey") {
+    executable = "./mokey-port-forward.sh"
 }
