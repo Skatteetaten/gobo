@@ -20,8 +20,10 @@ import org.springframework.core.io.Resource
 import org.springframework.scheduling.annotation.EnableScheduling
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.web.reactive.function.server.bodyValueAndAwait
+import org.springframework.web.reactive.function.server.buildAndAwait
 import org.springframework.web.reactive.function.server.coRouter
 import org.springframework.web.reactive.function.server.html
+import java.net.URI
 import java.net.URL
 import java.time.Instant
 import java.time.LocalDateTime
@@ -48,6 +50,10 @@ class GraphQLConfig(
     fun playgroundRouteGobo() = coRouter {
         GET(config.playground.endpoint) {
             ok().html().bodyValueAndAwait(body)
+        }
+
+        GET("/auroraapi") {
+            temporaryRedirect(URI.create("/auroraapi/index.html")).buildAndAwait()
         }
     }
 

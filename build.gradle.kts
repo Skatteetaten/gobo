@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
     kotlin("jvm") version "1.6.10"
     id("no.skatteetaten.gradle.aurora") version "4.4.10"
@@ -76,8 +78,8 @@ task<com.github.psxpaul.task.ExecFork>("port-forward-mokey") {
 }
 
 tasks {
-    named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
-        mustRunAfter("copyDocs")
+    named<KotlinCompile>("compileTestKotlin") {
+        dependsOn("copyDocs")
     }
 
     named<org.springframework.boot.gradle.tasks.run.BootRun>("bootRun") {
