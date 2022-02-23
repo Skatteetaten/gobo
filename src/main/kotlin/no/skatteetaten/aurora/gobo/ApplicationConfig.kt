@@ -2,6 +2,7 @@ package no.skatteetaten.aurora.gobo
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.netty.channel.ChannelOption
+import io.netty.channel.epoll.EpollChannelOption
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.graphql.GoboSpringKotlinDataFetcherFactoryProvider
@@ -200,10 +201,18 @@ class ApplicationConfig(
                 .builder("gobo-connection-provider")
                 .metrics(true)
                 .maxLifeTime(Duration.ofMillis(maxLifeTime))
+                .maxIdleTime(Duration.ofMillis(maxLifeTime / 2))
+                .evictInBackground(Duration.ofMillis(maxLifeTime * 2))
+                .disposeTimeout(Duration.ofSeconds(10))
                 .build()
         )
             .compress(true)
+            // https://projectreactor.io/docs/netty/release/reference/index.html#connection-timeout
             .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectionTimeout)
+            .option(ChannelOption.SO_KEEPALIVE, true)
+            .option(EpollChannelOption.TCP_KEEPIDLE, 300)
+            .option(EpollChannelOption.TCP_KEEPINTVL, 30)
+            .option(EpollChannelOption.TCP_KEEPCNT, 5)
             .responseTimeout(Duration.ofMillis(responseTimeout))
 
         if (ssl) {

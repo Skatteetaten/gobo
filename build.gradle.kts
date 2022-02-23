@@ -2,7 +2,7 @@
 
 plugins {
     kotlin("jvm") version "1.6.10"
-    id("no.skatteetaten.gradle.aurora") version "4.4.10"
+    id("no.skatteetaten.gradle.aurora") version "4.4.12"
     id("io.gatling.gradle") version "3.7.4"
     id("com.github.psxpaul.execfork") version "0.1.15"
     id("org.asciidoctor.jvm.convert") version "3.3.2"
@@ -40,7 +40,7 @@ dependencies {
 
     implementation("com.jayway.jsonpath:json-path:2.7.0")
     implementation("io.projectreactor.addons:reactor-extra:3.4.6")
-    implementation("no.skatteetaten.aurora.kubernetes:kubernetes-reactor-coroutines-client:1.3.25")
+    implementation("no.skatteetaten.aurora.kubernetes:kubernetes-reactor-coroutines-client:1.3.26")
     implementation("no.skatteetaten.aurora.springboot:aurora-spring-security-starter:1.7.0")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
@@ -52,7 +52,7 @@ dependencies {
         exclude(group = "no.skatteetaten.aurora.springboot", module = "aurora-spring-boot-mvc-starter")
     }
     testImplementation("com.ninja-squad:springmockk:3.1.0")
-    testImplementation("org.junit-pioneer:junit-pioneer:1.5.0")
+    testImplementation("org.junit-pioneer:junit-pioneer:1.6.0")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.0")
 }
 
