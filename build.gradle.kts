@@ -74,10 +74,6 @@ repositories {
 }
 
 tasks {
-    named<ProcessResources>("processResources") {
-        dependsOn("copyDocs")
-    }
-
     named<org.asciidoctor.gradle.jvm.AsciidoctorTask>("asciidoctor") {
         sourceDir("src/main/asciidoc")
         setBaseDir("src/test/resources/graphql")
@@ -89,13 +85,6 @@ tasks {
         dependsOn("port-forward-mokey")
     }
 }
-
-task("copyDocs", type = Copy::class) {
-    dependsOn("asciidoctor")
-    from("$buildDir/asciidoc")
-    into("$buildDir/resources/main/static/auroraapi")
-}
-
 task<com.github.psxpaul.task.ExecFork>("port-forward-mokey") {
     executable = "./mokey-port-forward.sh"
 }

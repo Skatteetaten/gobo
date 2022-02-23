@@ -3,7 +3,6 @@
 :source-highlighter: highlight.js
 Innhold:
 
-
 . link:toxiproxy.html[Toxi-proxy og toxics spørringer og mutasjoner]
 
 

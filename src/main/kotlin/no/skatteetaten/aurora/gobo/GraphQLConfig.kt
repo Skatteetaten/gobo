@@ -53,7 +53,7 @@ class GraphQLConfig(
         }
 
         GET("/auroraapi") {
-            temporaryRedirect(URI.create("/auroraapi/index.html")).buildAndAwait()
+            temporaryRedirect(URI.create("/docs/index.html")).buildAndAwait()
         }
     }
 
