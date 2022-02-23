@@ -1,8 +1,11 @@
+
+
 plugins {
     kotlin("jvm") version "1.6.10"
     id("no.skatteetaten.gradle.aurora") version "4.4.10"
     id("io.gatling.gradle") version "3.7.4"
     id("com.github.psxpaul.execfork") version "0.1.15"
+    id("org.asciidoctor.jvm.convert") version "3.3.2"
 }
 
 aurora {
@@ -70,13 +73,19 @@ repositories {
     mavenCentral()
 }
 
-task<com.github.psxpaul.task.ExecFork>("port-forward-mokey") {
-    executable = "./mokey-port-forward.sh"
-}
-
 tasks {
+    named<org.asciidoctor.gradle.jvm.AsciidoctorTask>("asciidoctor") {
+        sourceDir("src/main/asciidoc")
+        setBaseDir("src/test/resources/graphql")
+        logDocuments = true
+    }
+
     named<org.springframework.boot.gradle.tasks.run.BootRun>("bootRun") {
         args("--spring.profiles.active=local-ocp04")
         dependsOn("port-forward-mokey")
     }
+}
+
+task<com.github.psxpaul.task.ExecFork>("port-forward-mokey") {
+    executable = "./mokey-port-forward.sh"
 }

@@ -1,0 +1,14 @@
+# Aurora API
+:!revnumber:
+:source-highlighter: highlight.js
+Innhold:
+
+. link:toxiproxy.html[Toxi-proxy og toxics spørringer og mutasjoner]
+
+
+For å bruke spørringer og mutasjoner, må en spesifisere Authorization element:
+[source,json]
+{
+  "Authorization": "Bearer <bearer-tag>"
+}
+Verdien til "bearer-tag" oppnås ved å logge på gitt server (oc login), etterfulgt av kommandoen: oc whoami -t.

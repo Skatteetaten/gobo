@@ -4,7 +4,7 @@
       node {
         name
         applications {
-          applicationDeployments(applicationDeploymentRefs:{environment: "my_env",application: "my_app" })  {
+          applicationDeployments {
             environment
             name
             toxiProxy {

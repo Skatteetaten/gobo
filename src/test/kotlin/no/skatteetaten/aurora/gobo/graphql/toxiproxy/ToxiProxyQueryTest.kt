@@ -43,6 +43,9 @@ class ToxiProxyQueryTest : GraphQLTestWithDbhAndSkap() {
     @Value("classpath:graphql/queries/getApplicationDeploymentWithToxics.graphql")
     private lateinit var getApplicationDeploymentWithToxicsQuery: Resource
 
+    @Value("classpath:graphql/queries/getApplicationDeploymentAndToxiProxyWithAff.graphql")
+    private lateinit var getApplicationDeploymentAndToxiProxyWithAff: Resource
+
     @Value("classpath:graphql/queries/getApplicationDeploymentAndToxiProxyWithRef.graphql")
     private lateinit var getApplicationDeploymentAndToxiProxyWithRef: Resource
 
@@ -174,15 +177,40 @@ class ToxiProxyQueryTest : GraphQLTestWithDbhAndSkap() {
     }
 
     @Test
+    fun `Query for applications and toxics given affiliation`() {
+        coEvery { applicationService.getApplications(any(), any()) } returns
+            listOf(
+                ApplicationResourceBuilder(
+                    affiliation = "my_aff",
+                    applicationDeployments =
+                    listOf(
+                        ApplicationDeploymentResourceBuilder(affiliation = "my_aff", environment = "my_env", name = "my_app").build(),
+                    )
+                ).build()
+            )
+        coEvery { applicationService.getApplicationDeploymentDetails(any(), any()) } returns ApplicationDeploymentDetailsResourceBuilder().build()
+
+        server.execute(proxyGetResponse) {
+            webTestClient.queryGraphQL(getApplicationDeploymentAndToxiProxyWithAff, token = "test-token")
+                .expectStatus().isOk
+                .expectBody()
+                .graphqlDataWithPrefix("affiliations.edges[0].node") {
+                    graphqlData("name").isEqualTo("my_aff")
+                    // graphqlData("applications[0].applicationDeployments.length()").isEqualTo(1)
+                    graphqlData("applications[0].applicationDeployments[0].environment").isEqualTo("my_env")
+                    graphqlData("applications[0].applicationDeployments[0].toxiProxy.length()").isEqualTo(3)
+                }
+        }
+    }
+    @Test
     fun `Query for applications and toxics with refs`() {
         coEvery { applicationService.getApplications(any(), any()) } returns
             listOf(
                 ApplicationResourceBuilder(
-                    affiliation = "aup",
+                    affiliation = "my_aff",
                     applicationDeployments =
                     listOf(
-                        ApplicationDeploymentResourceBuilder(affiliation = "aup", environment = "utv", name = "gobo").build(),
-                        ApplicationDeploymentResourceBuilder(affiliation = "aup", environment = "test", name = "boober").build()
+                        ApplicationDeploymentResourceBuilder(affiliation = "my_aff", environment = "my_env", name = "my_app").build(),
                     )
                 ).build()
             )
@@ -193,7 +221,7 @@ class ToxiProxyQueryTest : GraphQLTestWithDbhAndSkap() {
                 .expectStatus().isOk
                 .expectBody()
                 .graphqlDataWithPrefix("affiliations.edges[0].node") {
-                    graphqlData("name").isEqualTo("aup")
+                    graphqlData("name").isEqualTo("my_aff")
                     graphqlData("applications[0].applicationDeployments.length()").isEqualTo(1)
                 }
         }
