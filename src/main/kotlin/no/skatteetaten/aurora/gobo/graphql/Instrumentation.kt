@@ -141,7 +141,7 @@ class GoboInstrumentation(
                     val timeUsed = System.currentTimeMillis() - it.startTime
 
                     it.operationNameOrNull?.let { operationName ->
-                        Timer.builder("graphql_operationTimer")
+                        Timer.builder("graphql.operationTimer")
                             .tags(listOf(Tag.of("operationName", operationName)))
                             .description("Time used for graphql operation")
                             .minimumExpectedValue(Duration.ofMillis(100))
