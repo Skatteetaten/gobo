@@ -48,7 +48,7 @@ class GraphQLConfig(
 
     @Bean
     @Primary
-    fun playgroundRouteGobo() = coRouter {
+    fun goboRoutes() = coRouter {
         GET(config.playground.endpoint) {
             ok().html().bodyValueAndAwait(body)
         }
@@ -58,7 +58,7 @@ class GraphQLConfig(
         }
 
         GET("/liveness") {
-            goboLiveness.isHealthy()
+            goboLiveness.getConnectionPoolProblems()
             ok().buildAndAwait()
         }
     }
