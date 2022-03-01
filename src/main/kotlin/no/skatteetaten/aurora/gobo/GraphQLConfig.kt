@@ -58,6 +58,7 @@ class GraphQLConfig(
         }
 
         GET("/liveness") {
+            logger.debug("Liveness check called")
             goboLiveness.getConnectionPoolProblems()
             ok().buildAndAwait()
         }
