@@ -37,7 +37,8 @@ class GraphQLConfig(
     private val config: GraphQLConfigurationProperties,
     @Value("classpath:/playground/gobo-graphql-playground.html") private val playgroundHtml: Resource,
     private val goboInstrumentation: GoboInstrumentation,
-    private val queryReporter: QueryReporter
+    private val queryReporter: QueryReporter,
+    private val goboLiveness: GoboLiveness
 ) {
     private val body = playgroundHtml.inputStream.bufferedReader().use { reader ->
         reader.readText()
@@ -47,13 +48,19 @@ class GraphQLConfig(
 
     @Bean
     @Primary
-    fun playgroundRouteGobo() = coRouter {
+    fun goboRoutes() = coRouter {
         GET(config.playground.endpoint) {
             ok().html().bodyValueAndAwait(body)
         }
 
         GET("/auroraapi") {
             temporaryRedirect(URI.create("/docs/index.html")).buildAndAwait()
+        }
+
+        GET("/liveness") {
+            logger.debug("Liveness check called")
+            goboLiveness.getConnectionPoolProblems()
+            ok().buildAndAwait()
         }
     }
 
