@@ -10,7 +10,11 @@ import org.junit.jupiter.api.Test
 
 class GoboLivenessTest {
     private val meterRegistry = SimpleMeterRegistry()
-    private val liveness = GoboLiveness(meterRegistry)
+    private val liveness = GoboLiveness(
+        meterRegistry = meterRegistry,
+        maxTotalConnections = 14,
+        maxPendingConnections = 2
+    )
 
     @BeforeEach
     internal fun setUp() {
@@ -28,11 +32,11 @@ class GoboLivenessTest {
     @Test
     fun `Connection pool problems with too many connections`() {
         meterRegistry.gauge(liveness.nettyTotalConnections, 15)
-        meterRegistry.gauge(liveness.nettyPendingConnections, 1)
+        meterRegistry.gauge(liveness.nettyPendingConnections, 3)
         val connectionPoolProblems = liveness.getConnectionPoolProblems()
 
         assertThat(connectionPoolProblems).hasSize(1)
         assertThat(connectionPoolProblems.first().totalConnections).isEqualTo(15.0)
-        assertThat(connectionPoolProblems.first().pendingConnections).isEqualTo(1.0)
+        assertThat(connectionPoolProblems.first().pendingConnections).isEqualTo(3.0)
     }
 }
