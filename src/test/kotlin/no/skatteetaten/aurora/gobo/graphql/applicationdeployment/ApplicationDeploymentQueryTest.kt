@@ -31,6 +31,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
+import java.time.Instant
 
 @Import(
     ApplicationDeploymentQuery::class,
@@ -85,6 +86,13 @@ class ApplicationDeploymentQueryTest : GraphQLTestWithDbhAndSkap() {
         coEvery { imageRegistryService.findTagsByName(any(), any()) } returns AuroraResponse(
             listOf(
                 ImageTagResourceBuilder().build()
+            )
+        )
+
+        coEvery { imageRegistryService.findVersions(any(), any(), any()) } returns listOf(
+            no.skatteetaten.aurora.gobo.integration.cantus.Version(
+                name = "test",
+                lastModified = Instant.now().toString()
             )
         )
 

@@ -44,3 +44,8 @@ data class AuroraResponse<T : Any>(
     val successCount: Int = items.size,
     val count: Int = failureCount + successCount
 ) : HalResource()
+
+data class Version(
+    val name: String,
+    val lastModified: String
+)

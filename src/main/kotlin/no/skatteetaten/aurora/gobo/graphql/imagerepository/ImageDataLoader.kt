@@ -1,26 +1,33 @@
 package no.skatteetaten.aurora.gobo.graphql.imagerepository
 
 import graphql.GraphQLContext
-import graphql.execution.DataFetcherResult
 import no.skatteetaten.aurora.gobo.graphql.GoboDataLoader
-import no.skatteetaten.aurora.gobo.graphql.newDataFetcherResult
 import no.skatteetaten.aurora.gobo.graphql.token
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageRegistryService
-import no.skatteetaten.aurora.gobo.integration.cantus.ImageRepoAndTags
+import no.skatteetaten.aurora.gobo.integration.cantus.Version
 import org.springframework.stereotype.Component
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 
 @Component
-class ImageDataLoader(private val imageRegistryService: ImageRegistryService) : GoboDataLoader<ImageTag, DataFetcherResult<Image?>>() {
-    override suspend fun getByKeys(keys: Set<ImageTag>, ctx: GraphQLContext): Map<ImageTag, DataFetcherResult<Image?>> {
+class ImageDataLoader(private val imageRegistryService: ImageRegistryService) : GoboDataLoader<ImageTag, Image?>() {
+
+    override suspend fun getByKeys(keys: Set<ImageTag>, ctx: GraphQLContext): Map<ImageTag, Image?> {
+
+        if (keys.isEmpty()) return emptyMap()
+
+        val versions: List<Version> = keys
+            .groupBy { Pair(it.imageRepository.namespace, it.imageRepository.name) }
+            .keys
+            .flatMap { (namespace, name) -> imageRegistryService.findVersions(namespace, name, ctx.token) }
+
         return keys.associateWith { key ->
-            val imageReposAndTags = ImageRepoAndTags.fromImageTags(setOf(key))
-            // TODO can it contain multiple tags?
-            runCatching {
-                val response = imageRegistryService.findTagsByName(imageReposAndTags, ctx.token).items.firstOrNull()
-                newDataFetcherResult(data = response?.let { Image(it.timeline.buildEnded, it.requestUrl) })
-            }.recoverCatching {
-                newDataFetcherResult(it)
-            }.getOrThrow()
+            versions.find { it.name == key.name }?.let {
+                Image(
+                    ZonedDateTime.parse(it.lastModified, DateTimeFormatter.ISO_OFFSET_DATE_TIME).toInstant(),
+                    it.name
+                )
+            }
         }
     }
 }
