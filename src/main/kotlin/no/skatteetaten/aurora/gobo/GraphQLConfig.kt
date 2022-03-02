@@ -56,12 +56,6 @@ class GraphQLConfig(
         GET("/auroraapi") {
             temporaryRedirect(URI.create("/docs/index.html")).buildAndAwait()
         }
-
-        GET("/liveness") {
-            logger.debug("Liveness check called")
-            goboLiveness.getConnectionPoolProblems()
-            ok().buildAndAwait()
-        }
     }
 
     @Bean
