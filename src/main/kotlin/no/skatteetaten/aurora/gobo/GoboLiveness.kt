@@ -43,7 +43,7 @@ class GoboLiveness(
 }
 
 @Component
-@RestControllerEndpoint(id = "gobo-liveness")
+@RestControllerEndpoint(id = "liveness")
 class GoboLivenessController(private val goboLiveness: GoboLiveness) {
 
     @GetMapping

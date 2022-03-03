@@ -3,7 +3,7 @@
 plugins {
     kotlin("jvm") version "1.6.10"
     id("no.skatteetaten.gradle.aurora") version "4.4.12"
-    id("io.gatling.gradle") version "3.7.5"
+    id("io.gatling.gradle") version "3.7.6"
     id("com.github.psxpaul.execfork") version "0.1.15"
     id("org.asciidoctor.jvm.convert") version "3.3.2"
 }

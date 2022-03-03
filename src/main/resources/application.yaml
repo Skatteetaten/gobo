@@ -36,7 +36,7 @@ management:
     endpoints:
         web:
             exposure:
-                include: info,health,prometheus,env,loggers,metrics,gobo-liveness
+                include: info,health,prometheus,env,loggers,metrics,liveness
     metrics:
         distribution:
             minimum-expected-value:
