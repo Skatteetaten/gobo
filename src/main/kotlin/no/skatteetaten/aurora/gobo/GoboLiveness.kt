@@ -4,7 +4,10 @@ import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.core.instrument.Tag
 import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.actuate.endpoint.web.annotation.RestControllerEndpoint
+import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
+import org.springframework.web.bind.annotation.GetMapping
 
 private val logger = KotlinLogging.logger {}
 
@@ -37,4 +40,16 @@ class GoboLiveness(
                 null
             }
         }
+}
+
+@Component
+@RestControllerEndpoint(id = "gobo-liveness")
+class GoboLivenessController(private val goboLiveness: GoboLiveness) {
+
+    @GetMapping
+    fun liveness(): ResponseEntity<Map<String, List<ConnectionPoolProblem>>> {
+        logger.debug("Liveness check called")
+        val connectionPoolProblems = goboLiveness.getConnectionPoolProblems()
+        return ResponseEntity.ok(mapOf("connectionPoolProblems" to connectionPoolProblems))
+    }
 }
