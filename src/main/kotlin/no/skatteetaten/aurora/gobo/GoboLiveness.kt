@@ -33,7 +33,7 @@ class GoboLiveness(
                 .gauge()?.value() ?: 0.0
 
             ConnectionPool(total.value(), pending, total.id.tags).also {
-                if (total.value() > maxTotalConnections && pending > maxPendingConnections) {
+                if (it.totalConnections > maxTotalConnections && it.pendingConnections > maxPendingConnections) {
                     logger.warn("Liveness check failed, total connections ${it.totalConnections} / pending connections ${it.pendingConnections} for tags ${it.tags}")
                 }
             }
