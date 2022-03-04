@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping
 
 private val logger = KotlinLogging.logger {}
 
-data class ConnectionPoolProblem(val totalConnections: Double, val pendingConnections: Double, val tags: List<Tag>)
+data class ConnectionPool(val totalConnections: Double, val pendingConnections: Double, val tags: List<Tag>)
 
 @Component
 class GoboLiveness(
@@ -23,7 +23,7 @@ class GoboLiveness(
     val nettyTotalConnections = "reactor.netty.connection.provider.total.connections"
     val nettyPendingConnections = "reactor.netty.connection.provider.pending.connections"
 
-    fun getConnectionPoolProblems() = meterRegistry
+    fun getConnectionPools() = meterRegistry
         .find(nettyTotalConnections)
         .gauges()
         .mapNotNull { total ->
@@ -32,12 +32,10 @@ class GoboLiveness(
                 .tags(total.id.tags)
                 .gauge()?.value() ?: 0.0
 
-            if (total.value() > maxTotalConnections && pending > maxPendingConnections) {
-                ConnectionPoolProblem(total.value(), pending, total.id.tags).also {
+            ConnectionPool(total.value(), pending, total.id.tags).also {
+                if (it.totalConnections > maxTotalConnections && it.pendingConnections > maxPendingConnections) {
                     logger.warn("Liveness check failed, total connections ${it.totalConnections} / pending connections ${it.pendingConnections} for tags ${it.tags}")
                 }
-            } else {
-                null
             }
         }
 }
@@ -47,9 +45,9 @@ class GoboLiveness(
 class GoboLivenessController(private val goboLiveness: GoboLiveness) {
 
     @GetMapping
-    fun liveness(): ResponseEntity<Map<String, List<ConnectionPoolProblem>>> {
+    fun liveness(): ResponseEntity<Map<String, List<ConnectionPool>>> {
         logger.debug("Liveness check called")
-        val connectionPoolProblems = goboLiveness.getConnectionPoolProblems()
-        return ResponseEntity.ok(mapOf("connectionPoolProblems" to connectionPoolProblems))
+        val connectionPools = goboLiveness.getConnectionPools()
+        return ResponseEntity.ok(mapOf("connectionPools" to connectionPools))
     }
 }
