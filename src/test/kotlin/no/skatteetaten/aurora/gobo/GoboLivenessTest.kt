@@ -2,7 +2,6 @@ package no.skatteetaten.aurora.gobo
 
 import assertk.assertThat
 import assertk.assertions.hasSize
-import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import org.junit.jupiter.api.BeforeEach
@@ -22,21 +21,13 @@ class GoboLivenessTest {
     }
 
     @Test
-    fun `Does not have connection pool problems`() {
-        meterRegistry.gauge(liveness.nettyTotalConnections, 1)
-        meterRegistry.gauge(liveness.nettyPendingConnections, 0)
-
-        assertThat(liveness.getConnectionPoolProblems()).isEmpty()
-    }
-
-    @Test
-    fun `Connection pool problems with too many connections`() {
+    fun `Get connection pools`() {
         meterRegistry.gauge(liveness.nettyTotalConnections, 15)
         meterRegistry.gauge(liveness.nettyPendingConnections, 3)
-        val connectionPoolProblems = liveness.getConnectionPoolProblems()
+        val connectionPools = liveness.getConnectionPools()
 
-        assertThat(connectionPoolProblems).hasSize(1)
-        assertThat(connectionPoolProblems.first().totalConnections).isEqualTo(15.0)
-        assertThat(connectionPoolProblems.first().pendingConnections).isEqualTo(3.0)
+        assertThat(connectionPools).hasSize(1)
+        assertThat(connectionPools.first().totalConnections).isEqualTo(15.0)
+        assertThat(connectionPools.first().pendingConnections).isEqualTo(3.0)
     }
 }
