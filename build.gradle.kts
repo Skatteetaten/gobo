@@ -1,5 +1,3 @@
-
-
 plugins {
     kotlin("jvm") version "1.6.10"
     id("no.skatteetaten.gradle.aurora") version "4.4.12"
