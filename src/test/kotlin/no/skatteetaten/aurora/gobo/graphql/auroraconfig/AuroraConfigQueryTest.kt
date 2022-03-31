@@ -132,8 +132,8 @@ class AuroraConfigQueryTest : GraphQLTestWithDbhAndSkap() {
             .expectStatus().isOk
             .expectBody()
             .graphqlDataWithPrefix("auroraConfig") {
-                graphqlData("applicationFiles[0].applicationDeploymentRef.application").isEqualTo("my-application")
-                graphqlData("applicationFiles[0].applicationDeploymentRef.environment").isEqualTo("my-env")
+                graphqlData("applicationFiles[0].application").isEqualTo("my-application")
+                graphqlData("applicationFiles[0].environment").isEqualTo("my-env")
                 graphqlData("applicationFiles[0].files.length()").isEqualTo("1")
                 graphqlData("applicationFiles[0].files[0].name").isEqualTo("utv/foo.json")
                 graphqlData("applicationFiles[0].files[0].contents").isEqualTo("""{ "foo" : "bar" }""")

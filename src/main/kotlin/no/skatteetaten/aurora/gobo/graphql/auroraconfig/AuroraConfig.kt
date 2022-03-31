@@ -118,5 +118,6 @@ data class AuroraConfigFileValidationResponse(
 
 data class ApplicationFilesResource(
     val files: List<AuroraConfigFileResource>,
-    val applicationDeploymentRef: ApplicationDeploymentRef
+    val application: String,
+    val environment: String,
 )

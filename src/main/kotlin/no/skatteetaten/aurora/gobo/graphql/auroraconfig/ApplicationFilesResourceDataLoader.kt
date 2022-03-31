@@ -36,7 +36,8 @@ class ApplicationFilesResourceDataLoader(
                     ).filter {
                         files.types == null || files.types.contains(it.type)
                     },
-                    applicationDeploymentRef = ref
+                    environment = ref.environment,
+                    application = ref.application
                 )
             }
         }

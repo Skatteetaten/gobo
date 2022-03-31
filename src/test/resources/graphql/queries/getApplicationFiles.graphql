@@ -7,10 +7,8 @@ query getApplicationFiles($auroraConfig: String!, $applicationDeploymentRefInput
               type
               contentHash
            }
-           applicationDeploymentRef{
-               environment
-               application
-           }
+           environment
+           application
         }
     }
 }
