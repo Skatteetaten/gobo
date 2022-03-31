@@ -44,6 +44,22 @@ data class AuroraConfig(
             )
         )
     }
+
+    fun applicationFiles(
+        applicationDeploymentRefs: List<ApplicationDeploymentRef>,
+        types: List<AuroraConfigFileType>? = null,
+        dfe: DataFetchingEnvironment
+    ): CompletableFuture<List<ApplicationFilesResource>> {
+        runBlocking { dfe.checkValidUserToken() } // TODO bør fikses med @PreAuthorize?
+        return dfe.loadValue(
+            ApplicationFilesKey(
+                name,
+                ref,
+                types,
+                applicationDeploymentRefs
+            )
+        )
+    }
 }
 
 data class ApplicationDeploymentSpec(
@@ -98,4 +114,9 @@ data class AuroraConfigFileValidationResponse(
     val message: String?,
     val success: Boolean,
     val file: AuroraConfigFileResource? = null
+)
+
+data class ApplicationFilesResource(
+    val files: List<AuroraConfigFileResource>,
+    val applicationDeploymentRef: ApplicationDeploymentRef
 )
