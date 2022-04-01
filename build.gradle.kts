@@ -73,6 +73,9 @@ task<de.undercouch.gradle.tasks.download.Download>("download-playground") {
 }
 repositories {
     mavenCentral()
+    maven {
+        url = uri("https://nexus.sits.no/repository/maven-snapshots/")
+    }
 }
 
 tasks {
