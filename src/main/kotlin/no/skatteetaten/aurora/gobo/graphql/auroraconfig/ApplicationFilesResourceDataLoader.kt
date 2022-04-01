@@ -24,17 +24,18 @@ class ApplicationFilesResourceDataLoader(
         keys: Set<ApplicationFilesKey>,
         ctx: GraphQLContext
     ): Map<ApplicationFilesKey, List<ApplicationFilesResource>> {
-        return keys.associateWith { files ->
-            files.applicationDeploymentRef.map { ref ->
+        return keys.associateWith { key ->
+            key.applicationDeploymentRef.map { ref ->
+                val files = auroraConfigService.getAuroraConfigFiles(
+                    token = ctx.token,
+                    key.configName,
+                    ref.environment,
+                    ref.application,
+                    key.configRef
+                )
                 ApplicationFilesResource(
-                    files = auroraConfigService.getAuroraConfigFiles(
-                        token = ctx.token,
-                        files.configName,
-                        ref.environment,
-                        ref.application,
-                        files.configRef
-                    ).filter {
-                        files.types == null || files.types.contains(it.type)
+                    files = files.filter {
+                        key.types == null || key.types.contains(it.type)
                     },
                     environment = ref.environment,
                     application = ref.application
