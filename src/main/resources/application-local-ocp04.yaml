@@ -59,9 +59,18 @@ gobo:
     graphqlUsage:
         cron: "*/60 * * * * *" # every 60 seconds
 
-# logging.level.no.skatteetaten.aurora.gobo: DEBUG
+logging.level.no.skatteetaten.aurora.gobo: DEBUG
 logging.level.no.skatteetaten.aurora.gobo.security: DEBUG
 logging.level.no.skatteetaten.aurora.kubernetes: DEBUG
 logging.level.no.skatteetaten.aurora.springboot: DEBUG
 logging.level.com.expediagroup.graphql.server.spring: WARN
 
+spring:
+    sleuth:
+        otel:
+            config:
+                trace-id-ratio-based: 1.0
+            exporter:
+                otlp:
+                    endpoint: https://trace.sits.no:55681/v1/traces
+                    timeout: 30000

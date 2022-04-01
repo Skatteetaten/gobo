@@ -4,7 +4,13 @@ spring:
     main:
         banner-mode: "off"
     sleuth:
-        enabled: false
+        otel:
+            config:
+                trace-id-ratio-based: 1.0
+            exporter:
+                otlp:
+                    endpoint: https://localhost
+                    timeout: 30000
 
 credentials:
     registerPostgres:

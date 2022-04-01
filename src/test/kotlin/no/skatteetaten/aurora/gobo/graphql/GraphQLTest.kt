@@ -17,6 +17,7 @@ import no.skatteetaten.aurora.springboot.AuroraSpringSecurityConfig
 import org.junit.jupiter.api.BeforeEach
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest
+import org.springframework.cloud.sleuth.autoconfig.otel.OtelAutoConfiguration
 import org.springframework.context.annotation.Import
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.stereotype.Component
@@ -43,6 +44,7 @@ class TestDummyQuery : Query {
     GoboInstrumentation::class,
     TestDummyQuery::class,
     QueryReporter::class,
+    OtelAutoConfiguration::class
 )
 abstract class GraphQLTestWithoutDbhAndSkap {
     @Autowired

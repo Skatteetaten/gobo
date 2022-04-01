@@ -22,6 +22,8 @@ class GoboLiveness(
 
     val nettyTotalConnections = "reactor.netty.connection.provider.total.connections"
     val nettyPendingConnections = "reactor.netty.connection.provider.pending.connections"
+    // active
+    // idle
 
     fun getConnectionPools() = meterRegistry
         .find(nettyTotalConnections)
@@ -36,6 +38,8 @@ class GoboLiveness(
                 if (it.totalConnections > maxTotalConnections && it.pendingConnections > maxPendingConnections) {
                     logger.warn("Liveness check failed, total connections ${it.totalConnections} / pending connections ${it.pendingConnections} for tags ${it.tags}")
                 }
+
+                // sjekk active + idle = total
             }
         }
 }

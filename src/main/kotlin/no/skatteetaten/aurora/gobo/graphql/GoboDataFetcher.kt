@@ -1,41 +1,22 @@
 package no.skatteetaten.aurora.gobo.graphql
 
-import brave.Tracing
-import brave.propagation.CurrentTraceContext
 import com.expediagroup.graphql.generator.execution.FunctionDataFetcher
 import com.expediagroup.graphql.generator.execution.SimpleKotlinDataFetcherFactoryProvider
 import com.fasterxml.jackson.databind.ObjectMapper
 import graphql.schema.DataFetcherFactory
 import graphql.schema.DataFetchingEnvironment
-import kotlinx.coroutines.ThreadContextElement
 import kotlinx.coroutines.slf4j.MDCContext
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.beans.factory.getBean
+import org.springframework.cloud.sleuth.Tracer
+import org.springframework.cloud.sleuth.instrument.kotlin.asContextElement
 import org.springframework.context.ApplicationContext
-import kotlin.coroutines.AbstractCoroutineContextElement
-import kotlin.coroutines.CoroutineContext
 import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.hasAnnotation
 import kotlin.reflect.jvm.javaType
-
-// Implemented based on https://github.com/openzipkin/brave/issues/820#issuecomment-447614394
-class TracingContextElement : ThreadContextElement<CurrentTraceContext.Scope?>,
-    AbstractCoroutineContextElement(Key) {
-    private val currentTraceContext: CurrentTraceContext? = Tracing.current()?.currentTraceContext()
-    private val initial = currentTraceContext?.get()
-
-    companion object Key : CoroutineContext.Key<TracingContextElement>
-
-    override fun updateThreadContext(context: CoroutineContext): CurrentTraceContext.Scope? {
-        return currentTraceContext?.maybeScope(initial)
-    }
-
-    override fun restoreThreadContext(context: CoroutineContext, oldState: CurrentTraceContext.Scope?) {
-        oldState?.close()
-    }
-}
 
 class GoboSpringKotlinDataFetcherFactoryProvider(
     private val objectMapper: ObjectMapper,
@@ -51,7 +32,7 @@ class GoboDataFetcher(
     fn: KFunction<*>,
     objectMapper: ObjectMapper,
     private val applicationContext: ApplicationContext
-) : FunctionDataFetcher(target, fn, objectMapper, MDCContext() + TracingContextElement()) {
+) : FunctionDataFetcher(target, fn, objectMapper, MDCContext() + applicationContext.getBean<Tracer>().asContextElement()) {
 
     override fun mapParameterToValue(param: KParameter, environment: DataFetchingEnvironment): Pair<KParameter, Any?>? =
         if (param.hasAnnotation<Autowired>()) {

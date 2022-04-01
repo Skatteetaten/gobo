@@ -14,6 +14,10 @@ aurora {
         useWebFlux
         useCloudContract
     }
+
+    versions {
+        auroraSpringBootWebFluxStarter = "feature_AOS_6469-SNAPSHOT"
+    }
 }
 
 dependencies {

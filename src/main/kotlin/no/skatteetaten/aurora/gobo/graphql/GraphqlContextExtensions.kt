@@ -1,8 +1,8 @@
 package no.skatteetaten.aurora.gobo.graphql
 
-import brave.baggage.BaggageField
 import graphql.GraphQLContext
 import graphql.schema.DataFetchingEnvironment
+import io.opentelemetry.api.baggage.Baggage
 import kotlinx.coroutines.reactive.awaitFirst
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.graphql.errorhandling.isInvalidToken
@@ -39,7 +39,7 @@ val GraphQLContext.request: ServerRequest
 val DataFetchingEnvironment.korrelasjonsid: String
     get() = graphQlContext.korrelasjonsid
 val GraphQLContext.korrelasjonsid: String
-    get() = request.korrelasjonsid() ?: BaggageField.getByName(AuroraRequestParser.KORRELASJONSID_FIELD)?.value ?: ""
+    get() = request.korrelasjonsid() ?: Baggage.current().getEntryValue(AuroraRequestParser.KORRELASJONSID_FIELD) ?: ""
 val DataFetchingEnvironment.klientid: String?
     get() = graphQlContext.klientid
 val GraphQLContext.klientid: String?

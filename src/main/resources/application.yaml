@@ -45,6 +45,10 @@ management:
             maximum-expected-value:
                 "http.client.requests": "30000"
                 "http.server.requests": "30000"
+        export:
+          prometheus:
+            pushgateway:
+                job:
 
 kubernetes:
     webclient:
