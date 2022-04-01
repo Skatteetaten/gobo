@@ -25,6 +25,9 @@ class ApplicationDeploymentsAndImagesQueryTest : GraphQLTestWithDbhAndSkap() {
     @Value("classpath:graphql/queries/getApplicationDeploymentsAndImages.graphql")
     private lateinit var applicationDeploymentsAndImages: Resource
 
+    @Value("classpath:graphql/queries/getApplicationDeploymentsAndVersions.graphql")
+    private lateinit var applicationDeploymentsAndVersions: Resource
+
     @MockkBean
     private lateinit var applicationService: ApplicationService
 
@@ -46,6 +49,24 @@ class ApplicationDeploymentsAndImagesQueryTest : GraphQLTestWithDbhAndSkap() {
             variables = mapOf("id" to "123", "repository" to "docker-registry/skatteetaten/123"),
             token = "test-token"
         ).expectStatus().isOk
+            .expectBody()
+            .graphqlData("applicationDeployment.affiliation.name").isEqualTo("paas")
+            .graphqlErrors("length()").isEqualTo(1)
+    }
+
+    @Test
+    fun `Query for application deployments and versions, throw exception for versions`() {
+
+        coEvery { imageRegistryService.findTagNamesInRepoOrderedByCreatedDateDesc(any(), any()) } throws
+            RuntimeException("test exception")
+
+        webTestClient
+            .queryGraphQL(
+                queryResource = applicationDeploymentsAndVersions,
+                variables = mapOf("id" to "123", "repository" to "docker-registry/skatteetaten/123"),
+                token = "test-token"
+            )
+            .expectStatus().isOk
             .expectBody()
             .graphqlData("applicationDeployment.affiliation.name").isEqualTo("paas")
             .graphqlErrors("length()").isEqualTo(1)

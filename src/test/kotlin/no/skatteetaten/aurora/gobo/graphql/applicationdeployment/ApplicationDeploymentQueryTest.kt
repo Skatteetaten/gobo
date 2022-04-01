@@ -17,6 +17,7 @@ import no.skatteetaten.aurora.gobo.graphql.graphqlDataWithPrefix
 import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.graphql.graphqlErrorsFirst
 import no.skatteetaten.aurora.gobo.graphql.imagerepository.ImageDataLoader
+import no.skatteetaten.aurora.gobo.graphql.imagerepository.VersionDataLoader
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
 import no.skatteetaten.aurora.gobo.graphql.route.RouteDataLoader
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileType
@@ -36,6 +37,7 @@ import java.time.Instant
 @Import(
     ApplicationDeploymentQuery::class,
     ImageDataLoader::class,
+    VersionDataLoader::class,
     RouteDataLoader::class,
     AuroraConfigFileResourceDataLoader::class
 )

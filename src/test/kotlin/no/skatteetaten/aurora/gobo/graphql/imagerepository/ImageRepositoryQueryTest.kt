@@ -9,6 +9,7 @@ import no.skatteetaten.aurora.gobo.graphql.graphqlDataWithPrefixAndIndex
 import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.graphql.graphqlErrors
 import no.skatteetaten.aurora.gobo.graphql.graphqlErrorsFirst
+import no.skatteetaten.aurora.gobo.graphql.isTrue
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.integration.cantus.AuroraResponse
@@ -44,12 +45,26 @@ private fun List<ImageRepoAndTags>.getTagCount() =
     ImageRepositoryQuery::class,
     ImageTagsConnectionDataLoader::class,
     ImageDataLoader::class,
+    VersionsDataLoader::class,
+    VersionDataLoader::class,
     GuiUrlDataLoader::class,
     MultipleImagesDataLoader::class
 )
 class ImageRepositoryQueryTest : GraphQLTestWithDbhAndSkap() {
     @Value("classpath:graphql/queries/getImageRepositories.graphql")
     private lateinit var reposWithTagsQuery: Resource
+
+    @Value("classpath:graphql/queries/getVersions.graphql")
+    private lateinit var reposWithVersionsQuery: Resource
+
+    @Value("classpath:graphql/queries/getImageTagsWithPaging.graphql")
+    private lateinit var tagsWithPagingQuery: Resource
+
+    @Value("classpath:graphql/queries/getImageRepositoriesWithNoTagFiltering.graphql")
+    private lateinit var reposWithTagsWithoutFiltersQuery: Resource
+
+    @Value("classpath:graphql/queries/getImageRepositoriesWithOnlyFirstFilter.graphql")
+    private lateinit var reposWithOnlyFirstFilter: Resource
 
     @Value("classpath:graphql/queries/getImageTag.graphql")
     private lateinit var imageTagQuery: Resource
@@ -82,6 +97,16 @@ class ImageRepositoryQueryTest : GraphQLTestWithDbhAndSkap() {
                     "test-token"
                 )
             } returns TagsDto(imageRepoAndTags.imageTags.map { Tag(name = it, type = ImageTagType.typeOf(it)) })
+
+            val imageRepository = ImageRepository.fromRepoString(imageRepoAndTags.imageRepository)
+
+            coEvery {
+                imageRegistryService.findVersions(
+                    imageRepository.namespace,
+                    imageRepository.name,
+                    any()
+                )
+            } returns imageRepoAndTags.imageTags.map { Version(it, EPOCH.toString()) }
         }
     }
 
@@ -117,22 +142,12 @@ class ImageRepositoryQueryTest : GraphQLTestWithDbhAndSkap() {
 
     @Test
     fun `Query for repositories and tags`() {
+        coEvery { imageRegistryService.findTagsByName(any(), any()) } returns auroraResponse
 
         imageReposAndTags.forEach { imageRepoAndTags ->
-
-            val imageRepository = ImageRepository.fromRepoString(imageRepoAndTags.imageRepository)
-
-            coEvery {
-                imageRegistryService.findVersions(
-                    imageRepository.namespace,
-                    imageRepository.name,
-                    any()
-                )
-            } returns imageRepoAndTags.imageTags.map { Version(it, EPOCH.toString()) }
-
             coEvery {
                 imageRegistryService.findTagNamesInRepoOrderedByCreatedDateDesc(
-                    imageRepository.toImageRepo(),
+                    ImageRepository.fromRepoString(imageRepoAndTags.imageRepository).toImageRepo(),
                     "test-token"
                 )
             } returns TagsDto(imageRepoAndTags.imageTags.map { Tag(name = it, type = ImageTagType.typeOf(it)) })
@@ -157,6 +172,47 @@ class ImageRepositoryQueryTest : GraphQLTestWithDbhAndSkap() {
     }
 
     @Test
+    fun `Query for versions`() {
+
+        imageReposAndTags.forEach { imageRepoAndTags ->
+
+            val imageRepository = ImageRepository.fromRepoString(imageRepoAndTags.imageRepository)
+
+            coEvery {
+                imageRegistryService.findVersions(
+                    imageRepository.namespace,
+                    imageRepository.name,
+                    any()
+                )
+            } returns imageRepoAndTags.imageTags.map { Version(it, EPOCH.toString()) }
+
+            coEvery {
+                imageRegistryService.findTagNamesInRepoOrderedByCreatedDateDesc(
+                    imageRepository.toImageRepo(),
+                    "test-token"
+                )
+            } returns TagsDto(imageRepoAndTags.imageTags.map { Tag(name = it, type = ImageTagType.typeOf(it)) })
+        }
+
+        val variables = mapOf("repositories" to imageReposAndTags.map { it.imageRepository })
+
+        webTestClient
+            .queryGraphQL(reposWithVersionsQuery, variables, "test-token")
+            .expectStatus().isOk
+            .expectBody()
+            .graphqlDataWithPrefixAndIndex("imageRepositories", endIndex = 1) {
+                val imageRepoAndTags = imageReposAndTags[index]
+                graphqlData("repository").isEqualTo(imageRepoAndTags.imageRepository)
+                graphqlData("versions.length()").isEqualTo(imageRepoAndTags.imageTags.size)
+                graphqlData("versions[0].name").isEqualTo(imageRepoAndTags.imageTags[0])
+                graphqlData("versions[0].version.buildTime").isEqualTo(EPOCH.toString())
+                graphqlData("versions[1].name").isEqualTo(imageRepoAndTags.imageTags[1])
+                graphqlData("versions[1].version.buildTime").isEqualTo(EPOCH.toString())
+            }
+            .graphqlDoesNotContainErrors()
+    }
+
+    @Test
     fun `Query for repositories with empty array input`() {
         webTestClient.queryGraphQL(
             queryResource = reposWithTagsQuery,
@@ -169,13 +225,85 @@ class ImageRepositoryQueryTest : GraphQLTestWithDbhAndSkap() {
     }
 
     @Test
+    fun `Query for tags with no filters present`() {
+        webTestClient.queryGraphQL(
+            queryResource = reposWithTagsWithoutFiltersQuery,
+            variables = mapOf("repositories" to imageReposAndTags.first().imageRepository),
+            token = "test-token"
+        )
+            .expectStatus().isOk
+            .expectBody()
+            .graphqlErrorsFirst("message")
+            .isEqualTo("Validation error of type MissingFieldArgument: Missing field argument first @ 'imageRepositories/tags'")
+    }
+
+    @Test
+    fun `Query for tags with only first filter present`() {
+        coEvery { imageRegistryService.findTagsByName(any(), any()) } returns createAuroraResponse(3)
+
+        webTestClient.queryGraphQL(
+            queryResource = reposWithOnlyFirstFilter,
+            variables = mapOf("repositories" to imageReposAndTags.first().imageRepository),
+            token = "test-token"
+        ).expectStatus().isOk
+            .expectBody()
+            .graphqlDataWithPrefix("imageRepositories[0].tags") {
+                graphqlData("totalCount").isEqualTo(imageReposAndTags.first().imageTags.size)
+                graphqlData("edges.length()").isEqualTo(6)
+                graphqlData("edges[0].node.name").isEqualTo("1")
+                graphqlData("edges[1].node.name").isEqualTo("1.0")
+                graphqlData("edges[2].node.name").isEqualTo("1.0.0")
+            }
+            .graphqlDoesNotContainErrors()
+    }
+
+    @Test
+    fun `Query for tags with paging`() {
+        val pageSize = 3
+        val variables = mapOf("repositories" to imageReposAndTags.first().imageRepository, "pageSize" to pageSize)
+
+        coEvery { imageRegistryService.findTagsByName(any(), any()) } returns createAuroraResponse(pageSize)
+
+        webTestClient.queryGraphQL(tagsWithPagingQuery, variables, "test-token")
+            .expectStatus().isOk
+            .expectBody()
+            .graphqlDataWithPrefix("imageRepositories[0].tags") {
+                graphqlData("totalCount").isEqualTo(imageReposAndTags.first().imageTags.size)
+                graphqlData("edges.length()").isEqualTo(pageSize)
+                graphqlData("edges[0].node.name").isEqualTo("1")
+                graphqlData("edges[1].node.name").isEqualTo("1.0")
+                graphqlData("edges[2].node.name").isEqualTo("1.0.0")
+                graphqlData("pageInfo.startCursor").isNotEmpty
+                graphqlData("pageInfo.hasNextPage").isTrue()
+            }
+            .graphqlDoesNotContainErrors()
+    }
+
+    @Test
+    fun `Get errors when findTagsByName fails with exception`() {
+        coEvery {
+            imageRegistryService.findTagsByName(any(), "test-token")
+        } throws SourceSystemException("test exception", RuntimeException("testing testing"))
+
+        val variables = mapOf("repositories" to imageReposAndTags.first().imageRepository)
+        webTestClient.queryGraphQL(reposWithTagsQuery, variables, "test-token")
+            .expectStatus().isOk
+            .expectBody()
+            .graphqlErrors("length()").isEqualTo(6)
+            .graphqlErrorsFirst("extensions.errorMessage").exists()
+    }
+
+    @Test
     fun `Get errors when findVersions fails with exception`() {
+
         coEvery {
             imageRegistryService.findVersions(any(), any(), "test-token")
         } throws SourceSystemException("test exception", RuntimeException("testing testing"))
 
         val variables = mapOf("repositories" to imageReposAndTags.first().imageRepository)
-        webTestClient.queryGraphQL(reposWithTagsQuery, variables, "test-token")
+
+        webTestClient
+            .queryGraphQL(reposWithVersionsQuery, variables, "test-token")
             .expectStatus().isOk
             .expectBody()
             .graphqlErrors("length()").isEqualTo(6)
