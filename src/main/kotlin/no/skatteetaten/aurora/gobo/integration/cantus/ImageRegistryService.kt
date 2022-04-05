@@ -84,7 +84,7 @@ class ImageRegistryService(
         token: String
     ): List<Version> = webClient
         .get()
-        .uri("/versions?namespace={namespace}&name={name}", namespace, name)
+        .uri("/versions?imageGroup={namespace}&name={name}", namespace, name)
         .headers { it.set(HttpHeaders.AUTHORIZATION, "Bearer $token") }
         .retrieve()
         .bodyToMono<List<Version>>()
