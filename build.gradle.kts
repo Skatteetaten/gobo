@@ -77,9 +77,6 @@ repositories {
         url = uri("https://repo.spring.io/milestone")
     }
     maven {
-        url = uri("https://repo.spring.io/snapshot")
-    }
-    maven {
         url = uri("https://nexus.sits.no/repository/maven-snapshots/")
     }
 }
