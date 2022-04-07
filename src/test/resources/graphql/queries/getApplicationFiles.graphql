@@ -1,0 +1,14 @@
+query getApplicationFiles($auroraConfig: String!, $applicationDeploymentRefInput: ApplicationDeploymentRefInput!, $refName: String) {
+    auroraConfig(name:$auroraConfig, refInput:$refName) {
+        applicationFiles(applicationDeploymentRefs: [$applicationDeploymentRefInput], types: [APP]) {
+          files {
+              name
+              contents
+              type
+              contentHash
+           }
+           environment
+           application
+        }
+    }
+}
