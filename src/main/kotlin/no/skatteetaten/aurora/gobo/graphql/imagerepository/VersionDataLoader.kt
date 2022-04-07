@@ -14,8 +14,6 @@ class VersionDataLoader(private val imageRegistryService: ImageRegistryService) 
 
     override suspend fun getByKeys(keys: Set<ImageTag>, ctx: GraphQLContext): Map<ImageTag, Image?> {
 
-        if (keys.isEmpty()) return emptyMap()
-
         val versions: List<Version> = keys
             .groupBy { Pair(it.imageRepository.namespace, it.imageRepository.name) }
             .keys

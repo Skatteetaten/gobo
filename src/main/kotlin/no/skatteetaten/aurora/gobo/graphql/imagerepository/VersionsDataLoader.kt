@@ -15,15 +15,13 @@ class VersionsDataLoader(private val imageRegistryService: ImageRegistryService)
     override suspend fun getByKeys(keys: Set<ImageRepository>, ctx: GraphQLContext): Map<ImageRepository, DataFetcherResult<List<ImageTag>>> =
         keys.associateWith { key ->
             runCatching {
-                when {
-                    key.isFullyQualified() ->
-                        imageRegistryService
-                            .findTagNamesInRepoOrderedByCreatedDateDesc(imageRepoDto = key.toImageRepo(), token = ctx.token)
-                            .tags
-                            .toImageTags(key)
-                            .toList()
-                    else -> emptyList()
-                }.let(::newDataFetcherResult)
+                if (key.isFullyQualified()) {
+                    imageRegistryService
+                        .findTagNamesInRepoOrderedByCreatedDateDesc(imageRepoDto = key.toImageRepo(), token = ctx.token)
+                        .tags
+                        .toImageTags(key)
+                        .toList()
+                } else { emptyList() }.let(::newDataFetcherResult)
             }.recoverCatching(::newDataFetcherResult).getOrThrow()
         }
 
