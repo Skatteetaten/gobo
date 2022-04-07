@@ -200,6 +200,7 @@ class ApplicationConfig(
             ConnectionProvider
                 .builder("gobo-connection-provider")
                 .metrics(true)
+                .maxConnections(32)
                 .maxLifeTime(Duration.ofMillis(maxLifeTime))
                 .maxIdleTime(Duration.ofMillis(maxLifeTime / 2))
                 .evictInBackground(Duration.ofMillis(maxLifeTime * 2))
