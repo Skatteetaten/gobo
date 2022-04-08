@@ -65,8 +65,17 @@ class StubrunnerRepoProperties(private val registry: DynamicPropertyRegistry) {
             }
             File(localGradleSettings).isFile -> File(localGradleSettings).readText().let {
                 logger.info("Reading stubrunner properties from init.gradle")
-                registry.add(stubrunnerUsername) { it.substringAfter("username").removeAfterNewLine() }
-                registry.add(stubrunnerPassword) { it.substringAfter("password").removeAfterNewLine() }
+
+                val nexusVariabelUser = "def nexus3User"
+                val nexusVariabelPass = "def nexus3Password"
+                if(it.contains(nexusVariabelUser)) {
+                    registry.add(stubrunnerUsername) { it.substringAfter("$nexusVariabelUser = ").removeAfterNewLine() }
+                    registry.add(stubrunnerPassword) { it.substringAfter("$nexusVariabelPass = ").removeAfterNewLine() }
+                } else {
+                    registry.add(stubrunnerUsername) { it.substringAfter("username").removeAfterNewLine() }
+                    registry.add(stubrunnerPassword) { it.substringAfter("password").removeAfterNewLine() }
+                }
+
                 registry.add(stubrunnerRepoUrl) { it.substringAfter("url").removeAfterNewLine() }
             }
             else -> DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(File(localMavenSettings)).let {
