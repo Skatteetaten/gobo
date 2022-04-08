@@ -14,6 +14,10 @@ aurora {
         useWebFlux
         useCloudContract
     }
+
+    versions {
+        springCloudContract = "3.1.1"
+    }
 }
 
 dependencies {
