@@ -68,7 +68,7 @@ class StubrunnerRepoProperties(private val registry: DynamicPropertyRegistry) {
 
                 val nexusVariabelUser = "def nexus3User"
                 val nexusVariabelPass = "def nexus3Password"
-                if(it.contains(nexusVariabelUser)) {
+                if (it.contains(nexusVariabelUser)) {
                     registry.add(stubrunnerUsername) { it.substringAfter("$nexusVariabelUser = ").removeAfterNewLine() }
                     registry.add(stubrunnerPassword) { it.substringAfter("$nexusVariabelPass = ").removeAfterNewLine() }
                 } else {
