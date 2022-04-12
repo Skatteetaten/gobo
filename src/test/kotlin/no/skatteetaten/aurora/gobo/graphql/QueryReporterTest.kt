@@ -10,7 +10,7 @@ class QueryReporterTest {
     fun `Test add and report`() {
         val reporter = QueryReporter(reportAfterMillis = 0)
         reporter.add("test123", "junit-test", "getAffiliations", "getAffiliations {}")
-        val unfinished = reporter.reportUnfinished()
+        val unfinished = reporter.unfinishedQueries()
         assertThat(unfinished).hasSize(1)
     }
 
@@ -18,7 +18,7 @@ class QueryReporterTest {
     fun `Test add and report before timeout`() {
         val reporter = QueryReporter(reportAfterMillis = 5000)
         reporter.add("test123", "junit-test", "getAffiliations", "getAffiliations {}")
-        val unfinished = reporter.reportUnfinished()
+        val unfinished = reporter.unfinishedQueries()
         assertThat(unfinished).isEmpty()
     }
 
@@ -27,7 +27,7 @@ class QueryReporterTest {
         val reporter = QueryReporter(reportAfterMillis = 5000)
         reporter.add("test123", "junit-test", "getAffiliations", "getAffiliations {}")
         reporter.remove("test123")
-        val unfinished = reporter.reportUnfinished()
+        val unfinished = reporter.unfinishedQueries()
         assertThat(unfinished).isEmpty()
     }
 }
