@@ -1,5 +1,6 @@
 package no.skatteetaten.aurora.gobo.graphql
 
+import mu.KotlinLogging
 import org.springframework.stereotype.Component
 import java.time.Duration
 import java.time.LocalDateTime
@@ -12,6 +13,8 @@ data class QueryOperation(
     val query: String,
     val started: LocalDateTime
 )
+
+private val logger = KotlinLogging.logger {}
 
 @Component
 class QueryReporter(val reportAfterMillis: Long = 300000) {
@@ -27,7 +30,13 @@ class QueryReporter(val reportAfterMillis: Long = 300000) {
         queries.remove(korrelasjonsid)
     }
 
-    fun clear() = queries.clear()
+    fun logAndClear() {
+        queries.values.forEach {
+            logger.warn { """Unfinished query, Korrelasjonsid=${it.korrelasjonsid} Klientid="${it.klientid}" started="${it.started}" name=${it.name} query="${it.query}" """ }
+        }
+
+        queries.clear()
+    }
 
     fun unfinishedQueries() =
         queries.values.toList()
