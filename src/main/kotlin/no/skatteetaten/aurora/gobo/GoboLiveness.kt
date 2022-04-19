@@ -49,10 +49,6 @@ class GoboLiveness(
                 if (it.size > maxUnfinishedQueries) {
                     logger.warn { "Liveness check failed with ${it.size} number of unfinished queries" }
                 }
-
-                it.forEach { query ->
-                    logger.warn { """Unfinished query, Korrelasjonsid=${query.korrelasjonsid} Klientid="${query.klientid}" started="${query.started}" name=${query.name} query="${query.query}" """ }
-                }
             }
 }
 
