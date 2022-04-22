@@ -66,6 +66,7 @@ data class ImageRepository(
         return dfe.loadValue(keys = imageTags, loaderClass = MultipleImagesDataLoader::class)
     }
 
+    @Deprecated("Not in use on Openshift 4", ReplaceWith("versions"))
     fun tags(
         types: List<ImageTagType>? = null,
         filter: String? = null,
@@ -75,6 +76,9 @@ data class ImageRepository(
     ): CompletableFuture<DataFetcherResult<ImageTagsConnection?>> {
         return dfe.loadValue(ImageTagsKey(this, types, filter, first, after))
     }
+
+    fun versions(dfe: DataFetchingEnvironment) =
+        dfe.loadValue<ImageRepository, DataFetcherResult<List<ImageTag>?>>(this, loaderClass = VersionsDataLoader::class)
 
     fun guiUrl(dfe: DataFetchingEnvironment) =
         dfe.loadValue<ImageRepository, String?>(key = this, loaderClass = GuiUrlDataLoader::class)
@@ -109,7 +113,10 @@ data class ImageTag(
 ) {
     val type: ImageTagType get() = typeOf(name)
 
+    @Deprecated("Not in use on Openshift 4", ReplaceWith("version"))
     fun image(dfe: DataFetchingEnvironment) = dfe.loadValue<ImageTag, DataFetcherResult<Image?>>(key = this, loaderClass = ImageDataLoader::class)
+
+    fun version(dfe: DataFetchingEnvironment) = dfe.loadValue<ImageTag, Image?>(key = this, loaderClass = VersionDataLoader::class)
 
     companion object {
         fun fromTagString(tagString: String, lastDelimiter: String = ":"): ImageTag {

@@ -11,9 +11,11 @@ import no.skatteetaten.aurora.gobo.integration.cantus.ImageTagType
 import no.skatteetaten.aurora.gobo.integration.cantus.Tag
 import org.springframework.stereotype.Component
 
+@Deprecated("Not in use on Openshift 4", ReplaceWith("ImageRepository"))
 data class ImageTagsKey(val imageRepository: ImageRepository, val types: List<ImageTagType>?, val filter: String?, val first: Int, val after: String?)
 
 @Component
+@Deprecated("Not in use on Openshift 4", ReplaceWith("VersionsDataLoader"))
 class ImageTagsConnectionDataLoader(private val imageRegistryService: ImageRegistryService) : GoboDataLoader<ImageTagsKey, DataFetcherResult<ImageTagsConnection>>() {
     override suspend fun getByKeys(keys: Set<ImageTagsKey>, ctx: GraphQLContext): Map<ImageTagsKey, DataFetcherResult<ImageTagsConnection>> {
         return keys.associateWith { key ->

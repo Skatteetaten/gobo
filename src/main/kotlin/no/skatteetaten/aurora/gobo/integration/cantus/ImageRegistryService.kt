@@ -78,6 +78,18 @@ class ImageRegistryService(
             .execute(token)
     }
 
+    suspend fun findVersions(
+        namespace: String,
+        name: String,
+        token: String
+    ): List<Version> = webClient
+        .get()
+        .uri("/versions?imageGroup={namespace}&name={name}", namespace, name)
+        .headers { it.set(HttpHeaders.AUTHORIZATION, "Bearer $token") }
+        .retrieve()
+        .bodyToMono<List<Version>>()
+        .awaitFirst()
+
     suspend fun findTagNamesInRepoOrderedByCreatedDateDesc(imageRepoDto: ImageRepoDto, token: String): TagsDto {
         val uri = "/tags?repoUrl={repoUrl}"
 

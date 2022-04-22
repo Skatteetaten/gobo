@@ -1,0 +1,13 @@
+query getImageRepositories($repositories: [String!]!) {
+    imageRepositories(repositories: $repositories) {
+        repository
+        guiUrl
+        versions {
+            name
+            version {
+                buildTime
+                imageReference
+            }
+        }
+    }
+}

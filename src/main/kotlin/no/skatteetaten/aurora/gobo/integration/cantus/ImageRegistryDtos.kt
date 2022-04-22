@@ -65,5 +65,15 @@ data class ImageTagDto(
                 created = imageTagResponse.items[0].timeline.buildEnded,
                 imageRepoDto = imageRepoDto
             )
+
+        fun fromVersionsResponse(
+            versionsResponse: AuroraResponse<Version>,
+            tagName: String,
+            imageRepoDto: ImageRepoDto
+        ) = ImageTagDto(
+            imageTag = tagName,
+            created = Instant.parse(versionsResponse.items[0].lastModified),
+            imageRepoDto = imageRepoDto
+        )
     }
 }

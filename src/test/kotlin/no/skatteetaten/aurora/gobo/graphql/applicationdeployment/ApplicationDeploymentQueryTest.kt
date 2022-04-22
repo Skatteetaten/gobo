@@ -17,6 +17,7 @@ import no.skatteetaten.aurora.gobo.graphql.graphqlDataWithPrefix
 import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.graphql.graphqlErrorsFirst
 import no.skatteetaten.aurora.gobo.graphql.imagerepository.ImageDataLoader
+import no.skatteetaten.aurora.gobo.graphql.imagerepository.VersionDataLoader
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
 import no.skatteetaten.aurora.gobo.graphql.route.RouteDataLoader
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileType
@@ -31,10 +32,12 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
+import java.time.Instant
 
 @Import(
     ApplicationDeploymentQuery::class,
     ImageDataLoader::class,
+    VersionDataLoader::class,
     RouteDataLoader::class,
     AuroraConfigFileResourceDataLoader::class
 )
@@ -85,6 +88,13 @@ class ApplicationDeploymentQueryTest : GraphQLTestWithDbhAndSkap() {
         coEvery { imageRegistryService.findTagsByName(any(), any()) } returns AuroraResponse(
             listOf(
                 ImageTagResourceBuilder().build()
+            )
+        )
+
+        coEvery { imageRegistryService.findVersions(any(), any(), any()) } returns listOf(
+            no.skatteetaten.aurora.gobo.integration.cantus.Version(
+                name = "test",
+                lastModified = Instant.now().toString()
             )
         )
 
