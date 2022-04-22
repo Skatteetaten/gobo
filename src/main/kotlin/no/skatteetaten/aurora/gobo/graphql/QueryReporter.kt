@@ -14,7 +14,7 @@ data class QueryOperation(
     val started: LocalDateTime
 )
 
-private val logger = KotlinLogging.logger { }
+private val logger = KotlinLogging.logger {}
 
 @Component
 class QueryReporter(val reportAfterMillis: Long = 300000) {
@@ -30,19 +30,18 @@ class QueryReporter(val reportAfterMillis: Long = 300000) {
         queries.remove(korrelasjonsid)
     }
 
-    fun reportUnfinished() =
+    fun logAndClear() {
+        queries.values.forEach {
+            logger.warn { """Unfinished query, Korrelasjonsid=${it.korrelasjonsid} Klientid="${it.klientid}" started="${it.started}" name=${it.name} query="${it.query}" """ }
+        }
+
+        queries.clear()
+    }
+
+    fun unfinishedQueries() =
         queries.values.toList()
             .filter {
                 val configuredPointInTime = LocalDateTime.now().minus(Duration.ofMillis(reportAfterMillis))
                 it.started.isBefore(configuredPointInTime)
             }
-            .let {
-                it.forEach { query ->
-                    logger.info {
-                        """ Unfinished query, Korrelasjonsid=${query.korrelasjonsid} Klientid="${query.klientid}" started="${query.started}" name=${query.name} query="${query.query}" """
-                    }
-                }
-
-                it
-            }.also { queries.clear() }
 }

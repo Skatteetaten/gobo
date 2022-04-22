@@ -38,7 +38,6 @@ class GraphQLConfig(
     @Value("classpath:/playground/gobo-graphql-playground.html") private val playgroundHtml: Resource,
     private val goboInstrumentation: GoboInstrumentation,
     private val queryReporter: QueryReporter,
-    private val goboLiveness: GoboLiveness
 ) {
     private val body = playgroundHtml.inputStream.bufferedReader().use { reader ->
         reader.readText()
@@ -68,7 +67,7 @@ class GraphQLConfig(
     fun updateGraphqlUsage() {
         logger.info { "Running scheduled job to update usage data at ${LocalDateTime.now()}" }
         goboInstrumentation.update()
-        queryReporter.reportUnfinished()
+        queryReporter.logAndClear()
     }
 }
 
