@@ -37,8 +37,8 @@ private fun String.isNotIntrospectionQuery() = !contains("IntrospectionQuery")
 
 @Component
 class GoboInstrumentation(
-    private val fieldService: FieldService,
-    private val clientService: ClientService,
+    private val fieldService: FieldService? = null,
+    private val clientService: ClientService? = null,
     private val meterRegistry: MeterRegistry,
     private val queryReporter: QueryReporter,
     @Value("\${gobo.graphql.log.queries:}") private val logQueries: Boolean? = false,
@@ -57,11 +57,11 @@ class GoboInstrumentation(
         }
 
         fieldUsage.getAndResetFieldUsage().forEach {
-            fieldService.insertOrUpdateField(it)
+            fieldService?.insertOrUpdateField(it)
         }
 
         clientUsage.getAndResetClientUsage().forEach {
-            clientService.insertOrUpdateClient(it)
+            clientService?.insertOrUpdateClient(it)
         }
     }
 

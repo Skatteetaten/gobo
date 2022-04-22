@@ -1,6 +1,7 @@
 package no.skatteetaten.aurora.gobo.infrastructure.field.repository
 
 import mu.KotlinLogging
+import no.skatteetaten.aurora.gobo.infrastructure.ConditionalOnDatabaseUrl
 import no.skatteetaten.aurora.gobo.infrastructure.field.FieldClient
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
@@ -8,6 +9,7 @@ import java.sql.ResultSet
 
 private val logger = KotlinLogging.logger {}
 
+@ConditionalOnDatabaseUrl
 @Repository
 class FieldClientRepository(private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate) {
 

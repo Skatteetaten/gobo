@@ -9,7 +9,7 @@ data class GoboFieldUsageKey(val nameContains: String?, val mostUsedOnly: Boolea
 
 @Component
 class GoboFieldUsageDataLoader(
-    private val fieldService: FieldService
+    private val fieldService: FieldService? = null
 ) : GoboDataLoader<GoboFieldUsageKey, List<GoboFieldUsage>>() {
     override suspend fun getByKeys(
         keys: Set<GoboFieldUsageKey>,
@@ -17,8 +17,8 @@ class GoboFieldUsageDataLoader(
     ): Map<GoboFieldUsageKey, List<GoboFieldUsage>> {
         return keys.associateWith { key ->
             val fields = when {
-                key.nameContains.isNullOrEmpty() -> fieldService.getAllFields()
-                else -> fieldService.getFieldWithName(key.nameContains)
+                key.nameContains.isNullOrEmpty() -> fieldService?.getAllFields() ?: emptyList()
+                else -> fieldService?.getFieldWithName(key.nameContains) ?: emptyList()
             }.map { field ->
                 GoboFieldUsage(
                     field.name,

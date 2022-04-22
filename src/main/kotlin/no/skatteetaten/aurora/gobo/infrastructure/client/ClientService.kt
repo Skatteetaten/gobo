@@ -1,9 +1,11 @@
 package no.skatteetaten.aurora.gobo.infrastructure.client
 
+import no.skatteetaten.aurora.gobo.infrastructure.ConditionalOnDatabaseUrl
 import no.skatteetaten.aurora.gobo.infrastructure.client.repository.ClientRepository
 import org.springframework.stereotype.Service
 
 @Service
+@ConditionalOnDatabaseUrl
 class ClientService(private val clientRepository: ClientRepository) {
 
     fun addClient(client: Client) {

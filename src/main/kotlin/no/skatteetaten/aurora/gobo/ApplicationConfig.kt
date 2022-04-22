@@ -6,13 +6,18 @@ import io.netty.channel.epoll.EpollChannelOption
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.graphql.GoboSpringKotlinDataFetcherFactoryProvider
+import no.skatteetaten.aurora.gobo.infrastructure.ConditionalOnDatabaseUrl
+import no.skatteetaten.aurora.gobo.infrastructure.ConditionalOnMissingDatabaseUrl
 import no.skatteetaten.aurora.gobo.integration.skap.HEADER_AURORA_TOKEN
 import no.skatteetaten.aurora.gobo.security.SharedSecretReader
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.actuate.trace.http.InMemoryHttpTraceRepository
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -231,4 +236,17 @@ class ApplicationConfig(
     @Primary
     fun simpleKotlinDataFetcherFactoryProvider(objectMapper: ObjectMapper, applicationContext: ApplicationContext) =
         GoboSpringKotlinDataFetcherFactoryProvider(objectMapper, applicationContext)
+}
+
+@Configuration
+@ConditionalOnDatabaseUrl
+class GoboEnableDatabaseAutoConfiguration {
+    init { logger.info { "Database integration enabled" } }
+}
+
+@Configuration
+@ConditionalOnMissingDatabaseUrl
+@EnableAutoConfiguration(exclude = [FlywayAutoConfiguration::class, DataSourceAutoConfiguration::class])
+class GoboDisableDatabaseAutoConfiguration {
+    init { logger.info { "Database integration disabled" } }
 }

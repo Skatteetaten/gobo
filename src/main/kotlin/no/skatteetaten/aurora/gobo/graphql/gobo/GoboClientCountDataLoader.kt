@@ -6,8 +6,8 @@ import no.skatteetaten.aurora.gobo.infrastructure.client.ClientService
 import org.springframework.stereotype.Component
 
 @Component
-class GoboClientCountDataLoader(private val clientService: ClientService) : GoboDataLoader<GoboUsage, Long>() {
+class GoboClientCountDataLoader(private val clientService: ClientService? = null) : GoboDataLoader<GoboUsage, Long>() {
     override suspend fun getByKeys(keys: Set<GoboUsage>, ctx: GraphQLContext): Map<GoboUsage, Long> {
-        return keys.associateWith { clientService.getClientCount() }
+        return keys.associateWith { clientService?.getClientCount() ?: 0 }
     }
 }
