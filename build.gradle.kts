@@ -27,7 +27,11 @@ dependencies {
     implementation("io.projectreactor.kotlin:reactor-kotlin-extensions:1.1.6")
     implementation("org.apache.commons:commons-text:1.9")
     implementation("org.springframework.boot:spring-boot-starter-security")
+
     implementation("com.expediagroup:graphql-kotlin-spring-server:5.3.2")
+    // bump transitive dependency because of high security risk in version 61.1
+    implementation("com.ibm.icu:icu4j:63.2")
+
     implementation("com.graphql-java:graphql-java-extended-scalars:17.0")
     implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
     implementation("org.apache.commons:commons-collections4:4.4")
