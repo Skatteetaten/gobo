@@ -4,6 +4,7 @@ plugins {
     id("io.gatling.gradle") version "3.7.6.2"
     id("com.github.psxpaul.execfork") version "0.2.0"
     id("org.asciidoctor.jvm.convert") version "3.3.2"
+    id("org.springframework.boot") version "2.6.7"
 }
 
 aurora {
