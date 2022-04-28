@@ -1,12 +1,9 @@
 package no.skatteetaten.aurora.gobo.infrastructure.field
 
-import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.infrastructure.ConditionalOnDatabaseUrl
 import no.skatteetaten.aurora.gobo.infrastructure.field.repository.FieldClientRepository
 import no.skatteetaten.aurora.gobo.infrastructure.field.repository.FieldRepository
 import org.springframework.stereotype.Service
-
-private val logger = KotlinLogging.logger {}
 
 @Service
 @ConditionalOnDatabaseUrl
@@ -14,13 +11,6 @@ class FieldService(
     private val fieldRepo: FieldRepository,
     private val fieldClientRepository: FieldClientRepository
 ) {
-
-    init {
-        logger.info {
-            "Database integration enabled"
-        }
-    }
-
     fun addField(field: Field) {
         fieldRepo.save(field)
         fieldClientRepository.save(field.clients, field.name)

@@ -6,7 +6,7 @@ import no.skatteetaten.aurora.gobo.infrastructure.field.FieldService
 import org.springframework.stereotype.Component
 
 @Component
-class GoboFieldCountDataLoader(private val fieldService: FieldService? = null) : GoboDataLoader<GoboUsage, Long>() {
+class GoboFieldCountDataLoader(private val fieldService: FieldService?) : GoboDataLoader<GoboUsage, Long>() {
     override suspend fun getByKeys(keys: Set<GoboUsage>, ctx: GraphQLContext): Map<GoboUsage, Long> {
         return keys.associateWith { fieldService?.getFieldCount() ?: 0 }
     }

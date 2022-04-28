@@ -37,8 +37,8 @@ private fun String.isNotIntrospectionQuery() = !contains("IntrospectionQuery")
 
 @Component
 class GoboInstrumentation(
-    private val fieldService: FieldService? = null,
-    private val clientService: ClientService? = null,
+    private val fieldService: FieldService?,
+    private val clientService: ClientService?,
     private val meterRegistry: MeterRegistry,
     private val queryReporter: QueryReporter,
     @Value("\${gobo.graphql.log.queries:}") private val logQueries: Boolean? = false,
