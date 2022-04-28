@@ -1,10 +1,9 @@
 plugins {
     kotlin("jvm") version "1.6.21"
-    id("no.skatteetaten.gradle.aurora") version "4.4.15"
+    id("no.skatteetaten.gradle.aurora") version "4.4.16"
     id("io.gatling.gradle") version "3.7.6.2"
     id("com.github.psxpaul.execfork") version "0.2.0"
     id("org.asciidoctor.jvm.convert") version "3.3.2"
-    id("org.springframework.boot") version "2.6.7"
 }
 
 aurora {
@@ -17,7 +16,7 @@ aurora {
     }
 
     versions {
-        springCloudContract = "3.1.1"
+        springCloudContract = "3.1.2"
     }
 }
 
@@ -45,7 +44,7 @@ dependencies {
     }
 
     implementation("com.jayway.jsonpath:json-path:2.7.0")
-    implementation("io.projectreactor.addons:reactor-extra:3.4.7")
+    implementation("io.projectreactor.addons:reactor-extra:3.4.8")
     implementation("no.skatteetaten.aurora.kubernetes:kubernetes-reactor-coroutines-client:1.3.26")
     implementation("no.skatteetaten.aurora.springboot:aurora-spring-security-starter:1.8.0")
 
