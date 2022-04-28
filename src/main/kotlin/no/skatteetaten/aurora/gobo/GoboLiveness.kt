@@ -19,6 +19,7 @@ data class ConnectionPool(
     val pendingConnections: Double,
     val activeConnections: Double,
     val maxConnections: Double,
+    val idleConnections: Double,
     val tags: List<Tag>
 )
 
@@ -40,6 +41,7 @@ class GoboLiveness(
     val nettyPendingConnections = "reactor.netty.connection.provider.pending.connections"
     val nettyActiveConnections = "reactor.netty.connection.provider.active.connections"
     val nettyMaxConnections = "reactor.netty.connection.provider.max.connections"
+    val nettyIdleConnections = "reactor.netty.connection.provider.idle.connections"
 
     fun MeterRegistry.valueForGauge(name: String, gauge: Gauge) = find(name).tags(gauge.id.tags).gauge()?.value() ?: 0.0
 
@@ -50,7 +52,8 @@ class GoboLiveness(
             val pending = meterRegistry.valueForGauge(nettyPendingConnections, total)
             val active = meterRegistry.valueForGauge(nettyActiveConnections, total)
             val max = meterRegistry.valueForGauge(nettyMaxConnections, total)
-            ConnectionPool(total.value(), pending, active, max, total.id.tags)
+            val idle = meterRegistry.valueForGauge(nettyIdleConnections, total)
+            ConnectionPool(total.value(), pending, active, max, idle, total.id.tags)
         }
 
     fun unfinishedQueries() =
