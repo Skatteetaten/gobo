@@ -136,20 +136,21 @@ class GoboInstrumentation(
             if (it.operationName.isNotIntrospectionQuery()) {
                 queryReporter.remove(it.korrelasjonsid)
 
-                val timeUsed = System.currentTimeMillis() - it.startTime
-                it.operationNameOrNull?.let { operationName ->
-                    Timer.builder("graphql.operationTimer")
-                        .tags(listOf(Tag.of("operationName", operationName)))
-                        .description("Time used for graphql operation")
-                        .minimumExpectedValue(Duration.ofMillis(100))
-                        .maximumExpectedValue(Duration.ofMillis(30000))
-                        .publishPercentileHistogram()
-                        .register(meterRegistry)
-                        .record(Duration.ofMillis(timeUsed))
-                }
-
                 if (logOperationEnd == true) {
                     val hostString = it.request.hostString()
+                    val timeUsed = System.currentTimeMillis() - it.startTime
+
+                    it.operationNameOrNull?.let { operationName ->
+                        Timer.builder("graphql.operationTimer")
+                            .tags(listOf(Tag.of("operationName", operationName)))
+                            .description("Time used for graphql operation")
+                            .minimumExpectedValue(Duration.ofMillis(100))
+                            .maximumExpectedValue(Duration.ofMillis(30000))
+                            .publishPercentileHistogram()
+                            .register(meterRegistry)
+                            .record(Duration.ofMillis(timeUsed))
+                    }
+
                     logger.info { """Completed type=${it.operationType} name=${it.operationName} timeUsed=$timeUsed hostString="$hostString", number of errors ${executionResult?.errors?.size}""" }
                 }
             }
