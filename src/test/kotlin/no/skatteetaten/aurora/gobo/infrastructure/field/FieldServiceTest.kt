@@ -15,7 +15,7 @@ import org.springframework.dao.DuplicateKeyException
 import org.springframework.test.context.ContextConfiguration
 
 @ContextConfiguration(classes = [FieldClientRepository::class, FieldService::class, FieldRepository::class])
-@DataJpaTest
+@DataJpaTest(properties = ["spring.datasource.url=localhost"])
 class FieldServiceTest {
 
     @Autowired

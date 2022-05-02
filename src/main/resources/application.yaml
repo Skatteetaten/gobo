@@ -15,8 +15,6 @@ spring:
         max-in-memory-size: -1 # unlimited
     zipkin:
         enabled: false
-    datasource:
-        url: jdbc:h2:mem:gobo;DB_CLOSE_ON_EXIT=false
 
 graphql:
     packages: "no.skatteetaten.aurora.gobo.graphql"

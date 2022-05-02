@@ -23,7 +23,6 @@ inline fun <Key, reified Value> DataFetchingEnvironment.loadValue(
     loaderClass: KClass<*>? = null
 ): CompletableFuture<List<Value>> = getValuesFromDataLoader(getLoaderName<Value>(loaderClass), keys)
 
-@OptIn(ExperimentalStdlibApi::class)
 inline fun <reified Value> getLoaderName(loaderClass: KClass<*>?) =
     loaderClass?.let { loaderClass.simpleName }
         ?: when (Value::class) {

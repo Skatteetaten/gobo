@@ -1,15 +1,16 @@
 package no.skatteetaten.aurora.gobo.infrastructure.field
 
+import no.skatteetaten.aurora.gobo.infrastructure.ConditionalOnDatabaseUrl
 import no.skatteetaten.aurora.gobo.infrastructure.field.repository.FieldClientRepository
 import no.skatteetaten.aurora.gobo.infrastructure.field.repository.FieldRepository
 import org.springframework.stereotype.Service
 
 @Service
+@ConditionalOnDatabaseUrl
 class FieldService(
-    val fieldRepo: FieldRepository,
+    private val fieldRepo: FieldRepository,
     private val fieldClientRepository: FieldClientRepository
 ) {
-
     fun addField(field: Field) {
         fieldRepo.save(field)
         fieldClientRepository.save(field.clients, field.name)

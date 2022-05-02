@@ -1,8 +1,8 @@
 plugins {
-    kotlin("jvm") version "1.6.10"
-    id("no.skatteetaten.gradle.aurora") version "4.4.14"
-    id("io.gatling.gradle") version "3.7.6.1"
-    id("com.github.psxpaul.execfork") version "0.1.15"
+    kotlin("jvm") version "1.6.21"
+    id("no.skatteetaten.gradle.aurora") version "4.4.16"
+    id("io.gatling.gradle") version "3.7.6.2"
+    id("com.github.psxpaul.execfork") version "0.2.0"
     id("org.asciidoctor.jvm.convert") version "3.3.2"
 }
 
@@ -16,7 +16,7 @@ aurora {
     }
 
     versions {
-        springCloudContract = "3.1.1"
+        springCloudContract = "3.1.2"
     }
 }
 
@@ -27,13 +27,16 @@ dependencies {
     implementation("io.projectreactor.kotlin:reactor-kotlin-extensions:1.1.6")
     implementation("org.apache.commons:commons-text:1.9")
     implementation("org.springframework.boot:spring-boot-starter-security")
+
     implementation("com.expediagroup:graphql-kotlin-spring-server:5.3.2")
+    // bump transitive dependency because of high security risk in version 61.1
+    implementation("com.ibm.icu:icu4j:63.2")
+
     implementation("com.graphql-java:graphql-java-extended-scalars:17.0")
     implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
     implementation("org.apache.commons:commons-collections4:4.4")
 
     implementation("org.postgresql:postgresql")
-    implementation("com.h2database:h2")
     implementation("org.flywaydb:flyway-core")
 
     implementation("uk.q3c.rest:hal-kotlin:0.5.4.0.db32476") {
@@ -41,20 +44,21 @@ dependencies {
     }
 
     implementation("com.jayway.jsonpath:json-path:2.7.0")
-    implementation("io.projectreactor.addons:reactor-extra:3.4.7")
+    implementation("io.projectreactor.addons:reactor-extra:3.4.8")
     implementation("no.skatteetaten.aurora.kubernetes:kubernetes-reactor-coroutines-client:1.3.26")
     implementation("no.skatteetaten.aurora.springboot:aurora-spring-security-starter:1.8.0")
 
+    testImplementation("com.h2database:h2")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
     testImplementation("io.mockk:mockk:1.12.3")
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.25")
     testImplementation("io.projectreactor:reactor-test")
-    testImplementation("no.skatteetaten.aurora:mockwebserver-extensions-kotlin:1.2.0") {
+    testImplementation("no.skatteetaten.aurora:mockwebserver-extensions-kotlin:1.3.1") {
         exclude(group = "no.skatteetaten.aurora.springboot", module = "aurora-spring-boot-mvc-starter")
     }
     testImplementation("com.ninja-squad:springmockk:3.1.1")
-    testImplementation("org.junit-pioneer:junit-pioneer:1.6.2")
+    testImplementation("org.junit-pioneer:junit-pioneer:1.7.0")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.1")
 }
 

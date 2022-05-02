@@ -32,7 +32,7 @@ class ApplicationService(@TargetService(ServiceTypes.MOKEY) val webClient: WebCl
             .get()
             .uri("/api/application?affiliation={affiliations}", affiliations.joinToString())
             .retrieve()
-            .handleHttpStatusErrors()
+            .handleHttpStatusErrors(affiliations.toString())
             .awaitWithRetry()
         return applications?.let { resources.filter { applications.contains(it.name) } } ?: resources
     }
@@ -42,7 +42,7 @@ class ApplicationService(@TargetService(ServiceTypes.MOKEY) val webClient: WebCl
             .get()
             .uri("/api/application/{id}", id)
             .retrieve()
-            .handleHttpStatusErrors()
+            .handleHttpStatusErrors(id)
             .awaitWithRetry()
     }
 
@@ -51,7 +51,7 @@ class ApplicationService(@TargetService(ServiceTypes.MOKEY) val webClient: WebCl
             .get()
             .uri("/api/applicationdeployment/{applicationDeploymentId}", applicationDeploymentId)
             .retrieve()
-            .handleHttpStatusErrors()
+            .handleHttpStatusErrors(applicationDeploymentId)
             .awaitWithRetry()
     }
 
@@ -82,7 +82,7 @@ class ApplicationService(@TargetService(ServiceTypes.MOKEY) val webClient: WebCl
             .uri("/api/auth/applicationdeploymentdetails/{applicationDeploymentId}", applicationDeploymentId)
             .header(HttpHeaders.AUTHORIZATION, "Bearer $token")
             .retrieve()
-            .handleHttpStatusErrors()
+            .handleHttpStatusErrors(applicationDeploymentId)
             .awaitWithRetry()
     }
 
@@ -96,7 +96,7 @@ class ApplicationService(@TargetService(ServiceTypes.MOKEY) val webClient: WebCl
             .header(HttpHeaders.AUTHORIZATION, "Bearer $token")
             .body(BodyInserters.fromValue(databaseIds))
             .retrieve()
-            .handleHttpStatusErrors()
+            .handleHttpStatusErrors(databaseIds.toString())
             .awaitWithRetry()
 
     suspend fun refreshApplicationDeployment(
@@ -128,17 +128,17 @@ class ApplicationService(@TargetService(ServiceTypes.MOKEY) val webClient: WebCl
         }.getOrThrow()
     }
 
-    private fun WebClient.ResponseSpec.handleHttpStatusErrors() =
+    private fun WebClient.ResponseSpec.handleHttpStatusErrors(id: String? = null) =
         onStatusNotFound { status, body ->
             MokeyIntegrationException(
                 message = "The requested resource was not found",
-                integrationResponse = body,
+                integrationResponse = id?.let { "id:$it, body: $body" } ?: body,
                 status = status
             )
         }.onStatusNotOk { status, body ->
             MokeyIntegrationException(
                 message = "Downstream request failed with ${status.reasonPhrase}",
-                integrationResponse = body,
+                integrationResponse = id?.let { "id:$it, body: $body" } ?: body,
                 status = status
             )
         }
