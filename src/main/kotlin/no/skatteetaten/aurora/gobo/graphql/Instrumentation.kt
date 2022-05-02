@@ -42,8 +42,8 @@ class GoboInstrumentation(
     private val meterRegistry: MeterRegistry,
     private val queryReporter: QueryReporter,
     @Value("\${gobo.graphql.log.queries:}") private val logQueries: Boolean? = false,
-    @Value("\${gobo.graphql.log.operationstart:}") private val logOperationStart: Boolean? = true,
-    @Value("\${gobo.graphql.log.operationend:}") private val logOperationEnd: Boolean? = true,
+    @Value("\${gobo.graphql.log.operationstart:}") private val logOperationStart: Boolean? = false,
+    @Value("\${gobo.graphql.log.operationend:}") private val logOperationEnd: Boolean? = false,
 ) : SimpleInstrumentation() {
     val fieldUsage = FieldUsage()
     val clientUsage = ClientUsage()
