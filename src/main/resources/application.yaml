@@ -48,6 +48,7 @@ kubernetes:
     webclient:
         metrics: true
         maxLifeTime: 300000
+        maxConnections: 32
 
 integrations:
     mokey:
