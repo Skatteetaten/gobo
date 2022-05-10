@@ -45,7 +45,7 @@ dependencies {
 
     implementation("com.jayway.jsonpath:json-path:2.7.0")
     implementation("io.projectreactor.addons:reactor-extra:3.4.8")
-    implementation("no.skatteetaten.aurora.kubernetes:kubernetes-reactor-coroutines-client:1.3.26")
+    implementation("no.skatteetaten.aurora.kubernetes:kubernetes-reactor-coroutines-client:1.3.27")
     implementation("no.skatteetaten.aurora.springboot:aurora-spring-security-starter:1.9.0")
 
     testImplementation("com.h2database:h2")
