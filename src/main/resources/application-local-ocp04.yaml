@@ -56,12 +56,14 @@ kubernetes:
     url: https://api.utv04.paas.skead.no:6443
 
 gobo:
+    graphql:
+        log:
+            operationend: true
     graphqlUsage:
         cron: "*/60 * * * * *" # every 60 seconds
 
 # logging.level.no.skatteetaten.aurora.gobo: DEBUG
-logging.level.no.skatteetaten.aurora.gobo.security: DEBUG
+# logging.level.no.skatteetaten.aurora.gobo.security: DEBUG
 logging.level.no.skatteetaten.aurora.kubernetes: DEBUG
 logging.level.no.skatteetaten.aurora.springboot: DEBUG
 logging.level.com.expediagroup.graphql.server.spring: WARN
-

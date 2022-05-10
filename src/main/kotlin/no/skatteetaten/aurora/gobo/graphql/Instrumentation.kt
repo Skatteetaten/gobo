@@ -1,5 +1,6 @@
 package no.skatteetaten.aurora.gobo.graphql
 
+import brave.Tracer
 import graphql.ExecutionInput
 import graphql.ExecutionResult
 import graphql.execution.ExecutionContext
@@ -41,6 +42,7 @@ class GoboInstrumentation(
     private val clientService: ClientService?,
     private val meterRegistry: MeterRegistry,
     private val queryReporter: QueryReporter,
+    private val tracer: Tracer? = null,
     @Value("\${gobo.graphql.log.queries:}") private val logQueries: Boolean? = false,
     @Value("\${gobo.graphql.log.operationstart:}") private val logOperationStart: Boolean? = false,
     @Value("\${gobo.graphql.log.operationend:}") private val logOperationEnd: Boolean? = false,
@@ -70,7 +72,6 @@ class GoboInstrumentation(
         parameters: InstrumentationExecutionParameters?
     ): ExecutionInput {
         executionInput?.let {
-            val context = executionInput.graphQLContext
             val queryText = it.query.removeNewLines().let { query ->
                 if (query.trimStart().startsWith("mutation")) {
                     """mutation="$query" - variable-keys=${it.variables.keys}"""
@@ -118,6 +119,7 @@ class GoboInstrumentation(
 
                 if (operationName.isNotIntrospectionQuery()) {
                     queryReporter.add(context.korrelasjonsid, context.klientid, operationName, context.query)
+                    tracer?.currentSpan()?.tag("aurora.queryName", operationName)
 
                     if (logOperationStart == true) {
                         logger.info { "Starting type=$operationType name=$operationName at ${LocalDateTime.now()}" }
