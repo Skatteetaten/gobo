@@ -47,6 +47,11 @@ class GoboInstrumentation(
     @Value("\${gobo.graphql.log.operationstart:}") private val logOperationStart: Boolean? = false,
     @Value("\${gobo.graphql.log.operationend:}") private val logOperationEnd: Boolean? = false,
 ) : SimpleInstrumentation() {
+    private val tagQueryName = "aurora.queryName"
+    private val tagGraphqlCompleted = "aurora.graphql.completed"
+    private val tagGraphqlNumOfErrors = "aurora.graphql.error.size"
+    private val tagGraphqlErrorMsg = "aurora.graphql.error.message"
+
     val fieldUsage = FieldUsage()
     val clientUsage = ClientUsage()
 
@@ -119,7 +124,8 @@ class GoboInstrumentation(
 
                 if (operationName.isNotIntrospectionQuery()) {
                     queryReporter.add(context.korrelasjonsid, context.klientid, operationName, context.query)
-                    tracer?.currentSpan()?.tag("aurora.queryName", operationName)
+                    tracer.tagCurrentSpan(tagQueryName, operationName)
+                    tracer.tagCurrentSpan(tagGraphqlCompleted, false.toString())
 
                     if (logOperationStart == true) {
                         logger.info { "Starting type=$operationType name=$operationName at ${LocalDateTime.now()}" }
@@ -137,6 +143,13 @@ class GoboInstrumentation(
         parameters?.graphQLContext?.let {
             if (it.operationName.isNotIntrospectionQuery()) {
                 queryReporter.remove(it.korrelasjonsid)
+                tracer.tagCurrentSpan(tagGraphqlCompleted, true.toString())
+                executionResult?.errors
+                    ?.takeIf { e -> e.isNotEmpty() }
+                    ?.let { errors ->
+                        tracer.tagCurrentSpan(tagGraphqlNumOfErrors, errors.size.toString())
+                        tracer.tagCurrentSpan(tagGraphqlErrorMsg, errors.first().message?.take(100) ?: "")
+                    }
 
                 val timeUsed = System.currentTimeMillis() - it.startTime
                 it.operationNameOrNull?.let { operationName ->
@@ -159,6 +172,8 @@ class GoboInstrumentation(
 
         return super.instrumentExecutionResult(executionResult, parameters)
     }
+
+    private fun Tracer?.tagCurrentSpan(key: String, value: String) = this?.currentSpan()?.tag(key, value)
 }
 
 class FieldUsage {
