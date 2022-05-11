@@ -1,6 +1,6 @@
 plugins {
     kotlin("jvm") version "1.6.21"
-    id("no.skatteetaten.gradle.aurora") version "4.4.16"
+    id("no.skatteetaten.gradle.aurora") version "4.4.17"
     id("io.gatling.gradle") version "3.7.6.2"
     id("com.github.psxpaul.execfork") version "0.2.0"
     id("org.asciidoctor.jvm.convert") version "3.3.2"
@@ -28,7 +28,7 @@ dependencies {
     implementation("org.apache.commons:commons-text:1.9")
     implementation("org.springframework.boot:spring-boot-starter-security")
 
-    implementation("com.expediagroup:graphql-kotlin-spring-server:5.3.2")
+    implementation("com.expediagroup:graphql-kotlin-spring-server:5.4.0")
     // bump transitive dependency because of high security risk in version 61.1
     implementation("com.ibm.icu:icu4j:63.2")
 
