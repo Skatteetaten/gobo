@@ -1,0 +1,25 @@
+{
+  affiliations {
+    totalCount
+    edges {
+      node {
+        name
+        storagegrid {
+          objectAreas {
+            active {
+              name
+              bucketName
+              namespace
+              creationTimestamp
+              status {
+                message
+                reason
+                success
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
