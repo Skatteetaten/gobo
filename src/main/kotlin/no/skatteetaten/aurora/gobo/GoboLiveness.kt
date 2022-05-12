@@ -59,6 +59,11 @@ class GoboLiveness(
     fun unfinishedQueries() =
         queryReporter
             .unfinishedQueries()
+            .also {
+                Gauge.builder("graphql.unfinishedQueries") { it.size }
+                    .description("Number of unfinished queries in gobo.")
+                    .register(meterRegistry)
+            }
             .let {
                 if (it.size > maxUnfinishedQueries) {
                     logger.warn { "Liveness check failed with ${it.size} number of unfinished queries" }
