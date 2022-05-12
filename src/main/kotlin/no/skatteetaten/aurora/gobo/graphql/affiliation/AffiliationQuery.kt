@@ -22,7 +22,8 @@ class AffiliationQuery(val affiliationService: AffiliationService) : Query {
             names
         }
 
-        val affiliations = affiliationNames.map { AffiliationEdge(Affiliation(it)) }
+        val affiliations = affiliationNames.map { AffiliationEdge(Affiliation(it,)) }
+
         return AffiliationsConnection(affiliations)
     }
 

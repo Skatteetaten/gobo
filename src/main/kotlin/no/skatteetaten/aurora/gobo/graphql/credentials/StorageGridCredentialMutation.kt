@@ -16,6 +16,7 @@ import no.skatteetaten.aurora.gobo.security.checkIsUserAuthorized
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Component
+import no.skatteetaten.aurora.gobo.graphql.storagegrid.getTenantName
 
 private val logger = KotlinLogging.logger {}
 
@@ -35,7 +36,7 @@ class StorageGridCredentialMutation(
     ): RegisterStorageGridTenantResult {
         dfe.checkIsUserAuthorized(allowedAdGroup)
 
-        val tenantName = "${input.businessGroup}-$cluster"
+        val tenantName = getTenantName(input.businessGroup, cluster)
 
         return herkimerService.registerResourceAndClaim(
             createRegisterResourceAndClaimCommand(input, tenantName)
