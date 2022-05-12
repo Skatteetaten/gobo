@@ -1,5 +1,5 @@
 package no.skatteetaten.aurora.gobo.graphql.storagegrid
 
-data class StoragegridTenant(
+data class StorageGridTenant(
     val isRegistered: Boolean
 )

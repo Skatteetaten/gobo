@@ -16,7 +16,7 @@ import no.skatteetaten.aurora.gobo.graphql.vault.VaultKey
 import no.skatteetaten.aurora.gobo.graphql.webseal.WebsealState
 import no.skatteetaten.aurora.gobo.security.checkValidUserToken
 import java.util.concurrent.CompletableFuture
-import no.skatteetaten.aurora.gobo.graphql.storagegrid.Storagegrid
+import no.skatteetaten.aurora.gobo.graphql.storagegrid.StorageGrid
 
 data class Affiliation(val name: String) {
 
@@ -28,7 +28,7 @@ data class Affiliation(val name: String) {
     @GraphQLDescription("Get all database schemas for the given affiliation")
     fun databaseSchemas(dfe: DataFetchingEnvironment) = dfe.loadValue<String, List<DatabaseSchema>>(name)
 
-    fun storagegrid(dfe: DataFetchingEnvironment) = Storagegrid(name)
+    fun storageGrid(dfe: DataFetchingEnvironment) = StorageGrid(name)
 
     fun websealStates(dfe: DataFetchingEnvironment) = dfe.loadValue<String, List<WebsealState>>(name)
 

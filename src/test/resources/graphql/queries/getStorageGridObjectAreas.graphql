@@ -3,7 +3,7 @@ query getStoragegridObjectAreas($affiliations: [String!]!) {
     edges {
       node {
         name
-        storagegrid {
+        storageGrid {
           objectAreas {
             active {
               name

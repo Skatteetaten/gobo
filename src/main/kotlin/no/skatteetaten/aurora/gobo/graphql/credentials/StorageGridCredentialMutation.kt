@@ -25,7 +25,7 @@ private val logger = KotlinLogging.logger {}
 class StorageGridCredentialMutation(
     private val herkimerService: HerkimerService,
     private val nagHubService: NagHubService,
-    @Value("\${integrations.storagegrid.operator.application.deployment.id}") val storagegridOperatorAdId: String,
+    @Value("\${integrations.storagegrid.operator.application.deployment.id}") val storageGridOperatorAdId: String,
     @Value("\${openshift.cluster}") val cluster: String,
     @Value("\${credentials.registerStorageGrid.notificationChannel}") val notificationChannel: String,
     @Value("\${credentials.registerStorageGrid.allowedAdGroup}") val allowedAdGroup: String
@@ -50,7 +50,7 @@ class StorageGridCredentialMutation(
 
     private fun createRegisterResourceAndClaimCommand(input: StorageGridTenantInput, tenantName: String): RegisterResourceAndClaimCommand {
         return RegisterResourceAndClaimCommand(
-            ownerId = storagegridOperatorAdId,
+            ownerId = storageGridOperatorAdId,
             credentials = StorageGridTenantAdminCredentials(
                 accountId = input.accountId,
                 username = input.username,

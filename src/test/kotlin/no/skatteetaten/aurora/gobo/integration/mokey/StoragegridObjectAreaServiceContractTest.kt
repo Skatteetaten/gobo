@@ -23,18 +23,18 @@ import no.skatteetaten.aurora.gobo.security.SharedSecretReader
         WebClientAutoConfiguration::class,
         ApplicationConfig::class,
         SharedSecretReader::class,
-        StoragegridObjectAreasService::class
+        StorageGridObjectAreasService::class
     ],
     webEnvironment = SpringBootTest.WebEnvironment.NONE
 )
 @AutoConfigureStubRunner(ids = ["no.skatteetaten.aurora:mokey:+:stubs:6565"])
 class StoragegridObjectAreaServiceContractTest : StrubrunnerRepoPropertiesEnabler() {
     @Autowired
-    lateinit var storagegridObjectAreasService: StoragegridObjectAreasService
+    lateinit var storageGridObjectAreasService: StorageGridObjectAreasService
 
     @Test
     fun `Should get all areas given an affiliation`() {
-        val areas = runBlocking { storagegridObjectAreasService.getObjectAreas("aup", "test-token") }
+        val areas = runBlocking { storageGridObjectAreasService.getObjectAreas("aup", "test-token") }
         assertThat(areas).isNotEmpty()
     }
 }

@@ -8,15 +8,15 @@ import no.skatteetaten.aurora.gobo.integration.herkimer.HerkimerService
 import no.skatteetaten.aurora.gobo.integration.herkimer.ResourceKind
 
 @Component
-class StoragegridTenantDataLoader(
+class StorageGridTenantDataLoader(
     @Value("\${openshift.cluster}") val cluster: String,
     val herkimerService: HerkimerService
-) : GoboDataLoader<String, StoragegridTenant>() {
-    override suspend fun getByKeys(keys: Set<String>, ctx: GraphQLContext): Map<String, StoragegridTenant> {
+) : GoboDataLoader<String, StorageGridTenant>() {
+    override suspend fun getByKeys(keys: Set<String>, ctx: GraphQLContext): Map<String, StorageGridTenant> {
         return keys.associateWith { affiliation ->
             val tenantName = getTenantName(affiliation, cluster)
             val tenantResource = kotlin.runCatching { herkimerService.getResourceWithClaim(tenantName, ResourceKind.StorageGridTenant) }.getOrThrow()
-            StoragegridTenant(
+            StorageGridTenant(
                 isRegistered = tenantResource != null
             )
         }

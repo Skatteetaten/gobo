@@ -1,4 +1,4 @@
-package no.skatteetaten.aurora.gobo.graphql.storagegridobjectarea
+package no.skatteetaten.aurora.gobo.graphql.storagegrid
 
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
@@ -13,24 +13,23 @@ import no.skatteetaten.aurora.gobo.graphql.graphqlData
 import no.skatteetaten.aurora.gobo.graphql.graphqlDataWithPrefix
 import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
-import no.skatteetaten.aurora.gobo.graphql.storagegrid.StoragegridObjectAreaDataLoader
-import no.skatteetaten.aurora.gobo.integration.mokey.StoragegridObjectAreasService
+import no.skatteetaten.aurora.gobo.integration.mokey.StorageGridObjectAreasService
 import no.skatteetaten.aurora.gobo.service.AffiliationService
 
-@Import(AffiliationQuery::class, StoragegridObjectAreaDataLoader::class)
-class StoragegridObjectAreaTest : GraphQLTestWithDbhAndSkap() {
-    @Value("classpath:graphql/queries/getStoragegridObjectAreas.graphql")
+@Import(AffiliationQuery::class, StorageGridObjectAreaDataLoader::class)
+class StorageGridObjectAreaTest : GraphQLTestWithDbhAndSkap() {
+    @Value("classpath:graphql/queries/getStorageGridObjectAreas.graphql")
     private lateinit var getStoragegridObjectAreas: Resource
 
     @MockkBean
-    private lateinit var storagegridObjectAreasService: StoragegridObjectAreasService
+    private lateinit var storageGridObjectAreasService: StorageGridObjectAreasService
 
     @MockkBean
     private lateinit var affiliationService: AffiliationService
 
     @Test
-    fun `Get storagegridobjectareas`() {
-        coEvery { storagegridObjectAreasService.getObjectAreas(any(), any()) } returns listOf(
+    fun `Get storeageGridObjectAreas`() {
+        coEvery { storageGridObjectAreasService.getObjectAreas(any(), any()) } returns listOf(
             StoragegridObjectAreaResourceBuilder("aup").build(),
             StoragegridObjectAreaResourceBuilder("aup").build()
         )
@@ -43,15 +42,15 @@ class StoragegridObjectAreaTest : GraphQLTestWithDbhAndSkap() {
             .expectStatus().isOk
             .expectBody()
             .graphqlDoesNotContainErrors()
-            .graphqlDataWithPrefix("affiliations.edges[0].node.storagegrid.objectAreas.active") {
+            .graphqlDataWithPrefix("affiliations.edges[0].node.storageGrid.objectAreas.active") {
                 graphqlData("length()").isEqualTo(2)
                 graphqlDataFirst("name").isEqualTo("some-area")
                 graphqlDataFirst("bucketName").isEqualTo("aup-utv04-default")
             }
     }
     @Test
-    fun `Get storagegridobjectareas when no areas`() {
-        coEvery { storagegridObjectAreasService.getObjectAreas(any(), any()) } returns emptyList()
+    fun `Get StorageGridObjectAreas when no areas`() {
+        coEvery { storageGridObjectAreasService.getObjectAreas(any(), any()) } returns emptyList()
 
         webTestClient.queryGraphQL(
             queryResource = getStoragegridObjectAreas,
@@ -61,6 +60,6 @@ class StoragegridObjectAreaTest : GraphQLTestWithDbhAndSkap() {
             .expectStatus().isOk
             .expectBody()
             .graphqlDoesNotContainErrors()
-            .graphqlData("affiliations.edges[0].node.storagegrid.objectAreas.active.length()").isEqualTo(0)
+            .graphqlData("affiliations.edges[0].node.storageGrid.objectAreas.active.length()").isEqualTo(0)
     }
 }

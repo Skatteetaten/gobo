@@ -22,7 +22,7 @@ data class StoragegridObjectAreaResource(
 ) : HalResource()
 
 @Service
-class StoragegridObjectAreasService(@TargetService(ServiceTypes.MOKEY) val webClient: WebClient) {
+class StorageGridObjectAreasService(@TargetService(ServiceTypes.MOKEY) val webClient: WebClient) {
     suspend fun getObjectAreas(affiliation: String, token: String): List<StoragegridObjectAreaResource> {
         return webClient.get()
             .uri("/api/auth/storagegridobjectarea?affiliation={affiliation}", affiliation)

@@ -1,4 +1,4 @@
-package no.skatteetaten.aurora.gobo.graphql.storagegridobjectarea
+package no.skatteetaten.aurora.gobo.graphql.storagegrid
 
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
@@ -15,15 +15,14 @@ import no.skatteetaten.aurora.gobo.graphql.graphqlErrorsFirstContainsMessage
 import no.skatteetaten.aurora.gobo.graphql.isFalse
 import no.skatteetaten.aurora.gobo.graphql.isTrue
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
-import no.skatteetaten.aurora.gobo.graphql.storagegrid.StoragegridTenantDataLoader
 import no.skatteetaten.aurora.gobo.integration.herkimer.HerkimerIntegrationException
 import no.skatteetaten.aurora.gobo.integration.herkimer.HerkimerService
 import no.skatteetaten.aurora.gobo.integration.herkimer.ResourceKind
 import no.skatteetaten.aurora.gobo.service.AffiliationService
 
-@Import(AffiliationQuery::class, StoragegridTenantDataLoader::class)
-class StoragegridTenantTest : GraphQLTestWithDbhAndSkap() {
-    @Value("classpath:graphql/queries/getStoragegridTenantIsRegistered.graphql")
+@Import(AffiliationQuery::class, StorageGridTenantDataLoader::class)
+class StorageGridTenantTest : GraphQLTestWithDbhAndSkap() {
+    @Value("classpath:graphql/queries/getStorageGridTenantIsRegistered.graphql")
     private lateinit var getTenantIsRegistered: Resource
 
     @MockkBean
@@ -43,7 +42,7 @@ class StoragegridTenantTest : GraphQLTestWithDbhAndSkap() {
             .expectStatus().isOk
             .expectBody()
             .graphqlDoesNotContainErrors()
-            .graphqlData("affiliations.edges[0].node.storagegrid.tenant.isRegistered").isTrue()
+            .graphqlData("affiliations.edges[0].node.storageGrid.tenant.isRegistered").isTrue()
     }
 
     @Test
@@ -58,7 +57,7 @@ class StoragegridTenantTest : GraphQLTestWithDbhAndSkap() {
             .expectStatus().isOk
             .expectBody()
             .graphqlDoesNotContainErrors()
-            .graphqlData("affiliations.edges[0].node.storagegrid.tenant.isRegistered").isFalse()
+            .graphqlData("affiliations.edges[0].node.storageGrid.tenant.isRegistered").isFalse()
     }
     @Test
     fun `Should throw when multiple tenants`() {
