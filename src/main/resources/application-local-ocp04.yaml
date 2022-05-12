@@ -5,6 +5,8 @@ integrations:
         url: http://localhost:9999
     cantus:
         url: https://cantus-aup.apps.utv04.paas.skead.no
+    herkimer:
+        url: https://herkimer-aup.apps.utv04.paas.skead.no
     skap:
         url: http://localhost:9090
     docker:
@@ -50,7 +52,7 @@ management:
         port: 8081
 
 openshift:
-    cluster: utv
+    cluster: utv04
 
 kubernetes:
     url: https://api.utv04.paas.skead.no:6443
