@@ -1,6 +1,5 @@
 package no.skatteetaten.aurora.gobo.integration.herkimer
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.convertValue
@@ -14,6 +13,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
+import no.skatteetaten.aurora.gobo.integration.awaitWithRetry
+import no.skatteetaten.aurora.gobo.integration.onStatusNotOk
 
 private val logger = KotlinLogging.logger {}
 
@@ -54,6 +55,27 @@ class HerkimerServiceReactive(
         ).toHerkimerResult()
     }
 
+    override suspend fun getResourceWithClaim(resourceName: String, kind: ResourceKind): ResourceHerkimer? {
+        val response: AuroraResponse<ResourceHerkimer, ErrorResponse> =
+            webClient.get()
+                .uri("/resource?name={resourceName}&resourceKind={kind}", resourceName, kind)
+                .retrieve()
+                .onStatusNotOk { status, body ->
+                    HerkimerIntegrationException(
+                        message = "Error when retrieving resource from herkimer",
+                        integrationResponse = body,
+                        status = status
+                    )
+                }
+                .awaitWithRetry()
+
+        if (response.count > 1) {
+            throw HerkimerIntegrationException("Expected only one resource, but received count=${response.count}")
+        }
+
+        return response.items.firstOrNull()
+    }
+
     private fun RegisterResourceAndClaimCommand.toResourcePayload() =
         ResourcePayload(name = resourceName, kind = resourceKind, ownerId = ownerId)
 
@@ -85,59 +107,22 @@ private fun AuroraResponse<*, *>?.toHerkimerResult(): HerkimerResult =
         this?.success ?: false
     )
 
-data class HerkimerResult(
-    val success: Boolean
-)
-
-interface CredentialBase
-
 interface HerkimerService {
     suspend fun registerResourceAndClaim(registerAndClaimCommand: RegisterResourceAndClaimCommand): HerkimerResult =
         integrationDisabled()
+
+    suspend fun getResourceWithClaim(resourceName: String, kind: ResourceKind): ResourceHerkimer? = integrationDisabled()
 
     private fun integrationDisabled(): Nothing =
         throw IntegrationDisabledException("Herkimer integration is disabled for this environment")
 }
 
+interface CredentialBase
+
 @Service
 @ConditionalOnMissingBean(RequiresHerkimer::class)
 class HerkimerServiceDisabled : HerkimerService
 
-data class RegisterResourceAndClaimCommand(
-    val ownerId: String,
-    val credentials: CredentialBase,
-    val resourceName: String,
-    val claimName: String,
-    val resourceKind: ResourceKind
-)
-
-data class ResourcePayload(
-    val name: String,
-    val kind: ResourceKind,
-    val ownerId: String,
-)
-
-data class ResourceClaimPayload(
-    val ownerId: String,
-    val credentials: JsonNode,
-    val name: String
-)
-
-enum class ResourceKind {
-    PostgresDatabaseInstance, StorageGridTenant
-}
-
-data class AuroraResponse<Item, Error>(
-    val success: Boolean = true,
-    val message: String = "OK",
-    val items: List<Item> = emptyList(),
-    val errors: List<Error> = emptyList(),
-    val count: Int = items.size + errors.size
-)
-
-data class ErrorResponse(val errorMessage: String)
-
-@JsonIgnoreProperties(ignoreUnknown = true)
-data class ResourceHerkimer(
-    val id: String
+data class HerkimerResult(
+    val success: Boolean
 )
