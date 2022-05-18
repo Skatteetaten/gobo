@@ -1,6 +1,5 @@
 package no.skatteetaten.aurora.gobo
 
-import java.time.LocalDateTime
 import io.micrometer.core.instrument.Gauge
 import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.core.instrument.Tag
