@@ -1,5 +1,6 @@
 package no.skatteetaten.aurora.gobo
 
+import java.time.LocalDateTime
 import io.micrometer.core.instrument.Gauge
 import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.core.instrument.Tag
@@ -9,6 +10,7 @@ import no.skatteetaten.aurora.gobo.graphql.QueryReporter
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.actuate.endpoint.web.annotation.RestControllerEndpoint
 import org.springframework.http.ResponseEntity
+import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import org.springframework.web.bind.annotation.GetMapping
 
@@ -59,11 +61,6 @@ class GoboLiveness(
     fun unfinishedQueries() =
         queryReporter
             .unfinishedQueries()
-            .also {
-                Gauge.builder("graphql.unfinishedQueries") { it.size }
-                    .description("Number of unfinished queries in gobo.")
-                    .register(meterRegistry)
-            }
             .let {
                 if (it.size > maxUnfinishedQueries) {
                     logger.warn { "Liveness check failed with ${it.size} number of unfinished queries" }
@@ -72,6 +69,20 @@ class GoboLiveness(
                     UnfinishedQueries.success(it)
                 }
             }
+
+    /**
+     * Wait 10 secs initially, then wait 10 seconds between producing each entry (can be configured)
+     */
+    @Scheduled(initialDelay = 10000, fixedDelayString = "\${gobo.unfinishedQueriesMetrics.fixedDelay:10000}")
+    fun produceUnfinishedQueriesMetrics() {
+        queryReporter
+            .unfinishedQueries()
+            .let {
+                Gauge.builder("graphql.unfinishedQueries") { it.size }
+                    .description("Number of unfinished queries in gobo.")
+                    .register(meterRegistry)
+            }
+    }
 }
 
 @Component
