@@ -64,6 +64,9 @@ gobo:
             operationstart: true
     graphqlUsage:
         fixedDelay: 60000 # every 60 seconds
+    unfinishedQueriesMetric:
+        fixedDelay: 10000 # every 10 seconds
+
 
 # logging.level.no.skatteetaten.aurora.gobo: DEBUG
 logging.level.no.skatteetaten.aurora.gobo.security: DEBUG
