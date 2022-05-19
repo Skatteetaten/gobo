@@ -72,8 +72,8 @@ class GoboLiveness(
     /**
      * Wait 10 secs initially, then wait 10 seconds between producing each entry (can be configured)
      */
-    @Scheduled(initialDelay = 10000, fixedDelayString = "\${gobo.unfinishedQueriesMetrics.fixedDelay:10000}")
-    fun produceUnfinishedQueriesMetrics() {
+    @Scheduled(initialDelay = 10000, fixedDelayString = "\${gobo.unfinishedQueriesMetric.fixedDelay:10000}")
+    fun produceUnfinishedQueriesMetric() {
         queryReporter
             .unfinishedQueries()
             .let {
