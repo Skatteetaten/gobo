@@ -64,6 +64,9 @@ abstract class GraphQLTestWithoutDbhAndSkap {
     @MockkBean(relaxed = true)
     private lateinit var goboLiveness: GoboLiveness
 
+    @MockkBean(relaxed = true)
+    private lateinit var goboMetrics: GoboMetrics
+
     @BeforeEach
     fun setUpAll() {
         webTestClient = webTestClient.mutate().responseTimeout(Duration.ofSeconds(10)).build()

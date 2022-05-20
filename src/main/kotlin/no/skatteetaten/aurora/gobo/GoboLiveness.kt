@@ -1,9 +1,8 @@
 package no.skatteetaten.aurora.gobo
 
-import io.micrometer.core.instrument.Gauge
-import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.core.instrument.Tag
 import mu.KotlinLogging
+import no.skatteetaten.aurora.gobo.graphql.GoboMetrics
 import no.skatteetaten.aurora.gobo.graphql.QueryOperation
 import no.skatteetaten.aurora.gobo.graphql.QueryReporter
 import org.springframework.beans.factory.annotation.Value
@@ -33,30 +32,10 @@ data class UnfinishedQueries(val success: Boolean, val queries: List<QueryOperat
 
 @Component
 class GoboLiveness(
-    private val meterRegistry: MeterRegistry,
     private val queryReporter: QueryReporter,
+    private val goboMetrics: GoboMetrics,
     @Value("\${gobo.liveness.maxUnfinishedQueries:4}") private val maxUnfinishedQueries: Int,
 ) {
-
-    val nettyTotalConnections = "reactor.netty.connection.provider.total.connections"
-    val nettyPendingConnections = "reactor.netty.connection.provider.pending.connections"
-    val nettyActiveConnections = "reactor.netty.connection.provider.active.connections"
-    val nettyMaxConnections = "reactor.netty.connection.provider.max.connections"
-    val nettyIdleConnections = "reactor.netty.connection.provider.idle.connections"
-
-    fun MeterRegistry.valueForGauge(name: String, gauge: Gauge) = find(name).tags(gauge.id.tags).gauge()?.value() ?: 0.0
-
-    fun getConnectionPools() = meterRegistry
-        .find(nettyTotalConnections)
-        .gauges()
-        .mapNotNull { total ->
-            val pending = meterRegistry.valueForGauge(nettyPendingConnections, total)
-            val active = meterRegistry.valueForGauge(nettyActiveConnections, total)
-            val max = meterRegistry.valueForGauge(nettyMaxConnections, total)
-            val idle = meterRegistry.valueForGauge(nettyIdleConnections, total)
-            ConnectionPool(total.value(), pending, active, max, idle, total.id.tags)
-        }
-
     fun unfinishedQueries() =
         queryReporter
             .unfinishedQueries()
@@ -74,24 +53,18 @@ class GoboLiveness(
      */
     @Scheduled(initialDelay = 10000, fixedDelayString = "\${gobo.unfinishedQueriesMetric.fixedDelay:10000}")
     fun produceUnfinishedQueriesMetric() {
-        queryReporter
-            .unfinishedQueries()
-            .let {
-                Gauge.builder("graphql.unfinishedQueries") { it.size }
-                    .description("Number of unfinished queries in gobo.")
-                    .register(meterRegistry)
-            }
+        queryReporter.unfinishedQueries().let { goboMetrics.registerUnfinshedQueries(it.size) }
     }
 }
 
 @Component
 @RestControllerEndpoint(id = "liveness")
-class GoboLivenessController(private val goboLiveness: GoboLiveness) {
+class GoboLivenessController(private val goboLiveness: GoboLiveness, private val goboMetrics: GoboMetrics) {
 
     @GetMapping
     fun liveness(): ResponseEntity<Map<String, List<*>>> {
         logger.debug("Liveness check called")
-        val connectionPools = goboLiveness.getConnectionPools()
+        val connectionPools = goboMetrics.getConnectionPools()
         val unfinishedQueries = goboLiveness.unfinishedQueries()
 
         val response =

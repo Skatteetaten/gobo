@@ -9,9 +9,6 @@ import graphql.execution.instrumentation.SimpleInstrumentation
 import graphql.execution.instrumentation.parameters.InstrumentationExecuteOperationParameters
 import graphql.execution.instrumentation.parameters.InstrumentationExecutionParameters
 import graphql.language.SelectionSet
-import io.micrometer.core.instrument.MeterRegistry
-import io.micrometer.core.instrument.Tag
-import io.micrometer.core.instrument.Timer
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.graphql.gobo.GoboFieldUser
 import no.skatteetaten.aurora.gobo.infrastructure.client.Client
@@ -25,7 +22,6 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.server.ServerRequest
-import java.time.Duration
 import java.time.LocalDateTime
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
@@ -40,7 +36,7 @@ private fun String.isNotIntrospectionQuery() = !contains("IntrospectionQuery")
 class GoboInstrumentation(
     private val fieldService: FieldService?,
     private val clientService: ClientService?,
-    private val meterRegistry: MeterRegistry,
+    private val goboMetrics: GoboMetrics,
     private val queryReporter: QueryReporter,
     private val tracer: Tracer? = null,
     @Value("\${gobo.graphql.log.queries:}") private val logQueries: Boolean? = false,
@@ -152,16 +148,7 @@ class GoboInstrumentation(
                     }
 
                 val timeUsed = System.currentTimeMillis() - it.startTime
-                it.operationNameOrNull?.let { operationName ->
-                    Timer.builder("graphql.operationTimer")
-                        .tags(listOf(Tag.of("operationName", operationName)))
-                        .description("Time used for graphql operation")
-                        .minimumExpectedValue(Duration.ofMillis(100))
-                        .maximumExpectedValue(Duration.ofMillis(30000))
-                        .publishPercentileHistogram()
-                        .register(meterRegistry)
-                        .record(Duration.ofMillis(timeUsed))
-                }
+                goboMetrics.registerQueryTimeUsed(it.operationNameOrNull, timeUsed)
 
                 if (logOperationEnd == true) {
                     val hostString = it.request.hostString()
