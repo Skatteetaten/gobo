@@ -5,41 +5,22 @@ import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
 import assertk.assertions.isTrue
-import io.micrometer.core.instrument.simple.SimpleMeterRegistry
+import io.mockk.mockk
 import no.skatteetaten.aurora.gobo.graphql.QueryReporter
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 class GoboLivenessTest {
-    private val meterRegistry = SimpleMeterRegistry()
     private val queryReporter = QueryReporter(reportAfterMillis = 0)
     private val liveness = GoboLiveness(
-        meterRegistry = meterRegistry,
         queryReporter = queryReporter,
-        maxUnfinishedQueries = 2
+        maxUnfinishedQueries = 2,
+        goboMetrics = mockk()
     )
 
     @BeforeEach
     internal fun setUp() {
-        meterRegistry.clear()
         queryReporter.logAndClear()
-    }
-
-    @Test
-    fun `Get connection pools`() {
-        meterRegistry.gauge(liveness.nettyTotalConnections, 15)
-        meterRegistry.gauge(liveness.nettyPendingConnections, 3)
-        meterRegistry.gauge(liveness.nettyActiveConnections, 1)
-        meterRegistry.gauge(liveness.nettyMaxConnections, 32)
-        meterRegistry.gauge(liveness.nettyIdleConnections, 4)
-        val connectionPools = liveness.getConnectionPools()
-
-        assertThat(connectionPools).hasSize(1)
-        assertThat(connectionPools.first().totalConnections).isEqualTo(15.0)
-        assertThat(connectionPools.first().pendingConnections).isEqualTo(3.0)
-        assertThat(connectionPools.first().activeConnections).isEqualTo(1.0)
-        assertThat(connectionPools.first().maxConnections).isEqualTo(32.0)
-        assertThat(connectionPools.first().idleConnections).isEqualTo(4.0)
     }
 
     @Test
