@@ -67,7 +67,7 @@ class GraphQLConfig(
     fun updateGraphqlUsage() {
         logger.info { "Running scheduled job to update usage data at ${LocalDateTime.now()}" }
         goboInstrumentation.update()
-        queryReporter.logAndClear()
+        queryReporter.clear()
     }
 }
 

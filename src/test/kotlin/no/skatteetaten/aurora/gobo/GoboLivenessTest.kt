@@ -20,7 +20,7 @@ class GoboLivenessTest {
 
     @BeforeEach
     internal fun setUp() {
-        queryReporter.logAndClear()
+        queryReporter.clear()
     }
 
     @Test
