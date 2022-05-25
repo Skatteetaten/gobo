@@ -42,11 +42,7 @@ class QueryReporter(
         queries.remove(korrelasjonsid)
     }
 
-    fun logAndClear() {
-        unfinishedQueries().forEach {
-            logger.warn { """Unfinished query, Korrelasjonsid=${it.korrelasjonsid} Query-TraceId="${it.traceid}" Klientid="${it.klientid}" started="${it.started}" name=${it.name} query="${it.query}" """ }
-        }
-
+    fun clear() {
         queries.clear()
     }
 
