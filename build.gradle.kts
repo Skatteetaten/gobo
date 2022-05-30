@@ -34,6 +34,7 @@ dependencies {
 
     implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
     implementation("org.apache.commons:commons-collections4:4.4")
+    implementation("com.github.ben-manes.caffeine:caffeine:3.1.1")
 
     implementation("org.postgresql:postgresql")
     implementation("org.flywaydb:flyway-core")
@@ -59,6 +60,7 @@ dependencies {
     testImplementation("com.ninja-squad:springmockk:3.1.1")
     testImplementation("org.junit-pioneer:junit-pioneer:1.7.0")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.1")
+    testImplementation("org.awaitility:awaitility:4.2.0")
 }
 
 task<de.undercouch.gradle.tasks.download.Download>("download-playground") {

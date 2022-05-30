@@ -54,9 +54,6 @@ class GoboLiveness(
     @Scheduled(initialDelay = 10000, fixedDelayString = "\${gobo.unfinishedQueriesMetric.fixedDelay:5000}")
     fun produceUnfinishedQueriesMetric() {
         queryReporter.unfinishedQueries().let {
-            it.forEach{
-                logger.warn { """Unfinished query, Korrelasjonsid=${it.korrelasjonsid} Query-TraceId="${it.traceid}" Klientid="${it.klientid}" started="${it.started}" name=${it.name} query="${it.query}" """ }
-            }
             goboMetrics.registerUnfinshedQueries(it.size)
         }
     }
