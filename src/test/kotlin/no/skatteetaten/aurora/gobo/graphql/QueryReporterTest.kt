@@ -17,10 +17,17 @@ class QueryReporterTest {
         assertThat(afterAdd).hasSize(1)
 
         reporter.remove("test123")
-        val afterRemove = reporter.awaitEmptyUnfinishedQueries()
+        val afterRemove = reporter.awaitEmptyQueries()
         assertThat(afterRemove).isEmpty()
     }
 
-    private fun QueryReporter.awaitUnfinishedQueries() = await().atMost(Duration.ofSeconds(1)).until { unfinishedQueries().isNotEmpty() }.let { unfinishedQueries() }
-    private fun QueryReporter.awaitEmptyUnfinishedQueries() = await().atMost(Duration.ofSeconds(1)).until { unfinishedQueries().isEmpty() }.let { unfinishedQueries() }
+    private fun QueryReporter.awaitUnfinishedQueries() = await()
+        .atMost(Duration.ofSeconds(1))
+        .until { unfinishedQueries().isNotEmpty() }
+        .let { unfinishedQueries() }
+
+    private fun QueryReporter.awaitEmptyQueries() = await()
+        .atMost(Duration.ofSeconds(1))
+        .until { queries().isEmpty() }
+        .let { queries() }
 }

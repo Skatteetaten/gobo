@@ -24,7 +24,7 @@ class QueryReporter(
     private val tracer: Tracer? = null
 ) {
     private val unfinishedQueries = Caffeine.newBuilder()
-        .expireAfterAccess(Duration.ofHours(1))
+        .expireAfterWrite(Duration.ofHours(1))
         .build<String, QueryOperation>()
 
     private val queries = Caffeine.newBuilder()
@@ -54,7 +54,7 @@ class QueryReporter(
     }
 
     fun remove(korrelasjonsid: String) {
-        unfinishedQueries.invalidate(korrelasjonsid)
+        queries.invalidate(korrelasjonsid)
     }
 
     fun clear() {
@@ -62,5 +62,7 @@ class QueryReporter(
         unfinishedQueries.invalidateAll()
     }
 
-    fun unfinishedQueries(): List<QueryOperation> = unfinishedQueries.asMap().values.toList()
+    fun queries() = queries.asMap().values.toList()
+
+    fun unfinishedQueries() = unfinishedQueries.asMap().values.toList()
 }
