@@ -13,7 +13,7 @@ data class QueryOperation(
     val name: String,
     val klientid: String?,
     val query: String,
-    val started: LocalDateTime
+    val started: LocalDateTime = LocalDateTime.now()
 )
 
 private val logger = KotlinLogging.logger {}
@@ -47,8 +47,7 @@ class QueryReporter(
                     traceid = tracer?.currentSpan()?.context()?.traceIdString(),
                     name = name,
                     klientid = klientid,
-                    query = query,
-                    started = LocalDateTime.now()
+                    query = query
                 )
             )
         }
