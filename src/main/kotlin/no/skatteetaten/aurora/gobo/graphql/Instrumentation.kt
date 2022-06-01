@@ -145,7 +145,7 @@ class GoboInstrumentation(
     ): CompletableFuture<ExecutionResult> {
         parameters?.graphQLContext?.let {
             if (it.operationName.isNotIntrospectionQuery()) {
-                queryReporter.remove(it.id)
+                // queryReporter.remove(it.id)
                 tracer.tagCurrentSpan(tagGraphqlCompleted, true.toString())
                 executionResult?.errors
                     ?.takeIf { e -> e.isNotEmpty() }

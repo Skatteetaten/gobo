@@ -1,6 +1,7 @@
 package no.skatteetaten.aurora.gobo.graphql
 
 import com.github.benmanes.caffeine.cache.Caffeine
+import com.github.benmanes.caffeine.cache.Scheduler
 import mu.KotlinLogging
 import org.springframework.stereotype.Component
 import java.time.Duration
@@ -23,16 +24,18 @@ class QueryReporter(
 ) {
     private val unfinishedQueries = Caffeine.newBuilder()
         .expireAfterWrite(Duration.ofHours(1))
+        .scheduler(Scheduler.systemScheduler())
         .build<String, QueryOperation>()
 
     private val queries = Caffeine.newBuilder()
         .expireAfterWrite(Duration.ofMillis(reportAfterMillis))
-        .evictionListener { korrelasjonsid: String?, query: QueryOperation?, _ ->
-            if (korrelasjonsid != null && query != null) {
+        .scheduler(Scheduler.systemScheduler())
+        .evictionListener { id: String?, query: QueryOperation?, _ ->
+            if (id != null && query != null) {
                 logger.warn {
                     """Unfinished query, Query-Korrelasjonsid=${query.korrelasjonsid} Query-TraceId="${query.traceid}" Query-Klientid="${query.klientid}" started="${query.started}" name=${query.name} query="${query.query}" """
                 }
-                unfinishedQueries.put(korrelasjonsid, query)
+                unfinishedQueries.put(id, query)
             }
         }.build<String, QueryOperation>()
 
