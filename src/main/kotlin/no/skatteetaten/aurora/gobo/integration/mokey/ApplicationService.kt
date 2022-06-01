@@ -127,19 +127,18 @@ class ApplicationService(@TargetService(ServiceTypes.MOKEY) val webClient: WebCl
             throw it
         }.getOrThrow()
     }
-
-    private fun WebClient.ResponseSpec.handleHttpStatusErrors(id: String? = null) =
-        onStatusNotFound { status, body ->
-            MokeyIntegrationException(
-                message = "The requested resource was not found",
-                integrationResponse = id?.let { "id:$it, body: $body" } ?: body,
-                status = status
-            )
-        }.onStatusNotOk { status, body ->
-            MokeyIntegrationException(
-                message = "Downstream request failed with ${status.reasonPhrase}",
-                integrationResponse = id?.let { "id:$it, body: $body" } ?: body,
-                status = status
-            )
-        }
 }
+internal fun WebClient.ResponseSpec.handleHttpStatusErrors(id: String? = null) =
+    onStatusNotFound { status, body ->
+        MokeyIntegrationException(
+            message = "The requested resource was not found",
+            integrationResponse = id?.let { "id:$it, body: $body" } ?: body,
+            status = status
+        )
+    }.onStatusNotOk { status, body ->
+        MokeyIntegrationException(
+            message = "Downstream request failed with ${status.reasonPhrase}",
+            integrationResponse = id?.let { "id:$it, body: $body" } ?: body,
+            status = status
+        )
+    }

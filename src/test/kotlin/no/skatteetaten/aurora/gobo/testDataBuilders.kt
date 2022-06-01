@@ -64,7 +64,11 @@ import uk.q3c.rest.hal.HalLink
 import uk.q3c.rest.hal.HalResource
 import uk.q3c.rest.hal.Links
 import java.time.Instant
+import java.time.LocalDateTime
 import java.util.Date
+import no.skatteetaten.aurora.gobo.integration.herkimer.ResourceHerkimer
+import no.skatteetaten.aurora.gobo.integration.herkimer.ResourceKind
+import no.skatteetaten.aurora.gobo.integration.mokey.StoragegridObjectAreaResource
 
 val defaultInstant: Instant = Instant.parse("2018-01-01T00:00:01Z")
 
@@ -170,7 +174,12 @@ data class ApplicationResourceBuilder(
     val name: String = "name",
     val affiliation: String = "paas",
     val namespace: String = "namespace",
-    val applicationDeployments: List<ApplicationDeploymentResource> = listOf(ApplicationDeploymentResourceBuilder(affiliation = affiliation, namespace = namespace).build())
+    val applicationDeployments: List<ApplicationDeploymentResource> = listOf(
+        ApplicationDeploymentResourceBuilder(
+            affiliation = affiliation,
+            namespace = namespace
+        ).build()
+    )
 ) {
     fun build(): ApplicationResource =
         ApplicationResource(
@@ -583,6 +592,35 @@ data class CertificateResourceBuilder(val id: String = "1", val dn: String = ".a
         issuedDate = Instant.now(),
         revokedDate = Instant.now(),
         expiresDate = Instant.now()
+    )
+}
+
+data class HerkimerResourceBuilder(val id: String) {
+    fun build() = ResourceHerkimer(
+        id = id,
+        name = "resource",
+        kind = ResourceKind.StorageGridTenant,
+        ownerId = "owner",
+        claims = emptyList(),
+        active = true,
+        setToCooldownAt = null,
+        createdBy = "aurora",
+        modifiedBy = "aurora",
+        createdDate = LocalDateTime.now(),
+        modifiedDate = LocalDateTime.now()
+    )
+}
+
+data class StoragegridObjectAreaResourceBuilder(val namespace: String) {
+    fun build() = StoragegridObjectAreaResource(
+        name = "some-area",
+        namespace = namespace,
+        creationTimestamp = "today",
+        objectArea = "area",
+        bucketName = "$namespace-utv04-default",
+        message = "msg",
+        reason = "reason",
+        success = true
     )
 }
 

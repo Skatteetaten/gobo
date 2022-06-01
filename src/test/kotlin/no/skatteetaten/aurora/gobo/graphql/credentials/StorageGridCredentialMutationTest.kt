@@ -152,7 +152,7 @@ class StorageGridCredentialMutationTest {
     inner class StorageGridOperatorApplicationDeploymentIdNotSetCredentialMutation : StorageGridCredentialMutationBaseTest() {
 
         @Test
-        fun `verify mutation is disabled when storagegrid is not present`() {
+        fun `verify mutation is disabled when StorageGrid is not present`() {
             webTestClient.queryGraphQL(
                 queryResource = registerStorageGridTenantMutation,
                 variables = registerStorageGridVariables,

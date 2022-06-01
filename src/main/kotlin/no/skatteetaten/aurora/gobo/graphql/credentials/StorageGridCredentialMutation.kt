@@ -16,6 +16,7 @@ import no.skatteetaten.aurora.gobo.security.checkIsUserAuthorized
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Component
+import no.skatteetaten.aurora.gobo.graphql.storagegrid.getTenantName
 
 private val logger = KotlinLogging.logger {}
 
@@ -24,7 +25,7 @@ private val logger = KotlinLogging.logger {}
 class StorageGridCredentialMutation(
     private val herkimerService: HerkimerService,
     private val nagHubService: NagHubService,
-    @Value("\${integrations.storagegrid.operator.application.deployment.id}") val storagegridOperatorAdId: String,
+    @Value("\${integrations.storagegrid.operator.application.deployment.id}") val storageGridOperatorAdId: String,
     @Value("\${openshift.cluster}") val cluster: String,
     @Value("\${credentials.registerStorageGrid.notificationChannel}") val notificationChannel: String,
     @Value("\${credentials.registerStorageGrid.allowedAdGroup}") val allowedAdGroup: String
@@ -35,7 +36,7 @@ class StorageGridCredentialMutation(
     ): RegisterStorageGridTenantResult {
         dfe.checkIsUserAuthorized(allowedAdGroup)
 
-        val tenantName = "${input.businessGroup}-$cluster"
+        val tenantName = getTenantName(input.businessGroup, cluster)
 
         return herkimerService.registerResourceAndClaim(
             createRegisterResourceAndClaimCommand(input, tenantName)
@@ -49,7 +50,7 @@ class StorageGridCredentialMutation(
 
     private fun createRegisterResourceAndClaimCommand(input: StorageGridTenantInput, tenantName: String): RegisterResourceAndClaimCommand {
         return RegisterResourceAndClaimCommand(
-            ownerId = storagegridOperatorAdId,
+            ownerId = storageGridOperatorAdId,
             credentials = StorageGridTenantAdminCredentials(
                 accountId = input.accountId,
                 username = input.username,

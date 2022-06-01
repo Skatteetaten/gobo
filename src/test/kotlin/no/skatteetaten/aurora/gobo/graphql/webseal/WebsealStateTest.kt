@@ -8,12 +8,12 @@ import no.skatteetaten.aurora.gobo.graphql.affiliation.AffiliationQuery
 import no.skatteetaten.aurora.gobo.graphql.graphqlDataWithPrefix
 import no.skatteetaten.aurora.gobo.graphql.graphqlDoesNotContainErrors
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
-import no.skatteetaten.aurora.gobo.service.AffiliationService
 import no.skatteetaten.aurora.gobo.service.WebsealAffiliationService
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
+import no.skatteetaten.aurora.gobo.service.AffiliationService
 
 @Import(AffiliationQuery::class, WebsealStateDataLoader::class)
 class WebsealStateTest : GraphQLTestWithDbhAndSkap() {

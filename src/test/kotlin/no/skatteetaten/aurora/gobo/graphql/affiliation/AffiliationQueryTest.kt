@@ -21,12 +21,16 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
+import no.skatteetaten.aurora.gobo.StoragegridObjectAreaResourceBuilder
+import no.skatteetaten.aurora.gobo.graphql.storagegrid.StorageGridObjectAreaDataLoader
+import no.skatteetaten.aurora.gobo.integration.mokey.StorageGridObjectAreasService
 
 @Import(
     AffiliationQuery::class,
     WebsealAffiliationService::class,
     WebsealStateDataLoader::class,
-    DatabaseSchemaDataLoader::class
+    DatabaseSchemaDataLoader::class,
+    StorageGridObjectAreaDataLoader::class
 )
 class AffiliationQueryTest : GraphQLTestWithDbhAndSkap() {
 
@@ -45,6 +49,9 @@ class AffiliationQueryTest : GraphQLTestWithDbhAndSkap() {
     @Value("classpath:graphql/queries/getAffiliationsWithDatabaseSchema.graphql")
     private lateinit var getAffiliationsWithDatabaseSchemaQuery: Resource
 
+    @Value("classpath:graphql/queries/getAffiliationsWithStorageGridObjectAreas.graphql")
+    private lateinit var getAffiliationsWithStorageGridObjectAreasQuery: Resource
+
     @Value("classpath:graphql/queries/getAffiliationsWithWebsealStates.graphql")
     private lateinit var getAffiliationsWithWebsealStatesQuery: Resource
 
@@ -59,6 +66,9 @@ class AffiliationQueryTest : GraphQLTestWithDbhAndSkap() {
 
     @MockkBean
     private lateinit var websealService: WebsealService
+
+    @MockkBean
+    private lateinit var storageGridObjectAreasService: StorageGridObjectAreasService
 
     @Test
     fun `Query fo all affiliations include undeployed`() {
@@ -149,6 +159,24 @@ class AffiliationQueryTest : GraphQLTestWithDbhAndSkap() {
             .graphqlDataWithPrefix("affiliations.edges[0].node") {
                 graphqlData("name").isEqualTo("paas")
                 graphqlData("websealStates[0].name").isEqualTo("test.no")
+            }
+            .graphqlDoesNotContainErrors()
+    }
+
+    @Test
+    fun `Query for affiliations with storageGrid objectAreas`() {
+        coEvery { affiliationService.getAllDeployedAffiliations() } returns listOf("aup")
+        coEvery { storageGridObjectAreasService.getObjectAreas(any(), any()) } returns listOf(
+            StoragegridObjectAreaResourceBuilder("aup").build()
+        )
+
+        webTestClient.queryGraphQL(getAffiliationsWithStorageGridObjectAreasQuery, token = "test-token")
+            .expectStatus().isOk
+            .expectBody()
+            .graphqlData("affiliations.totalCount").isEqualTo("1")
+            .graphqlDataWithPrefix("affiliations.edges[0].node") {
+                graphqlData("name").isEqualTo("aup")
+                graphqlData("storageGrid.objectAreas.active[0].name").isEqualTo("some-area")
             }
             .graphqlDoesNotContainErrors()
     }
