@@ -1,5 +1,6 @@
 package no.skatteetaten.aurora.gobo.graphql.affiliation
 
+import java.util.concurrent.CompletableFuture
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
@@ -10,13 +11,12 @@ import no.skatteetaten.aurora.gobo.graphql.auroraconfig.AuroraConfig
 import no.skatteetaten.aurora.gobo.graphql.auroraconfig.AuroraConfigKey
 import no.skatteetaten.aurora.gobo.graphql.database.DatabaseSchema
 import no.skatteetaten.aurora.gobo.graphql.loadValue
+import no.skatteetaten.aurora.gobo.graphql.storagegrid.StorageGrid
 import no.skatteetaten.aurora.gobo.graphql.vault.Vault
 import no.skatteetaten.aurora.gobo.graphql.vault.VaultDataLoader
 import no.skatteetaten.aurora.gobo.graphql.vault.VaultKey
 import no.skatteetaten.aurora.gobo.graphql.webseal.WebsealState
 import no.skatteetaten.aurora.gobo.security.checkValidUserToken
-import java.util.concurrent.CompletableFuture
-import no.skatteetaten.aurora.gobo.graphql.storagegrid.StorageGrid
 
 data class Affiliation(val name: String) {
 
@@ -28,7 +28,11 @@ data class Affiliation(val name: String) {
     @GraphQLDescription("Get all database schemas for the given affiliation")
     fun databaseSchemas(dfe: DataFetchingEnvironment) = dfe.loadValue<String, List<DatabaseSchema>>(name)
 
-    fun storageGrid(dfe: DataFetchingEnvironment) = StorageGrid(name)
+    fun storageGrid(dfe: DataFetchingEnvironment): StorageGrid {
+        runBlocking { dfe.checkValidUserToken() }
+
+        return StorageGrid(name)
+    }
 
     fun websealStates(dfe: DataFetchingEnvironment) = dfe.loadValue<String, List<WebsealState>>(name)
 

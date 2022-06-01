@@ -165,7 +165,7 @@ class AffiliationQueryTest : GraphQLTestWithDbhAndSkap() {
 
     @Test
     fun `Query for affiliations with storageGrid objectAreas`() {
-        coEvery { affiliationService.getAllDeployedAffiliations() } returns listOf("paas")
+        coEvery { affiliationService.getAllDeployedAffiliations() } returns listOf("aup")
         coEvery { storageGridObjectAreasService.getObjectAreas(any(), any()) } returns listOf(
             StoragegridObjectAreaResourceBuilder("aup").build()
         )
@@ -175,7 +175,7 @@ class AffiliationQueryTest : GraphQLTestWithDbhAndSkap() {
             .expectBody()
             .graphqlData("affiliations.totalCount").isEqualTo("1")
             .graphqlDataWithPrefix("affiliations.edges[0].node") {
-                graphqlData("name").isEqualTo("paas")
+                graphqlData("name").isEqualTo("aup")
                 graphqlData("storageGrid.objectAreas.active[0].name").isEqualTo("some-area")
             }
             .graphqlDoesNotContainErrors()

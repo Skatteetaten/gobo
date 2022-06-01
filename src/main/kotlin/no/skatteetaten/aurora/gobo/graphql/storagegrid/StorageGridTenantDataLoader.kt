@@ -15,7 +15,7 @@ class StorageGridTenantDataLoader(
     override suspend fun getByKeys(keys: Set<String>, ctx: GraphQLContext): Map<String, StorageGridTenant> {
         return keys.associateWith { affiliation ->
             val tenantName = getTenantName(affiliation, cluster)
-            val tenantResource = kotlin.runCatching { herkimerService.getResourceWithClaim(tenantName, ResourceKind.StorageGridTenant) }.getOrThrow()
+            val tenantResource = herkimerService.getResourceWithClaim(tenantName, ResourceKind.StorageGridTenant)
             StorageGridTenant(
                 isRegistered = tenantResource != null
             )

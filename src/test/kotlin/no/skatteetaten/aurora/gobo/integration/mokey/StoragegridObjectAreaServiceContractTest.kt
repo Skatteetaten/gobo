@@ -34,7 +34,7 @@ class StoragegridObjectAreaServiceContractTest : StrubrunnerRepoPropertiesEnable
 
     @Test
     fun `Should get all areas given an affiliation`() {
-        val areas = runBlocking { storageGridObjectAreasService.getObjectAreas("aup", "test-token") }
+        val areas = runBlocking { storageGridObjectAreasService.getObjectAreas("foo", "test-token") }
         assertThat(areas).isNotEmpty()
     }
 }

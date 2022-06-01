@@ -1,5 +1,6 @@
 package no.skatteetaten.aurora.gobo.integration.mokey
 
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 import org.springframework.web.reactive.function.client.WebClient
@@ -18,23 +19,33 @@ class StoragegridObjectAreaServiceTest {
     private val storageGridObjectAreasService = StorageGridObjectAreasService(WebClient.create(url.toString()))
 
     @ParameterizedTest
-    @ValueSource(ints = [400, 401, 403, 404, 418, 500, 501])
+    @ValueSource(ints = [400, 401, 403, 418, 500, 501])
     fun `Should handle http errors`(statusCode: Int) {
         val mockResponse = jsonResponse()
             .setResponseCode(statusCode)
 
         server.executeBlocking(mockResponse) {
-            val mokeyIntegrationsExceptionAssert = assertThat {
+            assertThat {
                 storageGridObjectAreasService.getObjectAreas("aup", "token")
             }.isNotNull()
                 .isFailure()
                 .isInstanceOf(MokeyIntegrationException::class)
+                .messageContains("Downstream request failed")
+        }
+    }
 
-            if (statusCode != 404) {
-                mokeyIntegrationsExceptionAssert.messageContains("Downstream request failed")
-            } else {
-                mokeyIntegrationsExceptionAssert.messageContains("The requested resource was not found")
-            }
+    @Test
+    fun `Should handle not found http errors`() {
+        val mockResponse = jsonResponse()
+            .setResponseCode(404)
+
+        server.executeBlocking(mockResponse) {
+            assertThat {
+                storageGridObjectAreasService.getObjectAreas("aup", "token")
+            }.isNotNull()
+                .isFailure()
+                .isInstanceOf(MokeyIntegrationException::class)
+                .messageContains("The requested resource was not found")
         }
     }
 }
