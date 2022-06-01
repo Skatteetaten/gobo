@@ -8,10 +8,10 @@ import org.junit.jupiter.api.Test
 import java.time.Duration
 
 class QueryReporterTest {
+    private val reporter = QueryReporter(reportAfterMillis = 0)
 
     @Test
     fun `Test add and remove`() {
-        val reporter = QueryReporter(reportAfterMillis = 0)
         reporter.add("test123", "junit-test", "korrid1", "klientid", "getAffiliations", "getAffiliations {}")
         val afterAdd = reporter.awaitUnfinishedQueries()
         assertThat(afterAdd).hasSize(1)
@@ -19,6 +19,12 @@ class QueryReporterTest {
         reporter.remove("test123")
         val afterRemove = reporter.awaitEmptyQueries()
         assertThat(afterRemove).isEmpty()
+    }
+
+    @Test
+    fun `Trying to remove id not in cache`() {
+        reporter.remove("123")
+        assertThat(reporter.queries()).isEmpty()
     }
 
     private fun QueryReporter.awaitUnfinishedQueries() = await()

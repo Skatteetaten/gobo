@@ -3,6 +3,7 @@ package no.skatteetaten.aurora.gobo.graphql
 import com.github.benmanes.caffeine.cache.Caffeine
 import com.github.benmanes.caffeine.cache.Scheduler
 import mu.KotlinLogging
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import java.time.Duration
 import java.time.LocalDateTime
@@ -18,12 +19,18 @@ data class QueryOperation(
 
 private val logger = KotlinLogging.logger {}
 
+const val DEFAULT_REPORT_AFTER_MILLIS: Long = 300000
+const val DEFAULT_UNFINISHED_QUERIES_EXPIRE_MINUTES: Long = 60
+
 @Component
 class QueryReporter(
-    reportAfterMillis: Long = 300000
+    @Value("\${gobo.graphql.reportAfterMillis:$DEFAULT_REPORT_AFTER_MILLIS}")
+    reportAfterMillis: Long = DEFAULT_REPORT_AFTER_MILLIS,
+    @Value("\${gobo.graphql.unfinishedQueriesExpireMinutes:$DEFAULT_UNFINISHED_QUERIES_EXPIRE_MINUTES}")
+    unfinishedQueriesExpireMinutes: Long = DEFAULT_UNFINISHED_QUERIES_EXPIRE_MINUTES
 ) {
     private val unfinishedQueries = Caffeine.newBuilder()
-        .expireAfterWrite(Duration.ofHours(1))
+        .expireAfterWrite(Duration.ofMinutes(unfinishedQueriesExpireMinutes))
         .scheduler(Scheduler.systemScheduler())
         .build<String, QueryOperation>()
 
