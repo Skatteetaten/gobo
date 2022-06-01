@@ -27,19 +27,19 @@ class GoboLivenessTest {
 
     @Test
     fun `Get unfinished queries`() {
-        queryReporter.add("test123", "klientId", "name", "query")
+        queryReporter.add("test123", "trace1", "korrid1", "klientId", "name", "query")
 
         val unfinished = liveness.awaitUnfinishedQueries()
         assertThat(unfinished.success).isTrue()
         assertThat(unfinished.queries).hasSize(1)
-        assertThat(unfinished.queries.first().korrelasjonsid).isEqualTo("test123")
+        assertThat(unfinished.queries.first().korrelasjonsid).isEqualTo("korrid1")
     }
 
     @Test
     fun `Unfinished queries check fails`() {
-        queryReporter.add("test234", "klientId", "name", "query")
-        queryReporter.add("test567", "klientId", "name", "query")
-        queryReporter.add("test890", "klientId", "name", "query")
+        queryReporter.add("test234", "trace1", "korrid1", "klientId", "name", "query")
+        queryReporter.add("test567", "trace2", "korrid2", "klientId", "name", "query")
+        queryReporter.add("test890", "trace3", "korrid3", "klientId", "name", "query")
 
         val unfinished = liveness.awaitUnfinishedQueries()
         assertThat(unfinished.success).isFalse()

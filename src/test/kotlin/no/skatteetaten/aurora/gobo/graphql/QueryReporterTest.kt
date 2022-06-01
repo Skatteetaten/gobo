@@ -12,7 +12,7 @@ class QueryReporterTest {
     @Test
     fun `Test add and remove`() {
         val reporter = QueryReporter(reportAfterMillis = 0)
-        reporter.add("test123", "junit-test", "getAffiliations", "getAffiliations {}")
+        reporter.add("test123", "junit-test", "korrid1", "klientid", "getAffiliations", "getAffiliations {}")
         val afterAdd = reporter.awaitUnfinishedQueries()
         assertThat(afterAdd).hasSize(1)
 

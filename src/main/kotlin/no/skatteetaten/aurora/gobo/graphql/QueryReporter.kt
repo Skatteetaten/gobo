@@ -1,6 +1,5 @@
 package no.skatteetaten.aurora.gobo.graphql
 
-import brave.Tracer
 import com.github.benmanes.caffeine.cache.Caffeine
 import mu.KotlinLogging
 import org.springframework.stereotype.Component
@@ -20,8 +19,7 @@ private val logger = KotlinLogging.logger {}
 
 @Component
 class QueryReporter(
-    reportAfterMillis: Long = 300000,
-    private val tracer: Tracer? = null
+    reportAfterMillis: Long = 300000
 ) {
     private val unfinishedQueries = Caffeine.newBuilder()
         .expireAfterWrite(Duration.ofHours(1))
@@ -32,29 +30,27 @@ class QueryReporter(
         .evictionListener { korrelasjonsid: String?, query: QueryOperation?, _ ->
             if (korrelasjonsid != null && query != null) {
                 logger.warn {
-                    """Unfinished query, Korrelasjonsid=${query.korrelasjonsid} Query-TraceId="${query.traceid}" Klientid="${query.klientid}" started="${query.started}" name=${query.name} query="${query.query}" """
+                    """Unfinished query, Query-Korrelasjonsid=${query.korrelasjonsid} Query-TraceId="${query.traceid}" Query-Klientid="${query.klientid}" started="${query.started}" name=${query.name} query="${query.query}" """
                 }
                 unfinishedQueries.put(korrelasjonsid, query)
             }
         }.build<String, QueryOperation>()
 
-    fun add(korrelasjonsid: String, klientid: String?, name: String, query: String) {
-        if (korrelasjonsid.isNotEmpty()) {
-            queries.put(
-                korrelasjonsid,
-                QueryOperation(
-                    korrelasjonsid = korrelasjonsid,
-                    traceid = tracer?.currentSpan()?.context()?.traceIdString(),
-                    name = name,
-                    klientid = klientid,
-                    query = query
-                )
+    fun add(id: String, traceId: String?, korrelasjonsid: String, klientid: String?, name: String, query: String) {
+        queries.put(
+            id,
+            QueryOperation(
+                korrelasjonsid = korrelasjonsid,
+                traceid = traceId,
+                name = name,
+                klientid = klientid,
+                query = query
             )
-        }
+        )
     }
 
-    fun remove(korrelasjonsid: String) {
-        queries.invalidate(korrelasjonsid)
+    fun remove(id: String) {
+        queries.invalidate(id)
     }
 
     fun clear() {

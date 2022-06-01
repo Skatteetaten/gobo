@@ -119,7 +119,14 @@ class GoboInstrumentation(
                 addStartTime()
 
                 if (operationName.isNotIntrospectionQuery()) {
-                    queryReporter.add(context.korrelasjonsid, context.klientid, operationName, context.query)
+                    queryReporter.add(
+                        id = context.id,
+                        traceId = tracer.traceId(),
+                        korrelasjonsid = context.korrelasjonsid,
+                        name = operationName,
+                        klientid = context.klientid,
+                        query = query
+                    )
                     tracer.tagCurrentSpan(tagQueryName, operationName)
                     tracer.tagCurrentSpan(tagGraphqlCompleted, false.toString())
 
@@ -138,7 +145,7 @@ class GoboInstrumentation(
     ): CompletableFuture<ExecutionResult> {
         parameters?.graphQLContext?.let {
             if (it.operationName.isNotIntrospectionQuery()) {
-                queryReporter.remove(it.korrelasjonsid)
+                queryReporter.remove(it.id)
                 tracer.tagCurrentSpan(tagGraphqlCompleted, true.toString())
                 executionResult?.errors
                     ?.takeIf { e -> e.isNotEmpty() }
@@ -161,6 +168,7 @@ class GoboInstrumentation(
     }
 
     private fun Tracer?.tagCurrentSpan(key: String, value: String) = this?.currentSpan()?.tag(key, value)
+    private fun Tracer?.traceId() = this?.currentSpan()?.context()?.traceIdString()
 }
 
 class FieldUsage {
