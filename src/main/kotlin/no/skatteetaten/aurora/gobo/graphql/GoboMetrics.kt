@@ -21,7 +21,6 @@ class GoboMetrics(private val meterRegistry: MeterRegistry, private val queryRep
     final val graphqlUnfinishedQueries = "graphql.unfinishedQueries"
 
     init {
-        println("test")
         Gauge.builder(graphqlUnfinishedQueries) { queryReporter.unfinishedQueries().size }
             .description("Number of unfinished queries in gobo.")
             .register(meterRegistry)
