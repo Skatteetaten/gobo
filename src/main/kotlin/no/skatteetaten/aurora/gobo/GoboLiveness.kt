@@ -8,7 +8,6 @@ import no.skatteetaten.aurora.gobo.graphql.QueryReporter
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.actuate.endpoint.web.annotation.RestControllerEndpoint
 import org.springframework.http.ResponseEntity
-import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import org.springframework.web.bind.annotation.GetMapping
 
@@ -33,9 +32,9 @@ data class UnfinishedQueries(val success: Boolean, val queries: List<QueryOperat
 @Component
 class GoboLiveness(
     private val queryReporter: QueryReporter,
-    private val goboMetrics: GoboMetrics,
     @Value("\${gobo.liveness.maxUnfinishedQueries:4}") private val maxUnfinishedQueries: Int,
 ) {
+
     fun unfinishedQueries() =
         queryReporter
             .unfinishedQueries()
@@ -47,16 +46,6 @@ class GoboLiveness(
                     UnfinishedQueries.success(it)
                 }
             }
-
-    /**
-     * Wait 10 secs initially, then wait 10 seconds between producing each entry (can be configured)
-     */
-    @Scheduled(initialDelay = 10000, fixedDelayString = "\${gobo.unfinishedQueriesMetric.fixedDelay:5000}")
-    fun produceUnfinishedQueriesMetric() {
-        queryReporter.unfinishedQueries().let {
-            goboMetrics.registerUnfinshedQueries(it.size)
-        }
-    }
 }
 
 @Component

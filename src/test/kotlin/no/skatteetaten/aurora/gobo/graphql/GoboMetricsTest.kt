@@ -4,12 +4,13 @@ import assertk.assertThat
 import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
+import io.mockk.mockk
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 class GoboMetricsTest {
     private val meterRegistry = SimpleMeterRegistry()
-    private val metrics = GoboMetrics(meterRegistry)
+    private val metrics = GoboMetrics(meterRegistry, mockk(relaxed = true))
 
     @BeforeEach
     internal fun setUp() {
@@ -43,8 +44,7 @@ class GoboMetricsTest {
 
     @Test
     fun `Register unfinished queries`() {
-        metrics.registerUnfinshedQueries(5)
-
+        GoboMetrics(meterRegistry, mockk())
         assertThat(meterRegistry.meters).hasSize(1)
         assertThat(meterRegistry.meters.first().id.name).isEqualTo(metrics.graphqlUnfinishedQueries)
     }

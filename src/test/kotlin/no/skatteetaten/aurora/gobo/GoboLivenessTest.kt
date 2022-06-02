@@ -5,7 +5,6 @@ import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
 import assertk.assertions.isTrue
-import io.mockk.mockk
 import no.skatteetaten.aurora.gobo.graphql.QueryReporter
 import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.BeforeEach
@@ -16,8 +15,7 @@ class GoboLivenessTest {
     private val queryReporter = QueryReporter(reportAfterMillis = 0)
     private val liveness = GoboLiveness(
         queryReporter = queryReporter,
-        maxUnfinishedQueries = 2,
-        goboMetrics = mockk()
+        maxUnfinishedQueries = 2
     )
 
     @BeforeEach
