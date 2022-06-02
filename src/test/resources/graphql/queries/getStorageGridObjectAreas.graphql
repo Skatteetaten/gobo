@@ -1,0 +1,24 @@
+query getStoragegridObjectAreas($affiliations: [String!]!) {
+  affiliations(names: $affiliations) {
+    edges {
+      node {
+        name
+        storageGrid {
+          objectAreas {
+            active {
+              name
+              bucketName
+              namespace
+              creationTimestamp
+              status {
+                message
+                reason
+                success
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
