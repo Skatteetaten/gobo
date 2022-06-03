@@ -111,13 +111,12 @@ class ToxiProxyToxicMutationTest : GraphQLTestWithDbhAndSkap() {
             attributes = attr
         )
         val toxiProxyInput = ToxiProxyInput(name = TOXY_PROXY_NAME, toxics = toxics)
-        val addToxiProxyToxicsInput = AddOrUpdateToxiProxyInput(
+        return AddOrUpdateToxiProxyInput(
             affiliation = "test_aff",
             environment = "test_env",
             application = "test_app",
             toxiProxy = toxiProxyInput
         )
-        return addToxiProxyToxicsInput
     }
 
     private fun getUpdateToxiProxyInput(): UpdateToxiProxyInput {
@@ -127,23 +126,20 @@ class ToxiProxyToxicMutationTest : GraphQLTestWithDbhAndSkap() {
             upstream = TOXIC_PROXY_UPSTREAM,
             enabled = TOXIC_PROXY_ENABLED
         )
-        val updateToxiProxyToxicsInput = UpdateToxiProxyInput(
+        return UpdateToxiProxyInput(
             affiliation = "test_aff",
             environment = "test_env",
             application = "test_app",
             toxiProxy = toxiProxyInput
         )
-        return updateToxiProxyToxicsInput
     }
 
-    private fun getDeleteToxiProxyToxicsInput(): DeleteToxiProxyToxicsInput {
-        val deleteToxiProxyToxicsInput = DeleteToxiProxyToxicsInput(
+    private fun getDeleteToxiProxyToxicsInput() =
+        DeleteToxiProxyToxicsInput(
             affiliation = "test_aff",
             environment = "test_env",
             application = "test_app",
             toxiProxyName = TOXY_PROXY_NAME,
             toxicName = TOXIC_NAME
         )
-        return deleteToxiProxyToxicsInput
-    }
 }

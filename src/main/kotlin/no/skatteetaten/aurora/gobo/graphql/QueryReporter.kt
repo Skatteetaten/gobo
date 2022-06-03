@@ -1,11 +1,12 @@
 package no.skatteetaten.aurora.gobo.graphql
 
-import brave.Tracer
+import com.github.benmanes.caffeine.cache.Caffeine
+import com.github.benmanes.caffeine.cache.Scheduler
 import mu.KotlinLogging
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import java.time.Duration
 import java.time.LocalDateTime
-import java.util.concurrent.ConcurrentHashMap
 
 data class QueryOperation(
     val korrelasjonsid: String,
@@ -13,43 +14,58 @@ data class QueryOperation(
     val name: String,
     val klientid: String?,
     val query: String,
-    val started: LocalDateTime
+    val started: LocalDateTime = LocalDateTime.now()
 )
 
 private val logger = KotlinLogging.logger {}
 
 @Component
 class QueryReporter(
-    private val reportAfterMillis: Long = 300000,
-    private val tracer: Tracer? = null
+    @Value("\${gobo.graphql.reportAfterMinutes:5}")
+    reportAfterMinutes: Long,
+    @Value("\${gobo.graphql.unfinishedQueriesExpireMinutes:60}")
+    unfinishedQueriesExpireMinutes: Long
 ) {
-    private val queries = ConcurrentHashMap<String, QueryOperation>()
+    private val unfinishedQueries = Caffeine.newBuilder()
+        .expireAfterWrite(Duration.ofMinutes(unfinishedQueriesExpireMinutes))
+        .scheduler(Scheduler.systemScheduler())
+        .build<String, QueryOperation>()
 
-    fun add(korrelasjonsid: String, klientid: String?, name: String, query: String) {
-        if (korrelasjonsid.isNotEmpty()) {
-            queries[korrelasjonsid] = QueryOperation(
+    private val queries = Caffeine.newBuilder()
+        .expireAfterWrite(Duration.ofMinutes(reportAfterMinutes))
+        .scheduler(Scheduler.systemScheduler())
+        .evictionListener { id: String?, query: QueryOperation?, _ ->
+            if (id != null && query != null) {
+                logger.warn {
+                    """Unfinished query, Query-Korrelasjonsid=${query.korrelasjonsid} Query-TraceId="${query.traceid}" Query-Klientid="${query.klientid}" started="${query.started}" name=${query.name} query="${query.query}" """
+                }
+                unfinishedQueries.put(id, query)
+            }
+        }.build<String, QueryOperation>()
+
+    fun add(id: String, traceId: String?, korrelasjonsid: String, klientid: String?, name: String, query: String) {
+        queries.put(
+            id,
+            QueryOperation(
                 korrelasjonsid = korrelasjonsid,
-                traceid = tracer?.currentSpan()?.context()?.traceIdString(),
+                traceid = traceId,
                 name = name,
                 klientid = klientid,
-                query = query,
-                started = LocalDateTime.now()
+                query = query
             )
-        }
+        )
     }
 
-    fun remove(korrelasjonsid: String) {
-        queries.remove(korrelasjonsid)
+    fun remove(id: String) {
+        queries.invalidate(id)
     }
 
     fun clear() {
-        queries.clear()
+        queries.invalidateAll()
+        unfinishedQueries.invalidateAll()
     }
 
-    fun unfinishedQueries() =
-        queries.values.toList()
-            .filter {
-                val configuredPointInTime = LocalDateTime.now().minus(Duration.ofMillis(reportAfterMillis))
-                it.started.isBefore(configuredPointInTime)
-            }
+    fun queries() = queries.asMap().values.toList()
+
+    fun unfinishedQueries() = unfinishedQueries.asMap().values.toList()
 }

@@ -98,8 +98,6 @@ class PrometheusMetricsTest {
             .bodyToMono<String>()
             .block()
 
-        println(result)
-
         assertThat(result).isNotNull().contains("/v2/auroraconfig/{auroraConfig}?reference={reference}")
         assertThat(result).isNotNull().contains("/v1/auroraconfig/Apply")
     }

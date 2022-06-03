@@ -3,31 +3,37 @@ package no.skatteetaten.aurora.gobo.graphql
 import assertk.assertThat
 import assertk.assertions.hasSize
 import assertk.assertions.isEmpty
+import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.Test
+import java.time.Duration
 
 class QueryReporterTest {
-    @Test
-    fun `Test add and report`() {
-        val reporter = QueryReporter(reportAfterMillis = 0)
-        reporter.add("test123", "junit-test", "getAffiliations", "getAffiliations {}")
-        val unfinished = reporter.unfinishedQueries()
-        assertThat(unfinished).hasSize(1)
-    }
-
-    @Test
-    fun `Test add and report before timeout`() {
-        val reporter = QueryReporter(reportAfterMillis = 5000)
-        reporter.add("test123", "junit-test", "getAffiliations", "getAffiliations {}")
-        val unfinished = reporter.unfinishedQueries()
-        assertThat(unfinished).isEmpty()
-    }
+    private val reporter = QueryReporter(reportAfterMinutes = 0, unfinishedQueriesExpireMinutes = 1)
 
     @Test
     fun `Test add and remove`() {
-        val reporter = QueryReporter(reportAfterMillis = 5000)
-        reporter.add("test123", "junit-test", "getAffiliations", "getAffiliations {}")
+        reporter.add("test123", "junit-test", "korrid1", "klientid", "getAffiliations", "getAffiliations {}")
+        val afterAdd = reporter.awaitUnfinishedQueries()
+        assertThat(afterAdd).hasSize(1)
+
         reporter.remove("test123")
-        val unfinished = reporter.unfinishedQueries()
-        assertThat(unfinished).isEmpty()
+        val afterRemove = reporter.awaitEmptyQueries()
+        assertThat(afterRemove).isEmpty()
     }
+
+    @Test
+    fun `Trying to remove id not in cache`() {
+        reporter.remove("123")
+        assertThat(reporter.queries()).isEmpty()
+    }
+
+    private fun QueryReporter.awaitUnfinishedQueries() = await()
+        .atMost(Duration.ofSeconds(1))
+        .until { unfinishedQueries().isNotEmpty() }
+        .let { unfinishedQueries() }
+
+    private fun QueryReporter.awaitEmptyQueries() = await()
+        .atMost(Duration.ofSeconds(1))
+        .until { queries().isEmpty() }
+        .let { queries() }
 }

@@ -16,13 +16,14 @@ aurora {
     }
 
     versions {
-        springCloudContract = "3.1.2"
+        springCloudContract = "3.1.3"
+        auroraSpringBootWebFluxStarter = "1.4.5"
     }
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:1.6.1")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:1.6.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.2")
 
     implementation("io.projectreactor.kotlin:reactor-kotlin-extensions:1.1.6")
     implementation("org.apache.commons:commons-text:1.9")
@@ -34,6 +35,7 @@ dependencies {
 
     implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
     implementation("org.apache.commons:commons-collections4:4.4")
+    implementation("com.github.ben-manes.caffeine:caffeine:3.1.1")
 
     implementation("org.postgresql:postgresql")
     implementation("org.flywaydb:flyway-core")
@@ -45,7 +47,7 @@ dependencies {
     implementation("com.jayway.jsonpath:json-path:2.7.0")
     implementation("io.projectreactor.addons:reactor-extra:3.4.8")
     implementation("no.skatteetaten.aurora.kubernetes:kubernetes-reactor-coroutines-client:1.3.27")
-    implementation("no.skatteetaten.aurora.springboot:aurora-spring-security-starter:1.9.0")
+    implementation("no.skatteetaten.aurora.springboot:aurora-spring-security-starter:1.11.0")
 
     testImplementation("com.h2database:h2")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
@@ -57,8 +59,9 @@ dependencies {
         exclude(group = "no.skatteetaten.aurora.springboot", module = "aurora-spring-boot-mvc-starter")
     }
     testImplementation("com.ninja-squad:springmockk:3.1.1")
-    testImplementation("org.junit-pioneer:junit-pioneer:1.7.0")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.1")
+    testImplementation("org.junit-pioneer:junit-pioneer:1.7.1")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.2")
+    testImplementation("org.awaitility:awaitility:4.2.0")
 }
 
 task<de.undercouch.gradle.tasks.download.Download>("download-playground") {

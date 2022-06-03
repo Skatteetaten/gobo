@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component
 import java.time.Duration
 
 @Component
-class GoboMetrics(private val meterRegistry: MeterRegistry) {
+class GoboMetrics(private val meterRegistry: MeterRegistry, private val queryReporter: QueryReporter) {
 
     val nettyTotalConnections = "reactor.netty.connection.provider.total.connections"
     val nettyPendingConnections = "reactor.netty.connection.provider.pending.connections"
@@ -18,7 +18,13 @@ class GoboMetrics(private val meterRegistry: MeterRegistry) {
     val nettyIdleConnections = "reactor.netty.connection.provider.idle.connections"
 
     val graphqlOperationTimer = "graphql.operationTimer"
-    val graphqlUnfinishedQueries = "graphql.unfinishedQueries"
+    final val graphqlUnfinishedQueries = "graphql.unfinishedQueries"
+
+    init {
+        Gauge.builder(graphqlUnfinishedQueries) { queryReporter.unfinishedQueries().size }
+            .description("Number of unfinished queries in gobo.")
+            .register(meterRegistry)
+    }
 
     fun registerQueryTimeUsed(operationName: String?, timeUsed: Long) {
         operationName?.let {
@@ -31,12 +37,6 @@ class GoboMetrics(private val meterRegistry: MeterRegistry) {
                 .register(meterRegistry)
                 .record(Duration.ofMillis(timeUsed))
         }
-    }
-
-    fun registerUnfinshedQueries(numOfUnfinishedQueries: Int) {
-        Gauge.builder(graphqlUnfinishedQueries) { numOfUnfinishedQueries }
-            .description("Number of unfinished queries in gobo.")
-            .register(meterRegistry)
     }
 
     private fun MeterRegistry.valueForGauge(name: String, gauge: Gauge) = find(name).tags(gauge.id.tags).gauge()?.value() ?: 0.0

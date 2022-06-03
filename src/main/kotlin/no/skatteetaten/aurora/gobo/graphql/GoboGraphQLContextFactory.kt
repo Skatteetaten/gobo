@@ -11,10 +11,12 @@ import org.springframework.security.core.context.SecurityContext
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.server.ServerRequest
 import reactor.core.publisher.Mono
+import java.util.UUID
 import kotlin.coroutines.coroutineContext
 
 class GoboGraphQLContext(val context: GraphQLContext, request: ServerRequest) : SpringGraphQLContext(request)
 private class ContextMap(val toMap: MutableMap<String, Any> = mutableMapOf()) {
+    var id: String by toMap
     var token: String by toMap
     var securityContext: Mono<SecurityContext> by toMap
     var request: ServerRequest by toMap
@@ -30,6 +32,7 @@ class GoboGraphQLContextFactory : SpringGraphQLContextFactory<SpringGraphQLConte
         serverRequest.logHeaders()
 
         return ContextMap().apply {
+            id = UUID.randomUUID().toString()
             token = (serverRequest.headers().firstHeader(HttpHeaders.AUTHORIZATION)?.removePrefix("Bearer ") ?: "")
             securityContext = getSecurityContext()
             request = serverRequest
