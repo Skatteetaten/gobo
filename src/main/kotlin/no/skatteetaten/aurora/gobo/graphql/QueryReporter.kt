@@ -19,15 +19,12 @@ data class QueryOperation(
 
 private val logger = KotlinLogging.logger {}
 
-const val DEFAULT_REPORT_AFTER_MILLIS: Long = 300000
-const val DEFAULT_UNFINISHED_QUERIES_EXPIRE_MINUTES: Long = 60
-
 @Component
 class QueryReporter(
-    @Value("\${gobo.graphql.reportAfterMillis:$DEFAULT_REPORT_AFTER_MILLIS}")
-    reportAfterMillis: Long = DEFAULT_REPORT_AFTER_MILLIS,
-    @Value("\${gobo.graphql.unfinishedQueriesExpireMinutes:$DEFAULT_UNFINISHED_QUERIES_EXPIRE_MINUTES}")
-    unfinishedQueriesExpireMinutes: Long = DEFAULT_UNFINISHED_QUERIES_EXPIRE_MINUTES
+    @Value("\${gobo.graphql.reportAfterMinutes:5}")
+    reportAfterMinutes: Long,
+    @Value("\${gobo.graphql.unfinishedQueriesExpireMinutes:60}")
+    unfinishedQueriesExpireMinutes: Long
 ) {
     private val unfinishedQueries = Caffeine.newBuilder()
         .expireAfterWrite(Duration.ofMinutes(unfinishedQueriesExpireMinutes))
@@ -35,7 +32,7 @@ class QueryReporter(
         .build<String, QueryOperation>()
 
     private val queries = Caffeine.newBuilder()
-        .expireAfterWrite(Duration.ofMillis(reportAfterMillis))
+        .expireAfterWrite(Duration.ofMinutes(reportAfterMinutes))
         .scheduler(Scheduler.systemScheduler())
         .evictionListener { id: String?, query: QueryOperation?, _ ->
             if (id != null && query != null) {

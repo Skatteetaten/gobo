@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test
 import java.time.Duration
 
 class GoboLivenessTest {
-    private val queryReporter = QueryReporter(reportAfterMillis = 0)
+    private val queryReporter = QueryReporter(reportAfterMinutes = 0, unfinishedQueriesExpireMinutes = 1)
     private val liveness = GoboLiveness(
         queryReporter = queryReporter,
         maxUnfinishedQueries = 2

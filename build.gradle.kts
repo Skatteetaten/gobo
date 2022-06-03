@@ -17,6 +17,7 @@ aurora {
 
     versions {
         springCloudContract = "3.1.3"
+        auroraSpringBootWebFluxStarter = "1.4.5"
     }
 }
 

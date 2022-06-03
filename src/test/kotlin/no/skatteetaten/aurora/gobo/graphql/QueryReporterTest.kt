@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test
 import java.time.Duration
 
 class QueryReporterTest {
-    private val reporter = QueryReporter(reportAfterMillis = 0)
+    private val reporter = QueryReporter(reportAfterMinutes = 0, unfinishedQueriesExpireMinutes = 1)
 
     @Test
     fun `Test add and remove`() {
