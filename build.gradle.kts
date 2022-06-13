@@ -28,7 +28,7 @@ dependencies {
     implementation("org.apache.commons:commons-text:1.9")
     implementation("org.springframework.boot:spring-boot-starter-security")
 
-    implementation("com.expediagroup:graphql-kotlin-spring-server:5.4.1")
+    implementation("com.expediagroup:graphql-kotlin-spring-server:5.5.0")
     // bump transitive dependency because of high security risk in version 61.1
     implementation("com.ibm.icu:icu4j:63.2")
 
@@ -45,7 +45,7 @@ dependencies {
 
     implementation("com.jayway.jsonpath:json-path:2.7.0")
     implementation("io.projectreactor.addons:reactor-extra:3.4.8")
-    implementation("no.skatteetaten.aurora.kubernetes:kubernetes-reactor-coroutines-client:1.3.27")
+    implementation("no.skatteetaten.aurora.kubernetes:kubernetes-reactor-coroutines-client:1.3.28")
     implementation("no.skatteetaten.aurora.springboot:aurora-spring-security-starter:1.11.0")
 
     testImplementation("com.h2database:h2")
