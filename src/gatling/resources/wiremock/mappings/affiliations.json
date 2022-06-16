@@ -1,13 +1,13 @@
 {
   "request": {
     "method": "GET",
-    "url": "/some/thing"
+    "url": "/api/auth/affiliation"
   },
   "response": {
     "status": 200,
-    "body": "Hello world!",
+    "body": "[\n  \"aup\"\n]",
     "headers": {
-      "Content-Type": "text/plain"
+      "Content-Type": "application/json"
     }
   }
 }
