@@ -23,7 +23,7 @@ class GoboLoadSimulation extends Simulation {
     .exec(
       http("affiliationRequest")
         .post("/graphql")
-        .body(ElFileBody("affiliations.json"))
+        .body(ElFileBody("affiliations_query.json"))
         .check(status.is(200))
     ).exitHereIfFailed
 
