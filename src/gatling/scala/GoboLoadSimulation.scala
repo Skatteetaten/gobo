@@ -7,7 +7,7 @@ class GoboLoadSimulation extends Simulation {
 
   private val token = System.getenv("token")
   private val httpProtocol = http
-    .baseUrl("https://k82814-gobo-aurora.utv.paas.skead.no")
+    .baseUrl("https://m78879-gobo-aup.apps.utv04.paas.skead.no")
     .contentTypeHeader("application/json")
     .authorizationHeader(s"Bearer $token")
 
