@@ -7,7 +7,7 @@ class GoboLoadSimulation extends Simulation {
 
   private val token = System.getenv("token")
   private val httpProtocol = http
-    .baseUrl("https://m78879-gobo-aup.apps.utv04.paas.skead.no")
+    .baseUrl("https://m78879-gobo-aup.apps.utv01.paas.skead.no")
     .contentTypeHeader("application/json")
     .authorizationHeader(s"Bearer $token")
 
@@ -36,8 +36,8 @@ class GoboLoadSimulation extends Simulation {
     ).exitHereIfFailed
 
   setUp(
-    usageScenario.inject(rampUsersPerSec(10).to(50).during(10.minutes)),
-    // affiliationsScenario.inject(rampUsersPerSec(10).to(50).during(10.minutes)),
+    //usageScenario.inject(rampUsersPerSec(10).to(50).during(10.minutes)),
+    affiliationsScenario.inject(rampUsersPerSec(1).to(5).during(1.minutes)),
     // userSettingsScenario.inject(rampUsersPerSec(10).to(50).during(10.minutes))
   ).protocols(httpProtocol)
 }
