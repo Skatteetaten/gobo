@@ -27,6 +27,14 @@ class GoboLoadSimulation extends Simulation {
         .check(status.is(200))
     ).exitHereIfFailed
 
+  private val databaseSchemaScenario = scenario("Affiliations")
+    .exec(
+      http("databasSchemaRequest")
+        .post("/graphql")
+        .body(ElFileBody("databaseSchemas_query.json"))
+        .check(status.is(200))
+    ).exitHereIfFailed
+
   private val userSettingsScenario = scenario("UserSettings")
     .exec(
       http("userSettingsRequest")
@@ -37,7 +45,8 @@ class GoboLoadSimulation extends Simulation {
 
   setUp(
     //usageScenario.inject(rampUsersPerSec(10).to(50).during(10.minutes)),
-    affiliationsScenario.inject(rampUsersPerSec(1).to(5).during(1.minutes)),
+    //affiliationsScenario.inject(rampUsersPerSec(1).to(5).during(1.minutes)),
+    databaseSchemaScenario.inject(rampUsersPerSec(1).to(5).during(1.minutes)),
     // userSettingsScenario.inject(rampUsersPerSec(10).to(50).during(10.minutes))
   ).protocols(httpProtocol)
 }
