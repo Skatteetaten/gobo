@@ -46,7 +46,7 @@ class GoboLoadSimulation extends Simulation {
   setUp(
     //usageScenario.inject(rampUsersPerSec(10).to(50).during(10.minutes)),
     //affiliationsScenario.inject(rampUsersPerSec(1).to(5).during(1.minutes)),
-    databaseSchemaScenario.inject(rampUsersPerSec(1).to(5).during(1.minutes)),
+    databaseSchemaScenario.inject(rampUsersPerSec(10).to(50).during(5.minutes)),
     // userSettingsScenario.inject(rampUsersPerSec(10).to(50).during(10.minutes))
   ).protocols(httpProtocol)
 }
