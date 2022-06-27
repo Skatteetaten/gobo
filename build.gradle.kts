@@ -1,6 +1,6 @@
 plugins {
     kotlin("jvm") version "1.6.21"
-    id("no.skatteetaten.gradle.aurora") version "4.4.24"
+    id("no.skatteetaten.gradle.aurora") version "4.4.25"
     id("io.gatling.gradle") version "3.7.6.3"
     id("com.github.psxpaul.execfork") version "0.2.0"
     id("org.asciidoctor.jvm.convert") version "3.3.2"
