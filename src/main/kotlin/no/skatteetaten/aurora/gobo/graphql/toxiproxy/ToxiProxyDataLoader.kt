@@ -32,10 +32,10 @@ class ToxiProxyDataLoader(
             val applicationDeploymentDetails = applicationService.getApplicationDeploymentDetails(ctx.token, id.applicationDeploymentId)
             val responses = applicationDeploymentDetails.podResources.mapNotNull { pod ->
                 if (pod.hasToxiProxySidecar()) {
-                    val deploymentRef = applicationDeploymentDetails.applicationDeploymentCommand.applicationDeploymentRef
+                    val ad = applicationService.getApplicationDeployment(id.applicationDeploymentId)
                     val podInput = newPod {
                         metadata {
-                            namespace = "${id.affiliation}-${deploymentRef.environment}"
+                            namespace = ad.namespace
                             name = pod.name
                         }
                     }
