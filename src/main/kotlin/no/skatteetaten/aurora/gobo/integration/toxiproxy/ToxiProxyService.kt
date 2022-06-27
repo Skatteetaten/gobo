@@ -33,11 +33,10 @@ class ToxiProxyToxicService(
                 applicationService.getApplicationDeploymentDetails(toxiProxyToxicCtx.token, resource.identifier)
             applicationDeploymentDetails.podResources.forEach { pod ->
                 if (pod.hasToxiProxySidecar()) {
-                    val environment =
-                        applicationDeploymentDetails.applicationDeploymentCommand.applicationDeploymentRef.environment
+                    val ad = applicationService.getApplicationDeployment(resource.identifier)
                     val p = newPod {
                         metadata {
-                            namespace = "${resource.affiliation}-$environment"
+                            namespace = ad.namespace
                             name = pod.name
                         }
                     }
