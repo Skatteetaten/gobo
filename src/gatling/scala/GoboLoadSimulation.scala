@@ -35,6 +35,15 @@ class GoboLoadSimulation extends Simulation {
         .check(status.is(200))
     ).exitHereIfFailed
 
+  private val addMokeyToxic = scenario("Mokey-toxic")
+    .exec(
+      http("mokeyToxicRequest")
+        .post("/graphql")
+        .body(ElFileBody("mokey_toxic_mutation.json"))
+        .check(status.is(200))
+    ).exitHereIfFailed
+
+
   private val userSettingsScenario = scenario("UserSettings")
     .exec(
       http("userSettingsRequest")
@@ -46,6 +55,7 @@ class GoboLoadSimulation extends Simulation {
   setUp(
     //usageScenario.inject(rampUsersPerSec(10).to(50).during(10.minutes)),
     //affiliationsScenario.inject(rampUsersPerSec(1).to(5).during(1.minutes)),
+    addMokeyToxic.inject(atOnceUsers(1)),
     databaseSchemaScenario.inject(rampUsersPerSec(10).to(50).during(5.minutes)),
     // userSettingsScenario.inject(rampUsersPerSec(10).to(50).during(10.minutes))
   ).protocols(httpProtocol)
