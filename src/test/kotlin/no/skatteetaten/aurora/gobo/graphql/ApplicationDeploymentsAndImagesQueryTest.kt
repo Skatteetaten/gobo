@@ -6,7 +6,6 @@ import no.skatteetaten.aurora.gobo.ApplicationDeploymentResourceBuilder
 import no.skatteetaten.aurora.gobo.graphql.application.ApplicationQuery
 import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.ApplicationDeploymentQuery
 import no.skatteetaten.aurora.gobo.graphql.imagerepository.ImageRepositoryQuery
-import no.skatteetaten.aurora.gobo.graphql.imagerepository.ImageTagsConnectionDataLoader
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageRegistryService
 import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
 import org.junit.jupiter.api.BeforeEach
@@ -18,12 +17,9 @@ import org.springframework.core.io.Resource
 @Import(
     ApplicationQuery::class,
     ApplicationDeploymentQuery::class,
-    ImageRepositoryQuery::class,
-    ImageTagsConnectionDataLoader::class
+    ImageRepositoryQuery::class
 )
 class ApplicationDeploymentsAndImagesQueryTest : GraphQLTestWithDbhAndSkap() {
-    @Value("classpath:graphql/queries/getApplicationDeploymentsAndImages.graphql")
-    private lateinit var applicationDeploymentsAndImages: Resource
 
     @Value("classpath:graphql/queries/getApplicationDeploymentsAndVersions.graphql")
     private lateinit var applicationDeploymentsAndVersions: Resource
@@ -37,21 +33,6 @@ class ApplicationDeploymentsAndImagesQueryTest : GraphQLTestWithDbhAndSkap() {
     @BeforeEach
     fun setUp() {
         coEvery { applicationService.getApplicationDeployment(any()) } returns ApplicationDeploymentResourceBuilder().build()
-    }
-
-    @Test
-    fun `Query for application deployments and images, throw exception for images`() {
-        coEvery { imageRegistryService.findTagNamesInRepoOrderedByCreatedDateDesc(any(), any()) } throws
-            RuntimeException("test exception")
-
-        webTestClient.queryGraphQL(
-            queryResource = applicationDeploymentsAndImages,
-            variables = mapOf("id" to "123", "repository" to "docker-registry/skatteetaten/123"),
-            token = "test-token"
-        ).expectStatus().isOk
-            .expectBody()
-            .graphqlData("applicationDeployment.affiliation.name").isEqualTo("paas")
-            .graphqlErrors("length()").isEqualTo(1)
     }
 
     @Test

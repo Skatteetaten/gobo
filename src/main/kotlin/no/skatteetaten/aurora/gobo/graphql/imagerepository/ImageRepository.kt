@@ -4,9 +4,6 @@ import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
 import mu.KotlinLogging
-import no.skatteetaten.aurora.gobo.graphql.GoboEdge
-import no.skatteetaten.aurora.gobo.graphql.GoboPageInfo
-import no.skatteetaten.aurora.gobo.graphql.GoboPagedEdges
 import no.skatteetaten.aurora.gobo.graphql.loadValue
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageTagType
 import no.skatteetaten.aurora.gobo.integration.cantus.ImageTagType.Companion.typeOf
@@ -66,17 +63,6 @@ data class ImageRepository(
         return dfe.loadValue(keys = imageTags, loaderClass = MultipleImagesDataLoader::class)
     }
 
-    @Deprecated("Not in use on Openshift 4", ReplaceWith("versions"))
-    fun tags(
-        types: List<ImageTagType>? = null,
-        filter: String? = null,
-        first: Int,
-        after: String? = null,
-        dfe: DataFetchingEnvironment
-    ): CompletableFuture<DataFetcherResult<ImageTagsConnection?>> {
-        return dfe.loadValue(ImageTagsKey(this, types, filter, first, after))
-    }
-
     fun versions(dfe: DataFetchingEnvironment) =
         dfe.loadValue<ImageRepository, DataFetcherResult<List<ImageTag>?>>(this, loaderClass = VersionsDataLoader::class)
 
@@ -113,7 +99,6 @@ data class ImageTag(
 ) {
     val type: ImageTagType get() = typeOf(name)
 
-    @Deprecated("Not in use on Openshift 4", ReplaceWith("version"))
     fun image(dfe: DataFetchingEnvironment) = dfe.loadValue<ImageTag, DataFetcherResult<Image?>>(key = this, loaderClass = ImageDataLoader::class)
 
     fun version(dfe: DataFetchingEnvironment) = dfe.loadValue<ImageTag, Image?>(key = this, loaderClass = VersionDataLoader::class)
@@ -126,16 +111,6 @@ data class ImageTag(
             return ImageTag(imageRepository = ImageRepository.fromRepoString(repo), name = tag)
         }
     }
-}
-
-data class ImageTagEdge(val node: ImageTag) : GoboEdge(node.name)
-
-data class ImageTagsConnection(
-    val edges: List<ImageTagEdge>,
-    val pageInfo: GoboPageInfo?,
-    val totalCount: Int = edges.size
-) {
-    constructor(paged: GoboPagedEdges<ImageTagEdge>) : this(paged.edges, paged.pageInfo, paged.totalCount)
 }
 
 data class Image(val buildTime: Instant?, val imageReference: String)
