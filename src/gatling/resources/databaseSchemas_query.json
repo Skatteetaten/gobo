@@ -1,5 +1,5 @@
 {
   "operationName": null,
   "variables": {},
-  "query": "{  affiliations(names: [\"aup\"]) {    edges {      node {        name        databaseSchemas {          id          application        }      }    }  }}"
+  "query": "{  affiliations(checkForVisibility: true) {    edges {      node {        name        databaseSchemas {          id          application        }      }    }  }}"
 }
