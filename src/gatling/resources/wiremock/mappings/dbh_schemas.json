@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "GET",
-    "url": "/api/v1/schema/?labels=affiliation=aup"
+    "url": "/api/v1/schema/?labels=affiliation%3Daup"
   },
   "response": {
     "status": 200,
