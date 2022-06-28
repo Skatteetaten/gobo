@@ -15,6 +15,9 @@ spring:
         max-in-memory-size: -1 # unlimited
     zipkin:
         enabled: false
+    sleuth:
+        web:
+            skip-pattern: "/actuator/.*|/api-docs.*|/swagger.*|.*.png|.*.css|.*.js|.*.html|/favicon.ico|/hystrix.stream"
 
 graphql:
     packages: "no.skatteetaten.aurora.gobo.graphql"
