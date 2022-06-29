@@ -1,12 +1,12 @@
 integrations:
     boober:
-        url: https://boober-aup.apps.utv04.paas.skead.no/
+        url: https://boober-aup.apps.utv01.paas.skead.no/
     mokey:
         url: http://localhost:9999
     cantus:
-        url: https://cantus-aup.apps.utv04.paas.skead.no
+        url: https://cantus-aup.apps.utv01.paas.skead.no
     herkimer:
-        url: https://herkimer-aup.apps.utv04.paas.skead.no
+        url: https://herkimer-aup.apps.utv01.paas.skead.no
     skap:
         url: http://localhost:9090
     docker:
@@ -52,10 +52,10 @@ management:
         port: 8081
 
 openshift:
-    cluster: local
+    cluster: utv01
 
 kubernetes:
-    url: https://api.utv04.paas.skead.no:6443
+    url: https://api.utv01.paas.skead.no:6443
 
 gobo:
     graphql:
