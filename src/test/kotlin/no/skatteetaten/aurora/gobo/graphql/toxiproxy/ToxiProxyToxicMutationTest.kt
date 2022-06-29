@@ -107,7 +107,7 @@ class ToxiProxyToxicMutationTest : GraphQLTestWithDbhAndSkap() {
             name = TOXIC_NAME,
             type = "latency",
             stream = "downstream",
-            toxicity = 1,
+            toxicity = 1.0,
             attributes = attr
         )
         val toxiProxyInput = ToxiProxyInput(name = TOXY_PROXY_NAME, toxics = toxics)
