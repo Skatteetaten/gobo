@@ -6,8 +6,9 @@ import scala.concurrent.duration.DurationInt
 class GoboLoadSimulation extends Simulation {
 
   private val token = System.getenv("token")
+
   private val httpProtocol = http
-    .baseUrl("https://m78879-gobo-aup.apps.utv01.paas.skead.no")
+    .baseUrl("https://gobo-aup.apps.utv01.paas.skead.no")
     .contentTypeHeader("application/json")
     .authorizationHeader(s"Bearer $token")
 
@@ -24,7 +25,7 @@ class GoboLoadSimulation extends Simulation {
       http("affiliationRequest")
         .post("/graphql")
         .body(ElFileBody("affiliations_query.json"))
-        .check(status.is(200))
+        .check(jsonPath("$.errors").notExists)
     ).exitHereIfFailed
 
   private val databaseSchemaScenario = scenario("Affiliations")
@@ -32,15 +33,15 @@ class GoboLoadSimulation extends Simulation {
       http("databasSchemaRequest")
         .post("/graphql")
         .body(ElFileBody("databaseSchemas_query.json"))
-        .check(status.is(200))
+        .check(jsonPath("$.errors").notExists)
     ).exitHereIfFailed
 
   private val addMokeyToxic = scenario("Mokey-toxic")
     .exec(
       http("mokeyToxicRequest")
-        .post("/graphql")
+        .post("https://m78879-gobo-aup.apps.utv01.paas.skead.no/graphql")
         .body(ElFileBody("mokey_toxic_mutation.json"))
-        .check(status.is(200))
+        .check(jsonPath("$.errors").notExists)
     ).exitHereIfFailed
 
 
@@ -53,10 +54,10 @@ class GoboLoadSimulation extends Simulation {
     ).exitHereIfFailed
 
   setUp(
+    addMokeyToxic.inject(atOnceUsers(1)),
     //usageScenario.inject(rampUsersPerSec(10).to(50).during(10.minutes)),
     //affiliationsScenario.inject(rampUsersPerSec(1).to(5).during(1.minutes)),
-    addMokeyToxic.inject(atOnceUsers(1)),
-    databaseSchemaScenario.inject(rampUsersPerSec(10).to(50).during(5.minutes)),
+    //databaseSchemaScenario.inject(rampUsersPerSec(1).to(10).during(10.minutes)),
     // userSettingsScenario.inject(rampUsersPerSec(10).to(50).during(10.minutes))
   ).protocols(httpProtocol)
 }

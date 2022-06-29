@@ -1,0 +1,30 @@
+{
+  "operationName": "addToxiProxyToxic",
+  "variables": {
+    "input": {
+      "affiliation": "aup",
+      "environment": "utv01",
+      "application": "m78879-gobo",
+      "toxiProxy": {
+        "name": "mokeyToxic",
+        "toxics": {
+          "name": "latency_downstream_1",
+          "type": "latency",
+          "stream": "upstream",
+          "toxicity": 1,
+          "attributes": [
+            {
+              "key": "latency",
+              "value": "400"
+            },
+            {
+              "key": "jitter",
+              "value": "300000"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "query": "mutation addToxiProxyToxic($input: AddOrUpdateToxiProxyInput!) {\n  addToxiProxyToxic(input: $input) {\n    toxiProxyName\n    toxicName\n  }\n}\n"
+}
