@@ -135,7 +135,7 @@ data class ToxicInput(
     val name: String,
     val type: String,
     val stream: String,
-    val toxicity: Double,
+    val toxicity: Int,
     val attributes: List<ToxicAttributeInput>
 )
 
