@@ -141,7 +141,7 @@ class ToxiProxyQueryTest : GraphQLTestWithDbhAndSkap() {
                     graphqlData("[0].toxics[0].name").isEqualTo("latency_downstream_6")
                     graphqlData("[0].toxics[0].type").isEqualTo("latency")
                     graphqlData("[0].toxics[0].stream").isEqualTo("downstream")
-                    graphqlData("[0].toxics[0].toxicity").isEqualTo("1")
+                    graphqlData("[0].toxics[0].toxicity").isEqualTo("1.0")
                     graphqlData("[0].toxics[0].attributes[0].key").isEqualTo("latency")
                     graphqlData("[0].toxics[0].attributes[0].value").isEqualTo("855")
                     graphqlData("[0].toxics[0].attributes[1].key").isEqualTo("jitter")
