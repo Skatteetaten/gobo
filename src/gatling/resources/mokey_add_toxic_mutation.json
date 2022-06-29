@@ -8,7 +8,7 @@
       "toxiProxy": {
         "name": "mokeyToxic",
         "toxics": {
-          "name": "latency_downstream_1",
+          "name": "latency_toxic",
           "type": "latency",
           "stream": "upstream",
           "toxicity": 1,

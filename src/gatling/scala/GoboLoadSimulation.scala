@@ -6,9 +6,11 @@ import scala.concurrent.duration.DurationInt
 class GoboLoadSimulation extends Simulation {
 
   private val token = System.getenv("token")
+  private val goboMockedUrl = "https://m78879-gobo-aup.apps.utv01.paas.skead.no/graphql";
+  private val goboUrl = "https://gobo-aup.apps.utv01.paas.skead.no/graphql";
 
   private val httpProtocol = http
-    .baseUrl("https://gobo-aup.apps.utv01.paas.skead.no")
+    .baseUrl(goboUrl)
     .contentTypeHeader("application/json")
     .authorizationHeader(s"Bearer $token")
 
@@ -31,16 +33,23 @@ class GoboLoadSimulation extends Simulation {
   private val databaseSchemaScenario = scenario("Affiliations")
     .exec(
       http("databasSchemaRequest")
-        .post("/graphql")
+        .post(goboMockedUrl)
         .body(ElFileBody("databaseSchemas_query.json"))
         .check(jsonPath("$.errors").notExists)
     ).exitHereIfFailed
 
-  private val addMokeyToxic = scenario("Mokey-toxic")
+  private val deleteMokeyToxic = scenario("Mokey-deletetoxic")
     .exec(
-      http("mokeyToxicRequest")
-        .post("https://m78879-gobo-aup.apps.utv01.paas.skead.no/graphql")
-        .body(ElFileBody("mokey_toxic_mutation.json"))
+      http("mokeyDeleteToxicRequest")
+        .post(goboUrl)
+        .body(ElFileBody("mokey_delete_toxic_mutation.json"))
+    )
+
+  private val addMokeyToxic = scenario("Mokey-addtoxic")
+    .exec(
+      http("mokeyAddToxicRequest")
+        .post(goboUrl)
+        .body(ElFileBody("mokey_add_toxic_mutation.json"))
         .check(jsonPath("$.errors").notExists)
     ).exitHereIfFailed
 
@@ -54,10 +63,11 @@ class GoboLoadSimulation extends Simulation {
     ).exitHereIfFailed
 
   setUp(
-    addMokeyToxic.inject(atOnceUsers(1)),
+    deleteMokeyToxic.inject(atOnceUsers(1)),
+    addMokeyToxic.inject( nothingFor(500.millis), atOnceUsers(1)),
     //usageScenario.inject(rampUsersPerSec(10).to(50).during(10.minutes)),
     //affiliationsScenario.inject(rampUsersPerSec(1).to(5).during(1.minutes)),
-    //databaseSchemaScenario.inject(rampUsersPerSec(1).to(10).during(10.minutes)),
+    databaseSchemaScenario.inject(nothingFor(1.seconds), rampUsersPerSec(1).to(10).during(3.minutes)),
     // userSettingsScenario.inject(rampUsersPerSec(10).to(50).during(10.minutes))
   ).protocols(httpProtocol)
 }
