@@ -75,7 +75,7 @@ data class Toxic(
     val name: String,
     val type: String,
     val stream: String,
-    val toxicity: Int,
+    val toxicity: Double,
     @GraphQLIgnore
     val attributes: JsonNode
 ) {
