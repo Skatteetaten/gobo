@@ -1,5 +1,5 @@
 {
-  "operationName": null,
+  "operationName":"getAffiliationAndDatabaseSchemas",
   "variables": {},
   "query": "{ affiliations(names: [\"aup\"]) { edges { node { name }}}}"
 }
