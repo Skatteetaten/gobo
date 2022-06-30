@@ -18,6 +18,8 @@ spring:
     sleuth:
         web:
             skip-pattern: "/|/actuator/.*|/api-docs.*|/swagger.*|.*.png|.*.css|.*.js|.*.html|/favicon.ico|/hystrix.stream"
+        scheduled:
+            enabled: false
 
 graphql:
     packages: "no.skatteetaten.aurora.gobo.graphql"
