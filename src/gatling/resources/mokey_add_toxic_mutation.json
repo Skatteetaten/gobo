@@ -11,6 +11,7 @@
           "name": "latency_toxic",
           "type": "latency",
           "stream": "upstream",
+          "toxicity": 50,
           "toxicity": 1,
           "attributes": [
             {
