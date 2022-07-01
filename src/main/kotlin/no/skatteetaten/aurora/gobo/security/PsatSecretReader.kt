@@ -15,7 +15,7 @@ private val logger = KotlinLogging.logger {}
 @Component
 class PsatSecretReader(
     @Value("\${aurora.psat.token.location:}") private val secretLocation: String?,
-    @Value("\${aurora.psat.token.value}:") private val secretValue: String?
+    @Value("\${aurora.psat.token.value:}") private val secretValue: String?
 ) {
 
     val secret = initSecret(secretValue)
