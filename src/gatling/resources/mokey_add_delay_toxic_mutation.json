@@ -1,5 +1,5 @@
 {
-  "operationName": "addToxiProxyTimeoutToxic",
+  "operationName": "addToxiProxyDelayToxic",
   "variables": {
     "input": {
       "affiliation": "aup",
@@ -12,7 +12,7 @@
           "type": "slow_close",
           "stream": "upstream",
           "toxicity": 0.03,
-        "attributes": [
+          "attributes": [
             {
               "key": "delay",
               "value": "30000"
@@ -22,5 +22,5 @@
       }
     }
   },
-  "query": "mutation addToxiProxyTimeoutToxic($input: AddOrUpdateToxiProxyInput!) {\n  addToxiProxyToxic(input: $input) {\n    toxiProxyName\n    toxicName\n  }\n}\n"
+  "query": "mutation addToxiProxyDelayToxic($input: AddOrUpdateToxiProxyInput!) {\n  addToxiProxyToxic(input: $input) {\n    toxiProxyName\n    toxicName\n  }\n}\n"
 }

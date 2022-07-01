@@ -94,13 +94,13 @@ class GoboLoadSimulation extends Simulation {
   setUp(
     // Clean up previous toxics.
     deleteMokeyLatencyToxic.inject(atOnceUsers(1)),
-    deleteMokeyTimeoutToxic.inject(nothingFor(500.millis), atOnceUsers(1)),
-    deleteMokeyDelayToxic.inject(nothingFor(500.millis), atOnceUsers(1)),
+    deleteMokeyTimeoutToxic.inject(nothingFor(1000.millis), atOnceUsers(1)),
+    deleteMokeyDelayToxic.inject(nothingFor(1000.millis), atOnceUsers(1)),
 
     // Add new toxics befor running the test. See: https://github.com/Shopify/toxiproxy
-    addMokeyLatencyToxic.inject( nothingFor(500.millis), atOnceUsers(1)),
-    addMokeyTimoutToxic.inject( nothingFor(500.millis), atOnceUsers(1)),
-    addMokeyDelayToxic.inject( nothingFor(500.millis), atOnceUsers(1)),
+    addMokeyLatencyToxic.inject( nothingFor(1000.millis), atOnceUsers(1)),
+    addMokeyTimoutToxic.inject( nothingFor(1000.millis), atOnceUsers(1)),
+    addMokeyDelayToxic.inject( nothingFor(1000.millis), atOnceUsers(1)),
 
     // Run the test.
     //usageScenario.inject(rampUsersPerSec(10).to(50).during(10.minutes)),
