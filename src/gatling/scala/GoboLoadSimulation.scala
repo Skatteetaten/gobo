@@ -105,7 +105,7 @@ class GoboLoadSimulation extends Simulation {
     // Run the test.
     //usageScenario.inject(rampUsersPerSec(10).to(50).during(10.minutes)),
     //affiliationsScenario.inject(rampUsersPerSec(1).to(5).during(1.minutes)),
-   databaseSchemaScenario.inject(nothingFor(1.seconds), rampUsersPerSec(1).to(4).during(15.minutes).randomized),
+   databaseSchemaScenario.inject(nothingFor(1.seconds), rampUsersPerSec(1).to(5).during(15.minutes).randomized),
     //databaseSchemaScenario.inject(nothingFor(1.seconds), constantUsersPerSec(5).during(15.minutes).randomized),
     // userSettingsScenario.inject(rampUsersPerSec(10).to(50).during(10.minutes))
   ).protocols(httpProtocol)
