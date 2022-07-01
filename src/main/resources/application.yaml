@@ -127,6 +127,6 @@ aurora:
             password: ${GOBO_OPENSHIFT_ADMIN_PASSWORD:-password}
     psat:
         token:
-            location: /u01/secrets/app/psat-token
+            location: /u01/secrets/app/psat-token/spotless
 
 logging.level.com.expediagroup.graphql.server.spring: WARN
