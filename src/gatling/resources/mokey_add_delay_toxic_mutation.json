@@ -12,7 +12,7 @@
           "type": "slow_close",
           "stream": "upstream",
           "toxicity": 0.03,
-          "attributes": [
+        "attributes": [
             {
               "key": "delay",
               "value": "30000"
