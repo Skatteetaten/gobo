@@ -11,7 +11,7 @@
           "name": "delay_toxic",
           "type": "slow_close",
           "stream": "upstream",
-          "toxicity": 0.01,
+          "toxicity": 0.03,
           "attributes": [
             {
               "key": "delay",
