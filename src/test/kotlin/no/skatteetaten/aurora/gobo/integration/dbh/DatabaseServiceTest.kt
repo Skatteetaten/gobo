@@ -36,6 +36,7 @@ import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.integration.containsAuroraToken
 import no.skatteetaten.aurora.gobo.integration.containsAuroraTokens
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseServiceReactive.Companion.HEADER_COOLDOWN_DURATION_HOURS
+import no.skatteetaten.aurora.gobo.security.PsatSecretReader
 import no.skatteetaten.aurora.gobo.security.SharedSecretReader
 import no.skatteetaten.aurora.gobo.testObjectMapper
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.TestObjectMapperConfigurer
@@ -56,7 +57,10 @@ class DatabaseServiceTest {
     private val sharedSecretReader = mockk<SharedSecretReader> {
         every { secret } returns "abc"
     }
-    private val webClient = ApplicationConfig(500, 500, 300000, "", sharedSecretReader)
+    private val psatSecretReader = mockk<PsatSecretReader> {
+        every { secret } returns "abc"
+    }
+    private val webClient = ApplicationConfig(500, 500, 300000, "", sharedSecretReader, psatSecretReader)
         .webClientDbh(server.url("/").toString(), WebClient.builder())
     private val databaseService = DatabaseServiceReactive(webClient, testObjectMapper())
 

@@ -45,7 +45,12 @@ integrations:
             readOnly: false
 
 
-aurora.token.value: token
+aurora:
+    token:
+        value: token
+    psat:
+        token:
+            value: token
 
 management:
     server:

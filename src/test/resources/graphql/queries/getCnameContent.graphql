@@ -1,0 +1,7 @@
+{
+  cnameContent {
+    canonicalName
+    clusterId
+    ttlInSeconds
+  }
+}

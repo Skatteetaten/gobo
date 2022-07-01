@@ -80,6 +80,9 @@ aurora:
             webclient:
                 interceptor:
                     enabled: true
+    psat:
+        token:
+            value: abc123
 
 openshift:
     cluster: testcluster

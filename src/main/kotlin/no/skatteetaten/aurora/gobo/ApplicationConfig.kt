@@ -9,6 +9,7 @@ import no.skatteetaten.aurora.gobo.graphql.GoboSpringKotlinDataFetcherFactoryPro
 import no.skatteetaten.aurora.gobo.infrastructure.ConditionalOnDatabaseUrl
 import no.skatteetaten.aurora.gobo.infrastructure.ConditionalOnMissingDatabaseUrl
 import no.skatteetaten.aurora.gobo.integration.skap.HEADER_AURORA_TOKEN
+import no.skatteetaten.aurora.gobo.security.PsatSecretReader
 import no.skatteetaten.aurora.gobo.security.SharedSecretReader
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
@@ -38,7 +39,7 @@ import reactor.netty.tcp.SslProvider
 import java.time.Duration
 
 enum class ServiceTypes {
-    MOKEY, BOOBER, UNCLEMATT, CANTUS, DBH, SKAP, HERKIMER, NAGHUB, GAVEL, PHIL, TOXI_PROXY
+    MOKEY, BOOBER, UNCLEMATT, CANTUS, DBH, SKAP, HERKIMER, NAGHUB, GAVEL, PHIL, TOXI_PROXY, SPOTLESS
 }
 
 @Target(AnnotationTarget.TYPE, AnnotationTarget.FUNCTION, AnnotationTarget.FIELD, AnnotationTarget.VALUE_PARAMETER)
@@ -76,6 +77,11 @@ class RequiresGavel
 @ConditionalOnProperty("integrations.phil.url")
 class RequiresPhil
 
+@Order(Ordered.HIGHEST_PRECEDENCE)
+@Component
+@ConditionalOnProperty("integrations.spotless.url")
+class RequiresSpotless
+
 private val logger = KotlinLogging.logger {}
 
 @Configuration
@@ -84,7 +90,8 @@ class ApplicationConfig(
     @Value("\${gobo.webclient.response-timeout:60000}") val responseTimeout: Long,
     @Value("\${gobo.webclient.maxLifeTime:300000}") val maxLifeTime: Long,
     @Value("\${spring.application.name}") val applicationName: String,
-    private val sharedSecretReader: SharedSecretReader
+    private val sharedSecretReader: SharedSecretReader,
+    private val psatSecretReader: PsatSecretReader
 ) {
 
     @Bean
@@ -157,6 +164,20 @@ class ApplicationConfig(
         return builder.init()
             .baseUrl(herkimerUrl)
             .defaultHeader(HttpHeaders.AUTHORIZATION, "$HEADER_AURORA_TOKEN ${sharedSecretReader.secret}")
+            .build()
+    }
+
+    @ConditionalOnBean(RequiresSpotless::class)
+    @Bean
+    @TargetService(ServiceTypes.SPOTLESS)
+    fun webClientSpotless(
+        @Value("\${integrations.spotless.url}") spotlessUrl: String,
+        builder: WebClient.Builder
+    ): WebClient {
+        logger.info("Configuring Spotless WebClient with base Url={}", spotlessUrl)
+        return builder.init()
+            .baseUrl(spotlessUrl)
+            .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer ${psatSecretReader.secret}")
             .build()
     }
 
