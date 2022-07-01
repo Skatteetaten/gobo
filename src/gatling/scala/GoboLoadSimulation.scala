@@ -38,21 +38,50 @@ class GoboLoadSimulation extends Simulation {
         .check(jsonPath("$.errors").notExists)
     ).exitHereIfFailed
 
-  private val deleteMokeyToxic = scenario("Mokey-deletetoxic")
+  private val deleteMokeyLatencyToxic = scenario("Mokey-deletelatencytoxic")
     .exec(
-      http("mokeyDeleteToxicRequest")
+      http("mokeyDeleteLatencyToxicRequest")
         .post(goboUrl)
-        .body(ElFileBody("mokey_delete_toxic_mutation.json"))
+        .body(ElFileBody("mokey_delete_latency_toxic_mutation.json"))
     )
 
-  private val addMokeyToxic = scenario("Mokey-addtoxic")
+  private val deleteMokeyTimeoutToxic = scenario("Mokey-deletetimeouttoxic")
     .exec(
-      http("mokeyAddToxicRequest")
+      http("mokeyDeleteTimeoutToxicRequest")
         .post(goboUrl)
-        .body(ElFileBody("mokey_add_toxic_mutation.json"))
+        .body(ElFileBody("mokey_delete_timeout_toxic_mutation.json"))
+    )
+
+  private val deleteMokeyDelayToxic = scenario("Mokey-deletedelaytoxic")
+    .exec(
+      http("mokeyDeleteDelayToxicRequest")
+        .post(goboUrl)
+        .body(ElFileBody("mokey_delete_delay_toxic_mutation.json"))
+    )
+
+  private val addMokeyLatencyToxic = scenario("Mokey-addlatencytoxic")
+    .exec(
+      http("mokeyAddLatencyToxicRequest")
+        .post(goboUrl)
+        .body(ElFileBody("mokey_add_latency_toxic_mutation.json"))
         .check(jsonPath("$.errors").notExists)
     ).exitHereIfFailed
 
+  private val addMokeyTimoutToxic = scenario("Mokey-addtimeouttoxic")
+    .exec(
+      http("mokeyAddTimeoutToxicRequest")
+        .post(goboUrl)
+        .body(ElFileBody("mokey_add_timeout_toxic_mutation.json"))
+        .check(jsonPath("$.errors").notExists)
+    ).exitHereIfFailed
+
+  private val addMokeyDelayToxic = scenario("Mokey-adddelaytoxic")
+    .exec(
+      http("mokeyAddDelayToxicRequest")
+        .post(goboUrl)
+        .body(ElFileBody("mokey_add_delay_toxic_mutation.json"))
+        .check(jsonPath("$.errors").notExists)
+    ).exitHereIfFailed
 
   private val userSettingsScenario = scenario("UserSettings")
     .exec(
@@ -63,11 +92,20 @@ class GoboLoadSimulation extends Simulation {
     ).exitHereIfFailed
 
   setUp(
-    deleteMokeyToxic.inject(atOnceUsers(1)),
-    addMokeyToxic.inject( nothingFor(500.millis), atOnceUsers(1)),
+    // Clean up previous toxics.
+    deleteMokeyLatencyToxic.inject(atOnceUsers(1)),
+    deleteMokeyTimeoutToxic.inject(nothingFor(500.millis), atOnceUsers(1)),
+    deleteMokeyDelayToxic.inject(nothingFor(500.millis), atOnceUsers(1)),
+
+    // Add new toxics befor running the test. See: https://github.com/Shopify/toxiproxy
+    addMokeyLatencyToxic.inject( nothingFor(500.millis), atOnceUsers(1)),
+    addMokeyTimoutToxic.inject( nothingFor(500.millis), atOnceUsers(1)),
+    addMokeyDelayToxic.inject( nothingFor(500.millis), atOnceUsers(1)),
+
+    // Run the test.
     //usageScenario.inject(rampUsersPerSec(10).to(50).during(10.minutes)),
     //affiliationsScenario.inject(rampUsersPerSec(1).to(5).during(1.minutes)),
-    databaseSchemaScenario.inject(nothingFor(1.seconds), rampUsersPerSec(1).to(10).during(3.minutes)),
+    databaseSchemaScenario.inject(nothingFor(1.seconds), rampUsersPerSec(1).to(5).during(30.minutes)),
     // userSettingsScenario.inject(rampUsersPerSec(10).to(50).during(10.minutes))
   ).protocols(httpProtocol)
 }

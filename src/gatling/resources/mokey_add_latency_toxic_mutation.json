@@ -1,5 +1,5 @@
 {
-  "operationName": "addToxiProxyToxic",
+  "operationName": "addToxiProxyLatencyToxic",
   "variables": {
     "input": {
       "affiliation": "aup",
@@ -11,7 +11,6 @@
           "name": "latency_toxic",
           "type": "latency",
           "stream": "upstream",
-          "toxicity": 50,
           "toxicity": 1,
           "attributes": [
             {
@@ -27,5 +26,5 @@
       }
     }
   },
-  "query": "mutation addToxiProxyToxic($input: AddOrUpdateToxiProxyInput!) {\n  addToxiProxyToxic(input: $input) {\n    toxiProxyName\n    toxicName\n  }\n}\n"
+  "query": "mutation addToxiProxyLatencyToxic($input: AddOrUpdateToxiProxyInput!) {\n  addToxiProxyToxic(input: $input) {\n    toxiProxyName\n    toxicName\n  }\n}\n"
 }

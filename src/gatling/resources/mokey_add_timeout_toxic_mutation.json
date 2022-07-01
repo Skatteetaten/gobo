@@ -1,0 +1,26 @@
+{
+  "operationName": "addToxiProxyTimeoutToxic",
+  "variables": {
+    "input": {
+      "affiliation": "aup",
+      "environment": "utv01",
+      "application": "m78879-gobo",
+      "toxiProxy": {
+        "name": "mokeyToxic",
+        "toxics": {
+          "name": "timeout_toxic",
+          "type": "timeout",
+          "stream": "upstream",
+          "toxicity": 0.0001,
+          "attributes": [
+            {
+              "key": "timeout",
+              "value": "0"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "query": "mutation addToxiProxyTimeoutToxic($input: AddOrUpdateToxiProxyInput!) {\n  addToxiProxyToxic(input: $input) {\n    toxiProxyName\n    toxicName\n  }\n}\n"
+}
