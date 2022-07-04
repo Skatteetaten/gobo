@@ -35,17 +35,23 @@ class PsatSecretReader(
             if (!dir.exists()) {
                 throw IllegalArgumentException("The directory [${dir.absolutePath}] does not exist")
             }
-            return dir.listFiles()?.map {
-                try {
-                    logger.info("Reading token from file {}", it.absolutePath)
-                    it.name to it.readText()
-                } catch (e: IOException) {
-                    throw IllegalStateException("Unable to read psat secret from specified location [${it.absolutePath}]")
+
+            return dir.walk()
+                .filter { !it.isDirectory }
+                .filter { !it.isHidden }
+                .map { it.canonicalFile }
+                .map {
+                    try {
+                        logger.info("Reading token from file {}", it.absolutePath)
+                        it.name to it.readText()
+                    } catch (e: IOException) {
+                        throw IllegalStateException("Unable to read psat secret from specified location [${it.absolutePath}]")
+                    }
                 }
-            }?.toMap() ?: emptyMap()
+                .toMap()
         }
         secretValues.values!!.forEach {
-            if (it.value.isNullOrEmpty()) {
+            if (it.value.isEmpty()) {
                 throw IllegalArgumentException("Missing value for specified key [${it.key}]")
             }
         }
