@@ -11,15 +11,15 @@
           "name": "latency_toxic",
           "type": "latency",
           "stream": "upstream",
-          "toxicity": 1,
+          "toxicity": 0.95,
           "attributes": [
             {
               "key": "latency",
-              "value": "7000"
+              "value": "50000"
             },
             {
               "key": "jitter",
-              "value": "6500"
+              "value": "49500"
             }
           ]
         }
