@@ -11,11 +11,11 @@
           "name": "delay_toxic",
           "type": "slow_close",
           "stream": "upstream",
-          "toxicity": 0.03,
+          "toxicity": 0.04,
           "attributes": [
             {
               "key": "delay",
-              "value": "30000"
+              "value": "60000"
             }
           ]
         }

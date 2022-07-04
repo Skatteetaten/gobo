@@ -15,11 +15,11 @@
           "attributes": [
             {
               "key": "latency",
-              "value": "6000"
+              "value": "7000"
             },
             {
               "key": "jitter",
-              "value": "5500"
+              "value": "6500"
             }
           ]
         }
