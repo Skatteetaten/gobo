@@ -14,6 +14,7 @@ import no.skatteetaten.aurora.gobo.ApplicationConfig
 import no.skatteetaten.aurora.gobo.StrubrunnerRepoPropertiesEnabler
 import no.skatteetaten.aurora.gobo.graphql.PROFILE_WITH_DBH_AND_SKAP
 import no.skatteetaten.aurora.gobo.security.PsatSecretReader
+import no.skatteetaten.aurora.gobo.security.PsatTokenValues
 import no.skatteetaten.aurora.gobo.security.SharedSecretReader
 
 @DirtiesContext
@@ -24,6 +25,7 @@ import no.skatteetaten.aurora.gobo.security.SharedSecretReader
         WebClientAutoConfiguration::class,
         ApplicationConfig::class,
         SharedSecretReader::class,
+        PsatTokenValues::class,
         PsatSecretReader::class,
         StorageGridObjectAreasService::class
     ],

@@ -10,6 +10,7 @@ import no.skatteetaten.aurora.gobo.ApplicationConfig
 import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
 import no.skatteetaten.aurora.gobo.security.PsatSecretReader
+import no.skatteetaten.aurora.gobo.security.PsatTokenValues
 import no.skatteetaten.aurora.gobo.security.SharedSecretReader
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.execute
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.url
@@ -34,6 +35,7 @@ import org.springframework.web.reactive.function.client.bodyToMono
         ZipkinAutoConfiguration::class,
         ApplicationConfig::class,
         SharedSecretReader::class,
+        PsatTokenValues::class,
         PsatSecretReader::class
     ]
 )

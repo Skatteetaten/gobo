@@ -177,7 +177,7 @@ class ApplicationConfig(
         logger.info("Configuring Spotless WebClient with base Url={}", spotlessUrl)
         return builder.init()
             .baseUrl(spotlessUrl)
-            .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer ${psatSecretReader.secret}")
+            .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer ${psatSecretReader.secret["spotless"]}")
             .build()
     }
 

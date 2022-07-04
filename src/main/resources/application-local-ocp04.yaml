@@ -49,8 +49,8 @@ aurora:
     token:
         value: token
     psat:
-        token:
-            value: token
+        values:
+            spotless: token
 
 management:
     server:

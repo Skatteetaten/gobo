@@ -34,7 +34,7 @@ class HerkimerServiceReactiveTest {
         every { secret } returns "abc"
     }
     private val psatSecretReader = mockk<PsatSecretReader> {
-        every { secret } returns "abc"
+        every { secret } returns mapOf("mock" to "abc")
     }
     private val webClient = ApplicationConfig(500, 500, 300000, "", sharedSecretReader, psatSecretReader)
         .webClientHerkimer(server.url("/").toString(), WebClient.builder())

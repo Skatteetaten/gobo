@@ -81,8 +81,8 @@ aurora:
                 interceptor:
                     enabled: true
     psat:
-        token:
-            value: abc123
+        values:
+            spotless: abc123
 
 openshift:
     cluster: testcluster

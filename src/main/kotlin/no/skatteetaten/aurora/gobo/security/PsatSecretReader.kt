@@ -2,6 +2,8 @@ package no.skatteetaten.aurora.gobo.security
 
 import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.context.properties.ConfigurationProperties
+import org.springframework.context.annotation.Configuration
 import org.springframework.stereotype.Component
 import java.io.File
 import java.io.IOException
@@ -10,30 +12,49 @@ private val logger = KotlinLogging.logger {}
 
 /**
  * Component for reading the shared secret used for authentication with psat token. You may specify the shared secret directly using
- * the aurora.psat.token.value property, or specify a file containing the secret with the aurora.psat.token.location property.
+ * the aurora.psat.values.<audience> property, or specify a directory containing files with secrets for psat with the aurora.psat.location property.
+ *
+ * Examples:
+ * aurora.psat.location: /dir/to/psat
+ * aurora.psat.values.spotless: <token-value>
  */
 @Component
 class PsatSecretReader(
-    @Value("\${aurora.psat.token.location:}") private val secretLocation: String?,
-    @Value("\${aurora.psat.token.value:}") private val secretValue: String?
+    @Value("\${aurora.psat.location:}") private val secretLocation: String?,
+    secretValues: PsatTokenValues
 ) {
 
-    val secret = initSecret(secretValue)
+    val secret = initSecret(secretValues)
 
-    private fun initSecret(secretValue: String?) =
-        if (secretLocation.isNullOrEmpty() && secretValue.isNullOrEmpty()) {
-            throw IllegalArgumentException("Either aurora.psat.token.location or aurora.psat.token.value must be specified")
-        } else {
-            if (secretValue.isNullOrEmpty()) {
-                val secretFile = File(secretLocation).absoluteFile
+    private fun initSecret(secretValues: PsatTokenValues): Map<String, String> {
+        if (secretLocation.isNullOrEmpty() && secretValues.values.isNullOrEmpty()) {
+            throw IllegalArgumentException("Either aurora.psat.location or aurora.psat.values.<audience> must be specified")
+        }
+        if (secretValues.values.isNullOrEmpty()) {
+            val dir = File(this.secretLocation!!)
+            if (!dir.exists()) {
+                throw IllegalArgumentException("The directory [${dir.absolutePath}] does not exist")
+            }
+            return dir.listFiles()?.map {
                 try {
-                    logger.info("Reading token from file {}", secretFile.absolutePath)
-                    secretFile.readText()
+                    logger.info("Reading token from file {}", it.absolutePath)
+                    it.name to it.readText()
                 } catch (e: IOException) {
-                    throw IllegalStateException("Unable to read shared secret from specified location [${secretFile.absolutePath}]")
+                    throw IllegalStateException("Unable to read psat secret from specified location [${it.absolutePath}]")
                 }
-            } else {
-                secretValue
+            }?.toMap() ?: emptyMap()
+        }
+        secretValues.values!!.forEach {
+            if (it.value.isNullOrEmpty()) {
+                throw IllegalArgumentException("Missing value for specified key [${it.key}]")
             }
         }
+        return secretValues.values ?: emptyMap()
+    }
 }
+
+@Configuration
+@ConfigurationProperties(prefix = "aurora.psat")
+class PsatTokenValues(
+    var values: Map<String, String>? = null
+)
