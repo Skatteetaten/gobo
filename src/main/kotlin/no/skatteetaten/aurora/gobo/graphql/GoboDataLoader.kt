@@ -12,6 +12,7 @@ import org.dataloader.BatchLoaderEnvironment
 import org.dataloader.DataLoader
 import org.dataloader.DataLoaderFactory
 import org.dataloader.DataLoaderOptions
+import java.util.concurrent.TimeUnit
 
 abstract class GoboDataLoader<K, V> : KotlinDataLoader<K, V> {
 
@@ -26,7 +27,7 @@ abstract class GoboDataLoader<K, V> : KotlinDataLoader<K, V> {
                 @OptIn(DelicateCoroutinesApi::class)
                 GlobalScope.async(Dispatchers.IO + MDCContext() + TracingContextElement()) {
                     getByKeys(keys, env.graphqlContext)
-                }.asCompletableFuture()
+                }.asCompletableFuture().orTimeout(3, TimeUnit.MINUTES)
             },
             DataLoaderOptions.newOptions().setCachingEnabled(false)
         )
