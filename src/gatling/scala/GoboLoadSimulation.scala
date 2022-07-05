@@ -93,19 +93,19 @@ class GoboLoadSimulation extends Simulation {
 
   setUp(
     // Clean up previous toxics.
-    deleteMokeyLatencyToxic.inject(atOnceUsers(1)),
-    deleteMokeyTimeoutToxic.inject(nothingFor(3.seconds), atOnceUsers(1)),
-    deleteMokeyDelayToxic.inject(nothingFor(3.seconds), atOnceUsers(1)),
+    deleteMokeyLatencyToxic.inject(atOnceUsers(1))
+      .andThen(deleteMokeyTimeoutToxic.inject(atOnceUsers(1)))
+        .andThen(deleteMokeyDelayToxic.inject(atOnceUsers(1)))
 
-    // Add new toxics befor running the test. See: https://github.com/Shopify/toxiproxy
-    addMokeyLatencyToxic.inject( nothingFor(3.seconds), atOnceUsers(1)),
-    addMokeyTimoutToxic.inject( nothingFor(3.seconds), atOnceUsers(1)),
-    addMokeyDelayToxic.inject( nothingFor(3.seconds), atOnceUsers(1)),
+        // Add new toxics befor running the test. See: https://github.com/Shopify/toxiproxy
+        .andThen(addMokeyLatencyToxic.inject( atOnceUsers(1)))
+          .andThen(addMokeyTimoutToxic.inject(atOnceUsers(1)))
+            .andThen(addMokeyDelayToxic.inject(atOnceUsers(1)))
 
     // Run the test.
     //usageScenario.inject(rampUsersPerSec(10).to(50).during(10.minutes)),
     //affiliationsScenario.inject(rampUsersPerSec(1).to(5).during(1.minutes)),
-   databaseSchemaScenario.inject(nothingFor(1.seconds), rampUsersPerSec(1).to(6).during(15.minutes)),
+      .andThen(databaseSchemaScenario.inject(rampUsersPerSec(1).to(6).during(15.minutes))),
    //databaseSchemaScenario.inject(nothingFor(1.seconds), rampUsersPerSec(1).to(5).during(15.minutes).randomized),
     //databaseSchemaScenario.inject(nothingFor(1.seconds), constantUsersPerSec(5).during(15.minutes).randomized),
     // userSettingsScenario.inject(rampUsersPerSec(10).to(50).during(10.minutes))
