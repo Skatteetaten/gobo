@@ -9,6 +9,7 @@ import no.skatteetaten.aurora.gobo.graphql.IntegrationDisabledException
 import no.skatteetaten.aurora.gobo.graphql.klientid
 import no.skatteetaten.aurora.gobo.graphql.korrelasjonsid
 import no.skatteetaten.aurora.gobo.graphql.query
+import no.skatteetaten.aurora.gobo.graphql.startTime
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import no.skatteetaten.aurora.gobo.removeNewLines
 import org.apache.commons.lang3.exception.ExceptionUtils
@@ -55,8 +56,12 @@ private fun DataFetcherExceptionHandlerParameters.handleGeneralDataFetcherExcept
         ""
     }
 
+    val timeUsed = System.currentTimeMillis() - dataFetchingEnvironment.graphQlContext.startTime
     val logText =
-        """Exception while fetching data, exception="$exception" Korrelasjonsid="${dataFetchingEnvironment.korrelasjonsid}" Klientid="${dataFetchingEnvironment.klientid}" message="$exceptionName" path="$path" ${dataFetchingEnvironment.query} $source ${exception.logTextRequest()}"""
+        """Exception while fetching data, exception="$exception" Korrelasjonsid="${dataFetchingEnvironment.korrelasjonsid}"
+            | Klientid="${dataFetchingEnvironment.klientid}" message="$exceptionName"
+            |  path="$path" ${dataFetchingEnvironment.query} timeUsed="$timeUsed"
+            |   $source ${exception.logTextRequest()}""".trimMargin()
     if (exception.isWebClientResponseWarnLoggable(booberUrl) || exception.isAccessDenied() || exception.isInvalidToken()) {
         logger.warn(logText)
     } else {
