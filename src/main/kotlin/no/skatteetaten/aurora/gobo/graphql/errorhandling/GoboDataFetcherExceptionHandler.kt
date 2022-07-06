@@ -32,14 +32,14 @@ class GoboDataFetcherExceptionHandler(@Value("\${integrations.boober.url}") priv
     }
 
     override fun handleException(handlerParameters: DataFetcherExceptionHandlerParameters?): CompletableFuture<DataFetcherExceptionHandlerResult> {
-        handlerParameters ?: return CompletableFuture.completedFuture(DataFetcherExceptionHandlerResult.newResult().build()).orTimeout(5, TimeUnit.SECONDS)
+        handlerParameters ?: return CompletableFuture.completedFuture(DataFetcherExceptionHandlerResult.newResult().build())
 
         val graphqlException = handlerParameters.handleIntegrationDisabledException()?.let {
             handlerParameters.toExceptionWhileDataFetching(it)
         } ?: handlerParameters.handleGeneralDataFetcherException(booberUrl)
 
         val result = DataFetcherExceptionHandlerResult.newResult(graphqlException).build()
-        return CompletableFuture.completedFuture(result).orTimeout(5, TimeUnit.SECONDS)
+        return CompletableFuture.supplyAsync { result }.orTimeout(5, TimeUnit.SECONDS)
     }
 }
 
