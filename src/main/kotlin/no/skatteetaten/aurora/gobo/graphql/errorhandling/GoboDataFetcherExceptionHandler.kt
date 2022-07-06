@@ -19,6 +19,8 @@ import org.springframework.http.HttpStatus
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClientResponseException
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.TimeUnit
 
 private val logger = KotlinLogging.logger { }
 
@@ -26,13 +28,18 @@ private val logger = KotlinLogging.logger { }
 class GoboDataFetcherExceptionHandler(@Value("\${integrations.boober.url}") private val booberUrl: String) :
     DataFetcherExceptionHandler {
     override fun onException(handlerParameters: DataFetcherExceptionHandlerParameters?): DataFetcherExceptionHandlerResult {
-        handlerParameters ?: return DataFetcherExceptionHandlerResult.newResult().build()
+        return handleException(handlerParameters).get()
+    }
+
+    override fun handleException(handlerParameters: DataFetcherExceptionHandlerParameters?): CompletableFuture<DataFetcherExceptionHandlerResult> {
+        handlerParameters ?: return CompletableFuture.completedFuture(DataFetcherExceptionHandlerResult.newResult().build()).orTimeout(5, TimeUnit.SECONDS)
 
         val graphqlException = handlerParameters.handleIntegrationDisabledException()?.let {
             handlerParameters.toExceptionWhileDataFetching(it)
         } ?: handlerParameters.handleGeneralDataFetcherException(booberUrl)
 
-        return DataFetcherExceptionHandlerResult.newResult(graphqlException).build()
+        val result = DataFetcherExceptionHandlerResult.newResult(graphqlException).build()
+        return CompletableFuture.completedFuture(result).orTimeout(5, TimeUnit.SECONDS)
     }
 }
 
