@@ -18,6 +18,7 @@ import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CompletionException
+import org.junit.jupiter.api.Disabled
 
 @Disabled
 class GoboDataFetcherExceptionHandlerTest {
