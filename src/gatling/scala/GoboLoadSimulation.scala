@@ -103,13 +103,13 @@ class GoboLoadSimulation extends Simulation {
 
   setUp(
     delete.inject(atOnceUsers(1)),
-    add.inject(nothingFor(15.seconds),atOnceUsers(1)),
+    add.inject(nothingFor(10.seconds),atOnceUsers(1)),
       // Clean up previous toxics.
 
     // Run the test.
     //usageScenario.inject(rampUsersPerSec(10).to(50).during(10.minutes)),
     //affiliationsScenario.inject(rampUsersPerSec(1).to(5).during(1.minutes)),
-    databaseSchemaScenario.inject(nothingFor(30.seconds), rampUsersPerSec(1).to(6).during(15.minutes)),
+    databaseSchemaScenario.inject(nothingFor(10.seconds), rampUsersPerSec(1).to(6).during(15.minutes)),
    //databaseSchemaScenario.inject(nothingFor(1.seconds), rampUsersPerSec(1).to(5).during(15.minutes).randomized),
     //databaseSchemaScenario.inject(nothingFor(1.seconds), constantUsersPerSec(5).during(15.minutes).randomized),
     // userSettingsScenario.inject(rampUsersPerSec(10).to(50).during(10.minutes))

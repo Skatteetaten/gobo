@@ -1,0 +1,25 @@
+---
+debug: true
+baseFile: "gobo.yaml"
+name: m78879-gobo
+version: "feature_AOS_6770_gjenskape504-SNAPSHOT"
+type: "development"
+replicas: 1
+liveness:
+    path: /actuator/liveness
+    port: 8081
+    delay: 60
+    timeout: 2
+toxiproxy:
+    proxies:
+        mokeyToxic:
+            urlVariableKey: INTEGRATIONS_MOKEY_URL
+config:
+    GOBO_LIVENESS_MAXUNFINISHEDQUERIES: 10
+    MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: "info,health,prometheus,env,loggers,httptrace,metrics,conditions,liveness"
+    GOBO_GRAPHQL_LOG_OPERATIONSTART: true
+    GOBO_GRAPHQL_LOG_OPERATIONEND: true
+    INTEGRATIONS_MOKEY_URL: http://mokey-wiremock
+    INTEGRATIONS_DBH_URL: http://dbh-wiremock
+    SPRING_ZIPKIN_ENABLED: true
+    SPRING_ZIPKIN_BASE_URL: https://trace.sits.no:9411
