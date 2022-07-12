@@ -143,9 +143,6 @@ class GoboInstrumentation(
         executionResult: ExecutionResult?,
         parameters: InstrumentationExecutionParameters?
     ): CompletableFuture<ExecutionResult> {
-        logger.info {
-            "Execution result: $parameters - ${parameters?.graphQLContext}"
-        }
         parameters?.graphQLContext?.let {
             if (it.operationName.isNotIntrospectionQuery()) {
                 queryReporter.remove(it.id)
