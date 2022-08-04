@@ -1,0 +1,9 @@
+query getCnameAzure($affiliation: String!) {
+  cname(type: "azure", affiliations: [$affiliation]) {
+    ... on CnameAzure {
+      canonicalName
+      clusterId
+      ttlInSeconds
+    }
+  }
+}

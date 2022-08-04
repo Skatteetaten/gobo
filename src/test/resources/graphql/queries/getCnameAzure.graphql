@@ -1,0 +1,9 @@
+{
+  cname(type: "azure") {
+    ... on CnameAzure {
+      canonicalName
+      clusterId
+      ttlInSeconds
+    }
+  }
+}
