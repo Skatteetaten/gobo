@@ -1,9 +1,0 @@
-{
-  cname(type: "onPrem") {
-    ... on CnameInfo {
-      status
-      clusterId
-      appName
-    }
-  }
-}
