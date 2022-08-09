@@ -1,0 +1,9 @@
+query getCname($affiliation: String!) {
+  cname(affiliations: [$affiliation]) {
+    onPrem {
+      status
+      clusterId
+      appName
+    }
+  }
+}

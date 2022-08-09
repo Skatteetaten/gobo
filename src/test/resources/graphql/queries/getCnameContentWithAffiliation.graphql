@@ -1,7 +1,0 @@
-query getCnameContent($affiliation: String!) {
-  cnameContent(affiliations: [$affiliation]) {
-    canonicalName
-    clusterId
-    ttlInSeconds
-  }
-}

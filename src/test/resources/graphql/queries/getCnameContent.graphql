@@ -1,7 +1,0 @@
-{
-  cnameContent {
-    canonicalName
-    clusterId
-    ttlInSeconds
-  }
-}

@@ -1,0 +1,14 @@
+{
+  cname {
+    azure {
+      canonicalName
+      clusterId
+      ttlInSeconds
+    }
+    onPrem {
+      status
+      clusterId
+      appName
+    }
+  }
+}
