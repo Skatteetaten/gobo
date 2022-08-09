@@ -10,7 +10,6 @@ import no.skatteetaten.aurora.gobo.StrubrunnerRepoPropertiesEnabler
 import no.skatteetaten.aurora.gobo.graphql.PROFILE_WITH_DBH_AND_SKAP
 import no.skatteetaten.aurora.gobo.integration.boober.BooberWebClient
 import no.skatteetaten.aurora.gobo.security.PsatSecretReader
-import no.skatteetaten.aurora.gobo.security.PsatTokenValues
 import no.skatteetaten.aurora.gobo.security.SharedSecretReader
 import no.skatteetaten.aurora.gobo.service.AffiliationService
 import org.junit.jupiter.api.Test
@@ -29,8 +28,6 @@ import org.springframework.test.context.ActiveProfiles
         WebClientAutoConfiguration::class,
         ApplicationConfig::class,
         SharedSecretReader::class,
-        PsatTokenValues::class,
-        PsatSecretReader::class,
         AffiliationService::class
     ],
     webEnvironment = SpringBootTest.WebEnvironment.NONE
@@ -42,6 +39,9 @@ class MokeyAffiliationServiceTest : StrubrunnerRepoPropertiesEnabler() {
 
     @MockkBean
     lateinit var booberWebClient: BooberWebClient
+
+    @MockkBean
+    lateinit var psatSecretReader: PsatSecretReader
 
     @Autowired
     lateinit var affiliationService: AffiliationService

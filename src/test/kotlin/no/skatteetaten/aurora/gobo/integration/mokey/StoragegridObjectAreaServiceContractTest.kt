@@ -9,12 +9,12 @@ import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
 import assertk.assertThat
 import assertk.assertions.isNotEmpty
+import com.ninjasquad.springmockk.MockkBean
 import kotlinx.coroutines.runBlocking
 import no.skatteetaten.aurora.gobo.ApplicationConfig
 import no.skatteetaten.aurora.gobo.StrubrunnerRepoPropertiesEnabler
 import no.skatteetaten.aurora.gobo.graphql.PROFILE_WITH_DBH_AND_SKAP
 import no.skatteetaten.aurora.gobo.security.PsatSecretReader
-import no.skatteetaten.aurora.gobo.security.PsatTokenValues
 import no.skatteetaten.aurora.gobo.security.SharedSecretReader
 
 @DirtiesContext
@@ -25,14 +25,15 @@ import no.skatteetaten.aurora.gobo.security.SharedSecretReader
         WebClientAutoConfiguration::class,
         ApplicationConfig::class,
         SharedSecretReader::class,
-        PsatTokenValues::class,
-        PsatSecretReader::class,
         StorageGridObjectAreasService::class
     ],
     webEnvironment = SpringBootTest.WebEnvironment.NONE
 )
 @AutoConfigureStubRunner(ids = ["no.skatteetaten.aurora:mokey:+:stubs:6565"])
 class StoragegridObjectAreaServiceContractTest : StrubrunnerRepoPropertiesEnabler() {
+    @MockkBean
+    private lateinit var psatSecretReader: PsatSecretReader
+
     @Autowired
     lateinit var storageGridObjectAreasService: StorageGridObjectAreasService
 

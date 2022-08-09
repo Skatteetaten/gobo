@@ -3,13 +3,13 @@ package no.skatteetaten.aurora.gobo.integration.mokey
 import assertk.assertThat
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
+import com.ninjasquad.springmockk.MockkBean
 import kotlinx.coroutines.runBlocking
 import no.skatteetaten.aurora.gobo.ApplicationConfig
 import no.skatteetaten.aurora.gobo.StrubrunnerRepoPropertiesEnabler
 import no.skatteetaten.aurora.gobo.graphql.PROFILE_WITH_DBH_AND_SKAP
 import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.ApplicationDeploymentRef
 import no.skatteetaten.aurora.gobo.security.PsatSecretReader
-import no.skatteetaten.aurora.gobo.security.PsatTokenValues
 import no.skatteetaten.aurora.gobo.security.SharedSecretReader
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -27,14 +27,15 @@ import org.springframework.test.context.ActiveProfiles
         WebClientAutoConfiguration::class,
         ApplicationConfig::class,
         SharedSecretReader::class,
-        PsatTokenValues::class,
-        PsatSecretReader::class,
         ApplicationService::class
     ],
     webEnvironment = SpringBootTest.WebEnvironment.NONE
 )
 @AutoConfigureStubRunner(ids = ["no.skatteetaten.aurora:mokey:+:stubs:6565"])
 class ApplicationServiceTest : StrubrunnerRepoPropertiesEnabler() {
+
+    @MockkBean
+    private lateinit var psatSecretReader: PsatSecretReader
 
     @Autowired
     private lateinit var applicationService: ApplicationService

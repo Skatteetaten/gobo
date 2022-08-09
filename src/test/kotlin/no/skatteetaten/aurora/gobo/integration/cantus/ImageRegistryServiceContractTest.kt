@@ -3,13 +3,13 @@ package no.skatteetaten.aurora.gobo.integration.cantus
 import assertk.assertThat
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
+import com.ninjasquad.springmockk.MockkBean
 import kotlinx.coroutines.runBlocking
 import no.skatteetaten.aurora.gobo.ApplicationConfig
 import no.skatteetaten.aurora.gobo.StrubrunnerRepoPropertiesEnabler
 import no.skatteetaten.aurora.gobo.TestConfig
 import no.skatteetaten.aurora.gobo.graphql.imagerepository.ImageRepository
 import no.skatteetaten.aurora.gobo.security.PsatSecretReader
-import no.skatteetaten.aurora.gobo.security.PsatTokenValues
 import no.skatteetaten.aurora.gobo.security.SharedSecretReader
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -20,10 +20,13 @@ import org.springframework.test.annotation.DirtiesContext
 @DirtiesContext
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.NONE,
-    classes = [TestConfig::class, ApplicationConfig::class, ImageRegistryService::class, SharedSecretReader::class, PsatTokenValues::class, PsatSecretReader::class]
+    classes = [TestConfig::class, ApplicationConfig::class, ImageRegistryService::class, SharedSecretReader::class]
 )
 @AutoConfigureStubRunner(ids = ["no.skatteetaten.aurora:cantus:+:stubs:6568"])
 class ImageRegistryServiceContractTest : StrubrunnerRepoPropertiesEnabler() {
+
+    @MockkBean
+    private lateinit var psatSecretReader: PsatSecretReader
 
     @Autowired
     private lateinit var imageRegistry: ImageRegistryService
