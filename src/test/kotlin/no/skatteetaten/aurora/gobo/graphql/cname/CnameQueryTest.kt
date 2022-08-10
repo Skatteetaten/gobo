@@ -2,6 +2,7 @@ package no.skatteetaten.aurora.gobo.graphql.cname
 
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.coEvery
+import io.mockk.coVerify
 import no.skatteetaten.aurora.gobo.CnameAzureBuilder
 import no.skatteetaten.aurora.gobo.CnameInfoBuilder
 import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithDbhAndSkap
@@ -47,8 +48,15 @@ class CnameQueryTest : GraphQLTestWithDbhAndSkap() {
 
     @BeforeEach
     fun setup() {
-        coEvery { cnameService.getCnameInfo() } returns listOf(CnameInfoBuilder().build())
-        coEvery { spotlessCnameService.getCnameContent() } returns listOf(CnameAzureBuilder().build())
+        coEvery { cnameService.getCnameInfo() } returns listOf(
+            CnameInfoBuilder().build(),
+            CnameInfoBuilder("test-demo").build()
+        )
+        coEvery { spotlessCnameService.getCnameContent(listOf("aurora")) } returns listOf(CnameAzureBuilder().build())
+        coEvery { spotlessCnameService.getCnameContent(null) } returns listOf(
+            CnameAzureBuilder("test-demo").build(),
+            CnameAzureBuilder("test-utv").build()
+        )
     }
 
     @Test
@@ -60,6 +68,7 @@ class CnameQueryTest : GraphQLTestWithDbhAndSkap() {
                 graphqlData("canonicalName").isEqualTo("demo.localhost.no")
                 graphqlData("clusterId").isEqualTo("utv")
                 graphqlData("ttlInSeconds").isEqualTo(3098)
+                graphqlData("namespace").isEqualTo("test-demo")
             }
             .graphqlDataWithPrefix("cname.onPrem[0]") {
                 graphqlData("status").isEqualTo("SUCCESS")
@@ -67,19 +76,12 @@ class CnameQueryTest : GraphQLTestWithDbhAndSkap() {
                 graphqlData("appName").isEqualTo("demo")
             }
             .graphqlDoesNotContainErrors()
+
+        coVerify { spotlessCnameService.getCnameContent(null) }
     }
 
     @Test
     fun `Get cname of azure and onPrem for affiliation`() {
-        coEvery { cnameService.getCnameInfo() } returns listOf(
-            CnameInfoBuilder(namespace = "test-demo").build(),
-            CnameInfoBuilder().build()
-        )
-        coEvery { spotlessCnameService.getCnameContent() } returns listOf(
-            CnameAzureBuilder(namespace = "test-demo").build(),
-            CnameAzureBuilder().build()
-        )
-
         webTestClient.queryGraphQL(getCnameAzureOnPremForAffiliation, mapOf("affiliation" to "aurora"))
             .expectStatus().isOk
             .expectBody()
@@ -98,6 +100,7 @@ class CnameQueryTest : GraphQLTestWithDbhAndSkap() {
                 graphqlData("onPrem[1]").doesNotExist()
             }
             .graphqlDoesNotContainErrors()
+        coVerify { spotlessCnameService.getCnameContent(listOf("aurora")) }
     }
 
     @Test
@@ -152,11 +155,6 @@ class CnameQueryTest : GraphQLTestWithDbhAndSkap() {
 
     @Test
     fun `Get cname of azure for affiliation`() {
-        coEvery { spotlessCnameService.getCnameContent() } returns listOf(
-            CnameAzureBuilder(namespace = "test-demo").build(),
-            CnameAzureBuilder().build()
-        )
-
         webTestClient.queryGraphQL(getCnameAzureForAffiliation, mapOf("affiliation" to "aurora"))
             .expectStatus().isOk
             .expectBody()
@@ -170,15 +168,12 @@ class CnameQueryTest : GraphQLTestWithDbhAndSkap() {
                 graphqlData("onPrem").doesNotExist()
             }
             .graphqlDoesNotContainErrors()
+
+        coVerify { spotlessCnameService.getCnameContent(listOf("aurora")) }
     }
 
     @Test
     fun `Get cname of onPrem for affiliation`() {
-        coEvery { cnameService.getCnameInfo() } returns listOf(
-            CnameInfoBuilder(namespace = "test-demo").build(),
-            CnameInfoBuilder().build()
-        )
-
         webTestClient.queryGraphQL(getCnameOnPremForAffiliation, mapOf("affiliation" to "aurora"))
             .expectStatus().isOk
             .expectBody()

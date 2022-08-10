@@ -4,6 +4,7 @@
       canonicalName
       clusterId
       ttlInSeconds
+      namespace
     }
     onPrem {
       status

@@ -29,9 +29,8 @@ data class Cname(
 ) {
     suspend fun azure(): DataFetcherResult<List<CnameAzure>> {
         return try {
-            val cnameList = spotlessCnameService.getCnameContent()
-            val filtered = affiliations?.let { cnameList.filter { it.containsAffiliation(affiliations) } } ?: cnameList
-            newDataFetcherResult(filtered, emptyList())
+            val cnameList = spotlessCnameService.getCnameContent(affiliations)
+            newDataFetcherResult(cnameList, emptyList())
         } catch (e: Exception) {
             newDataFetcherResult(emptyList(), listOf(e))
         }

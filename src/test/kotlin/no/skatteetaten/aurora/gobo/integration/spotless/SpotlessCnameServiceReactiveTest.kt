@@ -13,12 +13,12 @@ import org.springframework.web.reactive.function.client.WebClient
 class SpotlessCnameServiceReactiveTest {
 
     private val server = MockWebServer()
-    private val service = SpotlessCnameServiceReactive(WebClient.create(server.url))
+    private val service = SpotlessCnameServiceReactive(WebClient.create(server.url), "test")
 
     @Test
     fun `Get cname content`() {
         val requests = server.executeBlocking(listOf(CnameAzureBuilder().build())) {
-            val cnameContent = service.getCnameContent()
+            val cnameContent = service.getCnameContent(listOf("aurora"))
             assertThat(cnameContent).hasSize(1)
             assertThat(cnameContent.first().ownerObjectName).isEqualTo("demo")
         }

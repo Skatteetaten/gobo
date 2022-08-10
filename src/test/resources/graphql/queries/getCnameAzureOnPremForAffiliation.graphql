@@ -4,6 +4,7 @@ query getCname($affiliation: String!) {
       canonicalName
       clusterId
       ttlInSeconds
+      namespace
     }
     onPrem {
       status
