@@ -45,9 +45,7 @@ integrations:
             readOnly: false
 
 
-aurora:
-    token:
-        value: token
+aurora.token.value: token
 
 management:
     server:

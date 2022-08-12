@@ -80,9 +80,6 @@ aurora:
             webclient:
                 interceptor:
                     enabled: true
-    psat:
-        values:
-            spotless: abc123
 
 openshift:
     cluster: testcluster

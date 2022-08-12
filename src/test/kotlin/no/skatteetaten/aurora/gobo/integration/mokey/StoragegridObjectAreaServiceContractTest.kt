@@ -29,7 +29,6 @@ import no.skatteetaten.aurora.gobo.security.SharedSecretReader
 )
 @AutoConfigureStubRunner(ids = ["no.skatteetaten.aurora:mokey:+:stubs:6565"])
 class StoragegridObjectAreaServiceContractTest : StrubrunnerRepoPropertiesEnabler() {
-
     @Autowired
     lateinit var storageGridObjectAreasService: StorageGridObjectAreasService
 

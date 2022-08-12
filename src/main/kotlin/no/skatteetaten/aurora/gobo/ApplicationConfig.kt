@@ -182,11 +182,14 @@ class ApplicationConfig(
             .mutate()
             .baseUrl(spotlessUrl)
             .filter(
-                ExchangeFilterFunction.ofRequestProcessor { request -> Mono.just(
+                ExchangeFilterFunction.ofRequestProcessor { request ->
+                    Mono.just(
                         ClientRequest.from(request)
                             .header(HttpHeaders.AUTHORIZATION, "Bearer ${psatKubernetesClient.tokenFetcher.token("spotless")}")
                             .build()
-                ) })
+                    )
+                }
+            )
             .build()
     }
 

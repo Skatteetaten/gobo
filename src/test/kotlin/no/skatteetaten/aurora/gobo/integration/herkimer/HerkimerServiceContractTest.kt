@@ -22,7 +22,6 @@ import org.springframework.test.annotation.DirtiesContext
 )
 @AutoConfigureStubRunner(ids = ["no.skatteetaten.aurora:herkimer:+:stubs:6570"])
 class HerkimerServiceContractTest : StrubrunnerRepoPropertiesEnabler() {
-
     @Autowired
     private lateinit var herkimerService: HerkimerServiceReactive
 
