@@ -9,8 +9,10 @@ import no.skatteetaten.aurora.gobo.graphql.GoboSpringKotlinDataFetcherFactoryPro
 import no.skatteetaten.aurora.gobo.infrastructure.ConditionalOnDatabaseUrl
 import no.skatteetaten.aurora.gobo.infrastructure.ConditionalOnMissingDatabaseUrl
 import no.skatteetaten.aurora.gobo.integration.skap.HEADER_AURORA_TOKEN
-import no.skatteetaten.aurora.gobo.security.PsatSecretReader
 import no.skatteetaten.aurora.gobo.security.SharedSecretReader
+import no.skatteetaten.aurora.kubernetes.KubernetesReactorClient
+import no.skatteetaten.aurora.kubernetes.config.ClientTypes
+import no.skatteetaten.aurora.kubernetes.config.TargetClient
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.actuate.trace.http.InMemoryHttpTraceRepository
@@ -29,8 +31,10 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.http.client.reactive.ReactorClientHttpConnector
 import org.springframework.stereotype.Component
+import org.springframework.web.reactive.function.client.ClientRequest
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction
 import org.springframework.web.reactive.function.client.WebClient
+import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
 import reactor.netty.http.client.HttpClient
 import reactor.netty.resources.ConnectionProvider
@@ -90,8 +94,7 @@ class ApplicationConfig(
     @Value("\${gobo.webclient.response-timeout:60000}") val responseTimeout: Long,
     @Value("\${gobo.webclient.maxLifeTime:300000}") val maxLifeTime: Long,
     @Value("\${spring.application.name}") val applicationName: String,
-    private val sharedSecretReader: SharedSecretReader,
-    private val psatSecretReader: PsatSecretReader
+    private val sharedSecretReader: SharedSecretReader
 ) {
 
     @Bean
@@ -172,12 +175,18 @@ class ApplicationConfig(
     @TargetService(ServiceTypes.SPOTLESS)
     fun webClientSpotless(
         @Value("\${integrations.spotless.url}") spotlessUrl: String,
-        builder: WebClient.Builder
+        @TargetClient(ClientTypes.PSAT) psatKubernetesClient: KubernetesReactorClient
     ): WebClient {
         logger.info("Configuring Spotless WebClient with base Url={}", spotlessUrl)
-        return builder.init()
+        return psatKubernetesClient.webClient
+            .mutate()
             .baseUrl(spotlessUrl)
-            .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer ${psatSecretReader.secret["spotless"]}")
+            .filter(
+                ExchangeFilterFunction.ofRequestProcessor { request -> Mono.just(
+                        ClientRequest.from(request)
+                            .header(HttpHeaders.AUTHORIZATION, "Bearer ${psatKubernetesClient.tokenFetcher.token("spotless")}")
+                            .build()
+                ) })
             .build()
     }
 

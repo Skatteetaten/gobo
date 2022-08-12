@@ -76,6 +76,3 @@ aurora:
         admin:
             username: username
             password: password
-    psat:
-        values:
-            spotless: token-test

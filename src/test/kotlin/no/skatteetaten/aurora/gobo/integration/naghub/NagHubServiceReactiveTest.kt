@@ -10,7 +10,6 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.mockk.every
 import io.mockk.mockk
 import no.skatteetaten.aurora.gobo.ApplicationConfig
-import no.skatteetaten.aurora.gobo.security.PsatSecretReader
 import no.skatteetaten.aurora.gobo.security.SharedSecretReader
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.executeBlocking
 import okhttp3.mockwebserver.MockWebServer
@@ -22,10 +21,7 @@ class NagHubServiceReactiveTest {
     private val sharedSecretReader = mockk<SharedSecretReader> {
         every { secret } returns "abc"
     }
-    private val psatSecretReader = mockk<PsatSecretReader> {
-        every { secret } returns mapOf("mock" to "abc")
-    }
-    private val webClient = ApplicationConfig(500, 1500, 300000, "", sharedSecretReader, psatSecretReader)
+    private val webClient = ApplicationConfig(500, 1500, 300000, "", sharedSecretReader)
         .webClientNagHub(server.url("/").toString(), WebClient.builder())
     private val nagHubService = NagHubServiceReactive(webClient)
 

@@ -48,9 +48,6 @@ integrations:
 aurora:
     token:
         value: token
-    psat:
-        values:
-            spotless: token
 
 management:
     server:

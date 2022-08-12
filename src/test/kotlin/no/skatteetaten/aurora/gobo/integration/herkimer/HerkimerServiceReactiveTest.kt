@@ -24,7 +24,6 @@ import assertk.assertions.isSuccess
 import assertk.assertions.messageContains
 import kotlinx.coroutines.runBlocking
 import no.skatteetaten.aurora.gobo.HerkimerResourceBuilder
-import no.skatteetaten.aurora.gobo.security.PsatSecretReader
 import no.skatteetaten.aurora.gobo.testObjectMapper
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.TestObjectMapperConfigurer
 
@@ -33,10 +32,7 @@ class HerkimerServiceReactiveTest {
     private val sharedSecretReader = mockk<SharedSecretReader> {
         every { secret } returns "abc"
     }
-    private val psatSecretReader = mockk<PsatSecretReader> {
-        every { secret } returns mapOf("mock" to "abc")
-    }
-    private val webClient = ApplicationConfig(500, 500, 300000, "", sharedSecretReader, psatSecretReader)
+    private val webClient = ApplicationConfig(500, 500, 300000, "", sharedSecretReader)
         .webClientHerkimer(server.url("/").toString(), WebClient.builder())
     private val herkimerService = HerkimerServiceReactive(webClient, jacksonObjectMapper())
 
