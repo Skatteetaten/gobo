@@ -1,9 +1,0 @@
-{
-  cname {
-    onPrem {
-      status
-      clusterId
-      appName
-    }
-  }
-}

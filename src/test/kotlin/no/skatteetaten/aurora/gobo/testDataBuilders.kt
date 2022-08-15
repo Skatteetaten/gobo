@@ -714,7 +714,7 @@ data class CnameAzureBuilder(val namespace: String = "aurora-demo") {
         ttlInSeconds = 3098,
         namespace = namespace,
         clusterId = "utv",
-        ownerObjectName = "demo"
+        ownerObjectName = "demo-azure"
     )
 }
 

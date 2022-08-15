@@ -1,9 +1,0 @@
-{
-  cname {
-    azure {
-      canonicalName
-      clusterId
-      ttlInSeconds
-    }
-  }
-}

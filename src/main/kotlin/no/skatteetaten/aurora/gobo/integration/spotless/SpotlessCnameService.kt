@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
 
 interface SpotlessCnameService {
-    suspend fun getCnameContent(affiliations: List<String>?): List<CnameAzure> = integrationDisabled()
+    suspend fun getCnameContent(affiliation: String): List<CnameAzure> = integrationDisabled()
 
     private fun integrationDisabled(): Nothing =
         throw IntegrationDisabledException("Spotless integration is disabled for this environment")
@@ -25,14 +25,14 @@ class SpotlessCnameServiceReactive(
     @TargetService(ServiceTypes.SPOTLESS) val webClient: WebClient,
     @Value("\${openshift.cluster}") val cluster: String,
 ) : SpotlessCnameService {
-    override suspend fun getCnameContent(affiliations: List<String>?): List<CnameAzure> =
+    override suspend fun getCnameContent(affiliation: String): List<CnameAzure> =
         webClient
             .get()
             .uri { uriBuilder ->
                 uriBuilder
                     .path("/api/v1/cname")
                     .queryParam("clusterId", cluster)
-                    .queryParam("affiliations", affiliations)
+                    .queryParam("affiliations", affiliation)
                     .build()
             }
             .retrieve()

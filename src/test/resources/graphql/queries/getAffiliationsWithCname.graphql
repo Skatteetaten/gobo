@@ -1,0 +1,25 @@
+{
+  affiliations {
+    totalCount
+    edges {
+      node {
+      name
+        cname {
+          azure {
+            canonicalName
+            clusterId
+            ttlInSeconds
+            namespace
+            ownerObjectName
+          }
+          onPrem {
+            status
+            clusterId
+            appName
+            namespace
+          }
+        }
+      }
+    }
+  }
+}
