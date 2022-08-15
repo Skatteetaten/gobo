@@ -4,11 +4,9 @@ import brave.Tracing
 import brave.propagation.CurrentTraceContext
 import com.expediagroup.graphql.generator.execution.FunctionDataFetcher
 import com.expediagroup.graphql.generator.execution.SimpleKotlinDataFetcherFactoryProvider
-import com.fasterxml.jackson.databind.ObjectMapper
 import graphql.schema.DataFetcherFactory
 import graphql.schema.DataFetchingEnvironment
 import kotlinx.coroutines.ThreadContextElement
-import kotlinx.coroutines.slf4j.MDCContext
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.ApplicationContext
@@ -38,20 +36,18 @@ class TracingContextElement : ThreadContextElement<CurrentTraceContext.Scope?>,
 }
 
 class GoboSpringKotlinDataFetcherFactoryProvider(
-    private val objectMapper: ObjectMapper,
     private val applicationContext: ApplicationContext,
-) : SimpleKotlinDataFetcherFactoryProvider(objectMapper = objectMapper) {
+) : SimpleKotlinDataFetcherFactoryProvider() {
     override fun functionDataFetcherFactory(target: Any?, kFunction: KFunction<*>): DataFetcherFactory<Any?> =
-        DataFetcherFactory { GoboDataFetcher(target, kFunction, objectMapper, applicationContext) }
+        DataFetcherFactory { GoboDataFetcher(target, kFunction, applicationContext) }
 }
 
 // Code taken from SpringDataFetcher in graphql-kotlin
 class GoboDataFetcher(
     target: Any?,
     fn: KFunction<*>,
-    objectMapper: ObjectMapper,
     private val applicationContext: ApplicationContext
-) : FunctionDataFetcher(target, fn, objectMapper, MDCContext() + TracingContextElement()) {
+) : FunctionDataFetcher(target, fn) {
 
     override fun mapParameterToValue(param: KParameter, environment: DataFetchingEnvironment): Pair<KParameter, Any?>? =
         if (param.hasAnnotation<Autowired>()) {

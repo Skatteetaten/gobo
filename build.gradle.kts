@@ -1,7 +1,7 @@
 plugins {
     kotlin("jvm") version "1.6.21"
-    id("no.skatteetaten.gradle.aurora") version "4.4.25"
-    id("io.gatling.gradle") version "3.7.6.3"
+    id("no.skatteetaten.gradle.aurora") version "4.5.3"
+    id("io.gatling.gradle") version "3.8.3.2"
     id("com.github.psxpaul.execfork") version "0.2.0"
     id("org.asciidoctor.jvm.convert") version "3.3.2"
 }
@@ -21,16 +21,16 @@ aurora {
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:1.6.3")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:1.6.4")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
 
-    implementation("io.projectreactor.kotlin:reactor-kotlin-extensions:1.1.6")
+    implementation("io.projectreactor.kotlin:reactor-kotlin-extensions:1.1.7")
     implementation("org.apache.commons:commons-text:1.9")
     implementation("org.springframework.boot:spring-boot-starter-security")
 
-    implementation("com.expediagroup:graphql-kotlin-spring-server:5.5.0")
+    implementation("com.expediagroup:graphql-kotlin-spring-server:6.0.0")
     // bump transitive dependency because of high security risk in version 61.1
-    implementation("com.ibm.icu:icu4j:63.2")
+    implementation("com.ibm.icu:icu4j:71.1")
 
     implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
     implementation("org.apache.commons:commons-collections4:4.4")
@@ -51,7 +51,7 @@ dependencies {
     testImplementation("com.h2database:h2")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
-    testImplementation("io.mockk:mockk:1.12.4")
+    testImplementation("io.mockk:mockk:1.12.5")
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.25")
     testImplementation("io.projectreactor:reactor-test")
     testImplementation("no.skatteetaten.aurora:mockwebserver-extensions-kotlin:1.3.1") {
@@ -59,7 +59,7 @@ dependencies {
     }
     testImplementation("com.ninja-squad:springmockk:3.1.1")
     testImplementation("org.junit-pioneer:junit-pioneer:1.7.1")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.3")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4")
     testImplementation("org.awaitility:awaitility:4.2.0")
 }
 

@@ -1,6 +1,5 @@
 package no.skatteetaten.aurora.gobo
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import io.netty.channel.ChannelOption
 import io.netty.channel.epoll.EpollChannelOption
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory
@@ -267,8 +266,8 @@ class ApplicationConfig(
 
     @Bean
     @Primary
-    fun simpleKotlinDataFetcherFactoryProvider(objectMapper: ObjectMapper, applicationContext: ApplicationContext) =
-        GoboSpringKotlinDataFetcherFactoryProvider(objectMapper, applicationContext)
+    fun simpleKotlinDataFetcherFactoryProvider(applicationContext: ApplicationContext) =
+        GoboSpringKotlinDataFetcherFactoryProvider(applicationContext)
 }
 
 @Configuration

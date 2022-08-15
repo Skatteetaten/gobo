@@ -4,6 +4,7 @@ import assertk.assertThat
 import assertk.assertions.contains
 import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
+import assertk.assertions.isNotNull
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import no.skatteetaten.aurora.gobo.MultiAffiliationResponseBuilder
 import no.skatteetaten.aurora.gobo.integration.Response
@@ -29,7 +30,7 @@ class EnvironmentServiceTest {
             assertThat(ref.environment).isEqualTo("utv")
         }.first()!!
 
-        assertThat(request.path).contains("utv")
+        assertThat(request.path).isNotNull().contains("utv")
     }
 
     @Test
