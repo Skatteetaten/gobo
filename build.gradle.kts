@@ -36,7 +36,7 @@ dependencies {
     implementation("org.apache.commons:commons-collections4:4.4")
     implementation("com.github.ben-manes.caffeine:caffeine:3.1.1")
 
-    implementation("org.postgresql:postgresql")
+    implementation("org.postgresql:postgresql:42.4.1")
     implementation("org.flywaydb:flyway-core")
 
     implementation("uk.q3c.rest:hal-kotlin:0.5.4.0.db32476") {
