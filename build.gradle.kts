@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm") version "1.6.21"
+    kotlin("jvm") version "1.7.10"
     id("no.skatteetaten.gradle.aurora") version "4.4.25"
     id("io.gatling.gradle") version "3.8.3.2"
     id("com.github.psxpaul.execfork") version "0.2.0"
