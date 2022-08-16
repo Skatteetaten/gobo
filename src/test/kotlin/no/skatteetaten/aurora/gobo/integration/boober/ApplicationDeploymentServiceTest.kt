@@ -73,7 +73,7 @@ class ApplicationDeploymentServiceTest {
         val request = server.executeBlocking(response) {
             applicationDeploymentService.getSpec("token", "aurora", "master", listOf(ref1, ref2))
         }.first()!!
-        assertThat(request.path).isNotNull().contains("utv%2Fgobo")
-        assertThat(request.path).isNotNull().contains("utv%2Fboober")
+        assertThat(request.path).contains("utv%2Fgobo")
+        assertThat(request.path).contains("utv%2Fboober")
     }
 }

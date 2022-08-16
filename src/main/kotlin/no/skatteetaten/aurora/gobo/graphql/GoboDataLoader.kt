@@ -1,6 +1,6 @@
 package no.skatteetaten.aurora.gobo.graphql
 
-import com.expediagroup.graphql.dataloader.KotlinDataLoader
+import com.expediagroup.graphql.server.execution.KotlinDataLoader
 import graphql.GraphQLContext
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
