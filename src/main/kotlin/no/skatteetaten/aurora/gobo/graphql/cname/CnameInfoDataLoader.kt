@@ -19,7 +19,7 @@ class CnameInfoDataLoader(
         return keys.associateWith { affiliation ->
             runCatching {
                 cnameService.getCnameInfo(affiliation).let(::newDataFetcherResult)
-            }.recoverCatching { e -> newDataFetcherResult(emptyList(), listOf(e)) }
+            }.recoverCatching(::newDataFetcherResult)
                 .getOrThrow()
         }
     }

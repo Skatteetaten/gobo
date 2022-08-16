@@ -19,7 +19,7 @@ class CnameAzureDataLoader(
         return keys.associateWith { affiliation ->
             runCatching {
                 spotlessCnameService.getCnameContent(affiliation).let(::newDataFetcherResult)
-            }.recoverCatching { e -> newDataFetcherResult(emptyList(), listOf(e)) }
+            }.recoverCatching(::newDataFetcherResult)
                 .getOrThrow()
         }
     }
