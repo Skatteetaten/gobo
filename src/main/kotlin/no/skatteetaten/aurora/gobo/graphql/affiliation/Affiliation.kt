@@ -9,6 +9,7 @@ import no.skatteetaten.aurora.gobo.graphql.GoboEdge
 import no.skatteetaten.aurora.gobo.graphql.application.Application
 import no.skatteetaten.aurora.gobo.graphql.auroraconfig.AuroraConfig
 import no.skatteetaten.aurora.gobo.graphql.auroraconfig.AuroraConfigKey
+import no.skatteetaten.aurora.gobo.graphql.cname.Cname
 import no.skatteetaten.aurora.gobo.graphql.database.DatabaseSchema
 import no.skatteetaten.aurora.gobo.graphql.loadValue
 import no.skatteetaten.aurora.gobo.graphql.storagegrid.StorageGrid
@@ -23,6 +24,10 @@ data class Affiliation(val name: String) {
     fun auroraConfig(refInput: String? = null, dfe: DataFetchingEnvironment): CompletableFuture<AuroraConfig> {
         runBlocking { dfe.checkValidUserToken() } // TODO @PreAuthorize?
         return dfe.loadValue(AuroraConfigKey(name = name, refInput = refInput ?: "master"))
+    }
+
+    fun cname(): Cname {
+        return Cname(name)
     }
 
     @GraphQLDescription("Get all database schemas for the given affiliation")

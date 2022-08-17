@@ -14,6 +14,8 @@ import org.springframework.web.reactive.function.client.WebClient
 interface CnameService {
     suspend fun getCnameInfo(): List<CnameInfo> = integrationDisabled()
 
+    suspend fun getCnameInfo(affiliation: String): List<CnameInfo> = getCnameInfo()
+
     private fun integrationDisabled(): Nothing =
         throw IntegrationDisabledException("Gavel integration is disabled for this environment")
 }
@@ -27,6 +29,10 @@ class CnameServiceReactive(@TargetService(ServiceTypes.GAVEL) val webClient: Web
             .uri("/admin/info/job/v1")
             .retrieve()
             .awaitWithRetry()
+
+    override suspend fun getCnameInfo(affiliation: String): List<CnameInfo> = getCnameInfo().filter {
+        it.containsAffiliation(listOf(affiliation))
+    }
 }
 
 @Service

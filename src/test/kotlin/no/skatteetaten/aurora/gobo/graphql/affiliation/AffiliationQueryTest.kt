@@ -3,6 +3,8 @@ package no.skatteetaten.aurora.gobo.graphql.affiliation
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.coEvery
 import no.skatteetaten.aurora.gobo.ApplicationResourceBuilder
+import no.skatteetaten.aurora.gobo.CnameAzureBuilder
+import no.skatteetaten.aurora.gobo.CnameInfoBuilder
 import no.skatteetaten.aurora.gobo.DatabaseSchemaResourceBuilder
 import no.skatteetaten.aurora.gobo.WebsealStateResourceBuilder
 import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithDbhAndSkap
@@ -22,15 +24,21 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
 import no.skatteetaten.aurora.gobo.StoragegridObjectAreaResourceBuilder
+import no.skatteetaten.aurora.gobo.graphql.cname.CnameAzureDataLoader
+import no.skatteetaten.aurora.gobo.graphql.cname.CnameInfoDataLoader
 import no.skatteetaten.aurora.gobo.graphql.storagegrid.StorageGridObjectAreaDataLoader
+import no.skatteetaten.aurora.gobo.integration.gavel.CnameService
 import no.skatteetaten.aurora.gobo.integration.mokey.StorageGridObjectAreasService
+import no.skatteetaten.aurora.gobo.integration.spotless.SpotlessCnameService
 
 @Import(
     AffiliationQuery::class,
     WebsealAffiliationService::class,
     WebsealStateDataLoader::class,
     DatabaseSchemaDataLoader::class,
-    StorageGridObjectAreaDataLoader::class
+    StorageGridObjectAreaDataLoader::class,
+    CnameAzureDataLoader::class,
+    CnameInfoDataLoader::class
 )
 class AffiliationQueryTest : GraphQLTestWithDbhAndSkap() {
 
@@ -55,6 +63,9 @@ class AffiliationQueryTest : GraphQLTestWithDbhAndSkap() {
     @Value("classpath:graphql/queries/getAffiliationsWithWebsealStates.graphql")
     private lateinit var getAffiliationsWithWebsealStatesQuery: Resource
 
+    @Value("classpath:graphql/queries/getAffiliationsWithCname.graphql")
+    private lateinit var getAffiliationsWithCnameQuery: Resource
+
     @MockkBean
     private lateinit var affiliationService: AffiliationService
 
@@ -69,6 +80,12 @@ class AffiliationQueryTest : GraphQLTestWithDbhAndSkap() {
 
     @MockkBean
     private lateinit var storageGridObjectAreasService: StorageGridObjectAreasService
+
+    @MockkBean
+    private lateinit var cnameService: CnameService
+
+    @MockkBean
+    private lateinit var spotlessCnameService: SpotlessCnameService
 
     @Test
     fun `Query fo all affiliations include undeployed`() {
@@ -179,5 +196,23 @@ class AffiliationQueryTest : GraphQLTestWithDbhAndSkap() {
                 graphqlData("storageGrid.objectAreas.active[0].name").isEqualTo("some-area")
             }
             .graphqlDoesNotContainErrors()
+    }
+
+    @Test
+    fun `Query for affiliations with cname configured`() {
+        coEvery { affiliationService.getAllDeployedAffiliations() } returns listOf("aup")
+        coEvery { cnameService.getCnameInfo(any()) }.returns(listOf(CnameInfoBuilder().build()))
+        coEvery { spotlessCnameService.getCnameContent(any()) }.returns(listOf(CnameAzureBuilder().build()))
+
+        webTestClient.queryGraphQL(getAffiliationsWithCnameQuery, token = "test-token")
+            .expectStatus().isOk
+            .expectBody()
+            .graphqlData("affiliations.totalCount").isEqualTo("1")
+            .graphqlDataWithPrefix("affiliations.edges[0].node") {
+                graphqlData("name").isEqualTo("aup")
+                graphqlData("cname.onPrem[0].appName").isEqualTo("demo")
+                graphqlData("cname.azure[0].ownerObjectName").isEqualTo("demo-azure")
+                graphqlData("cname.onPrem[1]").doesNotExist()
+            }
     }
 }

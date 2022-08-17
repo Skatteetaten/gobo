@@ -25,4 +25,35 @@ class CnameServiceReactiveTest {
 
         assertThat(requests).hasSize(1)
     }
+
+    @Test
+    fun `Get cname info with affiliation`() {
+        val requests = server.executeBlocking(
+            listOf(
+                CnameInfoBuilder("aup").build(),
+                CnameInfoBuilder("test").build()
+            )
+        ) {
+            val cnameInfo = service.getCnameInfo("aup")
+            assertThat(cnameInfo).hasSize(1)
+            assertThat(cnameInfo.first().namespace).isEqualTo("aup")
+        }
+
+        assertThat(requests).hasSize(1)
+    }
+
+    @Test
+    fun `Get cname info with affiliation not existing`() {
+        val requests = server.executeBlocking(
+            listOf(
+                CnameInfoBuilder("aup").build(),
+                CnameInfoBuilder("test").build()
+            )
+        ) {
+            val cnameInfo = service.getCnameInfo("aurora")
+            assertThat(cnameInfo).hasSize(0)
+        }
+
+        assertThat(requests).hasSize(1)
+    }
 }

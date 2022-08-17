@@ -6,6 +6,7 @@ import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.ApplicationDepl
 import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.Status
 import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.Version
 import no.skatteetaten.aurora.gobo.graphql.auroraconfig.AuroraConfigFileResource
+import no.skatteetaten.aurora.gobo.graphql.cname.CnameAzure
 import no.skatteetaten.aurora.gobo.graphql.cname.CnameEntry
 import no.skatteetaten.aurora.gobo.graphql.cname.CnameInfo
 import no.skatteetaten.aurora.gobo.graphql.database.JdbcUser
@@ -704,6 +705,16 @@ data class CnameInfoBuilder(val namespace: String = "aurora-demo") {
         routeName = "demo",
         message = "",
         entry = CnameEntry(cname = "demo.localhost.no", host = "host1", ttl = 300)
+    )
+}
+
+data class CnameAzureBuilder(val namespace: String = "aurora-demo") {
+    fun build() = CnameAzure(
+        canonicalName = "demo.localhost.no",
+        ttlInSeconds = 3098,
+        namespace = namespace,
+        clusterId = "utv",
+        ownerObjectName = "demo-azure"
     )
 }
 

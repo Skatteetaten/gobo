@@ -10,6 +10,9 @@ import no.skatteetaten.aurora.gobo.infrastructure.ConditionalOnDatabaseUrl
 import no.skatteetaten.aurora.gobo.infrastructure.ConditionalOnMissingDatabaseUrl
 import no.skatteetaten.aurora.gobo.integration.skap.HEADER_AURORA_TOKEN
 import no.skatteetaten.aurora.gobo.security.SharedSecretReader
+import no.skatteetaten.aurora.kubernetes.KubernetesReactorClient
+import no.skatteetaten.aurora.kubernetes.config.ClientTypes
+import no.skatteetaten.aurora.kubernetes.config.TargetClient
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.actuate.trace.http.InMemoryHttpTraceRepository
@@ -28,8 +31,10 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.http.client.reactive.ReactorClientHttpConnector
 import org.springframework.stereotype.Component
+import org.springframework.web.reactive.function.client.ClientRequest
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction
 import org.springframework.web.reactive.function.client.WebClient
+import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
 import reactor.netty.http.client.HttpClient
 import reactor.netty.resources.ConnectionProvider
@@ -38,7 +43,7 @@ import reactor.netty.tcp.SslProvider
 import java.time.Duration
 
 enum class ServiceTypes {
-    MOKEY, BOOBER, UNCLEMATT, CANTUS, DBH, SKAP, HERKIMER, NAGHUB, GAVEL, PHIL, TOXI_PROXY
+    MOKEY, BOOBER, UNCLEMATT, CANTUS, DBH, SKAP, HERKIMER, NAGHUB, GAVEL, PHIL, TOXI_PROXY, SPOTLESS
 }
 
 @Target(AnnotationTarget.TYPE, AnnotationTarget.FUNCTION, AnnotationTarget.FIELD, AnnotationTarget.VALUE_PARAMETER)
@@ -75,6 +80,11 @@ class RequiresGavel
 @Component
 @ConditionalOnProperty("integrations.phil.url")
 class RequiresPhil
+
+@Order(Ordered.HIGHEST_PRECEDENCE)
+@Component
+@ConditionalOnProperty("integrations.spotless.url")
+class RequiresSpotless
 
 private val logger = KotlinLogging.logger {}
 
@@ -157,6 +167,29 @@ class ApplicationConfig(
         return builder.init()
             .baseUrl(herkimerUrl)
             .defaultHeader(HttpHeaders.AUTHORIZATION, "$HEADER_AURORA_TOKEN ${sharedSecretReader.secret}")
+            .build()
+    }
+
+    @ConditionalOnBean(RequiresSpotless::class)
+    @Bean
+    @TargetService(ServiceTypes.SPOTLESS)
+    fun webClientSpotless(
+        @Value("\${integrations.spotless.url}") spotlessUrl: String,
+        @TargetClient(ClientTypes.PSAT) psatKubernetesClient: KubernetesReactorClient
+    ): WebClient {
+        logger.info("Configuring Spotless WebClient with base Url={}", spotlessUrl)
+        return psatKubernetesClient.webClient
+            .mutate()
+            .baseUrl(spotlessUrl)
+            .filter(
+                ExchangeFilterFunction.ofRequestProcessor { request ->
+                    Mono.just(
+                        ClientRequest.from(request)
+                            .header(HttpHeaders.AUTHORIZATION, "Bearer ${psatKubernetesClient.tokenFetcher.token("spotless")}")
+                            .build()
+                    )
+                }
+            )
             .build()
     }
 
