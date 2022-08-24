@@ -92,3 +92,4 @@ task<JavaExec>("runLocal") {
     mainClass.set("no.skatteetaten.aurora.gobo.GoboTestMainKt")
     classpath(sourceSets["test"].runtimeClasspath, sourceSets["main"].runtimeClasspath)
 }
+
