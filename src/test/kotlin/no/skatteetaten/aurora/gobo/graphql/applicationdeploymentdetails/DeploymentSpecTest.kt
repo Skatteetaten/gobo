@@ -6,6 +6,7 @@ import io.mockk.coEvery
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentDetailsBuilder
 import no.skatteetaten.aurora.gobo.ApplicationDeploymentResourceBuilder
 import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithDbhAndSkap
+import no.skatteetaten.aurora.gobo.graphql.PROFILE_WITH_DBH_AND_SKAP
 import no.skatteetaten.aurora.gobo.graphql.application.ApplicationQuery
 import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.ApplicationDeploymentQuery
 import no.skatteetaten.aurora.gobo.graphql.graphqlData
@@ -23,11 +24,13 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Import
+import org.springframework.context.annotation.Profile
 import org.springframework.core.io.Resource
 import org.springframework.web.reactive.function.client.WebClient
 import uk.q3c.rest.hal.HalLink
 import uk.q3c.rest.hal.Links
 
+@Profile(PROFILE_WITH_DBH_AND_SKAP)
 @TestConfiguration
 class DeploymentSpecTestConfig(val server: MockWebServer = MockWebServer()) {
     @Bean

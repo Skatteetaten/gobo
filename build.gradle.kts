@@ -2,7 +2,6 @@ plugins {
     kotlin("jvm") version "1.7.10"
     id("no.skatteetaten.gradle.aurora") version "4.4.25"
     id("io.gatling.gradle") version "3.8.3.2"
-    id("com.github.psxpaul.execfork") version "0.2.0"
     id("org.asciidoctor.jvm.convert") version "3.3.2"
 }
 
@@ -61,6 +60,7 @@ dependencies {
     testImplementation("org.junit-pioneer:junit-pioneer:1.7.1")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4")
     testImplementation("org.awaitility:awaitility:4.2.0")
+    testImplementation("io.kubernetes:client-java:16.0.0")
 }
 
 task<de.undercouch.gradle.tasks.download.Download>("download-playground") {
@@ -86,13 +86,9 @@ tasks {
         setBaseDir("src/test/resources/graphql")
         logDocuments = true
     }
-
-    named<org.springframework.boot.gradle.tasks.run.BootRun>("bootRun") {
-        args("--spring.profiles.active=local-ocp04")
-        dependsOn("port-forward-mokey")
-    }
 }
 
-task<com.github.psxpaul.task.ExecFork>("port-forward-mokey") {
-    executable = "./mokey-port-forward.sh"
+task<JavaExec>("runLocal") {
+    mainClass.set("no.skatteetaten.aurora.gobo.GoboTestMainKt")
+    classpath(sourceSets["test"].runtimeClasspath, sourceSets["main"].runtimeClasspath)
 }

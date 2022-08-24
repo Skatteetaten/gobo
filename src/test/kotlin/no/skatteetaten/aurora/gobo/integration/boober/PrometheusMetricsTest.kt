@@ -9,6 +9,7 @@ import no.skatteetaten.aurora.gobo.ApplicationDeploymentDetailsBuilder
 import no.skatteetaten.aurora.gobo.DisableIfJenkins
 import no.skatteetaten.aurora.gobo.ServiceTypes
 import no.skatteetaten.aurora.gobo.TargetService
+import no.skatteetaten.aurora.gobo.graphql.PROFILE_WITH_DBH_AND_SKAP
 import no.skatteetaten.aurora.gobo.graphql.auroraconfig.AuroraConfig
 import no.skatteetaten.aurora.gobo.integration.Response
 import no.skatteetaten.aurora.gobo.testObjectMapper
@@ -25,12 +26,15 @@ import org.springframework.boot.test.autoconfigure.actuate.metrics.AutoConfigure
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Profile
+import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
 import org.springframework.util.SocketUtils
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.bodyToMono
 
+@ActiveProfiles(PROFILE_WITH_DBH_AND_SKAP)
 @DisableIfJenkins
 @AutoConfigureMetrics
 @EnableAutoConfiguration(
@@ -65,6 +69,7 @@ class PrometheusMetricsTest {
         }
     }
 
+    @Profile(PROFILE_WITH_DBH_AND_SKAP)
     @TestConfiguration
     class TestConfig {
         @Bean
