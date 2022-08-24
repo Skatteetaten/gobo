@@ -9,10 +9,9 @@ The component is named after Gobo from the TV-show Fraggle Rock (https://muppet.
 ## Development
 
 ## Running gobo locally
-Use `./gradlew bootRun`, this will automatically port-forward a connection to mokey. This is required to run gobo on your local machine.
+Use `./gradlew runLocal`, this will automatically port-forward a connection to mokey and dbh on utv04. This is required to run gobo on your local machine.
 Remember to login to `oc` to get a valid token before starting gobo.
 
-For details on the port-forwarding, see script `mokey-port-forward.sh`.
 
 ## Contract tests
 To run contract tests against a snapshot stub-jar file, set `gobo.stub.repository: snapshots` in `src/test/resources/application.yaml`.

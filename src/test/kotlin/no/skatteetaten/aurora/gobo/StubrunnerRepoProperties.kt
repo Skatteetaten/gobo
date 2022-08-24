@@ -2,9 +2,11 @@ package no.skatteetaten.aurora.gobo
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import mu.KotlinLogging
+import no.skatteetaten.aurora.gobo.graphql.PROFILE_WITH_DBH_AND_SKAP
 import org.junit.jupiter.api.BeforeEach
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Profile
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
 import org.w3c.dom.Document
@@ -20,6 +22,7 @@ const val stubrunnerRepoUrl = "stubrunner.repositoryRoot"
 
 abstract class StrubrunnerRepoPropertiesEnabler {
 
+    @Profile(PROFILE_WITH_DBH_AND_SKAP)
     @TestConfiguration
     class TestConfig {
         @Bean

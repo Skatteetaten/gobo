@@ -9,6 +9,8 @@ integrations:
         url: https://herkimer-aup.apps.utv04.paas.skead.no
     skap:
         url: http://localhost:9090
+    dbh:
+        url: http://localhost:9998
     docker:
         cluster:
             url: docker-registry.default.svc:5000
@@ -64,8 +66,9 @@ gobo:
     graphqlUsage:
         fixedDelay: "60000" # every 60 seconds
 
-# logging.level.no.skatteetaten.aurora.gobo: DEBUG
-# logging.level.no.skatteetaten.aurora.gobo.security: DEBUG
+logging.level.no.skatteetaten.aurora.gobo.security: INFO
+logging.level.no.skatteetaten.aurora.gobo: INFO
 logging.level.no.skatteetaten.aurora.kubernetes: DEBUG
-logging.level.no.skatteetaten.aurora.springboot: DEBUG
+logging.level.no.skatteetaten.aurora.springboot: INFO
 logging.level.com.expediagroup.graphql.server.spring: WARN
+logging.level.reactor.netty.transport: ERROR
