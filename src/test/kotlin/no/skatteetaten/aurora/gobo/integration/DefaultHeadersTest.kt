@@ -14,7 +14,7 @@ import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.execute
 import no.skatteetaten.aurora.mockmvc.extensions.mockwebserver.url
 import no.skatteetaten.aurora.webflux.AuroraRequestParser.KLIENTID_FIELD
 import no.skatteetaten.aurora.webflux.AuroraRequestParser.KORRELASJONSID_FIELD
-import no.skatteetaten.aurora.webflux.config.WebFluxStarterApplicationConfig
+import no.skatteetaten.aurora.webflux.config.AuroraWebClientConfig
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.jupiter.api.Test
@@ -28,7 +28,7 @@ import org.springframework.web.reactive.function.client.bodyToMono
 
 @SpringBootTest(
     classes = [
-        WebFluxStarterApplicationConfig::class,
+        AuroraWebClientConfig::class,
         WebClientAutoConfiguration::class,
         ZipkinAutoConfiguration::class,
         ApplicationConfig::class,
@@ -53,8 +53,8 @@ class DefaultHeadersTest {
         }
 
         val headers = request.first()?.headers!!
-        assertThat(headers.get(KLIENTID_FIELD)).isEqualTo("gobo")
-        assertThat(headers.get(USER_AGENT)).isEqualTo("gobo")
-        assertThat(headers.get(KORRELASJONSID_FIELD)).isNotNull().isNotEmpty()
+        assertThat(headers[KLIENTID_FIELD]).isEqualTo("gobo")
+        assertThat(headers[USER_AGENT]).isEqualTo("gobo")
+        assertThat(headers[KORRELASJONSID_FIELD]).isNotNull().isNotEmpty()
     }
 }

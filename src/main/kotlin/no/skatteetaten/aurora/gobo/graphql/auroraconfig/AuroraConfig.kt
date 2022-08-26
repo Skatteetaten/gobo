@@ -97,21 +97,21 @@ data class AuroraConfigFileResource(
 
 data class NewAuroraConfigFileInput(
     val auroraConfigName: String,
-    val auroraConfigReference: String?,
+    val auroraConfigReference: String? = null,
     val fileName: String,
     val contents: String
 )
 
 data class UpdateAuroraConfigFileInput(
     val auroraConfigName: String,
-    val auroraConfigReference: String?,
+    val auroraConfigReference: String? = null,
     val fileName: String,
     val contents: String,
     val existingHash: String
 )
 
 data class AuroraConfigFileValidationResponse(
-    val message: String?,
+    val message: String? = null,
     val success: Boolean,
     val file: AuroraConfigFileResource? = null
 )

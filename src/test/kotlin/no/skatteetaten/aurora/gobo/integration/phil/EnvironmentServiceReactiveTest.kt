@@ -31,7 +31,7 @@ class EnvironmentServiceReactiveTest {
             assertThat(deployments?.first()?.deployId).isNull()
         }.first()!!
 
-        assertThat(request.path).contains("/environments")
+        assertThat(request.path).isNotNull().contains("/environments")
         assertThat(request.headers[HttpHeaders.AUTHORIZATION]).isEqualTo("Bearer test-token")
     }
 
@@ -55,7 +55,7 @@ class EnvironmentServiceReactiveTest {
             assertThat(deletionResources?.first()?.deploymentRef?.environment).isEqualTo("dev-utv")
         }.first()!!
 
-        assertThat(request.path).contains("/environments")
+        assertThat(request.path).isNotNull().contains("/environments")
         assertThat(request.headers[HttpHeaders.AUTHORIZATION]).isEqualTo("Bearer test-token")
     }
 
