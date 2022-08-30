@@ -1,0 +1,13 @@
+{
+  "operationName": "deleteToxiProxyTimeoutToxic",
+  "variables": {
+    "input": {
+      "affiliation": "aup",
+      "environment": "utv01",
+      "application": "m78879-gobo",
+      "toxiProxyName": "mokeyToxic",
+      "toxicName": "timeout_toxic"
+    }
+  },
+  "query": "mutation deleteToxiProxyTimeoutToxic($input: DeleteToxiProxyToxicsInput!) {\n  deleteToxiProxyToxic(input: $input) {\n    toxiProxyName\n    toxicName\n  }\n}\n"
+}

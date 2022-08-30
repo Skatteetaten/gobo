@@ -1,0 +1,13 @@
+{
+  "request": {
+    "method": "GET",
+    "url": "/api/v1/schema/?labels=affiliation%3Daup"
+  },
+  "response": {
+    "status": 200,
+    "body": "{\n  \"items\": [\n    {\n      \"id\": \"24b0\",\n      \"type\": \"MANAGED\",\n      \"jdbcUrl\": \"jdbc:oracle:thin:dfdf/zz\",\n      \"name\": \"abc\",\n      \"createdDate\": 1652358980860,\n      \"lastUsedDate\": 1655384418000,\n      \"databaseInstance\": {\n        \"engine\": \"ORACLE\",\n        \"host\": \"asd\",\n        \"createSchemaAllowed\": true,\n        \"instanceName\": \"dddd\",\n        \"port\": 123,\n        \"labels\": {}\n      },\n      \"users\": [\n        {\n          \"username\": \"user\",\n          \"password\": \"password\",\n          \"type\": \"SCHEMA\"\n        }\n      ],\n      \"labels\": {\n        \"name\": \"systemtest\",\n        \"environment\": \"system-test\",\n        \"application\": \"app-systemtest\",\n        \"affiliation\": \"aff\",\n        \"userId\": \"userId\"\n      },\n      \"metadata\": {\n        \"sizeInMb\": 0.8125\n      }\n    }\n  ],\n  \"status\": \"OK\",\n  \"totalCount\": 1\n}",
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}
