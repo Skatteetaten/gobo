@@ -22,14 +22,14 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 private val logger = KotlinLogging.logger { }
 
 @Component
-class GoboDataFetcherExceptionHandler(@Value("\${integrations.boober.url}") private val booberUrl: String) :
+class GoboDataFetcherExceptionHandler(@Value("\${integrations.boober.url}") private val booberUrl: String, @Value("\${gobo.exception.response.logging.enabled:false}") private val responseLoggingEnabled: Boolean) :
     DataFetcherExceptionHandler {
     override fun onException(handlerParameters: DataFetcherExceptionHandlerParameters?): DataFetcherExceptionHandlerResult {
         handlerParameters ?: return DataFetcherExceptionHandlerResult.newResult().build()
 
         val graphqlException = handlerParameters.handleIntegrationDisabledException()?.let {
             handlerParameters.toExceptionWhileDataFetching(it)
-        } ?: handlerParameters.handleGeneralDataFetcherException(booberUrl)
+        } ?: handlerParameters.handleGeneralDataFetcherException(booberUrl, responseLoggingEnabled)
 
         return DataFetcherExceptionHandlerResult.newResult(graphqlException).build()
     }
@@ -45,12 +45,17 @@ private fun DataFetcherExceptionHandlerParameters.handleIntegrationDisabledExcep
         it
     }
 
-private fun DataFetcherExceptionHandlerParameters.handleGeneralDataFetcherException(booberUrl: String): GraphQLExceptionWrapper {
+private fun DataFetcherExceptionHandlerParameters.handleGeneralDataFetcherException(booberUrl: String, responseLoggingEnabled: Boolean): GraphQLExceptionWrapper {
     val exception = this.exception
     val exceptionName = this::class.simpleName
 
     val source = if (exception is SourceSystemException) {
-        """source="${exception.sourceSystem}" integrationResponse="${exception.integrationResponse?.take(5000)}" """
+        val integrationResponse = if (responseLoggingEnabled) {
+            exception.integrationResponse
+        } else {
+            exception.integrationResponse?.take(5000)
+        }
+        """source="${exception.sourceSystem}" integrationResponse="$integrationResponse" """
     } else {
         ""
     }
