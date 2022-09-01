@@ -16,23 +16,25 @@ import io.gatling.javaapi.http.HttpDsl.http
 class GoboLoadtestSimulation : Simulation() {
 
     val token = System.getenv("token")
-    private val goboMockedUrl = "https://m78879-gobo-aup.apps.utv01.paas.skead.no/graphql"
+    private val goboMockedUrl = "https://m78879-gobo-aup.apps.utv01.paas.skead.no/graphql";
+    private val goboUrl = "https://gobo-aup.apps.utv01.paas.skead.no/graphql";
+
 
     private val deleteMokeyLatencyToxic = exec(
         http("mokeyDeleteLatencyToxicRequest")
-            .post(goboMockedUrl)
+            .post(goboUrl)
             .body(ElFileBody("mokey_delete_latency_toxic_mutation.json"))
     )
 
     private val deleteMokeyTimeoutToxic = exec(
         http("mokeyDeleteTimeoutToxicRequest")
-            .post(goboMockedUrl)
+            .post(goboUrl)
             .body(ElFileBody("mokey_delete_timeout_toxic_mutation.json"))
     )
 
     private val deleteMokeyDelayToxic = exec(
         http("mokeyDeleteDelayToxicRequest")
-            .post(goboMockedUrl)
+            .post(goboUrl)
             .body(ElFileBody("mokey_delete_delay_toxic_mutation.json"))
     )
 
@@ -45,14 +47,14 @@ class GoboLoadtestSimulation : Simulation() {
 
     private val addMokeyTimoutToxic = exec(
         http("mokeyAddTimeoutToxicRequest")
-            .post(goboMockedUrl)
+            .post(goboUrl)
             .body(ElFileBody("mokey_add_timeout_toxic_mutation.json"))
             .check(jsonPath("$.errors").notExists())
     ).exitHereIfFailed()
 
     private val addMokeyDelayToxic = exec(
         http("mokeyAddDelayToxicRequest")
-            .post(goboMockedUrl)
+            .post(goboUrl)
             .body(ElFileBody("mokey_add_delay_toxic_mutation.json"))
             .check(jsonPath("$.errors").notExists())
     ).exitHereIfFailed()
@@ -77,7 +79,7 @@ class GoboLoadtestSimulation : Simulation() {
     )
 
     val httpProtocol =
-        http.baseUrl(goboMockedUrl)
+        http.baseUrl(goboUrl)
             .contentTypeHeader("application/json")
             .authorizationHeader("Bearer $token")
 
