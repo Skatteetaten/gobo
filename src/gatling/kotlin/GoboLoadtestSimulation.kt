@@ -40,7 +40,7 @@ class GoboLoadtestSimulation : Simulation() {
 
     private val addMokeyLatencyToxic = exec(
         http("mokeyAddLatencyToxicRequest")
-            .post(goboMockedUrl)
+            .post(goboUrl)
             .body(ElFileBody("mokey_add_latency_toxic_mutation.json"))
             .check(jsonPath("$.errors").notExists())
     ).exitHereIfFailed()
