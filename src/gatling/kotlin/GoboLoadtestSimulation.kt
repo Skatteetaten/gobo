@@ -9,10 +9,6 @@ import io.gatling.javaapi.core.CoreDsl.scenario
 import io.gatling.javaapi.core.Simulation
 import io.gatling.javaapi.http.HttpDsl.http
 
-// import io.gatling.javaapi.core.*
-// import io.gatling.javaapi.core.CoreDsl.*
-// import io.gatling.javaapi.http.HttpDsl.*
-
 class GoboLoadtestSimulation : Simulation() {
 
     val token = System.getenv("token")
