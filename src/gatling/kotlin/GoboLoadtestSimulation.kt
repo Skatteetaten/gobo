@@ -16,9 +16,8 @@ import io.gatling.javaapi.http.HttpDsl.http
 class GoboLoadtestSimulation : Simulation() {
 
     val token = System.getenv("token")
-    private val goboMockedUrl = "https://m78879-gobo-aup.apps.utv01.paas.skead.no/graphql";
-    private val goboUrl = "https://gobo-aup.apps.utv01.paas.skead.no/graphql";
-
+    private val goboMockedUrl = "https://m78879-gobo-aup.apps.utv01.paas.skead.no/graphql"
+    private val goboUrl = "https://gobo-aup.apps.utv01.paas.skead.no/graphql"
 
     private val deleteMokeyLatencyToxic = exec(
         http("mokeyDeleteLatencyToxicRequest")
