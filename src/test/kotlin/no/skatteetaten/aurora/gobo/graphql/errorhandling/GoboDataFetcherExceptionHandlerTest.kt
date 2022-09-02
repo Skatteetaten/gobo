@@ -19,7 +19,7 @@ import org.junit.jupiter.api.Test
 import java.util.concurrent.CompletionException
 
 class GoboDataFetcherExceptionHandlerTest {
-    private val exceptionHandler = GoboDataFetcherExceptionHandler("http://boober")
+    private val exceptionHandler = GoboDataFetcherExceptionHandler("http://boober", false)
     private val env = mockk<DataFetchingEnvironment>(relaxed = true) {
         every { korrelasjonsid } returns "abc123"
         every { klientid } returns "test-client"

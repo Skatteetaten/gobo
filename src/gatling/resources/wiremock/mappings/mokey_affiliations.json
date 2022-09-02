@@ -1,0 +1,13 @@
+{
+  "request": {
+    "method": "GET",
+    "url": "/api/auth/affiliation"
+  },
+  "response": {
+    "status": 200,
+    "body": "[\n  \"aup\"\n]",
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}
