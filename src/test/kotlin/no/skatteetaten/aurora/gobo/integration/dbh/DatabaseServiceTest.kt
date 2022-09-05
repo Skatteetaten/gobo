@@ -56,7 +56,7 @@ class DatabaseServiceTest {
     private val sharedSecretReader = mockk<SharedSecretReader> {
         every { secret } returns "abc"
     }
-    private val webClient = ApplicationConfig(500, 500, 300000, 64, "", sharedSecretReader)
+    private val webClient = ApplicationConfig(500, 500, 300000, sharedSecretReader)
         .webClientDbh(server.url("/").toString(), WebClient.builder())
     private val databaseService = DatabaseServiceReactive(webClient, testObjectMapper())
 
