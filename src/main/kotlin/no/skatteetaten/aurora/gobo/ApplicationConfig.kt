@@ -89,7 +89,6 @@ class ApplicationConfig(
     @Value("\${gobo.webclient.connection-timeout:15000}") val connectionTimeout: Int,
     @Value("\${gobo.webclient.response-timeout:60000}") val responseTimeout: Long,
     @Value("\${gobo.webclient.maxLifeTime:150000}") val maxLifeTime: Long,
-    @Value("\${gobo.webclient.maxConnections:64}") val maxConnections: Int,
     @Value("\${spring.application.name}") val applicationName: String,
     private val sharedSecretReader: SharedSecretReader
 ) {
@@ -235,8 +234,7 @@ class ApplicationConfig(
             ConnectionProvider
                 .builder("gobo-connection-provider")
                 .metrics(true)
-                .maxConnections(maxConnections)
-                .pendingAcquireMaxCount(maxConnections * 2)
+                .maxConnections(32)
                 .maxLifeTime(Duration.ofMillis(maxLifeTime))
                 .maxIdleTime(Duration.ofMillis(maxLifeTime / 2))
                 .evictInBackground(Duration.ofMillis(maxLifeTime * 2))
@@ -247,9 +245,9 @@ class ApplicationConfig(
             // https://projectreactor.io/docs/netty/release/reference/index.html#connection-timeout
             .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectionTimeout)
             .option(ChannelOption.SO_KEEPALIVE, true)
-            .option(EpollChannelOption.TCP_KEEPIDLE, 150)
-            .option(EpollChannelOption.TCP_KEEPINTVL, 15)
-            .option(EpollChannelOption.TCP_KEEPCNT, 3)
+            .option(EpollChannelOption.TCP_KEEPIDLE, 300)
+            .option(EpollChannelOption.TCP_KEEPINTVL, 30)
+            .option(EpollChannelOption.TCP_KEEPCNT, 5)
             .responseTimeout(Duration.ofMillis(responseTimeout))
 
         if (ssl) {
