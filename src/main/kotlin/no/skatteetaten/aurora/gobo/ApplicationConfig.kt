@@ -1,5 +1,6 @@
 package no.skatteetaten.aurora.gobo
 
+import com.sun.management.UnixOperatingSystemMXBean
 import io.netty.channel.ChannelOption
 import io.netty.channel.epoll.EpollChannelOption
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory
@@ -26,6 +27,7 @@ import org.springframework.core.annotation.Order
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.http.client.reactive.ReactorClientHttpConnector
+import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.ClientRequest
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction
@@ -36,6 +38,7 @@ import reactor.netty.http.client.HttpClient
 import reactor.netty.resources.ConnectionProvider
 import reactor.netty.tcp.DefaultSslContextSpec
 import reactor.netty.tcp.SslProvider
+import java.lang.management.ManagementFactory
 import java.time.Duration
 
 enum class ServiceTypes {
@@ -261,6 +264,21 @@ class ApplicationConfig(
         }
 
         return ReactorClientHttpConnector(httpClient)
+    }
+}
+
+@Component
+class GoboFileDesc {
+
+    @Scheduled(fixedDelay = 5000)
+    fun printOpenFileDescriptors() {
+        ManagementFactory.getOperatingSystemMXBean().let {
+            if (it is UnixOperatingSystemMXBean) {
+                logger.info {
+                    "File Descriptors, max=${it.maxFileDescriptorCount}  open=${it.openFileDescriptorCount}"
+                }
+            }
+        }
     }
 }
 
