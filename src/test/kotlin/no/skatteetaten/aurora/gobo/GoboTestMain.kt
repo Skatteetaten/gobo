@@ -6,6 +6,7 @@ import io.kubernetes.client.PortForward
 import io.kubernetes.client.openapi.Configuration
 import io.kubernetes.client.util.Config
 import io.kubernetes.client.util.Streams
+import io.netty.util.ResourceLeakDetector
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.graphql.PROFILE_LOCAL_OCP04
 import no.skatteetaten.aurora.kubernetes.KubernetesReactorClient
@@ -85,6 +86,7 @@ class MokeyPortForward(val kubernetesClient: KubernetesReactorClient) {
 class GoboTestMain
 
 fun main(args: Array<String>) {
+    ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.PARANOID)
     runApplication<GoboTestMain>(*args) {
         setAdditionalProfiles(PROFILE_LOCAL_OCP04)
     }

@@ -254,6 +254,7 @@ class ApplicationConfig(
             .option(EpollChannelOption.TCP_KEEPINTVL, 15)
             .option(EpollChannelOption.TCP_KEEPCNT, 3)
             .responseTimeout(Duration.ofMillis(responseTimeout))
+            .keepAlive(false)
 
         if (ssl) {
             val sslProvider = SslProvider.builder().sslContext(
@@ -267,7 +268,7 @@ class ApplicationConfig(
     }
 }
 
-@Component
+// @Component
 class GoboFileDesc {
 
     @Scheduled(fixedDelay = 5000)
