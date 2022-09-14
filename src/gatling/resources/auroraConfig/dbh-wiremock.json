@@ -2,7 +2,7 @@
   "baseFile" : "aurora-wiremock-systemtest",
   "parameters" : {
     "CONFIG_DIR" : "src/gatling/resources/wiremock",
-    "CONFIG_CHECKOUT" : "feature/AOS-6770_gjenskape504",
+    "CONFIG_CHECKOUT" : "feature/AOS-6936_convLoadtestToKotlin",
     "GIT_CONFIG_REPO" : "https://github.com/Skatteetaten/gobo.git",
     "WIREMOCK_OPTS" : "--verbose"
   }
