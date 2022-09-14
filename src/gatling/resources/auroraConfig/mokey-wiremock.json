@@ -5,5 +5,15 @@
     "CONFIG_CHECKOUT" : "feature/AOS-6936_convLoadtestToKotlin",
     "GIT_CONFIG_REPO" : "https://github.com/Skatteetaten/gobo.git",
     "WIREMOCK_OPTS" : "--verbose"
+  },
+  "resources" : {
+    "cpu" : {
+      "min" : "100m",
+      "max" : "200m"
+    },
+    "memory" : {
+      "min" : "384Mi",
+      "max" : "768Mi"
+    }
   }
 }
