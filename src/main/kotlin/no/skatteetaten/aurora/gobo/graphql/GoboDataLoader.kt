@@ -5,8 +5,6 @@ import graphql.GraphQLContext
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
-import kotlinx.coroutines.future.asCompletableFuture
 import kotlinx.coroutines.future.future
 import kotlinx.coroutines.slf4j.MDCContext
 import org.dataloader.BatchLoaderEnvironment
@@ -26,7 +24,7 @@ abstract class GoboDataLoader<K, V> : KotlinDataLoader<K, V> {
         DataLoaderFactory.newMappedDataLoader(
             { keys: Set<K>, env: BatchLoaderEnvironment ->
                 @OptIn(DelicateCoroutinesApi::class)
-                GlobalScope.future (Dispatchers.IO + MDCContext() + TracingContextElement()) {
+                GlobalScope.future(Dispatchers.Unconfined + MDCContext() + TracingContextElement()) {
                     getByKeys(keys, env.graphqlContext)
                 }.orTimeout(3, TimeUnit.MINUTES)
             },
