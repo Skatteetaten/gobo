@@ -710,7 +710,8 @@ data class CnameInfoBuilder(val namespace: String = "aurora-demo") {
 
 data class CnameAzureBuilder(val namespace: String = "aurora-demo") {
     fun build() = CnameAzure(
-        canonicalName = "demo.localhost.no",
+        name = "demo.localhost.no",
+        canonicalName = "localhost.no",
         ttlInSeconds = 3098,
         namespace = namespace,
         clusterId = "utv",

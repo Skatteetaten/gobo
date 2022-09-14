@@ -6,6 +6,7 @@
       name
         cname {
           azure {
+            name
             canonicalName
             clusterId
             ttlInSeconds
