@@ -2,9 +2,11 @@ package no.skatteetaten.aurora.gobo.graphql
 
 import com.github.benmanes.caffeine.cache.Caffeine
 import com.github.benmanes.caffeine.cache.Scheduler
+import com.sun.management.UnixOperatingSystemMXBean
 import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
+import java.lang.management.ManagementFactory
 import java.time.Duration
 import java.time.LocalDateTime
 
@@ -37,11 +39,19 @@ class QueryReporter(
         .evictionListener { id: String?, query: QueryOperation?, _ ->
             if (id != null && query != null) {
                 logger.warn {
-                    """Unfinished query, Query-Korrelasjonsid=${query.korrelasjonsid} Query-TraceId="${query.traceid}" Query-Klientid="${query.klientid}" started="${query.started}" name=${query.name} query="${query.query}" """
+                    """Unfinished query, Query-Korrelasjonsid=${query.korrelasjonsid} Query-TraceId="${query.traceid}" Query-Klientid="${query.klientid}"
+                        | started="${query.started}" name=${query.name} query="${query.query}" openFileDescriptors=${numberOfOpenFileDescriptors()} """.trimMargin()
                 }
                 unfinishedQueries.put(id, query)
             }
         }.build<String, QueryOperation>()
+
+    fun numberOfOpenFileDescriptors(): Long? = ManagementFactory.getOperatingSystemMXBean().let {
+        return when (it) {
+            is UnixOperatingSystemMXBean -> it.openFileDescriptorCount
+            else -> null
+        }
+    }
 
     fun add(id: String, traceId: String?, korrelasjonsid: String, klientid: String?, name: String, query: String) {
         queries.put(
