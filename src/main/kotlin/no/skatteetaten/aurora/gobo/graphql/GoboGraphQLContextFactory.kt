@@ -37,7 +37,8 @@ class GoboGraphQLContextFactory : SpringGraphQLContextFactory<SpringGraphQLConte
 
         return ContextMap().apply {
             id = UUID.randomUUID().toString()
-            token = (serverRequest.headers().firstHeader(HttpHeaders.AUTHORIZATION)?.removePrefix("Bearer ") ?: "")
+            token =
+                (serverRequest.headers().firstHeader(HttpHeaders.AUTHORIZATION)?.removePrefix("Bearer ") ?: "")
             securityContext = getSecurityContext()
             request = serverRequest
             startTime = System.currentTimeMillis()
