@@ -63,7 +63,7 @@ class GoboLoadtestSimulation : Simulation() {
     val addToxics = scenario("addToxics").exec(
         addMokeyLatencyToxic,
         addMokeyTimoutToxic,
-        addMokeyDelayToxic
+        // addMokeyDelayToxic
     )
 
     val databaseSchemaScenario = scenario("Affiliations").exec(
