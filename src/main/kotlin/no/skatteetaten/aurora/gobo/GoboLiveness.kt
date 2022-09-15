@@ -45,7 +45,7 @@ data class NumberOfOpenFileDescriptors(val success: Boolean, val openFileDescrip
 class GoboLiveness(
     private val queryReporter: QueryReporter,
     @Value("\${gobo.liveness.maxUnfinishedQueries:4}") private val maxUnfinishedQueries: Int,
-    @Value("\${gobo.liveness.maxOpenFileDescriptors:310}") private val maxOpenFileDescriptors: Long,
+    @Value("\${gobo.liveness.maxOpenFileDescriptors:350}") private val maxOpenFileDescriptors: Long,
 ) {
 
     fun unfinishedQueries() =
@@ -61,19 +61,19 @@ class GoboLiveness(
             }
 
     fun openFileDescriptors() =
-        numberOfOpenFileDescriptors()?.let {
+        numberOfOpenFileDescriptors().let {
             if (it > maxOpenFileDescriptors) {
                 logger.warn { "Liveness check failed with $it number of open file descriptors, maxOpenFileDescriptors=$maxOpenFileDescriptors" }
                 NumberOfOpenFileDescriptors.failed(it)
             } else {
                 NumberOfOpenFileDescriptors.success(it)
             }
-        } ?: NumberOfOpenFileDescriptors.success(0)
+        }
 
-    private fun numberOfOpenFileDescriptors(): Long? = ManagementFactory.getOperatingSystemMXBean().let {
+    private fun numberOfOpenFileDescriptors(): Long = ManagementFactory.getOperatingSystemMXBean().let {
         return when (it) {
             is UnixOperatingSystemMXBean -> it.openFileDescriptorCount
-            else -> null
+            else -> 0
         }
     }
 }
