@@ -1,6 +1,6 @@
 plugins {
     kotlin("jvm") version "1.7.10"
-    id("no.skatteetaten.gradle.aurora") version "4.5.4"
+    id("no.skatteetaten.gradle.aurora") version "4.5.6"
     id("io.gatling.gradle") version "3.8.3.2"
     id("org.asciidoctor.jvm.convert") version "3.3.2"
 }
@@ -13,10 +13,6 @@ aurora {
         useWebFlux
         useCloudContract
     }
-
-    versions {
-        springCloudContract = "3.1.3"
-    }
 }
 
 dependencies {
@@ -27,7 +23,7 @@ dependencies {
     implementation("org.apache.commons:commons-text:1.9")
     implementation("org.springframework.boot:spring-boot-starter-security")
 
-    implementation("com.expediagroup:graphql-kotlin-spring-server:6.2.2")
+    implementation("com.expediagroup:graphql-kotlin-spring-server:6.2.3")
     // bump transitive dependency because of high security risk in version 61.1
     implementation("com.ibm.icu:icu4j:71.1")
 
@@ -50,7 +46,7 @@ dependencies {
     testImplementation("com.h2database:h2")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
-    testImplementation("io.mockk:mockk:1.12.7")
+    testImplementation("io.mockk:mockk:1.12.8")
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.25")
     testImplementation("io.projectreactor:reactor-test")
     testImplementation("no.skatteetaten.aurora:mockwebserver-extensions-kotlin:1.3.1") {

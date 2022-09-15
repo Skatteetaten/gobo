@@ -1,5 +1,6 @@
 package no.skatteetaten.aurora.gobo
 
+import com.sun.management.UnixOperatingSystemMXBean
 import io.micrometer.core.instrument.Tag
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.graphql.GoboMetrics
@@ -10,6 +11,7 @@ import org.springframework.boot.actuate.endpoint.web.annotation.RestControllerEn
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
 import org.springframework.web.bind.annotation.GetMapping
+import java.lang.management.ManagementFactory
 
 private val logger = KotlinLogging.logger {}
 
@@ -29,10 +31,21 @@ data class UnfinishedQueries(val success: Boolean, val queries: List<QueryOperat
     }
 }
 
+data class NumberOfOpenFileDescriptors(val success: Boolean, val openFileDescriptors: Long) {
+    companion object Factory {
+        fun failed(openFileDescriptors: Long) =
+            NumberOfOpenFileDescriptors(false, openFileDescriptors)
+
+        fun success(openFileDescriptors: Long) =
+            NumberOfOpenFileDescriptors(true, openFileDescriptors)
+    }
+}
+
 @Component
 class GoboLiveness(
     private val queryReporter: QueryReporter,
     @Value("\${gobo.liveness.maxUnfinishedQueries:4}") private val maxUnfinishedQueries: Int,
+    @Value("\${gobo.liveness.maxOpenFileDescriptors:310}") private val maxOpenFileDescriptors: Long,
 ) {
 
     fun unfinishedQueries() =
@@ -40,12 +53,29 @@ class GoboLiveness(
             .unfinishedQueries()
             .let {
                 if (it.size > maxUnfinishedQueries) {
-                    logger.warn { "Liveness check failed with ${it.size} number of unfinished queries" }
+                    logger.warn { "Liveness check failed with ${it.size} number of unfinished queries, maxUnfinishedQueries=$maxUnfinishedQueries" }
                     UnfinishedQueries.failed(it)
                 } else {
                     UnfinishedQueries.success(it)
                 }
             }
+
+    fun openFileDescriptors() =
+        numberOfOpenFileDescriptors()?.let {
+            if (it > maxOpenFileDescriptors) {
+                logger.warn { "Liveness check failed with $it number of open file descriptors, maxOpenFileDescriptors=$maxOpenFileDescriptors" }
+                NumberOfOpenFileDescriptors.failed(it)
+            } else {
+                NumberOfOpenFileDescriptors.success(it)
+            }
+        } ?: NumberOfOpenFileDescriptors.success(0)
+
+    private fun numberOfOpenFileDescriptors(): Long? = ManagementFactory.getOperatingSystemMXBean().let {
+        return when (it) {
+            is UnixOperatingSystemMXBean -> it.openFileDescriptorCount
+            else -> null
+        }
+    }
 }
 
 @Component
@@ -53,16 +83,21 @@ class GoboLiveness(
 class GoboLivenessController(private val goboLiveness: GoboLiveness, private val goboMetrics: GoboMetrics) {
 
     @GetMapping
-    fun liveness(): ResponseEntity<Map<String, List<*>>> {
+    fun liveness(): ResponseEntity<Map<String, Any>> {
         logger.debug("Liveness check called")
         val connectionPools = goboMetrics.getConnectionPools()
         val unfinishedQueries = goboLiveness.unfinishedQueries()
+        val numberOfOpenFileDescriptors = goboLiveness.openFileDescriptors()
 
         val response =
-            mapOf("connectionPools" to connectionPools, "unfinishedQueries" to unfinishedQueries.queries)
+            mapOf(
+                "connectionPools" to connectionPools,
+                "unfinishedQueries" to unfinishedQueries.queries,
+                "openFileDescriptors" to numberOfOpenFileDescriptors.openFileDescriptors
+            )
 
         // Any code greater than or equal to 200 and less than 400 indicates success. Any other code indicates failure.
-        return if (unfinishedQueries.success) {
+        return if (unfinishedQueries.success && numberOfOpenFileDescriptors.success) {
             ResponseEntity.ok(response)
         } else {
             ResponseEntity.internalServerError().body(response)
