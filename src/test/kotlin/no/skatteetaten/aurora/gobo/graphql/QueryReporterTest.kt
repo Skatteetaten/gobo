@@ -3,12 +3,8 @@ package no.skatteetaten.aurora.gobo.graphql
 import assertk.assertThat
 import assertk.assertions.hasSize
 import assertk.assertions.isEmpty
-import assertk.assertions.isGreaterThan
-import assertk.assertions.isNotNull
 import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.condition.EnabledOnOs
-import org.junit.jupiter.api.condition.OS
 import java.time.Duration
 
 class QueryReporterTest {
@@ -29,13 +25,6 @@ class QueryReporterTest {
     fun `Trying to remove id not in cache`() {
         reporter.remove("123")
         assertThat(reporter.queries()).isEmpty()
-    }
-
-    @Test
-    @EnabledOnOs(OS.MAC, OS.LINUX)
-    fun `Get number of open file descriptors`() {
-        val fileDesc = reporter.numberOfOpenFileDescriptors()
-        assertThat(fileDesc).isNotNull().isGreaterThan(0)
     }
 
     private fun QueryReporter.awaitUnfinishedQueries() = await()
