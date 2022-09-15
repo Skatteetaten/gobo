@@ -2,9 +2,8 @@ package no.skatteetaten.aurora.gobo.graphql
 
 import com.expediagroup.graphql.dataloader.KotlinDataLoader
 import graphql.GraphQLContext
-import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.future.future
 import kotlinx.coroutines.slf4j.MDCContext
 import org.dataloader.BatchLoaderEnvironment
@@ -23,10 +22,10 @@ abstract class GoboDataLoader<K, V> : KotlinDataLoader<K, V> {
     override fun getDataLoader(): DataLoader<K, V> =
         DataLoaderFactory.newMappedDataLoader(
             { keys: Set<K>, env: BatchLoaderEnvironment ->
-                @OptIn(DelicateCoroutinesApi::class)
-                GlobalScope.future(Dispatchers.Unconfined + MDCContext() + TracingContextElement()) {
-                    getByKeys(keys, env.graphqlContext)
-                }.orTimeout(3, TimeUnit.MINUTES)
+                CoroutineScope(Dispatchers.Unconfined + MDCContext() + TracingContextElement())
+                    .future {
+                        getByKeys(keys, env.graphqlContext)
+                    }.orTimeout(3, TimeUnit.MINUTES)
             },
             DataLoaderOptions.newOptions().setCachingEnabled(false)
         )
