@@ -52,6 +52,10 @@ aurora.token.value: token
 management:
     server:
         port: 8081
+    endpoints:
+        web:
+            exposure:
+                include: info,health,prometheus,env,loggers,metrics,liveness
 
 openshift:
     cluster: local

@@ -4,18 +4,23 @@ import assertk.assertThat
 import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
+import assertk.assertions.isGreaterThan
+import assertk.assertions.isNotNull
 import assertk.assertions.isTrue
 import no.skatteetaten.aurora.gobo.graphql.QueryReporter
 import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.condition.EnabledOnOs
+import org.junit.jupiter.api.condition.OS
 import java.time.Duration
 
 class GoboLivenessTest {
     private val queryReporter = QueryReporter(reportAfterMinutes = 0, unfinishedQueriesExpireMinutes = 1)
     private val liveness = GoboLiveness(
         queryReporter = queryReporter,
-        maxUnfinishedQueries = 2
+        maxUnfinishedQueries = 2,
+        maxOpenFileDescriptors = 1
     )
 
     @BeforeEach
@@ -42,6 +47,14 @@ class GoboLivenessTest {
         val unfinished = liveness.awaitUnfinishedQueries()
         assertThat(unfinished.success).isFalse()
         assertThat(unfinished.queries).hasSize(3)
+    }
+
+    @Test
+    @EnabledOnOs(OS.MAC, OS.LINUX)
+    fun `Get number of open file descriptors`() {
+        val fileDesc = liveness.openFileDescriptors()
+        assertThat(fileDesc.openFileDescriptors).isNotNull().isGreaterThan(0)
+        assertThat(fileDesc.success).isFalse()
     }
 
     private fun GoboLiveness.awaitUnfinishedQueries() = await()
