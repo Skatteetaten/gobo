@@ -4,12 +4,11 @@ import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
 import com.fasterxml.jackson.databind.JsonNode
 import com.jayway.jsonpath.JsonPath
 import graphql.schema.DataFetchingEnvironment
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withTimeout
 import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.ApplicationDeploymentRef
 import no.skatteetaten.aurora.gobo.graphql.loadValue
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileType
 import no.skatteetaten.aurora.gobo.security.checkValidUserToken
+import no.skatteetaten.aurora.gobo.security.runBlockingWithTimeout
 import java.util.concurrent.CompletableFuture
 
 data class AuroraConfig(
@@ -36,7 +35,7 @@ data class AuroraConfig(
         applicationDeploymentRefs: List<ApplicationDeploymentRef>,
         dfe: DataFetchingEnvironment
     ): CompletableFuture<List<ApplicationDeploymentSpec>> {
-        runBlocking { withTimeout(5000) { dfe.checkValidUserToken() } } // TODO bør fikses med @PreAuthorize?
+        runBlockingWithTimeout { dfe.checkValidUserToken() } // TODO bør fikses med @PreAuthorize?
         return dfe.loadValue(
             AdSpecKey(
                 name,
@@ -51,7 +50,7 @@ data class AuroraConfig(
         types: List<AuroraConfigFileType>? = null,
         dfe: DataFetchingEnvironment
     ): CompletableFuture<List<ApplicationFilesResource>> {
-        runBlocking { withTimeout(5000) { dfe.checkValidUserToken() } } // TODO bør fikses med @PreAuthorize?
+        runBlockingWithTimeout { dfe.checkValidUserToken() } // TODO bør fikses med @PreAuthorize?
         return dfe.loadValue(
             ApplicationFilesKey(
                 name,

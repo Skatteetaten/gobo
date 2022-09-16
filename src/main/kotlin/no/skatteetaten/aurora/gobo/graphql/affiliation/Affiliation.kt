@@ -3,8 +3,6 @@ package no.skatteetaten.aurora.gobo.graphql.affiliation
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withTimeout
 import no.skatteetaten.aurora.gobo.graphql.GoboEdge
 import no.skatteetaten.aurora.gobo.graphql.application.Application
 import no.skatteetaten.aurora.gobo.graphql.auroraconfig.AuroraConfig
@@ -18,12 +16,13 @@ import no.skatteetaten.aurora.gobo.graphql.vault.VaultDataLoader
 import no.skatteetaten.aurora.gobo.graphql.vault.VaultKey
 import no.skatteetaten.aurora.gobo.graphql.webseal.WebsealState
 import no.skatteetaten.aurora.gobo.security.checkValidUserToken
+import no.skatteetaten.aurora.gobo.security.runBlockingWithTimeout
 import java.util.concurrent.CompletableFuture
 
 data class Affiliation(val name: String) {
 
     fun auroraConfig(refInput: String? = null, dfe: DataFetchingEnvironment): CompletableFuture<AuroraConfig> {
-        runBlocking { withTimeout(5000) { dfe.checkValidUserToken() } } // TODO @PreAuthorize?
+        runBlockingWithTimeout { dfe.checkValidUserToken() } // TODO @PreAuthorize?
         return dfe.loadValue(AuroraConfigKey(name = name, refInput = refInput ?: "master"))
     }
 
@@ -35,8 +34,7 @@ data class Affiliation(val name: String) {
     fun databaseSchemas(dfe: DataFetchingEnvironment) = dfe.loadValue<String, List<DatabaseSchema>>(name)
 
     fun storageGrid(dfe: DataFetchingEnvironment): StorageGrid {
-        runBlocking { withTimeout(5000) { dfe.checkValidUserToken() } }
-
+        runBlockingWithTimeout { dfe.checkValidUserToken() }
         return StorageGrid(name)
     }
 
@@ -46,7 +44,7 @@ data class Affiliation(val name: String) {
         names: List<String>? = null,
         dfe: DataFetchingEnvironment
     ): CompletableFuture<DataFetcherResult<List<Vault>>> {
-        runBlocking { withTimeout(5000) { dfe.checkValidUserToken() } } // TODO @PreAuthorize?
+        runBlockingWithTimeout { dfe.checkValidUserToken() } // TODO @PreAuthorize?
         return dfe.loadValue(
             key = VaultKey(affiliationName = name, vaultNames = names),
             loaderClass = VaultDataLoader::class

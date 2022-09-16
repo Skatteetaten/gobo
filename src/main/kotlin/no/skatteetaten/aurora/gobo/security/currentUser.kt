@@ -2,6 +2,9 @@ package no.skatteetaten.aurora.gobo.security
 
 import graphql.schema.DataFetchingEnvironment
 import io.fabric8.kubernetes.api.model.authentication.TokenReview
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.graphql.awaitSecurityContext
 import no.skatteetaten.aurora.gobo.graphql.token
@@ -15,6 +18,10 @@ const val UNKNOWN_USER_NAME = "Navn ukjent"
 const val GUEST_USER_ID = "anonymous"
 const val GUEST_USER_NAME = "Gjestebruker"
 val ANONYMOUS_USER = User(GUEST_USER_ID, GUEST_USER_NAME)
+
+fun <T> runBlockingWithTimeout(block: suspend CoroutineScope.() -> T): T {
+    return runBlocking { withTimeout(5000) { block() } }
+}
 
 suspend fun DataFetchingEnvironment.checkValidUserToken() {
     getValidUser()
