@@ -10,7 +10,7 @@
         "toxics": {
           "name": "latency_toxic",
           "type": "latency",
-          "stream": "upstream",
+          "stream": "downstream",
           "toxicity": 0.98,
           "attributes": [
             {
