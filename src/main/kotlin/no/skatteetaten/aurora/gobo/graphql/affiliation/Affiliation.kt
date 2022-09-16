@@ -1,10 +1,8 @@
 package no.skatteetaten.aurora.gobo.graphql.affiliation
 
-import java.util.concurrent.CompletableFuture
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import no.skatteetaten.aurora.gobo.graphql.GoboEdge
@@ -20,6 +18,7 @@ import no.skatteetaten.aurora.gobo.graphql.vault.VaultDataLoader
 import no.skatteetaten.aurora.gobo.graphql.vault.VaultKey
 import no.skatteetaten.aurora.gobo.graphql.webseal.WebsealState
 import no.skatteetaten.aurora.gobo.security.checkValidUserToken
+import java.util.concurrent.CompletableFuture
 
 data class Affiliation(val name: String) {
 
@@ -47,7 +46,7 @@ data class Affiliation(val name: String) {
         names: List<String>? = null,
         dfe: DataFetchingEnvironment
     ): CompletableFuture<DataFetcherResult<List<Vault>>> {
-        runBlocking(Dispatchers.Default) { withTimeout(5000) { dfe.checkValidUserToken() } } // TODO @PreAuthorize?
+        runBlocking { withTimeout(5000) { dfe.checkValidUserToken() } } // TODO @PreAuthorize?
         return dfe.loadValue(
             key = VaultKey(affiliationName = name, vaultNames = names),
             loaderClass = VaultDataLoader::class
