@@ -6,7 +6,6 @@ import graphql.GraphQLContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.reactor.ReactorContext
-import kotlinx.coroutines.slf4j.MDCContext
 import mu.KotlinLogging
 import org.springframework.http.HttpHeaders
 import org.springframework.security.access.AccessDeniedException
@@ -42,7 +41,7 @@ class GoboGraphQLContextFactory : SpringGraphQLContextFactory<SpringGraphQLConte
             securityContext = getSecurityContext()
             request = serverRequest
             startTime = System.currentTimeMillis()
-            coroutineScope = CoroutineScope(Dispatchers.Unconfined + MDCContext() + TracingContextElement())
+            coroutineScope = CoroutineScope(Dispatchers.Unconfined)
         }.toMap
     }
 
