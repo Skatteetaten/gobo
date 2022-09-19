@@ -1,0 +1,13 @@
+{
+  "request": {
+    "method": "GET",
+    "url": "/v1/vault/aup"
+  },
+  "response": {
+    "status": 200,
+    "body": "{   \"success\": true,    \"message\": \"OK\",  \"items\": [  {      \"name\": \"myComponent\",      \"hasAccess\": true,      \"secrets\": {        \"latest.properties\": \"Ugurre\"      },      \"permissions\": [        \"APP_AFF_gurre\"      ]    }  ],  \"count\": 1}\n",
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}
