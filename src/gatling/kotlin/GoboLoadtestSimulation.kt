@@ -73,6 +73,13 @@ class GoboLoadtestSimulation : Simulation() {
             .check(jsonPath("$.errors").notExists())
     )
 
+    val booberVaultScenario = scenario("Vault").exec(
+        http("booberVaultRequest")
+            .post(goboMockedUrl)
+            .body(ElFileBody("boober_vaults.json"))
+            .check(jsonPath("$.errors").notExists())
+    )
+
     val httpProtocol =
         http.baseUrl(goboUrl)
             .contentTypeHeader("application/json")
@@ -83,6 +90,7 @@ class GoboLoadtestSimulation : Simulation() {
             listOf(
                 deleteToxics.injectOpen(rampUsers(1).during(10)),
                 addToxics.injectOpen(nothingFor(Duration.ofSeconds(10)), rampUsers(1).during(10)),
+                booberVaultScenario.injectOpen(nothingFor(Duration.ofSeconds(20)), rampUsersPerSec(1.0).to(6.0).during(Duration.ofMinutes(15))),
                 databaseSchemaScenario.injectOpen(nothingFor(Duration.ofSeconds(20)), rampUsersPerSec(1.0).to(6.0).during(Duration.ofMinutes(15)))
             ),
         ).protocols(httpProtocol)
