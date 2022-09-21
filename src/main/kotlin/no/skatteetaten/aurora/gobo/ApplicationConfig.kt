@@ -100,6 +100,7 @@ class ApplicationConfig(
     @PostConstruct
     fun initCoroutinesDebug() {
         if (coroutinesDebug) {
+            logger.info("Enabled coroutines debug")
             @OptIn(ExperimentalCoroutinesApi::class)
             DebugProbes.install()
         }
