@@ -10,7 +10,7 @@
         "toxics": {
           "name": "delay_toxic",
           "type": "slow_close",
-          "stream": "upstream",
+          "stream": "downstream",
           "toxicity": 0.9,
           "attributes": [
             {
