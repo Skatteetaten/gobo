@@ -21,7 +21,7 @@ abstract class GoboDataLoader<K, V> : KotlinDataLoader<K, V> {
     override fun getDataLoader(): DataLoader<K, V> =
         DataLoaderFactory.newMappedDataLoader(
             { keys: Set<K>, env: BatchLoaderEnvironment ->
-                    env.graphqlContext.coroutineScope.plus(MDCContext() + TracingContextElement())
+                env.graphqlContext.coroutineScope.plus(MDCContext() + TracingContextElement())
                     .future { getByKeys(keys, env.graphqlContext) }
                     .orTimeout(3, TimeUnit.MINUTES)
             },

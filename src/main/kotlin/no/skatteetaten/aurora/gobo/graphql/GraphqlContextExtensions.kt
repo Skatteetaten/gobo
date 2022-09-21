@@ -4,12 +4,16 @@ import brave.baggage.BaggageField
 import graphql.GraphQLContext
 import graphql.schema.DataFetchingEnvironment
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.debug.CoroutineInfo
+import kotlinx.coroutines.debug.DebugProbes
 import kotlinx.coroutines.reactive.awaitFirst
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.graphql.errorhandling.isInvalidToken
 import no.skatteetaten.aurora.gobo.graphql.errorhandling.isNoSuchElementException
 import no.skatteetaten.aurora.gobo.removeNewLines
 import no.skatteetaten.aurora.webflux.AuroraRequestParser
+import org.springframework.boot.actuate.management.ThreadDumpEndpoint
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.security.core.context.SecurityContext
 import org.springframework.web.reactive.function.server.ServerRequest
@@ -24,16 +28,45 @@ val GraphQLContext.token: String
 
 val GraphQLContext.securityContext: Mono<SecurityContext>
     get() = get("securityContext")
-suspend fun GraphQLContext.awaitSecurityContext(): SecurityContext = runCatching { securityContext.awaitFirst() }
-    .recoverCatching {
-        when {
-            it.isNoSuchElementException() -> logger.info { "Unable to get the security context, ${it.message}" }
-            !it.isInvalidToken() -> logger.info(it) { "Unable to get the security context" }
+
+@OptIn(ExperimentalCoroutinesApi::class)
+suspend fun GraphQLContext.awaitSecurityContext(): SecurityContext {
+    val coroutinesInfo = getActiveCoroutines()
+    return runCatching { securityContext.awaitFirst() }
+        .recoverCatching { throwable ->
+            printCoroutines(coroutinesInfo)
+
+            when {
+                throwable.isNoSuchElementException() -> logger.info { "Unable to get the security context, ${throwable.message}" }
+                !throwable.isInvalidToken() -> logger.info(throwable) { "Unable to get the security context" }
+            }
+
+            throw AccessDeniedException("Invalid bearer token", throwable)
+        }.getOrThrow()
+}
+
+@OptIn(ExperimentalCoroutinesApi::class)
+private fun getActiveCoroutines() = if (DebugProbes.isInstalled) {
+    DebugProbes.dumpCoroutinesInfo()
+} else {
+    null
+}
+
+@OptIn(ExperimentalCoroutinesApi::class)
+private fun printCoroutines(coroutinesInfo: List<CoroutineInfo>?) {
+    if (DebugProbes.isInstalled) {
+        coroutinesInfo?.let { coroutines ->
+            println("Before await coroutines:\n###############")
+            coroutines.forEach { coroutine -> coroutine.job?.let { DebugProbes.printJob(it) } }
         }
 
-        throw AccessDeniedException("Invalid bearer token", it)
+        println("\n\nAfter await timed out coroutines:\n###############")
+        DebugProbes.dumpCoroutines()
+
+        println("\n\nThread dump:\n###############")
+        println(ThreadDumpEndpoint().textThreadDump())
     }
-    .getOrThrow()
+}
 
 val GraphQLContext.request: ServerRequest
     get() = get("request")
@@ -51,6 +84,7 @@ val GraphQLContext.id: String
 fun GraphQLContext.addStartTime() {
     put("startTime", System.currentTimeMillis())
 }
+
 val GraphQLContext.startTime: Long
     get() = get("startTime")
 
@@ -65,12 +99,14 @@ val GraphQLContext.operationName: String
     get() = operationNameOrNull ?: query.removePrefix("{").substringBefore("{").removeNewLines()
 val GraphQLContext.operationNameOrNull: String?
     get() = getOrDefault<String?>("operationName", null)
+
 fun GraphQLContext.putOperationName(operationName: String?) {
     operationName?.let { put("operationName", it) }
 }
 
 val GraphQLContext.operationType: String?
     get() = getOrDefault<String?>("operationType", null)
+
 fun GraphQLContext.putOperationType(operationType: String?) {
     operationType?.let { put("operationType", it.lowercase()) }
 }
@@ -79,6 +115,7 @@ val DataFetchingEnvironment.query: String
     get() = graphQlContext.query
 val GraphQLContext.query: String
     get() = getOrDefault("query", "")
+
 fun GraphQLContext.putQuery(query: String) {
     put("query", query.removeNewLines())
 }

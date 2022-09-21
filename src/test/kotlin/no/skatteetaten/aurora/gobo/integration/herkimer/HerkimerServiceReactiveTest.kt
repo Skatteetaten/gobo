@@ -32,7 +32,7 @@ class HerkimerServiceReactiveTest {
     private val sharedSecretReader = mockk<SharedSecretReader> {
         every { secret } returns "abc"
     }
-    private val webClient = ApplicationConfig(500, 500, 300000, 64, "", sharedSecretReader)
+    private val webClient = ApplicationConfig(500, 500, 300000, 64, false, sharedSecretReader)
         .webClientHerkimer(server.url("/").toString(), WebClient.builder())
     private val herkimerService = HerkimerServiceReactive(webClient, jacksonObjectMapper())
 
