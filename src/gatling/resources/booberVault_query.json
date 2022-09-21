@@ -1,0 +1,5 @@
+{
+  "operationName": "getVaultsAndSecrets",
+  "variables": {},
+  "query": "query getVaultsAndSecrets {\n  affiliations(names: [\"aup\"]) {\n    edges {\n      node {\n        name\n        vaults {\n          hasAccess\n          name\n          permissions\n          secrets{\n            name\n            base64Content\n          }\n        }\n      }\n    }\n  }\n}\n"
+}

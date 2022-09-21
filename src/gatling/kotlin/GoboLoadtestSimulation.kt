@@ -76,7 +76,7 @@ class GoboLoadtestSimulation : Simulation() {
     val booberVaultScenario = scenario("Vault").exec(
         http("booberVaultRequest")
             .post(goboMockedUrl)
-            .body(ElFileBody("boober_vaults.json"))
+            .body(ElFileBody("booberVault_query.json"))
             .check(jsonPath("$.errors").notExists())
     )
 
