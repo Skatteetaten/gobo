@@ -82,7 +82,7 @@ class GoboLoadtestSimulation : Simulation() {
 
     val httpProtocol =
         http.baseUrl(goboUrl)
-            .contentTypeHeader("application/json")
+            .contentTypeHeader(     "application/json")
             .authorizationHeader("Bearer $token")
 
     init {
@@ -90,9 +90,8 @@ class GoboLoadtestSimulation : Simulation() {
             listOf(
                 deleteToxics.injectOpen(rampUsers(1).during(10)),
                 addToxics.injectOpen(nothingFor(Duration.ofSeconds(10)), rampUsers(1).during(10)),
-                //booberVaultScenario.injectOpen(nothingFor(Duration.ofSeconds(20)), rampUsersPerSec(1.0).to(6.0).during(Duration.ofMinutes(15)))
-                booberVaultScenario.injectOpen(nothingFor(Duration.ofSeconds(20)), rampUsers(1).during(Duration.ofSeconds(10)))
-                //  databaseSchemaScenario.injectOpen(nothingFor(Duration.ofSeconds(20)), rampUsersPerSec(1.0).to(6.0).during(Duration.ofMinutes(15)))
+//                booberVaultScenario.injectOpen(nothingFor(Duration.ofSeconds(20)), rampUsers(1).during(Duration.ofSeconds(10)))
+                 databaseSchemaScenario.injectOpen(nothingFor(Duration.ofSeconds(20)), rampUsersPerSec(1.0).to(6.0).during(Duration.ofMinutes(15)))
             ),
         ).protocols(httpProtocol)
     }
