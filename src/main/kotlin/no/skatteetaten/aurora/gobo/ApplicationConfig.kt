@@ -1,11 +1,9 @@
 package no.skatteetaten.aurora.gobo
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import io.netty.channel.ChannelOption
 import io.netty.channel.epoll.EpollChannelOption
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory
 import mu.KotlinLogging
-import no.skatteetaten.aurora.gobo.graphql.GoboSpringKotlinDataFetcherFactoryProvider
 import no.skatteetaten.aurora.gobo.infrastructure.ConditionalOnDatabaseUrl
 import no.skatteetaten.aurora.gobo.infrastructure.ConditionalOnMissingDatabaseUrl
 import no.skatteetaten.aurora.gobo.integration.skap.HEADER_AURORA_TOKEN
@@ -21,10 +19,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
-import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.context.annotation.Primary
 import org.springframework.core.Ordered
 import org.springframework.core.annotation.Order
 import org.springframework.http.HttpHeaders
@@ -92,7 +88,8 @@ private val logger = KotlinLogging.logger {}
 class ApplicationConfig(
     @Value("\${gobo.webclient.connection-timeout:15000}") val connectionTimeout: Int,
     @Value("\${gobo.webclient.response-timeout:60000}") val responseTimeout: Long,
-    @Value("\${gobo.webclient.maxLifeTime:300000}") val maxLifeTime: Long,
+    @Value("\${gobo.webclient.maxLifeTime:150000}") val maxLifeTime: Long,
+    @Value("\${gobo.webclient.maxConnections:64}") val maxConnections: Int,
     @Value("\${spring.application.name}") val applicationName: String,
     private val sharedSecretReader: SharedSecretReader
 ) {
@@ -238,7 +235,8 @@ class ApplicationConfig(
             ConnectionProvider
                 .builder("gobo-connection-provider")
                 .metrics(true)
-                .maxConnections(32)
+                .maxConnections(maxConnections)
+                .pendingAcquireMaxCount(maxConnections * 2)
                 .maxLifeTime(Duration.ofMillis(maxLifeTime))
                 .maxIdleTime(Duration.ofMillis(maxLifeTime / 2))
                 .evictInBackground(Duration.ofMillis(maxLifeTime * 2))
@@ -249,9 +247,9 @@ class ApplicationConfig(
             // https://projectreactor.io/docs/netty/release/reference/index.html#connection-timeout
             .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectionTimeout)
             .option(ChannelOption.SO_KEEPALIVE, true)
-            .option(EpollChannelOption.TCP_KEEPIDLE, 300)
-            .option(EpollChannelOption.TCP_KEEPINTVL, 30)
-            .option(EpollChannelOption.TCP_KEEPCNT, 5)
+            .option(EpollChannelOption.TCP_KEEPIDLE, 150)
+            .option(EpollChannelOption.TCP_KEEPINTVL, 15)
+            .option(EpollChannelOption.TCP_KEEPCNT, 3)
             .responseTimeout(Duration.ofMillis(responseTimeout))
 
         if (ssl) {
@@ -264,11 +262,6 @@ class ApplicationConfig(
 
         return ReactorClientHttpConnector(httpClient)
     }
-
-    @Bean
-    @Primary
-    fun simpleKotlinDataFetcherFactoryProvider(objectMapper: ObjectMapper, applicationContext: ApplicationContext) =
-        GoboSpringKotlinDataFetcherFactoryProvider(objectMapper, applicationContext)
 }
 
 @Configuration

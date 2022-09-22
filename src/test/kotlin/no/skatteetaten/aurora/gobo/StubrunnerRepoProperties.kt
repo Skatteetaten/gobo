@@ -49,7 +49,11 @@ abstract class StrubrunnerRepoPropertiesEnabler {
 
 private val logger = KotlinLogging.logger {}
 
-class StubrunnerRepoProperties(private val registry: DynamicPropertyRegistry) {
+class SystemEnv {
+    fun get(name: String): String? = System.getenv(name)
+}
+
+class StubrunnerRepoProperties(private val registry: DynamicPropertyRegistry, private val env: SystemEnv = SystemEnv()) {
 
     fun populate(
         jenkinsNexusJson: String = "/var/lib/jenkins/.custom/nexus/nexus.json",
@@ -94,7 +98,7 @@ class StubrunnerRepoProperties(private val registry: DynamicPropertyRegistry) {
     private fun String.removeAfterNewLine() = split("\n").first().trim().removeSurrounding("\"")
 
     private fun isJenkins() =
-        !System.getenv("CI").isNullOrEmpty() || !System.getenv("JENKINS_HOME").isNullOrEmpty()
+        !env.get("CI").isNullOrEmpty() || !env.get("JENKINS_HOME").isNullOrEmpty()
 
     private fun Document.xpath(path: String) = XPathFactory.newInstance().newXPath().evaluate(path, this)
 }

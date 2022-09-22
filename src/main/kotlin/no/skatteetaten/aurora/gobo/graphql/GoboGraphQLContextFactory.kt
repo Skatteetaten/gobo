@@ -3,6 +3,8 @@ package no.skatteetaten.aurora.gobo.graphql
 import com.expediagroup.graphql.server.spring.execution.SpringGraphQLContext
 import com.expediagroup.graphql.server.spring.execution.SpringGraphQLContextFactory
 import graphql.GraphQLContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.reactor.ReactorContext
 import mu.KotlinLogging
 import org.springframework.http.HttpHeaders
@@ -21,6 +23,7 @@ private class ContextMap(val toMap: MutableMap<String, Any> = mutableMapOf()) {
     var securityContext: Mono<SecurityContext> by toMap
     var request: ServerRequest by toMap
     var startTime: Long by toMap
+    var coroutineScope: CoroutineScope by toMap
 }
 
 private val logger = KotlinLogging.logger {}
@@ -33,10 +36,12 @@ class GoboGraphQLContextFactory : SpringGraphQLContextFactory<SpringGraphQLConte
 
         return ContextMap().apply {
             id = UUID.randomUUID().toString()
-            token = (serverRequest.headers().firstHeader(HttpHeaders.AUTHORIZATION)?.removePrefix("Bearer ") ?: "")
+            token =
+                (serverRequest.headers().firstHeader(HttpHeaders.AUTHORIZATION)?.removePrefix("Bearer ") ?: "")
             securityContext = getSecurityContext()
             request = serverRequest
             startTime = System.currentTimeMillis()
+            coroutineScope = CoroutineScope(Dispatchers.Unconfined)
         }.toMap
     }
 

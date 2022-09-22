@@ -14,15 +14,15 @@ import java.util.concurrent.CompletableFuture
 
 @Component
 class MDCQuery : Query {
-    fun mdc(dfe: DataFetchingEnvironment): CompletableFuture<String> {
+    fun mdc(dfe: DataFetchingEnvironment): CompletableFuture<String?> {
         MDC.put(KORRELASJONSID_FIELD, "123")
         return dfe.loadValue(key = KORRELASJONSID_FIELD, loaderClass = MDCDataLoader::class)
     }
 }
 
 @Component
-class MDCDataLoader : GoboDataLoader<String, String>() {
-    override suspend fun getByKeys(keys: Set<String>, ctx: GraphQLContext): Map<String, String> {
+class MDCDataLoader : GoboDataLoader<String, String?>() {
+    override suspend fun getByKeys(keys: Set<String>, ctx: GraphQLContext): Map<String, String?> {
         return mapOf(KORRELASJONSID_FIELD to MDC.get(KORRELASJONSID_FIELD))
     }
 }

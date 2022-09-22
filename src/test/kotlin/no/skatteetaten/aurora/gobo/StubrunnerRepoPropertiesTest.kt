@@ -3,8 +3,9 @@ package no.skatteetaten.aurora.gobo
 import assertk.Assert
 import assertk.assertThat
 import assertk.assertions.support.expected
+import io.mockk.every
+import io.mockk.mockk
 import org.junit.jupiter.api.Test
-import org.junitpioneer.jupiter.SetEnvironmentVariable
 import org.springframework.test.context.DynamicPropertyRegistry
 import java.util.function.Supplier
 
@@ -27,10 +28,12 @@ class StubrunnerRepoPropertiesTest {
     }
 
     @Test
-    @SetEnvironmentVariable(key = "CI", value = "true")
     fun `Populate stubrunner properties from jenkins`() {
+        val env = mockk<SystemEnv>()
+        every { env.get("CI") } returns "true"
+
         val registry = TestDynamicPropertyRegistry()
-        StubrunnerRepoProperties(registry).populate(jenkinsNexusJson = "src/test/resources/nexus.json")
+        StubrunnerRepoProperties(registry, env).populate(jenkinsNexusJson = "src/test/resources/nexus.json")
 
         assertThat(registry).hasStubrunnerProperties()
     }

@@ -37,7 +37,8 @@ class QueryReporter(
         .evictionListener { id: String?, query: QueryOperation?, _ ->
             if (id != null && query != null) {
                 logger.warn {
-                    """Unfinished query, Query-Korrelasjonsid=${query.korrelasjonsid} Query-TraceId="${query.traceid}" Query-Klientid="${query.klientid}" started="${query.started}" name=${query.name} query="${query.query}" """
+                    """Unfinished query, Query-Korrelasjonsid=${query.korrelasjonsid} Query-TraceId="${query.traceid}" Query-Klientid="${query.klientid}"
+                        | started="${query.started}" name=${query.name} query="${query.query}" """.trimMargin()
                 }
                 unfinishedQueries.put(id, query)
             }

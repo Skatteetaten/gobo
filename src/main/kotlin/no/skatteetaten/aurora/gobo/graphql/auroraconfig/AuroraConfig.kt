@@ -4,11 +4,11 @@ import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
 import com.fasterxml.jackson.databind.JsonNode
 import com.jayway.jsonpath.JsonPath
 import graphql.schema.DataFetchingEnvironment
-import kotlinx.coroutines.runBlocking
 import no.skatteetaten.aurora.gobo.graphql.applicationdeployment.ApplicationDeploymentRef
 import no.skatteetaten.aurora.gobo.graphql.loadValue
 import no.skatteetaten.aurora.gobo.integration.boober.AuroraConfigFileType
 import no.skatteetaten.aurora.gobo.security.checkValidUserToken
+import no.skatteetaten.aurora.gobo.security.runBlockingWithTimeout
 import java.util.concurrent.CompletableFuture
 
 data class AuroraConfig(
@@ -35,7 +35,7 @@ data class AuroraConfig(
         applicationDeploymentRefs: List<ApplicationDeploymentRef>,
         dfe: DataFetchingEnvironment
     ): CompletableFuture<List<ApplicationDeploymentSpec>> {
-        runBlocking { dfe.checkValidUserToken() } // TODO bør fikses med @PreAuthorize?
+        runBlockingWithTimeout { dfe.checkValidUserToken() } // TODO bør fikses med @PreAuthorize?
         return dfe.loadValue(
             AdSpecKey(
                 name,
@@ -50,7 +50,7 @@ data class AuroraConfig(
         types: List<AuroraConfigFileType>? = null,
         dfe: DataFetchingEnvironment
     ): CompletableFuture<List<ApplicationFilesResource>> {
-        runBlocking { dfe.checkValidUserToken() } // TODO bør fikses med @PreAuthorize?
+        runBlockingWithTimeout { dfe.checkValidUserToken() } // TODO bør fikses med @PreAuthorize?
         return dfe.loadValue(
             ApplicationFilesKey(
                 name,
@@ -97,21 +97,21 @@ data class AuroraConfigFileResource(
 
 data class NewAuroraConfigFileInput(
     val auroraConfigName: String,
-    val auroraConfigReference: String?,
+    val auroraConfigReference: String? = null,
     val fileName: String,
     val contents: String
 )
 
 data class UpdateAuroraConfigFileInput(
     val auroraConfigName: String,
-    val auroraConfigReference: String?,
+    val auroraConfigReference: String? = null,
     val fileName: String,
     val contents: String,
     val existingHash: String
 )
 
 data class AuroraConfigFileValidationResponse(
-    val message: String?,
+    val message: String? = null,
     val success: Boolean,
     val file: AuroraConfigFileResource? = null
 )

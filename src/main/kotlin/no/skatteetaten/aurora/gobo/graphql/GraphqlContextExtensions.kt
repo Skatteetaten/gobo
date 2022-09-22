@@ -3,6 +3,7 @@ package no.skatteetaten.aurora.gobo.graphql
 import brave.baggage.BaggageField
 import graphql.GraphQLContext
 import graphql.schema.DataFetchingEnvironment
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.reactive.awaitFirst
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.graphql.errorhandling.isInvalidToken
@@ -52,6 +53,9 @@ fun GraphQLContext.addStartTime() {
 }
 val GraphQLContext.startTime: Long
     get() = get("startTime")
+
+val GraphQLContext.coroutineScope: CoroutineScope
+    get() = get("coroutineScope")
 
 /**
  * Get the operation name defined in mutation/query.
