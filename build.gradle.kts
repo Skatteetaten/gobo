@@ -16,6 +16,8 @@ aurora {
 }
 
 dependencies {
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-debug:1.6.4")
+
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:1.6.4")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
 
@@ -41,7 +43,7 @@ dependencies {
     implementation("com.jayway.jsonpath:json-path:2.7.0")
     implementation("io.projectreactor.addons:reactor-extra:3.4.8")
     implementation("no.skatteetaten.aurora.kubernetes:kubernetes-reactor-coroutines-client:1.3.32")
-    implementation("no.skatteetaten.aurora.springboot:aurora-spring-security-starter:1.14.0")
+    implementation("no.skatteetaten.aurora.springboot:aurora-spring-security-starter:1.14.1")
 
     testImplementation("com.h2database:h2")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
