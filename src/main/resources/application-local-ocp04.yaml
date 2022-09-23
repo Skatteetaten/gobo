@@ -55,7 +55,7 @@ management:
     endpoints:
         web:
             exposure:
-                include: info,health,prometheus,env,loggers,metrics,liveness
+                include: info,health,prometheus,env,loggers,metrics,liveness,threaddump
 
 openshift:
     cluster: local
@@ -69,6 +69,9 @@ gobo:
             operationend: true
     graphqlUsage:
         fixedDelay: "60000" # every 60 seconds
+    coroutines:
+        debug:
+            enabled: true
 
 logging.level.no.skatteetaten.aurora.gobo.security: INFO
 logging.level.no.skatteetaten.aurora.gobo: INFO

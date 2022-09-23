@@ -3,6 +3,8 @@ package no.skatteetaten.aurora.gobo
 import io.netty.channel.ChannelOption
 import io.netty.channel.epoll.EpollChannelOption
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.debug.DebugProbes
 import mu.KotlinLogging
 import no.skatteetaten.aurora.gobo.infrastructure.ConditionalOnDatabaseUrl
 import no.skatteetaten.aurora.gobo.infrastructure.ConditionalOnMissingDatabaseUrl
@@ -37,6 +39,7 @@ import reactor.netty.resources.ConnectionProvider
 import reactor.netty.tcp.DefaultSslContextSpec
 import reactor.netty.tcp.SslProvider
 import java.time.Duration
+import javax.annotation.PostConstruct
 
 enum class ServiceTypes {
     MOKEY, BOOBER, UNCLEMATT, CANTUS, DBH, SKAP, HERKIMER, NAGHUB, GAVEL, PHIL, TOXI_PROXY, SPOTLESS
@@ -90,9 +93,18 @@ class ApplicationConfig(
     @Value("\${gobo.webclient.response-timeout:60000}") val responseTimeout: Long,
     @Value("\${gobo.webclient.maxLifeTime:150000}") val maxLifeTime: Long,
     @Value("\${gobo.webclient.maxConnections:64}") val maxConnections: Int,
-    @Value("\${spring.application.name}") val applicationName: String,
-    private val sharedSecretReader: SharedSecretReader
+    @Value("\${gobo.coroutines.debug.enabled:false}") val coroutinesDebug: Boolean,
+    private val sharedSecretReader: SharedSecretReader,
 ) {
+
+    @PostConstruct
+    fun initCoroutinesDebug() {
+        if (coroutinesDebug) {
+            logger.info("Coroutines debug enabled")
+            @OptIn(ExperimentalCoroutinesApi::class)
+            DebugProbes.install()
+        }
+    }
 
     @Bean
     @ConditionalOnProperty(value = ["management.endpoint.httptrace.enabled"], havingValue = "true")
@@ -182,7 +194,10 @@ class ApplicationConfig(
                 ExchangeFilterFunction.ofRequestProcessor { request ->
                     Mono.just(
                         ClientRequest.from(request)
-                            .header(HttpHeaders.AUTHORIZATION, "Bearer ${psatKubernetesClient.tokenFetcher.token("spotless")}")
+                            .header(
+                                HttpHeaders.AUTHORIZATION,
+                                "Bearer ${psatKubernetesClient.tokenFetcher.token("spotless")}"
+                            )
                             .build()
                     )
                 }
@@ -267,12 +282,16 @@ class ApplicationConfig(
 @Configuration
 @ConditionalOnDatabaseUrl
 class GoboEnableDatabaseAutoConfiguration {
-    init { logger.info { "Database integration enabled" } }
+    init {
+        logger.info { "Database integration enabled" }
+    }
 }
 
 @Configuration
 @ConditionalOnMissingDatabaseUrl
 @EnableAutoConfiguration(exclude = [FlywayAutoConfiguration::class, DataSourceAutoConfiguration::class])
 class GoboDisableDatabaseAutoConfiguration {
-    init { logger.info { "Database integration disabled" } }
+    init {
+        logger.info { "Database integration disabled" }
+    }
 }

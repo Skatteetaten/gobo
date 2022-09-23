@@ -16,6 +16,8 @@ aurora {
 }
 
 dependencies {
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-debug:1.6.4")
+
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:1.6.4")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
 
