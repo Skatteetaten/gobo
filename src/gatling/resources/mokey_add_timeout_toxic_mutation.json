@@ -10,7 +10,7 @@
         "toxics": {
           "name": "timeout_toxic",
           "type": "timeout",
-          "stream": "downstream",
+          "stream": "upstream",
           "toxicity": 0.6,
           "attributes": [
             {
