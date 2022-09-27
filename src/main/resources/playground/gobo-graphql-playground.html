@@ -52,7 +52,10 @@
 <script>window.addEventListener('load', function (event) {
   GraphQLPlayground.init(document.getElementById('root'), {
     endpoint: '/${graphQLEndpoint}',
-    subscriptionEndpoint: '/${subscriptionsEndpoint}'
+    subscriptionEndpoint: '/${subscriptionsEndpoint}',
+    settings: {
+      'schema.polling.interval': 30000
+    }
   })
 })</script>
 </body>
