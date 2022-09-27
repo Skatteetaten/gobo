@@ -77,5 +77,6 @@ logging.level.no.skatteetaten.aurora.gobo.security: INFO
 logging.level.no.skatteetaten.aurora.gobo: INFO
 logging.level.no.skatteetaten.aurora.kubernetes: DEBUG
 logging.level.no.skatteetaten.aurora.springboot: INFO
+logging.level.no.skatteetaten.aurora.springboot.OpenShiftTokenReview: DEBUG
 logging.level.com.expediagroup.graphql.server.spring: WARN
 logging.level.reactor.netty.transport: ERROR
