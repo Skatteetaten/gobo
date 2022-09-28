@@ -27,7 +27,7 @@ val GraphQLContext.token: String
     get() = get<String>("token").ifEmpty { throw AccessDeniedException("Token is not set") }
 
 val GraphQLContext.securityContext: Mono<SecurityContext>
-    get() = get("securityContext")
+    get() = get<Mono<SecurityContext>?>("securityContext").cache()
 
 @OptIn(ExperimentalCoroutinesApi::class)
 suspend fun GraphQLContext.awaitSecurityContext(): SecurityContext {
