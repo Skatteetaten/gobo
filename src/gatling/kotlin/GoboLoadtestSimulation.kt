@@ -81,8 +81,8 @@ class GoboLoadtestSimulation : Simulation() {
     init {
         setUp(
             listOf(
-                deleteToxics.injectOpen(rampUsers(1).during(10)),
-                addToxics.injectOpen(nothingFor(Duration.ofSeconds(10)), rampUsers(1).during(10)),
+                // deleteToxics.injectOpen(rampUsers(1).during(10)),
+                // addToxics.injectOpen(nothingFor(Duration.ofSeconds(10)), rampUsers(1).during(10)),
                 databaseSchemaScenario.injectOpen(nothingFor(Duration.ofSeconds(20)), rampUsersPerSec(1.0).to(6.0).during(Duration.ofMinutes(15)))
             ),
         ).protocols(httpProtocol)

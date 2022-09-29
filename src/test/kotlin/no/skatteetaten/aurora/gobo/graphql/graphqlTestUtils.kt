@@ -61,6 +61,24 @@ fun WebTestClient.queryGraphQL(
         .body(BodyInserters.fromValue(query))
         .exchange()
 }
+fun WebTestClient.queryGraphQL(
+    query: String,
+    variables: Map<String, *> = emptyMap<String, String>(),
+    token: String? = null
+): WebTestClient.ResponseSpec {
+    val query = createQuery(query, variables)
+    val requestSpec = this.post().uri("/graphql")
+        .header(HttpHeaders.CONTENT_TYPE, "application/json")
+        .header(KORRELASJONSID_FIELD, "unit-test")
+        .header(KLIENTID_FIELD, "gobo")
+    token?.let {
+        requestSpec.header(HttpHeaders.AUTHORIZATION, "Bearer $token")
+    }
+
+    return requestSpec
+        .body(BodyInserters.fromValue(query))
+        .exchange()
+}
 
 fun WebTestClient.BodyContentSpec.printResult() {
     this.returnResult().responseBody?.let {
