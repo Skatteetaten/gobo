@@ -2,7 +2,6 @@ package no.skatteetaten.aurora.gobo.graphql.loadtest
 
 import java.io.File
 import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Import
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
@@ -26,7 +25,6 @@ import no.skatteetaten.aurora.gobo.integration.skap.WebsealService
 import no.skatteetaten.aurora.gobo.integration.spotless.SpotlessCnameService
 import no.skatteetaten.aurora.gobo.service.AffiliationService
 import no.skatteetaten.aurora.gobo.service.WebsealAffiliationService
-import okhttp3.mockwebserver.MockWebServer
 
 @Import(
     AffiliationQuery::class,
@@ -36,7 +34,6 @@ import okhttp3.mockwebserver.MockWebServer
     StorageGridObjectAreaDataLoader::class,
     CnameAzureDataLoader::class,
     CnameInfoDataLoader::class,
-    // GoboLoadtestSimulationQueryTest.TestConfig::class
 )
 class GoboLoadtestSimulationQueryTest : GraphQLTestWithDbhAndSkap() {
 
@@ -60,15 +57,6 @@ class GoboLoadtestSimulationQueryTest : GraphQLTestWithDbhAndSkap() {
 
     @MockkBean
     private lateinit var cnameService: CnameService
-
-    @Autowired
-    private lateinit var server: MockWebServer
-
-    // @TestConfiguration
-    // class TestConfig {
-    //     @Bean
-    //     fun server() = MockWebServer()
-    // }
 
     data class QueryContent(
         var operationName: String?,
@@ -116,7 +104,7 @@ class GoboLoadtestSimulationQueryTest : GraphQLTestWithDbhAndSkap() {
 
     private fun getQueryContent(jsonFilename: String): QueryContent {
         val jsonFile = File(jsonFilename)
-        val deploymentSpec: QueryContent = jacksonObjectMapper().readValue(jsonFile)
-        return deploymentSpec
+        val queryContent: QueryContent = jacksonObjectMapper().readValue(jsonFile)
+        return queryContent
     }
 }

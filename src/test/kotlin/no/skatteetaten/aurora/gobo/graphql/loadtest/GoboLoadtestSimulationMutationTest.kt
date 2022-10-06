@@ -6,7 +6,6 @@ import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithDbhAndSkap
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.ninjasquad.springmockk.MockkBean
-import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
 import no.skatteetaten.aurora.gobo.graphql.toxiproxy.AddOrUpdateToxiProxyInput
 import no.skatteetaten.aurora.gobo.graphql.toxiproxy.DeleteToxiProxyToxicsInput
 import no.skatteetaten.aurora.gobo.graphql.toxiproxy.ToxiProxyInput
@@ -51,15 +50,15 @@ class GoboLoadtestSimulationMutationTest : GraphQLTestWithDbhAndSkap() {
     fun `add delay toxic on toxi-proxy`() {
 
         testJsonDeserialize()
-        val queryContent = getQueryContent("src/gatling/resources/mokey_add_delay_toxic_mutation_ENDRET.json")
-
-        // val input = deserializeAddOrUpdateToxiProxyInput(queryContent.variables)
-        val addToxiProxyToxicsInput = getAddOrUpdateToxiProxyToxicsInput()
-
-        webTestClient.queryGraphQL(queryContent.query, addToxiProxyToxicsInput, "test-token")
-            .expectStatus().isOk
-            .expectBody()
-        println()
+        // val queryContent = getQueryContent("src/gatling/resources/mokey_add_delay_toxic_mutation_ENDRET.json")
+        //
+        // // val input = deserializeAddOrUpdateToxiProxyInput(queryContent.variables)
+        // val addToxiProxyToxicsInput = getAddOrUpdateToxiProxyToxicsInput()
+        //
+        // webTestClient.queryGraphQL(queryContent.query, addToxiProxyToxicsInput, "test-token")
+        //     .expectStatus().isOk
+        //     .expectBody()
+        // println()
         // .graphqlDataWithPrefix("addToxiProxyToxic") {
         //     graphqlData("toxiProxyName").isEqualTo(TOXY_PROXY_NAME)
         //     graphqlData("toxicName").isEqualTo(TOXIC_NAME)
@@ -136,7 +135,7 @@ class GoboLoadtestSimulationMutationTest : GraphQLTestWithDbhAndSkap() {
         // println(movie)
 
         val jsonTest = """{"affiliation":"aup","environment":"utv01","application":"m78879-gobo9.2","toxiProxy":""fghfg}"""
-        var movie = jacksonObjectMapper().readValue<AddOrUpdateToxiProxyInput>(jsonTest)
-        println(movie)
+        var queryContent = jacksonObjectMapper().readValue<AddOrUpdateToxiProxyInput>(jsonTest)
+        println(queryContent)
     }
 }
