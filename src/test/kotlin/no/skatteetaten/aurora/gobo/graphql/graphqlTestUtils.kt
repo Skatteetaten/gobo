@@ -34,6 +34,16 @@ fun createQuery(query: String, variables: Map<String, *> = emptyMap<String, Stri
 }
 
 fun WebTestClient.queryGraphQL(
+    queryString: String,
+    input: Any,
+    token: String? = null
+) = queryGraphQL(
+    queryString,
+    mapOf("input" to jacksonObjectMapper().convertValue<Map<String, Any>>(input)),
+    token
+)
+
+fun WebTestClient.queryGraphQL(
     queryResource: Resource,
     input: Any,
     token: String? = null
