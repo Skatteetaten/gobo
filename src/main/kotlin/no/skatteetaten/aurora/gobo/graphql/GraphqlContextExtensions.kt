@@ -18,6 +18,7 @@ import org.springframework.security.access.AccessDeniedException
 import org.springframework.security.core.context.SecurityContext
 import org.springframework.web.reactive.function.server.ServerRequest
 import reactor.core.publisher.Mono
+import java.time.Duration
 
 private val logger = KotlinLogging.logger {}
 
@@ -27,7 +28,7 @@ val GraphQLContext.token: String
     get() = get<String>("token").ifEmpty { throw AccessDeniedException("Token is not set") }
 
 val GraphQLContext.securityContext: Mono<SecurityContext>
-    get() = get<Mono<SecurityContext>?>("securityContext").cache()
+    get() = get<Mono<SecurityContext>>("securityContext").cache(Duration.ofMinutes(3))
 
 @OptIn(ExperimentalCoroutinesApi::class)
 suspend fun GraphQLContext.awaitSecurityContext(): SecurityContext {
