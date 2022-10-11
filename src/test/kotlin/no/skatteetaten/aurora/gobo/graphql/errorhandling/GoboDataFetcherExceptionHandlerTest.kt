@@ -17,6 +17,7 @@ import no.skatteetaten.aurora.gobo.graphql.query
 import no.skatteetaten.aurora.gobo.integration.SourceSystemException
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CompletionException
+import no.skatteetaten.aurora.gobo.graphql.startTime
 
 class GoboDataFetcherExceptionHandlerTest {
     private val exceptionHandler = GoboDataFetcherExceptionHandler("http://boober", false)
@@ -24,6 +25,7 @@ class GoboDataFetcherExceptionHandlerTest {
         every { korrelasjonsid } returns "abc123"
         every { klientid } returns "test-client"
         every { query } returns "{ }"
+        every { startTime } returns System.currentTimeMillis()
     }
 
     @Test
@@ -34,9 +36,9 @@ class GoboDataFetcherExceptionHandlerTest {
             .exception(GoboException("test exception"))
             .build()
 
-        val exceptions = exceptionHandler.onException(handlerParameters)
-        assertThat(exceptions.errors).hasSize(1)
-        assertThat(exceptions.errors.first()).isInstanceOf(GraphQLExceptionWrapper::class)
+        val exceptions = exceptionHandler.handleException(handlerParameters)
+        assertThat(exceptions.get().errors.size).equals(1)
+        assertThat(exceptions.get().errors.first()).isInstanceOf(GraphQLExceptionWrapper::class)
     }
 
     @Test
@@ -47,8 +49,8 @@ class GoboDataFetcherExceptionHandlerTest {
             .exception(CompletionException(IntegrationDisabledException("test exception")))
             .build()
 
-        val exceptions = exceptionHandler.onException(handlerParameters)
-        val first = exceptions.errors.first() as ExceptionWhileDataFetching
+        val exceptions = exceptionHandler.handleException(handlerParameters)
+        val first = exceptions.get().errors.first() as ExceptionWhileDataFetching
         assertThat(first.exception).isInstanceOf(IntegrationDisabledException::class)
     }
 
@@ -60,9 +62,9 @@ class GoboDataFetcherExceptionHandlerTest {
             .exception(Exception("test exception"))
             .build()
 
-        val exceptions = exceptionHandler.onException(handlerParameters)
-        assertThat(exceptions.errors).hasSize(1)
-        assertThat(exceptions.errors.first()).isInstanceOf(GraphQLExceptionWrapper::class)
+        val exceptions = exceptionHandler.handleException(handlerParameters)
+        assertThat(exceptions.get().errors.size).equals(1)
+        assertThat(exceptions.get().errors.first()).isInstanceOf(GraphQLExceptionWrapper::class)
     }
 
     @Test

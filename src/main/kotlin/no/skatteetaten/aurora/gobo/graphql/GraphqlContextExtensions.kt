@@ -80,6 +80,8 @@ val GraphQLContext.klientid: String?
     get() = request.klientid()
 val GraphQLContext.id: String
     get() = get("id")
+val DataFetchingEnvironment.startTime: Long
+    get() = graphQlContext.startTime
 
 fun GraphQLContext.addStartTime() {
     put("startTime", System.currentTimeMillis())
