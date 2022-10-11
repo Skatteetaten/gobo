@@ -1,5 +1,7 @@
 package no.skatteetaten.aurora.gobo.graphql.errorhandling
 
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.TimeUnit
 import graphql.ExceptionWhileDataFetching
 import graphql.execution.DataFetcherExceptionHandler
 import graphql.execution.DataFetcherExceptionHandlerParameters
@@ -18,6 +20,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClientResponseException
+import no.skatteetaten.aurora.gobo.graphql.startTime
 
 private val logger = KotlinLogging.logger { }
 
@@ -25,13 +28,18 @@ private val logger = KotlinLogging.logger { }
 class GoboDataFetcherExceptionHandler(@Value("\${integrations.boober.url}") private val booberUrl: String, @Value("\${gobo.exception.response.logging.enabled:false}") private val responseLoggingEnabled: Boolean) :
     DataFetcherExceptionHandler {
     override fun onException(handlerParameters: DataFetcherExceptionHandlerParameters?): DataFetcherExceptionHandlerResult {
-        handlerParameters ?: return DataFetcherExceptionHandlerResult.newResult().build()
+        return handleException(handlerParameters).get()
+    }
+
+    override fun handleException(handlerParameters: DataFetcherExceptionHandlerParameters?): CompletableFuture<DataFetcherExceptionHandlerResult> {
+        handlerParameters ?: return CompletableFuture.completedFuture(DataFetcherExceptionHandlerResult.newResult().build())
 
         val graphqlException = handlerParameters.handleIntegrationDisabledException()?.let {
             handlerParameters.toExceptionWhileDataFetching(it)
         } ?: handlerParameters.handleGeneralDataFetcherException(booberUrl, responseLoggingEnabled)
 
-        return DataFetcherExceptionHandlerResult.newResult(graphqlException).build()
+        val result = DataFetcherExceptionHandlerResult.newResult(graphqlException).build()
+        return CompletableFuture.supplyAsync { result }.orTimeout(5, TimeUnit.SECONDS)
     }
 }
 
@@ -60,8 +68,12 @@ private fun DataFetcherExceptionHandlerParameters.handleGeneralDataFetcherExcept
         ""
     }
 
+    val timeUsed = System.currentTimeMillis() - dataFetchingEnvironment.graphQlContext.startTime
     val logText =
-        """Exception while fetching data, exception="$exception" Korrelasjonsid="${dataFetchingEnvironment.korrelasjonsid}" Klientid="${dataFetchingEnvironment.klientid}" message="$exceptionName" path="$path" ${dataFetchingEnvironment.query} $source ${exception.logTextRequest()}"""
+        """Exception while fetching data, exception="$exception" Korrelasjonsid="${dataFetchingEnvironment.korrelasjonsid}"
+            | Klientid="${dataFetchingEnvironment.klientid}" message="$exceptionName"
+            |  path="$path" ${dataFetchingEnvironment.query} timeUsed="$timeUsed"
+            |   $source ${exception.logTextRequest()}""".trimMargin()
     if (exception.isWebClientResponseWarnLoggable(booberUrl) || exception.isAccessDenied() || exception.isInvalidToken()) {
         logger.warn(logText)
     } else {
