@@ -20,7 +20,7 @@ const val GUEST_USER_NAME = "Gjestebruker"
 val ANONYMOUS_USER = User(GUEST_USER_ID, GUEST_USER_NAME)
 
 fun <T> runBlockingWithTimeout(block: suspend CoroutineScope.() -> T): T {
-    return runBlocking { withTimeout(5000) { block() } }
+    return runBlocking { withTimeout(3000) { block() } }
 }
 
 suspend fun DataFetchingEnvironment.checkValidUserToken() {

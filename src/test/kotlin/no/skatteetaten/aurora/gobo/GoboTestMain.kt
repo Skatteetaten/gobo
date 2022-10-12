@@ -24,7 +24,7 @@ data class PortForwardInput(val namespace: String, val application: String, val 
 
 @Profile(PROFILE_LOCAL_OCP04)
 @Component
-class MokeyPortForward(val kubernetesClient: KubernetesReactorClient) {
+class GoboPortForward(val kubernetesClient: KubernetesReactorClient) {
 
     private val targetPort = 8080
 
@@ -55,10 +55,9 @@ class MokeyPortForward(val kubernetesClient: KubernetesReactorClient) {
         logger.info { "Connecting to $podName" }
         val forward = PortForward().forward(input.namespace, podName, listOf(targetPort))
         logger.info("Port-forwarding for $podName has started")
-        val server = ServerSocket(input.localPort)
 
         thread {
-            val socket = server.accept()
+            val socket = ServerSocket(input.localPort).accept()
             logger.info("Connected to ${input.application}")
 
             thread {

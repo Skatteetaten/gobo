@@ -30,4 +30,4 @@ abstract class GoboDataLoader<K, V> : KotlinDataLoader<K, V> {
 }
 
 private val BatchLoaderEnvironment.graphqlContext
-    get() = (keyContexts.entries.first().value as GoboGraphQLContext).context
+    get() = (keyContexts.entries.first().value as GraphQLContext)
