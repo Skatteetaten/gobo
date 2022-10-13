@@ -2,14 +2,18 @@ package no.skatteetaten.aurora.gobo.graphql.loadtest
 
 import java.io.File
 import org.junit.jupiter.api.Test
+import org.springframework.context.annotation.Import
+import com.fasterxml.jackson.module.kotlin.convertValue
 import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithDbhAndSkap
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
 import com.ninjasquad.springmockk.MockkBean
+import no.skatteetaten.aurora.gobo.graphql.printResult
+import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
 import no.skatteetaten.aurora.gobo.graphql.toxiproxy.AddOrUpdateToxiProxyInput
 import no.skatteetaten.aurora.gobo.integration.toxiproxy.ToxiProxyToxicService
 import no.skatteetaten.aurora.kubernetes.KubernetesCoroutinesClient
 
+@Import(AddOrUpdateToxiProxyInput::class)
 class GoboLoadtestSimulationMutationTest : GraphQLTestWithDbhAndSkap() {
 
     @MockkBean
@@ -27,36 +31,30 @@ class GoboLoadtestSimulationMutationTest : GraphQLTestWithDbhAndSkap() {
     @Test
     fun `add delay toxic on toxi-proxy`() {
 
-        // testJsonDeserialize()
-        val queryContent = getFileQueryContent("src/gatling/resources/mokey_add_delay_toxic_mutation_ENDRET.json")
-        println(queryContent)
+        val queryValue = getQueryValue("src/gatling/resources/mokey_add_delay_toxic_mutation.json")
+        val addToxiProxyToxicsInput = deserializeAddOrUpdateToxiProxyInput("src/gatling/resources/mokey_add_delay_toxic_mutation.json")
 
-        val input = deserializeAddOrUpdateToxiProxyInput(queryContent.variables)
+        webTestClient.queryGraphQL(queryValue, addToxiProxyToxicsInput, "test-token")
+            .expectStatus().isOk
+            .expectBody()
+            .printResult()
+
+        // .graphqlDataWithPrefix("addToxiProxyToxic") {
+        //     graphqlData("toxiProxyName").isEqualTo(TOXY_PROXY_NAME)
+        //     graphqlData("toxicName").isEqualTo(TOXIC_NAME)
+        // }
+        // .graphqlDoesNotContainErrors()
+        //      val input = deserializeAddOrUpdateToxiProxyInput(queryContent.variables)
     }
 
-    private fun getFileQueryContent(jsonFilename: String): GoboLoadtestSimulationQueryTest.QueryContent {
-        val queryContent: GoboLoadtestSimulationQueryTest.QueryContent = jacksonObjectMapper().readValue(File(jsonFilename))
-        return queryContent
+    private fun deserializeAddOrUpdateToxiProxyInput(jsonFilename: String): AddOrUpdateToxiProxyInput {
+        val fileContentAsJson = jacksonObjectMapper().readTree(File(jsonFilename))
+        val toxiProxyInput = jacksonObjectMapper().convertValue<AddOrUpdateToxiProxyInput>(fileContentAsJson.at("/variables/input"))
+        return toxiProxyInput
     }
 
-    private fun deserializeAddOrUpdateToxiProxyInput(jsonInput: String): AddOrUpdateToxiProxyInput {
-        var input: AddOrUpdateToxiProxyInput = jacksonObjectMapper().readValue(jsonInput)
-        return input
-    }
-
-    data class Movie(
-        var name: String,
-        var studio: String,
-        var rating: Float? = 1f
-    )
-
-    private fun testJsonDeserialize() {
-        // val json = """{"name":"Endgame","studio":"Marvel","rating":9.2}"""
-        // var movie = jacksonObjectMapper().readValue<Movie>(json)
-        // println(movie)
-
-        val jsonTest = """{"affiliation":"aup","environment":"utv01","application":"m78879-gobo9.2","toxiProxy":{name: "mokeyToxic",""fghfg}"""
-        var queryContent = jacksonObjectMapper().readValue<AddOrUpdateToxiProxyInput>(jsonTest)
-        println(queryContent)
+    private fun getQueryValue(jsonFilename: String): String {
+        val fileContentAsJson = jacksonObjectMapper().readTree(File(jsonFilename))
+        return fileContentAsJson.at("/query").asText()
     }
 }
