@@ -3,60 +3,30 @@ package no.skatteetaten.aurora.gobo.graphql.loadtest
 import java.io.File
 import org.junit.jupiter.api.Test
 import org.springframework.context.annotation.Import
+import com.fasterxml.jackson.module.kotlin.convertValue
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.coEvery
 import no.skatteetaten.aurora.gobo.DatabaseSchemaResourceBuilder
 import no.skatteetaten.aurora.gobo.graphql.GraphQLTestWithDbhAndSkap
 import no.skatteetaten.aurora.gobo.graphql.affiliation.AffiliationQuery
-import no.skatteetaten.aurora.gobo.graphql.cname.CnameAzureDataLoader
-import no.skatteetaten.aurora.gobo.graphql.cname.CnameInfoDataLoader
 import no.skatteetaten.aurora.gobo.graphql.database.DatabaseSchemaDataLoader
 import no.skatteetaten.aurora.gobo.graphql.graphqlDataWithPrefix
 import no.skatteetaten.aurora.gobo.graphql.queryGraphQL
-import no.skatteetaten.aurora.gobo.graphql.storagegrid.StorageGridObjectAreaDataLoader
-import no.skatteetaten.aurora.gobo.graphql.webseal.WebsealStateDataLoader
 import no.skatteetaten.aurora.gobo.integration.dbh.DatabaseService
-import no.skatteetaten.aurora.gobo.integration.gavel.CnameService
-import no.skatteetaten.aurora.gobo.integration.mokey.ApplicationService
-import no.skatteetaten.aurora.gobo.integration.mokey.StorageGridObjectAreasService
-import no.skatteetaten.aurora.gobo.integration.skap.WebsealService
-import no.skatteetaten.aurora.gobo.integration.spotless.SpotlessCnameService
 import no.skatteetaten.aurora.gobo.service.AffiliationService
-import no.skatteetaten.aurora.gobo.service.WebsealAffiliationService
 
 @Import(
     AffiliationQuery::class,
-    WebsealAffiliationService::class,
-    WebsealStateDataLoader::class,
     DatabaseSchemaDataLoader::class,
-    StorageGridObjectAreaDataLoader::class,
-    CnameAzureDataLoader::class,
-    CnameInfoDataLoader::class,
 )
 class GoboLoadtestSimulationQueryTest : GraphQLTestWithDbhAndSkap() {
-
-    @MockkBean
-    private lateinit var applicationService: ApplicationService
 
     @MockkBean
     private lateinit var affiliationService: AffiliationService
 
     @MockkBean
-    private lateinit var websealService: WebsealService
-
-    @MockkBean
     private lateinit var databaseService: DatabaseService
-
-    @MockkBean
-    private lateinit var storageGridObjectAreasService: StorageGridObjectAreasService
-
-    @MockkBean
-    private lateinit var spotlessCnameService: SpotlessCnameService
-
-    @MockkBean
-    private lateinit var cnameService: CnameService
 
     data class QueryContent(
         var operationName: String?,
@@ -66,12 +36,10 @@ class GoboLoadtestSimulationQueryTest : GraphQLTestWithDbhAndSkap() {
 
     @Test
     fun `Database schema query used in load test`() {
-        val queryContent: QueryContent = getQueryContent("src/gatling/resources/databaseSchemas_query.json")
-
+        val queryContent: QueryContent = "src/gatling/resources/databaseSchemas_query.json".jsonQueryContent
         coEvery { affiliationService.getAllAffiliationNames() } returns listOf("paas", "demo", "notDeployed")
         coEvery { affiliationService.getAllVisibleAffiliations("test-token") } returns listOf("paas", "demo")
         coEvery { databaseService.getDatabaseSchemas(any()) } returns listOf(DatabaseSchemaResourceBuilder().build())
-
         webTestClient.queryGraphQL(queryContent.query, variables = mapOf("id" to "abc"), token = "test-token")
             .expectStatus().isOk
             .expectBody()
@@ -87,13 +55,10 @@ class GoboLoadtestSimulationQueryTest : GraphQLTestWithDbhAndSkap() {
 
     @Test
     fun `Affiliation query used in load test`() {
-
-        val queryContent: QueryContent = getQueryContent("src/gatling/resources/affiliations.json")
-
+        val queryContent: QueryContent = "src/gatling/resources/affiliations.json".jsonQueryContent
         coEvery { affiliationService.getAllAffiliationNames() } returns listOf("paas", "demo", "notDeployed")
         coEvery { affiliationService.getAllVisibleAffiliations("test-token") } returns listOf("paas", "demo")
         coEvery { databaseService.getDatabaseSchemas(any()) } returns listOf(DatabaseSchemaResourceBuilder().build())
-
         webTestClient.queryGraphQL(queryContent.query, variables = mapOf("id" to "abc"), token = "test-token")
             .expectStatus().isOk
             .expectBody()
@@ -102,9 +67,6 @@ class GoboLoadtestSimulationQueryTest : GraphQLTestWithDbhAndSkap() {
             }
     }
 
-    private fun getQueryContent(jsonFilename: String): QueryContent {
-        val jsonFile = File(jsonFilename)
-        val queryContent: QueryContent = jacksonObjectMapper().readValue(jsonFile)
-        return queryContent
-    }
+    private val String.jsonQueryContent get() =
+        jacksonObjectMapper().convertValue<QueryContent>(jacksonObjectMapper().readTree(File(this)))
 }
