@@ -3,6 +3,7 @@ import io.gatling.javaapi.core.CoreDsl.ElFileBody
 import io.gatling.javaapi.core.CoreDsl.exec
 import io.gatling.javaapi.core.CoreDsl.jsonPath
 import io.gatling.javaapi.core.CoreDsl.nothingFor
+import io.gatling.javaapi.core.CoreDsl.rampUsers
 import io.gatling.javaapi.core.CoreDsl.rampUsersPerSec
 import io.gatling.javaapi.core.CoreDsl.scenario
 import io.gatling.javaapi.core.Simulation
@@ -80,8 +81,8 @@ class GoboLoadtestSimulation : Simulation() {
     init {
         setUp(
             listOf(
-                // deleteToxics.injectOpen(rampUsers(1).during(10)),
-                // addToxics.injectOpen(nothingFor(Duration.ofSeconds(10)), rampUsers(1).during(10)),
+                deleteToxics.injectOpen(rampUsers(1).during(10)),
+                addToxics.injectOpen(nothingFor(Duration.ofSeconds(10)), rampUsers(1).during(10)),
                 databaseSchemaScenario.injectOpen(nothingFor(Duration.ofSeconds(20)), rampUsersPerSec(1.0).to(6.0).during(Duration.ofMinutes(15)))
             ),
         ).protocols(httpProtocol)

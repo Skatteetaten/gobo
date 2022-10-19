@@ -37,25 +37,25 @@ class GoboLoadtestSimulationMutationTest : GraphQLTestWithDbhAndSkap() {
 
     @Test
     fun `verify mutation contents add delay toxic`() {
-        val addToxiProxyToxicsInput = "src/gatling/resources/mokey_add_delay_toxic_mutation.json".jsonCheckFileContentAddToxic
+        val addToxiProxyToxicsInput = "src/gatling/resources/mokey_add_delay_toxic_mutation.json".toJsonType<AddOrUpdateToxiProxyInput>()
         assertThat(addToxiProxyToxicsInput.affiliation).isEqualTo("aup")
         assertThat(addToxiProxyToxicsInput.toxiProxy.toxics.name).isEqualTo("delay_toxic")
     }
     @Test
     fun `verify mutation contents add latency toxic`() {
-        val addToxiProxyToxicsInput = "src/gatling/resources/mokey_add_latency_toxic_mutation.json".jsonCheckFileContentAddToxic
+        val addToxiProxyToxicsInput = "src/gatling/resources/mokey_add_latency_toxic_mutation.json".toJsonType<AddOrUpdateToxiProxyInput>()
         assertThat(addToxiProxyToxicsInput.affiliation).isEqualTo("aup")
         assertThat(addToxiProxyToxicsInput.toxiProxy.toxics.name).isEqualTo("latency_toxic")
     }
     @Test
     fun `verify mutation contents add timeout toxic`() {
-        val addToxiProxyToxicsInput = "src/gatling/resources/mokey_add_timeout_toxic_mutation.json".jsonCheckFileContentAddToxic
+        val addToxiProxyToxicsInput = "src/gatling/resources/mokey_add_timeout_toxic_mutation.json".toJsonType<AddOrUpdateToxiProxyInput>()
         assertThat(addToxiProxyToxicsInput.affiliation).isEqualTo("aup")
         assertThat(addToxiProxyToxicsInput.toxiProxy.toxics.name).isEqualTo("timeout_toxic")
     }
     @Test
     fun `verify mutation contents delete delay toxic`() {
-        val deleteToxiProxyToxicsInput = "src/gatling/resources/mokey_delete_delay_toxic_mutation.json".jsonCheckFileContentDeleteToxic
+        val deleteToxiProxyToxicsInput = "src/gatling/resources/mokey_delete_delay_toxic_mutation.json".toJsonType<DeleteToxiProxyToxicsInput>()
         assertThat(deleteToxiProxyToxicsInput.affiliation).isEqualTo("aup")
         assertThat(deleteToxiProxyToxicsInput.environment).isEqualTo("utv01")
         assertThat(deleteToxiProxyToxicsInput.toxiProxyName).isEqualTo("mokeyToxic")
@@ -63,7 +63,7 @@ class GoboLoadtestSimulationMutationTest : GraphQLTestWithDbhAndSkap() {
     }
     @Test
     fun `verify mutation contents delete latency toxic`() {
-        val deleteToxiProxyToxicsInput = "src/gatling/resources/mokey_delete_latency_toxic_mutation.json".jsonCheckFileContentDeleteToxic
+        val deleteToxiProxyToxicsInput = "src/gatling/resources/mokey_delete_latency_toxic_mutation.json".toJsonType<DeleteToxiProxyToxicsInput>()
         assertThat(deleteToxiProxyToxicsInput.affiliation).isEqualTo("aup")
         assertThat(deleteToxiProxyToxicsInput.environment).isEqualTo("utv01")
         assertThat(deleteToxiProxyToxicsInput.toxiProxyName).isEqualTo("mokeyToxic")
@@ -71,7 +71,7 @@ class GoboLoadtestSimulationMutationTest : GraphQLTestWithDbhAndSkap() {
     }
     @Test
     fun `verify mutation contents delete timeout toxic`() {
-        val deleteToxiProxyToxicsInput = "src/gatling/resources/mokey_delete_timeout_toxic_mutation.json".jsonCheckFileContentDeleteToxic
+        val deleteToxiProxyToxicsInput = "src/gatling/resources/mokey_delete_timeout_toxic_mutation.json".toJsonType<DeleteToxiProxyToxicsInput>()
         assertThat(deleteToxiProxyToxicsInput.affiliation).isEqualTo("aup")
         assertThat(deleteToxiProxyToxicsInput.environment).isEqualTo("utv01")
         assertThat(deleteToxiProxyToxicsInput.toxiProxyName).isEqualTo("mokeyToxic")
@@ -119,9 +119,7 @@ class GoboLoadtestSimulationMutationTest : GraphQLTestWithDbhAndSkap() {
     private val String.jsonInputQuery get() = jacksonObjectMapper().readTree(File(this)).at("/query").asText()
 
     private val String.jsonInputVariables get() = jacksonObjectMapper().readTree(File(this)).at("/variables/input")
-    private val String.jsonCheckFileContentAddToxic get() =
-        jacksonObjectMapper().convertValue<AddOrUpdateToxiProxyInput>(jacksonObjectMapper().readTree(File(this)).at("/variables/input"))
 
-    private val String.jsonCheckFileContentDeleteToxic get() =
-        jacksonObjectMapper().convertValue<DeleteToxiProxyToxicsInput>(jacksonObjectMapper().readTree(File(this)).at("/variables/input"))
+    private inline fun <reified T> String.toJsonType(): T =
+        jacksonObjectMapper().convertValue(jacksonObjectMapper().readTree(File(this)).at("/variables/input"))
 }
