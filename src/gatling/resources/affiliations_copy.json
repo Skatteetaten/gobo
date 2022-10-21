@@ -1,5 +1,0 @@
-  {
-    "operationName": "ff",
-    "variables": "ggg",
-    "query": "{ affiliations(names: [\"aurora\"]) { edges { node { name }}}}"
-  }
