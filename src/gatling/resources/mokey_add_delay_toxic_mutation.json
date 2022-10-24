@@ -22,5 +22,5 @@
       }
     }
   },
-  "query": "mutation addToxiProxyDelayToxic($input: AddOrUpdateToxiProxyInput!) {\n  addToxiProxyToxic(input: $input) {\n    toxiProxyName\n    toxicName\n  }\n}\n"
+  "query": "mutation addToxiProxyDelayToxic($input: AddOrUpdateToxiProxyInput!) {  addToxiProxyToxic(input: $input) {    toxiProxyName    toxicName  }}"
 }

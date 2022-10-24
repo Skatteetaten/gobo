@@ -34,6 +34,16 @@ fun createQuery(query: String, variables: Map<String, *> = emptyMap<String, Stri
 }
 
 fun WebTestClient.queryGraphQL(
+    queryString: String,
+    input: Any,
+    token: String? = null
+) = queryGraphQL(
+    queryString,
+    mapOf("input" to jacksonObjectMapper().convertValue<Map<String, Any>>(input)),
+    token
+)
+
+fun WebTestClient.queryGraphQL(
     queryResource: Resource,
     input: Any,
     token: String? = null
@@ -49,6 +59,24 @@ fun WebTestClient.queryGraphQL(
     token: String? = null
 ): WebTestClient.ResponseSpec {
     val query = createQuery(queryResource, variables)
+    val requestSpec = this.post().uri("/graphql")
+        .header(HttpHeaders.CONTENT_TYPE, "application/json")
+        .header(KORRELASJONSID_FIELD, "unit-test")
+        .header(KLIENTID_FIELD, "gobo")
+    token?.let {
+        requestSpec.header(HttpHeaders.AUTHORIZATION, "Bearer $token")
+    }
+
+    return requestSpec
+        .body(BodyInserters.fromValue(query))
+        .exchange()
+}
+fun WebTestClient.queryGraphQL(
+    query: String,
+    variables: Map<String, *> = emptyMap<String, String>(),
+    token: String? = null
+): WebTestClient.ResponseSpec {
+    val query = createQuery(query, variables)
     val requestSpec = this.post().uri("/graphql")
         .header(HttpHeaders.CONTENT_TYPE, "application/json")
         .header(KORRELASJONSID_FIELD, "unit-test")
